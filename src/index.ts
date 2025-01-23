@@ -8,6 +8,8 @@ export * from './functions/makeConnection';
 export * from './functions/changeAgent';
 export * from './functions/complete';
 export * from './functions/disposeConnection';
+export * from './functions/getRawHistory';
+export * from './functions/getAgentHistory';
 
 export { IAgentSchema } from './interfaces/Agent.interface';
 export { ICompletionSchema } from './interfaces/Completion.interface';

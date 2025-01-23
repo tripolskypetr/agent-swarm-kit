@@ -6,7 +6,7 @@ import * as functools_kit from 'functools-kit';
 import { IPubsubArray } from 'functools-kit';
 import ClientAgent from 'src/client/ClientAgent';
 import IHistory from 'src/interfaces/History.interface';
-import { IModelMessage } from 'src/model/ModelMessage.model';
+import { IModelMessage as IModelMessage$1 } from 'src/model/ModelMessage.model';
 import ClientHistory from 'src/client/ClientHistory';
 import ClientSwarm from 'src/client/ClientSwarm';
 import { ICompletionSchema as ICompletionSchema$1, CompletionName as CompletionName$1 } from 'src/interfaces/Completion.interface';
@@ -58,11 +58,11 @@ declare class AgentConnectionService implements IAgent {
 declare class HistoryConnectionService implements IHistory {
     private readonly loggerService;
     private readonly contextService;
-    getItems: ((clientId: string) => IPubsubArray<IModelMessage>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, IPubsubArray<IModelMessage>>;
+    getItems: ((clientId: string) => IPubsubArray<IModelMessage$1>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, IPubsubArray<IModelMessage$1>>;
     getHistory: ((clientId: string, agentName: string) => ClientHistory) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientHistory>;
-    push: (message: IModelMessage) => Promise<void>;
-    toArrayForAgent: (prompt: string) => Promise<IModelMessage[]>;
-    toArrayForRaw: () => Promise<IModelMessage[]>;
+    push: (message: IModelMessage$1) => Promise<void>;
+    toArrayForAgent: (prompt: string) => Promise<IModelMessage$1[]>;
+    toArrayForRaw: () => Promise<IModelMessage$1[]>;
     dispose: () => Promise<void>;
 }
 
@@ -153,9 +153,9 @@ type THistoryConnectionService = {
 declare class HistoryPublicService implements THistoryConnectionService {
     private readonly loggerService;
     private readonly historyConnectionService;
-    push: (message: IModelMessage, clientId: string, agentName: AgentName$1) => Promise<void>;
-    toArrayForAgent: (prompt: string, clientId: string, agentName: AgentName$1) => Promise<IModelMessage[]>;
-    toArrayForRaw: (clientId: string, agentName: AgentName$1) => Promise<IModelMessage[]>;
+    push: (message: IModelMessage$1, clientId: string, agentName: AgentName$1) => Promise<void>;
+    toArrayForAgent: (prompt: string, clientId: string, agentName: AgentName$1) => Promise<IModelMessage$1[]>;
+    toArrayForRaw: (clientId: string, agentName: AgentName$1) => Promise<IModelMessage$1[]>;
     dispose: (clientId: string, agentName: AgentName$1) => Promise<void>;
 }
 
@@ -215,6 +215,8 @@ declare class SessionValidationService {
     private readonly loggerService;
     private _sessionMap;
     addSession: (clientId: SessionId, swarmName: SwarmName) => void;
+    getSessionList: () => string[];
+    getSwarm: (clientId: SessionId) => string;
     removeSession: (clientId: SessionId) => void;
 }
 
@@ -274,6 +276,24 @@ declare const complete: (content: string, clientId: string, swarmName: SwarmName
 
 declare const disposeConnection: (clientId: string, swarmName: SwarmName) => Promise<void>;
 
+interface IModelMessage {
+    role: 'assistant' | 'system' | 'tool' | 'user' | 'resque';
+    agentName: string;
+    content: string;
+    tool_calls?: {
+        function: {
+            name: string;
+            arguments: {
+                [key: string]: any;
+            };
+        };
+    }[];
+}
+
+declare const getRawHistory: (clientId: string) => Promise<IModelMessage[]>;
+
+declare const getAgentHistory: (clientId: string, agentName: AgentName$1) => Promise<IModelMessage[]>;
+
 interface ITool {
     type: string;
     function: {
@@ -294,7 +314,7 @@ interface ITool {
 }
 
 interface ICompletionSchema {
-    getCompletion(messages: IModelMessage[], tools?: ITool$1[]): Promise<IModelMessage>;
+    getCompletion(messages: IModelMessage$1[], tools?: ITool$1[]): Promise<IModelMessage$1>;
 }
 type CompletionName = string;
 
@@ -326,4 +346,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type ISwarmSchema, type ReceiveMessageFn, type SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, complete, disposeConnection, makeConnection, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type ISwarmSchema, type ReceiveMessageFn, type SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, complete, disposeConnection, getAgentHistory, getRawHistory, makeConnection, setConfig, swarm };
