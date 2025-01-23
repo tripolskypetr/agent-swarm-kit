@@ -20,10 +20,6 @@ export class SwarmSchemaService {
         return this.registry.get(key);
     };
 
-    public dispose = () => {
-        this.loggerService.log(`swarmSchemaService dispose`);
-        this.registry = new ToolRegistry("swarmSchemaService");
-    };
 }
 
 export default SwarmSchemaService;

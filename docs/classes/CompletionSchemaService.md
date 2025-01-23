@@ -31,9 +31,3 @@ register: (key: string, value: ICompletionSchema) => void
 ```ts
 get: (key: string) => ICompletionSchema
 ```
-
-### dispose
-
-```ts
-dispose: () => void
-```

@@ -20,10 +20,6 @@ export class ToolSchemaService {
         return this.registry.get(key);
     };
 
-    public dispose = () => {
-        this.loggerService.log(`toolSchemaService dispose`);
-        this.registry = new ToolRegistry("toolSchemaService");
-    };
 }
 
 export default ToolSchemaService;

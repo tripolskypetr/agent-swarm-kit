@@ -31,9 +31,3 @@ register: (key: string, value: IAgentSchema) => void
 ```ts
 get: (key: string) => IAgentSchema
 ```
-
-### dispose
-
-```ts
-dispose: () => void
-```

@@ -31,9 +31,3 @@ register: (key: string, value: ISwarmSchema) => void
 ```ts
 get: (key: string) => ISwarmSchema
 ```
-
-### dispose
-
-```ts
-dispose: () => void
-```

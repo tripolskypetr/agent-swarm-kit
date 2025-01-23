@@ -20,11 +20,6 @@ export class AgentSchemaService {
         return this.registry.get(key);
     };
 
-    public dispose = () => {
-        this.loggerService.log(`agentSchemaService dispose`);
-        this.registry = new ToolRegistry("agentSchemaService");
-    };
-
 }
 
 export default AgentSchemaService;

@@ -186,7 +186,6 @@ declare class AgentSchemaService {
     private registry;
     register: (key: AgentName, value: IAgentSchema) => void;
     get: (key: AgentName) => IAgentSchema;
-    dispose: () => void;
 }
 
 declare class ToolSchemaService {
@@ -194,7 +193,6 @@ declare class ToolSchemaService {
     private registry;
     register: (key: ToolName, value: IAgentTool) => void;
     get: (key: ToolName) => IAgentTool;
-    dispose: () => void;
 }
 
 declare class ClientSwarm implements ISwarm {
@@ -225,7 +223,6 @@ declare class SwarmSchemaService {
     private registry;
     register: (key: SwarmName, value: ISwarmSchema) => void;
     get: (key: SwarmName) => ISwarmSchema;
-    dispose: () => void;
 }
 
 declare class CompletionSchemaService {
@@ -233,7 +230,6 @@ declare class CompletionSchemaService {
     private registry;
     register: (key: string, value: ICompletionSchema) => void;
     get: (key: string) => ICompletionSchema;
-    dispose: () => void;
 }
 
 interface IIncomingMessage {
@@ -432,7 +428,7 @@ declare const addTool: (toolSchema: IAgentTool) => void;
 
 declare const makeConnection: (connector: SendMessageFn, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
 
-declare const changeAgent: (agentName: AgentName, clientId: string, swarmName: SwarmName) => Promise<void>;
+declare const changeAgent: (agentName: AgentName, clientId: string) => Promise<void>;
 
 declare const complete: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
 

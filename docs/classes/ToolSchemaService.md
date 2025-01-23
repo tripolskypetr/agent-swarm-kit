@@ -31,9 +31,3 @@ register: (key: string, value: IAgentTool<Record<string, unknown>>) => void
 ```ts
 get: (key: string) => IAgentTool<Record<string, unknown>>
 ```
-
-### dispose
-
-```ts
-dispose: () => void
-```
