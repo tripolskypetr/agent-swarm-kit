@@ -13,8 +13,7 @@ export class ClientSwarm implements ISwarm {
     this.params.logger.debug("BaseConnection waitForOutput");
     const START_TIME = Date.now();
     while (true) {
-      const elapsedTime = Date.now() - START_TIME;
-      if (elapsedTime >= GLOBAL_CONFIG.CC_ANSWER_TIMEOUT_SECONDS) {
+      if (Date.now() - START_TIME >= GLOBAL_CONFIG.CC_ANSWER_TIMEOUT_SECONDS) {
         throw new Error(
           `agent-swarm ClientSwarm waitForOutput timeout reached for ${this.params.swarmName}`
         );
