@@ -32,7 +32,9 @@
     "url": "https://github.com/react-declarative/react-declarative/issues"
   },
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "build:docs": "rimraf docs && mkdir docs && node ./scripts/dts-docs.cjs ./types.d.ts ./docs",
+    "docs:gpt": "node ./scripts/gpt-docs.mjs"
   },
   "main": "build/index.cjs",
   "module": "build/index.mjs",
@@ -49,10 +51,14 @@
     "@types/lodash-es": "4.17.12",
     "@types/node": "22.9.0",
     "@types/xml2js": "0.4.14",
+    "rimraf": "6.0.1",
     "rollup": "3.29.5",
+    "glob": "11.0.1",
+    "gpt4all": "4.0.0",
     "rollup-plugin-dts": "6.1.1",
     "rollup-plugin-peer-deps-external": "2.2.4",
-    "tslib": "2.7.0"
+    "tslib": "2.7.0",
+    "worker-testbed": "1.0.8"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
