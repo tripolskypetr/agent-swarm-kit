@@ -24,11 +24,20 @@ const publicServices = {
     swarmPublicService: Symbol('swarmPublicService'),
 };
 
+const schemaServices = {
+    agentSchemaService: Symbol('agentSchemaService'),
+    toolSchemaService: Symbol('toolSchemaService'),
+    sessionSchemaService: Symbol('sessionSchemaService'),
+    swarmSchemaService: Symbol('swarmSchemaService'),
+    completionSchemaService: Symbol('completionSchemaService'),
+};
+
 export const TYPES = {
     ...baseServices,
     ...specServices,
     ...connectionServices,
     ...publicServices,
+    ...schemaServices,
 }
 
 export default TYPES;

@@ -1,22 +1,21 @@
 import { ToolRegistry } from "functools-kit";
-import { IAgentSpec } from "src/interfaces/Agent.interface";
 import { inject } from "src/lib/core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "src/lib/core/types";
-import { ISwarmSpec } from "src/interfaces/Swarm.interface";
+import { ISwarmSpec, SwarmName } from "src/interfaces/Swarm.interface";
 
 export class SwarmSpecService {
 
     readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-    private registry = new ToolRegistry<Record<string, ISwarmSpec>>("swarmSpecService");
+    private registry = new ToolRegistry<Record<SwarmName, ISwarmSpec>>("swarmSpecService");
 
-    public register = (key: string, value: IAgentSpec) => {
+    public register = (key: SwarmName, value: ISwarmSpec) => {
         this.loggerService.log(`swarmSpecService register`, { key });
         this.registry = this.registry.register(key, value);
     };
 
-    public get = (key: string): ISwarmSpec => {
+    public get = (key: SwarmName): ISwarmSpec => {
         this.loggerService.log(`swarmSpecService get`, { key });
         return this.registry.get(key);
     };

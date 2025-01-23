@@ -1,6 +1,6 @@
 import { ToolRegistry } from "functools-kit";
 
-import { IAgentToolSignature } from "src/interfaces/Agent.interface";
+import { IAgentTool, ToolName } from "src/interfaces/Agent.interface";
 
 import LoggerService from "../base/LoggerService";
 import { inject } from "src/lib/core/di";
@@ -10,14 +10,14 @@ export class ToolSpecService {
 
     private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-    private registry = new ToolRegistry<Record<string, IAgentToolSignature>>("toolSpecService");
+    private registry = new ToolRegistry<Record<ToolName, IAgentTool>>("toolSpecService");
 
-    public register = (key: string, value: IAgentToolSignature) => {
+    public register = (key: ToolName, value: IAgentTool) => {
         this.loggerService.log('toolSpecService register');
         this.registry = this.registry.register(key, value);
     };
 
-    public get = (key: string): IAgentToolSignature => {
+    public get = (key: ToolName): IAgentTool => {
         this.loggerService.log('toolSpecService get', { key });
         return this.registry.get(key);
     };

@@ -105,8 +105,8 @@ export class ClientAgent implements IAgent {
     );
     const messages = await this.params.history.toArrayForAgent(this.params.prompt);
     return await this.params.completion.getCompletion(
-      messages.map((message) => omit(message, "agentName")),
-      this.params.tools?.map((t) => omit(t, "implementation"))
+      messages,
+      this.params.tools?.map((t) => omit(t, "implementation", "call"))
     );
   };
 
@@ -171,7 +171,7 @@ export class ClientAgent implements IAgent {
         }
         if (
           await not(
-            targetFn.validate(this.params.agentName, tool.function.arguments)
+            targetFn.validate(this.params.clientId, this.params.agentName, tool.function.arguments)
           )
         ) {
           this.params.logger.debug(
@@ -189,9 +189,9 @@ export class ClientAgent implements IAgent {
           return;
         }
         /**
-         * @description Do not await to await deadlock! The tool can send the message to the agent by emulating user messages
+         * @description Do not await to avoid deadlock! The tool can send the message to other agents by emulating user messages
          */
-        targetFn.implementation(this.params.clientId, this.params.agentName, tool.function.arguments);
+        targetFn.call(this.params.clientId, this.params.agentName, tool.function.arguments);
         this.params.logger.debug(
           `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call executing`
         );

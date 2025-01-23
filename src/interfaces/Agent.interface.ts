@@ -1,24 +1,11 @@
 import IHistory from "./History.interface";
 import { ILogger } from "./Logger.interface";
 import { ITool } from "../model/Tool.model";
-import { ICompletion } from "./Completion.interface";
+import { CompletionName, ICompletion } from "./Completion.interface";
 
-export interface IAgentTool<T = Record<string, unknown>> {
-  call(agentName: AgentName, params: T): Promise<void>;
-  validate(agentName: AgentName, params: T): Promise<boolean> | boolean;
-  getToolSignature(): IAgentToolSignature<T>;
-}
-
-export interface IAgentToolSignature<T = Record<string, unknown>>
-  extends ITool,
-    Omit<
-      IAgentTool<T>,
-      keyof {
-        call: never;
-        getToolSignature: never;
-      }
-    > {
-  implementation(clientId: string, agentName: AgentName, params: T): Promise<void>;
+export interface IAgentTool<T = Record<string, unknown>> extends ITool {
+  call(clientId: string, agentName: AgentName, params: T): Promise<void>;
+  validate(clientId: string, agentName: AgentName, params: T): Promise<boolean> | boolean;
 }
 
 export interface IAgentParams extends Omit<IAgentSpec, keyof {
@@ -31,14 +18,14 @@ export interface IAgentParams extends Omit<IAgentSpec, keyof {
   logger: ILogger;
   history: IHistory;
   completion: ICompletion;
-  tools?: IAgentToolSignature[];
+  tools?: IAgentTool[];
   validate: (output: string) => Promise<string | null>;
 }
 
 export interface IAgentSpec {
-  completion: string;
+  completion: CompletionName;
   prompt: string;
-  tools?: string[];
+  tools?: ToolName[];
   validate?: (output: string) => Promise<string | null>;
 }
 
@@ -50,3 +37,5 @@ export interface IAgent {
 }
 
 export type AgentName = string;
+
+export type ToolName = string;

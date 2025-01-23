@@ -17,6 +17,11 @@ import AgentPublicService from "./services/public/AgentPublicService";
 import HistoryPublicService from "./services/public/HistoryPublicService";
 import SessionPublicService from "./services/public/SessionPublicService";
 import SwarmPublicService from "./services/public/SwarmPublicService";
+import AgentSchemaService from "./services/schema/AgentSchemaService";
+import ToolSchemaService from "./services/schema/ToolSchemaService";
+import SessionSchemaService from "./services/schema/SessionSchemaService";
+import SwarmSchemaService from "./services/schema/SwarmSchemaService";
+import CompletionSchemaService from "./services/schema/CompletionSchemaService";
 
 const baseServices = {
   loggerService: inject<LoggerService>(TYPES.loggerService),
@@ -58,11 +63,20 @@ const publicServices = {
   swarmPublicService: inject<SwarmPublicService>(TYPES.swarmPublicService),
 };
 
+const schemaServices = {
+    agentSchemaService: inject<AgentSchemaService>(TYPES.agentSchemaService),
+    toolSchemaService: inject<ToolSchemaService>(TYPES.toolSchemaService),
+    sessionSchemaService: inject<SessionSchemaService>(TYPES.sessionSchemaService),
+    swarmSchemaService: inject<SwarmSchemaService>(TYPES.swarmSchemaService),
+    completionSchemaService: inject<CompletionSchemaService>(TYPES.completionSchemaService),
+};
+
 export const swarm = {
   ...baseServices,
   ...connectionServices,
   ...specServices,
   ...publicServices,
+  ...schemaServices,
 };
 
 init();

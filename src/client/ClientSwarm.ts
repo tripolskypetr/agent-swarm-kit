@@ -1,4 +1,3 @@
-import { Subject } from "functools-kit";
 import { AgentName, IAgent } from "src/interfaces/Agent.interface";
 import ISwarm, { ISwarmParams } from "src/interfaces/Swarm.interface";
 
