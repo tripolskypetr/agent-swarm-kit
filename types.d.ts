@@ -333,6 +333,7 @@ type ToolName = string;
 
 interface ISwarmSchema {
     defaultAgent: AgentName;
+    swarmName: string;
     agentList: string[];
 }
 
@@ -343,6 +344,7 @@ declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
     CC_KEEP_MESSAGES: number;
+    CC_ANSWER_TIMEOUT_SECONDS: number;
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 

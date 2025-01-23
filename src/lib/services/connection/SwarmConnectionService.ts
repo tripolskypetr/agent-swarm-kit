@@ -38,6 +38,7 @@ export class SwarmConnectionService implements ISwarm {
         clientId,
         agentMap,
         defaultAgent,
+        swarmName,
         logger: this.loggerService,
       });
     }

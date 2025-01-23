@@ -11,6 +11,7 @@ export interface ISwarmParams extends Omit<ISwarmSchema, keyof {
 
 export interface ISwarmSchema {
   defaultAgent: AgentName;
+  swarmName: string;
   agentList: string[];
 }
 
