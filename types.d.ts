@@ -1,6 +1,6 @@
 import * as di_scoped from 'di-scoped';
 import * as src_interfaces_Agent_interface from 'src/interfaces/Agent.interface';
-import { AgentName, IAgent, IAgentSpec, IAgentToolSignature } from 'src/interfaces/Agent.interface';
+import { AgentName, IAgent, IAgentSpec, ToolName, IAgentTool } from 'src/interfaces/Agent.interface';
 import ISwarm, { SwarmName, ISwarmSpec } from 'src/interfaces/Swarm.interface';
 import * as functools_kit from 'functools-kit';
 import { IPubsubArray } from 'functools-kit';
@@ -9,9 +9,9 @@ import IHistory from 'src/interfaces/History.interface';
 import { IModelMessage } from 'src/model/ModelMessage.model';
 import ClientHistory from 'src/client/ClientHistory';
 import ClientSwarm from 'src/client/ClientSwarm';
-import { ICompletion } from 'src/interfaces/Completion.interface';
+import { ICompletionSpec, CompletionName } from 'src/interfaces/Completion.interface';
 import ClientSession from 'src/client/ClientSession';
-import { ISession, SendMessageFn, ReceiveMessageFn } from 'src/interfaces/Session.interface';
+import { ISession, SendMessageFn, ReceiveMessageFn, SessionId } from 'src/interfaces/Session.interface';
 
 interface IContext {
     clientId: string;
@@ -67,16 +67,16 @@ declare class HistoryConnectionService implements IHistory {
 declare class AgentSpecService {
     readonly loggerService: LoggerService;
     private registry;
-    register: (key: string, value: IAgentSpec) => void;
-    get: (key: string) => IAgentSpec;
+    register: (key: AgentName, value: IAgentSpec) => void;
+    get: (key: AgentName) => IAgentSpec;
     dispose: () => void;
 }
 
 declare class ToolSpecService {
     private readonly loggerService;
     private registry;
-    register: (key: string, value: IAgentToolSignature) => void;
-    get: (key: string) => IAgentToolSignature;
+    register: (key: ToolName, value: IAgentTool) => void;
+    get: (key: ToolName) => IAgentTool;
     dispose: () => void;
 }
 
@@ -96,16 +96,16 @@ declare class SwarmConnectionService implements ISwarm {
 declare class SwarmSpecService {
     readonly loggerService: LoggerService;
     private registry;
-    register: (key: string, value: IAgentSpec) => void;
-    get: (key: string) => ISwarmSpec;
+    register: (key: SwarmName, value: ISwarmSpec) => void;
+    get: (key: SwarmName) => ISwarmSpec;
     dispose: () => void;
 }
 
 declare class CompletionSpecService {
     readonly loggerService: LoggerService;
     private registry;
-    register: (key: string, value: ICompletion) => void;
-    get: (key: string) => ICompletion;
+    register: (key: string, value: ICompletionSpec) => void;
+    get: (key: string) => ICompletionSpec;
     dispose: () => void;
 }
 
@@ -193,7 +193,50 @@ declare class SwarmPublicService implements TSwarmConnectionService {
     dispose: (clientId: string, swarmName: SwarmName) => Promise<void>;
 }
 
+declare class AgentValidationService {
+    private readonly loggerService;
+    private readonly toolValidationService;
+    private readonly completionValidationService;
+    private _agentMap;
+    addAgent: (agentName: AgentName, agentSpec: IAgentSpec) => void;
+    validate: (agentName: AgentName) => void;
+}
+
+declare class ToolValidationService {
+    private readonly loggerService;
+    private _toolSet;
+    addTool: (toolName: ToolName) => void;
+    validate: (toolName: ToolName) => void;
+}
+
+declare class SessionValidationService {
+    private readonly loggerService;
+    private _sessionMap;
+    addSession: (clientId: SessionId, swarmName: SwarmName) => void;
+    removeSession: (clientId: SessionId) => void;
+}
+
+declare class SwarmValidationService {
+    private readonly loggerService;
+    private readonly agentValidationService;
+    private _swarmMap;
+    addSwarm: (swarmName: SwarmName, swarmSpec: ISwarmSpec) => void;
+    validate: (swarmName: SwarmName) => void;
+}
+
+declare class CompletionValidationService {
+    private readonly loggerService;
+    private _completionSet;
+    addCompletion: (completionName: CompletionName) => void;
+    validate: (completionName: CompletionName) => void;
+}
+
 declare const swarm: {
+    agentValidationService: AgentValidationService;
+    toolValidationService: ToolValidationService;
+    sessionValidationService: SessionValidationService;
+    swarmValidationService: SwarmValidationService;
+    completionValidationService: CompletionValidationService;
     agentPublicService: AgentPublicService;
     historyPublicService: HistoryPublicService;
     sessionPublicService: SessionPublicService;
@@ -212,4 +255,21 @@ declare const swarm: {
     };
 };
 
-export { ContextService, swarm };
+declare const addAgent: (agentName: AgentName, agentSpec: IAgentSpec) => void;
+
+declare const addCompletion: (completionName: CompletionName, completionSpec: ICompletionSpec) => void;
+
+declare const addSwarm: (swarmName: SwarmName, swarmSpec: ISwarmSpec) => void;
+
+declare const addTool: (toolSpec: IAgentTool) => void;
+
+declare const changeAgent: (agentName: AgentName, clientId: string, swarmName: SwarmName) => Promise<void>;
+
+declare const GLOBAL_CONFIG: {
+    CC_TOOL_CALL_EXCEPTION_PROMPT: string;
+    CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
+    CC_KEEP_MESSAGES: number;
+};
+declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
+
+export { ContextService, addAgent, addCompletion, addSwarm, addTool, changeAgent, setConfig, swarm };

@@ -24,12 +24,12 @@ const publicServices = {
     swarmPublicService: Symbol('swarmPublicService'),
 };
 
-const schemaServices = {
-    agentSchemaService: Symbol('agentSchemaService'),
-    toolSchemaService: Symbol('toolSchemaService'),
-    sessionSchemaService: Symbol('sessionSchemaService'),
-    swarmSchemaService: Symbol('swarmSchemaService'),
-    completionSchemaService: Symbol('completionSchemaService'),
+const validationServices = {
+    agentValidationService: Symbol('agentValidationService'),
+    toolValidationService: Symbol('toolValidationService'),
+    sessionValidationService: Symbol('sessionValidationService'),
+    swarmValidationService: Symbol('swarmValidationService'),
+    completionValidationService: Symbol('completionValidationService'),
 };
 
 export const TYPES = {
@@ -37,7 +37,7 @@ export const TYPES = {
     ...specServices,
     ...connectionServices,
     ...publicServices,
-    ...schemaServices,
+    ...validationServices,
 }
 
 export default TYPES;

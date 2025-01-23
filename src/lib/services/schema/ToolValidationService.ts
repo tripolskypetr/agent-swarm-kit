@@ -4,14 +4,14 @@ import TYPES from "src/lib/core/types";
 import { CompletionName } from "src/interfaces/Completion.interface";
 import { ToolName } from "src/interfaces/Agent.interface";
 
-export class ToolSchemaService {
+export class ToolValidationService {
 
     private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
     private _toolSet = new Set<CompletionName>();
 
     public addTool = (toolName: ToolName) => {
-        this.loggerService.log("toolSchemaService addTool", {
+        this.loggerService.log("toolValidationService addTool", {
             toolName,
         });
         if (this._toolSet.has(toolName)) {
@@ -21,7 +21,7 @@ export class ToolSchemaService {
     };
 
     public validate = (toolName: ToolName) => {
-        this.loggerService.log("toolSchemaService validate", {
+        this.loggerService.log("toolValidationService validate", {
             toolName,
         });
         if (!this._toolSet.has(toolName)) {
@@ -31,4 +31,4 @@ export class ToolSchemaService {
 
 }
 
-export default ToolSchemaService;
+export default ToolValidationService;

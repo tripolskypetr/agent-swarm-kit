@@ -2,20 +2,20 @@ import { inject } from "src/lib/core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "src/lib/core/types";
 import { AgentName, IAgentSpec, ToolName } from "src/interfaces/Agent.interface";
-import ToolSchemaService from "./ToolSchemaService";
-import CompletionSchemaService from "./CompletionSchemaService";
+import ToolValidationService from "./ToolValidationService";
+import CompletionValidationService from "./CompletionValidationService";
 
-export class AgentSchemaService {
+export class AgentValidationService {
 
     private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-    private readonly toolSchemaService = inject<ToolSchemaService>(TYPES.toolSchemaService);
-    private readonly completionSchemaService = inject<CompletionSchemaService>(TYPES.completionSchemaService);
+    private readonly toolValidationService = inject<ToolValidationService>(TYPES.toolValidationService);
+    private readonly completionValidationService = inject<CompletionValidationService>(TYPES.completionValidationService);
 
     private _agentMap = new Map<AgentName, IAgentSpec>();
 
     public addAgent = (agentName: AgentName, agentSpec: IAgentSpec) => {
-        this.loggerService.log("agentSchemaService addAgent", {
+        this.loggerService.log("agentValidationService addAgent", {
             agentName,
             agentSpec,
         });
@@ -26,19 +26,19 @@ export class AgentSchemaService {
     };
 
     public validate = (agentName: AgentName) => {
-        this.loggerService.log("agentSchemaService validate", {
+        this.loggerService.log("agentValidationService validate", {
             agentName,
         });
         const agent = this._agentMap.get(agentName);
         if (!agent) {
             throw new Error(`agent-swarm agent ${agentName} not found`);
         }
-        this.completionSchemaService.validate(agent.completion);
+        this.completionValidationService.validate(agent.completion);
         agent.tools?.forEach((toolName: ToolName) => {
-            this.toolSchemaService.validate(toolName);
+            this.toolValidationService.validate(toolName);
         });
     }
 
 }
 
-export default AgentSchemaService;
+export default AgentValidationService;

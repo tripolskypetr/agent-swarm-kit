@@ -2,18 +2,18 @@ import { inject } from "src/lib/core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "src/lib/core/types";
 import { SwarmName, ISwarmSpec } from "src/interfaces/Swarm.interface";
-import AgentSchemaService from "./AgentSchemaService";
+import AgentValidationService from "./AgentValidationService";
 
-export class SwarmSchemaService {
+export class SwarmValidationService {
 
     private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
     
-    private readonly agentSchemaService = inject<AgentSchemaService>(TYPES.agentSchemaService);
+    private readonly agentValidationService = inject<AgentValidationService>(TYPES.agentValidationService);
 
     private _swarmMap = new Map<SwarmName, ISwarmSpec>();
 
     public addSwarm = (swarmName: SwarmName, swarmSpec: ISwarmSpec) => {
-        this.loggerService.log("swarmSchemaService addSwarm", {
+        this.loggerService.log("swarmValidationService addSwarm", {
             swarmName,
             swarmSpec,
         });
@@ -24,7 +24,7 @@ export class SwarmSchemaService {
     };
 
     public validate = (swarmName: SwarmName) => {
-        this.loggerService.log("swarmSchemaService validate", {
+        this.loggerService.log("swarmValidationService validate", {
             swarmName,
         });
         const swarm = this._swarmMap.get(swarmName);
@@ -34,10 +34,10 @@ export class SwarmSchemaService {
         if (!swarm.agentList.includes(swarm.defaultAgent)) {
             throw new Error(`agent-swarm swarm ${swarmName} default agent not in agent list`);
         }
-        swarm.agentList.forEach((agentName) => this.agentSchemaService.validate(agentName));
+        swarm.agentList.forEach((agentName) => this.agentValidationService.validate(agentName));
     }
 
 
 }
 
-export default SwarmSchemaService;
+export default SwarmValidationService;

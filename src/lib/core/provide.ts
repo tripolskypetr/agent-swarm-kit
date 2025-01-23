@@ -14,11 +14,11 @@ import AgentPublicService from "../services/public/AgentPublicService";
 import HistoryPublicService from "../services/public/HistoryPublicService";
 import SessionPublicService from "../services/public/SessionPublicService";
 import SwarmPublicService from "../services/public/SwarmPublicService";
-import AgentSchemaService from "../services/schema/AgentSchemaService";
-import CompletionSchemaService from "../services/schema/CompletionSchemaService";
-import SessionSchemaService from "../services/schema/SessionSchemaService";
-import SwarmSchemaService from "../services/schema/SwarmSchemaService";
-import ToolSchemaService from "../services/schema/ToolSchemaService";
+import AgentValidationService from "../services/schema/AgentValidationService";
+import CompletionValidationService from "../services/schema/CompletionValidationService";
+import SessionValidationService from "../services/schema/SessionValidationService";
+import SwarmValidationService from "../services/schema/SwarmValidationService";
+import ToolValidationService from "../services/schema/ToolValidationService";
 
 {
     provide(TYPES.loggerService, () => new LoggerService());
@@ -54,9 +54,9 @@ import ToolSchemaService from "../services/schema/ToolSchemaService";
 }
 
 {
-    provide(TYPES.agentSchemaService, () => new AgentSchemaService());
-    provide(TYPES.completionSchemaService, () => new CompletionSchemaService());
-    provide(TYPES.sessionSchemaService, () => new SessionSchemaService());
-    provide(TYPES.swarmSchemaService, () => new SwarmSchemaService());
-    provide(TYPES.toolSchemaService, () => new ToolSchemaService());
+    provide(TYPES.agentValidationService, () => new AgentValidationService());
+    provide(TYPES.completionValidationService, () => new CompletionValidationService());
+    provide(TYPES.sessionValidationService, () => new SessionValidationService());
+    provide(TYPES.swarmValidationService, () => new SwarmValidationService());
+    provide(TYPES.toolValidationService, () => new ToolValidationService());
 }

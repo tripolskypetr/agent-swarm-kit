@@ -5,14 +5,14 @@ import { CompletionName } from "src/interfaces/Completion.interface";
 import { SessionId } from "src/interfaces/Session.interface";
 import { SwarmName } from "src/interfaces/Swarm.interface";
 
-export class SessionSchemaService {
+export class SessionValidationService {
 
     private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
     private _sessionMap = new Map<SessionId, SwarmName>();
 
     public addSession = (clientId: SessionId, swarmName: SwarmName) => {
-        this.loggerService.log("sessionSchemaService addSession", {
+        this.loggerService.log("sessionValidationService addSession", {
             clientId,
         });
         if (this._sessionMap.has(clientId)) {
@@ -22,7 +22,7 @@ export class SessionSchemaService {
     };
 
     public removeSession = (clientId: SessionId) => {
-        this.loggerService.log("sessionSchemaService addSession", {
+        this.loggerService.log("sessionValidationService addSession", {
             clientId,
         });
         if (!this._sessionMap.delete(clientId)) {
@@ -32,4 +32,4 @@ export class SessionSchemaService {
 
 }
 
-export default SessionSchemaService;
+export default SessionValidationService;

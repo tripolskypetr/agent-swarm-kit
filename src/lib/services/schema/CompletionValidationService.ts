@@ -3,14 +3,14 @@ import LoggerService from "../base/LoggerService";
 import TYPES from "src/lib/core/types";
 import { CompletionName } from "src/interfaces/Completion.interface";
 
-export class CompletionSchemaService {
+export class CompletionValidationService {
 
     private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
     private _completionSet = new Set<CompletionName>();
 
     public addCompletion = (completionName: CompletionName) => {
-        this.loggerService.log("completionSchemaService addCompletion", {
+        this.loggerService.log("completionValidationService addCompletion", {
             completionName,
         });
         if (this._completionSet.has(completionName)) {
@@ -20,7 +20,7 @@ export class CompletionSchemaService {
     };
 
     public validate = (completionName: CompletionName) => {
-        this.loggerService.log("completionSchemaService validate", {
+        this.loggerService.log("completionValidationService validate", {
             completionName,
         });
         if (!this._completionSet.has(completionName)) {
@@ -30,4 +30,4 @@ export class CompletionSchemaService {
 
 }
 
-export default CompletionSchemaService;
+export default CompletionValidationService;
