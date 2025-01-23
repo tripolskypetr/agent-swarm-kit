@@ -1,4 +1,3 @@
-import { AgentName, IAgentSchema } from "src/interfaces/Agent.interface";
 import { CompletionName, ICompletionSchema } from "src/interfaces/Completion.interface";
 import swarm from "src/lib";
 
