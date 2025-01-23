@@ -29,7 +29,6 @@ export class ClientSwarm implements ISwarm {
       if (agentName === (await this.getAgentName())) {
         return output;
       }
-      await sleep(1_000);
     }
   };
 
