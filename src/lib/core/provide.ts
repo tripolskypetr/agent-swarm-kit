@@ -14,11 +14,11 @@ import AgentPublicService from "../services/public/AgentPublicService";
 import HistoryPublicService from "../services/public/HistoryPublicService";
 import SessionPublicService from "../services/public/SessionPublicService";
 import SwarmPublicService from "../services/public/SwarmPublicService";
-import AgentValidationService from "../services/schema/AgentValidationService";
-import CompletionValidationService from "../services/schema/CompletionValidationService";
-import SessionValidationService from "../services/schema/SessionValidationService";
-import SwarmValidationService from "../services/schema/SwarmValidationService";
-import ToolValidationService from "../services/schema/ToolValidationService";
+import AgentValidationService from "../services/validation/AgentValidationService";
+import CompletionValidationService from "../services/validation/CompletionValidationService";
+import SessionValidationService from "../services/validation/SessionValidationService";
+import SwarmValidationService from "../services/validation/SwarmValidationService";
+import ToolValidationService from "../services/validation/ToolValidationService";
 
 {
     provide(TYPES.loggerService, () => new LoggerService());

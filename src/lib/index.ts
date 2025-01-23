@@ -17,11 +17,11 @@ import AgentPublicService from "./services/public/AgentPublicService";
 import HistoryPublicService from "./services/public/HistoryPublicService";
 import SessionPublicService from "./services/public/SessionPublicService";
 import SwarmPublicService from "./services/public/SwarmPublicService";
-import AgentValidationService from "./services/schema/AgentValidationService";
-import ToolValidationService from "./services/schema/ToolValidationService";
-import SessionValidationService from "./services/schema/SessionValidationService";
-import SwarmValidationService from "./services/schema/SwarmValidationService";
-import CompletionValidationService from "./services/schema/CompletionValidationService";
+import AgentValidationService from "./services/validation/AgentValidationService";
+import ToolValidationService from "./services/validation/ToolValidationService";
+import SessionValidationService from "./services/validation/SessionValidationService";
+import SwarmValidationService from "./services/validation/SwarmValidationService";
+import CompletionValidationService from "./services/validation/CompletionValidationService";
 
 const baseServices = {
   loggerService: inject<LoggerService>(TYPES.loggerService),
