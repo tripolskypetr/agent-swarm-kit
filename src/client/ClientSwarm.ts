@@ -1,6 +1,5 @@
-import { sleep } from "functools-kit";
 import { GLOBAL_CONFIG } from "src/config/params";
-import { AgentName, IAgent } from "src/interfaces/Agent.interface";
+import { AgentName } from "src/interfaces/Agent.interface";
 import ISwarm, { ISwarmParams } from "src/interfaces/Swarm.interface";
 
 export class ClientSwarm implements ISwarm {
