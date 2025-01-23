@@ -1,5 +1,4 @@
 import { IIncomingMessage, IOutgoingMessage } from "src/model/EmitMessage.model";
-import { AgentName, IAgent } from "./Agent.interface";
 import { ILogger } from "./Logger.interface";
 import ISwarm from "./Swarm.interface";
 
