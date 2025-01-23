@@ -9,7 +9,7 @@ export class CompletionSchemaService {
 
     private _completionSet = new Set<CompletionName>();
 
-    addCompletion = (completionName: CompletionName) => {
+    public addCompletion = (completionName: CompletionName) => {
         this.loggerService.log("completionSchemaService addCompletion", {
             completionName,
         });
@@ -18,6 +18,15 @@ export class CompletionSchemaService {
         }
         this._completionSet.add(completionName);
     };
+
+    public validate = (completionName: CompletionName) => {
+        this.loggerService.log("completionSchemaService validate", {
+            completionName,
+        });
+        if (!this._completionSet.has(completionName)) {
+            throw new Error(`agent-swarm completion ${completionName} not found`);
+        }
+    }
 
 }
 

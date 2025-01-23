@@ -1,7 +1,6 @@
-import { CC_KEEP_MESSAGES } from "src/config/params";
 import { IModelMessage } from "src/model/ModelMessage.model";
 import IHistory, { IHistoryParams } from "src/interfaces/History.interface";
-import { memoize, PubsubArrayAdapter } from "functools-kit";
+import { GLOBAL_CONFIG } from "src/config/params";
 
 export class ClientHistory implements IHistory {
 
@@ -59,7 +58,7 @@ export class ClientHistory implements IHistory {
         }
         return isOk;
       })
-      .slice(-CC_KEEP_MESSAGES);
+      .slice(-GLOBAL_CONFIG.CC_KEEP_MESSAGES);
     const promptMessage: IModelMessage = {
       agentName: this.params.agentName,
       content: prompt,

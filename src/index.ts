@@ -7,3 +7,5 @@ export * from './functions/addTool';
 export * from './functions/makeConnection';
 export * from './functions/changeAgent';
 export * from './functions/complete';
+
+export { setConfig } from './config/params'

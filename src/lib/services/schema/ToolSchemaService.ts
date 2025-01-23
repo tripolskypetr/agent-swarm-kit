@@ -10,8 +10,8 @@ export class ToolSchemaService {
 
     private _toolSet = new Set<CompletionName>();
 
-    addTool = (toolName: ToolName) => {
-        this.loggerService.log("sessionSchemaService addTool", {
+    public addTool = (toolName: ToolName) => {
+        this.loggerService.log("toolSchemaService addTool", {
             toolName,
         });
         if (this._toolSet.has(toolName)) {
@@ -19,6 +19,15 @@ export class ToolSchemaService {
         }
         this._toolSet.add(toolName);
     };
+
+    public validate = (toolName: ToolName) => {
+        this.loggerService.log("toolSchemaService validate", {
+            toolName,
+        });
+        if (!this._toolSet.has(toolName)) {
+            throw new Error(`agent-swarm tool ${toolName} not found`);
+        }
+    }
 
 }
 

@@ -21,3 +21,5 @@ export interface ISession {
   commitToolOutput(content: string): Promise<void>;
   commitSystemMessage(message: string): Promise<void>;
 }
+
+export type SessionId = string;
