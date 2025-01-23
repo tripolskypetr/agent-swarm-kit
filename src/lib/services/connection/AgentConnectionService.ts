@@ -40,7 +40,7 @@ export class AgentConnectionService implements IAgent {
         agentName,
         validate,
         logger: this.loggerService,
-        history: this.historyConnectionService,
+        history: this.historyConnectionService.getHistory(clientId, agentName),
         prompt,
         tools: tools?.map(this.toolSchemaService.get),
         completion,
