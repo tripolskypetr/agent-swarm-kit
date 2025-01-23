@@ -42,7 +42,7 @@ export class SessionConnectionService implements ISession {
   };
 
   public connect = (connector: SendMessageFn): ReceiveMessageFn => {
-    this.loggerService.log(`sessionConnectionService execute`, {
+    this.loggerService.log(`sessionConnectionService connect`, {
       context: this.contextService.context,
     });
     return this.getSession(
@@ -52,7 +52,7 @@ export class SessionConnectionService implements ISession {
   };
 
   public commitToolOutput = async (content: string): Promise<void> => {
-    this.loggerService.log(`sessionConnectionService execute`, {
+    this.loggerService.log(`sessionConnectionService commitToolOutput`, {
       context: this.contextService.context,
     });
     return await this.getSession(
@@ -62,7 +62,7 @@ export class SessionConnectionService implements ISession {
   };
 
   public commitSystemMessage = async (message: string): Promise<void> => {
-    this.loggerService.log(`sessionConnectionService execute`, {
+    this.loggerService.log(`sessionConnectionService commitSystemMessage`, {
       context: this.contextService.context,
     });
     return await this.getSession(
