@@ -1,7 +1,7 @@
-import IHistory from "./History.interface";
-import { ILogger } from "./Logger.interface";
+import IHistory from "../interfaces/History.interface";
+import { ILogger } from "../interfaces/Logger.interface";
 import { ITool } from "../model/Tool.model";
-import { CompletionName, ICompletion } from "./Completion.interface";
+import { CompletionName, ICompletion } from "../interfaces/Completion.interface";
 
 export interface IAgentTool<T = Record<string, unknown>> extends ITool {
   call(clientId: string, agentName: AgentName, params: T): Promise<void>;

@@ -1,8 +1,8 @@
 import { ToolRegistry } from "functools-kit";
-import { inject } from "src/lib/core/di";
+import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
-import TYPES from "src/lib/core/types";
-import { ISwarmSchema, SwarmName } from "src/interfaces/Swarm.interface";
+import TYPES from "../../core/types";
+import { ISwarmSchema, SwarmName } from "../../../interfaces/Swarm.interface";
 
 export class SwarmSchemaService {
 

@@ -1,6 +1,6 @@
-import { IModelMessage } from "src/model/ModelMessage.model";
-import IHistory, { IHistoryParams } from "src/interfaces/History.interface";
-import { GLOBAL_CONFIG } from "src/config/params";
+import { IModelMessage } from "../model/ModelMessage.model";
+import IHistory, { IHistoryParams } from "../interfaces/History.interface";
+import { GLOBAL_CONFIG } from "../config/params";
 
 export class ClientHistory implements IHistory {
 

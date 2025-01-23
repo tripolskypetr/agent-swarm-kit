@@ -1,10 +1,10 @@
-import { inject } from "src/lib/core/di";
+import { inject } from "../../core/di";
 import { SessionConnectionService } from "../connection/SessionConnectionService";
 import LoggerService from "../base/LoggerService";
-import TYPES from "src/lib/core/types";
+import TYPES from "../../core/types";
 import ContextService from "../base/ContextService";
-import { SwarmName } from "src/interfaces/Swarm.interface";
-import { ReceiveMessageFn, SendMessageFn } from "src/interfaces/Session.interface";
+import { SwarmName } from "../../../interfaces/Swarm.interface";
+import { ReceiveMessageFn, SendMessageFn } from "../../../interfaces/Session.interface";
 
 interface ISessionConnectionService extends SessionConnectionService {}
 

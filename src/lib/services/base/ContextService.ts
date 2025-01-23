@@ -1,6 +1,6 @@
 import { scoped } from "di-scoped";
-import { AgentName } from "src/interfaces/Agent.interface";
-import { SwarmName } from "src/interfaces/Swarm.interface";
+import { AgentName } from "../../../interfaces/Agent.interface";
+import { SwarmName } from "../../../interfaces/Swarm.interface";
 
 export interface IContext {
   clientId: string;

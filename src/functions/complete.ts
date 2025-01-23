@@ -1,5 +1,5 @@
-import { SwarmName } from "src/interfaces/Swarm.interface";
-import swarm from "src/lib";
+import { SwarmName } from "../interfaces/Swarm.interface";
+import swarm from "../lib";
 import { disposeConnection } from "./disposeConnection";
 
 export const complete = async (content: string, clientId: string, swarmName: SwarmName) => {

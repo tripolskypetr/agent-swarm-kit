@@ -1,5 +1,5 @@
-import { IModelMessage } from "src/model/ModelMessage.model";
-import { ITool } from "src/model/Tool.model";
+import { IModelMessage } from "../model/ModelMessage.model";
+import { ITool } from "../model/Tool.model";
 
 export interface ICompletion extends ICompletionSchema { }
 

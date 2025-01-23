@@ -1,5 +1,5 @@
-import { AgentName } from "src/interfaces/Agent.interface";
-import swarm from "src/lib";
+import { AgentName } from "../interfaces/Agent.interface";
+import swarm from "../lib";
 
 export const getAgentHistory = async (clientId: string, agentName: AgentName) => {
     swarm.agentValidationService.validate(agentName);

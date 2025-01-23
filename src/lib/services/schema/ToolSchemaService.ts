@@ -1,10 +1,8 @@
 import { ToolRegistry } from "functools-kit";
-
-import { IAgentTool, ToolName } from "src/interfaces/Agent.interface";
-
+import { IAgentTool, ToolName } from "../../../interfaces/Agent.interface";
 import LoggerService from "../base/LoggerService";
-import { inject } from "src/lib/core/di";
-import TYPES from "src/lib/core/types";
+import { inject } from "../../core/di";
+import TYPES from "../../core/types";
 
 export class ToolSchemaService {
 

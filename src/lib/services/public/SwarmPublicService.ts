@@ -1,10 +1,10 @@
-import { inject } from "src/lib/core/di";
+import { inject } from "../../core/di";
 import { SwarmConnectionService } from "../connection/SwarmConnectionService";
 import LoggerService from "../base/LoggerService";
-import TYPES from "src/lib/core/types";
+import TYPES from "../../core/types";
 import ContextService from "../base/ContextService";
-import { SwarmName } from "src/interfaces/Swarm.interface";
-import { AgentName } from "src/interfaces/Agent.interface";
+import { SwarmName } from "../../../interfaces/Swarm.interface";
+import { AgentName } from "../../../interfaces/Agent.interface";
 
 interface ISwarmConnectionService extends SwarmConnectionService {}
 

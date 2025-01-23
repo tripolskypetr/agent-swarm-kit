@@ -1,6 +1,6 @@
-import { AgentName } from "./Agent.interface";
+import { AgentName } from "../interfaces/Agent.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
-import { ILogger } from "./Logger.interface";
+import { ILogger } from "../interfaces/Logger.interface";
 import { IPubsubArray } from "functools-kit";
 
 export interface IHistory {

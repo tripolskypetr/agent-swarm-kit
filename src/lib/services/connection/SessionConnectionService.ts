@@ -1,15 +1,15 @@
-import { inject } from "src/lib/core/di";
+import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import { TContextService } from "../base/ContextService";
-import TYPES from "src/lib/core/types";
+import TYPES from "../../core/types";
 import { memoize } from "functools-kit";
-import ClientSession from "src/client/ClientSession";
+import ClientSession from "../../../client/ClientSession";
 import SwarmConnectionService from "./SwarmConnectionService";
 import {
   ISession,
   ReceiveMessageFn,
   SendMessageFn,
-} from "src/interfaces/Session.interface";
+} from "../../../interfaces/Session.interface";
 
 export class SessionConnectionService implements ISession {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);

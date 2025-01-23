@@ -1,7 +1,7 @@
-import { inject } from "src/lib/core/di";
+import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
-import TYPES from "src/lib/core/types";
-import { SwarmName, ISwarmSchema } from "src/interfaces/Swarm.interface";
+import TYPES from "../../core/types";
+import { SwarmName, ISwarmSchema } from "../../../interfaces/Swarm.interface";
 import AgentValidationService from "./AgentValidationService";
 import { memoize } from "functools-kit";
 

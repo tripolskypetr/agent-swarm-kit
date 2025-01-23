@@ -1,6 +1,6 @@
-import { GLOBAL_CONFIG } from "src/config/params";
-import { AgentName } from "src/interfaces/Agent.interface";
-import ISwarm, { ISwarmParams } from "src/interfaces/Swarm.interface";
+import { GLOBAL_CONFIG } from "../config/params";
+import { AgentName } from "../interfaces/Agent.interface";
+import ISwarm, { ISwarmParams } from "../interfaces/Swarm.interface";
 
 export class ClientSwarm implements ISwarm {
   private _activeAgent: AgentName;

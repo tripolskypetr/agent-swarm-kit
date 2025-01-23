@@ -1,4 +1,4 @@
-import swarm from "src/lib";
+import swarm from "../lib";
 
 export const getRawHistory = async (clientId: string) => {
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);

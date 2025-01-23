@@ -1,11 +1,11 @@
-import { IIncomingMessage } from "src/model/EmitMessage.model";
+import { IIncomingMessage } from "../model/EmitMessage.model";
 
 import {
   ISessionParams,
   ReceiveMessageFn,
   SendMessageFn,
-} from "src/interfaces/Session.interface";
-import { ISession } from "src/interfaces/Session.interface";
+} from "../interfaces/Session.interface";
+import { ISession } from "../interfaces/Session.interface";
 
 export class ClientSession implements ISession {
   constructor(readonly params: ISessionParams) {

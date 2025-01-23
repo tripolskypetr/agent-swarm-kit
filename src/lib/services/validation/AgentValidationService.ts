@@ -1,11 +1,11 @@
-import { inject } from "src/lib/core/di";
+import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
-import TYPES from "src/lib/core/types";
+import TYPES from "../../core/types";
 import {
   AgentName,
   IAgentSchema,
   ToolName,
-} from "src/interfaces/Agent.interface";
+} from "../../../interfaces/Agent.interface";
 import ToolValidationService from "./ToolValidationService";
 import CompletionValidationService from "./CompletionValidationService";
 import { memoize } from "functools-kit";

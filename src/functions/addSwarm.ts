@@ -1,5 +1,5 @@
-import { ISwarmSchema, SwarmName } from "src/interfaces/Swarm.interface";
-import swarm from "src/lib";
+import { ISwarmSchema, SwarmName } from "../interfaces/Swarm.interface";
+import swarm from "../lib";
 
 export const addSwarm = (swarmName: SwarmName, swarmSchema: ISwarmSchema) => {
     swarm.swarmValidationService.addSwarm(swarmName, swarmSchema);

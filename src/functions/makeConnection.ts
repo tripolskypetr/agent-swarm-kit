@@ -1,9 +1,9 @@
 import {
   ReceiveMessageFn,
   SendMessageFn,
-} from "src/interfaces/Session.interface";
-import { SwarmName } from "src/interfaces/Swarm.interface";
-import swarm from "src/lib";
+} from "../interfaces/Session.interface";
+import { SwarmName } from "../interfaces/Swarm.interface";
+import swarm from "../lib";
 
 export const makeConnection = (
   connector: SendMessageFn,

@@ -1,13 +1,13 @@
-import { inject } from "src/lib/core/di";
+import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
-import TYPES from "src/lib/core/types";
+import TYPES from "../../core/types";
 import { memoize } from "functools-kit";
 import { TContextService } from "../base/ContextService";
-import ClientSwarm from "src/client/ClientSwarm";
+import ClientSwarm from "../../../client/ClientSwarm";
 import SwarmSchemaService from "../schema/SwarmSchemaService";
 import AgentConnectionService from "./AgentConnectionService";
-import { AgentName, IAgent } from "src/interfaces/Agent.interface";
-import ISwarm from "src/interfaces/Swarm.interface";
+import { AgentName, IAgent } from "../../../interfaces/Agent.interface";
+import ISwarm from "../../../interfaces/Swarm.interface";
 
 export class SwarmConnectionService implements ISwarm {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);

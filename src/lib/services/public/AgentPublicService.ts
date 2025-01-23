@@ -1,9 +1,9 @@
-import { inject } from "src/lib/core/di";
+import { inject } from "../../core/di";
 import { AgentConnectionService } from "../connection/AgentConnectionService";
 import LoggerService from "../base/LoggerService";
-import TYPES from "src/lib/core/types";
+import TYPES from "../../core/types";
 import ContextService from "../base/ContextService";
-import { AgentName } from "src/interfaces/Agent.interface";
+import { AgentName } from "../../../interfaces/Agent.interface";
 
 interface IAgentConnectionService extends AgentConnectionService {}
 

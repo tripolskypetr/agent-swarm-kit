@@ -1,15 +1,15 @@
-import { inject } from "src/lib/core/di";
+import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
-import TYPES from "src/lib/core/types";
+import TYPES from "../../core/types";
 import { TContextService } from "../base/ContextService";
 import { memoize } from "functools-kit";
-import ClientAgent from "src/client/ClientAgent";
+import ClientAgent from "../../../client/ClientAgent";
 import HistoryConnectionService from "./HistoryConnectionService";
 import AgentSchemaService from "../schema/AgentSchemaService";
 import ToolSchemaService from "../schema/ToolSchemaService";
-import { IAgent } from "src/interfaces/Agent.interface";
+import { IAgent } from "../../../interfaces/Agent.interface";
 import CompletionSchemaService from "../schema/CompletionSchemaService";
-import validateDefault from "src/validation/validateDefault";
+import validateDefault from "../../../validation/validateDefault";
 
 export class AgentConnectionService implements IAgent {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);

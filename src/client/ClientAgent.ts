@@ -1,8 +1,8 @@
 import { not, queued, Subject } from "functools-kit";
 import { omit } from "lodash-es";
-import { IModelMessage } from "src/model/ModelMessage.model";
-import { IAgent, IAgentParams } from "src/interfaces/Agent.interface";
-import { GLOBAL_CONFIG } from "src/config/params";
+import { IModelMessage } from "../model/ModelMessage.model";
+import { IAgent, IAgentParams } from "../interfaces/Agent.interface";
+import { GLOBAL_CONFIG } from "../config/params";
 
 const getPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[

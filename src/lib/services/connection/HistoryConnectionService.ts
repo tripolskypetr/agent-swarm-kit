@@ -1,10 +1,10 @@
-import { inject } from "src/lib/core/di";
+import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
-import TYPES from "src/lib/core/types";
-import IHistory from "src/interfaces/History.interface";
-import { IModelMessage } from "src/model/ModelMessage.model";
+import TYPES from "../../core/types";
+import IHistory from "../../../interfaces/History.interface";
+import { IModelMessage } from "../../../model/ModelMessage.model";
 import { IPubsubArray, memoize, PubsubArrayAdapter } from "functools-kit";
-import ClientHistory from "src/client/ClientHistory";
+import ClientHistory from "../../../client/ClientHistory";
 import { TContextService } from "../base/ContextService";
 
 export class HistoryConnectionService implements IHistory {

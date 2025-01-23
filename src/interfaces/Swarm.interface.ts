@@ -1,5 +1,5 @@
-import { AgentName, IAgent } from "./Agent.interface";
-import { ILogger } from "./Logger.interface";
+import { AgentName, IAgent } from "../interfaces/Agent.interface";
+import { ILogger } from "../interfaces/Logger.interface";
 
 export interface ISwarmParams extends Omit<ISwarmSchema, keyof {
   agentList: never;

@@ -1,4 +1,4 @@
-import { AgentName } from "src/interfaces/Agent.interface";
+import { AgentName } from "../interfaces/Agent.interface";
 
 export interface IIncomingMessage {
   clientId: string;

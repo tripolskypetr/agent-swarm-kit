@@ -1,6 +1,6 @@
-import { IIncomingMessage, IOutgoingMessage } from "src/model/EmitMessage.model";
-import { ILogger } from "./Logger.interface";
-import ISwarm from "./Swarm.interface";
+import { IIncomingMessage, IOutgoingMessage } from "../model/EmitMessage.model";
+import { ILogger } from "../interfaces/Logger.interface";
+import ISwarm from "../interfaces/Swarm.interface";
 
 export interface ISessionParams extends ISessionSchema {
   clientId: string;

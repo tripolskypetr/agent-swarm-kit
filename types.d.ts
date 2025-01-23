@@ -1,23 +1,121 @@
 import * as di_scoped from 'di-scoped';
-import * as src_interfaces_Agent_interface from 'src/interfaces/Agent.interface';
-import { AgentName as AgentName$1, IAgent, IAgentSchema as IAgentSchema$1, ToolName as ToolName$1, IAgentTool as IAgentTool$1 } from 'src/interfaces/Agent.interface';
-import ISwarm, { SwarmName, ISwarmSchema as ISwarmSchema$1 } from 'src/interfaces/Swarm.interface';
 import * as functools_kit from 'functools-kit';
-import { IPubsubArray } from 'functools-kit';
-import ClientAgent from 'src/client/ClientAgent';
-import IHistory from 'src/interfaces/History.interface';
-import { IModelMessage as IModelMessage$1 } from 'src/model/ModelMessage.model';
-import ClientHistory from 'src/client/ClientHistory';
-import ClientSwarm from 'src/client/ClientSwarm';
-import { ICompletionSchema as ICompletionSchema$1, CompletionName as CompletionName$1 } from 'src/interfaces/Completion.interface';
-import ClientSession from 'src/client/ClientSession';
-import { ISession, SendMessageFn as SendMessageFn$1, ReceiveMessageFn as ReceiveMessageFn$1, SessionId } from 'src/interfaces/Session.interface';
-import { ITool as ITool$1 } from 'src/model/Tool.model';
-import { IOutgoingMessage, IIncomingMessage } from 'src/model/EmitMessage.model';
+import { IPubsubArray, Subject } from 'functools-kit';
+
+interface IModelMessage {
+    role: 'assistant' | 'system' | 'tool' | 'user' | 'resque';
+    agentName: string;
+    content: string;
+    tool_calls?: {
+        function: {
+            name: string;
+            arguments: {
+                [key: string]: any;
+            };
+        };
+    }[];
+}
+
+interface ILogger {
+    log(...args: any[]): void;
+    debug(...args: any[]): void;
+}
+
+interface IHistory {
+    push(message: IModelMessage): Promise<void>;
+    toArrayForAgent(prompt: string): Promise<IModelMessage[]>;
+    toArrayForRaw(): Promise<IModelMessage[]>;
+}
+interface IHistoryParams extends IHistorySchema {
+    agentName: AgentName;
+    clientId: string;
+    logger: ILogger;
+}
+interface IHistorySchema {
+    items: IPubsubArray<IModelMessage>;
+}
+
+interface ITool {
+    type: string;
+    function: {
+        name: string;
+        description: string;
+        parameters: {
+            type: string;
+            required: string[];
+            properties: {
+                [key: string]: {
+                    type: string;
+                    description: string;
+                    enum?: string[];
+                };
+            };
+        };
+    };
+}
+
+interface ICompletion extends ICompletionSchema {
+}
+interface ICompletionSchema {
+    getCompletion(messages: IModelMessage[], tools?: ITool[]): Promise<IModelMessage>;
+}
+type CompletionName = string;
+
+interface IAgentTool<T = Record<string, unknown>> extends ITool {
+    call(clientId: string, agentName: AgentName, params: T): Promise<void>;
+    validate(clientId: string, agentName: AgentName, params: T): Promise<boolean> | boolean;
+}
+interface IAgentParams extends Omit<IAgentSchema, keyof {
+    tools: never;
+    completion: never;
+    validate: never;
+}> {
+    agentName: AgentName;
+    clientId: string;
+    logger: ILogger;
+    history: IHistory;
+    completion: ICompletion;
+    tools?: IAgentTool[];
+    validate: (output: string) => Promise<string | null>;
+}
+interface IAgentSchema {
+    completion: CompletionName;
+    prompt: string;
+    tools?: ToolName[];
+    validate?: (output: string) => Promise<string | null>;
+}
+interface IAgent {
+    execute: (input: string) => Promise<void>;
+    waitForOutput: () => Promise<string>;
+    commitToolOutput(content: string): Promise<void>;
+    commitSystemMessage(message: string): Promise<void>;
+}
+type AgentName = string;
+type ToolName = string;
+
+interface ISwarmParams extends Omit<ISwarmSchema, keyof {
+    agentList: never;
+}> {
+    clientId: string;
+    logger: ILogger;
+    agentMap: Record<AgentName, IAgent>;
+}
+interface ISwarmSchema {
+    defaultAgent: AgentName;
+    swarmName: string;
+    agentList: string[];
+}
+interface ISwarm {
+    waitForOutput(): Promise<string>;
+    getAgentName(): Promise<AgentName>;
+    getAgent(): Promise<IAgent>;
+    setAgentName(agentName: AgentName): Promise<void>;
+}
+type SwarmName = string;
 
 interface IContext {
     clientId: string;
-    agentName: AgentName$1;
+    agentName: AgentName;
     swarmName: SwarmName;
 }
 declare const ContextService: (new () => {
@@ -28,16 +126,25 @@ declare const ContextService: (new () => {
     };
 }, "prototype"> & di_scoped.IScopedClassRun<[context: IContext]>;
 
-interface ILogger {
-    log(...args: any[]): void;
-    debug(...args: any[]): void;
-}
-
 declare class LoggerService implements ILogger {
     private _logger;
     log: (...args: any[]) => void;
     debug: (...args: any[]) => void;
     setLogger: (logger: ILogger) => void;
+}
+
+declare class ClientAgent implements IAgent {
+    readonly params: IAgentParams;
+    readonly _toolCommitSubject: Subject<void>;
+    readonly _outputSubject: Subject<string>;
+    constructor(params: IAgentParams);
+    _emitOuput: (result: string) => Promise<void>;
+    _resurrectModel: (reason?: string) => Promise<string>;
+    waitForOutput: () => Promise<string>;
+    getCompletion: () => Promise<IModelMessage>;
+    commitSystemMessage: (message: string) => Promise<void>;
+    commitToolOutput: (content: string) => Promise<void>;
+    execute: IAgent["execute"];
 }
 
 declare class AgentConnectionService implements IAgent {
@@ -55,31 +162,49 @@ declare class AgentConnectionService implements IAgent {
     dispose: () => Promise<void>;
 }
 
+declare class ClientHistory implements IHistory {
+    readonly params: IHistoryParams;
+    constructor(params: IHistoryParams);
+    push: (message: IModelMessage) => Promise<void>;
+    toArrayForRaw: () => Promise<IModelMessage[]>;
+    toArrayForAgent: (prompt: string) => Promise<IModelMessage[]>;
+}
+
 declare class HistoryConnectionService implements IHistory {
     private readonly loggerService;
     private readonly contextService;
-    getItems: ((clientId: string) => IPubsubArray<IModelMessage$1>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, IPubsubArray<IModelMessage$1>>;
+    getItems: ((clientId: string) => IPubsubArray<IModelMessage>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, IPubsubArray<IModelMessage>>;
     getHistory: ((clientId: string, agentName: string) => ClientHistory) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientHistory>;
-    push: (message: IModelMessage$1) => Promise<void>;
-    toArrayForAgent: (prompt: string) => Promise<IModelMessage$1[]>;
-    toArrayForRaw: () => Promise<IModelMessage$1[]>;
+    push: (message: IModelMessage) => Promise<void>;
+    toArrayForAgent: (prompt: string) => Promise<IModelMessage[]>;
+    toArrayForRaw: () => Promise<IModelMessage[]>;
     dispose: () => Promise<void>;
 }
 
 declare class AgentSchemaService {
     readonly loggerService: LoggerService;
     private registry;
-    register: (key: AgentName$1, value: IAgentSchema$1) => void;
-    get: (key: AgentName$1) => IAgentSchema$1;
+    register: (key: AgentName, value: IAgentSchema) => void;
+    get: (key: AgentName) => IAgentSchema;
     dispose: () => void;
 }
 
 declare class ToolSchemaService {
     private readonly loggerService;
     private registry;
-    register: (key: ToolName$1, value: IAgentTool$1) => void;
-    get: (key: ToolName$1) => IAgentTool$1;
+    register: (key: ToolName, value: IAgentTool) => void;
+    get: (key: ToolName) => IAgentTool;
     dispose: () => void;
+}
+
+declare class ClientSwarm implements ISwarm {
+    readonly params: ISwarmParams;
+    private _activeAgent;
+    constructor(params: ISwarmParams);
+    waitForOutput: () => Promise<string>;
+    getAgentName: () => Promise<AgentName>;
+    getAgent: () => Promise<IAgent>;
+    setAgentName: (agentName: AgentName) => Promise<void>;
 }
 
 declare class SwarmConnectionService implements ISwarm {
@@ -91,24 +216,61 @@ declare class SwarmConnectionService implements ISwarm {
     waitForOutput: () => Promise<string>;
     getAgentName: () => Promise<string>;
     getAgent: () => Promise<IAgent>;
-    setAgentName: (agentName: AgentName$1) => Promise<void>;
+    setAgentName: (agentName: AgentName) => Promise<void>;
     dispose: () => Promise<void>;
 }
 
 declare class SwarmSchemaService {
     readonly loggerService: LoggerService;
     private registry;
-    register: (key: SwarmName, value: ISwarmSchema$1) => void;
-    get: (key: SwarmName) => ISwarmSchema$1;
+    register: (key: SwarmName, value: ISwarmSchema) => void;
+    get: (key: SwarmName) => ISwarmSchema;
     dispose: () => void;
 }
 
 declare class CompletionSchemaService {
     readonly loggerService: LoggerService;
     private registry;
-    register: (key: string, value: ICompletionSchema$1) => void;
-    get: (key: string) => ICompletionSchema$1;
+    register: (key: string, value: ICompletionSchema) => void;
+    get: (key: string) => ICompletionSchema;
     dispose: () => void;
+}
+
+interface IIncomingMessage {
+    clientId: string;
+    data: string;
+    agentName: AgentName;
+}
+interface IOutgoingMessage {
+    clientId: string;
+    data: string;
+    agentName: AgentName;
+}
+
+interface ISessionParams extends ISessionSchema {
+    clientId: string;
+    logger: ILogger;
+    swarm: ISwarm;
+}
+interface ISessionSchema {
+}
+type SendMessageFn = (outgoing: IOutgoingMessage) => Promise<void> | void;
+type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
+interface ISession {
+    execute(content: string): Promise<string>;
+    connect(connector: SendMessageFn): ReceiveMessageFn;
+    commitToolOutput(content: string): Promise<void>;
+    commitSystemMessage(message: string): Promise<void>;
+}
+type SessionId = string;
+
+declare class ClientSession implements ISession {
+    readonly params: ISessionParams;
+    constructor(params: ISessionParams);
+    execute: (message: string) => Promise<string>;
+    commitToolOutput: (content: string) => Promise<void>;
+    commitSystemMessage: (message: string) => Promise<void>;
+    connect: (connector: SendMessageFn) => ReceiveMessageFn;
 }
 
 declare class SessionConnectionService implements ISession {
@@ -117,7 +279,7 @@ declare class SessionConnectionService implements ISession {
     private readonly swarmConnectionService;
     getSession: ((clientId: string, swarmName: string) => ClientSession) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientSession>;
     execute: (content: string) => Promise<string>;
-    connect: (connector: SendMessageFn$1) => ReceiveMessageFn$1;
+    connect: (connector: SendMessageFn) => ReceiveMessageFn;
     commitToolOutput: (content: string) => Promise<void>;
     commitSystemMessage: (message: string) => Promise<void>;
     dispose: () => Promise<void>;
@@ -134,11 +296,11 @@ type TAgentConnectionService = {
 declare class AgentPublicService implements TAgentConnectionService {
     private readonly loggerService;
     private readonly agentConnectionService;
-    execute: (input: string, clientId: string, agentName: AgentName$1) => Promise<void>;
-    waitForOutput: (clientId: string, agentName: AgentName$1) => Promise<string>;
-    commitToolOutput: (content: string, clientId: string, agentName: AgentName$1) => Promise<void>;
-    commitSystemMessage: (message: string, clientId: string, agentName: AgentName$1) => Promise<void>;
-    dispose: (clientId: string, agentName: AgentName$1) => Promise<void>;
+    execute: (input: string, clientId: string, agentName: AgentName) => Promise<void>;
+    waitForOutput: (clientId: string, agentName: AgentName) => Promise<string>;
+    commitToolOutput: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
+    commitSystemMessage: (message: string, clientId: string, agentName: AgentName) => Promise<void>;
+    dispose: (clientId: string, agentName: AgentName) => Promise<void>;
 }
 
 interface IHistoryConnectionService extends HistoryConnectionService {
@@ -153,10 +315,10 @@ type THistoryConnectionService = {
 declare class HistoryPublicService implements THistoryConnectionService {
     private readonly loggerService;
     private readonly historyConnectionService;
-    push: (message: IModelMessage$1, clientId: string, agentName: AgentName$1) => Promise<void>;
-    toArrayForAgent: (prompt: string, clientId: string, agentName: AgentName$1) => Promise<IModelMessage$1[]>;
-    toArrayForRaw: (clientId: string, agentName: AgentName$1) => Promise<IModelMessage$1[]>;
-    dispose: (clientId: string, agentName: AgentName$1) => Promise<void>;
+    push: (message: IModelMessage, clientId: string, agentName: AgentName) => Promise<void>;
+    toArrayForAgent: (prompt: string, clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
+    toArrayForRaw: (clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
+    dispose: (clientId: string, agentName: AgentName) => Promise<void>;
 }
 
 interface ISessionConnectionService extends SessionConnectionService {
@@ -171,7 +333,7 @@ declare class SessionPublicService implements TSessionConnectionService {
     private readonly loggerService;
     private readonly sessionConnectionService;
     execute: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
-    connect: (connector: SendMessageFn$1, clientId: string, swarmName: SwarmName) => ReceiveMessageFn$1;
+    connect: (connector: SendMessageFn, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
     commitToolOutput: (content: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     commitSystemMessage: (message: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     dispose: (clientId: string, swarmName: SwarmName) => Promise<void>;
@@ -190,8 +352,8 @@ declare class SwarmPublicService implements TSwarmConnectionService {
     private readonly swarmConnectionService;
     waitForOutput: (clientId: string, swarmName: SwarmName) => Promise<string>;
     getAgentName: (clientId: string, swarmName: SwarmName) => Promise<string>;
-    getAgent: (clientId: string, swarmName: SwarmName) => Promise<src_interfaces_Agent_interface.IAgent>;
-    setAgentName: (agentName: AgentName$1, clientId: string, swarmName: SwarmName) => Promise<void>;
+    getAgent: (clientId: string, swarmName: SwarmName) => Promise<IAgent>;
+    setAgentName: (agentName: AgentName, clientId: string, swarmName: SwarmName) => Promise<void>;
     dispose: (clientId: string, swarmName: SwarmName) => Promise<void>;
 }
 
@@ -200,15 +362,15 @@ declare class AgentValidationService {
     private readonly toolValidationService;
     private readonly completionValidationService;
     private _agentMap;
-    addAgent: (agentName: AgentName$1, agentSchema: IAgentSchema$1) => void;
-    validate: (agentName: AgentName$1) => void;
+    addAgent: (agentName: AgentName, agentSchema: IAgentSchema) => void;
+    validate: (agentName: AgentName) => void;
 }
 
 declare class ToolValidationService {
     private readonly loggerService;
     private _toolSet;
-    addTool: (toolName: ToolName$1) => void;
-    validate: (toolName: ToolName$1) => void;
+    addTool: (toolName: ToolName) => void;
+    validate: (toolName: ToolName) => void;
 }
 
 declare class SessionValidationService {
@@ -224,7 +386,7 @@ declare class SwarmValidationService {
     private readonly loggerService;
     private readonly agentValidationService;
     private _swarmMap;
-    addSwarm: (swarmName: SwarmName, swarmSchema: ISwarmSchema$1) => void;
+    addSwarm: (swarmName: SwarmName, swarmSchema: ISwarmSchema) => void;
     getAgentList: (swarmName: SwarmName) => string[];
     validate: (swarmName: SwarmName) => void;
 }
@@ -232,8 +394,8 @@ declare class SwarmValidationService {
 declare class CompletionValidationService {
     private readonly loggerService;
     private _completionSet;
-    addCompletion: (completionName: CompletionName$1) => void;
-    validate: (completionName: CompletionName$1) => void;
+    addCompletion: (completionName: CompletionName) => void;
+    validate: (completionName: CompletionName) => void;
 }
 
 declare const swarm: {
@@ -260,85 +422,25 @@ declare const swarm: {
     };
 };
 
-declare const addAgent: (agentName: AgentName$1, agentSchema: IAgentSchema$1) => void;
+declare const addAgent: (agentName: AgentName, agentSchema: IAgentSchema) => void;
 
-declare const addCompletion: (completionName: CompletionName$1, completionSchema: ICompletionSchema$1) => void;
+declare const addCompletion: (completionName: CompletionName, completionSchema: ICompletionSchema) => void;
 
-declare const addSwarm: (swarmName: SwarmName, swarmSchema: ISwarmSchema$1) => void;
+declare const addSwarm: (swarmName: SwarmName, swarmSchema: ISwarmSchema) => void;
 
-declare const addTool: (toolSchema: IAgentTool$1) => void;
+declare const addTool: (toolSchema: IAgentTool) => void;
 
-declare const makeConnection: (connector: SendMessageFn$1, clientId: string, swarmName: SwarmName) => ReceiveMessageFn$1;
+declare const makeConnection: (connector: SendMessageFn, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
 
-declare const changeAgent: (agentName: AgentName$1, clientId: string, swarmName: SwarmName) => Promise<void>;
+declare const changeAgent: (agentName: AgentName, clientId: string, swarmName: SwarmName) => Promise<void>;
 
 declare const complete: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
 
 declare const disposeConnection: (clientId: string, swarmName: SwarmName) => Promise<void>;
 
-interface IModelMessage {
-    role: 'assistant' | 'system' | 'tool' | 'user' | 'resque';
-    agentName: string;
-    content: string;
-    tool_calls?: {
-        function: {
-            name: string;
-            arguments: {
-                [key: string]: any;
-            };
-        };
-    }[];
-}
-
 declare const getRawHistory: (clientId: string) => Promise<IModelMessage[]>;
 
-declare const getAgentHistory: (clientId: string, agentName: AgentName$1) => Promise<IModelMessage[]>;
-
-interface ITool {
-    type: string;
-    function: {
-        name: string;
-        description: string;
-        parameters: {
-            type: string;
-            required: string[];
-            properties: {
-                [key: string]: {
-                    type: string;
-                    description: string;
-                    enum?: string[];
-                };
-            };
-        };
-    };
-}
-
-interface ICompletionSchema {
-    getCompletion(messages: IModelMessage$1[], tools?: ITool$1[]): Promise<IModelMessage$1>;
-}
-type CompletionName = string;
-
-interface IAgentTool<T = Record<string, unknown>> extends ITool {
-    call(clientId: string, agentName: AgentName, params: T): Promise<void>;
-    validate(clientId: string, agentName: AgentName, params: T): Promise<boolean> | boolean;
-}
-interface IAgentSchema {
-    completion: CompletionName;
-    prompt: string;
-    tools?: ToolName[];
-    validate?: (output: string) => Promise<string | null>;
-}
-type AgentName = string;
-type ToolName = string;
-
-interface ISwarmSchema {
-    defaultAgent: AgentName;
-    swarmName: string;
-    agentList: string[];
-}
-
-type SendMessageFn = (outgoing: IOutgoingMessage) => Promise<void> | void;
-type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
+declare const getAgentHistory: (clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
 
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;

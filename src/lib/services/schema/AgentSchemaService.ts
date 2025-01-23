@@ -1,8 +1,8 @@
 import { ToolRegistry } from "functools-kit";
-import { AgentName, IAgentSchema } from "src/interfaces/Agent.interface";
-import { inject } from "src/lib/core/di";
+import { AgentName, IAgentSchema } from "../../../interfaces/Agent.interface";
+import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
-import TYPES from "src/lib/core/types";
+import TYPES from "../../core/types";
 
 export class AgentSchemaService {
 

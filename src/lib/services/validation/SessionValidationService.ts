@@ -1,9 +1,9 @@
-import { inject } from "src/lib/core/di";
+import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
-import TYPES from "src/lib/core/types";
-import { CompletionName } from "src/interfaces/Completion.interface";
-import { SessionId } from "src/interfaces/Session.interface";
-import { SwarmName } from "src/interfaces/Swarm.interface";
+import TYPES from "../../core/types";
+import { CompletionName } from "../../../interfaces/Completion.interface";
+import { SessionId } from "../../../interfaces/Session.interface";
+import { SwarmName } from "../../../interfaces/Swarm.interface";
 
 export class SessionValidationService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);

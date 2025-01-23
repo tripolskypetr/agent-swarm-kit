@@ -1,10 +1,10 @@
-import { inject } from "src/lib/core/di";
+import { inject } from "../../core/di";
 import { HistoryConnectionService } from "../connection/HistoryConnectionService";
 import LoggerService from "../base/LoggerService";
-import TYPES from "src/lib/core/types";
+import TYPES from "../../core/types";
 import ContextService from "../base/ContextService";
-import { IModelMessage } from "src/model/ModelMessage.model";
-import { AgentName } from "src/interfaces/Agent.interface";
+import { IModelMessage } from "../../../model/ModelMessage.model";
+import { AgentName } from "../../../interfaces/Agent.interface";
 
 interface IHistoryConnectionService extends HistoryConnectionService {}
 
