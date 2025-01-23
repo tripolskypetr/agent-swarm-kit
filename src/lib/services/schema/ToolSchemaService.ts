@@ -24,7 +24,7 @@ export class ToolSchemaService {
 
     public dispose = () => {
         this.loggerService.log(`toolSchemaService dispose`);
-        this.registry= new ToolRegistry("toolSchemaService");
+        this.registry = new ToolRegistry("toolSchemaService");
     };
 }
 

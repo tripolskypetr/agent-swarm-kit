@@ -221,6 +221,7 @@ declare class SwarmValidationService {
     private readonly agentValidationService;
     private _swarmMap;
     addSwarm: (swarmName: SwarmName, swarmSchema: ISwarmSchema) => void;
+    getAgentList: (swarmName: SwarmName) => string[];
     validate: (swarmName: SwarmName) => void;
 }
 
@@ -263,7 +264,13 @@ declare const addSwarm: (swarmName: SwarmName, swarmSchema: ISwarmSchema) => voi
 
 declare const addTool: (toolSchema: IAgentTool) => void;
 
+declare const makeConnection: (connector: SendMessageFn, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
+
 declare const changeAgent: (agentName: AgentName, clientId: string, swarmName: SwarmName) => Promise<void>;
+
+declare const complete: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
+
+declare const disposeConnection: (clientId: string, swarmName: SwarmName) => Promise<void>;
 
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
@@ -272,4 +279,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
-export { ContextService, addAgent, addCompletion, addSwarm, addTool, changeAgent, setConfig, swarm };
+export { ContextService, addAgent, addCompletion, addSwarm, addTool, changeAgent, complete, disposeConnection, makeConnection, setConfig, swarm };

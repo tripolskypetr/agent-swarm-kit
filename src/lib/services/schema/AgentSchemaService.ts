@@ -22,7 +22,7 @@ export class AgentSchemaService {
 
     public dispose = () => {
         this.loggerService.log(`agentSchemaService dispose`);
-        this.registry= new ToolRegistry("agentSchemaService");
+        this.registry = new ToolRegistry("agentSchemaService");
     };
 
 }

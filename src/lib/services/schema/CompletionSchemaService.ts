@@ -21,7 +21,7 @@ export class CompletionSchemaService {
 
     public dispose = () => {
         this.loggerService.log(`completionSchemaService dispose`);
-        this.registry= new ToolRegistry("completionSchemaService");
+        this.registry = new ToolRegistry("completionSchemaService");
     };
 
 }

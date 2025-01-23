@@ -22,7 +22,7 @@ export class SwarmSchemaService {
 
     public dispose = () => {
         this.loggerService.log(`swarmSchemaService dispose`);
-        this.registry= new ToolRegistry("swarmSchemaService");
+        this.registry = new ToolRegistry("swarmSchemaService");
     };
 }
 

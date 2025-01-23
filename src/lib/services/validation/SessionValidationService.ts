@@ -25,9 +25,7 @@ export class SessionValidationService {
         this.loggerService.log("sessionValidationService addSession", {
             clientId,
         });
-        if (!this._sessionMap.delete(clientId)) {
-            throw new Error(`agent-swarm session ${clientId} not exist`);
-        }
+        this._sessionMap.delete(clientId);
     };
 
 }

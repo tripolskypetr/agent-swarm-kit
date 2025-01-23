@@ -72,7 +72,7 @@ export class SessionConnectionService implements ISession {
   };
 
   public dispose = async () => {
-    this.loggerService.log(`swarmConnectionService dispose`, {
+    this.loggerService.log(`sessionConnectionService dispose`, {
       context: this.contextService.context,
     });
     this.getSession.clear(
