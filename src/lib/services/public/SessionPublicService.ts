@@ -4,7 +4,7 @@ import LoggerService from "../base/LoggerService";
 import TYPES from "src/lib/core/types";
 import ContextService from "../base/ContextService";
 import { SwarmName } from "src/interfaces/Swarm.interface";
-import { SendMessageFn } from "src/interfaces/Session.interface";
+import { ReceiveMessageFn, SendMessageFn } from "src/interfaces/Session.interface";
 
 interface ISessionConnectionService extends SessionConnectionService {}
 
@@ -40,14 +40,34 @@ export class SessionPublicService implements TSessionConnectionService {
     );
   };
 
-  public connect = async (connector: SendMessageFn, clientId: string, swarmName: SwarmName) => {
+  public connect = (connector: SendMessageFn, clientId: string, swarmName: SwarmName): ReceiveMessageFn => {
     this.loggerService.log("sessionPublicService connect", {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
-      async () => {
-        return await this.sessionConnectionService.connect(connector);
+    return ContextService.runInContext(
+      () => {
+        const receive = this.sessionConnectionService.connect(async (outgoing) => {
+          return await ContextService.runInContext(
+            async () => {
+              return await connector(outgoing);
+            },
+            {
+              clientId,
+              swarmName,
+              agentName: "",
+            }
+          );
+        });
+        return (incoming) => {
+          return ContextService.runInContext(() => {
+            return receive(incoming);
+          },       {
+            clientId,
+            swarmName,
+            agentName: "",
+          })
+        }
       },
       {
         clientId,

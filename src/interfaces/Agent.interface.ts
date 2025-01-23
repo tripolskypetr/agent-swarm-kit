@@ -18,7 +18,7 @@ export interface IAgentToolSignature<T = Record<string, unknown>>
         getToolSignature: never;
       }
     > {
-  implementation(agentName: AgentName, params: T): Promise<void>;
+  implementation(clientId: string, agentName: AgentName, params: T): Promise<void>;
 }
 
 export interface IAgentParams extends Omit<IAgentSpec, keyof {

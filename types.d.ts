@@ -11,7 +11,6 @@ import ClientHistory from 'src/client/ClientHistory';
 import ClientSwarm from 'src/client/ClientSwarm';
 import { ICompletion } from 'src/interfaces/Completion.interface';
 import ClientSession from 'src/client/ClientSession';
-import * as src_interfaces_Session_interface from 'src/interfaces/Session.interface';
 import { ISession, SendMessageFn, ReceiveMessageFn } from 'src/interfaces/Session.interface';
 
 interface IContext {
@@ -170,7 +169,7 @@ declare class SessionPublicService implements TSessionConnectionService {
     private readonly loggerService;
     private readonly sessionConnectionService;
     execute: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
-    connect: (connector: SendMessageFn, clientId: string, swarmName: SwarmName) => Promise<src_interfaces_Session_interface.ReceiveMessageFn>;
+    connect: (connector: SendMessageFn, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
     commitToolOutput: (content: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     commitSystemMessage: (message: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     dispose: (clientId: string, swarmName: SwarmName) => Promise<void>;

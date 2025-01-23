@@ -191,7 +191,7 @@ export class ClientAgent implements IAgent {
         /**
          * @description Do not await to await deadlock! The tool can send the message to the agent by emulating user messages
          */
-        targetFn.implementation(this.params.agentName, tool.function.arguments);
+        targetFn.implementation(this.params.clientId, this.params.agentName, tool.function.arguments);
         this.params.logger.debug(
           `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call executing`
         );
