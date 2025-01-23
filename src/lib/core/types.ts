@@ -11,10 +11,10 @@ const connectionServices = {
 };
 
 const specServices = {
-    completionSpecService: Symbol('completionSpecService'),
-    agentSpecService: Symbol('agentSpecService'),
-    swarmSpecService: Symbol('swarmSpecService'),
-    toolSpecService: Symbol('toolSpecService'),
+    completionSchemaService: Symbol('completionSchemaService'),
+    agentSchemaService: Symbol('agentSchemaService'),
+    swarmSchemaService: Symbol('swarmSchemaService'),
+    toolSchemaService: Symbol('toolSchemaService'),
 };
 
 const publicServices = {

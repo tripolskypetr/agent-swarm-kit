@@ -1,6 +1,6 @@
 import { IAgentTool } from "src/interfaces/Agent.interface";
 import swarm from "src/lib";
 
-export const addTool = (toolSpec: IAgentTool) => {
-    swarm.toolSpecService.register(toolSpec.function.name, toolSpec);
+export const addTool = (toolSchema: IAgentTool) => {
+    swarm.toolSchemaService.register(toolSchema.function.name, toolSchema);
 };

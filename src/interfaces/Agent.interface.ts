@@ -8,7 +8,7 @@ export interface IAgentTool<T = Record<string, unknown>> extends ITool {
   validate(clientId: string, agentName: AgentName, params: T): Promise<boolean> | boolean;
 }
 
-export interface IAgentParams extends Omit<IAgentSpec, keyof {
+export interface IAgentParams extends Omit<IAgentSchema, keyof {
   tools: never;
   completion: never;
   validate: never;
@@ -22,7 +22,7 @@ export interface IAgentParams extends Omit<IAgentSpec, keyof {
   validate: (output: string) => Promise<string | null>;
 }
 
-export interface IAgentSpec {
+export interface IAgentSchema {
   completion: CompletionName;
   prompt: string;
   tools?: ToolName[];

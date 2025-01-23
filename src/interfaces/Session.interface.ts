@@ -3,13 +3,13 @@ import { AgentName, IAgent } from "./Agent.interface";
 import { ILogger } from "./Logger.interface";
 import ISwarm from "./Swarm.interface";
 
-export interface ISessionParams extends ISessionSpec {
+export interface ISessionParams extends ISessionSchema {
   clientId: string;
   logger: ILogger;
   swarm: ISwarm;
 }
 
-export interface ISessionSpec {
+export interface ISessionSchema {
 }
 
 export type SendMessageFn = (outgoing: IOutgoingMessage) => Promise<void> | void;

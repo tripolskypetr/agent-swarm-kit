@@ -4,11 +4,11 @@ import TYPES from "./core/types";
 import LoggerService from "./services/base/LoggerService";
 import AgentConnectionService from "./services/connection/AgentConnectionService";
 import HistoryConnectionService from "./services/connection/HistoryConnectionService";
-import AgentSpecService from "./services/spec/AgentSpecService";
-import ToolSpecService from "./services/spec/ToolSpecService";
+import AgentSchemaService from "./services/schema/AgentSchemaService";
+import ToolSchemaService from "./services/schema/ToolSchemaService";
 import SwarmConnectionService from "./services/connection/SwarmConnectionService";
-import SwarmSpecService from "./services/spec/SwarmSpecService";
-import CompletionSpecService from "./services/spec/CompletionSpecService";
+import SwarmSchemaService from "./services/schema/SwarmSchemaService";
+import CompletionSchemaService from "./services/schema/CompletionSchemaService";
 import ContextService, {
   TContextService,
 } from "./services/base/ContextService";
@@ -44,11 +44,11 @@ const connectionServices = {
 };
 
 const specServices = {
-  agentSpecService: inject<AgentSpecService>(TYPES.agentSpecService),
-  toolSpecService: inject<ToolSpecService>(TYPES.toolSpecService),
-  swarmSpecService: inject<SwarmSpecService>(TYPES.swarmSpecService),
-  completionSpecService: inject<CompletionSpecService>(
-    TYPES.completionSpecService
+  agentSchemaService: inject<AgentSchemaService>(TYPES.agentSchemaService),
+  toolSchemaService: inject<ToolSchemaService>(TYPES.toolSchemaService),
+  swarmSchemaService: inject<SwarmSchemaService>(TYPES.swarmSchemaService),
+  completionSchemaService: inject<CompletionSchemaService>(
+    TYPES.completionSchemaService
   ),
 };
 

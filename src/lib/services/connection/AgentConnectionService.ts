@@ -5,10 +5,10 @@ import { TContextService } from "../base/ContextService";
 import { memoize } from "functools-kit";
 import ClientAgent from "src/client/ClientAgent";
 import HistoryConnectionService from "./HistoryConnectionService";
-import AgentSpecService from "../spec/AgentSpecService";
-import ToolSpecService from "../spec/ToolSpecService";
+import AgentSchemaService from "../schema/AgentSchemaService";
+import ToolSchemaService from "../schema/ToolSchemaService";
 import { IAgent } from "src/interfaces/Agent.interface";
-import CompletionSpecService from "../spec/CompletionSpecService";
+import CompletionSchemaService from "../schema/CompletionSchemaService";
 import validateDefault from "src/validation/validateDefault";
 
 export class AgentConnectionService implements IAgent {
@@ -20,21 +20,21 @@ export class AgentConnectionService implements IAgent {
   private readonly historyConnectionService = inject<HistoryConnectionService>(
     TYPES.historyConnectionService
   );
-  private readonly agentSpecService = inject<AgentSpecService>(
-    TYPES.agentSpecService
+  private readonly agentSchemaService = inject<AgentSchemaService>(
+    TYPES.agentSchemaService
   );
-  private readonly toolSpecService = inject<ToolSpecService>(
-    TYPES.toolSpecService
+  private readonly toolSchemaService = inject<ToolSchemaService>(
+    TYPES.toolSchemaService
   );
-  private readonly completionSpecService = inject<CompletionSpecService>(
-    TYPES.completionSpecService
+  private readonly completionSchemaService = inject<CompletionSchemaService>(
+    TYPES.completionSchemaService
   );
 
   public getAgent = memoize(
     ([clientId, agentName]) => `${clientId}-${agentName}`,
     (clientId: string, agentName: string) => {
-      const { prompt, tools, completion: completionName, validate = validateDefault } = this.agentSpecService.get(agentName);
-      const completion = this.completionSpecService.get(completionName)
+      const { prompt, tools, completion: completionName, validate = validateDefault } = this.agentSchemaService.get(agentName);
+      const completion = this.completionSchemaService.get(completionName)
       return new ClientAgent({
         clientId,
         agentName,
@@ -42,7 +42,7 @@ export class AgentConnectionService implements IAgent {
         logger: this.loggerService,
         history: this.historyConnectionService,
         prompt,
-        tools: tools?.map(this.toolSpecService.get),
+        tools: tools?.map(this.toolSchemaService.get),
         completion,
       });
     }

@@ -1,9 +1,9 @@
 import { IModelMessage } from "src/model/ModelMessage.model";
 import { ITool } from "src/model/Tool.model";
 
-export interface ICompletion extends ICompletionSpec { }
+export interface ICompletion extends ICompletionSchema { }
 
-export interface ICompletionSpec {
+export interface ICompletionSchema {
   getCompletion(messages: IModelMessage[], tools?: ITool[]): Promise<IModelMessage>;
 }
 

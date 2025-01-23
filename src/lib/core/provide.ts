@@ -1,14 +1,14 @@
 import ContextService from "../services/base/ContextService";
 import LoggerService from "../services/base/LoggerService";
-import AgentSpecService from "../services/spec/AgentSpecService";
+import AgentSchemaService from "../services/schema/AgentSchemaService";
 import AgentConnectionService from "../services/connection/AgentConnectionService";
 import HistoryConnectionService from "../services/connection/HistoryConnectionService";
 import { provide } from "./di";
 import TYPES from "./types";
-import ToolSpecService from "../services/spec/ToolSpecService";
+import ToolSchemaService from "../services/schema/ToolSchemaService";
 import SwarmConnectionService from "../services/connection/SwarmConnectionService";
-import SwarmSpecService from "../services/spec/SwarmSpecService";
-import CompletionSpecService from "../services/spec/CompletionSpecService";
+import SwarmSchemaService from "../services/schema/SwarmSchemaService";
+import CompletionSchemaService from "../services/schema/CompletionSchemaService";
 import SessionConnectionService from "../services/connection/SessionConnectionService";
 import AgentPublicService from "../services/public/AgentPublicService";
 import HistoryPublicService from "../services/public/HistoryPublicService";
@@ -33,10 +33,10 @@ import ToolValidationService from "../services/validation/ToolValidationService"
 }
 
 {
-    provide(TYPES.agentSpecService, () => new AgentSpecService());
-    provide(TYPES.toolSpecService, () => new ToolSpecService());
-    provide(TYPES.swarmSpecService, () => new SwarmSpecService());
-    provide(TYPES.completionSpecService, () => new CompletionSpecService());
+    provide(TYPES.agentSchemaService, () => new AgentSchemaService());
+    provide(TYPES.toolSchemaService, () => new ToolSchemaService());
+    provide(TYPES.swarmSchemaService, () => new SwarmSchemaService());
+    provide(TYPES.completionSchemaService, () => new CompletionSchemaService());
 }
 
 {

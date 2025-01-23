@@ -9,13 +9,13 @@ export interface IHistory {
   toArrayForRaw(): Promise<IModelMessage[]>;
 }
 
-export interface IHistoryParams extends IHistorySpec{
+export interface IHistoryParams extends IHistorySchema{
   agentName: AgentName;
   clientId: string;
   logger: ILogger;
 }
 
-export interface IHistorySpec {
+export interface IHistorySchema {
   items: IPubsubArray<IModelMessage>;
 }
 

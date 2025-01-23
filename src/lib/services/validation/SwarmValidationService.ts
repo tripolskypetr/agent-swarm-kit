@@ -1,7 +1,7 @@
 import { inject } from "src/lib/core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "src/lib/core/types";
-import { SwarmName, ISwarmSpec } from "src/interfaces/Swarm.interface";
+import { SwarmName, ISwarmSchema } from "src/interfaces/Swarm.interface";
 import AgentValidationService from "./AgentValidationService";
 
 export class SwarmValidationService {
@@ -10,17 +10,17 @@ export class SwarmValidationService {
     
     private readonly agentValidationService = inject<AgentValidationService>(TYPES.agentValidationService);
 
-    private _swarmMap = new Map<SwarmName, ISwarmSpec>();
+    private _swarmMap = new Map<SwarmName, ISwarmSchema>();
 
-    public addSwarm = (swarmName: SwarmName, swarmSpec: ISwarmSpec) => {
+    public addSwarm = (swarmName: SwarmName, swarmSchema: ISwarmSchema) => {
         this.loggerService.log("swarmValidationService addSwarm", {
             swarmName,
-            swarmSpec,
+            swarmSchema,
         });
         if (this._swarmMap.has(swarmName)) {
             throw new Error(`swarm-swarm swarm ${swarmName} already exist`);
         }
-        this._swarmMap.set(swarmName, swarmSpec);
+        this._swarmMap.set(swarmName, swarmSchema);
     };
 
     public validate = (swarmName: SwarmName) => {

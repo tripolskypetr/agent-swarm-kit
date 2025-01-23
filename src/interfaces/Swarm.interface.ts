@@ -1,7 +1,7 @@
 import { AgentName, IAgent } from "./Agent.interface";
 import { ILogger } from "./Logger.interface";
 
-export interface ISwarmParams extends Omit<ISwarmSpec, keyof {
+export interface ISwarmParams extends Omit<ISwarmSchema, keyof {
   agentList: never;
 }> {
   clientId: string;
@@ -9,7 +9,7 @@ export interface ISwarmParams extends Omit<ISwarmSpec, keyof {
   agentMap: Record<AgentName, IAgent>;
 }
 
-export interface ISwarmSpec {
+export interface ISwarmSchema {
   defaultAgent: AgentName;
   agentList: string[];
 }

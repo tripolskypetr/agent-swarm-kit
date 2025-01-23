@@ -4,7 +4,7 @@ import TYPES from "src/lib/core/types";
 import { memoize } from "functools-kit";
 import { TContextService } from "../base/ContextService";
 import ClientSwarm from "src/client/ClientSwarm";
-import SwarmSpecService from "../spec/SwarmSpecService";
+import SwarmSchemaService from "../schema/SwarmSchemaService";
 import AgentConnectionService from "./AgentConnectionService";
 import { AgentName, IAgent } from "src/interfaces/Agent.interface";
 import ISwarm from "src/interfaces/Swarm.interface";
@@ -19,14 +19,14 @@ export class SwarmConnectionService implements ISwarm {
     TYPES.agentConnectionService
   );
 
-  private readonly swarmSpecService = inject<SwarmSpecService>(
-    TYPES.swarmSpecService
+  private readonly swarmSchemaService = inject<SwarmSchemaService>(
+    TYPES.swarmSchemaService
   );
 
   public getSwarm = memoize(
     ([clientId, swarmName]) => `${clientId}-${swarmName}`,
     (clientId: string, swarmName: string) => {
-      const { agentList, defaultAgent } = this.swarmSpecService.get(swarmName);
+      const { agentList, defaultAgent } = this.swarmSchemaService.get(swarmName);
       const agentMap: Record<AgentName, IAgent> = {};
       for (const agentName of agentList) {
         agentMap[agentName] = this.agentConnectionService.getAgent(
