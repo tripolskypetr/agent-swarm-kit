@@ -11,7 +11,6 @@ export const session = (clientId: string, swarmName: SwarmName) => {
             return await swarm.sessionPublicService.execute(content, clientId, swarmName);
         },
         dispose: async () => {
-            swarm.sessionValidationService.validate(clientId);
             return await disposeConnection(clientId, swarmName);
         },
     }
