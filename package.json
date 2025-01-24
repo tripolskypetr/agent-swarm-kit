@@ -33,6 +33,7 @@
   },
   "scripts": {
     "build": "rollup -c",
+    "test": "node ./test/index.mjs",
     "build:docs": "rimraf docs && mkdir docs && node ./scripts/dts-docs.cjs ./types.d.ts ./docs",
     "docs:gpt": "node ./scripts/gpt-docs.mjs"
   },

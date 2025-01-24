@@ -85,8 +85,9 @@ export class ClientAgent implements IAgent {
     );
     const messages = await this.params.history.toArrayForAgent(this.params.prompt);
     return await this.params.completion.getCompletion(
+      this.params.agentName,
       messages,
-      this.params.tools?.map((t) => omit(t, "implementation", "call"))
+      this.params.tools?.map((t) => omit(t, "toolName", "call", "validate"))
     );
   };
 

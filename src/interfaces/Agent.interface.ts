@@ -4,6 +4,7 @@ import { ITool } from "../model/Tool.model";
 import { CompletionName, ICompletion } from "../interfaces/Completion.interface";
 
 export interface IAgentTool<T = Record<string, unknown>> extends ITool {
+  toolName: ToolName;
   call(clientId: string, agentName: AgentName, params: T): Promise<void>;
   validate(clientId: string, agentName: AgentName, params: T): Promise<boolean> | boolean;
 }
@@ -13,7 +14,6 @@ export interface IAgentParams extends Omit<IAgentSchema, keyof {
   completion: never;
   validate: never;
 }> {
-  agentName: AgentName;
   clientId: string;
   logger: ILogger;
   history: IHistory;
@@ -23,6 +23,7 @@ export interface IAgentParams extends Omit<IAgentSchema, keyof {
 }
 
 export interface IAgentSchema {
+  agentName: AgentName;
   completion: CompletionName;
   prompt: string;
   tools?: ToolName[];

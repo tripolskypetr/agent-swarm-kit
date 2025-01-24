@@ -57,11 +57,13 @@ interface ITool {
 interface ICompletion extends ICompletionSchema {
 }
 interface ICompletionSchema {
-    getCompletion(messages: IModelMessage[], tools?: ITool[]): Promise<IModelMessage>;
+    completionName: CompletionName;
+    getCompletion(agentName: AgentName, messages: IModelMessage[], tools?: ITool[]): Promise<IModelMessage>;
 }
 type CompletionName = string;
 
 interface IAgentTool<T = Record<string, unknown>> extends ITool {
+    toolName: ToolName;
     call(clientId: string, agentName: AgentName, params: T): Promise<void>;
     validate(clientId: string, agentName: AgentName, params: T): Promise<boolean> | boolean;
 }
@@ -70,7 +72,6 @@ interface IAgentParams extends Omit<IAgentSchema, keyof {
     completion: never;
     validate: never;
 }> {
-    agentName: AgentName;
     clientId: string;
     logger: ILogger;
     history: IHistory;
@@ -79,6 +80,7 @@ interface IAgentParams extends Omit<IAgentSchema, keyof {
     validate: (output: string) => Promise<string | null>;
 }
 interface IAgentSchema {
+    agentName: AgentName;
     completion: CompletionName;
     prompt: string;
     tools?: ToolName[];
@@ -364,8 +366,8 @@ declare class AgentValidationService {
 
 declare class ToolValidationService {
     private readonly loggerService;
-    private _toolSet;
-    addTool: (toolName: ToolName) => void;
+    private _toolMap;
+    addTool: (toolName: ToolName, toolSchema: IAgentTool) => void;
     validate: (toolName: ToolName) => void;
 }
 
@@ -418,13 +420,13 @@ declare const swarm: {
     };
 };
 
-declare const addAgent: (agentName: AgentName, agentSchema: IAgentSchema) => void;
+declare const addAgent: (agentSchema: IAgentSchema) => string;
 
-declare const addCompletion: (completionName: CompletionName, completionSchema: ICompletionSchema) => void;
+declare const addCompletion: (completionSchema: ICompletionSchema) => string;
 
-declare const addSwarm: (swarmName: SwarmName, swarmSchema: ISwarmSchema) => void;
+declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
 
-declare const addTool: (toolSchema: IAgentTool) => void;
+declare const addTool: (toolSchema: IAgentTool) => string;
 
 declare const makeConnection: (connector: SendMessageFn, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
 
@@ -432,11 +434,20 @@ declare const changeAgent: (agentName: AgentName, clientId: string) => Promise<v
 
 declare const complete: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
 
+declare const session: (clientId: string, swarmName: SwarmName) => {
+    complete: (content: string) => Promise<string>;
+    dispose: () => Promise<void>;
+};
+
 declare const disposeConnection: (clientId: string, swarmName: SwarmName) => Promise<void>;
 
 declare const getRawHistory: (clientId: string) => Promise<IModelMessage[]>;
 
 declare const getAgentHistory: (clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
+
+declare const commitToolOutput: (content: string, clientId: string) => void;
+
+declare const commitSystemMessage: (content: string, clientId: string) => void;
 
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
@@ -446,4 +457,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type ISwarmSchema, type ReceiveMessageFn, type SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, complete, disposeConnection, getAgentHistory, getRawHistory, makeConnection, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type ISwarmSchema, type ReceiveMessageFn, type SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, complete, disposeConnection, getAgentHistory, getRawHistory, makeConnection, session, setConfig, swarm };

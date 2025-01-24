@@ -1,7 +1,8 @@
-import { AgentName, IAgentSchema } from "../interfaces/Agent.interface";
+import { IAgentSchema } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 
-export const addAgent = (agentName: AgentName, agentSchema: IAgentSchema) => {
-    swarm.agentValidationService.addAgent(agentName, agentSchema);
-    swarm.agentSchemaService.register(agentName, agentSchema);
+export const addAgent = (agentSchema: IAgentSchema) => {
+    swarm.agentValidationService.addAgent(agentSchema.agentName, agentSchema);
+    swarm.agentSchemaService.register(agentSchema.agentName, agentSchema);
+    return agentSchema.agentName;
 };

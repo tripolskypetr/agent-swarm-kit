@@ -1,7 +1,8 @@
-import { CompletionName, ICompletionSchema } from "../interfaces/Completion.interface";
+import { ICompletionSchema } from "../interfaces/Completion.interface";
 import swarm from "../lib";
 
-export const addCompletion = (completionName: CompletionName, completionSchema: ICompletionSchema) => {
-    swarm.completionValidationService.addCompletion(completionName);
-    swarm.completionSchemaService.register(completionName, completionSchema);
+export const addCompletion = (completionSchema: ICompletionSchema) => {
+    swarm.completionValidationService.addCompletion(completionSchema.completionName);
+    swarm.completionSchemaService.register(completionSchema.completionName, completionSchema);
+    return completionSchema.completionName;
 };
