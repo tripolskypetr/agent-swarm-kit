@@ -6,11 +6,14 @@ import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
 
 export const makeConnection = (
-  connector: SendMessageFn,
+  connector: ReceiveMessageFn,
   clientId: string,
   swarmName: SwarmName
-): ReceiveMessageFn => {
+): SendMessageFn => {
   swarm.swarmValidationService.validate(swarmName);
   swarm.sessionValidationService.addSession(clientId, swarmName);
-  return swarm.sessionPublicService.connect(connector, clientId, swarmName);
+  const send = swarm.sessionPublicService.connect(connector, clientId, swarmName);
+  return async (outgoing) => {
+    return await send(outgoing);
+  }
 };

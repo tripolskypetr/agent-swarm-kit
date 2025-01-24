@@ -35,7 +35,8 @@
     "build": "rollup -c",
     "test": "node ./test/index.mjs",
     "build:docs": "rimraf docs && mkdir docs && node ./scripts/dts-docs.cjs ./types.d.ts ./docs",
-    "docs:gpt": "node ./scripts/gpt-docs.mjs"
+    "docs:gpt": "node ./scripts/gpt-docs.mjs",
+    "repl": "dotenv -e .env -- npm run build && node -e \"import('./scripts/repl.mjs')\" --interactive"
   },
   "main": "build/index.cjs",
   "module": "build/index.mjs",
@@ -59,7 +60,7 @@
     "rollup-plugin-dts": "6.1.1",
     "rollup-plugin-peer-deps-external": "2.2.4",
     "tslib": "2.7.0",
-    "worker-testbed": "1.0.8"
+    "worker-testbed": "1.0.10"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -67,7 +68,7 @@
   "dependencies": {
     "di-kit": "^1.0.12",
     "di-scoped": "^1.0.11",
-    "functools-kit": "^1.0.69",
+    "functools-kit": "^1.0.72",
     "lodash-es": "4.17.21",
     "xml2js": "0.6.2"
   }

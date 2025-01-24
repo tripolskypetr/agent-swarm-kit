@@ -377,6 +377,7 @@ declare class SessionValidationService {
     addSession: (clientId: SessionId, swarmName: SwarmName) => void;
     getSessionList: () => string[];
     getSwarm: (clientId: SessionId) => string;
+    validate: (clientId: SessionId) => void;
     removeSession: (clientId: SessionId) => void;
 }
 
@@ -428,7 +429,7 @@ declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
 
 declare const addTool: (toolSchema: IAgentTool) => string;
 
-declare const makeConnection: (connector: SendMessageFn, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
+declare const makeConnection: (connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName) => SendMessageFn;
 
 declare const changeAgent: (agentName: AgentName, clientId: string) => Promise<void>;
 
@@ -449,6 +450,8 @@ declare const commitToolOutput: (content: string, clientId: string) => void;
 
 declare const commitSystemMessage: (content: string, clientId: string) => void;
 
+declare const execute: (content: string, clientId: string) => Promise<string>;
+
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
@@ -457,4 +460,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type ISwarmSchema, type ReceiveMessageFn, type SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, complete, disposeConnection, getAgentHistory, getRawHistory, makeConnection, session, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type ISwarmSchema, type ReceiveMessageFn, type SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, complete, disposeConnection, execute, getAgentHistory, getRawHistory, makeConnection, session, setConfig, swarm };

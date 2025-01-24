@@ -36,6 +36,13 @@ export class SessionValidationService {
     return session;
   };
 
+  public validate = (clientId: SessionId) => {
+    this.loggerService.log("sessionValidationService validate", { clientId });
+    if (!this._sessionMap.has(clientId)) {
+      throw new Error(`agent-swarm session clientId=${clientId} not exist`);
+    }
+  };
+
   public removeSession = (clientId: SessionId) => {
     this.loggerService.log("sessionValidationService addSession", {
       clientId,
