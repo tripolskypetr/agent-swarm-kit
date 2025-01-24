@@ -183,8 +183,8 @@ export class ClientAgent implements IAgent {
         this.params.logger.debug(
           `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call end`
         );
-        return;
       }
+      return;
     }
     if (!message.tool_calls) {
       this.params.logger.debug(

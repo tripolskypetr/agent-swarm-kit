@@ -1,3 +1,4 @@
+import { queued } from "functools-kit";
 import {
   ReceiveMessageFn,
   SendMessageFn,
@@ -12,9 +13,13 @@ export const makeConnection = (
 ): SendMessageFn => {
   swarm.swarmValidationService.validate(swarmName);
   swarm.sessionValidationService.addSession(clientId, swarmName);
-  const send = swarm.sessionPublicService.connect(connector, clientId, swarmName);
-  return async (outgoing) => {
+  const send = swarm.sessionPublicService.connect(
+    connector,
+    clientId,
+    swarmName
+  );
+  return queued(async (outgoing) => {
     swarm.sessionValidationService.validate(clientId);
     return await send(outgoing);
-  }
+  }) as SendMessageFn;
 };

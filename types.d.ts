@@ -435,8 +435,9 @@ declare const changeAgent: (agentName: AgentName, clientId: string) => Promise<v
 
 declare const complete: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
 
+type TComplete = (content: string) => Promise<string>;
 declare const session: (clientId: string, swarmName: SwarmName) => {
-    complete: (content: string) => Promise<string>;
+    complete: TComplete;
     dispose: () => Promise<void>;
 };
 

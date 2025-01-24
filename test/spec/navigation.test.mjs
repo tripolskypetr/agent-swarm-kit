@@ -8,7 +8,6 @@ import {
   changeAgent,
   complete,
   execute,
-  swarm,
 } from "../../build/index.mjs";
 import { randomString } from "functools-kit";
 
