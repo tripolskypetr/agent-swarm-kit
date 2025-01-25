@@ -154,7 +154,7 @@ Agent Swarm Kit lets you build intelligent multi-agent systems where different a
 **Core Components:**
 - Agent Management: Create, validate, and connect agents
 - Session Handling: Execute commands across agent networks
-- Tool Validation: Ensure agent tools meet system requirements
+- Tool Validation: Ensure agent tools calls meet argument requirements
 - History Tracking: Log and retrieve agent interactions
 
 **Use Cases:**
