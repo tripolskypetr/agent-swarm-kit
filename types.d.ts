@@ -1,7 +1,6 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { IPubsubArray, Subject } from 'functools-kit';
-import { AgentName as AgentName$1 } from 'src/interfaces/Agent.interface';
 
 interface IModelMessage {
     role: 'assistant' | 'system' | 'tool' | 'user' | 'resque';
@@ -183,7 +182,8 @@ declare class ClientHistory implements IHistory {
 declare class HistoryConnectionService implements IHistory {
     private readonly loggerService;
     private readonly contextService;
-    getItems: ((clientId: string) => IPubsubArray<IModelMessage>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, IPubsubArray<IModelMessage>>;
+    private readonly sessionValidationService;
+    getItems: ((clientId: string, agentName: AgentName) => IPubsubArray<IModelMessage>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, IPubsubArray<IModelMessage>>;
     getHistory: ((clientId: string, agentName: string) => ClientHistory) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientHistory>;
     push: (message: IModelMessage) => Promise<void>;
     toArrayForAgent: (prompt: string) => Promise<IModelMessage[]>;
@@ -260,11 +260,11 @@ interface ISessionParams extends ISessionSchema {
 }
 interface ISessionSchema {
 }
-type SendMessageFn = (outgoing: IOutgoingMessage) => Promise<void> | void;
+type SendMessageFn$1 = (outgoing: IOutgoingMessage) => Promise<void> | void;
 type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
 interface ISession {
     execute(content: string): Promise<string>;
-    connect(connector: SendMessageFn): ReceiveMessageFn;
+    connect(connector: SendMessageFn$1): ReceiveMessageFn;
     commitToolOutput(content: string): Promise<void>;
     commitSystemMessage(message: string): Promise<void>;
 }
@@ -272,11 +272,12 @@ type SessionId = string;
 
 declare class ClientSession implements ISession {
     readonly params: ISessionParams;
+    readonly _emitSubject: Subject<string>;
     constructor(params: ISessionParams);
-    execute: (message: string) => Promise<string>;
+    execute: (message: string, noEmit?: boolean) => Promise<string>;
     commitToolOutput: (content: string) => Promise<void>;
     commitSystemMessage: (message: string) => Promise<void>;
-    connect: (connector: SendMessageFn) => ReceiveMessageFn;
+    connect: (connector: SendMessageFn$1) => ReceiveMessageFn;
 }
 
 declare class SessionConnectionService implements ISession {
@@ -285,7 +286,7 @@ declare class SessionConnectionService implements ISession {
     private readonly swarmConnectionService;
     getSession: ((clientId: string, swarmName: string) => ClientSession) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientSession>;
     execute: (content: string) => Promise<string>;
-    connect: (connector: SendMessageFn) => ReceiveMessageFn;
+    connect: (connector: SendMessageFn$1) => ReceiveMessageFn;
     commitToolOutput: (content: string) => Promise<void>;
     commitSystemMessage: (message: string) => Promise<void>;
     dispose: () => Promise<void>;
@@ -339,7 +340,7 @@ declare class SessionPublicService implements TSessionConnectionService {
     private readonly loggerService;
     private readonly sessionConnectionService;
     execute: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
-    connect: (connector: SendMessageFn, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
+    connect: (connector: SendMessageFn$1, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
     commitToolOutput: (content: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     commitSystemMessage: (message: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     dispose: (clientId: string, swarmName: SwarmName) => Promise<void>;
@@ -381,13 +382,17 @@ declare class ToolValidationService {
 
 declare class SessionValidationService {
     private readonly loggerService;
+    private _historySwarmMap;
     private _sessionSwarmMap;
     private _agentSwarmMap;
     addSession: (clientId: SessionId, swarmName: SwarmName) => void;
-    addAgentUsage: (sessionId: SessionId, agentName: AgentName$1) => void;
-    removeAgentUsage: (sessionId: SessionId, agentName: AgentName$1) => void;
+    addAgentUsage: (sessionId: SessionId, agentName: AgentName) => void;
+    addHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
+    removeAgentUsage: (sessionId: SessionId, agentName: AgentName) => void;
+    removeHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
     getSessionList: () => string[];
     getSessionAgentList: (clientId: string) => string[];
+    getSessionHistoryList: (clientId: string) => string[];
     getSwarm: (clientId: SessionId) => string;
     validate: (clientId: SessionId, source: string) => void;
     removeSession: (clientId: SessionId) => void;
@@ -441,6 +446,7 @@ declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
 
 declare const addTool: (toolSchema: IAgentTool) => string;
 
+type SendMessageFn = (outgoing: string) => Promise<void>;
 declare const makeConnection: (connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName) => SendMessageFn;
 
 declare const changeAgent: (agentName: AgentName, clientId: string) => Promise<void>;
@@ -470,7 +476,8 @@ declare const GLOBAL_CONFIG: {
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
     CC_KEEP_MESSAGES: number;
     CC_ANSWER_TIMEOUT_SECONDS: number;
+    CC_GET_AGENT_HISTORY: (clientId: string, agentName: AgentName) => IPubsubArray<IModelMessage>;
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type ISwarmSchema, type ReceiveMessageFn, type SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, complete, disposeConnection, execute, getAgentHistory, getRawHistory, makeConnection, session, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type ISwarmSchema, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, complete, disposeConnection, execute, getAgentHistory, getRawHistory, makeConnection, session, setConfig, swarm };
