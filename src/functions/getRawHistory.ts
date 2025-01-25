@@ -5,5 +5,6 @@ export const getRawHistory = async (clientId: string) => {
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
     swarm.swarmValidationService.validate(swarmName);
     const agentName = await swarm.swarmPublicService.getAgentName(clientId, swarmName);
-    return swarm.historyPublicService.toArrayForRaw(clientId, agentName);
+    const history = await swarm.historyPublicService.toArrayForRaw(clientId, agentName);
+    return [...history];
 };

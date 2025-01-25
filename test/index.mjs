@@ -7,4 +7,5 @@ import "./spec/connection.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");
+    process.exit(-1);
 });
