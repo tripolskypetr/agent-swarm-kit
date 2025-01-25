@@ -103,9 +103,9 @@ app.get("/api/v1/session/:clientId", upgradeWebSocket((ctx) => {
   const { complete, dispose } = session(clientId, TEST_SWARM)
 
   return {
-    onMessage(event) {
+    onMessage(event, ws) {
       const message = event.data.toString();
-      incomingSubject.next(await complete(message));
+      ws.send(await complete(message));
     },
     onClose: () => {
       await dispose();
