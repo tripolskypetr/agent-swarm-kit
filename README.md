@@ -110,7 +110,7 @@ app.get("/api/v1/session/:clientId", upgradeWebSocket((ctx) => {
 
 ```
 
-The feature of this library is dependency inversion for agents injection. The agents are being lazy loaded during runtime, so you can declare them in separate modules connecting them to swarm with a string constant
+The feature of this library is dependency inversion for agents injection. The agents are being lazy loaded during runtime, so you can declare them in separate modules and connect them to swarm with a string constant
 
 ```tsx
 
