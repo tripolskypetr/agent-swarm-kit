@@ -11,6 +11,7 @@ export const execute = async (content: string, clientId: string, agentName: Agen
         swarm.loggerService.log('function "execute" skipped due to the agent change', {
             currentAgentName,
             agentName,
+            clientId,
         });
         return;
     }

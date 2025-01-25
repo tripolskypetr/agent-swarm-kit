@@ -10,6 +10,7 @@ export const commitSystemMessage = async (content: string, clientId: string, age
         swarm.loggerService.log('function "commitSystemMessage" skipped due to the agent change', {
             currentAgentName,
             agentName,
+            clientId,
         });
         return;
     }

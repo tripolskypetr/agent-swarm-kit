@@ -11,6 +11,7 @@ export const commitToolOutput = async (content: string, clientId: string, agentN
         swarm.loggerService.log('function "commitToolOutput" skipped due to the agent change', {
             currentAgentName,
             agentName,
+            clientId,
         });
         return;
     }
