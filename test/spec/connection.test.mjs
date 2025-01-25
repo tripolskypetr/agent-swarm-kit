@@ -66,7 +66,7 @@ test("Will clear history for similar clientId after each parallel complete call"
 });
 
 test("Will orchestrate swarms for each connection", async ({ pass, fail, end }) => {
-  const TOTAL_CHECKS = 1;
+  const TOTAL_CHECKS = 100;
 
   const NAVIGATE_TOOL = addTool({
     toolName: "navigate-tool",
@@ -147,14 +147,21 @@ test("Will orchestrate swarms for each connection", async ({ pass, fail, end }) 
   });
 
   const clientMap = new Map();
+  const promises = [];
 
   for (let i = 0; i !== TOTAL_CHECKS; i++) {
     const clientId = randomString();
     const { complete } = session(clientId, TEST_SWARM);
     const targetAgent = i % 2 === 0 ? SALES_AGENT : REDUND_AGENT;
-    await complete(targetAgent);
+    promises.push(
+      complete(targetAgent).then(() => {
+        clientMap.set(clientId, targetAgent);
+      })
+    );
     clientMap.set(clientId, targetAgent);
   }
+
+  await Promise.all(promises);
   
   for (const [clientId, agentName] of clientMap) {
     const currentAgent = await swarm.swarmPublicService.getAgentName(clientId, TEST_SWARM);
