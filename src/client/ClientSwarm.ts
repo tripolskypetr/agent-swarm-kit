@@ -1,3 +1,4 @@
+import { queued } from "functools-kit";
 import { GLOBAL_CONFIG } from "../config/params";
 import { AgentName } from "../interfaces/Agent.interface";
 import ISwarm, { ISwarmParams } from "../interfaces/Swarm.interface";
@@ -10,7 +11,7 @@ export class ClientSwarm implements ISwarm {
     this._activeAgent = params.defaultAgent;
   }
 
-  waitForOutput = async (): Promise<string> => {
+  waitForOutput = queued(async (): Promise<string> => {
     this.params.logger.debug(`ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} waitForOutput`);
     const START_TIME = Date.now();
     while (true) {
@@ -29,7 +30,7 @@ export class ClientSwarm implements ISwarm {
         return output;
       }
     }
-  };
+  }) as () => Promise<string>;
 
   getAgentName = async (): Promise<AgentName> => {
     this.params.logger.debug(`ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgentName`);

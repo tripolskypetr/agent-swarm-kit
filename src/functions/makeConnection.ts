@@ -1,10 +1,9 @@
 import { queued } from "functools-kit";
-import {
-  ReceiveMessageFn,
-  SendMessageFn,
-} from "../interfaces/Session.interface";
+import { ReceiveMessageFn } from "../interfaces/Session.interface";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
+
+type SendMessageFn = (outgoing: string) => Promise<void>;
 
 export const makeConnection = (
   connector: ReceiveMessageFn,
@@ -20,6 +19,13 @@ export const makeConnection = (
   );
   return queued(async (outgoing) => {
     swarm.sessionValidationService.validate(clientId, "makeConnection");
-    return await send(outgoing);
+    return await send({
+      data: outgoing,
+      agentName: await swarm.swarmPublicService.getAgentName(
+        clientId,
+        swarmName
+      ),
+      clientId,
+    });
   }) as SendMessageFn;
 };

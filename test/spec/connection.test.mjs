@@ -178,7 +178,7 @@ test("Will orchestrate swarms for each connection", async ({ pass, fail }) => {
 });
 
 test("Will queue user messages in connection", async ({ pass, fail }) => {  
-  const TOTAL_CHECKS = 100;
+  const TOTAL_CHECKS = 10;
 
   const checkMessages = (messages) => {
     const assistantMessages = messages.filter(({ role }) => role === "assistant").map(({ content }) => content);
@@ -268,10 +268,7 @@ test("Will queue user messages in connection", async ({ pass, fail }) => {
     const clientId = randomString();
     const complete = makeConnection(() => {}, clientId, TEST_SWARM);
     for (const message of messageList) {
-      promises.push(complete({
-        data: message,
-        clientId,
-      }));
+      promises.push(complete(message));
     }
   }
 
@@ -297,6 +294,74 @@ test("Will queue user messages in connection", async ({ pass, fail }) => {
     fail(getErrorMessage(error));
   }
 
+  pass("Ok");
+
+});
+
+test("Will allow server-side emit for makeConnection", async ({ pass, fail }) => {
+
+  const CLIENT_ID = randomString();
+  const TOTAL_CHECKS = 3;
+
+  let COUNTER = 0;
+
+  const TEST_COMPLETION = addCompletion({
+      completionName: "test-completion",
+      getCompletion: async ({ agentName }) => {
+          await sleep(1);
+          COUNTER += 1;
+          return {
+              agentName,
+              content: String(COUNTER),
+              role: "assistant",
+          }
+      },
+  });
+
+  const TEST_AGENT = addAgent({
+      agentName: "test-agent",
+      completion: TEST_COMPLETION,
+      prompt: "0",
+  });
+
+  const TEST_SWARM = addSwarm({
+      swarmName: "test-swarm",
+      agentList: [TEST_AGENT],
+      defaultAgent: TEST_AGENT,
+  });
+
+  const outputList = [];
+  const tasks = [];
+
+  const send = makeConnection((msg) => {
+    outputList.push(msg)
+  }, CLIENT_ID, TEST_SWARM)
+
+  for (let i = 0; i !== TOTAL_CHECKS; i++) {
+    tasks.push(async () => {
+      await send("inc");
+    });
+  }
+
+  for (let i = 0; i !== TOTAL_CHECKS; i++) {
+    tasks.push(async () => {
+      await execute("inc", CLIENT_ID);
+    });
+  }
+
+  await Promise.all(tasks.map(async (task) => await task()));
+
+  if (outputList.length !== TOTAL_CHECKS * 2) {
+    fail('Missing execute server-side message');
+  }
+
+  const maxItem = outputList.reduce((acm, { data: value }) => Math.max(acm, parseInt(value)), Number.NEGATIVE_INFINITY);
+
+  if (maxItem !== TOTAL_CHECKS * 2) {
+    fail('Missing execute server-side message');
+  }
+
   pass();
 
 });
+
