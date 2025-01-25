@@ -4,7 +4,9 @@ import { GLOBAL_CONFIG } from "../config/params";
 
 export class ClientHistory implements IHistory {
 
-  constructor(readonly params: IHistoryParams) {}
+  constructor(readonly params: IHistoryParams) {
+    this.params.logger.debug(`ClientHistory agentName=${this.params.agentName} clientId=${this.params.clientId} CTOR`)
+  }
 
   push = async (message: IModelMessage) => {
     this.params.logger.debug(

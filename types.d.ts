@@ -1,6 +1,7 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { IPubsubArray, Subject } from 'functools-kit';
+import { AgentName as AgentName$1 } from 'src/interfaces/Agent.interface';
 
 interface IModelMessage {
     role: 'assistant' | 'system' | 'tool' | 'user' | 'resque';
@@ -158,6 +159,7 @@ declare class ClientAgent implements IAgent {
 declare class AgentConnectionService implements IAgent {
     private readonly loggerService;
     private readonly contextService;
+    private readonly sessionValidationService;
     private readonly historyConnectionService;
     private readonly agentSchemaService;
     private readonly toolSchemaService;
@@ -379,9 +381,13 @@ declare class ToolValidationService {
 
 declare class SessionValidationService {
     private readonly loggerService;
-    private _sessionMap;
+    private _sessionSwarmMap;
+    private _agentSwarmMap;
     addSession: (clientId: SessionId, swarmName: SwarmName) => void;
+    addAgentUsage: (sessionId: SessionId, agentName: AgentName$1) => void;
+    removeAgentUsage: (sessionId: SessionId, agentName: AgentName$1) => void;
     getSessionList: () => string[];
+    getSessionAgentList: (clientId: string) => string[];
     getSwarm: (clientId: SessionId) => string;
     validate: (clientId: SessionId, source: string) => void;
     removeSession: (clientId: SessionId) => void;

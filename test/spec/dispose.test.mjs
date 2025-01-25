@@ -116,15 +116,22 @@ test("Will dispose connections for session function", async ({
   }
 
   for (const clientId of clientIds) {
-    disposeConnection(clientId, TEST_SWARM);
+    await disposeConnection(clientId, TEST_SWARM);
   }
 
   if (swarm.sessionValidationService.getSessionList().length) {
     fail();
   }
 
+  for (const clientId of clientIds) {
+    if (swarm.sessionValidationService.getSessionAgentList(clientId).length) {
+        fail();
+    }
+  }
+
   pass();
 });
+
 
 test("Will dispose connections for makeConnection function", async ({
   pass,
@@ -221,11 +228,17 @@ test("Will dispose connections for makeConnection function", async ({
   }
 
   for (const clientId of clientIds) {
-    disposeConnection(clientId, TEST_SWARM);
+    await disposeConnection(clientId, TEST_SWARM);
   }
 
   if (swarm.sessionValidationService.getSessionList().length) {
     fail();
+  }
+
+  for (const clientId of clientIds) {
+    if (swarm.sessionValidationService.getSessionAgentList(clientId).length) {
+        fail();
+    }
   }
 
   pass();
@@ -317,13 +330,24 @@ test("Will dispose connections for complete function", async ({
     swarmName: "navigation-swarm",
   });
 
+  const clientIds = [];
+
   for (let i = 0; i !== TOTAL_CHECKS; i++) {
-    complete(SALES_AGENT, randomString(), TEST_SWARM);
+    const clientId = randomString();
+    complete(SALES_AGENT, clientId, TEST_SWARM);
+    clientIds.push(clientId);
   }
 
   if (swarm.sessionValidationService.getSessionList().length) {
     fail();
   }
+
+  for (const clientId of clientIds) {
+    if (swarm.sessionValidationService.getSessionAgentList(clientId).length) {
+        fail();
+    }
+  }
+
 
   pass();
 });

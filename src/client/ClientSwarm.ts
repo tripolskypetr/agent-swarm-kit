@@ -6,11 +6,12 @@ export class ClientSwarm implements ISwarm {
   private _activeAgent: AgentName;
 
   constructor(readonly params: ISwarmParams) {
+    this.params.logger.debug(`ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} CTOR`)
     this._activeAgent = params.defaultAgent;
   }
 
   waitForOutput = async (): Promise<string> => {
-    this.params.logger.debug("BaseConnection waitForOutput");
+    this.params.logger.debug(`ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} waitForOutput`);
     const START_TIME = Date.now();
     while (true) {
       if (Date.now() - START_TIME >= GLOBAL_CONFIG.CC_ANSWER_TIMEOUT_SECONDS) {
@@ -31,18 +32,18 @@ export class ClientSwarm implements ISwarm {
   };
 
   getAgentName = async (): Promise<AgentName> => {
-    this.params.logger.debug(`ClientSwarm getAgentName`);
+    this.params.logger.debug(`ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgentName`);
     return this._activeAgent;
   };
 
   getAgent = async () => {
-    this.params.logger.debug(`ClientSwarm getAgent`);
+    this.params.logger.debug(`ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgent`);
     const agent = await this.getAgentName();
     return this.params.agentMap[agent];
   };
 
   setAgentName = async (agentName: AgentName) => {
-    this.params.logger.debug(`ClientSwarm setAgentName agentName=${agentName}`);
+    this.params.logger.debug(`ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setAgentName agentName=${agentName}`);
     this._activeAgent = agentName;
   };
 }

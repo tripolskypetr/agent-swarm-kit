@@ -10,11 +10,16 @@ import ToolSchemaService from "../schema/ToolSchemaService";
 import { IAgent } from "../../../interfaces/Agent.interface";
 import CompletionSchemaService from "../schema/CompletionSchemaService";
 import validateDefault from "../../../validation/validateDefault";
+import SessionValidationService from "../validation/SessionValidationService";
 
 export class AgentConnectionService implements IAgent {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly contextService = inject<TContextService>(
     TYPES.contextService
+  );
+
+  private readonly sessionValidationService = inject<SessionValidationService>(
+    TYPES.sessionValidationService
   );
 
   private readonly historyConnectionService = inject<HistoryConnectionService>(
@@ -33,8 +38,14 @@ export class AgentConnectionService implements IAgent {
   public getAgent = memoize(
     ([clientId, agentName]) => `${clientId}-${agentName}`,
     (clientId: string, agentName: string) => {
-      const { prompt, tools, completion: completionName, validate = validateDefault } = this.agentSchemaService.get(agentName);
-      const completion = this.completionSchemaService.get(completionName)
+      const {
+        prompt,
+        tools,
+        completion: completionName,
+        validate = validateDefault,
+      } = this.agentSchemaService.get(agentName);
+      const completion = this.completionSchemaService.get(completionName);
+      this.sessionValidationService.addAgentUsage(clientId, agentName);
       return new ClientAgent({
         clientId,
         agentName,
@@ -97,6 +108,10 @@ export class AgentConnectionService implements IAgent {
     });
     this.getAgent.clear(
       `${this.contextService.context.clientId}-${this.contextService.context.agentName}`
+    );
+    this.sessionValidationService.removeAgentUsage(
+      this.contextService.context.clientId,
+      this.contextService.context.agentName
     );
   };
 }
