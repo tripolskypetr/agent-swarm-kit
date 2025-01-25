@@ -301,18 +301,18 @@ test("Will queue user messages in connection", async ({ pass, fail }) => {
 test("Will allow server-side emit for makeConnection", async ({ pass, fail }) => {
 
   const CLIENT_ID = randomString();
-  const TOTAL_CHECKS = 3;
-
-  let COUNTER = 0;
+  const TOTAL_CHECKS = 100;
 
   const TEST_COMPLETION = addCompletion({
       completionName: "test-completion",
       getCompletion: async ({ agentName }) => {
-          await sleep(1);
-          COUNTER += 1;
+          await sleep(Math.floor(Math.random() * 10));
+          const totalMessages = await getRawHistory(CLIENT_ID);
+          const assistantMessages = totalMessages.filter(({ role }) => role === "assistant");
+          const [{ content = "0" } = {}] = assistantMessages.slice(-1);
           return {
               agentName,
-              content: String(COUNTER),
+              content: String(parseInt(content) + 1),
               role: "assistant",
           }
       },
@@ -359,6 +359,14 @@ test("Will allow server-side emit for makeConnection", async ({ pass, fail }) =>
 
   if (maxItem !== TOTAL_CHECKS * 2) {
     fail('Missing execute server-side message');
+  }
+
+  for (let idx = 1; idx !== TOTAL_CHECKS * 2; idx++) {
+    const { content: prevItem } = outputList[idx - 1];
+    const { content: currentItem } = outputList[idx] - 1;
+    if (prevItem !== currentItem) {
+      fail(`The execution queue failed: prevItem=${prevItem} currentItem=${currentItem} idx=${idx}`);
+    }
   }
 
   pass();

@@ -1,7 +1,7 @@
 import { test } from "worker-testbed";
 
 import { addAgent, addCompletion, addSwarm, changeAgent, complete, session, swarm } from '../../build/index.mjs'
-import { randomString } from "functools-kit";
+import { randomString, sleep } from "functools-kit";
 
 const CLIENT_ID = randomString();
 
@@ -17,7 +17,7 @@ test("Will run model completion", async ({ pass, fail }) => {
         completionName: "mock-completion",
         getCompletion: async ({ agentName, messages }) => {
             debug.log(JSON.stringify(messages, null, 2));
-            // await sleep(1_000);
+            await sleep(1);
             return {
                 agentName,
                 content: "Hello world",
