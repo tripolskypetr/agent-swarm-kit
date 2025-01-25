@@ -129,6 +129,12 @@ test("Will dispose connections for session function", async ({
     }
   }
 
+  for (const clientId of clientIds) {
+    if (swarm.sessionValidationService.getSessionHistoryList(clientId).length) {
+        fail();
+    }
+  }
+
   pass();
 });
 
@@ -241,6 +247,12 @@ test("Will dispose connections for makeConnection function", async ({
     }
   }
 
+  for (const clientId of clientIds) {
+    if (swarm.sessionValidationService.getSessionHistoryList(clientId).length) {
+        fail();
+    }
+  }
+
   pass();
 });
 
@@ -348,6 +360,11 @@ test("Will dispose connections for complete function", async ({
     }
   }
 
+  for (const clientId of clientIds) {
+    if (swarm.sessionValidationService.getSessionHistoryList(clientId).length) {
+        fail();
+    }
+  }
 
   pass();
 });

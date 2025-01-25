@@ -1,7 +1,7 @@
-import { swarm } from "../build/index.mjs";
+import * as moduleData from "../build/index.mjs";
 
 {
-  globalThis.swarm = swarm;
+  Object.assign(globalThis, moduleData);
 }
 
 process.exit = (statuscode) => {

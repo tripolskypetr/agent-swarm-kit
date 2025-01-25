@@ -1,3 +1,7 @@
+import { IPubsubArray, PubsubArrayAdapter } from "functools-kit";
+import { AgentName } from "../interfaces/Agent.interface";
+import { IModelMessage } from "../model/ModelMessage.model";
+
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
  */
@@ -23,13 +27,19 @@ const CC_KEEP_MESSAGES = 5;
 
 const CC_ANSWER_TIMEOUT_SECONDS = 120_000;
 
+const CC_GET_AGENT_HISTORY: (
+  clientId: string,
+  agentName: AgentName
+) => IPubsubArray<IModelMessage> = () => new PubsubArrayAdapter();
+
 export const GLOBAL_CONFIG = {
-    CC_TOOL_CALL_EXCEPTION_PROMPT,
-    CC_EMPTY_OUTPUT_PLACEHOLDERS,
-    CC_KEEP_MESSAGES,
-    CC_ANSWER_TIMEOUT_SECONDS,
+  CC_TOOL_CALL_EXCEPTION_PROMPT,
+  CC_EMPTY_OUTPUT_PLACEHOLDERS,
+  CC_KEEP_MESSAGES,
+  CC_ANSWER_TIMEOUT_SECONDS,
+  CC_GET_AGENT_HISTORY,
 };
 
 export const setConfig = (config: typeof GLOBAL_CONFIG) => {
-    Object.assign(GLOBAL_CONFIG, config);
-}
+  Object.assign(GLOBAL_CONFIG, config);
+};

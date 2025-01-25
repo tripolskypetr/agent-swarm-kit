@@ -4,11 +4,12 @@ import TYPES from "../../core/types";
 import { CompletionName } from "../../../interfaces/Completion.interface";
 import { SessionId } from "../../../interfaces/Session.interface";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
-import { AgentName } from "src/interfaces/Agent.interface";
+import { AgentName } from "../../../interfaces/Agent.interface";
 
 export class SessionValidationService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
+  private _historySwarmMap = new Map<SessionId, AgentName[]>();
   private _sessionSwarmMap = new Map<SessionId, SwarmName>();
   private _agentSwarmMap = new Map<SessionId, AgentName[]>();
 
@@ -37,6 +38,21 @@ export class SessionValidationService {
     }
   };
 
+  public addHistoryUsage = (sessionId: SessionId, agentName: AgentName): void => {
+    this.loggerService.log("sessionValidationService addHistoryUsage", {
+      sessionId,
+      agentName,
+    });
+    if (this._historySwarmMap.has(sessionId)) {
+      const agents = this._historySwarmMap.get(sessionId)!;
+      if (!agents.includes(agentName)) {
+        agents.push(agentName);
+      }
+    } else {
+      this._historySwarmMap.set(sessionId, [agentName]);
+    }
+  };
+
   public removeAgentUsage = (
     sessionId: SessionId,
     agentName: AgentName
@@ -59,6 +75,28 @@ export class SessionValidationService {
     }
   };
 
+  public removeHistoryUsage = (
+    sessionId: SessionId,
+    agentName: AgentName
+  ): void => {
+    this.loggerService.log("sessionValidationService removeHistoryUsage", {
+      sessionId,
+      agentName,
+    });
+    if (this._historySwarmMap.has(sessionId)) {
+      const agents = this._historySwarmMap.get(sessionId)!;
+      const agentIndex = agents.indexOf(agentName);
+      if (agentIndex !== -1) {
+        agents.splice(agentIndex, 1);
+      }
+      if (agents.length === 0) {
+        this._historySwarmMap.delete(sessionId);
+      }
+    } else {
+      throw new Error(`No agents found for sessionId=${sessionId}`);
+    }
+  };
+
   public getSessionList = () => {
     this.loggerService.log("sessionValidationService getSessionList");
     return [...this._sessionSwarmMap.keys()];
@@ -66,6 +104,13 @@ export class SessionValidationService {
 
   public getSessionAgentList = (clientId: string) => {
     this.loggerService.log("sessionValidationService getSessionAgentList", {
+      clientId,
+    });
+    return this._agentSwarmMap.get(clientId) ?? [];
+  };
+
+  public getSessionHistoryList = (clientId: string) => {
+    this.loggerService.log("sessionValidationService getSessionHistoryList", {
       clientId,
     });
     return this._agentSwarmMap.get(clientId) ?? [];

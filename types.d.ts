@@ -1,7 +1,6 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { IPubsubArray, Subject } from 'functools-kit';
-import { AgentName as AgentName$1 } from 'src/interfaces/Agent.interface';
 
 interface IModelMessage {
     role: 'assistant' | 'system' | 'tool' | 'user' | 'resque';
@@ -183,7 +182,8 @@ declare class ClientHistory implements IHistory {
 declare class HistoryConnectionService implements IHistory {
     private readonly loggerService;
     private readonly contextService;
-    getItems: ((clientId: string) => IPubsubArray<IModelMessage>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, IPubsubArray<IModelMessage>>;
+    private readonly sessionValidationService;
+    getItems: ((clientId: string, agentName: AgentName) => IPubsubArray<IModelMessage>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, IPubsubArray<IModelMessage>>;
     getHistory: ((clientId: string, agentName: string) => ClientHistory) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientHistory>;
     push: (message: IModelMessage) => Promise<void>;
     toArrayForAgent: (prompt: string) => Promise<IModelMessage[]>;
@@ -382,13 +382,17 @@ declare class ToolValidationService {
 
 declare class SessionValidationService {
     private readonly loggerService;
+    private _historySwarmMap;
     private _sessionSwarmMap;
     private _agentSwarmMap;
     addSession: (clientId: SessionId, swarmName: SwarmName) => void;
-    addAgentUsage: (sessionId: SessionId, agentName: AgentName$1) => void;
-    removeAgentUsage: (sessionId: SessionId, agentName: AgentName$1) => void;
+    addAgentUsage: (sessionId: SessionId, agentName: AgentName) => void;
+    addHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
+    removeAgentUsage: (sessionId: SessionId, agentName: AgentName) => void;
+    removeHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
     getSessionList: () => string[];
     getSessionAgentList: (clientId: string) => string[];
+    getSessionHistoryList: (clientId: string) => string[];
     getSwarm: (clientId: SessionId) => string;
     validate: (clientId: SessionId, source: string) => void;
     removeSession: (clientId: SessionId) => void;
@@ -472,6 +476,7 @@ declare const GLOBAL_CONFIG: {
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
     CC_KEEP_MESSAGES: number;
     CC_ANSWER_TIMEOUT_SECONDS: number;
+    CC_GET_AGENT_HISTORY: (clientId: string, agentName: AgentName) => IPubsubArray<IModelMessage>;
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
