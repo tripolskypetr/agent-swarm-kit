@@ -53,6 +53,9 @@ const MOCK_COMPLETION = addCompletion({
   completionName: "navigate-completion",
   /**
    * Use whatever you want: NVIDIA NIM, OpenAI, GPT4All, Ollama or LM Studio
+   * Even mock it for unit test of tool integration like it done in `test` folder
+   * 
+   * @see https://github.com/tripolskypetr/agent-swarm-kit/tree/master/test
    */
   getCompletion: async ({ messages, tools }) => {
     return ollama.chat({
