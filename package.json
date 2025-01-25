@@ -1,7 +1,7 @@
 {
   "name": "agent-swarm-kit",
-  "version": "0.0.2",
-  "description": "A library with helpers for react-declarative app backend development",
+  "version": "1.0.0",
+  "description": "A TypeScript library for building orchestrated framework-agnostic multi-agent AI systems",
   "author": {
     "name": "Petr Tripolsky",
     "email": "tripolskypetr@gmail.com",
@@ -14,9 +14,14 @@
   "license": "MIT",
   "homepage": "https://react-declarative-playground.github.io",
   "keywords": [
-    "react-declarative",
-    "functional-programming",
-    "helpers"
+    "NVIDIA NIM",
+    "OpenAI",
+    "GPT4All",
+    "Ollama",
+    "LM Studio",
+    "llama",
+    "gpt",
+    "mistral"
   ],
   "files": [
     "build",
