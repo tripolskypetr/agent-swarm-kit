@@ -33,7 +33,7 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "test": "node ./test/index.mjs",
+    "test": "npm run build && node ./test/index.mjs",
     "build:docs": "rimraf docs && mkdir docs && node ./scripts/dts-docs.cjs ./types.d.ts ./docs",
     "docs:gpt": "node ./scripts/gpt-docs.mjs",
     "repl": "dotenv -e .env -- npm run build && node -e \"import('./scripts/repl.mjs')\" --interactive"

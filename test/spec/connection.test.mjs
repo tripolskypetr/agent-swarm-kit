@@ -8,10 +8,12 @@ import {
   changeAgent,
   complete,
   execute,
+  getRawHistory,
+  makeConnection,
   session,
   swarm,
 } from "../../build/index.mjs";
-import { randomString, sleep } from "functools-kit";
+import { getErrorMessage, randomString, sleep } from "functools-kit";
 
 const debug = {
   log(...args) {
@@ -29,7 +31,7 @@ test("Will clear history for similar clientId after each parallel complete call"
 
   const MOCK_COMPLETION = addCompletion({
     completionName: "mock-completion",
-    getCompletion: async (agentName, messages) => {
+    getCompletion: async ({ agentName, messages }) => {
       const [{ content }] = messages;
       await sleep(1);
       return {
@@ -65,7 +67,7 @@ test("Will clear history for similar clientId after each parallel complete call"
   pass("");
 });
 
-test("Will orchestrate swarms for each connection", async ({ pass, fail, end }) => {
+test("Will orchestrate swarms for each connection", async ({ pass, fail }) => {
   const TOTAL_CHECKS = 100;
 
   const NAVIGATE_TOOL = addTool({
@@ -92,7 +94,7 @@ test("Will orchestrate swarms for each connection", async ({ pass, fail, end }) 
 
   const MOCK_COMPLETION = addCompletion({
     completionName: "navigate-completion",
-    getCompletion: async (agentName, messages) => {
+    getCompletion: async ({ agentName, messages }) => {
       const [{ content }] = messages.slice(-1);
       if (content === "Navigation complete") {
         return {
@@ -171,4 +173,128 @@ test("Will orchestrate swarms for each connection", async ({ pass, fail, end }) 
   }
 
   pass("");
+});
+
+test("Will queue user messages in connection", async ({ pass, fail }) => {  
+  const TOTAL_CHECKS = 100;
+
+  const checkMessages = (messages) => {
+    const assistantMessages = messages.filter(({ role }) => role === "assistant").map(({ content }) => content);
+    if (assistantMessages.length < 3) {
+      return;
+    }
+    const [foo, bar, baz] = assistantMessages;
+    if (foo !== "foo") {
+      throw new Error(`Queue is broken on foo: ${assistantMessages.join(", ")}`)
+    }
+    if (bar !== "bar") {
+      throw new Error(`Queue is broken on bar: ${assistantMessages.join(", ")}`)
+    }
+    if (baz !== "baz") {
+      throw new Error(`Queue is broken on baz: ${assistantMessages.join(", ")}`)
+    }
+  }
+
+  const MOCK_COMPLETION = addCompletion({
+    completionName: "navigate-completion",
+    getCompletion: async ({ clientId, agentName, messages }) => {
+      checkMessages(await getRawHistory(clientId));
+      await sleep(Math.floor(Math.random() * 1_000));
+      const [{ content }] = messages.slice(-1);
+
+      if (content === "foo") {
+        return {
+          agentName,
+          content: "foo",
+          role: "assistant",
+        }
+      }
+      if (content === "bar") {
+        return {
+          agentName,
+          content: "bar",
+          role: "assistant",
+        }
+      }
+      if (content === "baz") {
+        return {
+          agentName,
+          content: "baz",
+          role: "assistant",
+        }
+      }
+      return {
+        agentName,
+        content: "bad",
+        role: "assistant",
+      }
+    },
+  });
+
+  const TEST_AGENT = addAgent({
+    agentName: "test-agent",
+    completion: MOCK_COMPLETION,
+    prompt: "Will return foo-bar-baz-bad",
+  });
+
+  const TEST_SWARM = addSwarm({
+    agentList: [TEST_AGENT],
+    defaultAgent: TEST_AGENT,
+    swarmName: "test-swarm",
+  });
+
+  const messageList = ["foo", "bar", "baz", "bad", "bam"];
+  const promises = [];
+
+  for (let i = 0; i !== TOTAL_CHECKS; i++) {
+    const clientId = randomString();
+    const { complete } = session(clientId, TEST_SWARM);
+    for (const message of messageList) {
+      promises.push(complete(message));
+    }
+  }
+
+  try {
+    await Promise.all(promises);
+  } catch (error) {
+    fail(getErrorMessage(error));
+  }
+
+  promises.splice(0, promises.length);
+
+  for (let i = 0; i !== TOTAL_CHECKS; i++) {
+    const clientId = randomString();
+    const complete = makeConnection(() => {}, clientId, TEST_SWARM);
+    for (const message of messageList) {
+      promises.push(complete({
+        data: message,
+        clientId,
+      }));
+    }
+  }
+
+  try {
+    await Promise.all(promises);
+  } catch (error) {
+    fail(getErrorMessage(error));
+  }
+
+  promises.splice(0, promises.length);
+
+  for (let i = 0; i !== TOTAL_CHECKS; i++) {
+    const clientId = randomString();
+    session(clientId, TEST_SWARM);
+    for (const message of messageList) {
+      promises.push(execute(message, clientId));
+    }
+  }
+
+  try {
+    await Promise.all(promises);
+  } catch (error) {
+    fail(getErrorMessage(error));
+  }
+
+  pass();
+
 });

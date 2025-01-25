@@ -16,7 +16,7 @@ const debug = {
 const useCompletion = () => {
     addCompletion({
         completionName: "mock-completion",
-        getCompletion: async (agentName, messages) => {
+        getCompletion: async ({ agentName, messages }) => {
             debug.log();
             // await sleep(1_000);
             return {

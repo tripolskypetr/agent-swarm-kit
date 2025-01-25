@@ -15,7 +15,7 @@ test("Will run model completion", async ({ pass, fail }) => {
 
     addCompletion({
         completionName: "mock-completion",
-        getCompletion: async (agentName, messages) => {
+        getCompletion: async ({ agentName, messages }) => {
             debug.log(JSON.stringify(messages, null, 2));
             // await sleep(1_000);
             return {

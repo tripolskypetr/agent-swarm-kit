@@ -11,7 +11,7 @@ export const makeConnection = (
   clientId: string,
   swarmName: SwarmName
 ): SendMessageFn => {
-  swarm.swarmValidationService.validate(swarmName);
+  swarm.swarmValidationService.validate(swarmName, "makeConnection");
   swarm.sessionValidationService.addSession(clientId, swarmName);
   const send = swarm.sessionPublicService.connect(
     connector,
@@ -19,7 +19,7 @@ export const makeConnection = (
     swarmName
   );
   return queued(async (outgoing) => {
-    swarm.sessionValidationService.validate(clientId);
+    swarm.sessionValidationService.validate(clientId, "makeConnection");
     return await send(outgoing);
   }) as SendMessageFn;
 };

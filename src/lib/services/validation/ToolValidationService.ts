@@ -23,15 +23,16 @@ export class ToolValidationService {
 
   public validate = memoize(
     ([toolName]) => toolName,
-    (toolName: ToolName) => {
+    (toolName: ToolName, source: string) => {
       this.loggerService.log("toolValidationService validate", {
         toolName,
+        source,
       });
       if (!this._toolMap.has(toolName)) {
-        throw new Error(`agent-swarm tool ${toolName} not found`);
+        throw new Error(`agent-swarm tool ${toolName} not found source=${source}`);
       }
     }
-  ) as (toolName: ToolName) => void;
+  ) as (toolName: ToolName, source: string) => void;
 }
 
 export default ToolValidationService;

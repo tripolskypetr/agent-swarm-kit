@@ -4,9 +4,16 @@ import { AgentName } from "./Agent.interface";
 
 export interface ICompletion extends ICompletionSchema { }
 
+export interface ICompletionArgs {
+  clientId: string,
+  agentName: AgentName, 
+  messages: IModelMessage[],
+  tools?: ITool[]
+}
+
 export interface ICompletionSchema {
   completionName: CompletionName;
-  getCompletion(agentName: AgentName, messages: IModelMessage[], tools?: ITool[]): Promise<IModelMessage>;
+  getCompletion(args: ICompletionArgs): Promise<IModelMessage>;
 }
 
 export type CompletionName = string;

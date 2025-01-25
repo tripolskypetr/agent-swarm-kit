@@ -36,10 +36,10 @@ export class SessionValidationService {
     return session;
   };
 
-  public validate = (clientId: SessionId) => {
+  public validate = (clientId: SessionId, source: string) => {
     this.loggerService.log("sessionValidationService validate", { clientId });
     if (!this._sessionMap.has(clientId)) {
-      throw new Error(`agent-swarm session clientId=${clientId} not exist`);
+      throw new Error(`agent-swarm session clientId=${clientId} not exist source=${source}`);
     }
   };
 

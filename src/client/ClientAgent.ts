@@ -84,11 +84,12 @@ export class ClientAgent implements IAgent {
       `ClientAgent agentName=${this.params.agentName} getCompletion`
     );
     const messages = await this.params.history.toArrayForAgent(this.params.prompt);
-    return await this.params.completion.getCompletion(
-      this.params.agentName,
+    return await this.params.completion.getCompletion({
+      clientId: this.params.clientId,
+      agentName: this.params.agentName,
       messages,
-      this.params.tools?.map((t) => omit(t, "toolName", "call", "validate"))
-    );
+      tools: this.params.tools?.map((t) => omit(t, "toolName", "call", "validate"))
+    });
   };
 
   commitSystemMessage = async (message: string): Promise<void> => {

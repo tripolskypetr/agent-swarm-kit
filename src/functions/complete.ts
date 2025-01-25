@@ -11,7 +11,7 @@ const COMPLETE_GC = 60 * 1_000;
 const createComplete = ttl(
   (clientId: string, swarmName: SwarmName) =>
     queued(async (content: string) => {
-      swarm.swarmValidationService.validate(swarmName);
+      swarm.swarmValidationService.validate(swarmName, "complete");
       swarm.sessionValidationService.addSession(clientId, swarmName);
       const result = await swarm.sessionPublicService.execute(
         content,

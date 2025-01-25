@@ -21,15 +21,16 @@ export class CompletionValidationService {
 
   public validate = memoize(
     ([completionName]) => completionName,
-    (completionName: CompletionName) => {
+    (completionName: CompletionName, source: string) => {
       this.loggerService.log("completionValidationService validate", {
         completionName,
+        source,
       });
       if (!this._completionSet.has(completionName)) {
-        throw new Error(`agent-swarm completion ${completionName} not found`);
+        throw new Error(`agent-swarm completion ${completionName} not found source=${source}`);
       }
     }
-  ) as (completionName: CompletionName) => void;
+  ) as (completionName: CompletionName, source: string) => void;
 }
 
 export default CompletionValidationService;

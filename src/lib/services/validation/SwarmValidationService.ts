@@ -38,9 +38,10 @@ export class SwarmValidationService {
 
   public validate = memoize(
     ([swarmName]) => swarmName,
-    (swarmName: SwarmName) => {
+    (swarmName: SwarmName, source: string) => {
       this.loggerService.log("swarmValidationService validate", {
         swarmName,
+        source,
       });
       const swarm = this._swarmMap.get(swarmName);
       if (!swarm) {
@@ -52,10 +53,10 @@ export class SwarmValidationService {
         );
       }
       swarm.agentList.forEach((agentName) =>
-        this.agentValidationService.validate(agentName)
+        this.agentValidationService.validate(agentName, source)
       );
     }
-  ) as (swarmName: SwarmName) => void;
+  ) as (swarmName: SwarmName, source: string) => void;
 }
 
 export default SwarmValidationService;

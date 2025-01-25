@@ -56,9 +56,15 @@ interface ITool {
 
 interface ICompletion extends ICompletionSchema {
 }
+interface ICompletionArgs {
+    clientId: string;
+    agentName: AgentName;
+    messages: IModelMessage[];
+    tools?: ITool[];
+}
 interface ICompletionSchema {
     completionName: CompletionName;
-    getCompletion(agentName: AgentName, messages: IModelMessage[], tools?: ITool[]): Promise<IModelMessage>;
+    getCompletion(args: ICompletionArgs): Promise<IModelMessage>;
 }
 type CompletionName = string;
 
@@ -361,14 +367,14 @@ declare class AgentValidationService {
     private readonly completionValidationService;
     private _agentMap;
     addAgent: (agentName: AgentName, agentSchema: IAgentSchema) => void;
-    validate: (agentName: AgentName) => void;
+    validate: (agentName: AgentName, source: string) => void;
 }
 
 declare class ToolValidationService {
     private readonly loggerService;
     private _toolMap;
     addTool: (toolName: ToolName, toolSchema: IAgentTool) => void;
-    validate: (toolName: ToolName) => void;
+    validate: (toolName: ToolName, source: string) => void;
 }
 
 declare class SessionValidationService {
@@ -377,7 +383,7 @@ declare class SessionValidationService {
     addSession: (clientId: SessionId, swarmName: SwarmName) => void;
     getSessionList: () => string[];
     getSwarm: (clientId: SessionId) => string;
-    validate: (clientId: SessionId) => void;
+    validate: (clientId: SessionId, source: string) => void;
     removeSession: (clientId: SessionId) => void;
 }
 
@@ -387,14 +393,14 @@ declare class SwarmValidationService {
     private _swarmMap;
     addSwarm: (swarmName: SwarmName, swarmSchema: ISwarmSchema) => void;
     getAgentList: (swarmName: SwarmName) => string[];
-    validate: (swarmName: SwarmName) => void;
+    validate: (swarmName: SwarmName, source: string) => void;
 }
 
 declare class CompletionValidationService {
     private readonly loggerService;
     private _completionSet;
     addCompletion: (completionName: CompletionName) => void;
-    validate: (completionName: CompletionName) => void;
+    validate: (completionName: CompletionName, source: string) => void;
 }
 
 declare const swarm: {

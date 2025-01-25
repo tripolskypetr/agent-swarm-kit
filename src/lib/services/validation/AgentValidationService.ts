@@ -34,20 +34,21 @@ export class AgentValidationService {
 
   public validate = memoize(
     ([agentName]) => agentName,
-    (agentName: AgentName) => {
+    (agentName: AgentName, source: string) => {
       this.loggerService.log("agentValidationService validate", {
         agentName,
+        source,
       });
       const agent = this._agentMap.get(agentName);
       if (!agent) {
-        throw new Error(`agent-swarm agent ${agentName} not found`);
+        throw new Error(`agent-swarm agent ${agentName} not found source=${source}`);
       }
-      this.completionValidationService.validate(agent.completion);
+      this.completionValidationService.validate(agent.completion, source);
       agent.tools?.forEach((toolName: ToolName) => {
-        this.toolValidationService.validate(toolName);
+        this.toolValidationService.validate(toolName, source);
       });
     }
-  ) as (agentName: AgentName) => void;
+  ) as (agentName: AgentName, source: string) => void;
 }
 
 export default AgentValidationService;

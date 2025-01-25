@@ -88,7 +88,7 @@ const beforeAll = () => {
 
   addCompletion({
     completionName: "mock-completion",
-    getCompletion: async (agentName, messages, tools) => {
+    getCompletion: async ({ agentName, messages }) => {
       const [lastMessage] = messages.slice(-1);
       if (
         agentName === TRIAGE_AGENT &&
