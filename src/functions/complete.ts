@@ -36,6 +36,11 @@ export const complete = async (
   clientId: string,
   swarmName: SwarmName
 ) => {
+  swarm.loggerService.log("function complete", {
+    content,
+    clientId,
+    swarmName,
+  });
   const run = await createComplete(clientId, swarmName);
   createGc();
   return await run(content);

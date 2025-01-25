@@ -12,7 +12,9 @@ export class ClientSwarm implements ISwarm {
   private _activeAgent: AgentName;
 
   constructor(readonly params: ISwarmParams) {
-    this.params.logger.debug(`ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} CTOR`)
+    this.params.logger.debug(`ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} CTOR`, {
+      params,
+    })
     this._activeAgent = params.defaultAgent;
   }
 

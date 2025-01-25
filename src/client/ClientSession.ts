@@ -13,7 +13,9 @@ export class ClientSession implements ISession {
   readonly _emitSubject = new Subject<string>();
 
   constructor(readonly params: ISessionParams) {
-    this.params.logger.debug(`ClientSession clientId=${this.params.clientId} CTOR`)
+    this.params.logger.debug(`ClientSession clientId=${this.params.clientId} CTOR`, {
+      params,
+    })
   }
 
   execute = async (message: string, noEmit = false) => {

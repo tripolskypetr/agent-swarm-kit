@@ -8,11 +8,12 @@ import {
   changeAgent,
   complete,
   execute,
+  getRawHistory,
+  session,
   swarm,
+  commitToolOutput,
 } from "../../build/index.mjs";
-import { randomString, sleep } from "functools-kit";
-
-globalThis.swarm = swarm;
+import { createAwaiter, randomString, sleep, Subject } from "functools-kit";
 
 const CLIENT_ID = randomString();
 
@@ -235,4 +236,98 @@ test("Will avoid deadlock if commitToolOutput was not executed before navigation
     return;
   }
   pass("Ok")
+});
+
+
+test("Will avoid deadlock when commitToolOutput is executed in parallel with next completion", async ({ pass, fail }) => {
+
+  const nextMessageSubject = new Subject();
+
+  const STUCK_TOOL = addTool({
+    toolName: 'stuck-attempt-tool',
+    call: async (clientId, agentName) => {
+      nextMessageSubject.next("baz");
+      await commitToolOutput("The unblocking execution tool output", clientId, agentName);
+      await execute("bar", clientId, agentName);
+    },
+    validate: async () => true,
+    type: 'function',
+    function: {
+      name: 'stuck-attempt-tool',
+      description: "Will not stuck on commitToolOutput",
+      parameters: {
+        type: 'object',
+        properties: {},
+        required: [],
+      },
+    },
+  })
+
+  const MOCK_COMPLETION = addCompletion({
+    completionName: "mock-completion",
+    getCompletion: async ({
+      agentName,
+      messages
+    }) => {
+      const [{ content }] = messages.slice(-1);
+      if (content === STUCK_TOOL) {
+        return {
+          agentName,
+          content: "",
+          role: "assistant",
+          tool_calls: [
+            {
+              function: {
+                name: STUCK_TOOL,
+                arguments: {},
+              },
+            }
+          ]
+        }
+      }
+      return {
+        agentName,
+        content,
+        role: 'assistant',
+      }
+    },
+  });
+
+  const TEST_AGENT = addAgent({
+    agentName: 'test-agent',
+    completion: MOCK_COMPLETION,
+    prompt: "I am an ai agent with third party tools integration",
+    tools: [STUCK_TOOL]
+  });
+
+  const TEST_SWARM = addSwarm({
+    swarmName: "test-swarm",
+    agentList: [TEST_AGENT],
+    defaultAgent: TEST_AGENT,
+  });
+
+  const { complete } = session(CLIENT_ID, TEST_SWARM);
+
+  const [awaiter, { resolve }] = createAwaiter();
+
+  nextMessageSubject.subscribe(async (msg) => {
+    await complete(msg);
+    resolve();
+  });
+
+  await complete("foo");
+  await complete(STUCK_TOOL);
+  await awaiter;
+
+  const history = await getRawHistory(CLIENT_ID);
+  const assistantMessages = history.filter(({ role }) => role === "assistant");
+
+  for (const message of ["foo", "bar", "baz"]) {
+    if (!assistantMessages.some(({ content }) => content === message)) {
+      fail(`missed message ${message}`);
+    }
+  }
+
+  pass();
+
 });

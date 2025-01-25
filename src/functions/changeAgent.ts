@@ -34,6 +34,10 @@ const createGc = singleshot(async () => {
 });
 
 export const changeAgent = async (agentName: AgentName, clientId: string) => {
+  swarm.loggerService.log('function changeAgent', {
+    agentName,
+    clientId,
+  });
   const run = await createChangeAgent(clientId);
   createGc();
   return await run(agentName);

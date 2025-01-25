@@ -14,7 +14,9 @@ export class ClientAgent implements IAgent {
   readonly _outputSubject = new Subject<string>();
 
   constructor(readonly params: IAgentParams) {
-    this.params.logger.debug(`ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} CTOR`)
+    this.params.logger.debug(`ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} CTOR`, {
+      params,
+    })
   }
 
   _emitOuput = async (result: string) => {
@@ -142,7 +144,8 @@ export class ClientAgent implements IAgent {
         });
         if (!targetFn) {
           this.params.logger.debug(
-            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool function not found`
+            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool function not found`,
+            this.params.tools,
           );
           const result = await this._resurrectModel(
             `No target function for ${tool.function.name}`

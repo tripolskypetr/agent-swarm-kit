@@ -1,6 +1,11 @@
 import swarm from "src/lib";
 
 export const commitSystemMessage = async (content: string, clientId: string, agentName: string) => {
+    swarm.loggerService.log('function commitSystemMessage', {
+        content,
+        clientId,
+        agentName,
+    });
     swarm.agentValidationService.validate(agentName, "commitSystemMessage");
     swarm.sessionValidationService.validate(clientId, "commitSystemMessage");
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);

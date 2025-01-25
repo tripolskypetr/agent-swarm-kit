@@ -10,6 +10,10 @@ export const makeConnection = (
   clientId: string,
   swarmName: SwarmName
 ): SendMessageFn => {
+  swarm.loggerService.log("function makeConnection", {
+    clientId,
+    swarmName,
+  });
   swarm.swarmValidationService.validate(swarmName, "makeConnection");
   swarm.sessionValidationService.addSession(clientId, swarmName);
   const send = swarm.sessionPublicService.connect(
