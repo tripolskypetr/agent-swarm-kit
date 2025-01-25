@@ -37,8 +37,10 @@ const NAVIGATE_TOOL = addTool({
     parameters: {
       type: "object",
       properties: {
-        type: "string",
-        description: "The target agent for navigation",
+        to: {
+          type: "string",
+          description: "The target agent for navigation",
+        },
       },
       required: ["to"],
     },

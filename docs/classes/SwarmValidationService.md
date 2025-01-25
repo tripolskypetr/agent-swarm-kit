@@ -41,5 +41,5 @@ getAgentList: (swarmName: string) => string[]
 ### validate
 
 ```ts
-validate: (swarmName: string) => void
+validate: (swarmName: string, source: string) => void
 ```

@@ -1,9 +1,17 @@
 # ICompletionSchema
 
+## Properties
+
+### completionName
+
+```ts
+completionName: string
+```
+
 ## Methods
 
 ### getCompletion
 
 ```ts
-getCompletion: (messages: IModelMessage[], tools?: ITool[]) => Promise<IModelMessage>
+getCompletion: (args: ICompletionArgs) => Promise<IModelMessage>
 ```

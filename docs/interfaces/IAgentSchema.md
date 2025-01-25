@@ -2,6 +2,12 @@
 
 ## Properties
 
+### agentName
+
+```ts
+agentName: string
+```
+
 ### completion
 
 ```ts

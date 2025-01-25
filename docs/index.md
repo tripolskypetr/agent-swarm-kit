@@ -40,6 +40,7 @@
 - [IHistorySchema](interfaces/IHistorySchema.md)
 - [ITool](interfaces/ITool.md)
 - [ICompletion](interfaces/ICompletion.md)
+- [ICompletionArgs](interfaces/ICompletionArgs.md)
 - [ICompletionSchema](interfaces/ICompletionSchema.md)
 - [IAgentTool](interfaces/IAgentTool.md)
 - [IAgentParams](interfaces/IAgentParams.md)
@@ -76,3 +77,4 @@
 - [TSessionConnectionService](types/TSessionConnectionService.md)
 - [InternalKeys](types/InternalKeys.md)
 - [TSwarmConnectionService](types/TSwarmConnectionService.md)
+- [TComplete](types/TComplete.md)

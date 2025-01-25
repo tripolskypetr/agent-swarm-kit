@@ -41,5 +41,5 @@ addAgent: (agentName: string, agentSchema: IAgentSchema) => void
 ### validate
 
 ```ts
-validate: (agentName: string) => void
+validate: (agentName: string, source: string) => void
 ```

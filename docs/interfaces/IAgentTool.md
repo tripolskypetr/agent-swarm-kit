@@ -1,5 +1,13 @@
 # IAgentTool
 
+## Properties
+
+### toolName
+
+```ts
+toolName: string
+```
+
 ## Methods
 
 ### call

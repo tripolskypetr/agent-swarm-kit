@@ -38,6 +38,12 @@ getSessionList: () => string[]
 getSwarm: (clientId: string) => string
 ```
 
+### validate
+
+```ts
+validate: (clientId: string, source: string) => void
+```
+
 ### removeSession
 
 ```ts

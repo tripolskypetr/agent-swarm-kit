@@ -29,5 +29,5 @@ addCompletion: (completionName: string) => void
 ### validate
 
 ```ts
-validate: (completionName: string) => void
+validate: (completionName: string, source: string) => void
 ```

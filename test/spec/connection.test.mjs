@@ -84,8 +84,10 @@ test("Will orchestrate swarms for each connection", async ({ pass, fail }) => {
       parameters: {
         type: "object",
         properties: {
-          type: "string",
-          description: "The target agent for navigation",
+          to: {
+            type: "string",
+            description: "The target agent for navigation",
+          },
         },
         required: ["to"],
       },

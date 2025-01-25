@@ -14,20 +14,20 @@ constructor();
 loggerService: any
 ```
 
-### _toolSet
+### _toolMap
 
 ```ts
-_toolSet: any
+_toolMap: any
 ```
 
 ### addTool
 
 ```ts
-addTool: (toolName: string) => void
+addTool: (toolName: string, toolSchema: IAgentTool<Record<string, unknown>>) => void
 ```
 
 ### validate
 
 ```ts
-validate: (toolName: string) => void
+validate: (toolName: string, source: string) => void
 ```

@@ -2,12 +2,6 @@
 
 ## Properties
 
-### agentName
-
-```ts
-agentName: string
-```
-
 ### clientId
 
 ```ts
