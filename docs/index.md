@@ -38,6 +38,7 @@
 - [IHistory](interfaces/IHistory.md)
 - [IHistoryParams](interfaces/IHistoryParams.md)
 - [IHistorySchema](interfaces/IHistorySchema.md)
+- [IToolCall](interfaces/IToolCall.md)
 - [ITool](interfaces/ITool.md)
 - [ICompletion](interfaces/ICompletion.md)
 - [ICompletionArgs](interfaces/ICompletionArgs.md)

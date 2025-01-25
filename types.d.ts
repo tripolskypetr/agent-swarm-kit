@@ -35,6 +35,14 @@ interface IHistorySchema {
     items: IPubsubArray<IModelMessage>;
 }
 
+interface IToolCall {
+    function: {
+        name: string;
+        arguments: {
+            [key: string]: any;
+        };
+    };
+}
 interface ITool {
     type: string;
     function: {
@@ -480,4 +488,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type ISwarmSchema, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, complete, disposeConnection, execute, getAgentHistory, getRawHistory, makeConnection, session, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IModelMessage, type IOutgoingMessage, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, complete, disposeConnection, execute, getAgentHistory, getRawHistory, makeConnection, session, setConfig, swarm };

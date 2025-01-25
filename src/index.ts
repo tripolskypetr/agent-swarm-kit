@@ -20,6 +20,10 @@ export { ICompletionSchema } from './interfaces/Completion.interface';
 export { ISwarmSchema } from './interfaces/Swarm.interface';
 export { IAgentTool } from './interfaces/Agent.interface';
 
+export { IModelMessage } from './model/ModelMessage.model'
+export { IIncomingMessage, IOutgoingMessage } from './model/EmitMessage.model'
+export { ITool, IToolCall } from './model/Tool.model'
+
 export { SendMessageFn, ReceiveMessageFn } from './interfaces/Session.interface';
 
 export { setConfig } from './config/params'
