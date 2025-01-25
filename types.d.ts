@@ -125,6 +125,7 @@ interface ISwarm {
     waitForOutput(): Promise<string>;
     getAgentName(): Promise<AgentName>;
     getAgent(): Promise<IAgent>;
+    setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
     setAgentName(agentName: AgentName): Promise<void>;
 }
 type SwarmName = string;
@@ -215,11 +216,13 @@ declare class ToolSchemaService {
 
 declare class ClientSwarm implements ISwarm {
     readonly params: ISwarmParams;
+    private _agentChangedSubject;
     private _activeAgent;
     constructor(params: ISwarmParams);
     waitForOutput: () => Promise<string>;
     getAgentName: () => Promise<AgentName>;
     getAgent: () => Promise<IAgent>;
+    setAgentRef: (agentName: AgentName, agent: IAgent) => Promise<void>;
     setAgentName: (agentName: AgentName) => Promise<void>;
 }
 
@@ -232,6 +235,7 @@ declare class SwarmConnectionService implements ISwarm {
     waitForOutput: () => Promise<string>;
     getAgentName: () => Promise<string>;
     getAgent: () => Promise<IAgent>;
+    setAgentRef: (agentName: AgentName, agent: IAgent) => Promise<void>;
     setAgentName: (agentName: AgentName) => Promise<void>;
     dispose: () => Promise<void>;
 }
@@ -311,6 +315,7 @@ type TAgentConnectionService = {
 declare class AgentPublicService implements TAgentConnectionService {
     private readonly loggerService;
     private readonly agentConnectionService;
+    createAgentRef: (clientId: string, agentName: AgentName) => Promise<ClientAgent>;
     execute: (input: string, clientId: string, agentName: AgentName) => Promise<void>;
     waitForOutput: (clientId: string, agentName: AgentName) => Promise<string>;
     commitToolOutput: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
@@ -368,6 +373,7 @@ declare class SwarmPublicService implements TSwarmConnectionService {
     waitForOutput: (clientId: string, swarmName: SwarmName) => Promise<string>;
     getAgentName: (clientId: string, swarmName: SwarmName) => Promise<string>;
     getAgent: (clientId: string, swarmName: SwarmName) => Promise<IAgent>;
+    setAgentRef: (clientId: string, swarmName: SwarmName, agentName: AgentName, agent: IAgent) => Promise<void>;
     setAgentName: (agentName: AgentName, clientId: string, swarmName: SwarmName) => Promise<void>;
     dispose: (clientId: string, swarmName: SwarmName) => Promise<void>;
 }

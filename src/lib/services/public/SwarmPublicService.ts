@@ -4,7 +4,7 @@ import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import ContextService from "../base/ContextService";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
-import { AgentName } from "../../../interfaces/Agent.interface";
+import { AgentName, IAgent } from "../../../interfaces/Agent.interface";
 
 interface ISwarmConnectionService extends SwarmConnectionService {}
 
@@ -64,6 +64,25 @@ export class SwarmPublicService implements TSwarmConnectionService {
     return await ContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.getAgent();
+      },
+      {
+        clientId,
+        swarmName,
+        agentName: "",
+      }
+    );
+  };
+
+  public setAgentRef = async (clientId: string, swarmName: SwarmName, agentName: AgentName, agent: IAgent) => {
+    this.loggerService.log("swarmPublicService setAgentRef", {
+      agentName,
+      agent,
+      clientId,
+      swarmName,
+    });
+    return await ContextService.runInContext(
+      async () => {
+        return await this.swarmConnectionService.setAgentRef(agentName, agent);
       },
       {
         clientId,

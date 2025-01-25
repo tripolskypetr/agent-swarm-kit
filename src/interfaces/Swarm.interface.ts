@@ -19,6 +19,7 @@ export interface ISwarm {
   waitForOutput(): Promise<string>;
   getAgentName(): Promise<AgentName>;
   getAgent(): Promise<IAgent>;
+  setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
   setAgentName(agentName: AgentName): Promise<void>;
 }
 

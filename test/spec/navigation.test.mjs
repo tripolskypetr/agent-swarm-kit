@@ -8,8 +8,11 @@ import {
   changeAgent,
   complete,
   execute,
+  swarm,
 } from "../../build/index.mjs";
 import { randomString } from "functools-kit";
+
+globalThis.swarm = swarm;
 
 const CLIENT_ID = randomString();
 
@@ -53,7 +56,9 @@ const beforeAll = () => {
   addTool({
     toolName: NAVIGATE_TO_SALES_TOOL,
     call: async (clientId) => {
+
       await changeAgent(SALES_AGENT, clientId);
+      debugger
       await execute("Say hello to the user", clientId, SALES_AGENT);
     },
     validate: async () => true,
@@ -168,4 +173,3 @@ test("Will navigate to refund agent on request", async ({ pass, fail }) => {
   }
   fail(result);
 });
-

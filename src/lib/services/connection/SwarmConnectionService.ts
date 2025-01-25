@@ -74,6 +74,16 @@ export class SwarmConnectionService implements ISwarm {
     ).getAgent();
   };
 
+  public setAgentRef = async (agentName: AgentName, agent: IAgent) => {
+    this.loggerService.log(`swarmConnectionService setAgentRef`, {
+      context: this.contextService.context,
+    });
+    return await this.getSwarm(
+      this.contextService.context.clientId,
+      this.contextService.context.swarmName
+    ).setAgentRef(agentName, agent);
+  };
+
   public setAgentName = async (agentName: AgentName) => {
     this.loggerService.log(`swarmConnectionService setAgentName`, {
       agentName,

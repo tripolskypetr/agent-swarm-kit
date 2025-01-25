@@ -21,6 +21,23 @@ export class AgentPublicService implements TAgentConnectionService {
     TYPES.agentConnectionService
   );
 
+  public createAgentRef = async (clientId: string, agentName: AgentName) => {
+    this.loggerService.log("agentPublicService createAgentRef", {
+      clientId,
+      agentName,
+    });
+    return await ContextService.runInContext(
+      async () => {
+        return await this.agentConnectionService.getAgent(clientId, agentName);
+      },
+      {
+        clientId,
+        agentName,
+        swarmName: "",
+      }
+    );
+  };
+
   public execute = async (
     input: string,
     clientId: string,
@@ -104,10 +121,7 @@ export class AgentPublicService implements TAgentConnectionService {
     );
   };
 
-  public dispose = async (
-    clientId: string,
-    agentName: AgentName
-  ) => {
+  public dispose = async (clientId: string, agentName: AgentName) => {
     this.loggerService.log("agentPublicService dispose", {
       clientId,
       agentName,
