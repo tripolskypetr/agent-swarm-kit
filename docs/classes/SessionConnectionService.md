@@ -43,7 +43,7 @@ execute: (content: string) => Promise<string>
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn) => ReceiveMessageFn
+connect: (connector: SendMessageFn$1) => ReceiveMessageFn
 ```
 
 ### commitToolOutput

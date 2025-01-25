@@ -16,10 +16,16 @@ constructor(params: ISessionParams);
 params: ISessionParams
 ```
 
+### _emitSubject
+
+```ts
+_emitSubject: Subject<string>
+```
+
 ### execute
 
 ```ts
-execute: (message: string) => Promise<string>
+execute: (message: string, noEmit?: boolean) => Promise<string>
 ```
 
 ### commitToolOutput
@@ -37,5 +43,5 @@ commitSystemMessage: (message: string) => Promise<void>
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn) => ReceiveMessageFn
+connect: (connector: SendMessageFn$1) => ReceiveMessageFn
 ```

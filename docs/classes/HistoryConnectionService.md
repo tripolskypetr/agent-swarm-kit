@@ -22,10 +22,16 @@ loggerService: any
 contextService: any
 ```
 
+### sessionValidationService
+
+```ts
+sessionValidationService: any
+```
+
 ### getItems
 
 ```ts
-getItems: ((clientId: string) => IPubsubArray<IModelMessage>) & IClearableMemoize<string> & IControlMemoize<string, IPubsubArray<IModelMessage>>
+getItems: ((clientId: string, agentName: string) => IPubsubArray<IModelMessage>) & IClearableMemoize<string> & IControlMemoize<string, IPubsubArray<IModelMessage>>
 ```
 
 ### getHistory

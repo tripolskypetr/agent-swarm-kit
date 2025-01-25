@@ -1,7 +1,7 @@
 # SendMessageFn
 
 ```ts
-type SendMessageFn = (outgoing: IOutgoingMessage) => Promise<void> | void;
+type SendMessageFn = (outgoing: string) => Promise<void>;
 ```
 
 

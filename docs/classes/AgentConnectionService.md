@@ -22,6 +22,12 @@ loggerService: any
 contextService: any
 ```
 
+### sessionValidationService
+
+```ts
+sessionValidationService: any
+```
+
 ### historyConnectionService
 
 ```ts

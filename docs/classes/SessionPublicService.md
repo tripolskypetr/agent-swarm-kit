@@ -31,7 +31,7 @@ execute: (content: string, clientId: string, swarmName: string) => Promise<strin
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn, clientId: string, swarmName: string) => ReceiveMessageFn
+connect: (connector: SendMessageFn$1, clientId: string, swarmName: string) => ReceiveMessageFn
 ```
 
 ### commitToolOutput
