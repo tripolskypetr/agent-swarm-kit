@@ -465,11 +465,11 @@ declare const getRawHistory: (clientId: string) => Promise<IModelMessage[]>;
 
 declare const getAgentHistory: (clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
 
-declare const commitToolOutput: (content: string, clientId: string) => void;
+declare const commitToolOutput: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
 
-declare const commitSystemMessage: (content: string, clientId: string) => void;
+declare const commitSystemMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
 
-declare const execute: (content: string, clientId: string) => Promise<string>;
+declare const execute: (content: string, clientId: string, agentName: AgentName) => Promise<string>;
 
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;

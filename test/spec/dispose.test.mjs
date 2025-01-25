@@ -31,7 +31,7 @@ test("Will dispose connections for session function", async ({
     toolName: "navigate-tool",
     call: async (clientId, agentName, { to }) => {
       await changeAgent(to, clientId);
-      await execute("Navigation complete", clientId);
+      await execute("Navigation complete", clientId, to);
     },
     validate: async () => true,
     type: "function",
@@ -149,7 +149,7 @@ test("Will dispose connections for makeConnection function", async ({
     toolName: "navigate-tool",
     call: async (clientId, agentName, { to }) => {
       await changeAgent(to, clientId);
-      await execute("Navigation complete", clientId);
+      await execute("Navigation complete", clientId, to);
     },
     validate: async () => true,
     type: "function",
@@ -266,7 +266,7 @@ test("Will dispose connections for complete function", async ({
     toolName: "navigate-tool",
     call: async (clientId, agentName, { to }) => {
       await changeAgent(to, clientId);
-      await execute("Navigation complete", clientId);
+      await execute("Navigation complete", clientId, to);
     },
     validate: async () => true,
     type: "function",

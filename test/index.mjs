@@ -6,6 +6,7 @@ import "./spec/validation.test.mjs";
 import "./spec/connection.test.mjs";
 import "./spec/dispose.test.mjs";
 import "./spec/resque.test.mjs";
+import "./spec/ignore.spec.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");

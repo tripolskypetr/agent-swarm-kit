@@ -1,8 +1,18 @@
-import swarm from "src/lib";
+import { AgentName } from "../interfaces/Agent.interface";
+import swarm from "../lib";
 
-export const commitToolOutput = (content: string, clientId: string) => {
+export const commitToolOutput = async (content: string, clientId: string, agentName: AgentName) => {
+    swarm.agentValidationService.validate(agentName, "commitSystemMessage");
     swarm.sessionValidationService.validate(clientId, "commitToolOutput");
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
     swarm.swarmValidationService.validate(swarmName, "commitToolOutput");
-    swarm.sessionPublicService.commitToolOutput(content, clientId, swarmName);
+    const currentAgentName = await swarm.swarmPublicService.getAgentName(clientId, swarmName);
+    if (currentAgentName !== agentName) {
+        swarm.loggerService.log('function "commitToolOutput" skipped due to the agent change', {
+            currentAgentName,
+            agentName,
+        });
+        return;
+    }
+    await swarm.sessionPublicService.commitToolOutput(content, clientId, swarmName);
 }

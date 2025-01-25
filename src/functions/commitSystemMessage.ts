@@ -1,8 +1,17 @@
 import swarm from "src/lib";
 
-export const commitSystemMessage = (content: string, clientId: string) => {
+export const commitSystemMessage = async (content: string, clientId: string, agentName: string) => {
+    swarm.agentValidationService.validate(agentName, "commitSystemMessage");
     swarm.sessionValidationService.validate(clientId, "commitSystemMessage");
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
     swarm.swarmValidationService.validate(swarmName, "commitSystemMessage");
-    swarm.sessionPublicService.commitSystemMessage(content, clientId, swarmName);
+    const currentAgentName = await swarm.swarmPublicService.getAgentName(clientId, swarmName);
+    if (currentAgentName !== agentName) {
+        swarm.loggerService.log('function "commitSystemMessage" skipped due to the agent change', {
+            currentAgentName,
+            agentName,
+        });
+        return;
+    }
+    await swarm.sessionPublicService.commitSystemMessage(content, clientId, swarmName);
 }

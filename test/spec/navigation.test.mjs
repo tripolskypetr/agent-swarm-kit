@@ -54,7 +54,7 @@ const beforeAll = () => {
     toolName: NAVIGATE_TO_SALES_TOOL,
     call: async (clientId) => {
       await changeAgent(SALES_AGENT, clientId);
-      await execute("Say hello to the user", clientId);
+      await execute("Say hello to the user", clientId, SALES_AGENT);
     },
     validate: async () => true,
     function: {
@@ -72,7 +72,7 @@ const beforeAll = () => {
     toolName: NAVIGATE_TO_REFUND_TOOL,
     call: async (clientId) => {
       await changeAgent(REFUND_AGENT, clientId);
-      await execute("Say hello to the user", clientId);
+      await execute("Say hello to the user", clientId, REFUND_AGENT);
     },
     validate: async () => true,
     function: {

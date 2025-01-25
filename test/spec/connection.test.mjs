@@ -74,7 +74,7 @@ test("Will orchestrate swarms for each connection", async ({ pass, fail }) => {
     toolName: "navigate-tool",
     call: async (clientId, agentName, { to }) => {
       await changeAgent(to, clientId);
-      await execute("Navigation complete", clientId);
+      await execute("Navigation complete", clientId, to);
     },
     validate: async () => true,
     type: "function",
@@ -284,7 +284,7 @@ test("Will queue user messages in connection", async ({ pass, fail }) => {
     const clientId = randomString();
     session(clientId, TEST_SWARM);
     for (const message of messageList) {
-      promises.push(execute(message, clientId));
+      promises.push(execute(message, clientId, TEST_AGENT));
     }
   }
 
@@ -345,7 +345,7 @@ test("Will allow server-side emit for makeConnection", async ({ pass, fail }) =>
 
   for (let i = 0; i !== TOTAL_CHECKS; i++) {
     tasks.push(async () => {
-      await execute("inc", CLIENT_ID);
+      await execute("inc", CLIENT_ID, TEST_AGENT);
     });
   }
 
