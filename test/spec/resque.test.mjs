@@ -11,7 +11,7 @@ const debug = {
     }
 }
 
-test("Will resque module on unexisting tool call", async ({ pass, fail }) => {
+test("Will resque model on unexisting tool call", async ({ pass, fail }) => {
 
     const MOCK_COMPLETION = addCompletion({
         completionName: "mock-completion",
@@ -67,7 +67,7 @@ test("Will resque module on unexisting tool call", async ({ pass, fail }) => {
 
 });
 
-test("Will resque module on empty model output", async ({ pass, fail }) => {
+test("Will resque model on empty output", async ({ pass, fail }) => {
 
     const MOCK_COMPLETION = addCompletion({
         completionName: "mock-completion",
@@ -115,7 +115,7 @@ test("Will resque module on empty model output", async ({ pass, fail }) => {
 
 });
 
-test("Will resque module on failed tool validation", async ({ pass, fail }) => {
+test("Will resque model on failed tool validation", async ({ pass, fail }) => {
 
     const MOCK_COMPLETION = addCompletion({
         completionName: "mock-completion",
