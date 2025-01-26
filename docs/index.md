@@ -62,6 +62,7 @@
 - [ISwarmConnectionService](interfaces/ISwarmConnectionService.md)
 - [IMakeConnectionConfig](interfaces/IMakeConnectionConfig.md)
 - [ISessionConfig](interfaces/ISessionConfig.md)
+- [IMakeDisposeParams](interfaces/IMakeDisposeParams.md)
 
 ## Types
 

@@ -1766,6 +1766,34 @@ declare const getLastAssistantMessage: (clientId: string) => Promise<string>;
  */
 declare const getLastSystemMessage: (clientId: string) => Promise<string>;
 
+/**
+ * Interface for the parameters of the makeAutoDispose function.
+ */
+interface IMakeDisposeParams {
+    /**
+     * Timeout in seconds before auto-dispose is triggered.
+     */
+    timeoutSeconds: number;
+}
+/**
+ * Creates an auto-dispose mechanism for a client in a swarm.
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {SwarmName} swarmName - The name of the swarm.
+ * @param {Partial<IMakeDisposeParams>} [params={}] - Optional parameters for auto-dispose.
+ * @returns {Object} An object with tick and stop methods to control the auto-dispose.
+ */
+declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeoutSeconds }?: Partial<IMakeDisposeParams>) => {
+    /**
+     * Signals that the client is active, resetting the auto-dispose timer.
+     */
+    tick(): void;
+    /**
+     * Stops the auto-dispose mechanism.
+     */
+    stop(): void;
+};
+
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
@@ -1777,4 +1805,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IMakeConnectionConfig, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, commitUserMessage, complete, disposeConnection, emit, execute, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getUserHistory, makeConnection, session, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, commitUserMessage, complete, disposeConnection, emit, execute, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };

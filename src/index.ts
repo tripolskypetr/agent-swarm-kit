@@ -22,6 +22,7 @@ export * from './functions/getUserHistory';
 export * from './functions/getAssistantHistory';
 export * from './functions/getLastAssistantMessage';
 export * from './functions/getLastSystemMessage';
+export * from './functions/makeAutoDispose';
 
 export { IAgentSchema } from './interfaces/Agent.interface';
 export { ICompletionSchema } from './interfaces/Completion.interface';
