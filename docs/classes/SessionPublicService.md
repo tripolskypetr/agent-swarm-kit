@@ -64,6 +64,14 @@ commitSystemMessage: (message: string, clientId: string, swarmName: string) => P
 
 Commits a system message to the session.
 
+### commitUserMessage
+
+```ts
+commitUserMessage: (message: string, clientId: string, swarmName: string) => Promise<void>
+```
+
+Commits user message to the agent without answer.
+
 ### dispose
 
 ```ts

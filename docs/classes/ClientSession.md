@@ -48,6 +48,14 @@ commitToolOutput: (content: string) => Promise<void>
 
 Commits tool output.
 
+### commitUserMessage
+
+```ts
+commitUserMessage: (message: string) => Promise<void>
+```
+
+Commits user message without answer.
+
 ### commitSystemMessage
 
 ```ts

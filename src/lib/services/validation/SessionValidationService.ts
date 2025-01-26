@@ -23,7 +23,11 @@ export class SessionValidationService {
    * @param {SessionMode} sessionMode - The mode of the session.
    * @throws Will throw an error if the session already exists.
    */
-  public addSession = (clientId: SessionId, swarmName: SwarmName, sessionMode: SessionMode) => {
+  public addSession = (
+    clientId: SessionId,
+    swarmName: SwarmName,
+    sessionMode: SessionMode
+  ) => {
     this.loggerService.log("sessionValidationService addSession", {
       clientId,
     });
@@ -59,7 +63,10 @@ export class SessionValidationService {
    * @param {SessionId} sessionId - The ID of the session.
    * @param {AgentName} agentName - The name of the agent.
    */
-  public addHistoryUsage = (sessionId: SessionId, agentName: AgentName): void => {
+  public addHistoryUsage = (
+    sessionId: SessionId,
+    agentName: AgentName
+  ): void => {
     this.loggerService.log("sessionValidationService addHistoryUsage", {
       sessionId,
       agentName,
@@ -146,6 +153,15 @@ export class SessionValidationService {
       );
     }
     return this._sessionModeMap.get(clientId)!;
+  };
+
+  /**
+   * Ensures session is exist
+   * @returns {boolean}
+   */
+  public hasSession = (clientId: SessionId) => {
+    this.loggerService.log("sessionValidationService hasSession");
+    return this._sessionSwarmMap.has(clientId);
   };
 
   /**

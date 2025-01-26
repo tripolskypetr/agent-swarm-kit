@@ -64,6 +64,14 @@ commitSystemMessage: (message: string, clientId: string, agentName: string) => P
 
 Commits a system message to the agent.
 
+### commitUserMessage
+
+```ts
+commitUserMessage: (message: string, clientId: string, agentName: string) => Promise<void>
+```
+
+Commits user message to the agent without answer.
+
 ### dispose
 
 ```ts

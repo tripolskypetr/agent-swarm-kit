@@ -88,6 +88,14 @@ getSessionMode: (clientId: string) => SessionMode
 
 Gets the mode of a session.
 
+### hasSession
+
+```ts
+hasSession: (clientId: string) => boolean
+```
+
+Ensures session is exist
+
 ### getSessionList
 
 ```ts

@@ -78,6 +78,14 @@ commitSystemMessage: (message: string) => Promise<void>
 
 Commits a system message to the session.
 
+### commitUserMessage
+
+```ts
+commitUserMessage: (message: string) => Promise<void>
+```
+
+Commits user message to the agent without answer.
+
 ### dispose
 
 ```ts

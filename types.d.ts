@@ -1369,6 +1369,11 @@ declare class SessionValidationService {
      */
     getSessionMode: (clientId: SessionId) => SessionMode;
     /**
+     * Ensures session is exist
+     * @returns {boolean}
+     */
+    hasSession: (clientId: SessionId) => boolean;
+    /**
      * Gets the list of all session IDs.
      * @returns {SessionId[]} The list of session IDs.
      */
@@ -1524,7 +1529,18 @@ type SendMessageFn = (outgoing: string) => Promise<void>;
  * @param {SwarmName} swarmName - The name of the swarm.
  * @returns {SendMessageFn} - A function to send messages to the swarm.
  */
-declare const makeConnection: (connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName) => SendMessageFn;
+declare const makeConnection: {
+    (connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName): SendMessageFn;
+    /**
+     * A scheduled connection factory for a client to a swarm and returns a function to send messages.
+     *
+     * @param {ReceiveMessageFn} connector - The function to receive messages.
+     * @param {string} clientId - The unique identifier of the client.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {SendMessageFn} - A function to send scheduled messages to the swarm.
+     */
+    scheduled(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName): (content: string) => Promise<void>;
+};
 
 /**
  * Changes the agent for a given client session in swarm.
@@ -1557,20 +1573,46 @@ type TComplete = (content: string) => Promise<string>;
  * @returns {TComplete} complete - A function to complete the session with content.
  * @returns {Function} dispose - A function to dispose of the session.
  */
-declare const session: (clientId: string, swarmName: SwarmName) => {
+declare const session: {
+    (clientId: string, swarmName: SwarmName): {
+        /**
+         * Completes the session with the given content.
+         *
+         * @param {string} content - The content to complete the session with.
+         * @returns {Promise<string>} A promise that resolves with the result of the session execution.
+         */
+        complete: TComplete;
+        /**
+         * Disposes of the session.
+         *
+         * @returns {Promise<void>} A promise that resolves when the session is disposed.
+         */
+        dispose: () => Promise<void>;
+    };
     /**
-     * Completes the session with the given content.
+     * Creates a scheduled session for the given client and swarm.
      *
-     * @param {string} content - The content to complete the session with.
-     * @returns {Promise<string>} A promise that resolves with the result of the session execution.
+     * @param {string} clientId - The ID of the client.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {Object} An object containing the scheduled session methods.
+     * @returns {TComplete} complete - A function to complete the session with content.
+     * @returns {Function} dispose - A function to dispose of the session.
      */
-    complete: TComplete;
-    /**
-     * Disposes of the session.
-     *
-     * @returns {Promise<void>} A promise that resolves when the session is disposed.
-     */
-    dispose: () => Promise<void>;
+    scheduled(clientId: string, swarmName: SwarmName): {
+        /**
+         * Completes the scheduled session with the given content.
+         *
+         * @param {string} content - The content to complete the session with.
+         * @returns {Promise<string>} A promise that resolves with the result of the session execution.
+         */
+        complete(content: string): Promise<string>;
+        /**
+         * Disposes of the scheduled session.
+         *
+         * @returns {Promise<void>} A promise that resolves when the session is disposed.
+         */
+        dispose(): Promise<void>;
+    };
 };
 
 /**
@@ -1669,6 +1711,22 @@ declare const commitUserMessage: (content: string, clientId: string, agentName: 
  */
 declare const getAgentName: (clientId: string) => Promise<string>;
 
+/**
+ * Retrieves the user history for a given client ID.
+ *
+ * @param {string} clientId - The ID of the client whose history is to be retrieved.
+ * @returns {Promise<Array>} A promise that resolves to an array of history objects filtered by user role.
+ */
+declare const getUserHistory: (clientId: string) => Promise<IModelMessage[]>;
+
+/**
+ * Retrieves the assistant's history for a given client.
+ *
+ * @param {string} clientId - The ID of the client.
+ * @returns {Promise<Array>} - A promise that resolves to an array of history objects where the role is "assistant".
+ */
+declare const getAssistantHistory: (clientId: string) => Promise<IModelMessage[]>;
+
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
@@ -1678,4 +1736,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IModelMessage, type IOutgoingMessage, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, commitUserMessage, complete, disposeConnection, emit, execute, getAgentHistory, getAgentName, getLastUserMessage, getRawHistory, makeConnection, session, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IModelMessage, type IOutgoingMessage, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, commitUserMessage, complete, disposeConnection, emit, execute, getAgentHistory, getAgentName, getAssistantHistory, getLastUserMessage, getRawHistory, getUserHistory, makeConnection, session, setConfig, swarm };

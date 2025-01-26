@@ -62,6 +62,14 @@ getCompletion: () => Promise<IModelMessage>
 
 Gets the completion message from the model.
 
+### commitUserMessage
+
+```ts
+commitUserMessage: (message: string) => Promise<void>
+```
+
+Commits a user message to the history without answer.
+
 ### commitSystemMessage
 
 ```ts

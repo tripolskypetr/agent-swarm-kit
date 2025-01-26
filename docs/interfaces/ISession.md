@@ -2,6 +2,16 @@
 
 Interface for a session.
 
+## Properties
+
+### commitUserMessage
+
+```ts
+commitUserMessage: (message: string) => Promise<void>
+```
+
+Commit user message without answer
+
 ## Methods
 
 ### emit

@@ -6,7 +6,7 @@
 
 ## Installation
 
-In comparison with langchain js this library provide the lightweight API so you can delegate the prompt engineering to other junior developers
+In comparison with langchain js this library provide the lightweight API so you can delegate the prompt engineering to other junior developers. It support message scheduling so user can interrupt the ai agent with additional details in few messages
 
 ```bash
 npm install agent-swarm-kit

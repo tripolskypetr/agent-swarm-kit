@@ -37,3 +37,11 @@ commitSystemMessage: (message: string) => Promise<void>
 ```
 
 Commits a system message.
+
+### commitUserMessage
+
+```ts
+commitUserMessage: (message: string) => Promise<void>
+```
+
+Commits a user message without answer.
