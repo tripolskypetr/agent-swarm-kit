@@ -1,217 +1,192 @@
 # agent-swarm-kit
 
-## Conclusion
-
-Agent Swarm Kit is a sophisticated TypeScript framework for building multi-agent systems, enabling complex interactions through interconnected services that manage agent connections, session management, swarm coordination, and comprehensive validation. It provides robust schema registries for agents, tools, and completions, with dedicated services for validating configurations, tracking message history, and facilitating seamless communication between different system components. The framework supports modular agent development by offering public interfaces for executing commands, committing outputs, and managing system interactions across various abstraction levels, making it a powerful toolkit for creating intelligent, scalable distributed agent architectures.
-
 ## ToolValidationService
 
-The `ToolValidationService` is a class that provides methods for adding tools and validating them. It has a constructor that takes no arguments, and two properties: `loggerService` which is used for logging, and `_toolMap` which is a map that stores the tools.
+The `ToolValidationService` is a service designed for validating tools within an agent-swarm system. It provides a way to add new tools and validate their existence. The service utilizes a loggerService for logging purposes and maintains an internal map of tools, represented by `_toolMap`.
 
-To add a new tool, you can use the `addTool` method. This method takes two parameters: `toolName` which is the name of the tool, and `toolSchema` which is an object that defines the schema for the tool.
+To add a new tool, you can use the `addTool` function. This function takes two parameters: `toolName`, which is the name of the tool, and `toolSchema`, which is an object representing the schema of the tool.
 
-To validate a tool, you can use the `validate` method. This method takes two parameters: `toolName` which is the name of the tool, and `source` which is a string that contains the source code of the tool.
+To validate if a specific tool exists in the validation service, you can use the `validate` function. This function takes two parameters: `toolName`, which is the name of the tool to be validated, and `source`, which represents the source of the tool.
 
-Overall, this class provides a way to manage and validate tools in your application.
+By using these functions, you can effectively manage and validate tools within your agent-swarm system.
 
 ## ToolSchemaService
 
-The `ToolSchemaService` is a class in TypeScript that provides methods for registering and retrieving agent tools. It has a constructor that initializes the `loggerService` and `registry`. The `register` method allows you to register a tool by providing a key and an instance of the `IAgentTool` interface. The `get` method allows you to retrieve a tool by providing its key. Both methods use the `loggerService` for logging purposes and the `registry` to store and access registered tools.
+The `ToolSchemaService` is a service that manages tool schemas. It has a constructor, `loggerService` and `registry` properties, as well as two methods: `register` and `get`. The `loggerService` property is used for logging, while the `registry` property is used to store registered tools. The `register` method is used to register a tool with the given key and value, while the `get` method is used to retrieve a tool by its key.
 
 ## SwarmValidationService
 
-The SwarmValidationService is a TypeScript class that provides methods for managing swarm validation. It has a constructor, properties such as loggerService and agentValidationService for logging and handling agent validation, a private property _swarmMap for storing swarms, and methods addSwarm for adding a new swarm, getAgentList for retrieving a list of agents in a swarm, and validate for validating a given source code in a swarm.
+The SwarmValidationService is a service used for validating swarms and their agents. It has a constructor, properties such as loggerService and agentValidationService for logging and validating agents respectively, and a swarmMap for storing swarms. The service provides two main functions: addSwarm to add a new swarm to the map, and validate to validate a swarm and its agents. The getAgentList function retrieves the list of agents for a given swarm.
 
 ## SwarmSchemaService
 
-The SwarmSchemaService is a TypeScript class that provides methods for managing and retrieving Swarm Schema objects. It has a constructor, which is used to initialize the class. The SwarmSchemaService also has two properties: `loggerService` and `registry`. 
-
-The `loggerService` property is an instance of the LoggerService class, which is used for logging messages. The `registry` property is a generic data structure that stores the Swarm Schema objects.
-
-The `register` method is used to add a new Swarm Schema object to the registry. It takes two parameters: `key`, which is a string that uniquely identifies the Swarm Schema, and `value`, which is the Swarm Schema object itself.
-
-The `get` method is used to retrieve a Swarm Schema object from the registry. It takes one parameter: `key`, which is the string that uniquely identifies the Swarm Schema object to be retrieved.
+The SwarmSchemaService is a service used for managing swarm schemas. It has a constructor, loggerService property, registry property and two methods: register() and get(). The loggerService property is used for logging messages, while the registry property stores registered swarm schemas. The register() method is used to add a new swarm schema, and the get() method is used to retrieve a swarm schema by its name.
 
 ## SwarmPublicService
 
-The SwarmPublicService is a class that implements the TSwarmConnectionService interface. It has a constructor, several properties and methods for interacting with swarms. The loggerService and swarmConnectionService properties are instances of other classes used for logging and managing swarm connections. The waitForOutput, getAgentName, getAgent, setAgentRef, setAgentName and dispose methods are asynchronous functions that allow the user to wait for output, get agent names and agents, set agent references and names, and dispose of a swarm connection.
+The SwarmPublicService is a TypeScript class that implements the TSwarmConnectionService interface. It is designed to manage public interactions with swarms. The class has a constructor, several properties and methods for interacting with swarms, such as waiting for output, getting agent names and agents from swarms, setting agent references and names in swarms, and disposing of swarms. The class utilizes the loggerService and swarmConnectionService properties for logging and managing connections to swarms respectively.
 
 ## SwarmConnectionService
 
-The SwarmConnectionService is an implementation of the ISwarm interface. It has a constructor that initializes the loggerService, contextService, agentConnectionService, swarmSchemaService properties. The service provides several methods to interact with the swarm.
-
-The getSwarm method takes a clientId and swarmName as parameters, and returns a ClientSwarm object. It also implements IClearableMemoize and IControlMemoize interfaces.
-
-The waitForOutput method returns a Promise that resolves to the output of the swarm.
-
-The getAgentName method returns a Promise that resolves to the name of the current agent.
-
-The getAgent method returns a Promise that resolves to the current agent.
-
-The setAgentRef method takes an agentName and IAgent object as parameters, and sets the agent reference. It returns a Promise that resolves when the operation is complete.
-
-The setAgentName method takes an agentName as a parameter, and sets the name of the current agent. It returns a Promise that resolves when the operation is complete.
-
-The dispose method cleans up any resources used by the service. It returns a Promise that resolves when the operation is complete.
+The SwarmConnectionService is a TypeScript class that manages connections to swarms. It implements the ISwarm interface and provides various methods for interacting with swarms. The constructor initializes the loggerService, contextService, agentConnectionService, swarmSchemaService. The getSwarm method retrieves a swarm instance based on the client ID and swarm name. The waitForOutput method waits for output from the swarm. The getAgentName method retrieves the agent name from the swarm. The getAgent method retrieves the agent from the swarm. The setAgentRef method sets the agent reference in the swarm. The setAgentName method sets the agent name in the swarm. The dispose method disposes of the swarm connection.
 
 ## SessionValidationService
 
-The `SessionValidationService` is a TypeScript class that provides methods to manage sessions, agents, and history usage. It uses several maps to store session, agent usage, and history usage information. The class has a `loggerService` property for logging events.
+The `SessionValidationService` is a Typescript class that provides methods for validating and managing sessions. It uses several maps to store session information, including `_historySwarmMap`, `_sessionSwarmMap`, `_agentSwarmMap`, and `_sessionModeMap`. 
 
-To add a new session, you can use the `addSession` method by providing a client ID and swarm name. The `addAgentUsage` and `addHistoryUsage` methods allow you to add agent and history usage information for a specific session. You can remove agent or history usage information using the `removeAgentUsage` and `removeHistoryUsage` methods.
+To add a new session, you can use the `addSession` method by providing the client ID, swarm name, and session mode. The `addAgentUsage` method allows you to add an agent usage to a session, while `removeAgentUsage` and `removeHistoryUsage` remove agent usages or history usages from a session, respectively.
 
-To retrieve session information, you can use the `getSessionList` method to get a list of all sessions, `getSessionAgentList` to get a list of agents for a specific session, `getSessionHistoryList` to get a list of history entries for a specific session, and `getSwarm` to get the swarm name for a specific session.
+To check the mode of a session, you can use the `getSessionMode` method by providing the client ID. The `hasSession` method ensures that a session exists for the given client ID.
 
-The `validate` method can be used to validate a client ID and source, while the `removeSession` method allows you to remove a session from the service.
+The `getSessionList` method returns a list of all session IDs, while `getSessionAgentList` and `getSessionHistoryList` return the list of agents for a session and the history list of agents, respectively.
 
-Overall, this class provides a way to manage sessions and their associated agents and history usage, as well as validate client IDs and sources.
+To get the swarm name for a session, you can use the `getSwarm` method by providing the client ID. Finally, `validate` method checks if a session exists for the given client ID and source, while `removeSession` removes a session by providing the client ID.
 
 ## SessionPublicService
 
-The `SessionPublicService` is a class that implements the `TSessionConnectionService` interface. It has a constructor, several properties and methods for handling session connections.
+The `SessionPublicService` is a TypeScript class that implements the `TSessionConnectionService` interface. It is responsible for managing public session interactions, which include emitting messages, executing commands, connecting to the session, committing tool output and system messages, committing user messages without an answer, and disposing of the session.
 
-The `loggerService` and `sessionConnectionService` are properties that provide logging and session connection functionalities, respectively.
+The class has a constructor, which is used to initialize any necessary properties or dependencies. It also has several methods:
+- `emit` allows you to send a message to the session.
+- `execute` enables you to execute a command within the session.
+- `connect` establishes a connection to the session by providing a connector function, client ID, and swarm name.
+- `commitToolOutput` commits tool output to the session.
+- `commitSystemMessage` allows you to commit a system message to the session.
+- `commitUserMessage` enables you to commit a user message without an answer.
+- `dispose` is used to disconnect from the session and clean up any resources.
 
-The `execute` method takes a content string, client ID and swarm name as parameters and returns a promise that resolves with the result of executing the given content.
-
-The `connect` method takes a connector function, client ID and swarm name as parameters. It returns a receive message function that can be used to handle incoming messages from the session.
-
-The `commitToolOutput` method takes a content string, client ID and swarm name as parameters. It commits the given content to the session and returns a promise that resolves when the commit is complete.
-
-The `commitSystemMessage` method takes a message string, client ID and swarm name as parameters. It commits the given system message to the session and returns a promise that resolves when the commit is complete.
-
-The `dispose` method takes a client ID and swarm name as parameters. It disposes the session connection and returns a promise that resolves when the disposal is complete.
+These methods provide a way to interact with the session, allowing users to send messages, execute commands, and manage session output.
 
 ## SessionConnectionService
 
-The `SessionConnectionService` is a class that implements the `ISession` interface. It has a constructor that takes no arguments and initializes the `loggerService`, `contextService`, and `swarmConnectionService` properties.
+The `SessionConnectionService` is a TypeScript class that implements the `ISession` interface and manages session connections. It has a constructor, several properties and methods for session management.
 
-The class provides several methods:
-1. `getSession` is a memoized function that takes a `clientId` and `swarmName`, and returns a `ClientSession` object.
-2. `execute` is an asynchronous function that takes a `content` string and returns a promise that resolves to a `string`.
-3. `connect` is a function that takes a `connector` function and returns another function, which is a `ReceiveMessageFn`.
-4. `commitToolOutput` is an asynchronous function that takes a `content` string and returns a promise that resolves without any value.
-5. `commitSystemMessage` is an asynchronous function that takes a `message` string and returns a promise that resolves without any value.
-6. `dispose` is an asynchronous function that returns a promise that resolves without any value.
+The `loggerService`, `contextService` and `swarmConnectionService` are properties that provide logging, context and swarm connection functionalities respectively.
 
-The class also has three properties: `loggerService`, `contextService`, and `swarmConnectionService`. These properties are of type `any` and hold instances of the respective services.
+The `getSession` method retrieves a memoized session based on the `clientId` and `swarmName`.
+
+The `emit` method emits a message to the session asynchronously.
+
+The `execute` method executes a command in the session and returns its result asynchronously.
+
+The `connect` method connects to the session using a provided connector.
+
+The `commitToolOutput` method commits tool output to the session asynchronously.
+
+The `commitSystemMessage` method commits a system message to the session asynchronously.
+
+The `commitUserMessage` method commits a user message to the agent without an answer asynchronously.
+
+The `dispose` method disposes of the session connection service asynchronously.
 
 ## LoggerService
 
-The `LoggerService` is a class that implements the `ILogger` interface. It has a constructor that does not take any parameters. The class has two private properties: `_logger` of type any and two public methods: `log` and `debug`. The `_logger` property is used to store the logger instance. The `log` and `debug` methods are used to log messages of different levels. The `setLogger` method is used to set the logger instance.
-
-In summary, `LoggerService` is a class that provides logging functionality by implementing the `ILogger` interface and has methods to log messages at different levels. It also allows the logger instance to be set using the `setLogger` method.
+The LoggerService is a class that implements the ILogger interface, providing methods to log and debug messages. It has a constructor that initializes the logger property. The _logger is a private property that holds the current logger. The log method logs messages using the current logger, while the debug method logs debug messages using the current logger. The setLogger method allows you to set a new logger for the LoggerService.
 
 ## HistoryPublicService
 
-The `HistoryPublicService` is a class that implements the `THistoryConnectionService` interface. It has a constructor that is used to initialize the service. The class has several properties, including `loggerService` and `historyConnectionService`, which are used for logging and handling history connections respectively.
+The `HistoryPublicService` is a TypeScript class that implements the `THistoryConnectionService` interface. This service is responsible for handling public operations related to history management. It has a constructor, properties such as `loggerService`, `historyConnectionService`, and methods like `push`, `toArrayForAgent`, `toArrayForRaw`, and `dispose`.
 
-The class also has several methods: `push`, `toArrayForAgent`, `toArrayForRaw`, and `dispose`. The `push` method is used to send a message with the specified `message`, `clientId`, and `agentName` to the history connection service. The `toArrayForAgent` method is used to convert a `prompt`, `clientId`, and `agentName` into an array of `IModelMessage`. The `toArrayForRaw` method is used to convert a `clientId` and `agentName` into an array of `IModelMessage`. Finally, the `dispose` method is used to disconnect from the history connection service for a specified `clientId` and `agentName`.
+The `push` method allows you to push a message to the history asynchronously. It takes three parameters: `message` (an object representing the message), `clientId` (a string representing the client ID), and `agentName` (a string representing the agent name).
+
+The `toArrayForAgent` method converts the history to an array specifically for a given agent. It takes three parameters: `prompt` (a string representing the prompt), `clientId` (a string representing the client ID), and `agentName` (a string representing the agent name). It returns an array of `IModelMessage` objects asynchronously.
+
+The `toArrayForRaw` method converts the history to a raw array. It takes two parameters: `clientId` (a string representing the client ID) and `agentName` (a string representing the agent name). It also returns an array of `IModelMessage` objects asynchronously.
+
+The `dispose` method allows you to dispose of the history asynchronously. It takes two parameters: `clientId` (a string representing the client ID) and `agentName` (a string representing the agent name).
 
 ## HistoryConnectionService
 
-The `HistoryConnectionService` is a class that implements the `IHistory` interface. It has a constructor that takes no arguments and initializes the `loggerService`, `contextService`, and `sessionValidationService` properties.
+The `HistoryConnectionService` is a TypeScript class that implements the `IHistory` interface and provides functionality for managing history connections. It has a constructor that initializes the loggerService, contextService, and sessionValidationService. The class also includes several methods for retrieving and manipulating history data.
 
-The class provides several methods and properties:
-- `getItems` is a memoized function that takes `clientId` and `agentName` as parameters, returns an array of `IModelMessage` objects for the specified client and agent. It also implements `IClearableMemoize` and `IControlMemoize` interfaces.
-- `getHistory` is a memoized function that takes `clientId` and `agentName` as parameters, returns a `ClientHistory` object for the specified client and agent. It also implements `IClearableMemoize` and `IControlMemoize` interfaces.
-- `push` is a method that takes an `IModelMessage` object as a parameter and returns a Promise that resolves when the message is successfully pushed.
-- `toArrayForAgent` is a method that takes a `prompt` string as a parameter and returns an array of `IModelMessage` objects for the specified agent. It returns a Promise.
-- `toArrayForRaw` is a method that returns an array of `IModelMessage` objects for all agents. It returns a Promise.
-- `dispose` is a method that disposes of any resources used by the service. It returns a Promise that resolves when the disposal is complete.
+The `getItems` method retrieves items for a given client and agent, while the `getHistory` method retrieves the history for a given client and agent. Both methods also support memoization for improved performance.
 
-Overall, the `HistoryConnectionService` class provides methods to interact with the history of messages for clients and agents, as well as a way to push new messages. It utilizes memoization and asynchronous operations for efficiency.
+The `push` method allows you to push a message to the history asynchronously. The `toArrayForAgent` method converts the history to an array format suitable for agents, and the `toArrayForRaw` method converts the history to a raw array format.
+
+To clean up resources, you can use the `dispose` method to dispose of the history connection service.
 
 ## CompletionValidationService
 
-The `CompletionValidationService` is a TypeScript class that provides methods for managing completion validations. It has a constructor that initializes the logger service and completion set. The `loggerService` property is used for logging messages, while the `_completionSet` property stores a set of completion names.
+The CompletionValidationService is a TypeScript service designed for validating completion names. It has a constructor that initializes the service, and two properties: loggerService for logging purposes and _completionSet to store the completion names. 
 
-The `addCompletion` method allows you to add a completion name to the service. This can be useful when you want to include a new completion in the validation process.
+To add a new completion name to the set, you can use the addCompletion function. This function takes a string parameter representing the completion name and does not return any value.
 
-The `validate` method is used to validate a completion name against the provided source code. It takes two parameters: `completionName`, which is the name of the completion to validate, and `source`, which is the source code where the completion will be applied. This method can help ensure that the completion is valid and appropriate for the given source code.
+To validate if a completion name exists in the set, you can use the validate function. This function takes two parameters: completionName, a string representing the name to be validated, and source, a string representing the origin of the completion name. If the specified completion name exists in the set, no action is taken. If it does not exist, an error will be logged using the loggerService.
+
+Overall, this service allows you to manage and validate completion names efficiently.
 
 ## CompletionSchemaService
 
-The `CompletionSchemaService` is a class in TypeScript that provides methods for managing completion schema data. It has a constructor, which is used to initialize the class. The `loggerService` property is an instance of the `LoggerService`, which handles logging messages. The `registry` property is a generic data structure used to store the completion schema. The `register` method is used to add a new completion schema with a specified key, and the `get` method is used to retrieve a completion schema by its key.
+The `CompletionSchemaService` is a service used for managing completion schemas. It has a constructor, `loggerService` and `registry` properties, as well as `register` and `get` methods. The `register` method is used to add a new completion schema by providing a key and the associated `ICompletionSchema` object. The `get` method retrieves a completion schema by its key. This service allows for efficient management and retrieval of completion schemas.
 
 ## ClientSwarm
 
-The `ClientSwarm` class is an implementation of the `ISwarm` interface. It has a constructor that takes in `ISwarmParams` as a parameter. The class also has several properties and methods, including `params`, `_agentChangedSubject`, `_activeAgent`, `waitForOutput`, `getAgentName`, `getAgent`, `setAgentRef`, and `setAgentName`. The class allows for interaction with swarm agents, retrieving agent names and information. The `waitForOutput` method returns a promise that resolves to the output of an agent, while `getAgentName` and `getAgent` return promises that resolve to the name and information of an agent, respectively. The `setAgentRef` and `setAgentName` methods allow for setting the reference and name of an agent, respectively.
+The ClientSwarm class is an implementation of the ISwarm interface and manages agents within a swarm. It has a constructor that takes in parameters defined by the ISwarmParams interface. The class also has several properties and methods to interact with the swarm.
+
+The `waitForOutput` method waits for output from the currently active agent in the swarm. The `getAgentName` method retrieves the name of the currently active agent. The `getAgent` method retrieves the currently active agent.
+
+To set a reference of an agent in the swarm, you can use the `setAgentRef` method by providing the agent's name and a reference to the agent. To set the active agent by name, you can use the `setAgentName` method.
 
 ## ClientSession
 
-The `ClientSession` class is an implementation of the `ISession` interface. It has a constructor that takes in `ISessionParams` as a parameter. The class has several properties and methods, including `params`, `_emitSubject`, `execute`, `commitToolOutput`, `commitSystemMessage`, and `connect`.
+The ClientSession class is an implementation of the ISession interface. It has a constructor that takes in parameters of type ISessionParams. The class also has several properties and methods for handling messages, committing output, and connecting to a connector function.
 
-The `execute` method allows you to send a message and optionally prevent the emission of an event. It returns a promise that resolves with the response from the server.
+The `emit` method allows you to emit a message, while the `execute` method executes a message and optionally emits the output. The `commitToolOutput` method is used to commit tool output, `commitUserMessage` commits a user message without an answer, and `commitSystemMessage` commits a system message.
 
-The `commitToolOutput` method allows you to commit tool output, which is a message sent by the client to the server. It returns a promise that resolves when the message is successfully committed.
-
-The `commitSystemMessage` method allows you to commit a system message, which is a message sent by the server to the client. It returns a promise that resolves when the message is successfully committed.
-
-The `connect` method allows you to connect the client session with a connector function that sends messages. It returns a receive message function, which can be used to handle messages received from the server.
+The `connect` method is used to connect the session to a connector function, allowing for communication between the session and external systems.
 
 ## ClientHistory
 
-The `ClientHistory` class implements the `IHistory` interface and serves as a client-side history manager. It is constructed using the `IHistoryParams` object. The class provides two main methods: `push` and array conversion functions (`toArrayForRaw`, `toArrayForAgent`).
+The `ClientHistory` class is an implementation of the `IHistory` interface, which represents a history of client messages. It has a constructor that takes in parameters defined by the `IHistoryParams` interface. The class provides two methods: `push` and `toArrayForAgent`. 
 
-The `push` method accepts an `IModelMessage` object and returns a Promise that resolves when the message is successfully added to the history.
+The `push` method allows you to add a new message to the history asynchronously. It takes an `IModelMessage` object as a parameter and returns a `Promise<void>`.
 
-The `toArrayForRaw` method returns a Promise that resolves with an array of `IModelMessage` objects representing the current history in its raw form.
+The `toArrayForRaw` method converts the history into an array of raw messages asynchronously. It returns a `Promise<IModelMessage[]>`.
 
-The `toArrayForAgent` method accepts a prompt string and returns a Promise that resolves with an array of `IModelMessage` objects representing the current history, filtered for messages related to the given prompt.
-
-Overall, `ClientHistory` is a class that manages the client-side history, allowing for adding new messages and retrieving the history in different formats.
+The `toArrayForAgent` method converts the history into an array of messages specifically for the agent, taking a `prompt` string as an additional parameter. Like the previous methods, it returns a `Promise<IModelMessage[]>`.
 
 ## ClientAgent
 
-The `ClientAgent` class is an implementation of the `IAgent` interface. It has a constructor that takes in an object of type `IAgentParams`. The class also has several properties and methods.
-
-The `params` property is of type `IAgentParams`, which contains parameters for the agent.
-
-The `_toolCommitSubject` property is a subject of type `Subject<void>` that is used to commit tool output.
-
-The `_outputSubject` property is a subject of type `Subject<string>` that is used to emit output.
-
-The `_emitOuput` method is a function that takes in a `result` of type string and returns a promise that resolves when the output is emitted.
-
-The `_resurrectModel` method is a function that takes in an optional `reason` of type string and returns a promise that resolves with the resurrected model.
-
-The `waitForOutput` method is a function that returns a promise that resolves with the output when it is emitted.
-
-The `getCompletion` method is a function that returns a promise that resolves with an `IModelMessage` object containing the completion.
-
-The `commitSystemMessage` method is a function that takes in a `message` of type string and returns a promise that resolves when the system message is committed.
-
-The `commitToolOutput` method is a function that takes in a `content` of type string and returns a promise that resolves when the tool output is committed.
-
-The `execute` method is a function that takes in an `input` of type string and returns a promise that resolves when the execution is complete.
+The `ClientAgent` class in TypeScript represents a client agent that interacts with the system. It implements the `IAgent` interface and has a constructor that takes in `IAgentParams` as a parameter. The class has several properties and methods for interacting with the system, such as emitting output results after validation, resurrecting the model based on a given reason, waiting for output to be available, getting the completion message from the model, committing user and system messages to the history without answer, committing tool output to the history, and executing incoming messages. The `execute` method processes tool calls if any.
 
 ## AgentValidationService
 
-The `AgentValidationService` is a class in TypeScript that provides methods for adding agents and validating agent data. It has a constructor that initializes the logger service, tool validation service, and completion validation service. The class also has a private property `_agentMap` to store the added agents.
+The `AgentValidationService` is a service used for validating agents within an agent swarm. It has a constructor that initializes the service with dependencies such as `loggerService`, `toolValidationService`, and `completionValidationService`. The service also has a private property `_agentMap` which is used to store the agents.
 
-To add an agent, you can use the `addAgent` method by providing the agent name and its schema. This method will store the agent in `_agentMap`.
+To add a new agent to the validation service, you can use the `addAgent` method by providing the agent's name and its schema. This method adds the agent to the service's internal map.
 
-To validate agent data, you can use the `validate` method by providing the agent name and the source data. This method will validate the agent using the logger service, tool validation service, and completion validation service.
-
-Overall, the `AgentValidationService` class helps in managing and validating agents by utilizing other validation services.
+To validate an agent, you can use the `validate` method by providing the agent's name and its source code. This method will perform the validation for the specified agent using the provided source code.
 
 ## AgentSchemaService
 
-The `AgentSchemaService` is a TypeScript class that serves as an agent schema registry. It has a constructor, which is used to initialize the class. The `loggerService` property is an instance of the `LoggerService`, which handles logging messages. The `registry` property is a generic data structure used to store the registered agent schemas. The `register` method is used to register an agent schema with a specified key, and the `get` method retrieves an agent schema by its key.
+The `AgentSchemaService` is a service used for managing agent schemas. It has a constructor, `loggerService` and `registry` properties, as well as two methods: `register` and `get`. The `loggerService` is used for logging, while the `registry` stores registered agent schemas.
 
-In summary, the `AgentSchemaService` is a class that manages the registration and retrieval of agent schemas, utilizing a logger service and a registry data structure.
+The `register` method is used to add a new agent schema by providing a key and an `IAgentSchema` object. The `get` method retrieves an agent schema by its name, returning the corresponding `IAgentSchema` object.
 
 ## AgentPublicService
 
-The `AgentPublicService` class implements the `TAgentConnectionService` interface and provides methods for interacting with agents in a system. It has several properties, including `loggerService` and `agentConnectionService`, which are used for logging and connecting to agents, respectively.
+The `AgentPublicService` is a TypeScript class that implements the `TAgentConnectionService` interface. It is responsible for managing public agent operations, which include creating an agent reference, executing commands on the agent, waiting for output from the agent, committing tool and system messages to the agent, committing user messages without an answer, and disposing of the agent.
 
-The `createAgentRef` method creates a reference for an agent with the given `clientId` and `agentName`, returning a `ClientAgent` object. The `execute` method allows the user to execute a command or input through an agent. The `waitForOutput` method waits for the agent's response and returns it as a string. The `commitToolOutput` method commits the tool's output to the system. The `commitSystemMessage` method commits a system message to the agent. The `dispose` method disposes of the agent connection.
+The `constructor` is used to initialize the service and inject dependencies such as `loggerService` for logging and `agentConnectionService` for managing agent connections.
 
-Overall, this class provides a way to interact with agents in the system, execute commands through them, and manage their outputs and messages.
+The `createAgentRef` method creates a reference to an agent by providing the `clientId` and `agentName`.
+
+The `execute` method allows you to execute a command on the agent by providing an `input`, `clientId`, and `agentName`.
+
+The `waitForOutput` method waits for the agent's output by providing a `clientId` and `agentName`.
+
+The `commitToolOutput` method commits tool output to the agent by providing `content`, `clientId`, and `agentName`.
+
+The `commitSystemMessage` method commits a system message to the agent by providing `message`, `clientId`, and `agentName`.
+
+The `commitUserMessage` method commits a user message to the agent without an answer by providing `message`, `clientId`, and `agentName`.
+
+The `dispose` method disposes of the agent by providing `clientId` and `agentName`.
 
 ## AgentConnectionService
 
-The `AgentConnectionService` is a class that implements the `IAgent` interface. It has a constructor that takes no arguments and initializes several properties including `loggerService`, `contextService`, `sessionValidationService`, `historyConnectionService`, `agentSchemaService`, `toolSchemaService`, and `completionSchemaService`.
+The `AgentConnectionService` is a TypeScript class that implements the `IAgent` interface and manages agent connections. It has a constructor that initializes several properties including `loggerService`, `contextService`, `sessionValidationService`, `historyConnectionService`, `agentSchemaService`, `toolSchemaService`, and `completionSchemaService`. 
 
-The class provides several methods: `getAgent`, which returns a `ClientAgent` object based on the provided client ID and agent name, memoized with control; `execute`, which takes an input string and returns a Promise that resolves when the agent has finished executing; `waitForOutput`, which returns a Promise that resolves with the output of the agent; `commitToolOutput`, which takes a content string and commits it as the output of a tool; `commitSystemMessage`, which takes a message string and commits it as a system message; `dispose`, which disposes of the agent connection.
+The class provides several methods: `getAgent` for retrieving an agent instance, `execute` for executing input commands, `waitForOutput` for waiting for the output from the agent, `commitToolOutput` for committing tool output, `commitSystemMessage` for committing a system message, `commitUserMessage` for committing a user message without answer, and `dispose` for disposing of the agent connection.
+
+Overall, this class is responsible for managing agent connections and providing methods to execute commands, commit output, and dispose of the connection.

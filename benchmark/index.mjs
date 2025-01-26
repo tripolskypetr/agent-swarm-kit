@@ -12,8 +12,10 @@ import {
 import { randomString } from "functools-kit";
 import assert from "assert";
 
-const TOTAL_ATTEMPTS = 10_000;
-const JIT_ATTEMPTS = 500;
+const TOTAL_ATTEMPTS = 25;
+const JIT_ATTEMPTS = 5;
+const COMPLETES_PER_ITER = 25;
+const PARALLEL_EXECUTIONS = 5;
 
 setConfig({
   CC_SWARM_AGENT_CHANGED: () => Promise.resolve(),
@@ -57,27 +59,43 @@ const runBenchmark = async () => {
   );
 
   const outputs = await Promise.all([
-    complete("inc"),
+    /**
+     * Using `scheduled` session so only the last complete
+     * will be executed
+     */
+    ...Array.from({length: PARALLEL_EXECUTIONS}, () => complete("inc")),
     commitUserMessage("inc", CLIENT_ID, TEST_AGENT).then(() => "0"),
     execute("inc", CLIENT_ID, TEST_AGENT),
   ]);
 
   const maxItem = Math.max(...outputs.map(Number));
 
-  assert.equal(maxItem, 2, "The queue is not working");
+  assert.equal(maxItem, 3, "The queue is not working");
 
   await dispose();
 
   CLIENT_IDS.push(CLIENT_ID);
 };
 
+const runInParallel = async () => {
+    const promises = [];
+    for (let i = 0; i !== COMPLETES_PER_ITER; i++) {
+        promises.push(runBenchmark());
+    }
+    await Promise.all(promises);
+}
+
+console.log("Benchmark started")
+
 for (let i = 0; i !== TOTAL_ATTEMPTS; i++) {
+
   if (i < JIT_ATTEMPTS) {
-    await runBenchmark();
+    console.log(`Attempt ${i + 1} (JIT)`);
+    await runInParallel();
   } else {
-    console.time(`Attempt ${i}`);
-    await runBenchmark();
-    console.timeEnd(`Attempt ${i}`);
+    console.time(`Attempt ${i + 1}`);
+    await runInParallel();
+    console.timeEnd(`Attempt ${i + 1}`);
   }
 }
 
