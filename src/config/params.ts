@@ -2,6 +2,7 @@ import { IPubsubArray, PubsubArrayAdapter, sleep } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
 import { SwarmName } from "../interfaces/Swarm.interface";
+import validateDefault from "../validation/validateDefault";
 
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
@@ -39,6 +40,15 @@ const CC_SWARM_DEFAULT_AGENT: (
   return defaultAgent;
 };
 
+const CC_AGENT_DEFAULT_VALIDATION = validateDefault;
+
+const CC_AGENT_DISALLOWED_TAGS = ["tool_call", "toolcall", "tool"];
+
+const CC_AGENT_DISALLOWED_SYMBOLS = [
+  "{",
+  "}",
+];
+
 const CC_KEEP_MESSAGES = 5;
 
 const CC_ANSWER_TIMEOUT = 120_000;
@@ -56,6 +66,9 @@ export const GLOBAL_CONFIG = {
   CC_GET_AGENT_HISTORY,
   CC_SWARM_AGENT_CHANGED,
   CC_SWARM_DEFAULT_AGENT,
+  CC_AGENT_DEFAULT_VALIDATION,
+  CC_AGENT_DISALLOWED_TAGS,
+  CC_AGENT_DISALLOWED_SYMBOLS,
 };
 
 export const setConfig = (config: typeof GLOBAL_CONFIG) => {

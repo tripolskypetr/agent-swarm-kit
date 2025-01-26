@@ -1806,6 +1806,9 @@ declare const GLOBAL_CONFIG: {
     CC_GET_AGENT_HISTORY: (clientId: string, agentName: AgentName) => IPubsubArray<IModelMessage>;
     CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
     CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
+    CC_AGENT_DEFAULT_VALIDATION: (output: string) => Promise<string | null>;
+    CC_AGENT_DISALLOWED_TAGS: string[];
+    CC_AGENT_DISALLOWED_SYMBOLS: string[];
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 

@@ -1,14 +1,8 @@
 import { trycatch } from "functools-kit";
+import { GLOBAL_CONFIG } from "../config/params";
 import xml2js from "xml2js";
 
 const toolParser = new xml2js.Parser();
-
-const TOOL_CALL_ENTRIES = ["tool_call", "toolcall", "tool"];
-
-const DISALLOWED_SYMBOLS = [
-  "{",
-  "}",
-];
 
 /**
  * Validates that the given output string does not contain any tool call entries or disallowed symbols.
@@ -20,13 +14,13 @@ const DISALLOWED_SYMBOLS = [
  */
 export const validateNoToolCall: (output: string) => Promise<string | null> = trycatch(
   async (output: string) => {
-    for (const symbol of DISALLOWED_SYMBOLS) {
+    for (const symbol of GLOBAL_CONFIG.CC_AGENT_DISALLOWED_SYMBOLS) {
       if (output.includes(symbol)) {
         return "Tool call in text output";
       }
     }
     const result = await toolParser.parseStringPromise(output);
-    for (const tag of TOOL_CALL_ENTRIES) {
+    for (const tag of GLOBAL_CONFIG.CC_AGENT_DISALLOWED_TAGS) {
       if (result[tag]) {
         return "Tool call in text output";
       }
