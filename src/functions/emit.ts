@@ -1,6 +1,16 @@
 import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 
+/**
+ * Emits a string constant as the model output without executing incoming message
+ * Works only for `makeConnection`
+ *
+ * @param {string} content - The content to be emitted.
+ * @param {string} clientId - The client ID of the session.
+ * @param {AgentName} agentName - The name of the agent to emit the content to.
+ * @throws Will throw an error if the session mode is not "makeConnection".
+ * @returns {Promise<void>} A promise that resolves when the content is emitted.
+ */
 export const emit = async (
   content: string,
   clientId: string,

@@ -459,39 +459,165 @@ declare const swarm: {
     };
 };
 
+/**
+ * Adds a new agent to the agent registry. The swarm takes only those agents which was registered
+ *
+ * @param {IAgentSchema} agentSchema - The schema of the agent to be added.
+ * @returns {string} The name of the added agent.
+ */
 declare const addAgent: (agentSchema: IAgentSchema) => string;
 
+/**
+ * Adds a completion engine for agents. Agents could use different models and
+ * framewords for completion like: mock, gpt4all, ollama, openai
+ *
+ * @param {ICompletionSchema} completionSchema - The completion schema to be added.
+ * @returns {string} The name of the completion that was added.
+ */
 declare const addCompletion: (completionSchema: ICompletionSchema) => string;
 
+/**
+ * Adds a new swarm to the system. The swarm is a root for starting client session
+ *
+ * @param {ISwarmSchema} swarmSchema - The schema of the swarm to be added.
+ * @returns {string} The name of the added swarm.
+ */
 declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
 
+/**
+ * Adds a new tool for agents in a swarm. Tool should be registered in `addAgent`
+ * declaration
+ *
+ * @param {IAgentTool} toolSchema - The schema of the tool to be added.
+ * @returns {string} The name of the tool that was added.
+ */
 declare const addTool: (toolSchema: IAgentTool) => string;
 
 type SendMessageFn = (outgoing: string) => Promise<void>;
+/**
+ * A connection factory for a client to a swarm and returns a function to send messages.
+ *
+ * @param {ReceiveMessageFn} connector - The function to receive messages.
+ * @param {string} clientId - The unique identifier of the client.
+ * @param {SwarmName} swarmName - The name of the swarm.
+ * @returns {SendMessageFn} - A function to send messages to the swarm.
+ */
 declare const makeConnection: (connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName) => SendMessageFn;
 
+/**
+ * Changes the agent for a given client session in swarm.
+ * @async
+ * @function
+ * @param {AgentName} agentName - The name of the agent.
+ * @param {string} clientId - The client ID.
+ * @returns {Promise<void>} - A promise that resolves when the agent is changed.
+ */
 declare const changeAgent: (agentName: AgentName, clientId: string) => Promise<void>;
 
+/**
+ * The complete function will create a swarm, execute single command and dispose it
+ * Best for developer needs like troubleshooting tool execution
+ *
+ * @param {string} content - The content to process.
+ * @param {string} clientId - The client ID.
+ * @param {SwarmName} swarmName - The swarm name.
+ * @returns {Promise<string>} The result of the complete function.
+ */
 declare const complete: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
 
 type TComplete = (content: string) => Promise<string>;
+/**
+ * Creates a session for the given client and swarm.
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {SwarmName} swarmName - The name of the swarm.
+ * @returns {Object} An object containing the session methods.
+ * @returns {TComplete} complete - A function to complete the session with content.
+ * @returns {Function} dispose - A function to dispose of the session.
+ */
 declare const session: (clientId: string, swarmName: SwarmName) => {
+    /**
+     * Completes the session with the given content.
+     *
+     * @param {string} content - The content to complete the session with.
+     * @returns {Promise<string>} A promise that resolves with the result of the session execution.
+     */
     complete: TComplete;
+    /**
+     * Disposes of the session.
+     *
+     * @returns {Promise<void>} A promise that resolves when the session is disposed.
+     */
     dispose: () => Promise<void>;
 };
 
+/**
+ * Disposes the session for a given client with all related swarms and agents.
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {SwarmName} swarmName - The name of the swarm.
+ * @returns {Promise<void>} A promise that resolves when the connection is disposed.
+ */
 declare const disposeConnection: (clientId: string, swarmName: SwarmName) => Promise<void>;
 
+/**
+ * Retrieves the raw history as it is for a given client ID without any modifications.
+ *
+ * @param {string} clientId - The ID of the client whose history is to be retrieved.
+ * @returns {Promise<Array>} A promise that resolves to an array containing the raw history.
+ */
 declare const getRawHistory: (clientId: string) => Promise<IModelMessage[]>;
 
+/**
+ * Retrieves the history prepared for a specific agent with resque algorithm tweaks
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {AgentName} agentName - The name of the agent.
+ * @returns {Promise<Array>} - A promise that resolves to an array containing the agent's history.
+ */
 declare const getAgentHistory: (clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
 
+/**
+ * Commits the tool output to the active agent in a swarm session
+ *
+ * @param {string} content - The content to be committed.
+ * @param {string} clientId - The client ID associated with the session.
+ * @param {AgentName} agentName - The name of the agent committing the output.
+ * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ */
 declare const commitToolOutput: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
 
+/**
+ * Commits a system message to the active agent in as swarm.
+ *
+ * @param {string} content - The content of the system message.
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
 declare const commitSystemMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
 
+/**
+ * Send the message to the active agent in the swarm content like it income from client side
+ * Should be used to review tool output and initiate conversation from the model side to client
+ *
+ * @param {string} content - The content to be executed.
+ * @param {string} clientId - The ID of the client requesting execution.
+ * @param {AgentName} agentName - The name of the agent executing the command.
+ * @returns {Promise<void>} - A promise that resolves when the execution is complete.
+ */
 declare const execute: (content: string, clientId: string, agentName: AgentName) => Promise<string>;
 
+/**
+ * Emits a string constant as the model output without executing incoming message
+ * Works only for `makeConnection`
+ *
+ * @param {string} content - The content to be emitted.
+ * @param {string} clientId - The client ID of the session.
+ * @param {AgentName} agentName - The name of the agent to emit the content to.
+ * @throws Will throw an error if the session mode is not "makeConnection".
+ * @returns {Promise<void>} A promise that resolves when the content is emitted.
+ */
 declare const emit: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
 
 declare const GLOBAL_CONFIG: {

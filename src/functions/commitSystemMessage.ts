@@ -1,5 +1,13 @@
 import swarm from "src/lib";
 
+/**
+ * Commits a system message to the active agent in as swarm.
+ * 
+ * @param {string} content - The content of the system message.
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
 export const commitSystemMessage = async (content: string, clientId: string, agentName: string) => {
     swarm.loggerService.log('function commitSystemMessage', {
         content,

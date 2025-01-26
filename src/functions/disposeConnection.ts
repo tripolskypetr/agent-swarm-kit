@@ -1,6 +1,13 @@
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
 
+/**
+ * Disposes the session for a given client with all related swarms and agents.
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {SwarmName} swarmName - The name of the swarm.
+ * @returns {Promise<void>} A promise that resolves when the connection is disposed.
+ */
 export const disposeConnection = async (
   clientId: string,
   swarmName: SwarmName
