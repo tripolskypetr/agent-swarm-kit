@@ -13,6 +13,10 @@ export interface IMakeDisposeParams {
    * Timeout in seconds before auto-dispose is triggered.
    */
   timeoutSeconds: number;
+  /**
+   * Callback when session is closed
+   */
+  onDestroy?: (clientId: string, swarmName: SwarmName) => void;
 }
 
 /**
@@ -26,7 +30,7 @@ export interface IMakeDisposeParams {
 export const makeAutoDispose = (
   clientId: string,
   swarmName: SwarmName,
-  { timeoutSeconds = DEFAULT_TIMEOUT }: Partial<IMakeDisposeParams> = {}
+  { timeoutSeconds = DEFAULT_TIMEOUT, onDestroy }: Partial<IMakeDisposeParams> = {}
 ) => {
   let isOk = true;
 
@@ -44,6 +48,7 @@ export const makeAutoDispose = (
       if (swarm.sessionValidationService.hasSession(clientId)) {
         await disposeConnection(clientId, swarmName);
       }
+      onDestroy && onDestroy(clientId, swarmName);
     });
 
   return {
@@ -56,8 +61,9 @@ export const makeAutoDispose = (
     /**
      * Stops the auto-dispose mechanism.
      */
-    stop() {
+    destroy() {
       unSource();
+      onDestroy && onDestroy(clientId, swarmName);
     },
   };
 };

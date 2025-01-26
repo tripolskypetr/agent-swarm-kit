@@ -1774,6 +1774,10 @@ interface IMakeDisposeParams {
      * Timeout in seconds before auto-dispose is triggered.
      */
     timeoutSeconds: number;
+    /**
+     * Callback when session is closed
+     */
+    onDestroy?: (clientId: string, swarmName: SwarmName) => void;
 }
 /**
  * Creates an auto-dispose mechanism for a client in a swarm.
@@ -1783,7 +1787,7 @@ interface IMakeDisposeParams {
  * @param {Partial<IMakeDisposeParams>} [params={}] - Optional parameters for auto-dispose.
  * @returns {Object} An object with tick and stop methods to control the auto-dispose.
  */
-declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeoutSeconds }?: Partial<IMakeDisposeParams>) => {
+declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeoutSeconds, onDestroy }?: Partial<IMakeDisposeParams>) => {
     /**
      * Signals that the client is active, resetting the auto-dispose timer.
      */
@@ -1791,7 +1795,7 @@ declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeou
     /**
      * Stops the auto-dispose mechanism.
      */
-    stop(): void;
+    destroy(): void;
 };
 
 declare const GLOBAL_CONFIG: {
