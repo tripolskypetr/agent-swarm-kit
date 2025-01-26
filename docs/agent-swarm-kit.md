@@ -1,5 +1,9 @@
 # agent-swarm-kit
 
+## Conclusion
+
+Agent Swarm Kit is a sophisticated TypeScript framework for building multi-agent systems, enabling complex interactions through interconnected services that manage agent connections, session management, swarm coordination, and comprehensive validation. It provides robust schema registries for agents, tools, and completions, with dedicated services for validating configurations, tracking message history, and facilitating seamless communication between different system components. The framework supports modular agent development by offering public interfaces for executing commands, committing outputs, and managing system interactions across various abstraction levels, making it a powerful toolkit for creating intelligent, scalable distributed agent architectures.
+
 ## ToolValidationService
 
 The `ToolValidationService` is a class that provides methods for adding tools and validating them. It has a constructor that takes no arguments, and two properties: `loggerService` which is used for logging, and `_toolMap` which is a map that stores the tools.
@@ -205,3 +209,9 @@ The `AgentPublicService` class implements the `TAgentConnectionService` interfac
 The `createAgentRef` method creates a reference for an agent with the given `clientId` and `agentName`, returning a `ClientAgent` object. The `execute` method allows the user to execute a command or input through an agent. The `waitForOutput` method waits for the agent's response and returns it as a string. The `commitToolOutput` method commits the tool's output to the system. The `commitSystemMessage` method commits a system message to the agent. The `dispose` method disposes of the agent connection.
 
 Overall, this class provides a way to interact with agents in the system, execute commands through them, and manage their outputs and messages.
+
+## AgentConnectionService
+
+The `AgentConnectionService` is a class that implements the `IAgent` interface. It has a constructor that takes no arguments and initializes several properties including `loggerService`, `contextService`, `sessionValidationService`, `historyConnectionService`, `agentSchemaService`, `toolSchemaService`, and `completionSchemaService`.
+
+The class provides several methods: `getAgent`, which returns a `ClientAgent` object based on the provided client ID and agent name, memoized with control; `execute`, which takes an input string and returns a Promise that resolves when the agent has finished executing; `waitForOutput`, which returns a Promise that resolves with the output of the agent; `commitToolOutput`, which takes a content string and commits it as the output of a tool; `commitSystemMessage`, which takes a message string and commits it as a system message; `dispose`, which disposes of the agent connection.
