@@ -38,7 +38,7 @@ export class ClientSwarm implements ISwarm {
     );
     const START_TIME = Date.now();
     while (true) {
-      if (Date.now() - START_TIME >= GLOBAL_CONFIG.CC_ANSWER_TIMEOUT_SECONDS) {
+      if (Date.now() - START_TIME >= GLOBAL_CONFIG.CC_ANSWER_TIMEOUT) {
         throw new Error(
           `agent-swarm ClientSwarm waitForOutput timeout reached for ${this.params.swarmName}`
         );

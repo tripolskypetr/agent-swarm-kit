@@ -1770,7 +1770,7 @@ declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
     CC_KEEP_MESSAGES: number;
-    CC_ANSWER_TIMEOUT_SECONDS: number;
+    CC_ANSWER_TIMEOUT: number;
     CC_GET_AGENT_HISTORY: (clientId: string, agentName: AgentName) => IPubsubArray<IModelMessage>;
     CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
     CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
