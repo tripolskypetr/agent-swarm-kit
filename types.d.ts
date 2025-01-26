@@ -275,17 +275,20 @@ interface ISessionSchema {
 type SendMessageFn$1 = (outgoing: IOutgoingMessage) => Promise<void> | void;
 type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
 interface ISession {
+    emit(message: string): Promise<void>;
     execute(content: string): Promise<string>;
     connect(connector: SendMessageFn$1): ReceiveMessageFn;
     commitToolOutput(content: string): Promise<void>;
     commitSystemMessage(message: string): Promise<void>;
 }
 type SessionId = string;
+type SessionMode = "session" | "makeConnection" | "complete";
 
 declare class ClientSession implements ISession {
     readonly params: ISessionParams;
     readonly _emitSubject: Subject<string>;
     constructor(params: ISessionParams);
+    emit: (message: string) => Promise<void>;
     execute: (message: string, noEmit?: boolean) => Promise<string>;
     commitToolOutput: (content: string) => Promise<void>;
     commitSystemMessage: (message: string) => Promise<void>;
@@ -297,6 +300,7 @@ declare class SessionConnectionService implements ISession {
     private readonly contextService;
     private readonly swarmConnectionService;
     getSession: ((clientId: string, swarmName: string) => ClientSession) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientSession>;
+    emit: (content: string) => Promise<void>;
     execute: (content: string) => Promise<string>;
     connect: (connector: SendMessageFn$1) => ReceiveMessageFn;
     commitToolOutput: (content: string) => Promise<void>;
@@ -352,6 +356,7 @@ type TSessionConnectionService = {
 declare class SessionPublicService implements TSessionConnectionService {
     private readonly loggerService;
     private readonly sessionConnectionService;
+    emit: (content: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     execute: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     connect: (connector: SendMessageFn$1, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
     commitToolOutput: (content: string, clientId: string, swarmName: SwarmName) => Promise<void>;
@@ -399,11 +404,13 @@ declare class SessionValidationService {
     private _historySwarmMap;
     private _sessionSwarmMap;
     private _agentSwarmMap;
-    addSession: (clientId: SessionId, swarmName: SwarmName) => void;
+    private _sessionModeMap;
+    addSession: (clientId: SessionId, swarmName: SwarmName, sessionMode: SessionMode) => void;
     addAgentUsage: (sessionId: SessionId, agentName: AgentName) => void;
     addHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
     removeAgentUsage: (sessionId: SessionId, agentName: AgentName) => void;
     removeHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
+    getSessionMode: (clientId: SessionId) => SessionMode;
     getSessionList: () => string[];
     getSessionAgentList: (clientId: string) => string[];
     getSessionHistoryList: (clientId: string) => string[];
@@ -485,6 +492,8 @@ declare const commitSystemMessage: (content: string, clientId: string, agentName
 
 declare const execute: (content: string, clientId: string, agentName: AgentName) => Promise<string>;
 
+declare const emit: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
+
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
@@ -494,4 +503,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IModelMessage, type IOutgoingMessage, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, complete, disposeConnection, execute, getAgentHistory, getRawHistory, makeConnection, session, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IModelMessage, type IOutgoingMessage, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, complete, disposeConnection, emit, execute, getAgentHistory, getRawHistory, makeConnection, session, setConfig, swarm };

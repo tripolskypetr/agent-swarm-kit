@@ -11,7 +11,7 @@ export const session = (clientId: string, swarmName: SwarmName) => {
     swarmName,
   });
   swarm.swarmValidationService.validate(swarmName, "session");
-  swarm.sessionValidationService.addSession(clientId, swarmName);
+  swarm.sessionValidationService.addSession(clientId, swarmName, "session");
   return {
     complete: queued(async (content: string) => {
       swarm.sessionValidationService.validate(clientId, "session");

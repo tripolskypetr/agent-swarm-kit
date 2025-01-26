@@ -14,6 +14,7 @@ export * from './functions/getAgentHistory';
 export * from './functions/commitToolOutput';
 export * from './functions/commitSystemMessage';
 export * from './functions/execute';
+export * from './functions/emit';
 
 export { IAgentSchema } from './interfaces/Agent.interface';
 export { ICompletionSchema } from './interfaces/Completion.interface';

@@ -1,8 +1,7 @@
 import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import { CompletionName } from "../../../interfaces/Completion.interface";
-import { SessionId } from "../../../interfaces/Session.interface";
+import { SessionId, SessionMode } from "../../../interfaces/Session.interface";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
 import { AgentName } from "../../../interfaces/Agent.interface";
 
@@ -12,8 +11,9 @@ export class SessionValidationService {
   private _historySwarmMap = new Map<SessionId, AgentName[]>();
   private _sessionSwarmMap = new Map<SessionId, SwarmName>();
   private _agentSwarmMap = new Map<SessionId, AgentName[]>();
+  private _sessionModeMap = new Map<SessionId, SessionMode>();
 
-  public addSession = (clientId: SessionId, swarmName: SwarmName) => {
+  public addSession = (clientId: SessionId, swarmName: SwarmName, sessionMode: SessionMode) => {
     this.loggerService.log("sessionValidationService addSession", {
       clientId,
     });
@@ -21,6 +21,7 @@ export class SessionValidationService {
       throw new Error(`agent-swarm session clientId=${clientId} already exist`);
     }
     this._sessionSwarmMap.set(clientId, swarmName);
+    this._sessionModeMap.set(clientId, sessionMode);
   };
 
   public addAgentUsage = (sessionId: SessionId, agentName: AgentName): void => {
@@ -97,6 +98,18 @@ export class SessionValidationService {
     }
   };
 
+  public getSessionMode = (clientId: SessionId) => {
+    this.loggerService.log("sessionValidationService getSessionMode", {
+      clientId,
+    });
+    if (!this._sessionModeMap.has(clientId)) {
+      throw new Error(
+        `agent-swarm session getSessionMode clientId=${clientId} session not exist`
+      );
+    }
+    return this._sessionModeMap.get(clientId)!;
+  };
+
   public getSessionList = () => {
     this.loggerService.log("sessionValidationService getSessionList");
     return [...this._sessionSwarmMap.keys()];
@@ -141,6 +154,7 @@ export class SessionValidationService {
       clientId,
     });
     this._sessionSwarmMap.delete(clientId);
+    this._sessionModeMap.delete(clientId);
   };
 }
 

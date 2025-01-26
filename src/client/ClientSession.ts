@@ -18,6 +18,13 @@ export class ClientSession implements ISession {
     })
   }
 
+  emit = async (message: string) => {
+    this.params.logger.debug(`ClientSession clientId=${this.params.clientId} emit`, {
+      message,
+    });
+    await this._emitSubject.next(message);
+  }
+
   execute = async (message: string, noEmit = false) => {
     this.params.logger.debug(`ClientSession clientId=${this.params.clientId} execute`, {
       message,

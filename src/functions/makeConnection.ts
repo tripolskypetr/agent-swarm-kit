@@ -15,7 +15,7 @@ export const makeConnection = (
     swarmName,
   });
   swarm.swarmValidationService.validate(swarmName, "makeConnection");
-  swarm.sessionValidationService.addSession(clientId, swarmName);
+  swarm.sessionValidationService.addSession(clientId, swarmName, "makeConnection");
   const send = swarm.sessionPublicService.connect(
     connector,
     clientId,

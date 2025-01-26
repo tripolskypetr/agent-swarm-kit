@@ -15,6 +15,7 @@ export type SendMessageFn = (outgoing: IOutgoingMessage) => Promise<void> | void
 export type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
 
 export interface ISession {
+  emit(message: string): Promise<void>
   execute(content: string): Promise<string>;
   connect(connector: SendMessageFn): ReceiveMessageFn;
   commitToolOutput(content: string): Promise<void>;
@@ -22,3 +23,5 @@ export interface ISession {
 }
 
 export type SessionId = string;
+
+export type SessionMode = "session" | "makeConnection" | "complete";

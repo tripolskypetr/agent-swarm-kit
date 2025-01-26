@@ -22,6 +22,24 @@ export class SessionPublicService implements TSessionConnectionService {
     TYPES.sessionConnectionService
   );
 
+  public emit = async (content: string, clientId: string, swarmName: SwarmName) => {
+    this.loggerService.log("sessionPublicService emit", {
+      content,
+      clientId,
+      swarmName,
+    });
+    return await ContextService.runInContext(
+      async () => {
+        return await this.sessionConnectionService.emit(content);
+      },
+      {
+        clientId,
+        swarmName,
+        agentName: "",
+      }
+    );
+  };
+
   public execute = async (content: string, clientId: string, swarmName: SwarmName) => {
     this.loggerService.log("sessionPublicService execute", {
       content,

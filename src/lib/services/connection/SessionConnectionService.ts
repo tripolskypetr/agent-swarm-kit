@@ -31,6 +31,16 @@ export class SessionConnectionService implements ISession {
       })
   );
 
+  public emit = async (content: string) => {
+    this.loggerService.log(`sessionConnectionService emit`, {
+      context: this.contextService.context,
+    });
+    return await this.getSession(
+      this.contextService.context.clientId,
+      this.contextService.context.swarmName
+    ).emit(content);
+  };
+
   public execute = async (content: string): Promise<string> => {
     this.loggerService.log(`sessionConnectionService execute`, {
       context: this.contextService.context,

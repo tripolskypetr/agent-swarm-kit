@@ -12,7 +12,7 @@ const createComplete = ttl(
   (clientId: string, swarmName: SwarmName) =>
     queued(async (content: string) => {
       swarm.swarmValidationService.validate(swarmName, "complete");
-      swarm.sessionValidationService.addSession(clientId, swarmName);
+      swarm.sessionValidationService.addSession(clientId, swarmName, "complete");
       const result = await swarm.sessionPublicService.execute(
         content,
         clientId,
