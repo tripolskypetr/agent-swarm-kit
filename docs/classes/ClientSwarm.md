@@ -16,6 +16,12 @@ constructor(params: ISwarmParams);
 params: ISwarmParams
 ```
 
+### _agentChangedSubject
+
+```ts
+_agentChangedSubject: any
+```
+
 ### _activeAgent
 
 ```ts
@@ -38,6 +44,12 @@ getAgentName: () => Promise<string>
 
 ```ts
 getAgent: () => Promise<IAgent>
+```
+
+### setAgentRef
+
+```ts
+setAgentRef: (agentName: string, agent: IAgent) => Promise<void>
 ```
 
 ### setAgentName

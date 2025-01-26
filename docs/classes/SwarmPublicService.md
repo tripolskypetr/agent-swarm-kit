@@ -40,6 +40,12 @@ getAgentName: (clientId: string, swarmName: string) => Promise<string>
 getAgent: (clientId: string, swarmName: string) => Promise<IAgent>
 ```
 
+### setAgentRef
+
+```ts
+setAgentRef: (clientId: string, swarmName: string, agentName: string, agent: IAgent) => Promise<void>
+```
+
 ### setAgentName
 
 ```ts

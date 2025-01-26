@@ -58,6 +58,12 @@ getAgentName: () => Promise<string>
 getAgent: () => Promise<IAgent>
 ```
 
+### setAgentRef
+
+```ts
+setAgentRef: (agentName: string, agent: IAgent) => Promise<void>
+```
+
 ### setAgentName
 
 ```ts

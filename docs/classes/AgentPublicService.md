@@ -22,6 +22,12 @@ loggerService: any
 agentConnectionService: any
 ```
 
+### createAgentRef
+
+```ts
+createAgentRef: (clientId: string, agentName: string) => Promise<ClientAgent>
+```
+
 ### execute
 
 ```ts

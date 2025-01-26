@@ -1,15 +1,22 @@
 import { test } from "worker-testbed";
 
-import { addAgent, addCompletion, addSwarm, addTool, complete, setConfig } from '../../build/index.mjs'
+import {
+  addAgent,
+  addCompletion,
+  addSwarm,
+  addTool,
+  complete,
+  setConfig,
+} from "../../build/index.mjs";
 import { randomString } from "functools-kit";
 
 const CLIENT_ID = randomString();
 
 const debug = {
-    log(...args) {
-        void 0;
-    }
-}
+  log(...args) {
+    void 0;
+  },
+};
 
 test("Will resque model on unexisting tool call", async ({ pass, fail }) => {
 
@@ -184,4 +191,41 @@ test("Will resque model on failed tool validation", async ({ pass, fail }) => {
 
     fail();
 
+});
+
+test("Failed resque raise a placeholder", async ({ pass, fail }) => {
+  const MOCK_COMPLETION = addCompletion({
+    completionName: "mock-completion",
+    getCompletion: async ({ agentName }) => {
+      return {
+        agentName,
+        content: "",
+        role: "assistant",
+      };
+    },
+  });
+
+  const TEST_AGENT = addAgent({
+    agentName: "test-agent",
+    completion: MOCK_COMPLETION,
+    prompt: "",
+  });
+
+  const TEST_SWARM = addSwarm({
+    swarmName: "test-swarm",
+    agentList: [TEST_AGENT],
+    defaultAgent: TEST_AGENT,
+  });
+
+  setConfig({
+    CC_EMPTY_OUTPUT_PLACEHOLDERS: ["Resque"],
+  });
+
+  const output = await complete("test", CLIENT_ID, TEST_SWARM);
+  if (output === "Resque") {
+    pass();
+    return;
+  }
+
+  fail("exception not thrown");
 });
