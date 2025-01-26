@@ -8,16 +8,28 @@ import {
 } from "../interfaces/Session.interface";
 import { ISession } from "../interfaces/Session.interface";
 
+/**
+ * ClientSession class implements the ISession interface.
+ */
 export class ClientSession implements ISession {
 
   readonly _emitSubject = new Subject<string>();
 
+  /**
+   * Constructs a new ClientSession instance.
+   * @param {ISessionParams} params - The session parameters.
+   */
   constructor(readonly params: ISessionParams) {
     this.params.logger.debug(`ClientSession clientId=${this.params.clientId} CTOR`, {
       params,
     })
   }
 
+  /**
+   * Emits a message.
+   * @param {string} message - The message to emit.
+   * @returns {Promise<void>}
+   */
   emit = async (message: string) => {
     this.params.logger.debug(`ClientSession clientId=${this.params.clientId} emit`, {
       message,
@@ -25,6 +37,12 @@ export class ClientSession implements ISession {
     await this._emitSubject.next(message);
   }
 
+  /**
+   * Executes a message and optionally emits the output.
+   * @param {string} message - The message to execute.
+   * @param {boolean} [noEmit=false] - Whether to emit the output or not.
+   * @returns {Promise<string>} - The output of the execution.
+   */
   execute = async (message: string, noEmit = false) => {
     this.params.logger.debug(`ClientSession clientId=${this.params.clientId} execute`, {
       message,
@@ -38,6 +56,11 @@ export class ClientSession implements ISession {
     return output;
   }
 
+  /**
+   * Commits tool output.
+   * @param {string} content - The content to commit.
+   * @returns {Promise<void>}
+   */
   commitToolOutput = async (content: string) => {
     this.params.logger.debug(`ClientSession clientId=${this.params.clientId} commitToolOutput`, {
       content,
@@ -46,6 +69,11 @@ export class ClientSession implements ISession {
     return await agent.commitToolOutput(content);
   };
 
+  /**
+   * Commits a system message.
+   * @param {string} message - The system message to commit.
+   * @returns {Promise<void>}
+   */
   commitSystemMessage = async (message: string) => {
     this.params.logger.debug(`ClientSession clientId=${this.params.clientId} commitSystemMessage`, {
       message,
@@ -54,6 +82,11 @@ export class ClientSession implements ISession {
     return await agent.commitSystemMessage(message);
   };
 
+  /**
+   * Connects the session to a connector function.
+   * @param {SendMessageFn} connector - The connector function.
+   * @returns {ReceiveMessageFn} - The function to receive messages.
+   */
   connect = (connector: SendMessageFn): ReceiveMessageFn => {
     this.params.logger.debug(`ClientSession clientId=${this.params.clientId} connect`);
     this._emitSubject.subscribe(async (data: string) => await connector({

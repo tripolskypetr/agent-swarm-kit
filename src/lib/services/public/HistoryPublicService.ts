@@ -17,12 +17,22 @@ type THistoryConnectionService = {
   [key in Exclude<keyof IHistoryConnectionService, InternalKeys>]: unknown;
 };
 
+/**
+ * Service for handling public history operations.
+ */
 export class HistoryPublicService implements THistoryConnectionService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly historyConnectionService = inject<HistoryConnectionService>(
     TYPES.historyConnectionService
   );
 
+  /**
+   * Pushes a message to the history.
+   * @param {IModelMessage} message - The message to push.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The agent name.
+   * @returns {Promise<void>} A promise that resolves when the operation is complete.
+   */
   public push = async (
     message: IModelMessage,
     clientId: string,
@@ -45,6 +55,13 @@ export class HistoryPublicService implements THistoryConnectionService {
     );
   };
 
+  /**
+   * Converts history to an array for a specific agent.
+   * @param {string} prompt - The prompt.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The agent name.
+   * @returns {Promise<any[]>} A promise that resolves to an array of history items.
+   */
   public toArrayForAgent = async (
     prompt: string,
     clientId: string,
@@ -67,6 +84,12 @@ export class HistoryPublicService implements THistoryConnectionService {
     );
   };
 
+  /**
+   * Converts history to a raw array.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The agent name.
+   * @returns {Promise<any[]>} A promise that resolves to a raw array of history items.
+   */
   public toArrayForRaw = async (clientId: string, agentName: AgentName) => {
     this.loggerService.log("historyPublicService toArrayForRaw", {
       clientId,
@@ -84,6 +107,12 @@ export class HistoryPublicService implements THistoryConnectionService {
     );
   };
 
+  /**
+   * Disposes of the history.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The agent name.
+   * @returns {Promise<void>} A promise that resolves when the operation is complete.
+   */
   public dispose = async (clientId: string, agentName: AgentName) => {
     this.loggerService.log("historyPublicService dispose", {
       clientId,

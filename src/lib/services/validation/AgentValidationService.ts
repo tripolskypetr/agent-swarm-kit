@@ -10,6 +10,9 @@ import ToolValidationService from "./ToolValidationService";
 import CompletionValidationService from "./CompletionValidationService";
 import { memoize } from "functools-kit";
 
+/**
+ * Service for validating agents within the agent swarm.
+ */
 export class AgentValidationService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
@@ -21,6 +24,12 @@ export class AgentValidationService {
 
   private _agentMap = new Map<AgentName, IAgentSchema>();
 
+  /**
+   * Adds a new agent to the validation service.
+   * @param {AgentName} agentName - The name of the agent.
+   * @param {IAgentSchema} agentSchema - The schema of the agent.
+   * @throws {Error} If the agent already exists.
+   */
   public addAgent = (agentName: AgentName, agentSchema: IAgentSchema) => {
     this.loggerService.log("agentValidationService addAgent", {
       agentName,
@@ -32,6 +41,12 @@ export class AgentValidationService {
     this._agentMap.set(agentName, agentSchema);
   };
 
+  /**
+   * Validates an agent by its name and source.
+   * @param {AgentName} agentName - The name of the agent.
+   * @param {string} source - The source of the validation request.
+   * @throws {Error} If the agent is not found.
+   */
   public validate = memoize(
     ([agentName]) => agentName,
     (agentName: AgentName, source: string) => {

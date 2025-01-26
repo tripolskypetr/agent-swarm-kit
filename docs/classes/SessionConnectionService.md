@@ -2,6 +2,8 @@
 
 Implements `ISession`
 
+Service for managing session connections.
+
 ## Constructor
 
 ```ts
@@ -34,11 +36,23 @@ swarmConnectionService: any
 getSession: ((clientId: string, swarmName: string) => ClientSession) & IClearableMemoize<string> & IControlMemoize<string, ClientSession>
 ```
 
+Retrieves a memoized session based on clientId and swarmName.
+
+### emit
+
+```ts
+emit: (content: string) => Promise<void>
+```
+
+Emits a message to the session.
+
 ### execute
 
 ```ts
 execute: (content: string) => Promise<string>
 ```
+
+Executes a command in the session.
 
 ### connect
 
@@ -46,11 +60,15 @@ execute: (content: string) => Promise<string>
 connect: (connector: SendMessageFn$1) => ReceiveMessageFn
 ```
 
+Connects to the session using the provided connector.
+
 ### commitToolOutput
 
 ```ts
 commitToolOutput: (content: string) => Promise<void>
 ```
+
+Commits tool output to the session.
 
 ### commitSystemMessage
 
@@ -58,8 +76,12 @@ commitToolOutput: (content: string) => Promise<void>
 commitSystemMessage: (message: string) => Promise<void>
 ```
 
+Commits a system message to the session.
+
 ### dispose
 
 ```ts
 dispose: () => Promise<void>
 ```
+
+Disposes of the session connection service.

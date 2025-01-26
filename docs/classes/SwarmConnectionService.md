@@ -2,6 +2,8 @@
 
 Implements `ISwarm`
 
+Service for managing swarm connections.
+
 ## Constructor
 
 ```ts
@@ -40,11 +42,15 @@ swarmSchemaService: any
 getSwarm: ((clientId: string, swarmName: string) => ClientSwarm) & IClearableMemoize<string> & IControlMemoize<string, ClientSwarm>
 ```
 
+Retrieves a swarm instance based on client ID and swarm name.
+
 ### waitForOutput
 
 ```ts
 waitForOutput: () => Promise<string>
 ```
+
+Waits for the output from the swarm.
 
 ### getAgentName
 
@@ -52,11 +58,15 @@ waitForOutput: () => Promise<string>
 getAgentName: () => Promise<string>
 ```
 
+Retrieves the agent name from the swarm.
+
 ### getAgent
 
 ```ts
 getAgent: () => Promise<IAgent>
 ```
+
+Retrieves the agent from the swarm.
 
 ### setAgentRef
 
@@ -64,14 +74,20 @@ getAgent: () => Promise<IAgent>
 setAgentRef: (agentName: string, agent: IAgent) => Promise<void>
 ```
 
+Sets the agent reference in the swarm.
+
 ### setAgentName
 
 ```ts
 setAgentName: (agentName: string) => Promise<void>
 ```
 
+Sets the agent name in the swarm.
+
 ### dispose
 
 ```ts
 dispose: () => Promise<void>
 ```
+
+Disposes of the swarm connection.

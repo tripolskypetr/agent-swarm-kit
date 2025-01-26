@@ -130,11 +130,17 @@ interface ISwarm {
 }
 type SwarmName = string;
 
+/**
+ * Interface representing the context.
+ */
 interface IContext {
     clientId: string;
     agentName: AgentName;
     swarmName: SwarmName;
 }
+/**
+ * Service providing context information.
+ */
 declare const ContextService: (new () => {
     readonly context: IContext;
 }) & Omit<{
@@ -143,27 +149,90 @@ declare const ContextService: (new () => {
     };
 }, "prototype"> & di_scoped.IScopedClassRun<[context: IContext]>;
 
+/**
+ * LoggerService class that implements the ILogger interface.
+ * Provides methods to log and debug messages.
+ */
 declare class LoggerService implements ILogger {
     private _logger;
+    /**
+     * Logs messages using the current logger.
+     * @param {...any} args - The messages to log.
+     */
     log: (...args: any[]) => void;
+    /**
+     * Logs debug messages using the current logger.
+     * @param {...any} args - The debug messages to log.
+     */
     debug: (...args: any[]) => void;
+    /**
+     * Sets a new logger.
+     * @param {ILogger} logger - The new logger to set.
+     */
     setLogger: (logger: ILogger) => void;
 }
 
+/**
+ * Represents a client agent that interacts with the system.
+ * @implements {IAgent}
+ */
 declare class ClientAgent implements IAgent {
     readonly params: IAgentParams;
     readonly _toolCommitSubject: Subject<void>;
     readonly _outputSubject: Subject<string>;
+    /**
+     * Creates an instance of ClientAgent.
+     * @param {IAgentParams} params - The parameters for the agent.
+     */
     constructor(params: IAgentParams);
+    /**
+     * Emits the output result after validation.
+     * @param {string} result - The result to be emitted.
+     * @returns {Promise<void>}
+     * @private
+     */
     _emitOuput: (result: string) => Promise<void>;
+    /**
+     * Resurrects the model based on the given reason.
+     * @param {string} [reason] - The reason for resurrecting the model.
+     * @returns {Promise<string>}
+     * @private
+     */
     _resurrectModel: (reason?: string) => Promise<string>;
+    /**
+     * Waits for the output to be available.
+     * @returns {Promise<string>}
+     */
     waitForOutput: () => Promise<string>;
+    /**
+     * Gets the completion message from the model.
+     * @returns {Promise<IModelMessage>}
+     */
     getCompletion: () => Promise<IModelMessage>;
+    /**
+     * Commits a system message to the history.
+     * @param {string} message - The system message to commit.
+     * @returns {Promise<void>}
+     */
     commitSystemMessage: (message: string) => Promise<void>;
+    /**
+     * Commits the tool output to the history.
+     * @param {string} content - The tool output content.
+     * @returns {Promise<void>}
+     */
     commitToolOutput: (content: string) => Promise<void>;
+    /**
+     * Executes the incoming message and processes tool calls if any.
+     * @param {string} incoming - The incoming message content.
+     * @returns {Promise<void>}
+     */
     execute: IAgent["execute"];
 }
 
+/**
+ * Service for managing agent connections.
+ * @implements {IAgent}
+ */
 declare class AgentConnectionService implements IAgent {
     private readonly loggerService;
     private readonly contextService;
@@ -172,85 +241,289 @@ declare class AgentConnectionService implements IAgent {
     private readonly agentSchemaService;
     private readonly toolSchemaService;
     private readonly completionSchemaService;
+    /**
+     * Retrieves an agent instance.
+     * @param {string} clientId - The client ID.
+     * @param {string} agentName - The agent name.
+     * @returns {ClientAgent} The client agent instance.
+     */
     getAgent: ((clientId: string, agentName: string) => ClientAgent) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientAgent>;
+    /**
+     * Executes an input command.
+     * @param {string} input - The input command.
+     * @returns {Promise<any>} The execution result.
+     */
     execute: (input: string) => Promise<void>;
+    /**
+     * Waits for the output from the agent.
+     * @returns {Promise<any>} The output result.
+     */
     waitForOutput: () => Promise<string>;
+    /**
+     * Commits tool output.
+     * @param {string} content - The tool output content.
+     * @returns {Promise<any>} The commit result.
+     */
     commitToolOutput: (content: string) => Promise<void>;
+    /**
+     * Commits a system message.
+     * @param {string} message - The system message.
+     * @returns {Promise<any>} The commit result.
+     */
     commitSystemMessage: (message: string) => Promise<void>;
+    /**
+     * Disposes of the agent connection.
+     * @returns {Promise<void>} The dispose result.
+     */
     dispose: () => Promise<void>;
 }
 
+/**
+ * Class representing the history of client messages.
+ * @implements {IHistory}
+ */
 declare class ClientHistory implements IHistory {
     readonly params: IHistoryParams;
+    /**
+     * Creates an instance of ClientHistory.
+     * @param {IHistoryParams} params - The parameters for the history.
+     */
     constructor(params: IHistoryParams);
+    /**
+     * Pushes a message to the history.
+     * @param {IModelMessage} message - The message to push.
+     * @returns {Promise<void>}
+     */
     push: (message: IModelMessage) => Promise<void>;
+    /**
+     * Converts the history to an array of raw messages.
+     * @returns {Promise<IModelMessage[]>} - The array of raw messages.
+     */
     toArrayForRaw: () => Promise<IModelMessage[]>;
+    /**
+     * Converts the history to an array of messages for the agent.
+     * @param {string} prompt - The prompt message.
+     * @returns {Promise<IModelMessage[]>} - The array of messages for the agent.
+     */
     toArrayForAgent: (prompt: string) => Promise<IModelMessage[]>;
 }
 
+/**
+ * Service for managing history connections.
+ * @implements {IHistory}
+ */
 declare class HistoryConnectionService implements IHistory {
     private readonly loggerService;
     private readonly contextService;
     private readonly sessionValidationService;
+    /**
+     * Retrieves items for a given client and agent.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @returns {IPubsubArray<IModelMessage>} The items.
+     */
     getItems: ((clientId: string, agentName: AgentName) => IPubsubArray<IModelMessage>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, IPubsubArray<IModelMessage>>;
+    /**
+     * Retrieves the history for a given client and agent.
+     * @param {string} clientId - The client ID.
+     * @param {string} agentName - The agent name.
+     * @returns {ClientHistory} The client history.
+     */
     getHistory: ((clientId: string, agentName: string) => ClientHistory) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientHistory>;
+    /**
+     * Pushes a message to the history.
+     * @param {IModelMessage} message - The message to push.
+     * @returns {Promise<void>} A promise that resolves when the message is pushed.
+     */
     push: (message: IModelMessage) => Promise<void>;
+    /**
+     * Converts the history to an array for the agent.
+     * @param {string} prompt - The prompt.
+     * @returns {Promise<any[]>} A promise that resolves to an array for the agent.
+     */
     toArrayForAgent: (prompt: string) => Promise<IModelMessage[]>;
+    /**
+     * Converts the history to a raw array.
+     * @returns {Promise<any[]>} A promise that resolves to a raw array.
+     */
     toArrayForRaw: () => Promise<IModelMessage[]>;
+    /**
+     * Disposes of the history connection service.
+     * @returns {Promise<void>} A promise that resolves when the service is disposed.
+     */
     dispose: () => Promise<void>;
 }
 
+/**
+ * Service for managing agent schemas.
+ */
 declare class AgentSchemaService {
     readonly loggerService: LoggerService;
     private registry;
+    /**
+     * Registers a new agent schema.
+     * @param {AgentName} key - The name of the agent.
+     * @param {IAgentSchema} value - The schema of the agent.
+     */
     register: (key: AgentName, value: IAgentSchema) => void;
+    /**
+     * Retrieves an agent schema by name.
+     * @param {AgentName} key - The name of the agent.
+     * @returns {IAgentSchema} The schema of the agent.
+     */
     get: (key: AgentName) => IAgentSchema;
 }
 
+/**
+ * Service for managing tool schemas.
+ */
 declare class ToolSchemaService {
     private readonly loggerService;
     private registry;
+    /**
+     * Registers a tool with the given key and value.
+     * @param {ToolName} key - The name of the tool.
+     * @param {IAgentTool} value - The tool to register.
+     */
     register: (key: ToolName, value: IAgentTool) => void;
+    /**
+     * Retrieves a tool by its key.
+     * @param {ToolName} key - The name of the tool.
+     * @returns {IAgentTool} The tool associated with the given key.
+     */
     get: (key: ToolName) => IAgentTool;
 }
 
+/**
+ * ClientSwarm class implements the ISwarm interface and manages agents within a swarm.
+ */
 declare class ClientSwarm implements ISwarm {
     readonly params: ISwarmParams;
     private _agentChangedSubject;
     private _activeAgent;
+    /**
+     * Creates an instance of ClientSwarm.
+     * @param {ISwarmParams} params - The parameters for the swarm.
+     */
     constructor(params: ISwarmParams);
+    /**
+     * Waits for output from the active agent.
+     * @returns {Promise<string>} - The output from the active agent.
+     * @throws {Error} - If the timeout is reached.
+     */
     waitForOutput: () => Promise<string>;
+    /**
+     * Gets the name of the active agent.
+     * @returns {Promise<AgentName>} - The name of the active agent.
+     */
     getAgentName: () => Promise<AgentName>;
+    /**
+     * Gets the active agent.
+     * @returns {Promise<IAgent>} - The active agent.
+     */
     getAgent: () => Promise<IAgent>;
+    /**
+     * Sets the reference of an agent in the swarm.
+     * @param {AgentName} agentName - The name of the agent.
+     * @param {IAgent} agent - The agent instance.
+     * @throws {Error} - If the agent is not in the swarm.
+     */
     setAgentRef: (agentName: AgentName, agent: IAgent) => Promise<void>;
+    /**
+     * Sets the active agent by name.
+     * @param {AgentName} agentName - The name of the agent to set as active.
+     */
     setAgentName: (agentName: AgentName) => Promise<void>;
 }
 
+/**
+ * Service for managing swarm connections.
+ * @implements {ISwarm}
+ */
 declare class SwarmConnectionService implements ISwarm {
     private readonly loggerService;
     private readonly contextService;
     private readonly agentConnectionService;
     private readonly swarmSchemaService;
+    /**
+     * Retrieves a swarm instance based on client ID and swarm name.
+     * @param {string} clientId - The client ID.
+     * @param {string} swarmName - The swarm name.
+     * @returns {ClientSwarm} The client swarm instance.
+     */
     getSwarm: ((clientId: string, swarmName: string) => ClientSwarm) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientSwarm>;
+    /**
+     * Waits for the output from the swarm.
+     * @returns {Promise<any>} The output from the swarm.
+     */
     waitForOutput: () => Promise<string>;
+    /**
+     * Retrieves the agent name from the swarm.
+     * @returns {Promise<string>} The agent name.
+     */
     getAgentName: () => Promise<string>;
+    /**
+     * Retrieves the agent from the swarm.
+     * @returns {Promise<IAgent>} The agent instance.
+     */
     getAgent: () => Promise<IAgent>;
+    /**
+     * Sets the agent reference in the swarm.
+     * @param {AgentName} agentName - The name of the agent.
+     * @param {IAgent} agent - The agent instance.
+     * @returns {Promise<void>}
+     */
     setAgentRef: (agentName: AgentName, agent: IAgent) => Promise<void>;
+    /**
+     * Sets the agent name in the swarm.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>}
+     */
     setAgentName: (agentName: AgentName) => Promise<void>;
+    /**
+     * Disposes of the swarm connection.
+     * @returns {Promise<void>}
+     */
     dispose: () => Promise<void>;
 }
 
+/**
+ * Service for managing swarm schemas.
+ */
 declare class SwarmSchemaService {
     readonly loggerService: LoggerService;
     private registry;
+    /**
+     * Registers a new swarm schema.
+     * @param {SwarmName} key - The name of the swarm.
+     * @param {ISwarmSchema} value - The schema of the swarm.
+     */
     register: (key: SwarmName, value: ISwarmSchema) => void;
+    /**
+     * Retrieves a swarm schema by its name.
+     * @param {SwarmName} key - The name of the swarm.
+     * @returns {ISwarmSchema} The schema of the swarm.
+     */
     get: (key: SwarmName) => ISwarmSchema;
 }
 
+/**
+ * Service for managing completion schemas.
+ */
 declare class CompletionSchemaService {
     readonly loggerService: LoggerService;
     private registry;
+    /**
+     * Registers a new completion schema.
+     * @param {string} key - The key for the schema.
+     * @param {ICompletionSchema} value - The schema to register.
+     */
     register: (key: string, value: ICompletionSchema) => void;
+    /**
+     * Retrieves a completion schema by key.
+     * @param {string} key - The key of the schema to retrieve.
+     * @returns {ICompletionSchema} The retrieved schema.
+     */
     get: (key: string) => ICompletionSchema;
 }
 
@@ -284,27 +557,99 @@ interface ISession {
 type SessionId = string;
 type SessionMode = "session" | "makeConnection" | "complete";
 
+/**
+ * ClientSession class implements the ISession interface.
+ */
 declare class ClientSession implements ISession {
     readonly params: ISessionParams;
     readonly _emitSubject: Subject<string>;
+    /**
+     * Constructs a new ClientSession instance.
+     * @param {ISessionParams} params - The session parameters.
+     */
     constructor(params: ISessionParams);
+    /**
+     * Emits a message.
+     * @param {string} message - The message to emit.
+     * @returns {Promise<void>}
+     */
     emit: (message: string) => Promise<void>;
+    /**
+     * Executes a message and optionally emits the output.
+     * @param {string} message - The message to execute.
+     * @param {boolean} [noEmit=false] - Whether to emit the output or not.
+     * @returns {Promise<string>} - The output of the execution.
+     */
     execute: (message: string, noEmit?: boolean) => Promise<string>;
+    /**
+     * Commits tool output.
+     * @param {string} content - The content to commit.
+     * @returns {Promise<void>}
+     */
     commitToolOutput: (content: string) => Promise<void>;
+    /**
+     * Commits a system message.
+     * @param {string} message - The system message to commit.
+     * @returns {Promise<void>}
+     */
     commitSystemMessage: (message: string) => Promise<void>;
+    /**
+     * Connects the session to a connector function.
+     * @param {SendMessageFn} connector - The connector function.
+     * @returns {ReceiveMessageFn} - The function to receive messages.
+     */
     connect: (connector: SendMessageFn$1) => ReceiveMessageFn;
 }
 
+/**
+ * Service for managing session connections.
+ * @implements {ISession}
+ */
 declare class SessionConnectionService implements ISession {
     private readonly loggerService;
     private readonly contextService;
     private readonly swarmConnectionService;
+    /**
+     * Retrieves a memoized session based on clientId and swarmName.
+     * @param {string} clientId - The client ID.
+     * @param {string} swarmName - The swarm name.
+     * @returns {ClientSession} The client session.
+     */
     getSession: ((clientId: string, swarmName: string) => ClientSession) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientSession>;
+    /**
+     * Emits a message to the session.
+     * @param {string} content - The content to emit.
+     * @returns {Promise<void>} A promise that resolves when the message is emitted.
+     */
     emit: (content: string) => Promise<void>;
+    /**
+     * Executes a command in the session.
+     * @param {string} content - The content to execute.
+     * @returns {Promise<string>} A promise that resolves with the execution result.
+     */
     execute: (content: string) => Promise<string>;
+    /**
+     * Connects to the session using the provided connector.
+     * @param {SendMessageFn} connector - The function to send messages.
+     * @returns {ReceiveMessageFn} The function to receive messages.
+     */
     connect: (connector: SendMessageFn$1) => ReceiveMessageFn;
+    /**
+     * Commits tool output to the session.
+     * @param {string} content - The content to commit.
+     * @returns {Promise<void>} A promise that resolves when the content is committed.
+     */
     commitToolOutput: (content: string) => Promise<void>;
+    /**
+     * Commits a system message to the session.
+     * @param {string} message - The message to commit.
+     * @returns {Promise<void>} A promise that resolves when the message is committed.
+     */
     commitSystemMessage: (message: string) => Promise<void>;
+    /**
+     * Disposes of the session connection service.
+     * @returns {Promise<void>} A promise that resolves when the service is disposed.
+     */
     dispose: () => Promise<void>;
 }
 
@@ -316,14 +661,56 @@ type InternalKeys$3 = keyof {
 type TAgentConnectionService = {
     [key in Exclude<keyof IAgentConnectionService, InternalKeys$3>]: unknown;
 };
+/**
+ * Service for managing public agent operations.
+ */
 declare class AgentPublicService implements TAgentConnectionService {
     private readonly loggerService;
     private readonly agentConnectionService;
+    /**
+     * Creates a reference to an agent.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<unknown>} The agent reference.
+     */
     createAgentRef: (clientId: string, agentName: AgentName) => Promise<ClientAgent>;
+    /**
+     * Executes a command on the agent.
+     * @param {string} input - The input command.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<unknown>} The execution result.
+     */
     execute: (input: string, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Waits for the agent's output.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<unknown>} The output result.
+     */
     waitForOutput: (clientId: string, agentName: AgentName) => Promise<string>;
+    /**
+     * Commits tool output to the agent.
+     * @param {string} content - The content to commit.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<unknown>} The commit result.
+     */
     commitToolOutput: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Commits a system message to the agent.
+     * @param {string} message - The message to commit.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<unknown>} The commit result.
+     */
     commitSystemMessage: (message: string, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Disposes of the agent.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<unknown>} The dispose result.
+     */
     dispose: (clientId: string, agentName: AgentName) => Promise<void>;
 }
 
@@ -336,12 +723,41 @@ type InternalKeys$2 = keyof {
 type THistoryConnectionService = {
     [key in Exclude<keyof IHistoryConnectionService, InternalKeys$2>]: unknown;
 };
+/**
+ * Service for handling public history operations.
+ */
 declare class HistoryPublicService implements THistoryConnectionService {
     private readonly loggerService;
     private readonly historyConnectionService;
+    /**
+     * Pushes a message to the history.
+     * @param {IModelMessage} message - The message to push.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @returns {Promise<void>} A promise that resolves when the operation is complete.
+     */
     push: (message: IModelMessage, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Converts history to an array for a specific agent.
+     * @param {string} prompt - The prompt.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @returns {Promise<any[]>} A promise that resolves to an array of history items.
+     */
     toArrayForAgent: (prompt: string, clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
+    /**
+     * Converts history to a raw array.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @returns {Promise<any[]>} A promise that resolves to a raw array of history items.
+     */
     toArrayForRaw: (clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
+    /**
+     * Disposes of the history.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @returns {Promise<void>} A promise that resolves when the operation is complete.
+     */
     dispose: (clientId: string, agentName: AgentName) => Promise<void>;
 }
 
@@ -353,14 +769,58 @@ type InternalKeys$1 = keyof {
 type TSessionConnectionService = {
     [key in Exclude<keyof ISessionConnectionService, InternalKeys$1>]: unknown;
 };
+/**
+ * Service for managing public session interactions.
+ */
 declare class SessionPublicService implements TSessionConnectionService {
     private readonly loggerService;
     private readonly sessionConnectionService;
+    /**
+     * Emits a message to the session.
+     * @param {string} content - The content to emit.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
     emit: (content: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Executes a command in the session.
+     * @param {string} content - The content to execute.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
     execute: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
+    /**
+     * Connects to the session.
+     * @param {SendMessageFn} connector - The function to send messages.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {ReceiveMessageFn}
+     */
     connect: (connector: SendMessageFn$1, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
+    /**
+     * Commits tool output to the session.
+     * @param {string} content - The content to commit.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
     commitToolOutput: (content: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Commits a system message to the session.
+     * @param {string} message - The message to commit.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
     commitSystemMessage: (message: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Disposes of the session.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
     dispose: (clientId: string, swarmName: SwarmName) => Promise<void>;
 }
 
@@ -372,66 +832,241 @@ type InternalKeys = keyof {
 type TSwarmConnectionService = {
     [key in Exclude<keyof ISwarmConnectionService, InternalKeys>]: unknown;
 };
+/**
+ * Service for managing public swarm interactions.
+ */
 declare class SwarmPublicService implements TSwarmConnectionService {
     private readonly loggerService;
     private readonly swarmConnectionService;
+    /**
+     * Waits for output from the swarm.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
     waitForOutput: (clientId: string, swarmName: SwarmName) => Promise<string>;
+    /**
+     * Gets the agent name from the swarm.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<string>}
+     */
     getAgentName: (clientId: string, swarmName: SwarmName) => Promise<string>;
+    /**
+     * Gets the agent from the swarm.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<IAgent>}
+     */
     getAgent: (clientId: string, swarmName: SwarmName) => Promise<IAgent>;
+    /**
+     * Sets the agent reference in the swarm.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @param {AgentName} agentName - The agent name.
+     * @param {IAgent} agent - The agent instance.
+     * @returns {Promise<void>}
+     */
     setAgentRef: (clientId: string, swarmName: SwarmName, agentName: AgentName, agent: IAgent) => Promise<void>;
+    /**
+     * Sets the agent name in the swarm.
+     * @param {AgentName} agentName - The agent name.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
     setAgentName: (agentName: AgentName, clientId: string, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Disposes of the swarm.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
     dispose: (clientId: string, swarmName: SwarmName) => Promise<void>;
 }
 
+/**
+ * Service for validating agents within the agent swarm.
+ */
 declare class AgentValidationService {
     private readonly loggerService;
     private readonly toolValidationService;
     private readonly completionValidationService;
     private _agentMap;
+    /**
+     * Adds a new agent to the validation service.
+     * @param {AgentName} agentName - The name of the agent.
+     * @param {IAgentSchema} agentSchema - The schema of the agent.
+     * @throws {Error} If the agent already exists.
+     */
     addAgent: (agentName: AgentName, agentSchema: IAgentSchema) => void;
+    /**
+     * Validates an agent by its name and source.
+     * @param {AgentName} agentName - The name of the agent.
+     * @param {string} source - The source of the validation request.
+     * @throws {Error} If the agent is not found.
+     */
     validate: (agentName: AgentName, source: string) => void;
 }
 
+/**
+ * Service for validating tools within the agent-swarm.
+ */
 declare class ToolValidationService {
     private readonly loggerService;
     private _toolMap;
+    /**
+     * Adds a new tool to the validation service.
+     * @param {ToolName} toolName - The name of the tool to add.
+     * @param {IAgentTool} toolSchema - The schema of the tool to add.
+     * @throws Will throw an error if the tool already exists.
+     */
     addTool: (toolName: ToolName, toolSchema: IAgentTool) => void;
+    /**
+     * Validates if a tool exists in the validation service.
+     * @param {ToolName} toolName - The name of the tool to validate.
+     * @param {string} source - The source of the validation request.
+     * @throws Will throw an error if the tool is not found.
+     */
     validate: (toolName: ToolName, source: string) => void;
 }
 
+/**
+ * Service for validating and managing sessions.
+ */
 declare class SessionValidationService {
     private readonly loggerService;
     private _historySwarmMap;
     private _sessionSwarmMap;
     private _agentSwarmMap;
     private _sessionModeMap;
+    /**
+     * Adds a new session.
+     * @param {SessionId} clientId - The ID of the client.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {SessionMode} sessionMode - The mode of the session.
+     * @throws Will throw an error if the session already exists.
+     */
     addSession: (clientId: SessionId, swarmName: SwarmName, sessionMode: SessionMode) => void;
+    /**
+     * Adds an agent usage to a session.
+     * @param {SessionId} sessionId - The ID of the session.
+     * @param {AgentName} agentName - The name of the agent.
+     */
     addAgentUsage: (sessionId: SessionId, agentName: AgentName) => void;
+    /**
+     * Adds a history usage to a session.
+     * @param {SessionId} sessionId - The ID of the session.
+     * @param {AgentName} agentName - The name of the agent.
+     */
     addHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
+    /**
+     * Removes an agent usage from a session.
+     * @param {SessionId} sessionId - The ID of the session.
+     * @param {AgentName} agentName - The name of the agent.
+     * @throws Will throw an error if no agents are found for the session.
+     */
     removeAgentUsage: (sessionId: SessionId, agentName: AgentName) => void;
+    /**
+     * Removes a history usage from a session.
+     * @param {SessionId} sessionId - The ID of the session.
+     * @param {AgentName} agentName - The name of the agent.
+     * @throws Will throw an error if no agents are found for the session.
+     */
     removeHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
+    /**
+     * Gets the mode of a session.
+     * @param {SessionId} clientId - The ID of the client.
+     * @returns {SessionMode} The mode of the session.
+     * @throws Will throw an error if the session does not exist.
+     */
     getSessionMode: (clientId: SessionId) => SessionMode;
+    /**
+     * Gets the list of all session IDs.
+     * @returns {SessionId[]} The list of session IDs.
+     */
     getSessionList: () => string[];
+    /**
+     * Gets the list of agents for a session.
+     * @param {string} clientId - The ID of the client.
+     * @returns {AgentName[]} The list of agent names.
+     */
     getSessionAgentList: (clientId: string) => string[];
+    /**
+     * Gets the history list of agents for a session.
+     * @param {string} clientId - The ID of the client.
+     * @returns {AgentName[]} The list of agent names.
+     */
     getSessionHistoryList: (clientId: string) => string[];
+    /**
+     * Gets the swarm name for a session.
+     * @param {SessionId} clientId - The ID of the client.
+     * @returns {SwarmName} The name of the swarm.
+     * @throws Will throw an error if the session does not exist.
+     */
     getSwarm: (clientId: SessionId) => string;
+    /**
+     * Validates if a session exists.
+     * @param {SessionId} clientId - The ID of the client.
+     * @param {string} source - The source of the validation request.
+     * @throws Will throw an error if the session does not exist.
+     */
     validate: (clientId: SessionId, source: string) => void;
+    /**
+     * Removes a session.
+     * @param {SessionId} clientId - The ID of the client.
+     */
     removeSession: (clientId: SessionId) => void;
 }
 
+/**
+ * Service for validating swarms and their agents.
+ */
 declare class SwarmValidationService {
     private readonly loggerService;
     private readonly agentValidationService;
     private _swarmMap;
+    /**
+     * Adds a new swarm to the swarm map.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {ISwarmSchema} swarmSchema - The schema of the swarm.
+     * @throws Will throw an error if the swarm already exists.
+     */
     addSwarm: (swarmName: SwarmName, swarmSchema: ISwarmSchema) => void;
+    /**
+     * Retrieves the list of agents for a given swarm.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {string[]} The list of agent names.
+     * @throws Will throw an error if the swarm is not found.
+     */
     getAgentList: (swarmName: SwarmName) => string[];
+    /**
+     * Validates a swarm and its agents.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {string} source - The source of the validation request.
+     * @throws Will throw an error if the swarm is not found or if the default agent is not in the agent list.
+     */
     validate: (swarmName: SwarmName, source: string) => void;
 }
 
+/**
+ * Service for validating completion names.
+ */
 declare class CompletionValidationService {
     private readonly loggerService;
     private _completionSet;
+    /**
+     * Adds a new completion name to the set.
+     * @param {CompletionName} completionName - The name of the completion to add.
+     * @throws Will throw an error if the completion name already exists.
+     */
     addCompletion: (completionName: CompletionName) => void;
+    /**
+     * Validates if a completion name exists in the set.
+     * @param {CompletionName} completionName - The name of the completion to validate.
+     * @param {string} source - The source of the validation request.
+     * @throws Will throw an error if the completion name is not found.
+     */
     validate: (completionName: CompletionName, source: string) => void;
 }
 

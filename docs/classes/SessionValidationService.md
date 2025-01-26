@@ -1,5 +1,7 @@
 # SessionValidationService
 
+Service for validating and managing sessions.
+
 ## Constructor
 
 ```ts
@@ -32,11 +34,19 @@ _sessionSwarmMap: any
 _agentSwarmMap: any
 ```
 
+### _sessionModeMap
+
+```ts
+_sessionModeMap: any
+```
+
 ### addSession
 
 ```ts
-addSession: (clientId: string, swarmName: string) => void
+addSession: (clientId: string, swarmName: string, sessionMode: SessionMode) => void
 ```
+
+Adds a new session.
 
 ### addAgentUsage
 
@@ -44,11 +54,15 @@ addSession: (clientId: string, swarmName: string) => void
 addAgentUsage: (sessionId: string, agentName: string) => void
 ```
 
+Adds an agent usage to a session.
+
 ### addHistoryUsage
 
 ```ts
 addHistoryUsage: (sessionId: string, agentName: string) => void
 ```
+
+Adds a history usage to a session.
 
 ### removeAgentUsage
 
@@ -56,11 +70,23 @@ addHistoryUsage: (sessionId: string, agentName: string) => void
 removeAgentUsage: (sessionId: string, agentName: string) => void
 ```
 
+Removes an agent usage from a session.
+
 ### removeHistoryUsage
 
 ```ts
 removeHistoryUsage: (sessionId: string, agentName: string) => void
 ```
+
+Removes a history usage from a session.
+
+### getSessionMode
+
+```ts
+getSessionMode: (clientId: string) => SessionMode
+```
+
+Gets the mode of a session.
 
 ### getSessionList
 
@@ -68,11 +94,15 @@ removeHistoryUsage: (sessionId: string, agentName: string) => void
 getSessionList: () => string[]
 ```
 
+Gets the list of all session IDs.
+
 ### getSessionAgentList
 
 ```ts
 getSessionAgentList: (clientId: string) => string[]
 ```
+
+Gets the list of agents for a session.
 
 ### getSessionHistoryList
 
@@ -80,11 +110,15 @@ getSessionAgentList: (clientId: string) => string[]
 getSessionHistoryList: (clientId: string) => string[]
 ```
 
+Gets the history list of agents for a session.
+
 ### getSwarm
 
 ```ts
 getSwarm: (clientId: string) => string
 ```
+
+Gets the swarm name for a session.
 
 ### validate
 
@@ -92,8 +126,12 @@ getSwarm: (clientId: string) => string
 validate: (clientId: string, source: string) => void
 ```
 
+Validates if a session exists.
+
 ### removeSession
 
 ```ts
 removeSession: (clientId: string) => void
 ```
+
+Removes a session.

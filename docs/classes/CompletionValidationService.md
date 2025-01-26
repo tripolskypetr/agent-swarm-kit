@@ -1,5 +1,7 @@
 # CompletionValidationService
 
+Service for validating completion names.
+
 ## Constructor
 
 ```ts
@@ -26,8 +28,12 @@ _completionSet: any
 addCompletion: (completionName: string) => void
 ```
 
+Adds a new completion name to the set.
+
 ### validate
 
 ```ts
 validate: (completionName: string, source: string) => void
 ```
+
+Validates if a completion name exists in the set.

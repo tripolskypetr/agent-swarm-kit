@@ -1,5 +1,7 @@
 # ToolValidationService
 
+Service for validating tools within the agent-swarm.
+
 ## Constructor
 
 ```ts
@@ -26,8 +28,12 @@ _toolMap: any
 addTool: (toolName: string, toolSchema: IAgentTool<Record<string, unknown>>) => void
 ```
 
+Adds a new tool to the validation service.
+
 ### validate
 
 ```ts
 validate: (toolName: string, source: string) => void
 ```
+
+Validates if a tool exists in the validation service.

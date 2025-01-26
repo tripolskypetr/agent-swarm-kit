@@ -2,6 +2,8 @@
 
 Implements `ISession`
 
+ClientSession class implements the ISession interface.
+
 ## Constructor
 
 ```ts
@@ -22,11 +24,21 @@ params: ISessionParams
 _emitSubject: Subject<string>
 ```
 
+### emit
+
+```ts
+emit: (message: string) => Promise<void>
+```
+
+Emits a message.
+
 ### execute
 
 ```ts
 execute: (message: string, noEmit?: boolean) => Promise<string>
 ```
+
+Executes a message and optionally emits the output.
 
 ### commitToolOutput
 
@@ -34,14 +46,20 @@ execute: (message: string, noEmit?: boolean) => Promise<string>
 commitToolOutput: (content: string) => Promise<void>
 ```
 
+Commits tool output.
+
 ### commitSystemMessage
 
 ```ts
 commitSystemMessage: (message: string) => Promise<void>
 ```
 
+Commits a system message.
+
 ### connect
 
 ```ts
 connect: (connector: SendMessageFn$1) => ReceiveMessageFn
 ```
+
+Connects the session to a connector function.

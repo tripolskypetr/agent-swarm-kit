@@ -1,5 +1,7 @@
 # IContext
 
+Interface representing the context.
+
 ## Properties
 
 ### clientId

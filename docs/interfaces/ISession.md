@@ -2,6 +2,12 @@
 
 ## Methods
 
+### emit
+
+```ts
+emit: (message: string) => Promise<void>
+```
+
 ### execute
 
 ```ts

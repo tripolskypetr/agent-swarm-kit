@@ -2,6 +2,8 @@
 
 Implements `IAgent`
 
+Service for managing agent connections.
+
 ## Constructor
 
 ```ts
@@ -58,11 +60,15 @@ completionSchemaService: any
 getAgent: ((clientId: string, agentName: string) => ClientAgent) & IClearableMemoize<string> & IControlMemoize<string, ClientAgent>
 ```
 
+Retrieves an agent instance.
+
 ### execute
 
 ```ts
 execute: (input: string) => Promise<void>
 ```
+
+Executes an input command.
 
 ### waitForOutput
 
@@ -70,11 +76,15 @@ execute: (input: string) => Promise<void>
 waitForOutput: () => Promise<string>
 ```
 
+Waits for the output from the agent.
+
 ### commitToolOutput
 
 ```ts
 commitToolOutput: (content: string) => Promise<void>
 ```
+
+Commits tool output.
 
 ### commitSystemMessage
 
@@ -82,8 +92,12 @@ commitToolOutput: (content: string) => Promise<void>
 commitSystemMessage: (message: string) => Promise<void>
 ```
 
+Commits a system message.
+
 ### dispose
 
 ```ts
 dispose: () => Promise<void>
 ```
+
+Disposes of the agent connection.

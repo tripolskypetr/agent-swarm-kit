@@ -70,6 +70,7 @@
 - [SendMessageFn$1](types/SendMessageFn$1.md)
 - [ReceiveMessageFn](types/ReceiveMessageFn.md)
 - [SessionId](types/SessionId.md)
+- [SessionMode](types/SessionMode.md)
 - [InternalKeys$3](types/InternalKeys$3.md)
 - [TAgentConnectionService](types/TAgentConnectionService.md)
 - [InternalKeys$2](types/InternalKeys$2.md)

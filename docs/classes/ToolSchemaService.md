@@ -1,5 +1,7 @@
 # ToolSchemaService
 
+Service for managing tool schemas.
+
 ## Constructor
 
 ```ts
@@ -26,8 +28,12 @@ registry: any
 register: (key: string, value: IAgentTool<Record<string, unknown>>) => void
 ```
 
+Registers a tool with the given key and value.
+
 ### get
 
 ```ts
 get: (key: string) => IAgentTool<Record<string, unknown>>
 ```
+
+Retrieves a tool by its key.

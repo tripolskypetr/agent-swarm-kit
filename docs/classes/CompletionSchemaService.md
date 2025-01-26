@@ -1,5 +1,7 @@
 # CompletionSchemaService
 
+Service for managing completion schemas.
+
 ## Constructor
 
 ```ts
@@ -26,8 +28,12 @@ registry: any
 register: (key: string, value: ICompletionSchema) => void
 ```
 
+Registers a new completion schema.
+
 ### get
 
 ```ts
 get: (key: string) => ICompletionSchema
 ```
+
+Retrieves a completion schema by key.

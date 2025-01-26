@@ -9,17 +9,31 @@ const getPlaceholder = () =>
     Math.floor(Math.random() * GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS.length)
   ];
 
+/**
+ * Represents a client agent that interacts with the system.
+ * @implements {IAgent}
+ */
 export class ClientAgent implements IAgent {
   readonly _toolCommitSubject = new Subject<void>();
   readonly _outputSubject = new Subject<string>();
 
+  /**
+   * Creates an instance of ClientAgent.
+   * @param {IAgentParams} params - The parameters for the agent.
+   */
   constructor(readonly params: IAgentParams) {
     this.params.logger.debug(`ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} CTOR`, {
       params,
     })
   }
 
-  _emitOuput = async (result: string) => {
+  /**
+   * Emits the output result after validation.
+   * @param {string} result - The result to be emitted.
+   * @returns {Promise<void>}
+   * @private
+   */
+  _emitOuput = async (result: string): Promise<void> => {
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _emitOuput`
     );
@@ -38,7 +52,13 @@ export class ClientAgent implements IAgent {
     return;
   };
 
-  _resurrectModel = async (reason?: string) => {
+  /**
+   * Resurrects the model based on the given reason.
+   * @param {string} [reason] - The reason for resurrecting the model.
+   * @returns {Promise<string>}
+   * @private
+   */
+  _resurrectModel = async (reason?: string): Promise<string> => {
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel`
     );
@@ -76,13 +96,21 @@ export class ClientAgent implements IAgent {
     return result;
   };
 
-  waitForOutput = async () => {
+  /**
+   * Waits for the output to be available.
+   * @returns {Promise<string>}
+   */
+  waitForOutput = async (): Promise<string> => {
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} waitForOutput`
     );
     return await this._outputSubject.toPromise();
   };
 
+  /**
+   * Gets the completion message from the model.
+   * @returns {Promise<IModelMessage>}
+   */
   getCompletion = async (): Promise<IModelMessage> => {
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} getCompletion`
@@ -96,6 +124,11 @@ export class ClientAgent implements IAgent {
     });
   };
 
+  /**
+   * Commits a system message to the history.
+   * @param {string} message - The system message to commit.
+   * @returns {Promise<void>}
+   */
   commitSystemMessage = async (message: string): Promise<void> => {
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitSystemMessage`
@@ -107,6 +140,11 @@ export class ClientAgent implements IAgent {
     });
   };
 
+  /**
+   * Commits the tool output to the history.
+   * @param {string} content - The tool output content.
+   * @returns {Promise<void>}
+   */
   commitToolOutput = async (content: string): Promise<void> => {
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitToolOutput content=${content}`
@@ -119,7 +157,12 @@ export class ClientAgent implements IAgent {
     await this._toolCommitSubject.next();
   };
 
-  execute = queued(async (incoming: string) => {
+  /**
+   * Executes the incoming message and processes tool calls if any.
+   * @param {string} incoming - The incoming message content.
+   * @returns {Promise<void>}
+   */
+  execute = queued(async (incoming: string): Promise<void> => {
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute begin`,
       { incoming }

@@ -15,12 +15,21 @@ type TAgentConnectionService = {
   [key in Exclude<keyof IAgentConnectionService, InternalKeys>]: unknown;
 };
 
+/**
+ * Service for managing public agent operations.
+ */
 export class AgentPublicService implements TAgentConnectionService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly agentConnectionService = inject<AgentConnectionService>(
     TYPES.agentConnectionService
   );
 
+  /**
+   * Creates a reference to an agent.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<unknown>} The agent reference.
+   */
   public createAgentRef = async (clientId: string, agentName: AgentName) => {
     this.loggerService.log("agentPublicService createAgentRef", {
       clientId,
@@ -38,6 +47,13 @@ export class AgentPublicService implements TAgentConnectionService {
     );
   };
 
+  /**
+   * Executes a command on the agent.
+   * @param {string} input - The input command.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<unknown>} The execution result.
+   */
   public execute = async (
     input: string,
     clientId: string,
@@ -60,6 +76,12 @@ export class AgentPublicService implements TAgentConnectionService {
     );
   };
 
+  /**
+   * Waits for the agent's output.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<unknown>} The output result.
+   */
   public waitForOutput = async (clientId: string, agentName: AgentName) => {
     this.loggerService.log("agentPublicService waitForOutput", {
       clientId,
@@ -77,6 +99,13 @@ export class AgentPublicService implements TAgentConnectionService {
     );
   };
 
+  /**
+   * Commits tool output to the agent.
+   * @param {string} content - The content to commit.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<unknown>} The commit result.
+   */
   public commitToolOutput = async (
     content: string,
     clientId: string,
@@ -99,6 +128,13 @@ export class AgentPublicService implements TAgentConnectionService {
     );
   };
 
+  /**
+   * Commits a system message to the agent.
+   * @param {string} message - The message to commit.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<unknown>} The commit result.
+   */
   public commitSystemMessage = async (
     message: string,
     clientId: string,
@@ -121,6 +157,12 @@ export class AgentPublicService implements TAgentConnectionService {
     );
   };
 
+  /**
+   * Disposes of the agent.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<unknown>} The dispose result.
+   */
   public dispose = async (clientId: string, agentName: AgentName) => {
     this.loggerService.log("agentPublicService dispose", {
       clientId,

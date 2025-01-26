@@ -16,12 +16,22 @@ type TSessionConnectionService = {
   [key in Exclude<keyof ISessionConnectionService, InternalKeys>]: unknown;
 };
 
+/**
+ * Service for managing public session interactions.
+ */
 export class SessionPublicService implements TSessionConnectionService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly sessionConnectionService = inject<SessionConnectionService>(
     TYPES.sessionConnectionService
   );
 
+  /**
+   * Emits a message to the session.
+   * @param {string} content - The content to emit.
+   * @param {string} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<void>}
+   */
   public emit = async (content: string, clientId: string, swarmName: SwarmName) => {
     this.loggerService.log("sessionPublicService emit", {
       content,
@@ -40,6 +50,13 @@ export class SessionPublicService implements TSessionConnectionService {
     );
   };
 
+  /**
+   * Executes a command in the session.
+   * @param {string} content - The content to execute.
+   * @param {string} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<void>}
+   */
   public execute = async (content: string, clientId: string, swarmName: SwarmName) => {
     this.loggerService.log("sessionPublicService execute", {
       content,
@@ -58,6 +75,13 @@ export class SessionPublicService implements TSessionConnectionService {
     );
   };
 
+  /**
+   * Connects to the session.
+   * @param {SendMessageFn} connector - The function to send messages.
+   * @param {string} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {ReceiveMessageFn}
+   */
   public connect = (connector: SendMessageFn, clientId: string, swarmName: SwarmName): ReceiveMessageFn => {
     this.loggerService.log("sessionPublicService connect", {
       clientId,
@@ -95,6 +119,13 @@ export class SessionPublicService implements TSessionConnectionService {
     );
   };
 
+  /**
+   * Commits tool output to the session.
+   * @param {string} content - The content to commit.
+   * @param {string} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<void>}
+   */
   public commitToolOutput = async (content: string, clientId: string, swarmName: SwarmName) => {
     this.loggerService.log("sessionPublicService commitToolOutput", {
       content,
@@ -113,6 +144,13 @@ export class SessionPublicService implements TSessionConnectionService {
     );
   };
 
+  /**
+   * Commits a system message to the session.
+   * @param {string} message - The message to commit.
+   * @param {string} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<void>}
+   */
   public commitSystemMessage = async (message: string, clientId: string, swarmName: SwarmName) => {
     this.loggerService.log("sessionPublicService commitSystemMessage", {
       message,
@@ -131,6 +169,12 @@ export class SessionPublicService implements TSessionConnectionService {
     );
   };
 
+  /**
+   * Disposes of the session.
+   * @param {string} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<void>}
+   */
   public dispose = async (clientId: string, swarmName: SwarmName) => {
     this.loggerService.log("sessionPublicService dispose", {
       clientId,

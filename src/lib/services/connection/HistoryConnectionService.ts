@@ -10,6 +10,10 @@ import SessionValidationService from "../validation/SessionValidationService";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
 
+/**
+ * Service for managing history connections.
+ * @implements {IHistory}
+ */
 export class HistoryConnectionService implements IHistory {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly contextService = inject<TContextService>(
@@ -20,6 +24,12 @@ export class HistoryConnectionService implements IHistory {
     TYPES.sessionValidationService
   );
 
+  /**
+   * Retrieves items for a given client and agent.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The agent name.
+   * @returns {IPubsubArray<IModelMessage>} The items.
+   */
   public getItems = memoize<
     (clientId: string, agentName: AgentName) => IPubsubArray<IModelMessage>
   >(
@@ -28,6 +38,12 @@ export class HistoryConnectionService implements IHistory {
       GLOBAL_CONFIG.CC_GET_AGENT_HISTORY(clientId, agentName)
   );
 
+  /**
+   * Retrieves the history for a given client and agent.
+   * @param {string} clientId - The client ID.
+   * @param {string} agentName - The agent name.
+   * @returns {ClientHistory} The client history.
+   */
   public getHistory = memoize(
     ([clientId, agentName]) => `${clientId}-${agentName}`,
     (clientId: string, agentName: string) => {
@@ -41,6 +57,11 @@ export class HistoryConnectionService implements IHistory {
     }
   );
 
+  /**
+   * Pushes a message to the history.
+   * @param {IModelMessage} message - The message to push.
+   * @returns {Promise<void>} A promise that resolves when the message is pushed.
+   */
   public push = async (message: IModelMessage) => {
     this.loggerService.log(`historyConnectionService push`, {
       context: this.contextService.context,
@@ -51,6 +72,11 @@ export class HistoryConnectionService implements IHistory {
     ).push(message);
   };
 
+  /**
+   * Converts the history to an array for the agent.
+   * @param {string} prompt - The prompt.
+   * @returns {Promise<any[]>} A promise that resolves to an array for the agent.
+   */
   public toArrayForAgent = async (prompt: string) => {
     this.loggerService.log(`historyConnectionService toArrayForAgent`, {
       context: this.contextService.context,
@@ -61,6 +87,10 @@ export class HistoryConnectionService implements IHistory {
     ).toArrayForAgent(prompt);
   };
 
+  /**
+   * Converts the history to a raw array.
+   * @returns {Promise<any[]>} A promise that resolves to a raw array.
+   */
   public toArrayForRaw = async () => {
     this.loggerService.log(`historyConnectionService toArrayForRaw`, {
       context: this.contextService.context,
@@ -71,6 +101,10 @@ export class HistoryConnectionService implements IHistory {
     ).toArrayForRaw();
   };
 
+  /**
+   * Disposes of the history connection service.
+   * @returns {Promise<void>} A promise that resolves when the service is disposed.
+   */
   public dispose = async () => {
     this.loggerService.log(`historyConnectionService dispose`, {
       context: this.contextService.context,

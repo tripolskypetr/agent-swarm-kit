@@ -2,6 +2,8 @@
 
 Implements `IHistory`
 
+Service for managing history connections.
+
 ## Constructor
 
 ```ts
@@ -34,11 +36,15 @@ sessionValidationService: any
 getItems: ((clientId: string, agentName: string) => IPubsubArray<IModelMessage>) & IClearableMemoize<string> & IControlMemoize<string, IPubsubArray<IModelMessage>>
 ```
 
+Retrieves items for a given client and agent.
+
 ### getHistory
 
 ```ts
 getHistory: ((clientId: string, agentName: string) => ClientHistory) & IClearableMemoize<string> & IControlMemoize<string, ClientHistory>
 ```
+
+Retrieves the history for a given client and agent.
 
 ### push
 
@@ -46,11 +52,15 @@ getHistory: ((clientId: string, agentName: string) => ClientHistory) & IClearabl
 push: (message: IModelMessage) => Promise<void>
 ```
 
+Pushes a message to the history.
+
 ### toArrayForAgent
 
 ```ts
 toArrayForAgent: (prompt: string) => Promise<IModelMessage[]>
 ```
+
+Converts the history to an array for the agent.
 
 ### toArrayForRaw
 
@@ -58,8 +68,12 @@ toArrayForAgent: (prompt: string) => Promise<IModelMessage[]>
 toArrayForRaw: () => Promise<IModelMessage[]>
 ```
 
+Converts the history to a raw array.
+
 ### dispose
 
 ```ts
 dispose: () => Promise<void>
 ```
+
+Disposes of the history connection service.

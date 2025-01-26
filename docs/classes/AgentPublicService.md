@@ -2,6 +2,8 @@
 
 Implements `TAgentConnectionService`
 
+Service for managing public agent operations.
+
 ## Constructor
 
 ```ts
@@ -28,11 +30,15 @@ agentConnectionService: any
 createAgentRef: (clientId: string, agentName: string) => Promise<ClientAgent>
 ```
 
+Creates a reference to an agent.
+
 ### execute
 
 ```ts
 execute: (input: string, clientId: string, agentName: string) => Promise<void>
 ```
+
+Executes a command on the agent.
 
 ### waitForOutput
 
@@ -40,11 +46,15 @@ execute: (input: string, clientId: string, agentName: string) => Promise<void>
 waitForOutput: (clientId: string, agentName: string) => Promise<string>
 ```
 
+Waits for the agent's output.
+
 ### commitToolOutput
 
 ```ts
 commitToolOutput: (content: string, clientId: string, agentName: string) => Promise<void>
 ```
+
+Commits tool output to the agent.
 
 ### commitSystemMessage
 
@@ -52,8 +62,12 @@ commitToolOutput: (content: string, clientId: string, agentName: string) => Prom
 commitSystemMessage: (message: string, clientId: string, agentName: string) => Promise<void>
 ```
 
+Commits a system message to the agent.
+
 ### dispose
 
 ```ts
 dispose: (clientId: string, agentName: string) => Promise<void>
 ```
+
+Disposes of the agent.

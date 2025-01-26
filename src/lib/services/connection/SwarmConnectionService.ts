@@ -9,6 +9,10 @@ import AgentConnectionService from "./AgentConnectionService";
 import { AgentName, IAgent } from "../../../interfaces/Agent.interface";
 import ISwarm from "../../../interfaces/Swarm.interface";
 
+/**
+ * Service for managing swarm connections.
+ * @implements {ISwarm}
+ */
 export class SwarmConnectionService implements ISwarm {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly contextService = inject<TContextService>(
@@ -23,6 +27,12 @@ export class SwarmConnectionService implements ISwarm {
     TYPES.swarmSchemaService
   );
 
+  /**
+   * Retrieves a swarm instance based on client ID and swarm name.
+   * @param {string} clientId - The client ID.
+   * @param {string} swarmName - The swarm name.
+   * @returns {ClientSwarm} The client swarm instance.
+   */
   public getSwarm = memoize(
     ([clientId, swarmName]) => `${clientId}-${swarmName}`,
     (clientId: string, swarmName: string) => {
@@ -44,6 +54,10 @@ export class SwarmConnectionService implements ISwarm {
     }
   );
 
+  /**
+   * Waits for the output from the swarm.
+   * @returns {Promise<any>} The output from the swarm.
+   */
   public waitForOutput = async () => {
     this.loggerService.log(`swarmConnectionService waitForOutput`, {
       context: this.contextService.context,
@@ -54,6 +68,10 @@ export class SwarmConnectionService implements ISwarm {
     ).waitForOutput();
   };
 
+  /**
+   * Retrieves the agent name from the swarm.
+   * @returns {Promise<string>} The agent name.
+   */
   public getAgentName = async () => {
     this.loggerService.log(`swarmConnectionService getAgentName`, {
       context: this.contextService.context,
@@ -64,6 +82,10 @@ export class SwarmConnectionService implements ISwarm {
     ).getAgentName();
   };
 
+  /**
+   * Retrieves the agent from the swarm.
+   * @returns {Promise<IAgent>} The agent instance.
+   */
   public getAgent = async () => {
     this.loggerService.log(`swarmConnectionService getAgent`, {
       context: this.contextService.context,
@@ -74,6 +96,12 @@ export class SwarmConnectionService implements ISwarm {
     ).getAgent();
   };
 
+  /**
+   * Sets the agent reference in the swarm.
+   * @param {AgentName} agentName - The name of the agent.
+   * @param {IAgent} agent - The agent instance.
+   * @returns {Promise<void>}
+   */
   public setAgentRef = async (agentName: AgentName, agent: IAgent) => {
     this.loggerService.log(`swarmConnectionService setAgentRef`, {
       context: this.contextService.context,
@@ -84,6 +112,11 @@ export class SwarmConnectionService implements ISwarm {
     ).setAgentRef(agentName, agent);
   };
 
+  /**
+   * Sets the agent name in the swarm.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<void>}
+   */
   public setAgentName = async (agentName: AgentName) => {
     this.loggerService.log(`swarmConnectionService setAgentName`, {
       agentName,
@@ -95,6 +128,10 @@ export class SwarmConnectionService implements ISwarm {
     ).setAgentName(agentName);
   };
 
+  /**
+   * Disposes of the swarm connection.
+   * @returns {Promise<void>}
+   */
   public dispose = async () => {
     this.loggerService.log(`swarmConnectionService dispose`, {
       context: this.contextService.context,

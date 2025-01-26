@@ -2,6 +2,8 @@
 
 Implements `THistoryConnectionService`
 
+Service for handling public history operations.
+
 ## Constructor
 
 ```ts
@@ -28,11 +30,15 @@ historyConnectionService: any
 push: (message: IModelMessage, clientId: string, agentName: string) => Promise<void>
 ```
 
+Pushes a message to the history.
+
 ### toArrayForAgent
 
 ```ts
 toArrayForAgent: (prompt: string, clientId: string, agentName: string) => Promise<IModelMessage[]>
 ```
+
+Converts history to an array for a specific agent.
 
 ### toArrayForRaw
 
@@ -40,8 +46,12 @@ toArrayForAgent: (prompt: string, clientId: string, agentName: string) => Promis
 toArrayForRaw: (clientId: string, agentName: string) => Promise<IModelMessage[]>
 ```
 
+Converts history to a raw array.
+
 ### dispose
 
 ```ts
 dispose: (clientId: string, agentName: string) => Promise<void>
 ```
+
+Disposes of the history.

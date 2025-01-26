@@ -1,5 +1,7 @@
 # SwarmSchemaService
 
+Service for managing swarm schemas.
+
 ## Constructor
 
 ```ts
@@ -26,8 +28,12 @@ registry: any
 register: (key: string, value: ISwarmSchema) => void
 ```
 
+Registers a new swarm schema.
+
 ### get
 
 ```ts
 get: (key: string) => ISwarmSchema
 ```
+
+Retrieves a swarm schema by its name.

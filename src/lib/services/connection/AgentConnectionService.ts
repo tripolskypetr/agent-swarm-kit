@@ -12,6 +12,10 @@ import CompletionSchemaService from "../schema/CompletionSchemaService";
 import validateDefault from "../../../validation/validateDefault";
 import SessionValidationService from "../validation/SessionValidationService";
 
+/**
+ * Service for managing agent connections.
+ * @implements {IAgent}
+ */
 export class AgentConnectionService implements IAgent {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly contextService = inject<TContextService>(
@@ -35,6 +39,12 @@ export class AgentConnectionService implements IAgent {
     TYPES.completionSchemaService
   );
 
+  /**
+   * Retrieves an agent instance.
+   * @param {string} clientId - The client ID.
+   * @param {string} agentName - The agent name.
+   * @returns {ClientAgent} The client agent instance.
+   */
   public getAgent = memoize(
     ([clientId, agentName]) => `${clientId}-${agentName}`,
     (clientId: string, agentName: string) => {
@@ -59,6 +69,11 @@ export class AgentConnectionService implements IAgent {
     }
   );
 
+  /**
+   * Executes an input command.
+   * @param {string} input - The input command.
+   * @returns {Promise<any>} The execution result.
+   */
   public execute = async (input: string) => {
     this.loggerService.log(`agentConnectionService execute`, {
       input,
@@ -70,6 +85,10 @@ export class AgentConnectionService implements IAgent {
     ).execute(input);
   };
 
+  /**
+   * Waits for the output from the agent.
+   * @returns {Promise<any>} The output result.
+   */
   public waitForOutput = async () => {
     this.loggerService.log(`agentConnectionService waitForOutput`, {
       context: this.contextService.context,
@@ -80,6 +99,11 @@ export class AgentConnectionService implements IAgent {
     ).waitForOutput();
   };
 
+  /**
+   * Commits tool output.
+   * @param {string} content - The tool output content.
+   * @returns {Promise<any>} The commit result.
+   */
   public commitToolOutput = async (content: string) => {
     this.loggerService.log(`agentConnectionService commitToolOutput`, {
       content,
@@ -91,6 +115,11 @@ export class AgentConnectionService implements IAgent {
     ).commitToolOutput(content);
   };
 
+  /**
+   * Commits a system message.
+   * @param {string} message - The system message.
+   * @returns {Promise<any>} The commit result.
+   */
   public commitSystemMessage = async (message: string) => {
     this.loggerService.log(`agentConnectionService commitSystemMessage`, {
       message,
@@ -102,6 +131,10 @@ export class AgentConnectionService implements IAgent {
     ).commitToolOutput(message);
   };
 
+  /**
+   * Disposes of the agent connection.
+   * @returns {Promise<void>} The dispose result.
+   */
   public dispose = async () => {
     this.loggerService.log(`agentConnectionService dispose`, {
       context: this.contextService.context,

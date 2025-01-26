@@ -2,6 +2,9 @@
 
 Implements `ILogger`
 
+LoggerService class that implements the ILogger interface.
+Provides methods to log and debug messages.
+
 ## Constructor
 
 ```ts
@@ -22,14 +25,20 @@ _logger: any
 log: (...args: any[]) => void
 ```
 
+Logs messages using the current logger.
+
 ### debug
 
 ```ts
 debug: (...args: any[]) => void
 ```
 
+Logs debug messages using the current logger.
+
 ### setLogger
 
 ```ts
 setLogger: (logger: ILogger) => void
 ```
+
+Sets a new logger.

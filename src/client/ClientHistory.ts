@@ -2,15 +2,27 @@ import { IModelMessage } from "../model/ModelMessage.model";
 import IHistory, { IHistoryParams } from "../interfaces/History.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 
+/**
+ * Class representing the history of client messages.
+ * @implements {IHistory}
+ */
 export class ClientHistory implements IHistory {
-
+  /**
+   * Creates an instance of ClientHistory.
+   * @param {IHistoryParams} params - The parameters for the history.
+   */
   constructor(readonly params: IHistoryParams) {
     this.params.logger.debug(`ClientHistory agentName=${this.params.agentName} clientId=${this.params.clientId} CTOR`, {
       params,
-    })
+    });
   }
 
-  push = async (message: IModelMessage) => {
+  /**
+   * Pushes a message to the history.
+   * @param {IModelMessage} message - The message to push.
+   * @returns {Promise<void>}
+   */
+  push = async (message: IModelMessage): Promise<void> => {
     this.params.logger.debug(
       `ClientHistory agentName=${this.params.agentName} push`,
       { message }
@@ -18,7 +30,11 @@ export class ClientHistory implements IHistory {
     await this.params.items.push(message);
   };
 
-  toArrayForRaw = async () => {
+  /**
+   * Converts the history to an array of raw messages.
+   * @returns {Promise<IModelMessage[]>} - The array of raw messages.
+   */
+  toArrayForRaw = async (): Promise<IModelMessage[]> => {
     this.params.logger.debug(
       `ClientHistory agentName=${this.params.agentName} toArrayForRaw`
     );
@@ -29,7 +45,12 @@ export class ClientHistory implements IHistory {
     return result;
   };
 
-  toArrayForAgent = async (prompt: string) => {
+  /**
+   * Converts the history to an array of messages for the agent.
+   * @param {string} prompt - The prompt message.
+   * @returns {Promise<IModelMessage[]>} - The array of messages for the agent.
+   */
+  toArrayForAgent = async (prompt: string): Promise<IModelMessage[]> => {
     this.params.logger.debug(
       `ClientHistory agentName=${this.params.agentName} toArrayForAgent`
     );

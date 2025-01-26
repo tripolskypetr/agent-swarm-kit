@@ -1,5 +1,7 @@
 # AgentSchemaService
 
+Service for managing agent schemas.
+
 ## Constructor
 
 ```ts
@@ -26,8 +28,12 @@ registry: any
 register: (key: string, value: IAgentSchema) => void
 ```
 
+Registers a new agent schema.
+
 ### get
 
 ```ts
 get: (key: string) => IAgentSchema
 ```
+
+Retrieves an agent schema by name.
