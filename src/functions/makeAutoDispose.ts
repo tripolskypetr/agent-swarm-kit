@@ -28,17 +28,15 @@ export const makeAutoDispose = (
   swarmName: SwarmName,
   { timeoutSeconds = DEFAULT_TIMEOUT }: Partial<IMakeDisposeParams> = {}
 ) => {
-  const stateEmitter = new Subject<boolean>();
+  let isOk = true;
 
-  const unSource = Source.join([
-    stateEmitter.toObserver(),
-    Source.fromInterval(1_000),
-  ])
-    .reduce((acm, [isOk]) => {
+  const unSource = Source.fromInterval(1_000)
+    .reduce((acm) => {
       if (isOk) {
-        return acm + 1;
+        isOk = false;
+        return 0;
       }
-      return 0;
+      return acm + 1;
     }, 0)
     .filter((ticker) => ticker >= timeoutSeconds)
     .once(async () => {
@@ -53,7 +51,7 @@ export const makeAutoDispose = (
      * Signals that the client is active, resetting the auto-dispose timer.
      */
     tick() {
-      stateEmitter.next(true);
+      isOk = true;
     },
     /**
      * Stops the auto-dispose mechanism.
