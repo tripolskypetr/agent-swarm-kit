@@ -69,6 +69,13 @@ export interface ISession {
   commitToolOutput(content: string): Promise<void>;
 
   /**
+   * Commit user message without answer
+   * @param {string} message - The message to commit.
+   * @returns {Promise<void>}
+   */
+  commitUserMessage: (message: string) => Promise<void>
+
+  /**
    * Commit a system message.
    * @param {string} message - The message to commit.
    * @returns {Promise<void>}

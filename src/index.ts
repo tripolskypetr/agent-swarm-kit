@@ -16,6 +16,8 @@ export * from './functions/commitSystemMessage';
 export * from './functions/execute';
 export * from './functions/emit';
 export * from './functions/getLastUserMessage';
+export * from './functions/commitUserMessage';
+export * from './functions/getAgentName';
 
 export { IAgentSchema } from './interfaces/Agent.interface';
 export { ICompletionSchema } from './interfaces/Completion.interface';

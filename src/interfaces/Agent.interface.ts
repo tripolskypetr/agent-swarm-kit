@@ -101,6 +101,12 @@ export interface IAgent {
    * @returns A promise that resolves when the system message is committed.
    */
   commitSystemMessage(message: string): Promise<void>;
+  /**
+   * Commits a user message without answer.
+   * @param message - The message to commit.
+   * @returns A promise that resolves when the message is committed.
+   */
+  commitUserMessage(message: string): Promise<void>
 }
 
 /** Type representing the name of an agent. */

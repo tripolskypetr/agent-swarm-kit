@@ -117,6 +117,21 @@ export class SessionConnectionService implements ISession {
   };
 
   /**
+   * Commits user message to the agent without answer.
+   * @param {string} message - The message to commit.
+   * @returns {Promise<void>} A promise that resolves when the message is committed.
+   */
+  public commitUserMessage = async (message: string): Promise<void> => {
+    this.loggerService.log(`sessionConnectionService commitUserMessage`, {
+      context: this.contextService.context,
+    });
+    return await this.getSession(
+      this.contextService.context.clientId,
+      this.contextService.context.swarmName
+    ).commitUserMessage(message);
+  };
+
+  /**
    * Disposes of the session connection service.
    * @returns {Promise<void>} A promise that resolves when the service is disposed.
    */

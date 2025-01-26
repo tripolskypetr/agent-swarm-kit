@@ -128,8 +128,25 @@ export class AgentConnectionService implements IAgent {
     return await this.getAgent(
       this.contextService.context.clientId,
       this.contextService.context.agentName
-    ).commitToolOutput(message);
+    ).commitSystemMessage(message);
   };
+
+  /**
+   * Commits a user message without answer.
+   * @param {string} message - The message.
+   * @returns {Promise<any>} The commit result.
+   */
+  public commitUserMessage = async (message: string) => {
+    this.loggerService.log(`agentConnectionService commitUserMessage`, {
+      message,
+      context: this.contextService.context,
+    });
+    return await this.getAgent(
+      this.contextService.context.clientId,
+      this.contextService.context.agentName
+    ).commitUserMessage(message);
+  };
+
 
   /**
    * Disposes of the agent connection.

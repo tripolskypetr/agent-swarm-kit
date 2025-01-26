@@ -158,6 +158,35 @@ export class AgentPublicService implements TAgentConnectionService {
   };
 
   /**
+   * Commits user message to the agent without answer.
+   * @param {string} message - The message to commit.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<unknown>} The commit result.
+   */
+  public commitUserMessage = async (
+    message: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    this.loggerService.log("agentPublicService commitUserMessage", {
+      message,
+      clientId,
+      agentName,
+    });
+    return await ContextService.runInContext(
+      async () => {
+        return await this.agentConnectionService.commitUserMessage(message);
+      },
+      {
+        clientId,
+        agentName,
+        swarmName: "",
+      }
+    );
+  };
+
+  /**
    * Disposes of the agent.
    * @param {string} clientId - The client ID.
    * @param {AgentName} agentName - The name of the agent.
