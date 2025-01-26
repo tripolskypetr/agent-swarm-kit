@@ -1,4 +1,4 @@
-import { Source, Subject } from "functools-kit";
+import { Source } from "functools-kit";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import { disposeConnection } from "./disposeConnection";
 import swarm from "../lib";
