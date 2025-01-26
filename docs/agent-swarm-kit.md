@@ -1,4 +1,66 @@
-# agent-swarm-kit
+# Agent Swarm Kit
+
+## Overview
+
+The Agent Swarm Kit is a TypeScript library for building complex, modular agent-based systems with services for tool, swarm, session, history, agent, and completion management. It provides comprehensive validation, connection, and schema services that enable developers to create, register, and interact with agents, tools, and sessions through standardized interfaces, supporting dynamic agent communication, message handling, and state management across different components of a multi-agent system.
+
+### Agent Services
+- `AgentValidationService`: Validates and manages agent schemas
+- `AgentConnectionService`: Handles agent connections and interactions
+- `AgentPublicService`: Provides public methods for agent operations
+
+### Tool Services
+- `ToolValidationService`: Validates tool existence and schemas
+- `ToolSchemaService`: Manages tool schema registration
+
+### Session Services
+- `SessionConnectionService`: Manages session connections
+- `SessionValidationService`: Validates and tracks session states
+- `SessionPublicService`: Provides public session interaction methods
+
+### History Services
+- `HistoryConnectionService`: Manages message history
+- `HistoryPublicService`: Handles public history operations
+
+### Completion Services
+- `CompletionValidationService`: Validates completion names
+- `CompletionSchemaService`: Manages completion schemas
+
+### Key Interfaces
+
+- `IAgent`: Agent interaction contract
+- `ISession`: Session management interface
+- `ISwarm`: Swarm interaction protocol
+- `IHistory`: History tracking interface
+
+### Architectural Principles
+
+- Modular design
+- Dynamic agent creation
+- Standardized interaction interfaces
+- Comprehensive validation mechanisms
+
+### Use Cases
+
+- AI-driven collaborative systems
+- Multi-agent problem-solving platforms
+- Complex interaction scenarios
+- Dynamic task allocation environments
+
+### Example Workflow
+
+1. Create agent schemas
+2. Register tools and completions
+3. Initialize sessions
+4. Execute agent interactions
+5. Track and manage interaction history
+
+### Implementation Highlights
+
+- TypeScript-based
+- Extensive logging support
+- Flexible connection mechanisms
+- Robust error handling
 
 ## ToolValidationService
 
