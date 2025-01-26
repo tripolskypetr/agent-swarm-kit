@@ -8,6 +8,7 @@ import SwarmSchemaService from "../schema/SwarmSchemaService";
 import AgentConnectionService from "./AgentConnectionService";
 import { AgentName, IAgent } from "../../../interfaces/Agent.interface";
 import ISwarm from "../../../interfaces/Swarm.interface";
+import { GLOBAL_CONFIG } from "src/config/params";
 
 /**
  * Service for managing swarm connections.
@@ -36,7 +37,8 @@ export class SwarmConnectionService implements ISwarm {
   public getSwarm = memoize(
     ([clientId, swarmName]) => `${clientId}-${swarmName}`,
     (clientId: string, swarmName: string) => {
-      const { agentList, defaultAgent } = this.swarmSchemaService.get(swarmName);
+      const { agentList, defaultAgent } =
+        this.swarmSchemaService.get(swarmName);
       const agentMap: Record<AgentName, IAgent> = {};
       for (const agentName of agentList) {
         agentMap[agentName] = this.agentConnectionService.getAgent(
@@ -50,6 +52,13 @@ export class SwarmConnectionService implements ISwarm {
         defaultAgent,
         swarmName,
         logger: this.loggerService,
+        async onAgentChanged(clientId, agentName, swarmName) {
+          await GLOBAL_CONFIG.CC_SWARM_AGENT_CHANGED(
+            clientId,
+            agentName,
+            swarmName
+          );
+        },
       });
     }
   );

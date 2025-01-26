@@ -1,6 +1,7 @@
-import { IPubsubArray, PubsubArrayAdapter } from "functools-kit";
+import { IPubsubArray, PubsubArrayAdapter, sleep } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
+import { SwarmName } from "../interfaces/Swarm.interface";
 
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
@@ -23,6 +24,21 @@ const CC_EMPTY_OUTPUT_PLACEHOLDERS = [
   "Could you please repeat that? I didn’t catch it.",
 ];
 
+const CC_SWARM_AGENT_CHANGED: (
+  clientId: string,
+  agentName: AgentName,
+  swarmName: SwarmName
+) => Promise<void> = async () => await sleep(100);
+
+const CC_SWARM_DEFAULT_AGENT: (
+  clientId: string,
+  swarmName: SwarmName,
+  defaultAgent: AgentName
+) => Promise<AgentName> = async ({}, {}, defaultAgent) => {
+  await sleep(100);
+  return defaultAgent;
+};
+
 const CC_KEEP_MESSAGES = 5;
 
 const CC_ANSWER_TIMEOUT_SECONDS = 120_000;
@@ -38,6 +54,8 @@ export const GLOBAL_CONFIG = {
   CC_KEEP_MESSAGES,
   CC_ANSWER_TIMEOUT_SECONDS,
   CC_GET_AGENT_HISTORY,
+  CC_SWARM_AGENT_CHANGED,
+  CC_SWARM_DEFAULT_AGENT,
 };
 
 export const setConfig = (config: typeof GLOBAL_CONFIG) => {

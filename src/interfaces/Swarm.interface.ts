@@ -15,6 +15,8 @@ export interface ISwarmParams extends Omit<ISwarmSchema, keyof {
   logger: ILogger;
   /** Map of agent names to agent instances */
   agentMap: Record<AgentName, IAgent>;
+  /** Emit the callback on agent change */
+  onAgentChanged(clientId: string, agentName: AgentName, swarmName: SwarmName): Promise<void>;
 }
 
 /**

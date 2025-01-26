@@ -340,6 +340,8 @@ interface ISwarmParams extends Omit<ISwarmSchema, keyof {
     logger: ILogger;
     /** Map of agent names to agent instances */
     agentMap: Record<AgentName, IAgent>;
+    /** Emit the callback on agent change */
+    onAgentChanged(clientId: string, agentName: AgentName, swarmName: SwarmName): Promise<void>;
 }
 /**
  * Schema for defining a swarm.
@@ -1733,6 +1735,8 @@ declare const GLOBAL_CONFIG: {
     CC_KEEP_MESSAGES: number;
     CC_ANSWER_TIMEOUT_SECONDS: number;
     CC_GET_AGENT_HISTORY: (clientId: string, agentName: AgentName) => IPubsubArray<IModelMessage>;
+    CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
+    CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
