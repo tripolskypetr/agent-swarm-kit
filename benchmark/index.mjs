@@ -16,6 +16,7 @@ const TOTAL_ATTEMPTS = 25;
 const JIT_ATTEMPTS = 5;
 const COMPLETES_PER_ITER = 25;
 const PARALLEL_EXECUTIONS = 5;
+const SCHEDULED_DELAY = 0;
 
 setConfig({
   CC_SWARM_AGENT_CHANGED: () => Promise.resolve(),
@@ -55,7 +56,10 @@ const runBenchmark = async () => {
   const { complete, dispose } = session.scheduled(
     CLIENT_ID,
     TEST_SWARM,
-    TEST_COMPLETION
+    TEST_COMPLETION,
+    {
+      delay: SCHEDULED_DELAY,
+    }
   );
 
   const outputs = await Promise.all([

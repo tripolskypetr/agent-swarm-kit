@@ -7,6 +7,8 @@ import { getAgentName } from "./getAgentName";
 
 type TComplete = (content: string) => Promise<string>;
 
+const SCHEDULED_DELAY = 1_000;
+
 /**
  * Creates a session for the given client and swarm.
  *
@@ -51,15 +53,29 @@ const session = (clientId: string, swarmName: SwarmName) => {
 };
 
 /**
+ * Configuration options for a scheduled session.
+ *
+ * @interface ISessionConfig
+ * @property {number} [delay] - The delay for the scheduled session in milliseconds.
+ */
+export interface ISessionConfig {
+  delay?: number;
+}
+
+/**
  * Creates a scheduled session for the given client and swarm.
  *
  * @param {string} clientId - The ID of the client.
  * @param {SwarmName} swarmName - The name of the swarm.
+ * @param {Partial<ISessionConfig>} [config] - The configuration for the scheduled session.
+ * @param {number} [config.delay] - The delay for the scheduled session.
  * @returns {Object} An object containing the scheduled session methods.
  * @returns {TComplete} complete - A function to complete the session with content.
  * @returns {Function} dispose - A function to dispose of the session.
  */
-session.scheduled = (clientId: string, swarmName: SwarmName) => {
+session.scheduled = (clientId: string, swarmName: SwarmName, {
+  delay = SCHEDULED_DELAY,
+}: Partial<ISessionConfig> = {}) => {
   const { complete, dispose } = session(clientId, swarmName);
 
   let isMounted = true;
@@ -88,6 +104,7 @@ session.scheduled = (clientId: string, swarmName: SwarmName) => {
           await getAgentName(clientId)
         );
       },
+      delay,
     }
   );
 

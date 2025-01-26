@@ -1539,10 +1539,20 @@ declare const makeConnection: {
      * @param {ReceiveMessageFn} connector - The function to receive messages.
      * @param {string} clientId - The unique identifier of the client.
      * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {Partial<IMakeConnectionConfig>} [config] - The configuration for scheduling.
      * @returns {SendMessageFn} - A function to send scheduled messages to the swarm.
      */
-    scheduled(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName): (content: string) => Promise<void>;
+    scheduled(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName, { delay, }?: Partial<IMakeConnectionConfig>): (content: string) => Promise<void>;
 };
+/**
+ * Configuration for scheduling messages.
+ *
+ * @interface IMakeConnectionConfig
+ * @property {number} [delay] - The delay in milliseconds for scheduling messages.
+ */
+interface IMakeConnectionConfig {
+    delay?: number;
+}
 
 /**
  * Changes the agent for a given client session in swarm.
@@ -1596,11 +1606,13 @@ declare const session: {
      *
      * @param {string} clientId - The ID of the client.
      * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {Partial<ISessionConfig>} [config] - The configuration for the scheduled session.
+     * @param {number} [config.delay] - The delay for the scheduled session.
      * @returns {Object} An object containing the scheduled session methods.
      * @returns {TComplete} complete - A function to complete the session with content.
      * @returns {Function} dispose - A function to dispose of the session.
      */
-    scheduled(clientId: string, swarmName: SwarmName): {
+    scheduled(clientId: string, swarmName: SwarmName, { delay, }?: Partial<ISessionConfig>): {
         /**
          * Completes the scheduled session with the given content.
          *
@@ -1616,6 +1628,15 @@ declare const session: {
         dispose(): Promise<void>;
     };
 };
+/**
+ * Configuration options for a scheduled session.
+ *
+ * @interface ISessionConfig
+ * @property {number} [delay] - The delay for the scheduled session in milliseconds.
+ */
+interface ISessionConfig {
+    delay?: number;
+}
 
 /**
  * Disposes the session for a given client with all related swarms and agents.
@@ -1756,4 +1777,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IModelMessage, type IOutgoingMessage, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, commitUserMessage, complete, disposeConnection, emit, execute, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getUserHistory, makeConnection, session, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IMakeConnectionConfig, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, commitUserMessage, complete, disposeConnection, emit, execute, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getUserHistory, makeConnection, session, setConfig, swarm };

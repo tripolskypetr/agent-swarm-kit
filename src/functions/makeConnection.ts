@@ -7,6 +7,8 @@ import { getAgentName } from "./getAgentName";
 
 type SendMessageFn = (outgoing: string) => Promise<void>;
 
+const SCHEDULED_DELAY = 1_000;
+
 /**
  * A connection factory for a client to a swarm and returns a function to send messages.
  *
@@ -45,14 +47,27 @@ const makeConnection = (
 };
 
 /**
+ * Configuration for scheduling messages.
+ *
+ * @interface IMakeConnectionConfig
+ * @property {number} [delay] - The delay in milliseconds for scheduling messages.
+ */
+export interface IMakeConnectionConfig {
+  delay?: number;
+}
+
+/**
  * A scheduled connection factory for a client to a swarm and returns a function to send messages.
  *
  * @param {ReceiveMessageFn} connector - The function to receive messages.
  * @param {string} clientId - The unique identifier of the client.
  * @param {SwarmName} swarmName - The name of the swarm.
+ * @param {Partial<IMakeConnectionConfig>} [config] - The configuration for scheduling.
  * @returns {SendMessageFn} - A function to send scheduled messages to the swarm.
  */
-makeConnection.scheduled = (connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName) => {
+makeConnection.scheduled = (connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName, {
+  delay = SCHEDULED_DELAY,
+}: Partial<IMakeConnectionConfig> = {}) => {
   const send = makeConnection(connector, clientId, swarmName);
 
   /**
@@ -85,6 +100,10 @@ makeConnection.scheduled = (connector: ReceiveMessageFn, clientId: string, swarm
           await getAgentName(clientId)
         );
       },
+      /**
+       * The delay for message scheduler
+       */
+      delay,
     }
   );
 

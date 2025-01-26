@@ -60,6 +60,8 @@
 - [IHistoryConnectionService](interfaces/IHistoryConnectionService.md)
 - [ISessionConnectionService](interfaces/ISessionConnectionService.md)
 - [ISwarmConnectionService](interfaces/ISwarmConnectionService.md)
+- [IMakeConnectionConfig](interfaces/IMakeConnectionConfig.md)
+- [ISessionConfig](interfaces/ISessionConfig.md)
 
 ## Types
 
