@@ -2,6 +2,8 @@
 
 > A TypeScript library for building orchestrated framework-agnostic multi-agent AI systems. Documentation [available in docs folder](https://github.com/tripolskypetr/agent-swarm-kit/tree/master/docs)
 
+![schema](./schema.png)
+
 ## Installation
 
 In comparison with langchain js this library provide the lightweight API so you can delegate the prompt engineering to other junior developers
