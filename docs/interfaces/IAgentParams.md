@@ -1,5 +1,7 @@
 # IAgentParams
 
+Interface representing the parameters for an agent.
+
 ## Properties
 
 ### clientId
@@ -8,11 +10,15 @@
 clientId: string
 ```
 
+The ID of the client.
+
 ### logger
 
 ```ts
 logger: ILogger
 ```
+
+The logger instance.
 
 ### history
 
@@ -20,11 +26,15 @@ logger: ILogger
 history: IHistory
 ```
 
+The history instance.
+
 ### completion
 
 ```ts
 completion: ICompletion
 ```
+
+The completion instance.
 
 ### tools
 
@@ -32,8 +42,12 @@ completion: ICompletion
 tools: IAgentTool<Record<string, unknown>>[]
 ```
 
+The tools used by the agent.
+
 ### validate
 
 ```ts
 validate: (output: string) => Promise<string>
 ```
+
+Validates the output.

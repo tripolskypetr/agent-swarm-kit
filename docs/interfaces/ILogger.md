@@ -1,5 +1,7 @@
 # ILogger
 
+ILogger interface for logging messages.
+
 ## Methods
 
 ### log
@@ -8,8 +10,12 @@
 log: (...args: any[]) => void
 ```
 
+Logs a message.
+
 ### debug
 
 ```ts
 debug: (...args: any[]) => void
 ```
+
+Logs a debug message.

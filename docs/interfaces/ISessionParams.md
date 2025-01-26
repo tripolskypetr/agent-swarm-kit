@@ -1,5 +1,7 @@
 # ISessionParams
 
+Parameters required to create a session.
+
 ## Properties
 
 ### clientId

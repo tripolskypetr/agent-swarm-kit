@@ -1,5 +1,7 @@
 # IToolCall
 
+Represents a tool call with a function name and arguments.
+
 ## Properties
 
 ### function

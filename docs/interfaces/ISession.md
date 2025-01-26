@@ -1,5 +1,7 @@
 # ISession
 
+Interface for a session.
+
 ## Methods
 
 ### emit
@@ -8,11 +10,15 @@
 emit: (message: string) => Promise<void>
 ```
 
+Emit a message.
+
 ### execute
 
 ```ts
 execute: (content: string) => Promise<string>
 ```
+
+Execute a command.
 
 ### connect
 
@@ -20,14 +26,20 @@ execute: (content: string) => Promise<string>
 connect: (connector: SendMessageFn$1) => ReceiveMessageFn
 ```
 
+Connect to a message sender.
+
 ### commitToolOutput
 
 ```ts
 commitToolOutput: (content: string) => Promise<void>
 ```
 
+Commit tool output.
+
 ### commitSystemMessage
 
 ```ts
 commitSystemMessage: (message: string) => Promise<void>
 ```
+
+Commit a system message.

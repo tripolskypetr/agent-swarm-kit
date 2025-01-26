@@ -11,8 +11,12 @@ const DISALLOWED_SYMBOLS = [
 ];
 
 /**
- * @description Validation for not parsed XML toolcall
+ * Validates that the given output string does not contain any tool call entries or disallowed symbols.
  * @see https://github.com/ollama/ollama/issues/8287
+ * 
+ * @param {string} output - The output string to validate.
+ * @returns {Promise<string | null>} - A promise that resolves to a string indicating a tool call in the text output, or null if no tool call is found.
+ * @throws {Error} - If an error occurs during XML parsing.
  */
 export const validateNoToolCall: (output: string) => Promise<string | null> = trycatch(
   async (output: string) => {

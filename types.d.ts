@@ -2,10 +2,29 @@ import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { IPubsubArray, Subject } from 'functools-kit';
 
+/**
+ * Interface representing a model message.
+ */
 interface IModelMessage {
+    /**
+     * The role of the message sender.
+     * @type {'assistant' | 'system' | 'tool' | 'user' | 'resque'}
+     */
     role: 'assistant' | 'system' | 'tool' | 'user' | 'resque';
+    /**
+     * The name of the agent sending the message.
+     * @type {string}
+     */
     agentName: string;
+    /**
+     * The content of the message.
+     * @type {string}
+     */
     content: string;
+    /**
+     * Optional tool calls associated with the message.
+     * @type {Array<{ function: { name: string; arguments: { [key: string]: any; }; }; }>}
+     */
     tool_calls?: {
         function: {
             name: string;
@@ -16,45 +35,137 @@ interface IModelMessage {
     }[];
 }
 
+/**
+ * ILogger interface for logging messages.
+ */
 interface ILogger {
+    /**
+     * Logs a message.
+     * @param {...any[]} args - The message or messages to log.
+     */
     log(...args: any[]): void;
+    /**
+     * Logs a debug message.
+     * @param {...any[]} args - The debug message or messages to log.
+     */
     debug(...args: any[]): void;
 }
 
+/**
+ * Interface representing the history of model messages.
+ */
 interface IHistory {
+    /**
+     * Pushes a message to the history.
+     * @param {IModelMessage} message - The message to push.
+     * @returns {Promise<void>}
+     */
     push(message: IModelMessage): Promise<void>;
+    /**
+     * Converts the history to an array of messages for a specific agent.
+     * @param {string} prompt - The prompt to filter messages for the agent.
+     * @returns {Promise<IModelMessage[]>}
+     */
     toArrayForAgent(prompt: string): Promise<IModelMessage[]>;
+    /**
+     * Converts the history to an array of raw messages.
+     * @returns {Promise<IModelMessage[]>}
+     */
     toArrayForRaw(): Promise<IModelMessage[]>;
 }
+/**
+ * Interface representing the parameters required to create a history instance.
+ */
 interface IHistoryParams extends IHistorySchema {
+    /**
+     * The name of the agent.
+     * @type {AgentName}
+     */
     agentName: AgentName;
+    /**
+     * The client ID.
+     * @type {string}
+     */
     clientId: string;
+    /**
+     * The logger instance.
+     * @type {ILogger}
+     */
     logger: ILogger;
 }
+/**
+ * Interface representing the schema of the history.
+ */
 interface IHistorySchema {
+    /**
+     * The array of model messages.
+     * @type {IPubsubArray<IModelMessage>}
+     */
     items: IPubsubArray<IModelMessage>;
 }
 
+/**
+ * Represents a tool call with a function name and arguments.
+ */
 interface IToolCall {
     function: {
+        /**
+         * The name of the function to be called.
+         */
         name: string;
+        /**
+         * The arguments to be passed to the function.
+         */
         arguments: {
             [key: string]: any;
         };
     };
 }
+/**
+ * Represents a tool with a type and function details.
+ */
 interface ITool {
+    /**
+     * The type of the tool.
+     */
     type: string;
     function: {
+        /**
+         * The name of the function.
+         */
         name: string;
+        /**
+         * The description of the function.
+         */
         description: string;
+        /**
+         * The parameters required by the function.
+         */
         parameters: {
+            /**
+             * The type of the parameters.
+             */
             type: string;
+            /**
+             * The list of required parameters.
+             */
             required: string[];
+            /**
+             * The properties of the parameters.
+             */
             properties: {
                 [key: string]: {
+                    /**
+                     * The type of the property.
+                     */
                     type: string;
+                    /**
+                     * The description of the property.
+                     */
                     description: string;
+                    /**
+                     * The possible values for the property.
+                     */
                     enum?: string[];
                 };
             };
@@ -62,72 +173,215 @@ interface ITool {
     };
 }
 
+/**
+ * Interface representing a completion.
+ */
 interface ICompletion extends ICompletionSchema {
 }
+/**
+ * Arguments required to get a completion.
+ */
 interface ICompletionArgs {
+    /**
+     * Client ID.
+     */
     clientId: string;
+    /**
+     * Name of the agent.
+     */
     agentName: AgentName;
+    /**
+     * Array of model messages.
+     */
     messages: IModelMessage[];
+    /**
+     * Optional array of tools.
+     */
     tools?: ITool[];
 }
+/**
+ * Schema for a completion.
+ */
 interface ICompletionSchema {
+    /**
+     * Name of the completion.
+     */
     completionName: CompletionName;
+    /**
+     * Method to get a completion.
+     * @param args - Arguments required to get a completion.
+     * @returns A promise that resolves to a model message.
+     */
     getCompletion(args: ICompletionArgs): Promise<IModelMessage>;
 }
+/**
+ * Type representing the name of a completion.
+ */
 type CompletionName = string;
 
+/**
+ * Interface representing a tool used by an agent.
+ * @template T - The type of the parameters for the tool.
+ */
 interface IAgentTool<T = Record<string, unknown>> extends ITool {
+    /** The name of the tool. */
     toolName: ToolName;
+    /**
+     * Calls the tool with the specified parameters.
+     * @param clientId - The ID of the client.
+     * @param agentName - The name of the agent.
+     * @param params - The parameters for the tool.
+     * @returns A promise that resolves when the tool call is complete.
+     */
     call(clientId: string, agentName: AgentName, params: T): Promise<void>;
+    /**
+     * Validates the parameters for the tool.
+     * @param clientId - The ID of the client.
+     * @param agentName - The name of the agent.
+     * @param params - The parameters for the tool.
+     * @returns A promise that resolves to a boolean indicating whether the parameters are valid, or a boolean.
+     */
     validate(clientId: string, agentName: AgentName, params: T): Promise<boolean> | boolean;
 }
+/**
+ * Interface representing the parameters for an agent.
+ */
 interface IAgentParams extends Omit<IAgentSchema, keyof {
     tools: never;
     completion: never;
     validate: never;
 }> {
+    /** The ID of the client. */
     clientId: string;
+    /** The logger instance. */
     logger: ILogger;
+    /** The history instance. */
     history: IHistory;
+    /** The completion instance. */
     completion: ICompletion;
+    /** The tools used by the agent. */
     tools?: IAgentTool[];
+    /**
+     * Validates the output.
+     * @param output - The output to validate.
+     * @returns A promise that resolves to a string or null.
+     */
     validate: (output: string) => Promise<string | null>;
 }
+/**
+ * Interface representing the schema for an agent.
+ */
 interface IAgentSchema {
+    /** The name of the agent. */
     agentName: AgentName;
+    /** The name of the completion. */
     completion: CompletionName;
+    /** The prompt for the agent. */
     prompt: string;
+    /** The names of the tools used by the agent. */
     tools?: ToolName[];
+    /**
+     * Validates the output.
+     * @param output - The output to validate.
+     * @returns A promise that resolves to a string or null.
+     */
     validate?: (output: string) => Promise<string | null>;
 }
+/**
+ * Interface representing an agent.
+ */
 interface IAgent {
+    /**
+     * Executes the agent with the given input.
+     * @param input - The input to execute.
+     * @returns A promise that resolves when the execution is complete.
+     */
     execute: (input: string) => Promise<void>;
+    /**
+     * Waits for the output from the agent.
+     * @returns A promise that resolves to the output string.
+     */
     waitForOutput: () => Promise<string>;
+    /**
+     * Commits the tool output.
+     * @param content - The content of the tool output.
+     * @returns A promise that resolves when the tool output is committed.
+     */
     commitToolOutput(content: string): Promise<void>;
+    /**
+     * Commits a system message.
+     * @param message - The system message to commit.
+     * @returns A promise that resolves when the system message is committed.
+     */
     commitSystemMessage(message: string): Promise<void>;
 }
+/** Type representing the name of an agent. */
 type AgentName = string;
+/** Type representing the name of a tool. */
 type ToolName = string;
 
+/**
+ * Parameters for initializing a swarm.
+ * @interface
+ * @extends {Omit<ISwarmSchema, 'agentList'>}
+ */
 interface ISwarmParams extends Omit<ISwarmSchema, keyof {
     agentList: never;
 }> {
+    /** Client identifier */
     clientId: string;
+    /** Logger instance */
     logger: ILogger;
+    /** Map of agent names to agent instances */
     agentMap: Record<AgentName, IAgent>;
 }
+/**
+ * Schema for defining a swarm.
+ * @interface
+ */
 interface ISwarmSchema {
+    /** Default agent name */
     defaultAgent: AgentName;
+    /** Name of the swarm */
     swarmName: string;
+    /** List of agent names */
     agentList: string[];
 }
+/**
+ * Interface for a swarm.
+ * @interface
+ */
 interface ISwarm {
+    /**
+     * Waits for the output from the swarm.
+     * @returns {Promise<string>} The output from the swarm.
+     */
     waitForOutput(): Promise<string>;
+    /**
+     * Gets the name of the agent.
+     * @returns {Promise<AgentName>} The name of the agent.
+     */
     getAgentName(): Promise<AgentName>;
+    /**
+     * Gets the agent instance.
+     * @returns {Promise<IAgent>} The agent instance.
+     */
     getAgent(): Promise<IAgent>;
+    /**
+     * Sets the reference to an agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @param {IAgent} agent - The agent instance.
+     * @returns {Promise<void>}
+     */
     setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
+    /**
+     * Sets the name of the agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>}
+     */
     setAgentName(agentName: AgentName): Promise<void>;
 }
+/** Type alias for swarm name */
 type SwarmName = string;
 
 /**
@@ -527,34 +781,115 @@ declare class CompletionSchemaService {
     get: (key: string) => ICompletionSchema;
 }
 
+/**
+ * Interface representing an incoming message.
+ */
 interface IIncomingMessage {
+    /**
+     * The ID of the client sending the message.
+     */
     clientId: string;
+    /**
+     * The data contained in the message.
+     */
     data: string;
+    /**
+     * The name of the agent sending the message.
+     */
     agentName: AgentName;
 }
+/**
+ * Interface representing an outgoing message.
+ */
 interface IOutgoingMessage {
+    /**
+     * The ID of the client receiving the message.
+     */
     clientId: string;
+    /**
+     * The data contained in the message.
+     */
     data: string;
+    /**
+     * The name of the agent sending the message.
+     */
     agentName: AgentName;
 }
 
+/**
+ * Parameters required to create a session.
+ * @interface
+ */
 interface ISessionParams extends ISessionSchema {
     clientId: string;
     logger: ILogger;
     swarm: ISwarm;
 }
+/**
+ * Schema for session data.
+ * @interface
+ */
 interface ISessionSchema {
 }
+/**
+ * Function type for sending messages.
+ * @typedef {function} SendMessageFn
+ * @param {IOutgoingMessage} outgoing - The outgoing message.
+ * @returns {Promise<void> | void}
+ */
 type SendMessageFn$1 = (outgoing: IOutgoingMessage) => Promise<void> | void;
+/**
+ * Function type for receiving messages.
+ * @typedef {function} ReceiveMessageFn
+ * @param {IIncomingMessage} incoming - The incoming message.
+ * @returns {Promise<void> | void}
+ */
 type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
+/**
+ * Interface for a session.
+ * @interface
+ */
 interface ISession {
+    /**
+     * Emit a message.
+     * @param {string} message - The message to emit.
+     * @returns {Promise<void>}
+     */
     emit(message: string): Promise<void>;
+    /**
+     * Execute a command.
+     * @param {string} content - The content to execute.
+     * @returns {Promise<string>}
+     */
     execute(content: string): Promise<string>;
+    /**
+     * Connect to a message sender.
+     * @param {SendMessageFn} connector - The function to send messages.
+     * @returns {ReceiveMessageFn}
+     */
     connect(connector: SendMessageFn$1): ReceiveMessageFn;
+    /**
+     * Commit tool output.
+     * @param {string} content - The content to commit.
+     * @returns {Promise<void>}
+     */
     commitToolOutput(content: string): Promise<void>;
+    /**
+     * Commit a system message.
+     * @param {string} message - The message to commit.
+     * @returns {Promise<void>}
+     */
     commitSystemMessage(message: string): Promise<void>;
 }
+/**
+ * Type for session ID.
+ * @typedef {string} SessionId
+ */
 type SessionId = string;
+/**
+ * Type for session mode.
+ * @typedef {"session" | "makeConnection" | "complete"} SessionMode
+ */
 type SessionMode = "session" | "makeConnection" | "complete";
 
 /**
@@ -1255,6 +1590,14 @@ declare const execute: (content: string, clientId: string, agentName: AgentName)
  */
 declare const emit: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
 
+/**
+ * Retrieves the last message sent by the user from the client's message history.
+ *
+ * @param {string} clientId - The ID of the client whose message history is being retrieved.
+ * @returns {Promise<string | null>} - The content of the last user message, or null if no user message is found.
+ */
+declare const getLastUserMessage: (clientId: string) => Promise<string>;
+
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
@@ -1264,4 +1607,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IModelMessage, type IOutgoingMessage, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, complete, disposeConnection, emit, execute, getAgentHistory, getRawHistory, makeConnection, session, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IModelMessage, type IOutgoingMessage, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, complete, disposeConnection, emit, execute, getAgentHistory, getLastUserMessage, getRawHistory, makeConnection, session, setConfig, swarm };

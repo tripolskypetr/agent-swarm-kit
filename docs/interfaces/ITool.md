@@ -1,5 +1,7 @@
 # ITool
 
+Represents a tool with a type and function details.
+
 ## Properties
 
 ### type
@@ -7,6 +9,8 @@
 ```ts
 type: string
 ```
+
+The type of the tool.
 
 ### function
 

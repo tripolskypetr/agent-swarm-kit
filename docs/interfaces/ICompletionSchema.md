@@ -1,5 +1,7 @@
 # ICompletionSchema
 
+Schema for a completion.
+
 ## Properties
 
 ### completionName
@@ -8,6 +10,8 @@
 completionName: string
 ```
 
+Name of the completion.
+
 ## Methods
 
 ### getCompletion
@@ -15,3 +19,5 @@ completionName: string
 ```ts
 getCompletion: (args: ICompletionArgs) => Promise<IModelMessage>
 ```
+
+Method to get a completion.

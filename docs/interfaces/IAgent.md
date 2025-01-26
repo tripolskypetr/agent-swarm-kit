@@ -1,5 +1,7 @@
 # IAgent
 
+Interface representing an agent.
+
 ## Properties
 
 ### execute
@@ -8,11 +10,15 @@
 execute: (input: string) => Promise<void>
 ```
 
+Executes the agent with the given input.
+
 ### waitForOutput
 
 ```ts
 waitForOutput: () => Promise<string>
 ```
+
+Waits for the output from the agent.
 
 ## Methods
 
@@ -22,8 +28,12 @@ waitForOutput: () => Promise<string>
 commitToolOutput: (content: string) => Promise<void>
 ```
 
+Commits the tool output.
+
 ### commitSystemMessage
 
 ```ts
 commitSystemMessage: (message: string) => Promise<void>
 ```
+
+Commits a system message.
