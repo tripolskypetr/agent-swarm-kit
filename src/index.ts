@@ -20,6 +20,8 @@ export * from './functions/commitUserMessage';
 export * from './functions/getAgentName';
 export * from './functions/getUserHistory';
 export * from './functions/getAssistantHistory';
+export * from './functions/getLastAssistantMessage';
+export * from './functions/getLastSystemMessage';
 
 export { IAgentSchema } from './interfaces/Agent.interface';
 export { ICompletionSchema } from './interfaces/Completion.interface';

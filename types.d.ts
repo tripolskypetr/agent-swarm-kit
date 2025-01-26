@@ -1729,6 +1729,22 @@ declare const getUserHistory: (clientId: string) => Promise<IModelMessage[]>;
  */
 declare const getAssistantHistory: (clientId: string) => Promise<IModelMessage[]>;
 
+/**
+ * Retrieves the last message sent by the assistant from the client's message history.
+ *
+ * @param {string} clientId - The ID of the client whose message history is being retrieved.
+ * @returns {Promise<string | null>} - The content of the last assistant message, or null if no user message is found.
+ */
+declare const getLastAssistantMessage: (clientId: string) => Promise<string>;
+
+/**
+ * Retrieves the last message sent by the system from the client's message history.
+ *
+ * @param {string} clientId - The ID of the client whose message history is being retrieved.
+ * @returns {Promise<string | null>} - The content of the last system message, or null if no user message is found.
+ */
+declare const getLastSystemMessage: (clientId: string) => Promise<string>;
+
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
@@ -1740,4 +1756,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: typeof GLOBAL_CONFIG) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IModelMessage, type IOutgoingMessage, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, commitUserMessage, complete, disposeConnection, emit, execute, getAgentHistory, getAgentName, getAssistantHistory, getLastUserMessage, getRawHistory, getUserHistory, makeConnection, session, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionSchema, type IIncomingMessage, type IModelMessage, type IOutgoingMessage, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, commitUserMessage, complete, disposeConnection, emit, execute, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getUserHistory, makeConnection, session, setConfig, swarm };
