@@ -50,6 +50,7 @@ export class AgentConnectionService implements IAgent {
     (clientId: string, agentName: string) => {
       const {
         prompt,
+        system,
         tools,
         completion: completionName,
         validate = validateDefault,
@@ -63,6 +64,7 @@ export class AgentConnectionService implements IAgent {
         logger: this.loggerService,
         history: this.historyConnectionService.getHistory(clientId, agentName),
         prompt,
+        system,
         tools: tools?.map(this.toolSchemaService.get),
         completion,
       });

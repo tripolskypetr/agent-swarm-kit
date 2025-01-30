@@ -121,7 +121,8 @@ export class ClientAgent implements IAgent {
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} getCompletion`
     );
     const messages = await this.params.history.toArrayForAgent(
-      this.params.prompt
+      this.params.prompt,
+      this.params.system,
     );
     return await this.params.completion.getCompletion({
       clientId: this.params.clientId,

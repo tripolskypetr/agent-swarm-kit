@@ -66,7 +66,7 @@ interface IHistory {
      * @param {string} prompt - The prompt to filter messages for the agent.
      * @returns {Promise<IModelMessage[]>}
      */
-    toArrayForAgent(prompt: string): Promise<IModelMessage[]>;
+    toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
     /**
      * Converts the history to an array of raw messages.
      * @returns {Promise<IModelMessage[]>}
@@ -278,6 +278,8 @@ interface IAgentSchema {
     completion: CompletionName;
     /** The prompt for the agent. */
     prompt: string;
+    /** The system prompt. Usually used for tool calling protocol. */
+    system?: string[];
     /** The names of the tools used by the agent. */
     tools?: ToolName[];
     /**
@@ -577,9 +579,10 @@ declare class ClientHistory implements IHistory {
     /**
      * Converts the history to an array of messages for the agent.
      * @param {string} prompt - The prompt message.
+     * @param {string} system - The tool calling protocol
      * @returns {Promise<IModelMessage[]>} - The array of messages for the agent.
      */
-    toArrayForAgent: (prompt: string) => Promise<IModelMessage[]>;
+    toArrayForAgent: (prompt: string, system?: string[]) => Promise<IModelMessage[]>;
 }
 
 /**

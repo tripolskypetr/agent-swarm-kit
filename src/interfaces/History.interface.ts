@@ -19,7 +19,7 @@ export interface IHistory {
    * @param {string} prompt - The prompt to filter messages for the agent.
    * @returns {Promise<IModelMessage[]>}
    */
-  toArrayForAgent(prompt: string): Promise<IModelMessage[]>;
+  toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
 
   /**
    * Converts the history to an array of raw messages.

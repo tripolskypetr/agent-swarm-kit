@@ -12,9 +12,12 @@ export class ClientHistory implements IHistory {
    * @param {IHistoryParams} params - The parameters for the history.
    */
   constructor(readonly params: IHistoryParams) {
-    this.params.logger.debug(`ClientHistory agentName=${this.params.agentName} clientId=${this.params.clientId} CTOR`, {
-      params,
-    });
+    this.params.logger.debug(
+      `ClientHistory agentName=${this.params.agentName} clientId=${this.params.clientId} CTOR`,
+      {
+        params,
+      }
+    );
   }
 
   /**
@@ -48,9 +51,13 @@ export class ClientHistory implements IHistory {
   /**
    * Converts the history to an array of messages for the agent.
    * @param {string} prompt - The prompt message.
+   * @param {string} system - The tool calling protocol
    * @returns {Promise<IModelMessage[]>} - The array of messages for the agent.
    */
-  toArrayForAgent = async (prompt: string): Promise<IModelMessage[]> => {
+  toArrayForAgent = async (
+    prompt: string,
+    system?: string[]
+  ): Promise<IModelMessage[]> => {
     this.params.logger.debug(
       `ClientHistory agentName=${this.params.agentName} toArrayForAgent`
     );
@@ -84,12 +91,23 @@ export class ClientHistory implements IHistory {
         return isOk;
       })
       .slice(-GLOBAL_CONFIG.CC_KEEP_MESSAGES);
-    const promptMessage: IModelMessage = {
-      agentName: this.params.agentName,
-      content: prompt,
-      role: "system",
-    };
-    return [promptMessage, ...systemMessages, ...commonMessages];
+    const promptMessages: IModelMessage[] = [];
+    {
+      promptMessages.push({
+        agentName: this.params.agentName,
+        content: prompt,
+        role: "system",
+      });
+      system &&
+        system.forEach((content) =>
+          promptMessages.push({
+            agentName: this.params.agentName,
+            content,
+            role: "system",
+          })
+        );
+    }
+    return [...promptMessages, ...systemMessages, ...commonMessages];
   };
 }
 

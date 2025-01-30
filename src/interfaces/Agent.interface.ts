@@ -64,6 +64,8 @@ export interface IAgentSchema {
   completion: CompletionName;
   /** The prompt for the agent. */
   prompt: string;
+  /** The system prompt. Usually used for tool calling protocol. */
+  system?: string[];
   /** The names of the tools used by the agent. */
   tools?: ToolName[];
   /**
