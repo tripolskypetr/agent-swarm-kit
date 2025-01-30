@@ -25,7 +25,7 @@ export * from './functions/getLastSystemMessage';
 export * from './functions/makeAutoDispose';
 
 export { IAgentSchema } from './interfaces/Agent.interface';
-export { ICompletionSchema } from './interfaces/Completion.interface';
+export { ICompletionSchema, ICompletionArgs } from './interfaces/Completion.interface';
 export { ISwarmSchema } from './interfaces/Swarm.interface';
 export { IAgentTool } from './interfaces/Agent.interface';
 

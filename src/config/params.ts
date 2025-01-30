@@ -71,6 +71,6 @@ export const GLOBAL_CONFIG = {
   CC_AGENT_DISALLOWED_SYMBOLS,
 };
 
-export const setConfig = (config: typeof GLOBAL_CONFIG) => {
+export const setConfig = (config: Partial<typeof GLOBAL_CONFIG>) => {
   Object.assign(GLOBAL_CONFIG, config);
 };
