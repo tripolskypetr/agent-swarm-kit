@@ -962,7 +962,7 @@ declare class ClientSession implements ISession {
      * @param {boolean} [noEmit=false] - Whether to emit the output or not.
      * @returns {Promise<string>} - The output of the execution.
      */
-    execute: (message: string, mode: ExecutionMode, noEmit?: boolean) => Promise<string>;
+    execute: (message: string, mode: ExecutionMode) => Promise<string>;
     /**
      * Commits tool output.
      * @param {string} content - The content to commit.

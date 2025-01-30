@@ -372,7 +372,7 @@ test("Will allow server-side emit for makeConnection", async ({
 
   await Promise.all(tasks.map(async (task) => await task()));
 
-  if (outputList.length !== TOTAL_CHECKS * 2) {
+  if (outputList.length !== TOTAL_CHECKS) {
     fail("Missing execute server-side message");
   }
 
@@ -385,7 +385,7 @@ test("Will allow server-side emit for makeConnection", async ({
     fail("Missing execute server-side message");
   }
 
-  for (let idx = 1; idx !== TOTAL_CHECKS * 2; idx++) {
+  for (let idx = 1; idx !== TOTAL_CHECKS; idx++) {
     const { content: prevItem } = outputList[idx - 1];
     const { content: currentItem } = outputList[idx] - 1;
     if (prevItem !== currentItem) {
@@ -405,6 +405,9 @@ test("Will emit in makeConnection", async ({ pass, fail }) => {
   const TEST_COMPLETION = addCompletion({
     completionName: "navigate-completion",
     getCompletion: async ({ agentName, messages }) => {
+      if (!messages.length) {
+
+      }
       const [{ content }] = messages.slice(-1);
       return {
         agentName,
