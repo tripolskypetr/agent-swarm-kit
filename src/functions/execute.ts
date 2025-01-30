@@ -39,5 +39,5 @@ export const execute = async (
     );
     return;
   }
-  return await swarm.sessionPublicService.execute(content, clientId, swarmName);
+  return await swarm.sessionPublicService.execute(content, "tool", clientId, swarmName);
 };

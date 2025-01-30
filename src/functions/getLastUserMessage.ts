@@ -12,6 +12,6 @@ export const getLastUserMessage = async (clientId: string) => {
     clientId,
   });
   const history = await getRawHistory(clientId);
-  const last = history.findLast(({ role }) => role === "user");
+  const last = history.findLast(({ role, mode }) => role === "user" && mode === "user");
   return last ? last.content : null;
 };

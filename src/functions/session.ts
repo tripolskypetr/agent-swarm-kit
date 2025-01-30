@@ -36,6 +36,7 @@ const session = (clientId: string, swarmName: SwarmName) => {
       swarm.sessionValidationService.validate(clientId, "session");
       return await swarm.sessionPublicService.execute(
         content,
+        "user",
         clientId,
         swarmName
       );

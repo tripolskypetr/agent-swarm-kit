@@ -1,6 +1,7 @@
 import { IModelMessage } from "../model/ModelMessage.model";
 import { ITool } from "../model/Tool.model";
 import { AgentName } from "./Agent.interface";
+import { ExecutionMode } from "./Session.interface";
 
 /**
  * Interface representing a completion.
@@ -19,6 +20,10 @@ export interface ICompletionArgs {
    * Name of the agent.
    */
   agentName: AgentName, 
+  /**
+   * The source of the last message: tool or user
+   */
+  mode: ExecutionMode;
   /**
    * Array of model messages.
    */

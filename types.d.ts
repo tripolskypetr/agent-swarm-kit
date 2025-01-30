@@ -1,4 +1,5 @@
 import * as di_scoped from 'di-scoped';
+import { ExecutionMode as ExecutionMode$1 } from 'src/interfaces/Session.interface';
 import * as functools_kit from 'functools-kit';
 import { IPubsubArray, Subject } from 'functools-kit';
 
@@ -10,7 +11,7 @@ interface IModelMessage {
      * The role of the message sender.
      * @type {'assistant' | 'system' | 'tool' | 'user' | 'resque'}
      */
-    role: 'assistant' | 'system' | 'tool' | 'user' | 'resque';
+    role: "assistant" | "system" | "tool" | "user" | "resque";
     /**
      * The name of the agent sending the message.
      * @type {string}
@@ -21,6 +22,11 @@ interface IModelMessage {
      * @type {string}
      */
     content: string;
+    /**
+     * The source of message: tool or user
+     * @type {ExecutionMode}
+     */
+    mode: ExecutionMode$1;
     /**
      * Optional tool calls associated with the message.
      * @type {Array<{ function: { name: string; arguments: { [key: string]: any; }; }; }>}
@@ -174,6 +180,196 @@ interface ITool {
 }
 
 /**
+ * Interface representing an incoming message.
+ */
+interface IIncomingMessage {
+    /**
+     * The ID of the client sending the message.
+     */
+    clientId: string;
+    /**
+     * The data contained in the message.
+     */
+    data: string;
+    /**
+     * The name of the agent sending the message.
+     */
+    agentName: AgentName;
+}
+/**
+ * Interface representing an outgoing message.
+ */
+interface IOutgoingMessage {
+    /**
+     * The ID of the client receiving the message.
+     */
+    clientId: string;
+    /**
+     * The data contained in the message.
+     */
+    data: string;
+    /**
+     * The name of the agent sending the message.
+     */
+    agentName: AgentName;
+}
+
+/**
+ * Parameters for initializing a swarm.
+ * @interface
+ * @extends {Omit<ISwarmSchema, 'agentList'>}
+ */
+interface ISwarmParams extends Omit<ISwarmSchema, keyof {
+    agentList: never;
+}> {
+    /** Client identifier */
+    clientId: string;
+    /** Logger instance */
+    logger: ILogger;
+    /** Map of agent names to agent instances */
+    agentMap: Record<AgentName, IAgent>;
+    /** Emit the callback on agent change */
+    onAgentChanged(clientId: string, agentName: AgentName, swarmName: SwarmName): Promise<void>;
+}
+/**
+ * Schema for defining a swarm.
+ * @interface
+ */
+interface ISwarmSchema {
+    /** Default agent name */
+    defaultAgent: AgentName;
+    /** Name of the swarm */
+    swarmName: string;
+    /** List of agent names */
+    agentList: string[];
+}
+/**
+ * Interface for a swarm.
+ * @interface
+ */
+interface ISwarm {
+    /**
+     * Waits for the output from the swarm.
+     * @returns {Promise<string>} The output from the swarm.
+     */
+    waitForOutput(): Promise<string>;
+    /**
+     * Gets the name of the agent.
+     * @returns {Promise<AgentName>} The name of the agent.
+     */
+    getAgentName(): Promise<AgentName>;
+    /**
+     * Gets the agent instance.
+     * @returns {Promise<IAgent>} The agent instance.
+     */
+    getAgent(): Promise<IAgent>;
+    /**
+     * Sets the reference to an agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @param {IAgent} agent - The agent instance.
+     * @returns {Promise<void>}
+     */
+    setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
+    /**
+     * Sets the name of the agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>}
+     */
+    setAgentName(agentName: AgentName): Promise<void>;
+}
+/** Type alias for swarm name */
+type SwarmName = string;
+
+/**
+ * Parameters required to create a session.
+ * @interface
+ */
+interface ISessionParams extends ISessionSchema {
+    clientId: string;
+    logger: ILogger;
+    swarm: ISwarm;
+}
+/**
+ * Schema for session data.
+ * @interface
+ */
+interface ISessionSchema {
+}
+/**
+ * Function type for sending messages.
+ * @typedef {function} SendMessageFn
+ * @param {IOutgoingMessage} outgoing - The outgoing message.
+ * @returns {Promise<void> | void}
+ */
+type SendMessageFn$1 = (outgoing: IOutgoingMessage) => Promise<void> | void;
+/**
+ * Function type for receiving messages.
+ * @typedef {function} ReceiveMessageFn
+ * @param {IIncomingMessage} incoming - The incoming message.
+ * @returns {Promise<void> | void}
+ */
+type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
+/**
+ * Interface for a session.
+ * @interface
+ */
+interface ISession {
+    /**
+     * Emit a message.
+     * @param {string} message - The message to emit.
+     * @returns {Promise<void>}
+     */
+    emit(message: string): Promise<void>;
+    /**
+     * Execute a command.
+     * @param {string} content - The content to execute.
+     * @param {string} mode - The source of execution: tool or user
+     * @returns {Promise<string>}
+     */
+    execute(content: string, mode: ExecutionMode): Promise<string>;
+    /**
+     * Connect to a message sender.
+     * @param {SendMessageFn} connector - The function to send messages.
+     * @returns {ReceiveMessageFn}
+     */
+    connect(connector: SendMessageFn$1): ReceiveMessageFn;
+    /**
+     * Commit tool output.
+     * @param {string} content - The content to commit.
+     * @returns {Promise<void>}
+     */
+    commitToolOutput(content: string): Promise<void>;
+    /**
+     * Commit user message without answer
+     * @param {string} message - The message to commit.
+     * @returns {Promise<void>}
+     */
+    commitUserMessage: (message: string) => Promise<void>;
+    /**
+     * Commit a system message.
+     * @param {string} message - The message to commit.
+     * @returns {Promise<void>}
+     */
+    commitSystemMessage(message: string): Promise<void>;
+}
+/**
+ * Type for session ID.
+ * @typedef {string} SessionId
+ */
+type SessionId = string;
+/**
+ * Type for session mode.
+ * @typedef {"session" | "makeConnection" | "complete"} SessionMode
+ */
+type SessionMode = "session" | "makeConnection" | "complete";
+/**
+ * Tools can emit user messages to trigger user friendly responses.
+ * Should be ignored for `getUserHistory`
+ * @typedef {"tool" | "user"} ExecutionMode
+ */
+type ExecutionMode = "tool" | "user";
+
+/**
  * Interface representing a completion.
  */
 interface ICompletion extends ICompletionSchema {
@@ -190,6 +386,10 @@ interface ICompletionArgs {
      * Name of the agent.
      */
     agentName: AgentName;
+    /**
+     * The source of the last message: tool or user
+     */
+    mode: ExecutionMode;
     /**
      * Array of model messages.
      */
@@ -296,9 +496,10 @@ interface IAgent {
     /**
      * Executes the agent with the given input.
      * @param input - The input to execute.
+     * @param mode - The source of execution: tool or user
      * @returns A promise that resolves when the execution is complete.
      */
-    execute: (input: string) => Promise<void>;
+    execute: (input: string, mode: ExecutionMode) => Promise<void>;
     /**
      * Waits for the output from the agent.
      * @returns A promise that resolves to the output string.
@@ -327,72 +528,6 @@ interface IAgent {
 type AgentName = string;
 /** Type representing the name of a tool. */
 type ToolName = string;
-
-/**
- * Parameters for initializing a swarm.
- * @interface
- * @extends {Omit<ISwarmSchema, 'agentList'>}
- */
-interface ISwarmParams extends Omit<ISwarmSchema, keyof {
-    agentList: never;
-}> {
-    /** Client identifier */
-    clientId: string;
-    /** Logger instance */
-    logger: ILogger;
-    /** Map of agent names to agent instances */
-    agentMap: Record<AgentName, IAgent>;
-    /** Emit the callback on agent change */
-    onAgentChanged(clientId: string, agentName: AgentName, swarmName: SwarmName): Promise<void>;
-}
-/**
- * Schema for defining a swarm.
- * @interface
- */
-interface ISwarmSchema {
-    /** Default agent name */
-    defaultAgent: AgentName;
-    /** Name of the swarm */
-    swarmName: string;
-    /** List of agent names */
-    agentList: string[];
-}
-/**
- * Interface for a swarm.
- * @interface
- */
-interface ISwarm {
-    /**
-     * Waits for the output from the swarm.
-     * @returns {Promise<string>} The output from the swarm.
-     */
-    waitForOutput(): Promise<string>;
-    /**
-     * Gets the name of the agent.
-     * @returns {Promise<AgentName>} The name of the agent.
-     */
-    getAgentName(): Promise<AgentName>;
-    /**
-     * Gets the agent instance.
-     * @returns {Promise<IAgent>} The agent instance.
-     */
-    getAgent(): Promise<IAgent>;
-    /**
-     * Sets the reference to an agent.
-     * @param {AgentName} agentName - The name of the agent.
-     * @param {IAgent} agent - The agent instance.
-     * @returns {Promise<void>}
-     */
-    setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
-    /**
-     * Sets the name of the agent.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<void>}
-     */
-    setAgentName(agentName: AgentName): Promise<void>;
-}
-/** Type alias for swarm name */
-type SwarmName = string;
 
 /**
  * Interface representing the context.
@@ -455,14 +590,14 @@ declare class ClientAgent implements IAgent {
      * @returns {Promise<void>}
      * @private
      */
-    _emitOuput: (result: string) => Promise<void>;
+    _emitOuput: (mode: ExecutionMode, result: string) => Promise<void>;
     /**
      * Resurrects the model based on the given reason.
      * @param {string} [reason] - The reason for resurrecting the model.
      * @returns {Promise<string>}
      * @private
      */
-    _resurrectModel: (reason?: string) => Promise<string>;
+    _resurrectModel: (mode: ExecutionMode, reason?: string) => Promise<string>;
     /**
      * Waits for the output to be available.
      * @returns {Promise<string>}
@@ -472,7 +607,7 @@ declare class ClientAgent implements IAgent {
      * Gets the completion message from the model.
      * @returns {Promise<IModelMessage>}
      */
-    getCompletion: () => Promise<IModelMessage>;
+    getCompletion: (mode: ExecutionMode) => Promise<IModelMessage>;
     /**
      * Commits a user message to the history without answer.
      * @param {string} message - The message to commit.
@@ -523,7 +658,7 @@ declare class AgentConnectionService implements IAgent {
      * @param {string} input - The input command.
      * @returns {Promise<any>} The execution result.
      */
-    execute: (input: string) => Promise<void>;
+    execute: (input: string, mode: ExecutionMode) => Promise<void>;
     /**
      * Waits for the output from the agent.
      * @returns {Promise<any>} The output result.
@@ -805,123 +940,6 @@ declare class CompletionSchemaService {
 }
 
 /**
- * Interface representing an incoming message.
- */
-interface IIncomingMessage {
-    /**
-     * The ID of the client sending the message.
-     */
-    clientId: string;
-    /**
-     * The data contained in the message.
-     */
-    data: string;
-    /**
-     * The name of the agent sending the message.
-     */
-    agentName: AgentName;
-}
-/**
- * Interface representing an outgoing message.
- */
-interface IOutgoingMessage {
-    /**
-     * The ID of the client receiving the message.
-     */
-    clientId: string;
-    /**
-     * The data contained in the message.
-     */
-    data: string;
-    /**
-     * The name of the agent sending the message.
-     */
-    agentName: AgentName;
-}
-
-/**
- * Parameters required to create a session.
- * @interface
- */
-interface ISessionParams extends ISessionSchema {
-    clientId: string;
-    logger: ILogger;
-    swarm: ISwarm;
-}
-/**
- * Schema for session data.
- * @interface
- */
-interface ISessionSchema {
-}
-/**
- * Function type for sending messages.
- * @typedef {function} SendMessageFn
- * @param {IOutgoingMessage} outgoing - The outgoing message.
- * @returns {Promise<void> | void}
- */
-type SendMessageFn$1 = (outgoing: IOutgoingMessage) => Promise<void> | void;
-/**
- * Function type for receiving messages.
- * @typedef {function} ReceiveMessageFn
- * @param {IIncomingMessage} incoming - The incoming message.
- * @returns {Promise<void> | void}
- */
-type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
-/**
- * Interface for a session.
- * @interface
- */
-interface ISession {
-    /**
-     * Emit a message.
-     * @param {string} message - The message to emit.
-     * @returns {Promise<void>}
-     */
-    emit(message: string): Promise<void>;
-    /**
-     * Execute a command.
-     * @param {string} content - The content to execute.
-     * @returns {Promise<string>}
-     */
-    execute(content: string): Promise<string>;
-    /**
-     * Connect to a message sender.
-     * @param {SendMessageFn} connector - The function to send messages.
-     * @returns {ReceiveMessageFn}
-     */
-    connect(connector: SendMessageFn$1): ReceiveMessageFn;
-    /**
-     * Commit tool output.
-     * @param {string} content - The content to commit.
-     * @returns {Promise<void>}
-     */
-    commitToolOutput(content: string): Promise<void>;
-    /**
-     * Commit user message without answer
-     * @param {string} message - The message to commit.
-     * @returns {Promise<void>}
-     */
-    commitUserMessage: (message: string) => Promise<void>;
-    /**
-     * Commit a system message.
-     * @param {string} message - The message to commit.
-     * @returns {Promise<void>}
-     */
-    commitSystemMessage(message: string): Promise<void>;
-}
-/**
- * Type for session ID.
- * @typedef {string} SessionId
- */
-type SessionId = string;
-/**
- * Type for session mode.
- * @typedef {"session" | "makeConnection" | "complete"} SessionMode
- */
-type SessionMode = "session" | "makeConnection" | "complete";
-
-/**
  * ClientSession class implements the ISession interface.
  */
 declare class ClientSession implements ISession {
@@ -944,7 +962,7 @@ declare class ClientSession implements ISession {
      * @param {boolean} [noEmit=false] - Whether to emit the output or not.
      * @returns {Promise<string>} - The output of the execution.
      */
-    execute: (message: string, noEmit?: boolean) => Promise<string>;
+    execute: (message: string, mode: ExecutionMode, noEmit?: boolean) => Promise<string>;
     /**
      * Commits tool output.
      * @param {string} content - The content to commit.
@@ -997,7 +1015,7 @@ declare class SessionConnectionService implements ISession {
      * @param {string} content - The content to execute.
      * @returns {Promise<string>} A promise that resolves with the execution result.
      */
-    execute: (content: string) => Promise<string>;
+    execute: (content: string, mode: ExecutionMode) => Promise<string>;
     /**
      * Connects to the session using the provided connector.
      * @param {SendMessageFn} connector - The function to send messages.
@@ -1057,7 +1075,7 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @param {AgentName} agentName - The name of the agent.
      * @returns {Promise<unknown>} The execution result.
      */
-    execute: (input: string, clientId: string, agentName: AgentName) => Promise<void>;
+    execute: (input: string, mode: ExecutionMode, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Waits for the agent's output.
      * @param {string} clientId - The client ID.
@@ -1174,7 +1192,7 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    execute: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
+    execute: (content: string, mode: ExecutionMode, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Connects to the session.
      * @param {SendMessageFn} connector - The function to send messages.

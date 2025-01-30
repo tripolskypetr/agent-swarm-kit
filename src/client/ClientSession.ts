@@ -2,6 +2,7 @@ import { Subject } from "functools-kit";
 import { IIncomingMessage } from "../model/EmitMessage.model";
 
 import {
+  ExecutionMode,
   ISessionParams,
   ReceiveMessageFn,
   SendMessageFn,
@@ -48,17 +49,18 @@ export class ClientSession implements ISession {
    * @param {boolean} [noEmit=false] - Whether to emit the output or not.
    * @returns {Promise<string>} - The output of the execution.
    */
-  execute = async (message: string, noEmit = false) => {
+  execute = async (message: string, mode: ExecutionMode, noEmit = false) => {
     this.params.logger.debug(
       `ClientSession clientId=${this.params.clientId} execute`,
       {
         message,
+        mode,
         noEmit,
       }
     );
     const agent = await this.params.swarm.getAgent();
     const outputAwaiter = this.params.swarm.waitForOutput();
-    agent.execute(message);
+    agent.execute(message, mode);
     const output = await outputAwaiter;
     !noEmit && (await this._emitSubject.next(output));
     return output;
@@ -134,7 +136,7 @@ export class ClientSession implements ISession {
         `ClientSession clientId=${this.params.clientId} connect call`
       );
       await connector({
-        data: await this.execute(incoming.data, true),
+        data: await this.execute(incoming.data, "user", true),
         agentName: await this.params.swarm.getAgentName(),
         clientId: incoming.clientId,
       });

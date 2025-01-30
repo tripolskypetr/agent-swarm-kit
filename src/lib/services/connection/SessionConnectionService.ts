@@ -6,6 +6,7 @@ import { memoize } from "functools-kit";
 import ClientSession from "../../../client/ClientSession";
 import SwarmConnectionService from "./SwarmConnectionService";
 import {
+  ExecutionMode,
   ISession,
   ReceiveMessageFn,
   SendMessageFn,
@@ -61,14 +62,16 @@ export class SessionConnectionService implements ISession {
    * @param {string} content - The content to execute.
    * @returns {Promise<string>} A promise that resolves with the execution result.
    */
-  public execute = async (content: string): Promise<string> => {
+  public execute = async (content: string, mode: ExecutionMode): Promise<string> => {
     this.loggerService.log(`sessionConnectionService execute`, {
       context: this.contextService.context,
+      content,
+      mode,
     });
     return await this.getSession(
       this.contextService.context.clientId,
       this.contextService.context.swarmName
-    ).execute(content);
+    ).execute(content, mode);
   };
 
   /**

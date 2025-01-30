@@ -50,9 +50,10 @@ export interface ISession {
   /**
    * Execute a command.
    * @param {string} content - The content to execute.
+   * @param {string} mode - The source of execution: tool or user
    * @returns {Promise<string>}
    */
-  execute(content: string): Promise<string>;
+  execute(content: string, mode: ExecutionMode): Promise<string>;
 
   /**
    * Connect to a message sender.
@@ -94,3 +95,10 @@ export type SessionId = string;
  * @typedef {"session" | "makeConnection" | "complete"} SessionMode
  */
 export type SessionMode = "session" | "makeConnection" | "complete";
+
+/**
+ * Tools can emit user messages to trigger user friendly responses.
+ * Should be ignored for `getUserHistory`
+ * @typedef {"tool" | "user"} ExecutionMode
+ */
+export type ExecutionMode = "tool" | "user";

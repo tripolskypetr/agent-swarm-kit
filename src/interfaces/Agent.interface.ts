@@ -2,6 +2,7 @@ import IHistory from "../interfaces/History.interface";
 import { ILogger } from "../interfaces/Logger.interface";
 import { ITool } from "../model/Tool.model";
 import { CompletionName, ICompletion } from "../interfaces/Completion.interface";
+import { ExecutionMode } from "./Session.interface";
 
 /**
  * Interface representing a tool used by an agent.
@@ -83,9 +84,10 @@ export interface IAgent {
   /**
    * Executes the agent with the given input.
    * @param input - The input to execute.
+   * @param mode - The source of execution: tool or user
    * @returns A promise that resolves when the execution is complete.
    */
-  execute: (input: string) => Promise<void>;
+  execute: (input: string, mode: ExecutionMode) => Promise<void>;
   /**
    * Waits for the output from the agent.
    * @returns A promise that resolves to the output string.

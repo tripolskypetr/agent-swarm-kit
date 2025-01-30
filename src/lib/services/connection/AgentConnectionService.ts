@@ -11,6 +11,7 @@ import { IAgent } from "../../../interfaces/Agent.interface";
 import CompletionSchemaService from "../schema/CompletionSchemaService";
 import validateDefault from "../../../validation/validateDefault";
 import SessionValidationService from "../validation/SessionValidationService";
+import { ExecutionMode } from "../../../interfaces/Session.interface";
 
 /**
  * Service for managing agent connections.
@@ -76,15 +77,16 @@ export class AgentConnectionService implements IAgent {
    * @param {string} input - The input command.
    * @returns {Promise<any>} The execution result.
    */
-  public execute = async (input: string) => {
+  public execute = async (input: string, mode: ExecutionMode) => {
     this.loggerService.log(`agentConnectionService execute`, {
       input,
+      mode,
       context: this.contextService.context,
     });
     return await this.getAgent(
       this.contextService.context.clientId,
       this.contextService.context.agentName
-    ).execute(input);
+    ).execute(input, mode);
   };
 
   /**

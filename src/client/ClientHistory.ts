@@ -95,6 +95,7 @@ export class ClientHistory implements IHistory {
     {
       promptMessages.push({
         agentName: this.params.agentName,
+        mode: 'tool',
         content: prompt,
         role: "system",
       });
@@ -102,6 +103,7 @@ export class ClientHistory implements IHistory {
         system.forEach((content) =>
           promptMessages.push({
             agentName: this.params.agentName,
+            mode: 'tool',
             content,
             role: "system",
           })

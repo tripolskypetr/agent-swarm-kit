@@ -5,6 +5,7 @@ import TYPES from "../../core/types";
 import ContextService from "../base/ContextService";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
 import {
+  ExecutionMode,
   ReceiveMessageFn,
   SendMessageFn,
 } from "../../../interfaces/Session.interface";
@@ -66,17 +67,19 @@ export class SessionPublicService implements TSessionConnectionService {
    */
   public execute = async (
     content: string,
+    mode: ExecutionMode,
     clientId: string,
     swarmName: SwarmName
   ) => {
     this.loggerService.log("sessionPublicService execute", {
       content,
+      mode,
       clientId,
       swarmName,
     });
     return await ContextService.runInContext(
       async () => {
-        return await this.sessionConnectionService.execute(content);
+        return await this.sessionConnectionService.execute(content, mode);
       },
       {
         clientId,

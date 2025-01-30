@@ -4,6 +4,7 @@ import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import ContextService from "../base/ContextService";
 import { AgentName } from "../../../interfaces/Agent.interface";
+import { ExecutionMode } from "../../../interfaces/Session.interface";
 
 interface IAgentConnectionService extends AgentConnectionService {}
 
@@ -56,6 +57,7 @@ export class AgentPublicService implements TAgentConnectionService {
    */
   public execute = async (
     input: string,
+    mode: ExecutionMode,
     clientId: string,
     agentName: AgentName
   ) => {
@@ -63,10 +65,11 @@ export class AgentPublicService implements TAgentConnectionService {
       input,
       clientId,
       agentName,
+      mode,
     });
     return await ContextService.runInContext(
       async () => {
-        return await this.agentConnectionService.execute(input);
+        return await this.agentConnectionService.execute(input, mode);
       },
       {
         clientId,

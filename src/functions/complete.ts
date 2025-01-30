@@ -25,6 +25,7 @@ const createComplete = ttl(
       swarm.sessionValidationService.addSession(clientId, swarmName, "complete");
       const result = await swarm.sessionPublicService.execute(
         content,
+        "user",
         clientId,
         swarmName
       );

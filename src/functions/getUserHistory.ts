@@ -12,5 +12,5 @@ export const getUserHistory = async (clientId: string) => {
     clientId,
   });
   const history = await getRawHistory(clientId);
-  return history.filter(({ role }) => role === "user");
+  return history.filter(({ role, mode }) => role === "user" && mode === "user");
 };
