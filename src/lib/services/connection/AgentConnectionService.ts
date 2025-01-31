@@ -151,6 +151,19 @@ export class AgentConnectionService implements IAgent {
     ).commitUserMessage(message);
   };
 
+  /**
+   * Commits flush of agent history
+   * @returns {Promise<any>} The commit result.
+   */
+  public commitFlush = async () => {
+    this.loggerService.log(`agentConnectionService commitFlush`, {
+      context: this.contextService.context,
+    });
+    return await this.getAgent(
+      this.contextService.context.clientId,
+      this.contextService.context.agentName
+    ).commitFlush();
+  };
 
   /**
    * Disposes of the agent connection.

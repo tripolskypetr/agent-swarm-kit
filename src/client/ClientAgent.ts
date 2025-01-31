@@ -64,20 +64,23 @@ export class ClientAgent implements IAgent {
    * @returns {Promise<string>}
    * @private
    */
-  _resurrectModel = async (mode: ExecutionMode, reason?: string): Promise<string> => {
+  _resurrectModel = async (
+    mode: ExecutionMode,
+    reason?: string
+  ): Promise<string> => {
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel`
     );
     {
       await this.params.history.push({
         role: "resque",
-        mode: 'tool',
+        mode: "tool",
         agentName: this.params.agentName,
         content: reason || "Unknown error",
       });
       await this.params.history.push({
         role: "user",
-        mode: 'tool',
+        mode: "tool",
         agentName: this.params.agentName,
         content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_PROMPT,
       });
@@ -93,7 +96,7 @@ export class ClientAgent implements IAgent {
       await this.params.history.push({
         agentName: this.params.agentName,
         role: "assistant",
-        mode: 'tool',
+        mode: "tool",
         content,
       });
       return content;
@@ -126,7 +129,7 @@ export class ClientAgent implements IAgent {
     );
     const messages = await this.params.history.toArrayForAgent(
       this.params.prompt,
-      this.params.system,
+      this.params.system
     );
     return await this.params.completion.getCompletion({
       clientId: this.params.clientId,
@@ -146,13 +149,30 @@ export class ClientAgent implements IAgent {
    */
   commitUserMessage = async (message: string): Promise<void> => {
     this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitUserMessage`
+      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitUserMessage`,
+      { message }
     );
     await this.params.history.push({
       role: "user",
       agentName: this.params.agentName,
-      mode: 'user',
+      mode: "user",
       content: message.trim(),
+    });
+  };
+
+  /**
+   * Commits flush of agent history
+   * @returns {Promise<void>}
+   */
+  commitFlush = async (): Promise<void> => {
+    this.params.logger.debug(
+      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitFlush`
+    );
+    await this.params.history.push({
+      role: "flush",
+      agentName: this.params.agentName,
+      mode: "tool",
+      content: "",
     });
   };
 
@@ -163,12 +183,13 @@ export class ClientAgent implements IAgent {
    */
   commitSystemMessage = async (message: string): Promise<void> => {
     this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitSystemMessage`
+      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitSystemMessage`,
+      { message }
     );
     await this.params.history.push({
       role: "system",
       agentName: this.params.agentName,
-      mode: 'tool',
+      mode: "tool",
       content: message.trim(),
     });
   };
@@ -180,12 +201,13 @@ export class ClientAgent implements IAgent {
    */
   commitToolOutput = async (content: string): Promise<void> => {
     this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitToolOutput content=${content}`
+      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitToolOutput`,
+      { content }
     );
     await this.params.history.push({
       role: "tool",
       agentName: this.params.agentName,
-      mode: 'tool',
+      mode: "tool",
       content,
     });
     await this._toolCommitSubject.next();
@@ -196,118 +218,120 @@ export class ClientAgent implements IAgent {
    * @param {string} incoming - The incoming message content.
    * @returns {Promise<void>}
    */
-  execute = queued(async (incoming: string, mode: ExecutionMode): Promise<void> => {
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute begin`,
-      { incoming, mode }
-    );
-    await this.params.history.push({
-      role: "user",
-      mode,
-      agentName: this.params.agentName,
-      content: incoming.trim(),
-    });
-    const message = await this.getCompletion(mode);
-    if (message.tool_calls) {
+  execute = queued(
+    async (incoming: string, mode: ExecutionMode): Promise<void> => {
       this.params.logger.debug(
-        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} tool call begin`
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute begin`,
+        { incoming, mode }
       );
-      for (const tool of message.tool_calls) {
-        const targetFn = this.params.tools?.find(
-          (t) => t.function.name === tool.function.name
+      await this.params.history.push({
+        role: "user",
+        mode,
+        agentName: this.params.agentName,
+        content: incoming.trim(),
+      });
+      const message = await this.getCompletion(mode);
+      if (message.tool_calls) {
+        this.params.logger.debug(
+          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} tool call begin`
         );
-        await this.params.history.push({
-          ...message,
-          agentName: this.params.agentName,
-        });
-        if (!targetFn) {
-          this.params.logger.debug(
-            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool function not found`,
-            this.params.tools
+        for (const tool of message.tool_calls) {
+          const targetFn = this.params.tools?.find(
+            (t) => t.function.name === tool.function.name
           );
-          const result = await this._resurrectModel(
-            mode,
-            `No target function for ${tool.function.name}`
-          );
-          this.params.logger.debug(
-            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
-          );
-          await this._emitOuput(mode, result);
-          return;
-        }
-        if (
-          await not(
-            targetFn.validate(
-              this.params.clientId,
-              this.params.agentName,
-              tool.function.arguments
+          await this.params.history.push({
+            ...message,
+            agentName: this.params.agentName,
+          });
+          if (!targetFn) {
+            this.params.logger.debug(
+              `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool function not found`,
+              this.params.tools
+            );
+            const result = await this._resurrectModel(
+              mode,
+              `No target function for ${tool.function.name}`
+            );
+            this.params.logger.debug(
+              `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
+            );
+            await this._emitOuput(mode, result);
+            return;
+          }
+          if (
+            await not(
+              targetFn.validate(
+                this.params.clientId,
+                this.params.agentName,
+                tool.function.arguments
+              )
             )
-          )
-        ) {
+          ) {
+            this.params.logger.debug(
+              `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool validation not passed`
+            );
+            const result = await this._resurrectModel(
+              mode,
+              `Function validation failed: name=${
+                tool.function.name
+              } arguments=${JSON.stringify(tool.function.arguments)}`
+            );
+            this.params.logger.debug(
+              `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
+            );
+            await this._emitOuput(mode, result);
+            return;
+          }
+          /**
+           * @description Do not await to avoid deadlock! The tool can send the message to other agents by emulating user messages
+           */
+          targetFn.call(
+            this.params.clientId,
+            this.params.agentName,
+            tool.function.arguments
+          );
           this.params.logger.debug(
-            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool validation not passed`
+            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool call executing`
           );
-          const result = await this._resurrectModel(
-            mode,
-            `Function validation failed: name=${
-              tool.function.name
-            } arguments=${JSON.stringify(tool.function.arguments)}`
-          );
+          await Promise.race([
+            this._toolCommitSubject.toPromise(),
+            this._outputSubject.toPromise(),
+          ]);
           this.params.logger.debug(
-            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
+            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool call end`
           );
-          await this._emitOuput(mode, result);
-          return;
         }
-        /**
-         * @description Do not await to avoid deadlock! The tool can send the message to other agents by emulating user messages
-         */
-        targetFn.call(
-          this.params.clientId,
-          this.params.agentName,
-          tool.function.arguments
-        );
+        return;
+      }
+      if (!message.tool_calls) {
         this.params.logger.debug(
-          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool call executing`
-        );
-        await Promise.race([
-          this._toolCommitSubject.toPromise(),
-          this._outputSubject.toPromise(),
-        ]);
-        this.params.logger.debug(
-          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool call end`
+          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute no tool calls detected`
         );
       }
-      return;
-    }
-    if (!message.tool_calls) {
+      const result = message.content;
+      await this.params.history.push({
+        ...message,
+        agentName: this.params.agentName,
+      });
+      let validation: string | null = null;
+      if ((validation = await this.params.validate(result))) {
+        this.params.logger.debug(
+          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute invalid tool call detected: ${validation}`,
+          { result }
+        );
+        const result1 = await this._resurrectModel(
+          mode,
+          `Invalid model output: ${result}`
+        );
+        await this._emitOuput(mode, result1);
+        return;
+      }
       this.params.logger.debug(
-        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute no tool calls detected`
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
       );
+      await this._emitOuput(mode, result);
     }
-    const result = message.content;
-    await this.params.history.push({
-      ...message,
-      agentName: this.params.agentName,
-    });
-    let validation: string | null = null;
-    if ((validation = await this.params.validate(result))) {
-      this.params.logger.debug(
-        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute invalid tool call detected: ${validation}`,
-        { result }
-      );
-      const result1 = await this._resurrectModel(
-        mode,
-        `Invalid model output: ${result}`
-      );
-      await this._emitOuput(mode, result1);
-      return;
-    }
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
-    );
-    await this._emitOuput(mode, result);
-  }) as IAgent["execute"];
+  ) as IAgent["execute"];
 }
 
 export default ClientAgent;

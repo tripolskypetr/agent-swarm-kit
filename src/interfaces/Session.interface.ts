@@ -77,6 +77,12 @@ export interface ISession {
   commitUserMessage: (message: string) => Promise<void>
 
   /**
+   * Commit flush of agent history
+   * @returns {Promise<void>}
+   */
+  commitFlush: () => Promise<void>
+
+  /**
    * Commit a system message.
    * @param {string} message - The message to commit.
    * @returns {Promise<void>}

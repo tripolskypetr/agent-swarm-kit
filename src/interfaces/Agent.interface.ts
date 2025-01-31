@@ -1,7 +1,10 @@
 import IHistory from "../interfaces/History.interface";
 import { ILogger } from "../interfaces/Logger.interface";
 import { ITool } from "../model/Tool.model";
-import { CompletionName, ICompletion } from "../interfaces/Completion.interface";
+import {
+  CompletionName,
+  ICompletion,
+} from "../interfaces/Completion.interface";
 import { ExecutionMode } from "./Session.interface";
 
 /**
@@ -26,17 +29,25 @@ export interface IAgentTool<T = Record<string, unknown>> extends ITool {
    * @param params - The parameters for the tool.
    * @returns A promise that resolves to a boolean indicating whether the parameters are valid, or a boolean.
    */
-  validate(clientId: string, agentName: AgentName, params: T): Promise<boolean> | boolean;
+  validate(
+    clientId: string,
+    agentName: AgentName,
+    params: T
+  ): Promise<boolean> | boolean;
 }
 
 /**
  * Interface representing the parameters for an agent.
  */
-export interface IAgentParams extends Omit<IAgentSchema, keyof {
-  tools: never;
-  completion: never;
-  validate: never;
-}> {
+export interface IAgentParams
+  extends Omit<
+    IAgentSchema,
+    keyof {
+      tools: never;
+      completion: never;
+      validate: never;
+    }
+  > {
   /** The ID of the client. */
   clientId: string;
   /** The logger instance. */
@@ -110,7 +121,12 @@ export interface IAgent {
    * @param message - The message to commit.
    * @returns A promise that resolves when the message is committed.
    */
-  commitUserMessage(message: string): Promise<void>
+  commitUserMessage(message: string): Promise<void>;
+  /**
+   * Clear the history for agent
+   * @returns A promise that resolves when the flush is committed.
+   */
+  commitFlush(): Promise<void>;
 }
 
 /** Type representing the name of an agent. */

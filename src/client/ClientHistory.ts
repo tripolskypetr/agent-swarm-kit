@@ -70,6 +70,11 @@ export class ClientHistory implements IHistory {
         systemMessagesRaw.splice(0, systemMessagesRaw.length);
         continue;
       }
+      if (message.role === "flush") {
+        commonMessagesRaw.splice(0, commonMessagesRaw.length);
+        systemMessagesRaw.splice(0, systemMessagesRaw.length);
+        continue;
+      }
       if (message.role === "system") {
         systemMessagesRaw.push(message);
       } else {

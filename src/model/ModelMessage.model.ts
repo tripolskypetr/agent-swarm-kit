@@ -6,9 +6,9 @@ import { ExecutionMode } from "src/interfaces/Session.interface";
 export interface IModelMessage {
   /**
    * The role of the message sender.
-   * @type {'assistant' | 'system' | 'tool' | 'user' | 'resque'}
+   * @type {'assistant' | 'system' | 'tool' | 'user' | 'resque' | 'flush'}
    */
-  role: "assistant" | "system" | "tool" | "user" | "resque";
+  role: "assistant" | "system" | "tool" | "user" | "resque" | "flush";
 
   /**
    * The name of the agent sending the message.

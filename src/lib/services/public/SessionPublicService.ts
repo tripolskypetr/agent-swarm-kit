@@ -230,6 +230,32 @@ export class SessionPublicService implements TSessionConnectionService {
   };
 
   /**
+   * Commits flush of agent history
+   * @param {string} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<void>}
+   */
+  public commitFlush = async (
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    this.loggerService.log("sessionPublicService commitFlush", {
+      clientId,
+      swarmName,
+    });
+    return await ContextService.runInContext(
+      async () => {
+        return await this.sessionConnectionService.commitFlush();
+      },
+      {
+        clientId,
+        swarmName,
+        agentName: "",
+      }
+    );
+  };
+
+  /**
    * Disposes of the session.
    * @param {string} clientId - The client ID.
    * @param {SwarmName} swarmName - The swarm name.

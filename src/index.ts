@@ -13,6 +13,7 @@ export * from './functions/getRawHistory';
 export * from './functions/getAgentHistory';
 export * from './functions/commitToolOutput';
 export * from './functions/commitSystemMessage';
+export * from './functions/commitFlush';
 export * from './functions/execute';
 export * from './functions/emit';
 export * from './functions/getLastUserMessage';

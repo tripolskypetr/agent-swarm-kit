@@ -62,7 +62,10 @@ export class SessionConnectionService implements ISession {
    * @param {string} content - The content to execute.
    * @returns {Promise<string>} A promise that resolves with the execution result.
    */
-  public execute = async (content: string, mode: ExecutionMode): Promise<string> => {
+  public execute = async (
+    content: string,
+    mode: ExecutionMode
+  ): Promise<string> => {
     this.loggerService.log(`sessionConnectionService execute`, {
       context: this.contextService.context,
       content,
@@ -97,6 +100,7 @@ export class SessionConnectionService implements ISession {
   public commitToolOutput = async (content: string): Promise<void> => {
     this.loggerService.log(`sessionConnectionService commitToolOutput`, {
       context: this.contextService.context,
+      content,
     });
     return await this.getSession(
       this.contextService.context.clientId,
@@ -112,6 +116,7 @@ export class SessionConnectionService implements ISession {
   public commitSystemMessage = async (message: string): Promise<void> => {
     this.loggerService.log(`sessionConnectionService commitSystemMessage`, {
       context: this.contextService.context,
+      message,
     });
     return await this.getSession(
       this.contextService.context.clientId,
@@ -127,11 +132,27 @@ export class SessionConnectionService implements ISession {
   public commitUserMessage = async (message: string): Promise<void> => {
     this.loggerService.log(`sessionConnectionService commitUserMessage`, {
       context: this.contextService.context,
+      message,
     });
     return await this.getSession(
       this.contextService.context.clientId,
       this.contextService.context.swarmName
     ).commitUserMessage(message);
+  };
+
+  /**
+   * Commits user message to the agent without answer.
+   * @param {string} message - The message to commit.
+   * @returns {Promise<void>} A promise that resolves when the message is committed.
+   */
+  public commitFlush = async (): Promise<void> => {
+    this.loggerService.log(`sessionConnectionService commitFlush`, {
+      context: this.contextService.context,
+    });
+    return await this.getSession(
+      this.contextService.context.clientId,
+      this.contextService.context.swarmName
+    ).commitFlush();
   };
 
   /**

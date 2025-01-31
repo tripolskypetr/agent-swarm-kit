@@ -9,9 +9,9 @@ import { IPubsubArray, Subject } from 'functools-kit';
 interface IModelMessage {
     /**
      * The role of the message sender.
-     * @type {'assistant' | 'system' | 'tool' | 'user' | 'resque'}
+     * @type {'assistant' | 'system' | 'tool' | 'user' | 'resque' | 'flush'}
      */
-    role: "assistant" | "system" | "tool" | "user" | "resque";
+    role: "assistant" | "system" | "tool" | "user" | "resque" | "flush";
     /**
      * The name of the agent sending the message.
      * @type {string}
@@ -346,6 +346,11 @@ interface ISession {
      */
     commitUserMessage: (message: string) => Promise<void>;
     /**
+     * Commit flush of agent history
+     * @returns {Promise<void>}
+     */
+    commitFlush: () => Promise<void>;
+    /**
      * Commit a system message.
      * @param {string} message - The message to commit.
      * @returns {Promise<void>}
@@ -523,6 +528,11 @@ interface IAgent {
      * @returns A promise that resolves when the message is committed.
      */
     commitUserMessage(message: string): Promise<void>;
+    /**
+     * Clear the history for agent
+     * @returns A promise that resolves when the flush is committed.
+     */
+    commitFlush(): Promise<void>;
 }
 /** Type representing the name of an agent. */
 type AgentName = string;
@@ -615,6 +625,11 @@ declare class ClientAgent implements IAgent {
      */
     commitUserMessage: (message: string) => Promise<void>;
     /**
+     * Commits flush of agent history
+     * @returns {Promise<void>}
+     */
+    commitFlush: () => Promise<void>;
+    /**
      * Commits a system message to the history.
      * @param {string} message - The system message to commit.
      * @returns {Promise<void>}
@@ -682,6 +697,11 @@ declare class AgentConnectionService implements IAgent {
      * @returns {Promise<any>} The commit result.
      */
     commitUserMessage: (message: string) => Promise<void>;
+    /**
+     * Commits flush of agent history
+     * @returns {Promise<any>} The commit result.
+     */
+    commitFlush: () => Promise<void>;
     /**
      * Disposes of the agent connection.
      * @returns {Promise<void>} The dispose result.
@@ -976,6 +996,11 @@ declare class ClientSession implements ISession {
      */
     commitUserMessage: (message: string) => Promise<void>;
     /**
+     * Commits flush of agent history
+     * @returns {Promise<void>}
+     */
+    commitFlush: () => Promise<void>;
+    /**
      * Commits a system message.
      * @param {string} message - The system message to commit.
      * @returns {Promise<void>}
@@ -1040,6 +1065,12 @@ declare class SessionConnectionService implements ISession {
      * @returns {Promise<void>} A promise that resolves when the message is committed.
      */
     commitUserMessage: (message: string) => Promise<void>;
+    /**
+     * Commits user message to the agent without answer.
+     * @param {string} message - The message to commit.
+     * @returns {Promise<void>} A promise that resolves when the message is committed.
+     */
+    commitFlush: () => Promise<void>;
     /**
      * Disposes of the session connection service.
      * @returns {Promise<void>} A promise that resolves when the service is disposed.
@@ -1107,6 +1138,13 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @returns {Promise<unknown>} The commit result.
      */
     commitUserMessage: (message: string, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Commits flush of agent history
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<unknown>} The commit result.
+     */
+    commitFlush: (clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Disposes of the agent.
      * @param {string} clientId - The client ID.
@@ -1225,6 +1263,13 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @returns {Promise<void>}
      */
     commitUserMessage: (message: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Commits flush of agent history
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
+    commitFlush: (clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Disposes of the session.
      * @param {string} clientId - The client ID.
@@ -1706,6 +1751,15 @@ declare const commitToolOutput: (content: string, clientId: string, agentName: A
 declare const commitSystemMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
+ * Commits flush of agent history
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitFlush: (clientId: string, agentName: string) => Promise<void>;
+
+/**
  * Send the message to the active agent in the swarm content like it income from client side
  * Should be used to review tool output and initiate conversation from the model side to client
  *
@@ -1833,4 +1887,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitSystemMessage, commitToolOutput, commitUserMessage, complete, disposeConnection, emit, execute, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitFlush, commitSystemMessage, commitToolOutput, commitUserMessage, complete, disposeConnection, emit, execute, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };

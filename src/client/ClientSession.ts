@@ -97,6 +97,18 @@ export class ClientSession implements ISession {
   };
 
   /**
+   * Commits flush of agent history
+   * @returns {Promise<void>}
+   */
+  commitFlush = async () => {
+    this.params.logger.debug(
+      `ClientSession clientId=${this.params.clientId} commitFlush`
+    );
+    const agent = await this.params.swarm.getAgent();
+    return await agent.commitFlush();
+  };
+
+  /**
    * Commits a system message.
    * @param {string} message - The system message to commit.
    * @returns {Promise<void>}

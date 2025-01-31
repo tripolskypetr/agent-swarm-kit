@@ -190,6 +190,32 @@ export class AgentPublicService implements TAgentConnectionService {
   };
 
   /**
+   * Commits flush of agent history
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<unknown>} The commit result.
+   */
+  public commitFlush = async (
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    this.loggerService.log("agentPublicService commitFlush", {
+      clientId,
+      agentName,
+    });
+    return await ContextService.runInContext(
+      async () => {
+        return await this.agentConnectionService.commitFlush();
+      },
+      {
+        clientId,
+        agentName,
+        swarmName: "",
+      }
+    );
+  };
+
+  /**
    * Disposes of the agent.
    * @param {string} clientId - The client ID.
    * @param {AgentName} agentName - The name of the agent.
