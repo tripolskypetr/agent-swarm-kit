@@ -1,4 +1,4 @@
-import { ExecutionMode } from "src/interfaces/Session.interface";
+import { ExecutionMode } from "../interfaces/Session.interface";
 
 /**
  * Interface representing a model message.

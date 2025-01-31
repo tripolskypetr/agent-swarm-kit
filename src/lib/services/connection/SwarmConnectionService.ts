@@ -8,7 +8,7 @@ import SwarmSchemaService from "../schema/SwarmSchemaService";
 import AgentConnectionService from "./AgentConnectionService";
 import { AgentName, IAgent } from "../../../interfaces/Agent.interface";
 import ISwarm from "../../../interfaces/Swarm.interface";
-import { GLOBAL_CONFIG } from "src/config/params";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * Service for managing swarm connections.

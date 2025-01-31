@@ -1,183 +1,6 @@
 import * as di_scoped from 'di-scoped';
-import { ExecutionMode as ExecutionMode$1 } from 'src/interfaces/Session.interface';
 import * as functools_kit from 'functools-kit';
 import { IPubsubArray, Subject } from 'functools-kit';
-
-/**
- * Interface representing a model message.
- */
-interface IModelMessage {
-    /**
-     * The role of the message sender.
-     * @type {'assistant' | 'system' | 'tool' | 'user' | 'resque' | 'flush'}
-     */
-    role: "assistant" | "system" | "tool" | "user" | "resque" | "flush";
-    /**
-     * The name of the agent sending the message.
-     * @type {string}
-     */
-    agentName: string;
-    /**
-     * The content of the message.
-     * @type {string}
-     */
-    content: string;
-    /**
-     * The source of message: tool or user
-     * @type {ExecutionMode}
-     */
-    mode: ExecutionMode$1;
-    /**
-     * Optional tool calls associated with the message.
-     * @type {Array<{ function: { name: string; arguments: { [key: string]: any; }; }; }>}
-     */
-    tool_calls?: {
-        function: {
-            name: string;
-            arguments: {
-                [key: string]: any;
-            };
-        };
-    }[];
-}
-
-/**
- * ILogger interface for logging messages.
- */
-interface ILogger {
-    /**
-     * Logs a message.
-     * @param {...any[]} args - The message or messages to log.
-     */
-    log(...args: any[]): void;
-    /**
-     * Logs a debug message.
-     * @param {...any[]} args - The debug message or messages to log.
-     */
-    debug(...args: any[]): void;
-}
-
-/**
- * Interface representing the history of model messages.
- */
-interface IHistory {
-    /**
-     * Pushes a message to the history.
-     * @param {IModelMessage} message - The message to push.
-     * @returns {Promise<void>}
-     */
-    push(message: IModelMessage): Promise<void>;
-    /**
-     * Converts the history to an array of messages for a specific agent.
-     * @param {string} prompt - The prompt to filter messages for the agent.
-     * @returns {Promise<IModelMessage[]>}
-     */
-    toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
-    /**
-     * Converts the history to an array of raw messages.
-     * @returns {Promise<IModelMessage[]>}
-     */
-    toArrayForRaw(): Promise<IModelMessage[]>;
-}
-/**
- * Interface representing the parameters required to create a history instance.
- */
-interface IHistoryParams extends IHistorySchema {
-    /**
-     * The name of the agent.
-     * @type {AgentName}
-     */
-    agentName: AgentName;
-    /**
-     * The client ID.
-     * @type {string}
-     */
-    clientId: string;
-    /**
-     * The logger instance.
-     * @type {ILogger}
-     */
-    logger: ILogger;
-}
-/**
- * Interface representing the schema of the history.
- */
-interface IHistorySchema {
-    /**
-     * The array of model messages.
-     * @type {IPubsubArray<IModelMessage>}
-     */
-    items: IPubsubArray<IModelMessage>;
-}
-
-/**
- * Represents a tool call with a function name and arguments.
- */
-interface IToolCall {
-    function: {
-        /**
-         * The name of the function to be called.
-         */
-        name: string;
-        /**
-         * The arguments to be passed to the function.
-         */
-        arguments: {
-            [key: string]: any;
-        };
-    };
-}
-/**
- * Represents a tool with a type and function details.
- */
-interface ITool {
-    /**
-     * The type of the tool.
-     */
-    type: string;
-    function: {
-        /**
-         * The name of the function.
-         */
-        name: string;
-        /**
-         * The description of the function.
-         */
-        description: string;
-        /**
-         * The parameters required by the function.
-         */
-        parameters: {
-            /**
-             * The type of the parameters.
-             */
-            type: string;
-            /**
-             * The list of required parameters.
-             */
-            required: string[];
-            /**
-             * The properties of the parameters.
-             */
-            properties: {
-                [key: string]: {
-                    /**
-                     * The type of the property.
-                     */
-                    type: string;
-                    /**
-                     * The description of the property.
-                     */
-                    description: string;
-                    /**
-                     * The possible values for the property.
-                     */
-                    enum?: string[];
-                };
-            };
-        };
-    };
-}
 
 /**
  * Interface representing an incoming message.
@@ -212,6 +35,22 @@ interface IOutgoingMessage {
      * The name of the agent sending the message.
      */
     agentName: AgentName;
+}
+
+/**
+ * ILogger interface for logging messages.
+ */
+interface ILogger {
+    /**
+     * Logs a message.
+     * @param {...any[]} args - The message or messages to log.
+     */
+    log(...args: any[]): void;
+    /**
+     * Logs a debug message.
+     * @param {...any[]} args - The debug message or messages to log.
+     */
+    debug(...args: any[]): void;
 }
 
 /**
@@ -373,6 +212,166 @@ type SessionMode = "session" | "makeConnection" | "complete";
  * @typedef {"tool" | "user"} ExecutionMode
  */
 type ExecutionMode = "tool" | "user";
+
+/**
+ * Interface representing a model message.
+ */
+interface IModelMessage {
+    /**
+     * The role of the message sender.
+     * @type {'assistant' | 'system' | 'tool' | 'user' | 'resque' | 'flush'}
+     */
+    role: "assistant" | "system" | "tool" | "user" | "resque" | "flush";
+    /**
+     * The name of the agent sending the message.
+     * @type {string}
+     */
+    agentName: string;
+    /**
+     * The content of the message.
+     * @type {string}
+     */
+    content: string;
+    /**
+     * The source of message: tool or user
+     * @type {ExecutionMode}
+     */
+    mode: ExecutionMode;
+    /**
+     * Optional tool calls associated with the message.
+     * @type {Array<{ function: { name: string; arguments: { [key: string]: any; }; }; }>}
+     */
+    tool_calls?: {
+        function: {
+            name: string;
+            arguments: {
+                [key: string]: any;
+            };
+        };
+    }[];
+}
+
+/**
+ * Interface representing the history of model messages.
+ */
+interface IHistory {
+    /**
+     * Pushes a message to the history.
+     * @param {IModelMessage} message - The message to push.
+     * @returns {Promise<void>}
+     */
+    push(message: IModelMessage): Promise<void>;
+    /**
+     * Converts the history to an array of messages for a specific agent.
+     * @param {string} prompt - The prompt to filter messages for the agent.
+     * @returns {Promise<IModelMessage[]>}
+     */
+    toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
+    /**
+     * Converts the history to an array of raw messages.
+     * @returns {Promise<IModelMessage[]>}
+     */
+    toArrayForRaw(): Promise<IModelMessage[]>;
+}
+/**
+ * Interface representing the parameters required to create a history instance.
+ */
+interface IHistoryParams extends IHistorySchema {
+    /**
+     * The name of the agent.
+     * @type {AgentName}
+     */
+    agentName: AgentName;
+    /**
+     * The client ID.
+     * @type {string}
+     */
+    clientId: string;
+    /**
+     * The logger instance.
+     * @type {ILogger}
+     */
+    logger: ILogger;
+}
+/**
+ * Interface representing the schema of the history.
+ */
+interface IHistorySchema {
+    /**
+     * The array of model messages.
+     * @type {IPubsubArray<IModelMessage>}
+     */
+    items: IPubsubArray<IModelMessage>;
+}
+
+/**
+ * Represents a tool call with a function name and arguments.
+ */
+interface IToolCall {
+    function: {
+        /**
+         * The name of the function to be called.
+         */
+        name: string;
+        /**
+         * The arguments to be passed to the function.
+         */
+        arguments: {
+            [key: string]: any;
+        };
+    };
+}
+/**
+ * Represents a tool with a type and function details.
+ */
+interface ITool {
+    /**
+     * The type of the tool.
+     */
+    type: string;
+    function: {
+        /**
+         * The name of the function.
+         */
+        name: string;
+        /**
+         * The description of the function.
+         */
+        description: string;
+        /**
+         * The parameters required by the function.
+         */
+        parameters: {
+            /**
+             * The type of the parameters.
+             */
+            type: string;
+            /**
+             * The list of required parameters.
+             */
+            required: string[];
+            /**
+             * The properties of the parameters.
+             */
+            properties: {
+                [key: string]: {
+                    /**
+                     * The type of the property.
+                     */
+                    type: string;
+                    /**
+                     * The description of the property.
+                     */
+                    description: string;
+                    /**
+                     * The possible values for the property.
+                     */
+                    enum?: string[];
+                };
+            };
+        };
+    };
+}
 
 /**
  * Interface representing a completion.

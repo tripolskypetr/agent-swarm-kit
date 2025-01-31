@@ -1,4 +1,4 @@
-import swarm from "src/lib";
+import swarm from "../lib";
 
 /**
  * Commits a user message to the active agent history in as swarm without answer.

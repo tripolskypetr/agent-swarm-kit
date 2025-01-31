@@ -1,4 +1,4 @@
-import swarm from "src/lib";
+import swarm from "../lib";
 
 /**
  * Commits flush of agent history

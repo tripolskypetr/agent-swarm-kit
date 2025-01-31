@@ -1,4 +1,4 @@
-import swarm from "src/lib";
+import swarm from "../lib";
 
 /**
  * Commits a system message to the active agent in as swarm.
