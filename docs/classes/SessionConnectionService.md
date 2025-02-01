@@ -30,6 +30,12 @@ contextService: any
 swarmConnectionService: any
 ```
 
+### swarmSchemaService
+
+```ts
+swarmSchemaService: any
+```
+
 ### getSession
 
 ```ts
@@ -49,7 +55,7 @@ Emits a message to the session.
 ### execute
 
 ```ts
-execute: (content: string) => Promise<string>
+execute: (content: string, mode: ExecutionMode) => Promise<string>
 ```
 
 Executes a command in the session.
@@ -82,6 +88,14 @@ Commits a system message to the session.
 
 ```ts
 commitUserMessage: (message: string) => Promise<void>
+```
+
+Commits user message to the agent without answer.
+
+### commitFlush
+
+```ts
+commitFlush: () => Promise<void>
 ```
 
 Commits user message to the agent without answer.

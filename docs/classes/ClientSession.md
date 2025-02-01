@@ -35,7 +35,7 @@ Emits a message.
 ### execute
 
 ```ts
-execute: (message: string, noEmit?: boolean) => Promise<string>
+execute: (message: string, mode: ExecutionMode) => Promise<string>
 ```
 
 Executes a message and optionally emits the output.
@@ -55,6 +55,14 @@ commitUserMessage: (message: string) => Promise<void>
 ```
 
 Commits user message without answer.
+
+### commitFlush
+
+```ts
+commitFlush: () => Promise<void>
+```
+
+Commits flush of agent history
 
 ### commitSystemMessage
 

@@ -33,7 +33,7 @@ _outputSubject: Subject<string>
 ### _emitOuput
 
 ```ts
-_emitOuput: (result: string) => Promise<void>
+_emitOuput: (mode: ExecutionMode, result: string) => Promise<void>
 ```
 
 Emits the output result after validation.
@@ -41,7 +41,7 @@ Emits the output result after validation.
 ### _resurrectModel
 
 ```ts
-_resurrectModel: (reason?: string) => Promise<string>
+_resurrectModel: (mode: ExecutionMode, reason?: string) => Promise<string>
 ```
 
 Resurrects the model based on the given reason.
@@ -57,7 +57,7 @@ Waits for the output to be available.
 ### getCompletion
 
 ```ts
-getCompletion: () => Promise<IModelMessage>
+getCompletion: (mode: ExecutionMode) => Promise<IModelMessage>
 ```
 
 Gets the completion message from the model.
@@ -69,6 +69,14 @@ commitUserMessage: (message: string) => Promise<void>
 ```
 
 Commits a user message to the history without answer.
+
+### commitFlush
+
+```ts
+commitFlush: () => Promise<void>
+```
+
+Commits flush of agent history
 
 ### commitSystemMessage
 
@@ -89,7 +97,7 @@ Commits the tool output to the history.
 ### execute
 
 ```ts
-execute: (input: string) => Promise<void>
+execute: (input: string, mode: ExecutionMode) => Promise<void>
 ```
 
 Executes the incoming message and processes tool calls if any.

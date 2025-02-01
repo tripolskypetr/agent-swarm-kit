@@ -12,6 +12,14 @@ commitUserMessage: (message: string) => Promise<void>
 
 Commit user message without answer
 
+### commitFlush
+
+```ts
+commitFlush: () => Promise<void>
+```
+
+Commit flush of agent history
+
 ## Methods
 
 ### emit
@@ -25,7 +33,7 @@ Emit a message.
 ### execute
 
 ```ts
-execute: (content: string) => Promise<string>
+execute: (content: string, mode: ExecutionMode) => Promise<string>
 ```
 
 Execute a command.

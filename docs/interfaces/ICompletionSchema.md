@@ -12,6 +12,14 @@ completionName: string
 
 Name of the completion.
 
+### onComplete
+
+```ts
+onComplete: (args: ICompletionArgs, output: IModelMessage) => void
+```
+
+Callback fired after complete.
+
 ## Methods
 
 ### getCompletion

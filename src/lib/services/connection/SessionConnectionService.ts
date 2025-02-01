@@ -11,6 +11,7 @@ import {
   ReceiveMessageFn,
   SendMessageFn,
 } from "../../../interfaces/Session.interface";
+import SwarmSchemaService from "../schema/SwarmSchemaService";
 
 /**
  * Service for managing session connections.
@@ -26,6 +27,10 @@ export class SessionConnectionService implements ISession {
     TYPES.swarmConnectionService
   );
 
+  private readonly swarmSchemaService = inject<SwarmSchemaService>(
+    TYPES.swarmSchemaService
+  );
+
   /**
    * Retrieves a memoized session based on clientId and swarmName.
    * @param {string} clientId - The client ID.
@@ -34,12 +39,19 @@ export class SessionConnectionService implements ISession {
    */
   public getSession = memoize(
     ([clientId, swarmName]) => `${clientId}-${swarmName}`,
-    (clientId: string, swarmName: string) =>
-      new ClientSession({
+    (clientId: string, swarmName: string) => {
+      const { onConnect, onEmit, onExecute } =
+        this.swarmSchemaService.get(swarmName);
+      return new ClientSession({
         clientId,
         logger: this.loggerService,
         swarm: this.swarmConnectionService.getSwarm(clientId, swarmName),
+        swarmName,
+        onConnect,
+        onEmit,
+        onExecute,
       })
+    }
   );
 
   /**

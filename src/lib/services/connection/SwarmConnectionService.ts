@@ -37,7 +37,7 @@ export class SwarmConnectionService implements ISwarm {
   public getSwarm = memoize(
     ([clientId, swarmName]) => `${clientId}-${swarmName}`,
     (clientId: string, swarmName: string) => {
-      const { agentList, defaultAgent } =
+      const { agentList, defaultAgent, onAgentChanged } =
         this.swarmSchemaService.get(swarmName);
       const agentMap: Record<AgentName, IAgent> = {};
       for (const agentName of agentList) {
@@ -53,6 +53,7 @@ export class SwarmConnectionService implements ISwarm {
         swarmName,
         logger: this.loggerService,
         async onAgentChanged(clientId, agentName, swarmName) {
+          onAgentChanged && onAgentChanged(clientId, agentName, swarmName);
           await GLOBAL_CONFIG.CC_SWARM_AGENT_CHANGED(
             clientId,
             agentName,

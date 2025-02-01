@@ -28,8 +28,6 @@ agentMap: Record<string, IAgent>
 
 Map of agent names to agent instances
 
-## Methods
-
 ### onAgentChanged
 
 ```ts

@@ -27,3 +27,11 @@ agentList: string[]
 ```
 
 List of agent names
+
+### onAgentChanged
+
+```ts
+onAgentChanged: (clientId: string, agentName: string, swarmName: string) => void
+```
+
+Emit the callback on agent change

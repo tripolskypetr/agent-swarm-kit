@@ -12,6 +12,22 @@ toolName: string
 
 The name of the tool.
 
+### onCall
+
+```ts
+onCall: (clientId: string, agentName: string, params: T) => Promise<void>
+```
+
+Callback triggered when the tool is called.
+
+### onValidate
+
+```ts
+onValidate: (clientId: string, agentName: string, params: T) => Promise<boolean>
+```
+
+Callback triggered when the tool parameters are validated.
+
 ## Methods
 
 ### call

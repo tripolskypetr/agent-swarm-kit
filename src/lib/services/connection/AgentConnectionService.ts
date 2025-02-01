@@ -53,6 +53,12 @@ export class AgentConnectionService implements IAgent {
         prompt,
         system,
         tools,
+        onExecute,
+        onOutput,
+        onResurrect,
+        onSystemMessage,
+        onToolOutput,
+        onUserMessage,
         completion: completionName,
         validate = validateDefault,
       } = this.agentSchemaService.get(agentName);
@@ -68,6 +74,12 @@ export class AgentConnectionService implements IAgent {
         system,
         tools: tools?.map(this.toolSchemaService.get),
         completion,
+        onExecute,
+        onOutput,
+        onResurrect,
+        onSystemMessage,
+        onToolOutput,
+        onUserMessage,
       });
     }
   );

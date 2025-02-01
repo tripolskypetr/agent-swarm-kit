@@ -7,7 +7,7 @@ Interface representing a model message.
 ### role
 
 ```ts
-role: "assistant" | "system" | "tool" | "user" | "resque"
+role: "tool" | "user" | "assistant" | "system" | "resque" | "flush"
 ```
 
 The role of the message sender.
@@ -27,6 +27,14 @@ content: string
 ```
 
 The content of the message.
+
+### mode
+
+```ts
+mode: ExecutionMode
+```
+
+The source of message: tool or user
 
 ### tool_calls
 

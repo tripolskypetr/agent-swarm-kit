@@ -35,7 +35,7 @@ Creates a reference to an agent.
 ### execute
 
 ```ts
-execute: (input: string, clientId: string, agentName: string) => Promise<void>
+execute: (input: string, mode: ExecutionMode, clientId: string, agentName: string) => Promise<void>
 ```
 
 Executes a command on the agent.
@@ -71,6 +71,14 @@ commitUserMessage: (message: string, clientId: string, agentName: string) => Pro
 ```
 
 Commits user message to the agent without answer.
+
+### commitFlush
+
+```ts
+commitFlush: (clientId: string, agentName: string) => Promise<void>
+```
+
+Commits flush of agent history
 
 ### dispose
 

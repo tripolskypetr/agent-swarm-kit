@@ -1,14 +1,50 @@
 import { AgentName, IAgent } from "../interfaces/Agent.interface";
 import { ILogger } from "../interfaces/Logger.interface";
+import { ExecutionMode } from "./Session.interface";
+
+export interface ISwarmSession {
+  /**
+   * Callback triggered when a client connects.
+   * @param clientId - The ID of the client.
+   * @param swarmName - The name of the swarm.
+   */
+  onConnect?: (clientId: string, swarmName: SwarmName) => void;
+  /**
+   * Callback triggered when a command is executed.
+   * @param clientId - The ID of the client.
+   * @param swarmName - The name of the swarm.
+   * @param content - The content to execute.
+   * @param mode - The source of execution: tool or user.
+   */
+  onExecute?: (
+    clientId: string,
+    swarmName: SwarmName,
+    content: string,
+    mode: ExecutionMode
+  ) => void;
+
+  /**
+   * Callback triggered when a message is emitted.
+   * @param clientId - The ID of the client.
+   * @param swarmName - The name of the swarm.
+   * @param message - The message to emit.
+   */
+  onEmit?: (clientId: string, swarmName: SwarmName, message: string) => void;
+}
 
 /**
  * Parameters for initializing a swarm.
  * @interface
  * @extends {Omit<ISwarmSchema, 'agentList'>}
  */
-export interface ISwarmParams extends Omit<ISwarmSchema, keyof {
-  agentList: never;
-}> {
+export interface ISwarmParams
+  extends Omit<
+    ISwarmSchema,
+    keyof {
+      agentList: never;
+      onAgentChanged: never;
+    }
+  > {
   /** Client identifier */
   clientId: string;
   /** Logger instance */
@@ -16,20 +52,30 @@ export interface ISwarmParams extends Omit<ISwarmSchema, keyof {
   /** Map of agent names to agent instances */
   agentMap: Record<AgentName, IAgent>;
   /** Emit the callback on agent change */
-  onAgentChanged(clientId: string, agentName: AgentName, swarmName: SwarmName): Promise<void>;
+  onAgentChanged: (
+    clientId: string,
+    agentName: AgentName,
+    swarmName: SwarmName
+  ) => Promise<void>;
 }
 
 /**
  * Schema for defining a swarm.
  * @interface
  */
-export interface ISwarmSchema {
+export interface ISwarmSchema extends ISwarmSession {
   /** Default agent name */
   defaultAgent: AgentName;
   /** Name of the swarm */
   swarmName: string;
   /** List of agent names */
   agentList: string[];
+  /** Emit the callback on agent change */
+  onAgentChanged?: (
+    clientId: string,
+    agentName: AgentName,
+    swarmName: SwarmName
+  ) => void;
 }
 
 /**

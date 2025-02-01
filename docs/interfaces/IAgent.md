@@ -7,7 +7,7 @@ Interface representing an agent.
 ### execute
 
 ```ts
-execute: (input: string) => Promise<void>
+execute: (input: string, mode: ExecutionMode) => Promise<void>
 ```
 
 Executes the agent with the given input.
@@ -45,3 +45,11 @@ commitUserMessage: (message: string) => Promise<void>
 ```
 
 Commits a user message without answer.
+
+### commitFlush
+
+```ts
+commitFlush: () => Promise<void>
+```
+
+Clears the history for the agent.

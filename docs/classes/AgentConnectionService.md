@@ -65,7 +65,7 @@ Retrieves an agent instance.
 ### execute
 
 ```ts
-execute: (input: string) => Promise<void>
+execute: (input: string, mode: ExecutionMode) => Promise<void>
 ```
 
 Executes an input command.
@@ -101,6 +101,14 @@ commitUserMessage: (message: string) => Promise<void>
 ```
 
 Commits a user message without answer.
+
+### commitFlush
+
+```ts
+commitFlush: () => Promise<void>
+```
+
+Commits flush of agent history
 
 ### dispose
 

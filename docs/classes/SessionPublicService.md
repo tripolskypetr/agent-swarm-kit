@@ -35,7 +35,7 @@ Emits a message to the session.
 ### execute
 
 ```ts
-execute: (content: string, clientId: string, swarmName: string) => Promise<string>
+execute: (content: string, mode: ExecutionMode, clientId: string, swarmName: string) => Promise<string>
 ```
 
 Executes a command in the session.
@@ -71,6 +71,14 @@ commitUserMessage: (message: string, clientId: string, swarmName: string) => Pro
 ```
 
 Commits user message to the agent without answer.
+
+### commitFlush
+
+```ts
+commitFlush: (clientId: string, swarmName: string) => Promise<void>
+```
+
+Commits flush of agent history
 
 ### dispose
 

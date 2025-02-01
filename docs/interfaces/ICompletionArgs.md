@@ -20,6 +20,14 @@ agentName: string
 
 Name of the agent.
 
+### mode
+
+```ts
+mode: ExecutionMode
+```
+
+The source of the last message: tool or user
+
 ### messages
 
 ```ts

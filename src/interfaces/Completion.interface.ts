@@ -48,6 +48,12 @@ export interface ICompletionSchema {
    * @returns A promise that resolves to a model message.
    */
   getCompletion(args: ICompletionArgs): Promise<IModelMessage>;
+  /**
+   * Callback fired after complete.
+   * @param args - Arguments passed to complete
+   * @param output - Output of the model
+   */
+  onComplete?: (args: ICompletionArgs, output: IModelMessage) => void;
 }
 
 /**

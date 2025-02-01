@@ -51,9 +51,17 @@ export class ClientAgent implements IAgent {
           `agent-swarm-kit ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} model ressurect failed: ${validation}`
         );
       }
+      this.params.onOutput &&
+        this.params.onOutput(
+          this.params.clientId,
+          this.params.agentName,
+          result
+        );
       await this._outputSubject.next(result);
       return;
     }
+    this.params.onOutput &&
+      this.params.onOutput(this.params.clientId, this.params.agentName, result);
     await this._outputSubject.next(result);
     return;
   };
@@ -71,6 +79,13 @@ export class ClientAgent implements IAgent {
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel`
     );
+    this.params.onResurrect &&
+      this.params.onResurrect(
+        this.params.clientId,
+        this.params.agentName,
+        mode,
+        reason
+      );
     {
       await this.params.history.push({
         role: "resque",
@@ -131,15 +146,19 @@ export class ClientAgent implements IAgent {
       this.params.prompt,
       this.params.system
     );
-    return await this.params.completion.getCompletion({
+    const args = {
       clientId: this.params.clientId,
       agentName: this.params.agentName,
       messages,
       mode,
       tools: this.params.tools?.map((t) =>
-        omit(t, "toolName", "call", "validate")
+        omit(t, "toolName", "call", "validate", "onCall", "onValidate")
       ),
-    });
+    };
+    const output = await this.params.completion.getCompletion(args);
+    this.params.completion.onComplete &&
+      this.params.completion.onComplete(args, output);
+    return output;
   };
 
   /**
@@ -152,6 +171,12 @@ export class ClientAgent implements IAgent {
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitUserMessage`,
       { message }
     );
+    this.params.onUserMessage &&
+      this.params.onUserMessage(
+        this.params.clientId,
+        this.params.agentName,
+        message
+      );
     await this.params.history.push({
       role: "user",
       agentName: this.params.agentName,
@@ -168,6 +193,8 @@ export class ClientAgent implements IAgent {
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitFlush`
     );
+    this.params.onFlush &&
+      this.params.onFlush(this.params.clientId, this.params.agentName);
     await this.params.history.push({
       role: "flush",
       agentName: this.params.agentName,
@@ -186,6 +213,12 @@ export class ClientAgent implements IAgent {
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitSystemMessage`,
       { message }
     );
+    this.params.onSystemMessage &&
+      this.params.onSystemMessage(
+        this.params.clientId,
+        this.params.agentName,
+        message
+      );
     await this.params.history.push({
       role: "system",
       agentName: this.params.agentName,
@@ -204,6 +237,12 @@ export class ClientAgent implements IAgent {
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitToolOutput`,
       { content }
     );
+    this.params.onToolOutput &&
+      this.params.onToolOutput(
+        this.params.clientId,
+        this.params.agentName,
+        content
+      );
     await this.params.history.push({
       role: "tool",
       agentName: this.params.agentName,
@@ -224,6 +263,13 @@ export class ClientAgent implements IAgent {
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute begin`,
         { incoming, mode }
       );
+      this.params.onExecute &&
+        this.params.onExecute(
+          this.params.clientId,
+          this.params.agentName,
+          incoming,
+          mode
+        );
       await this.params.history.push({
         role: "user",
         mode,
@@ -258,6 +304,11 @@ export class ClientAgent implements IAgent {
             await this._emitOuput(mode, result);
             return;
           }
+          targetFn.onValidate && targetFn.onValidate(
+            this.params.clientId,
+            this.params.agentName,
+            tool.function.arguments
+          );
           if (
             await not(
               targetFn.validate(
@@ -282,6 +333,12 @@ export class ClientAgent implements IAgent {
             await this._emitOuput(mode, result);
             return;
           }
+          targetFn.onCall &&
+            targetFn.onCall(
+              this.params.clientId,
+              this.params.agentName,
+              tool.function.arguments
+            );
           /**
            * @description Do not await to avoid deadlock! The tool can send the message to other agents by emulating user messages
            */

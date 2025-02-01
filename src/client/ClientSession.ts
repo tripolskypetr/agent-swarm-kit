@@ -40,6 +40,8 @@ export class ClientSession implements ISession {
         message,
       }
     );
+    this.params.onEmit &&
+      this.params.onEmit(this.params.clientId, this.params.swarmName, message);
     await this._emitSubject.next(message);
   };
 
@@ -57,6 +59,13 @@ export class ClientSession implements ISession {
         mode,
       }
     );
+    this.params.onExecute &&
+      this.params.onExecute(
+        this.params.clientId,
+        this.params.swarmName,
+        message,
+        mode
+      );
     const agent = await this.params.swarm.getAgent();
     const outputAwaiter = this.params.swarm.waitForOutput();
     agent.execute(message, mode);
@@ -133,6 +142,8 @@ export class ClientSession implements ISession {
     this.params.logger.debug(
       `ClientSession clientId=${this.params.clientId} connect`
     );
+    this.params.onConnect &&
+      this.params.onConnect(this.params.clientId, this.params.swarmName);
     this._emitSubject.subscribe(
       async (data: string) =>
         await connector({

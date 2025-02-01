@@ -21,3 +21,9 @@ logger: ILogger
 ```ts
 swarm: ISwarm
 ```
+
+### swarmName
+
+```ts
+swarmName: string
+```

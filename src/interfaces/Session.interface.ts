@@ -1,15 +1,16 @@
 import { IIncomingMessage, IOutgoingMessage } from "../model/EmitMessage.model";
 import { ILogger } from "../interfaces/Logger.interface";
-import ISwarm from "../interfaces/Swarm.interface";
+import ISwarm, { ISwarmSession, SwarmName } from "../interfaces/Swarm.interface";
 
 /**
  * Parameters required to create a session.
  * @interface
  */
-export interface ISessionParams extends ISessionSchema {
+export interface ISessionParams extends ISessionSchema, ISwarmSession {
   clientId: string;
   logger: ILogger;
   swarm: ISwarm;
+  swarmName: SwarmName;
 }
 
 /**
@@ -25,7 +26,9 @@ export interface ISessionSchema {
  * @param {IOutgoingMessage} outgoing - The outgoing message.
  * @returns {Promise<void> | void}
  */
-export type SendMessageFn = (outgoing: IOutgoingMessage) => Promise<void> | void;
+export type SendMessageFn = (
+  outgoing: IOutgoingMessage
+) => Promise<void> | void;
 
 /**
  * Function type for receiving messages.
@@ -33,7 +36,9 @@ export type SendMessageFn = (outgoing: IOutgoingMessage) => Promise<void> | void
  * @param {IIncomingMessage} incoming - The incoming message.
  * @returns {Promise<void> | void}
  */
-export type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
+export type ReceiveMessageFn = (
+  incoming: IIncomingMessage
+) => Promise<void> | void;
 
 /**
  * Interface for a session.
@@ -74,13 +79,13 @@ export interface ISession {
    * @param {string} message - The message to commit.
    * @returns {Promise<void>}
    */
-  commitUserMessage: (message: string) => Promise<void>
+  commitUserMessage: (message: string) => Promise<void>;
 
   /**
    * Commit flush of agent history
    * @returns {Promise<void>}
    */
-  commitFlush: () => Promise<void>
+  commitFlush: () => Promise<void>;
 
   /**
    * Commit a system message.
