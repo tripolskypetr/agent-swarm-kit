@@ -1,12 +1,12 @@
 import { IIncomingMessage, IOutgoingMessage } from "../model/EmitMessage.model";
 import { ILogger } from "../interfaces/Logger.interface";
-import ISwarm, { ISwarmSession, SwarmName } from "../interfaces/Swarm.interface";
+import ISwarm, { ISwarmSessionCallbacks, SwarmName } from "../interfaces/Swarm.interface";
 
 /**
  * Parameters required to create a session.
  * @interface
  */
-export interface ISessionParams extends ISessionSchema, ISwarmSession {
+export interface ISessionParams extends ISessionSchema, ISwarmSessionCallbacks {
   clientId: string;
   logger: ILogger;
   swarm: ISwarm;

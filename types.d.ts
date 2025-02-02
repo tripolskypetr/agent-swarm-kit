@@ -53,7 +53,7 @@ interface ILogger {
     debug(...args: any[]): void;
 }
 
-interface ISwarmSession {
+interface ISwarmSessionCallbacks {
     /**
      * Callback triggered when a client connects.
      * @param clientId - The ID of the client.
@@ -77,6 +77,13 @@ interface ISwarmSession {
     onEmit?: (clientId: string, swarmName: SwarmName, message: string) => void;
 }
 /**
+ * Lifecycle callbacks of initialized swarm
+ */
+interface ISwarmCallbacks extends ISwarmSessionCallbacks {
+    /** Emit the callback on agent change */
+    onAgentChanged: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
+}
+/**
  * Parameters for initializing a swarm.
  * @interface
  * @extends {Omit<ISwarmSchema, 'agentList'>}
@@ -84,29 +91,27 @@ interface ISwarmSession {
 interface ISwarmParams extends Omit<ISwarmSchema, keyof {
     agentList: never;
     onAgentChanged: never;
-}> {
+}>, ISwarmCallbacks {
     /** Client identifier */
     clientId: string;
     /** Logger instance */
     logger: ILogger;
     /** Map of agent names to agent instances */
     agentMap: Record<AgentName, IAgent>;
-    /** Emit the callback on agent change */
-    onAgentChanged: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
 }
 /**
  * Schema for defining a swarm.
  * @interface
  */
-interface ISwarmSchema extends ISwarmSession {
+interface ISwarmSchema {
     /** Default agent name */
     defaultAgent: AgentName;
     /** Name of the swarm */
     swarmName: string;
     /** List of agent names */
     agentList: string[];
-    /** Emit the callback on agent change */
-    onAgentChanged?: (clientId: string, agentName: AgentName, swarmName: SwarmName) => void;
+    /** Lifecycle callbacks*/
+    callbacks?: Partial<ISwarmCallbacks>;
 }
 /**
  * Interface for a swarm.
@@ -149,7 +154,7 @@ type SwarmName = string;
  * Parameters required to create a session.
  * @interface
  */
-interface ISessionParams extends ISessionSchema, ISwarmSession {
+interface ISessionParams extends ISessionSchema, ISwarmSessionCallbacks {
     clientId: string;
     logger: ILogger;
     swarm: ISwarm;
@@ -431,6 +436,17 @@ interface ICompletionArgs {
     tools?: ITool[];
 }
 /**
+ * Completion lifecycle callbacks
+ */
+interface ICompletionCallbacks {
+    /**
+     * Callback fired after complete.
+     * @param args - Arguments passed to complete
+     * @param output - Output of the model
+     */
+    onComplete?: (args: ICompletionArgs, output: IModelMessage) => void;
+}
+/**
  * Schema for a completion.
  */
 interface ICompletionSchema {
@@ -445,17 +461,37 @@ interface ICompletionSchema {
      */
     getCompletion(args: ICompletionArgs): Promise<IModelMessage>;
     /**
-     * Callback fired after complete.
-     * @param args - Arguments passed to complete
-     * @param output - Output of the model
+     * Completion lifecycle callbacks
      */
-    onComplete?: (args: ICompletionArgs, output: IModelMessage) => void;
+    callbacks?: Partial<ICompletionCallbacks>;
 }
 /**
  * Type representing the name of a completion.
  */
 type CompletionName = string;
 
+/**
+ * Interface representing lifecycle callbacks of a tool
+ * @template T - The type of the parameters for the tool.
+ */
+interface IAgentToolCallbacks<T = Record<string, unknown>> {
+    /**
+     * Callback triggered when the tool is called.
+     * @param clientId - The ID of the client.
+     * @param agentName - The name of the agent.
+     * @param params - The parameters for the tool.
+     * @returns A promise that resolves when the tool call is complete.
+     */
+    onCall?: (clientId: string, agentName: AgentName, params: T) => Promise<void>;
+    /**
+     * Callback triggered when the tool parameters are validated.
+     * @param clientId - The ID of the client.
+     * @param agentName - The name of the agent.
+     * @param params - The parameters for the tool.
+     * @returns A promise that resolves to a boolean indicating whether the parameters are valid.
+     */
+    onValidate?: (clientId: string, agentName: AgentName, params: T) => Promise<boolean>;
+}
 /**
  * Interface representing a tool used by an agent.
  * @template T - The type of the parameters for the tool.
@@ -479,22 +515,8 @@ interface IAgentTool<T = Record<string, unknown>> extends ITool {
      * @returns A promise that resolves to a boolean indicating whether the parameters are valid, or a boolean.
      */
     validate(clientId: string, agentName: AgentName, params: T): Promise<boolean> | boolean;
-    /**
-     * Callback triggered when the tool is called.
-     * @param clientId - The ID of the client.
-     * @param agentName - The name of the agent.
-     * @param params - The parameters for the tool.
-     * @returns A promise that resolves when the tool call is complete.
-     */
-    onCall?: (clientId: string, agentName: AgentName, params: T) => Promise<void>;
-    /**
-     * Callback triggered when the tool parameters are validated.
-     * @param clientId - The ID of the client.
-     * @param agentName - The name of the agent.
-     * @param params - The parameters for the tool.
-     * @returns A promise that resolves to a boolean indicating whether the parameters are valid.
-     */
-    onValidate?: (clientId: string, agentName: AgentName, params: T) => Promise<boolean>;
+    /** The name of the tool. */
+    callbacks?: Partial<IAgentToolCallbacks>;
 }
 /**
  * Interface representing the parameters for an agent.
@@ -503,7 +525,7 @@ interface IAgentParams extends Omit<IAgentSchema, keyof {
     tools: never;
     completion: never;
     validate: never;
-}> {
+}>, IAgentSchemaCallbacks {
     /** The ID of the client. */
     clientId: string;
     /** The logger instance. */
@@ -522,25 +544,9 @@ interface IAgentParams extends Omit<IAgentSchema, keyof {
     validate: (output: string) => Promise<string | null>;
 }
 /**
- * Interface representing the schema for an agent.
+ * Interface representing the lifecycle callbacks of an agent
  */
-interface IAgentSchema {
-    /** The name of the agent. */
-    agentName: AgentName;
-    /** The name of the completion. */
-    completion: CompletionName;
-    /** The prompt for the agent. */
-    prompt: string;
-    /** The system prompt. Usually used for tool calling protocol. */
-    system?: string[];
-    /** The names of the tools used by the agent. */
-    tools?: ToolName[];
-    /**
-     * Validates the output.
-     * @param output - The output to validate.
-     * @returns A promise that resolves to a string or null.
-     */
-    validate?: (output: string) => Promise<string | null>;
+interface IAgentSchemaCallbacks {
     /**
      * Callback triggered when the agent executes.
      * @param clientId - The ID of the client.
@@ -591,6 +597,29 @@ interface IAgentSchema {
      * @param reason - The reason for the resurrection.
      */
     onResurrect?: (clientId: string, agentName: AgentName, mode: ExecutionMode, reason?: string) => void;
+}
+/**
+ * Interface representing the schema for an agent.
+ */
+interface IAgentSchema {
+    /** The name of the agent. */
+    agentName: AgentName;
+    /** The name of the completion. */
+    completion: CompletionName;
+    /** The prompt for the agent. */
+    prompt: string;
+    /** The system prompt. Usually used for tool calling protocol. */
+    system?: string[];
+    /** The names of the tools used by the agent. */
+    tools?: ToolName[];
+    /**
+     * Validates the output.
+     * @param output - The output to validate.
+     * @returns A promise that resolves to a string or null.
+     */
+    validate?: (output: string) => Promise<string | null>;
+    /** The lifecycle calbacks of the agent. */
+    callbacks?: Partial<IAgentSchemaCallbacks>;
 }
 /**
  * Interface representing an agent.

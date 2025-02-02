@@ -8,6 +8,33 @@ import {
 import { ExecutionMode } from "./Session.interface";
 
 /**
+ * Interface representing lifecycle callbacks of a tool
+ * @template T - The type of the parameters for the tool.
+ */
+export interface IAgentToolCallbacks<T = Record<string, unknown>> {
+  /**
+   * Callback triggered when the tool is called.
+   * @param clientId - The ID of the client.
+   * @param agentName - The name of the agent.
+   * @param params - The parameters for the tool.
+   * @returns A promise that resolves when the tool call is complete.
+   */
+  onCall?: (clientId: string, agentName: AgentName, params: T) => Promise<void>;
+  /**
+   * Callback triggered when the tool parameters are validated.
+   * @param clientId - The ID of the client.
+   * @param agentName - The name of the agent.
+   * @param params - The parameters for the tool.
+   * @returns A promise that resolves to a boolean indicating whether the parameters are valid.
+   */
+  onValidate?: (
+    clientId: string,
+    agentName: AgentName,
+    params: T
+  ) => Promise<boolean>;
+}
+
+/**
  * Interface representing a tool used by an agent.
  * @template T - The type of the parameters for the tool.
  */
@@ -34,27 +61,8 @@ export interface IAgentTool<T = Record<string, unknown>> extends ITool {
     agentName: AgentName,
     params: T
   ): Promise<boolean> | boolean;
-
-  /**
-   * Callback triggered when the tool is called.
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param params - The parameters for the tool.
-   * @returns A promise that resolves when the tool call is complete.
-   */
-  onCall?: (clientId: string, agentName: AgentName, params: T) => Promise<void>;
-  /**
-   * Callback triggered when the tool parameters are validated.
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param params - The parameters for the tool.
-   * @returns A promise that resolves to a boolean indicating whether the parameters are valid.
-   */
-  onValidate?: (
-    clientId: string,
-    agentName: AgentName,
-    params: T
-  ) => Promise<boolean>;
+  /** The name of the tool. */
+  callbacks?: Partial<IAgentToolCallbacks>;
 }
 
 /**
@@ -68,7 +76,7 @@ export interface IAgentParams
       completion: never;
       validate: never;
     }
-  > {
+  >, IAgentSchemaCallbacks {
   /** The ID of the client. */
   clientId: string;
   /** The logger instance. */
@@ -88,26 +96,9 @@ export interface IAgentParams
 }
 
 /**
- * Interface representing the schema for an agent.
+ * Interface representing the lifecycle callbacks of an agent
  */
-export interface IAgentSchema {
-  /** The name of the agent. */
-  agentName: AgentName;
-  /** The name of the completion. */
-  completion: CompletionName;
-  /** The prompt for the agent. */
-  prompt: string;
-  /** The system prompt. Usually used for tool calling protocol. */
-  system?: string[];
-  /** The names of the tools used by the agent. */
-  tools?: ToolName[];
-  /**
-   * Validates the output.
-   * @param output - The output to validate.
-   * @returns A promise that resolves to a string or null.
-   */
-  validate?: (output: string) => Promise<string | null>;
-
+export interface IAgentSchemaCallbacks {
   /**
    * Callback triggered when the agent executes.
    * @param clientId - The ID of the client.
@@ -180,6 +171,30 @@ export interface IAgentSchema {
     mode: ExecutionMode,
     reason?: string
   ) => void;
+}
+
+/**
+ * Interface representing the schema for an agent.
+ */
+export interface IAgentSchema {
+  /** The name of the agent. */
+  agentName: AgentName;
+  /** The name of the completion. */
+  completion: CompletionName;
+  /** The prompt for the agent. */
+  prompt: string;
+  /** The system prompt. Usually used for tool calling protocol. */
+  system?: string[];
+  /** The names of the tools used by the agent. */
+  tools?: ToolName[];
+  /**
+   * Validates the output.
+   * @param output - The output to validate.
+   * @returns A promise that resolves to a string or null.
+   */
+  validate?: (output: string) => Promise<string | null>;
+  /** The lifecycle calbacks of the agent. */
+  callbacks?: Partial<IAgentSchemaCallbacks>;
 }
 
 /**

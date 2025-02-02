@@ -152,12 +152,12 @@ export class ClientAgent implements IAgent {
       messages,
       mode,
       tools: this.params.tools?.map((t) =>
-        omit(t, "toolName", "call", "validate", "onCall", "onValidate")
+        omit(t, "toolName", "call", "validate", "callbacks")
       ),
     };
     const output = await this.params.completion.getCompletion(args);
-    this.params.completion.onComplete &&
-      this.params.completion.onComplete(args, output);
+    this.params.completion.callbacks?.onComplete &&
+      this.params.completion.callbacks?.onComplete(args, output);
     return output;
   };
 
@@ -304,7 +304,7 @@ export class ClientAgent implements IAgent {
             await this._emitOuput(mode, result);
             return;
           }
-          targetFn.onValidate && targetFn.onValidate(
+          targetFn.callbacks?.onValidate && targetFn.callbacks?.onValidate(
             this.params.clientId,
             this.params.agentName,
             tool.function.arguments
@@ -333,8 +333,8 @@ export class ClientAgent implements IAgent {
             await this._emitOuput(mode, result);
             return;
           }
-          targetFn.onCall &&
-            targetFn.onCall(
+          targetFn.callbacks?.onCall &&
+            targetFn.callbacks?.onCall(
               this.params.clientId,
               this.params.agentName,
               tool.function.arguments

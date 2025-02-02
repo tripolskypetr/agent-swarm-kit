@@ -40,16 +40,14 @@ export class SessionConnectionService implements ISession {
   public getSession = memoize(
     ([clientId, swarmName]) => `${clientId}-${swarmName}`,
     (clientId: string, swarmName: string) => {
-      const { onConnect, onEmit, onExecute } =
+      const { callbacks } =
         this.swarmSchemaService.get(swarmName);
       return new ClientSession({
         clientId,
         logger: this.loggerService,
         swarm: this.swarmConnectionService.getSwarm(clientId, swarmName),
         swarmName,
-        onConnect,
-        onEmit,
-        onExecute,
+        ...callbacks
       })
     }
   );

@@ -34,6 +34,19 @@ export interface ICompletionArgs {
   tools?: ITool[]
 }
 
+
+/**
+ * Completion lifecycle callbacks
+ */
+export interface ICompletionCallbacks {
+  /**
+   * Callback fired after complete.
+   * @param args - Arguments passed to complete
+   * @param output - Output of the model
+   */
+  onComplete?: (args: ICompletionArgs, output: IModelMessage) => void;
+}
+
 /**
  * Schema for a completion.
  */
@@ -49,11 +62,9 @@ export interface ICompletionSchema {
    */
   getCompletion(args: ICompletionArgs): Promise<IModelMessage>;
   /**
-   * Callback fired after complete.
-   * @param args - Arguments passed to complete
-   * @param output - Output of the model
+   * Completion lifecycle callbacks
    */
-  onComplete?: (args: ICompletionArgs, output: IModelMessage) => void;
+  callbacks?: Partial<ICompletionCallbacks>;
 }
 
 /**
