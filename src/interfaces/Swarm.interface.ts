@@ -30,6 +30,18 @@ export interface ISwarmSessionCallbacks {
    * @param message - The message to emit.
    */
   onEmit?: (clientId: string, swarmName: SwarmName, message: string) => void;
+  /**
+   * Callback triggered when a session being connected
+   * @param clientId - The ID of the client.
+   * @param swarmName - The name of the swarm.
+   */
+  onInit?: (clientId: string, swarmName: SwarmName) => void;
+  /**
+   * Callback triggered when a session being disponnected
+   * @param clientId - The ID of the client.
+   * @param swarmName - The name of the swarm.
+   */
+  onDispose?: (clientId: string, swarmName: SwarmName) => void;
 }
 
 /**

@@ -75,6 +75,18 @@ interface ISwarmSessionCallbacks {
      * @param message - The message to emit.
      */
     onEmit?: (clientId: string, swarmName: SwarmName, message: string) => void;
+    /**
+     * Callback triggered when a session being connected
+     * @param clientId - The ID of the client.
+     * @param swarmName - The name of the swarm.
+     */
+    onInit?: (clientId: string, swarmName: SwarmName) => void;
+    /**
+     * Callback triggered when a session being disponnected
+     * @param clientId - The ID of the client.
+     * @param swarmName - The name of the swarm.
+     */
+    onDispose?: (clientId: string, swarmName: SwarmName) => void;
 }
 /**
  * Lifecycle callbacks of initialized swarm
@@ -597,6 +609,18 @@ interface IAgentSchemaCallbacks {
      * @param reason - The reason for the resurrection.
      */
     onResurrect?: (clientId: string, agentName: AgentName, mode: ExecutionMode, reason?: string) => void;
+    /**
+     * Callback triggered when agent is initialized
+     * @param clientId - The ID of the client.
+     * @param agentName - The name of the agent.
+     */
+    onInit?: (clientId: string, agentName: AgentName) => void;
+    /**
+     * Callback triggered when agent is disposed
+     * @param clientId - The ID of the client.
+     * @param agentName - The name of the agent.
+     */
+    onDispose?: (clientId: string, agentName: AgentName) => void;
 }
 /**
  * Interface representing the schema for an agent.
@@ -774,6 +798,11 @@ declare class ClientAgent implements IAgent {
      * @returns {Promise<void>}
      */
     execute: IAgent["execute"];
+    /**
+     * Should call on agent dispose
+     * @returns {Promise<void>}
+     */
+    dispose: () => Promise<void>;
 }
 
 /**
@@ -1139,6 +1168,11 @@ declare class ClientSession implements ISession {
      * @returns {ReceiveMessageFn} - The function to receive messages.
      */
     connect: (connector: SendMessageFn$1) => ReceiveMessageFn;
+    /**
+     * Should call on session dispose
+     * @returns {Promise<void>}
+     */
+    dispose: () => Promise<void>;
 }
 
 /**

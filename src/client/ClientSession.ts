@@ -26,6 +26,7 @@ export class ClientSession implements ISession {
         params,
       }
     );
+    this.params.onInit && this.params.onInit(params.clientId, params.swarmName);
   }
 
   /**
@@ -162,6 +163,18 @@ export class ClientSession implements ISession {
         clientId: incoming.clientId,
       });
     };
+  };
+
+  /**
+   * Should call on session dispose
+   * @returns {Promise<void>}
+   */
+  dispose = async (): Promise<void> => {
+    this.params.logger.debug(
+      `ClientSession clientId=${this.params.clientId} dispose`
+    );
+    this.params.onDispose &&
+      this.params.onDispose(this.params.clientId, this.params.swarmName);
   };
 }
 

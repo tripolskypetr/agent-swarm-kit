@@ -173,6 +173,10 @@ export class SessionConnectionService implements ISession {
     this.loggerService.log(`sessionConnectionService dispose`, {
       context: this.contextService.context,
     });
+    await this.getSession(
+      this.contextService.context.clientId,
+      this.contextService.context.swarmName
+    ).dispose();
     this.getSession.clear(
       `${this.contextService.context.clientId}-${this.contextService.context.swarmName}`
     );

@@ -31,6 +31,7 @@ export class ClientAgent implements IAgent {
         params,
       }
     );
+    this.params.onInit && this.params.onInit(params.clientId, params.agentName);
   }
 
   /**
@@ -304,11 +305,12 @@ export class ClientAgent implements IAgent {
             await this._emitOuput(mode, result);
             return;
           }
-          targetFn.callbacks?.onValidate && targetFn.callbacks?.onValidate(
-            this.params.clientId,
-            this.params.agentName,
-            tool.function.arguments
-          );
+          targetFn.callbacks?.onValidate &&
+            targetFn.callbacks?.onValidate(
+              this.params.clientId,
+              this.params.agentName,
+              tool.function.arguments
+            );
           if (
             await not(
               targetFn.validate(
@@ -389,6 +391,18 @@ export class ClientAgent implements IAgent {
       await this._emitOuput(mode, result);
     }
   ) as IAgent["execute"];
+
+  /**
+   * Should call on agent dispose
+   * @returns {Promise<void>}
+   */
+  dispose = async (): Promise<void> => {
+    this.params.logger.debug(
+      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} dispose`
+    );
+    this.params.onDispose &&
+      this.params.onDispose(this.params.clientId, this.params.agentName);
+  };
 }
 
 export default ClientAgent;

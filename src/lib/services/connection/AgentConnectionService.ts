@@ -175,6 +175,10 @@ export class AgentConnectionService implements IAgent {
     this.loggerService.log(`agentConnectionService dispose`, {
       context: this.contextService.context,
     });
+    await this.getAgent(
+      this.contextService.context.clientId,
+      this.contextService.context.agentName
+    ).dispose();
     this.getAgent.clear(
       `${this.contextService.context.clientId}-${this.contextService.context.agentName}`
     );

@@ -70,13 +70,14 @@ export interface IAgentTool<T = Record<string, unknown>> extends ITool {
  */
 export interface IAgentParams
   extends Omit<
-    IAgentSchema,
-    keyof {
-      tools: never;
-      completion: never;
-      validate: never;
-    }
-  >, IAgentSchemaCallbacks {
+      IAgentSchema,
+      keyof {
+        tools: never;
+        completion: never;
+        validate: never;
+      }
+    >,
+    IAgentSchemaCallbacks {
   /** The ID of the client. */
   clientId: string;
   /** The logger instance. */
@@ -171,6 +172,18 @@ export interface IAgentSchemaCallbacks {
     mode: ExecutionMode,
     reason?: string
   ) => void;
+  /**
+   * Callback triggered when agent is initialized
+   * @param clientId - The ID of the client.
+   * @param agentName - The name of the agent.
+   */
+  onInit?: (clientId: string, agentName: AgentName) => void;
+  /**
+   * Callback triggered when agent is disposed
+   * @param clientId - The ID of the client.
+   * @param agentName - The name of the agent.
+   */
+  onDispose?: (clientId: string, agentName: AgentName) => void;
 }
 
 /**
