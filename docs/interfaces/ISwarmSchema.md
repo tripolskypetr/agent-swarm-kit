@@ -28,10 +28,10 @@ agentList: string[]
 
 List of agent names
 
-### onAgentChanged
+### callbacks
 
 ```ts
-onAgentChanged: (clientId: string, agentName: string, swarmName: string) => void
+callbacks: Partial<ISwarmCallbacks>
 ```
 
-Emit the callback on agent change
+Lifecycle callbacks

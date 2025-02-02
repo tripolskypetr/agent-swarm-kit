@@ -27,11 +27,3 @@ agentMap: Record<string, IAgent>
 ```
 
 Map of agent names to agent instances
-
-### onAgentChanged
-
-```ts
-onAgentChanged: (clientId: string, agentName: string, swarmName: string) => Promise<void>
-```
-
-Emit the callback on agent change

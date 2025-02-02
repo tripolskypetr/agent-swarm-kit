@@ -101,3 +101,11 @@ execute: (input: string, mode: ExecutionMode) => Promise<void>
 ```
 
 Executes the incoming message and processes tool calls if any.
+
+### dispose
+
+```ts
+dispose: () => Promise<void>
+```
+
+Should call on agent dispose

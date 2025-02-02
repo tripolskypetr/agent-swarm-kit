@@ -12,13 +12,13 @@ completionName: string
 
 Name of the completion.
 
-### onComplete
+### callbacks
 
 ```ts
-onComplete: (args: ICompletionArgs, output: IModelMessage) => void
+callbacks: Partial<ICompletionCallbacks>
 ```
 
-Callback fired after complete.
+Completion lifecycle callbacks
 
 ## Methods
 

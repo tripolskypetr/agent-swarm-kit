@@ -79,3 +79,11 @@ connect: (connector: SendMessageFn$1) => ReceiveMessageFn
 ```
 
 Connects the session to a connector function.
+
+### dispose
+
+```ts
+dispose: () => Promise<void>
+```
+
+Should call on session dispose

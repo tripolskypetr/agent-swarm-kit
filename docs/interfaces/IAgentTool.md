@@ -12,21 +12,13 @@ toolName: string
 
 The name of the tool.
 
-### onCall
+### callbacks
 
 ```ts
-onCall: (clientId: string, agentName: string, params: T) => Promise<void>
+callbacks: Partial<IAgentToolCallbacks<Record<string, unknown>>>
 ```
 
-Callback triggered when the tool is called.
-
-### onValidate
-
-```ts
-onValidate: (clientId: string, agentName: string, params: T) => Promise<boolean>
-```
-
-Callback triggered when the tool parameters are validated.
+The name of the tool.
 
 ## Methods
 
