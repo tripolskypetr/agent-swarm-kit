@@ -1,4 +1,4 @@
-import { queued, Subject } from "functools-kit";
+import { cancelable, CANCELED_PROMISE_SYMBOL, createAwaiter, queued, Subject } from "functools-kit";
 import { GLOBAL_CONFIG } from "../config/params";
 import { AgentName, IAgent } from "../interfaces/Agent.interface";
 import ISwarm, { ISwarmParams } from "../interfaces/Swarm.interface";
@@ -10,9 +10,13 @@ const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
  * ClientSwarm class implements the ISwarm interface and manages agents within a swarm.
  */
 export class ClientSwarm implements ISwarm {
-  private _agentChangedSubject = new Subject<void>();
+  private _agentChangedSubject = new Subject<[agentName: AgentName, agent: IAgent]>();
 
   private _activeAgent: AgentName | typeof AGENT_NEED_FETCH = AGENT_NEED_FETCH;
+
+  get _agentList() {
+    return Object.entries(this.params.agentMap);
+  }
 
   /**
    * Creates an instance of ClientSwarm.
@@ -36,28 +40,38 @@ export class ClientSwarm implements ISwarm {
     this.params.logger.debug(
       `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} waitForOutput`
     );
-    const START_TIME = Date.now();
-    while (true) {
-      if (Date.now() - START_TIME >= GLOBAL_CONFIG.CC_ANSWER_TIMEOUT) {
-        throw new Error(
-          `agent-swarm ClientSwarm waitForOutput timeout reached for ${this.params.swarmName}`
-        );
-      }
-      const [agentName, output] = await Promise.race([
-        ...Object.entries(this.params.agentMap).map(
-          async ([agentName, agent]) => [agentName, await agent.waitForOutput()]
-        ),
-        this._agentChangedSubject
-          .toPromise()
-          .then(() => [AGENT_REF_CHANGED as never]),
-      ]);
-      if (agentName === (AGENT_REF_CHANGED as never)) {
-        continue;
-      }
-      if (agentName === (await this.getAgentName())) {
-        return output;
-      }
-    }
+
+    const [awaiter, { resolve }] = createAwaiter<{agentName: AgentName, output: string}>();
+
+    const getOutput = cancelable(async () => await Promise.race(this._agentList.map(
+      async ([agentName, agent]) => ({agentName, output: await agent.waitForOutput()}),
+    )));
+
+    const handleOutput = () => {
+      getOutput.cancel();
+      getOutput().then((value) => {
+        if (value === CANCELED_PROMISE_SYMBOL) {
+          return;
+        }
+        resolve(value);
+      })
+    };
+
+    const un = this._agentChangedSubject.subscribe(handleOutput);
+    handleOutput();
+  
+    const { agentName, output } = await awaiter;
+    un();
+
+    const expectAgent = await this.getAgentName();
+
+    agentName !== expectAgent && this.params.logger.debug(
+      `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} waitForAgent agent miss`,
+      { agentName, expectAgent }
+    );
+
+    return output;
+
   }) as () => Promise<string>;
 
   /**
@@ -104,7 +118,7 @@ export class ClientSwarm implements ISwarm {
       throw new Error(`agent-swarm agent ${agentName} not in the swarm`);
     }
     this.params.agentMap[agentName] = agent;
-    await this._agentChangedSubject.next();
+    await this._agentChangedSubject.next([agentName, agent]);
   };
 
   /**
