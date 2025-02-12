@@ -109,11 +109,13 @@ export class HistoryConnectionService implements IHistory {
     this.loggerService.log(`historyConnectionService dispose`, {
       context: this.contextService.context,
     });
-    await this.getItems(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName,
-    ).clear();
-    this.getItems.clear(this.contextService.context.clientId);
+    if (GLOBAL_CONFIG.CC_AGENT_SEPARATE_HISTORY) {
+      await this.getItems(
+        this.contextService.context.clientId,
+        this.contextService.context.agentName,
+      ).clear();
+      this.getItems.clear(this.contextService.context.clientId);
+    }
     this.getHistory.clear(
       `${this.contextService.context.clientId}-${this.contextService.context.agentName}`
     );

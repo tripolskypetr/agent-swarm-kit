@@ -2052,6 +2052,7 @@ declare const GLOBAL_CONFIG: {
     CC_AGENT_DEFAULT_VALIDATION: (output: string) => Promise<string | null>;
     CC_AGENT_HISTORY_FILTER: (agentName: AgentName) => (message: IModelMessage) => boolean;
     CC_AGENT_OUTPUT_TRANSFORM: (input: string) => string;
+    CC_AGENT_SEPARATE_HISTORY: boolean;
     CC_AGENT_DISALLOWED_TAGS: string[];
     CC_AGENT_DISALLOWED_SYMBOLS: string[];
 };
