@@ -33,7 +33,7 @@ _outputSubject: Subject<string>
 ### _emitOuput
 
 ```ts
-_emitOuput: (mode: ExecutionMode, result: string) => Promise<void>
+_emitOuput: (mode: ExecutionMode, rawResult: string) => Promise<void>
 ```
 
 Emits the output result after validation.

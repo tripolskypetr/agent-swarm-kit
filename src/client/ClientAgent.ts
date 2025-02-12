@@ -40,13 +40,16 @@ export class ClientAgent implements IAgent {
    * @returns {Promise<void>}
    * @private
    */
-  _emitOuput = async (mode: ExecutionMode, result: string): Promise<void> => {
+  _emitOuput = async (mode: ExecutionMode, rawResult: string): Promise<void> => {
+    const result = this.params.transform(rawResult);
     this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _emitOuput`
+      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _emitOuput`,
+      { mode, result, rawResult }
     );
     let validation: string | null = null;
     if ((validation = await this.params.validate(result))) {
-      const result = await this._resurrectModel(mode, validation);
+      const rawResult = await this._resurrectModel(mode, validation);
+      const result = this.params.transform(rawResult);
       if ((validation = await this.params.validate(result))) {
         throw new Error(
           `agent-swarm-kit ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} model ressurect failed: ${validation}`

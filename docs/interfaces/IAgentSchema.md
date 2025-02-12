@@ -52,6 +52,14 @@ validate: (output: string) => Promise<string>
 
 Validates the output.
 
+### transform
+
+```ts
+transform: (input: string) => string
+```
+
+The transform function for model output
+
 ### callbacks
 
 ```ts

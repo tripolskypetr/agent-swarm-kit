@@ -642,6 +642,8 @@ interface IAgentSchema {
      * @returns A promise that resolves to a string or null.
      */
     validate?: (output: string) => Promise<string | null>;
+    /** The transform function for model output */
+    transform?: (input: string) => string;
     /** The lifecycle calbacks of the agent. */
     callbacks?: Partial<IAgentSchemaCallbacks>;
 }
@@ -751,7 +753,7 @@ declare class ClientAgent implements IAgent {
      * @returns {Promise<void>}
      * @private
      */
-    _emitOuput: (mode: ExecutionMode, result: string) => Promise<void>;
+    _emitOuput: (mode: ExecutionMode, rawResult: string) => Promise<void>;
     /**
      * Resurrects the model based on the given reason.
      * @param {string} [reason] - The reason for resurrecting the model.
@@ -871,6 +873,10 @@ declare class AgentConnectionService implements IAgent {
  */
 declare class ClientHistory implements IHistory {
     readonly params: IHistoryParams;
+    /**
+     * Filter condition for `toArrayForAgent`
+     */
+    _filterCondition: (message: IModelMessage) => boolean;
     /**
      * Creates an instance of ClientHistory.
      * @param {IHistoryParams} params - The parameters for the history.
@@ -2044,6 +2050,8 @@ declare const GLOBAL_CONFIG: {
     CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
     CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
     CC_AGENT_DEFAULT_VALIDATION: (output: string) => Promise<string | null>;
+    CC_AGENT_HISTORY_FILTER: (agentName: AgentName) => (message: IModelMessage) => boolean;
+    CC_AGENT_OUTPUT_TRANSFORM: (input: string) => string;
     CC_AGENT_DISALLOWED_TAGS: string[];
     CC_AGENT_DISALLOWED_SYMBOLS: string[];
 };

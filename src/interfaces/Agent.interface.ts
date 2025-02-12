@@ -206,6 +206,8 @@ export interface IAgentSchema {
    * @returns A promise that resolves to a string or null.
    */
   validate?: (output: string) => Promise<string | null>;
+  /** The transform function for model output */
+  transform?: (input: string) => string
   /** The lifecycle calbacks of the agent. */
   callbacks?: Partial<IAgentSchemaCallbacks>;
 }

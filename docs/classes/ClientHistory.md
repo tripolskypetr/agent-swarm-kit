@@ -18,6 +18,14 @@ constructor(params: IHistoryParams);
 params: IHistoryParams
 ```
 
+### _filterCondition
+
+```ts
+_filterCondition: (message: IModelMessage) => boolean
+```
+
+Filter condition for `toArrayForAgent`
+
 ### push
 
 ```ts

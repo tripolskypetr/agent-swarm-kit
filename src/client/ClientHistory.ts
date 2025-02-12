@@ -7,6 +7,12 @@ import { GLOBAL_CONFIG } from "../config/params";
  * @implements {IHistory}
  */
 export class ClientHistory implements IHistory {
+
+  /**
+   * Filter condition for `toArrayForAgent`
+   */
+  _filterCondition: (message: IModelMessage) => boolean;
+
   /**
    * Creates an instance of ClientHistory.
    * @param {IHistoryParams} params - The parameters for the history.
@@ -18,6 +24,7 @@ export class ClientHistory implements IHistory {
         params,
       }
     );
+    this._filterCondition = GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER(this.params.agentName);
   }
 
   /**
@@ -85,16 +92,7 @@ export class ClientHistory implements IHistory {
       ({ agentName }) => agentName === this.params.agentName
     );
     const commonMessages = commonMessagesRaw
-      .filter(({ role, agentName, tool_calls }) => {
-        let isOk = true;
-        if (role === "tool") {
-          isOk = isOk && agentName === this.params.agentName;
-        }
-        if (tool_calls) {
-          isOk = isOk && agentName === this.params.agentName;
-        }
-        return isOk;
-      })
+      .filter(this._filterCondition)
       .slice(-GLOBAL_CONFIG.CC_KEEP_MESSAGES);
     const promptMessages: IModelMessage[] = [];
     {

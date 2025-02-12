@@ -12,6 +12,7 @@ import CompletionSchemaService from "../schema/CompletionSchemaService";
 import validateDefault from "../../../validation/validateDefault";
 import SessionValidationService from "../validation/SessionValidationService";
 import { ExecutionMode } from "../../../interfaces/Session.interface";
+import { GLOBAL_CONFIG } from "src/config/params";
 
 /**
  * Service for managing agent connections.
@@ -53,6 +54,7 @@ export class AgentConnectionService implements IAgent {
         prompt,
         system,
         tools,
+        transform = GLOBAL_CONFIG.CC_AGENT_OUTPUT_TRANSFORM,
         callbacks,
         completion: completionName,
         validate = validateDefault,
@@ -67,6 +69,7 @@ export class AgentConnectionService implements IAgent {
         history: this.historyConnectionService.getHistory(clientId, agentName),
         prompt,
         system,
+        transform,
         tools: tools?.map(this.toolSchemaService.get),
         completion,
         ...callbacks,
