@@ -76,18 +76,20 @@ export class ClientSession implements ISession {
 
   /**
    * Commits tool output.
+   * @param {string} toolId - The `tool_call_id` for openai history
    * @param {string} content - The content to commit.
    * @returns {Promise<void>}
    */
-  commitToolOutput = async (content: string) => {
+  commitToolOutput = async (toolId: string, content: string) => {
     this.params.logger.debug(
       `ClientSession clientId=${this.params.clientId} commitToolOutput`,
       {
         content,
+        toolId,
       }
     );
     const agent = await this.params.swarm.getAgent();
-    return await agent.commitToolOutput(content);
+    return await agent.commitToolOutput(toolId, content);
   };
 
   /**

@@ -71,7 +71,7 @@ Connects to the session using the provided connector.
 ### commitToolOutput
 
 ```ts
-commitToolOutput: (content: string) => Promise<void>
+commitToolOutput: (toolId: string, content: string) => Promise<void>
 ```
 
 Commits tool output to the session.

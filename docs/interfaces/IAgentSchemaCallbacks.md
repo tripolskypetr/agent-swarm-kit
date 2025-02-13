@@ -15,7 +15,7 @@ Callback triggered when the agent executes.
 ### onToolOutput
 
 ```ts
-onToolOutput: (clientId: string, agentName: string, content: string) => void
+onToolOutput: (toolId: string, clientId: string, agentName: string, content: string) => void
 ```
 
 Callback triggered when there is tool output.

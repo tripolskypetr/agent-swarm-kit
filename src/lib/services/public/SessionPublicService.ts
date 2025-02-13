@@ -144,24 +144,27 @@ export class SessionPublicService implements TSessionConnectionService {
 
   /**
    * Commits tool output to the session.
+   * @param {string} toolId - The `tool_call_id` for openai history
    * @param {string} content - The content to commit.
    * @param {string} clientId - The client ID.
    * @param {SwarmName} swarmName - The swarm name.
    * @returns {Promise<void>}
    */
   public commitToolOutput = async (
+    toolId: string,
     content: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
     this.loggerService.log("sessionPublicService commitToolOutput", {
+      toolId,
       content,
       clientId,
       swarmName,
     });
     return await ContextService.runInContext(
       async () => {
-        return await this.sessionConnectionService.commitToolOutput(content);
+        return await this.sessionConnectionService.commitToolOutput(toolId, content);
       },
       {
         clientId,

@@ -9,8 +9,9 @@ import swarm from "../lib";
  * @param {AgentName} agentName - The name of the agent committing the output.
  * @returns {Promise<void>} - A promise that resolves when the operation is complete.
  */
-export const commitToolOutput = async (content: string, clientId: string, agentName: AgentName) => {
+export const commitToolOutput = async (toolId: string, content: string, clientId: string, agentName: AgentName) => {
     swarm.loggerService.log('function commitToolOutput', {
+        toolId,
         content,
         clientId,
         agentName,
@@ -22,11 +23,12 @@ export const commitToolOutput = async (content: string, clientId: string, agentN
     const currentAgentName = await swarm.swarmPublicService.getAgentName(clientId, swarmName);
     if (currentAgentName !== agentName) {
         swarm.loggerService.log('function "commitToolOutput" skipped due to the agent change', {
+            toolId,
             currentAgentName,
             agentName,
             clientId,
         });
         return;
     }
-    await swarm.sessionPublicService.commitToolOutput(content, clientId, swarmName);
+    await swarm.sessionPublicService.commitToolOutput(toolId, content, clientId, swarmName);
 }

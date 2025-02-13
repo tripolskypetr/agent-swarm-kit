@@ -69,10 +69,11 @@ export interface ISession {
 
   /**
    * Commit tool output.
+   * @param {string} toolId - The `tool_call_id` for openai history
    * @param {string} content - The content to commit.
    * @returns {Promise<void>}
    */
-  commitToolOutput(content: string): Promise<void>;
+  commitToolOutput(toolId: string, content: string): Promise<void>;
 
   /**
    * Commit user message without answer

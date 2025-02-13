@@ -73,7 +73,7 @@ test("Will orchestrate swarms for each connection", async ({ pass, fail }) => {
 
   const NAVIGATE_TOOL = addTool({
     toolName: "navigate-tool",
-    call: async (clientId, agentName, { to }) => {
+    call: async (toolId, clientId, agentName, { to }) => {
       await changeAgent(to, clientId);
       await execute("Navigation complete", clientId, to);
     },

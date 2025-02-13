@@ -59,7 +59,7 @@ const beforeAll = () => {
 
   addTool({
     toolName: STUCK_ATTEMPT_TOOL,
-    call: async (clientId) => {
+    call: async (toolId, clientId) => {
       await changeAgent(TRIAGE_AGENT, clientId);
       await execute(NAVIGATE_TO_SALES_REQUEST, clientId, TRIAGE_AGENT);
     },
@@ -77,7 +77,7 @@ const beforeAll = () => {
 
   addTool({
     toolName: NAVIGATE_TO_SALES_TOOL,
-    call: async (clientId) => {
+    call: async (toolId, clientId) => {
       await changeAgent(SALES_AGENT, clientId);
       await execute("Say hello to the user", clientId, SALES_AGENT);
     },
@@ -95,7 +95,7 @@ const beforeAll = () => {
 
   addTool({
     toolName: NAVIGATE_TO_REFUND_TOOL,
-    call: async (clientId) => {
+    call: async (toolId, clientId) => {
       await changeAgent(REFUND_AGENT, clientId);
       await execute("Say hello to the user", clientId, REFUND_AGENT);
     },
@@ -245,9 +245,9 @@ test("Will avoid deadlock when commitToolOutput is executed in parallel with nex
 
   const STUCK_TOOL = addTool({
     toolName: 'stuck-attempt-tool',
-    call: async (clientId, agentName) => {
+    call: async (toolId, clientId, agentName) => {
       nextMessageSubject.next("baz");
-      await commitToolOutput("The unblocking execution tool output", clientId, agentName);
+      await commitToolOutput(randomString(), "The unblocking execution tool output", clientId, agentName);
       await execute("bar", clientId, agentName);
     },
     validate: async () => true,

@@ -1,6 +1,6 @@
 import IHistory from "../interfaces/History.interface";
 import { ILogger } from "../interfaces/Logger.interface";
-import { ITool } from "../model/Tool.model";
+import { ITool, IToolCall } from "../model/Tool.model";
 import {
   CompletionName,
   ICompletion,
@@ -48,7 +48,7 @@ export interface IAgentTool<T = Record<string, unknown>> extends ITool {
    * @param params - The parameters for the tool.
    * @returns A promise that resolves when the tool call is complete.
    */
-  call(clientId: string, agentName: AgentName, params: T): Promise<void>;
+  call(toolId: string, clientId: string, agentName: AgentName, params: T): Promise<void>;
   /**
    * Validates the parameters for the tool.
    * @param clientId - The ID of the client.
@@ -115,11 +115,13 @@ export interface IAgentSchemaCallbacks {
   ) => void;
   /**
    * Callback triggered when there is tool output.
+   * @param toolId - The `tool_call_id` for openai history
    * @param clientId - The ID of the client.
    * @param agentName - The name of the agent.
    * @param content - The content of the tool output.
    */
   onToolOutput?: (
+    toolId: string,
     clientId: string,
     agentName: AgentName,
     content: string
@@ -184,6 +186,17 @@ export interface IAgentSchemaCallbacks {
    * @param agentName - The name of the agent.
    */
   onDispose?: (clientId: string, agentName: AgentName) => void;
+  /**
+   * Callback triggered after all tools are called
+   * @param clientId - The ID of the client.
+   * @param agentName - The name of the agent.
+   * @param toolCalls - The array of tool calls
+   */
+  onAfterToolCalls?: (
+    clientId: string,
+    agentName: AgentName,
+    toolCalls: IToolCall[],
+  ) => void;
 }
 
 /**
@@ -230,10 +243,11 @@ export interface IAgent {
   waitForOutput: () => Promise<string>;
   /**
    * Commits the tool output.
+   * @param {string} toolId - The `tool_call_id` for openai history
    * @param content - The content of the tool output.
    * @returns A promise that resolves when the tool output is committed.
    */
-  commitToolOutput(content: string): Promise<void>;
+  commitToolOutput(toolId: string, content: string): Promise<void>;
   /**
    * Commits a system message.
    * @param message - The system message to commit.
