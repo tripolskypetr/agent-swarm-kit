@@ -25,7 +25,7 @@ Waits for the output from the agent.
 ### commitToolOutput
 
 ```ts
-commitToolOutput: (content: string) => Promise<void>
+commitToolOutput: (toolId: string, content: string) => Promise<void>
 ```
 
 Commits the tool output.

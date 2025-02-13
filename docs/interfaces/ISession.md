@@ -49,7 +49,7 @@ Connect to a message sender.
 ### commitToolOutput
 
 ```ts
-commitToolOutput: (content: string) => Promise<void>
+commitToolOutput: (toolId: string, content: string) => Promise<void>
 ```
 
 Commit tool output.

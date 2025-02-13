@@ -4,6 +4,7 @@ import { IModelMessage } from "../model/ModelMessage.model";
 import { IAgent, IAgentParams } from "../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import { ExecutionMode } from "../interfaces/Session.interface";
+import { IToolCall } from "../model/Tool.model";
 
 const getPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[
@@ -40,7 +41,10 @@ export class ClientAgent implements IAgent {
    * @returns {Promise<void>}
    * @private
    */
-  _emitOuput = async (mode: ExecutionMode, rawResult: string): Promise<void> => {
+  _emitOuput = async (
+    mode: ExecutionMode,
+    rawResult: string
+  ): Promise<void> => {
     const result = this.params.transform(rawResult);
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _emitOuput`,
@@ -287,14 +291,19 @@ export class ClientAgent implements IAgent {
         this.params.logger.debug(
           `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} tool call begin`
         );
-        for (const tool of message.tool_calls) {
+        const toolCalls: IToolCall[] = message.tool_calls.map((call) => ({
+          function: call.function,
+          id: call.id ?? randomString(),
+          type: call.type ?? "function",
+        }));
+        await this.params.history.push({
+          ...message,
+          agentName: this.params.agentName,
+        });
+        for (const tool of toolCalls) {
           const targetFn = this.params.tools?.find(
             (t) => t.function.name === tool.function.name
           );
-          await this.params.history.push({
-            ...message,
-            agentName: this.params.agentName,
-          });
           if (!targetFn) {
             this.params.logger.debug(
               `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool function not found`,
@@ -350,7 +359,7 @@ export class ClientAgent implements IAgent {
            * @description Do not await to avoid deadlock! The tool can send the message to other agents by emulating user messages
            */
           targetFn.call(
-            tool.id ?? randomString(),
+            tool.id,
             this.params.clientId,
             this.params.agentName,
             tool.function.arguments
@@ -366,6 +375,12 @@ export class ClientAgent implements IAgent {
             `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool call end`
           );
         }
+        this.params.callbacks?.onAfterToolCalls &&
+          this.params.callbacks.onAfterToolCalls(
+            this.params.clientId,
+            this.params.agentName,
+            toolCalls
+          );
         return;
       }
       if (!message.tool_calls) {

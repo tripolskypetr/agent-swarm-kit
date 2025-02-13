@@ -631,6 +631,13 @@ interface IAgentSchemaCallbacks {
      * @param agentName - The name of the agent.
      */
     onDispose?: (clientId: string, agentName: AgentName) => void;
+    /**
+     * Callback triggered after all tools are called
+     * @param clientId - The ID of the client.
+     * @param agentName - The name of the agent.
+     * @param toolCalls - The array of tool calls
+     */
+    onAfterToolCalls?: (clientId: string, agentName: AgentName, toolCalls: IToolCall[]) => void;
 }
 /**
  * Interface representing the schema for an agent.

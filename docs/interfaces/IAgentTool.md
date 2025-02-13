@@ -25,7 +25,7 @@ The name of the tool.
 ### call
 
 ```ts
-call: (clientId: string, agentName: string, params: T) => Promise<void>
+call: (toolId: string, clientId: string, agentName: string, params: T) => Promise<void>
 ```
 
 Calls the tool with the specified parameters.

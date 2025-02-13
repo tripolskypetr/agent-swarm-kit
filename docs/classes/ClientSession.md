@@ -43,7 +43,7 @@ Executes a message and optionally emits the output.
 ### commitToolOutput
 
 ```ts
-commitToolOutput: (content: string) => Promise<void>
+commitToolOutput: (toolId: string, content: string) => Promise<void>
 ```
 
 Commits tool output.

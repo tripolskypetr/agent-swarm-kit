@@ -51,7 +51,7 @@ Connects to the session.
 ### commitToolOutput
 
 ```ts
-commitToolOutput: (content: string, clientId: string, swarmName: string) => Promise<void>
+commitToolOutput: (toolId: string, content: string, clientId: string, swarmName: string) => Promise<void>
 ```
 
 Commits tool output to the session.

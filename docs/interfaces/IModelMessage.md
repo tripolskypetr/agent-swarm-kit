@@ -39,7 +39,15 @@ The source of message: tool or user
 ### tool_calls
 
 ```ts
-tool_calls: { function: { name: string; arguments: { [key: string]: any; }; }; }[]
+tool_calls: IToolCall[]
 ```
 
 Optional tool calls associated with the message.
+
+### tool_call_id
+
+```ts
+tool_call_id: string
+```
+
+Tool call that this message is responding to.

@@ -89,7 +89,7 @@ Commits a system message to the history.
 ### commitToolOutput
 
 ```ts
-commitToolOutput: (content: string) => Promise<void>
+commitToolOutput: (toolId: string, content: string) => Promise<void>
 ```
 
 Commits the tool output to the history.
