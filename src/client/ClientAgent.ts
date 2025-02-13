@@ -349,8 +349,9 @@ export class ClientAgent implements IAgent {
             await this._emitOuput(mode, result);
             return;
           }
-          targetFn.callbacks?.onCall &&
-            targetFn.callbacks?.onCall(
+          targetFn.callbacks?.onBeforeCall &&
+            targetFn.callbacks?.onBeforeCall(
+              tool.id,
               this.params.clientId,
               this.params.agentName,
               tool.function.arguments
@@ -358,12 +359,22 @@ export class ClientAgent implements IAgent {
           /**
            * @description Do not await to avoid deadlock! The tool can send the message to other agents by emulating user messages
            */
-          targetFn.call(
-            tool.id,
-            this.params.clientId,
-            this.params.agentName,
-            tool.function.arguments
-          );
+          Promise.resolve(
+            targetFn.call(
+              tool.id,
+              this.params.clientId,
+              this.params.agentName,
+              tool.function.arguments
+            )
+          ).then(() => {
+            targetFn.callbacks?.onAfterCall &&
+              targetFn.callbacks?.onAfterCall(
+                tool.id,
+                this.params.clientId,
+                this.params.agentName,
+                tool.function.arguments
+              );
+          });
           this.params.logger.debug(
             `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool call executing`
           );

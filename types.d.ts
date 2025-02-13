@@ -497,13 +497,23 @@ type CompletionName = string;
  */
 interface IAgentToolCallbacks<T = Record<string, unknown>> {
     /**
-     * Callback triggered when the tool is called.
+     * Callback triggered before the tool is called.
+     * @param toolId - The `tool_call_id` for openai history
      * @param clientId - The ID of the client.
      * @param agentName - The name of the agent.
      * @param params - The parameters for the tool.
      * @returns A promise that resolves when the tool call is complete.
      */
-    onCall?: (clientId: string, agentName: AgentName, params: T) => Promise<void>;
+    onBeforeCall?: (toolId: string, clientId: string, agentName: AgentName, params: T) => Promise<void>;
+    /**
+     * Callback triggered after the tool is called.
+     * @param toolId - The `tool_call_id` for openai history
+     * @param clientId - The ID of the client.
+     * @param agentName - The name of the agent.
+     * @param params - The parameters for the tool.
+     * @returns A promise that resolves when the tool call is complete.
+     */
+    onAfterCall?: (toolId: string, clientId: string, agentName: AgentName, params: T) => Promise<void>;
     /**
      * Callback triggered when the tool parameters are validated.
      * @param clientId - The ID of the client.
@@ -522,6 +532,7 @@ interface IAgentTool<T = Record<string, unknown>> extends ITool {
     toolName: ToolName;
     /**
      * Calls the tool with the specified parameters.
+     * @param toolId - The `tool_call_id` for openai history
      * @param clientId - The ID of the client.
      * @param agentName - The name of the agent.
      * @param params - The parameters for the tool.
