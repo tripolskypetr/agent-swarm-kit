@@ -1,4 +1,4 @@
-import { not, queued, Subject } from "functools-kit";
+import { not, queued, randomString, Subject } from "functools-kit";
 import { omit } from "lodash-es";
 import { IModelMessage } from "../model/ModelMessage.model";
 import { IAgent, IAgentParams } from "../interfaces/Agent.interface";
@@ -236,13 +236,14 @@ export class ClientAgent implements IAgent {
    * @param {string} content - The tool output content.
    * @returns {Promise<void>}
    */
-  commitToolOutput = async (content: string): Promise<void> => {
+  commitToolOutput = async (toolId: string, content: string): Promise<void> => {
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitToolOutput`,
-      { content }
+      { content, toolId }
     );
     this.params.onToolOutput &&
       this.params.onToolOutput(
+        toolId,
         this.params.clientId,
         this.params.agentName,
         content
@@ -252,6 +253,7 @@ export class ClientAgent implements IAgent {
       agentName: this.params.agentName,
       mode: "tool",
       content,
+      tool_call_id: toolId,
     });
     await this._toolCommitSubject.next();
   };
@@ -348,6 +350,7 @@ export class ClientAgent implements IAgent {
            * @description Do not await to avoid deadlock! The tool can send the message to other agents by emulating user messages
            */
           targetFn.call(
+            tool.id ?? randomString(),
             this.params.clientId,
             this.params.agentName,
             tool.function.arguments

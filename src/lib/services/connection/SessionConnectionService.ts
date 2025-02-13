@@ -104,18 +104,20 @@ export class SessionConnectionService implements ISession {
 
   /**
    * Commits tool output to the session.
+   * @param {string} toolId - The `tool_call_id` for openai history
    * @param {string} content - The content to commit.
    * @returns {Promise<void>} A promise that resolves when the content is committed.
    */
-  public commitToolOutput = async (content: string): Promise<void> => {
+  public commitToolOutput = async (toolId: string, content: string): Promise<void> => {
     this.loggerService.log(`sessionConnectionService commitToolOutput`, {
       context: this.contextService.context,
       content,
+      toolId,
     });
     return await this.getSession(
       this.contextService.context.clientId,
       this.contextService.context.swarmName
-    ).commitToolOutput(content);
+    ).commitToolOutput(toolId, content);
   };
 
   /**

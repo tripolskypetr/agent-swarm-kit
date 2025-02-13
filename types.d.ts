@@ -218,10 +218,11 @@ interface ISession {
     connect(connector: SendMessageFn$1): ReceiveMessageFn;
     /**
      * Commit tool output.
+     * @param {string} toolId - The `tool_call_id` for openai history
      * @param {string} content - The content to commit.
      * @returns {Promise<void>}
      */
-    commitToolOutput(content: string): Promise<void>;
+    commitToolOutput(toolId: string, content: string): Promise<void>;
     /**
      * Commit user message without answer
      * @param {string} message - The message to commit.
@@ -258,100 +259,20 @@ type SessionMode = "session" | "makeConnection" | "complete";
 type ExecutionMode = "tool" | "user";
 
 /**
- * Interface representing a model message.
- */
-interface IModelMessage {
-    /**
-     * The role of the message sender.
-     * @type {'assistant' | 'system' | 'tool' | 'user' | 'resque' | 'flush'}
-     */
-    role: "assistant" | "system" | "tool" | "user" | "resque" | "flush";
-    /**
-     * The name of the agent sending the message.
-     * @type {string}
-     */
-    agentName: string;
-    /**
-     * The content of the message.
-     * @type {string}
-     */
-    content: string;
-    /**
-     * The source of message: tool or user
-     * @type {ExecutionMode}
-     */
-    mode: ExecutionMode;
-    /**
-     * Optional tool calls associated with the message.
-     * @type {Array<{ function: { name: string; arguments: { [key: string]: any; }; }; }>}
-     */
-    tool_calls?: {
-        function: {
-            name: string;
-            arguments: {
-                [key: string]: any;
-            };
-        };
-    }[];
-}
-
-/**
- * Interface representing the history of model messages.
- */
-interface IHistory {
-    /**
-     * Pushes a message to the history.
-     * @param {IModelMessage} message - The message to push.
-     * @returns {Promise<void>}
-     */
-    push(message: IModelMessage): Promise<void>;
-    /**
-     * Converts the history to an array of messages for a specific agent.
-     * @param {string} prompt - The prompt to filter messages for the agent.
-     * @returns {Promise<IModelMessage[]>}
-     */
-    toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
-    /**
-     * Converts the history to an array of raw messages.
-     * @returns {Promise<IModelMessage[]>}
-     */
-    toArrayForRaw(): Promise<IModelMessage[]>;
-}
-/**
- * Interface representing the parameters required to create a history instance.
- */
-interface IHistoryParams extends IHistorySchema {
-    /**
-     * The name of the agent.
-     * @type {AgentName}
-     */
-    agentName: AgentName;
-    /**
-     * The client ID.
-     * @type {string}
-     */
-    clientId: string;
-    /**
-     * The logger instance.
-     * @type {ILogger}
-     */
-    logger: ILogger;
-}
-/**
- * Interface representing the schema of the history.
- */
-interface IHistorySchema {
-    /**
-     * The array of model messages.
-     * @type {IPubsubArray<IModelMessage>}
-     */
-    items: IPubsubArray<IModelMessage>;
-}
-
-/**
  * Represents a tool call with a function name and arguments.
  */
 interface IToolCall {
+    /**
+     * The ID of the tool call.
+     */
+    id: string;
+    /**
+     * The type of the tool. Currently, only `function` is supported.
+     */
+    type: 'function';
+    /**
+     * The function that the model called.
+     */
     function: {
         /**
          * The name of the function to be called.
@@ -415,6 +336,94 @@ interface ITool {
             };
         };
     };
+}
+
+/**
+ * Interface representing a model message.
+ */
+interface IModelMessage {
+    /**
+     * The role of the message sender.
+     * @type {'assistant' | 'system' | 'tool' | 'user' | 'resque' | 'flush'}
+     */
+    role: "assistant" | "system" | "tool" | "user" | "resque" | "flush";
+    /**
+     * The name of the agent sending the message.
+     * @type {string}
+     */
+    agentName: string;
+    /**
+     * The content of the message.
+     * @type {string}
+     */
+    content: string;
+    /**
+     * The source of message: tool or user
+     * @type {ExecutionMode}
+     */
+    mode: ExecutionMode;
+    /**
+     * Optional tool calls associated with the message.
+     * @type {Array<{ function: { name: string; arguments: { [key: string]: any; }; }; }>}
+     */
+    tool_calls?: IToolCall[];
+    /**
+     * Tool call that this message is responding to.
+     */
+    tool_call_id?: string;
+}
+
+/**
+ * Interface representing the history of model messages.
+ */
+interface IHistory {
+    /**
+     * Pushes a message to the history.
+     * @param {IModelMessage} message - The message to push.
+     * @returns {Promise<void>}
+     */
+    push(message: IModelMessage): Promise<void>;
+    /**
+     * Converts the history to an array of messages for a specific agent.
+     * @param {string} prompt - The prompt to filter messages for the agent.
+     * @returns {Promise<IModelMessage[]>}
+     */
+    toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
+    /**
+     * Converts the history to an array of raw messages.
+     * @returns {Promise<IModelMessage[]>}
+     */
+    toArrayForRaw(): Promise<IModelMessage[]>;
+}
+/**
+ * Interface representing the parameters required to create a history instance.
+ */
+interface IHistoryParams extends IHistorySchema {
+    /**
+     * The name of the agent.
+     * @type {AgentName}
+     */
+    agentName: AgentName;
+    /**
+     * The client ID.
+     * @type {string}
+     */
+    clientId: string;
+    /**
+     * The logger instance.
+     * @type {ILogger}
+     */
+    logger: ILogger;
+}
+/**
+ * Interface representing the schema of the history.
+ */
+interface IHistorySchema {
+    /**
+     * The array of model messages.
+     * @type {IPubsubArray<IModelMessage>}
+     */
+    items: IPubsubArray<IModelMessage>;
 }
 
 /**
@@ -518,7 +527,7 @@ interface IAgentTool<T = Record<string, unknown>> extends ITool {
      * @param params - The parameters for the tool.
      * @returns A promise that resolves when the tool call is complete.
      */
-    call(clientId: string, agentName: AgentName, params: T): Promise<void>;
+    call(toolId: string, clientId: string, agentName: AgentName, params: T): Promise<void>;
     /**
      * Validates the parameters for the tool.
      * @param clientId - The ID of the client.
@@ -569,11 +578,12 @@ interface IAgentSchemaCallbacks {
     onExecute?: (clientId: string, agentName: AgentName, input: string, mode: ExecutionMode) => void;
     /**
      * Callback triggered when there is tool output.
+     * @param toolId - The `tool_call_id` for openai history
      * @param clientId - The ID of the client.
      * @param agentName - The name of the agent.
      * @param content - The content of the tool output.
      */
-    onToolOutput?: (clientId: string, agentName: AgentName, content: string) => void;
+    onToolOutput?: (toolId: string, clientId: string, agentName: AgentName, content: string) => void;
     /**
      * Callback triggered when there is a system message.
      * @param clientId - The ID of the client.
@@ -665,10 +675,11 @@ interface IAgent {
     waitForOutput: () => Promise<string>;
     /**
      * Commits the tool output.
+     * @param {string} toolId - The `tool_call_id` for openai history
      * @param content - The content of the tool output.
      * @returns A promise that resolves when the tool output is committed.
      */
-    commitToolOutput(content: string): Promise<void>;
+    commitToolOutput(toolId: string, content: string): Promise<void>;
     /**
      * Commits a system message.
      * @param message - The system message to commit.
@@ -793,7 +804,7 @@ declare class ClientAgent implements IAgent {
      * @param {string} content - The tool output content.
      * @returns {Promise<void>}
      */
-    commitToolOutput: (content: string) => Promise<void>;
+    commitToolOutput: (toolId: string, content: string) => Promise<void>;
     /**
      * Executes the incoming message and processes tool calls if any.
      * @param {string} incoming - The incoming message content.
@@ -840,9 +851,10 @@ declare class AgentConnectionService implements IAgent {
     /**
      * Commits tool output.
      * @param {string} content - The tool output content.
+     * @param {string} toolId - The `tool_call_id` for openai history
      * @returns {Promise<any>} The commit result.
      */
-    commitToolOutput: (content: string) => Promise<void>;
+    commitToolOutput: (toolId: string, content: string) => Promise<void>;
     /**
      * Commits a system message.
      * @param {string} message - The system message.
@@ -1148,10 +1160,11 @@ declare class ClientSession implements ISession {
     execute: (message: string, mode: ExecutionMode) => Promise<string>;
     /**
      * Commits tool output.
+     * @param {string} toolId - The `tool_call_id` for openai history
      * @param {string} content - The content to commit.
      * @returns {Promise<void>}
      */
-    commitToolOutput: (content: string) => Promise<void>;
+    commitToolOutput: (toolId: string, content: string) => Promise<void>;
     /**
      * Commits user message without answer.
      * @param {string} message - The message to commit.
@@ -1218,10 +1231,11 @@ declare class SessionConnectionService implements ISession {
     connect: (connector: SendMessageFn$1) => ReceiveMessageFn;
     /**
      * Commits tool output to the session.
+     * @param {string} toolId - The `tool_call_id` for openai history
      * @param {string} content - The content to commit.
      * @returns {Promise<void>} A promise that resolves when the content is committed.
      */
-    commitToolOutput: (content: string) => Promise<void>;
+    commitToolOutput: (toolId: string, content: string) => Promise<void>;
     /**
      * Commits a system message to the session.
      * @param {string} message - The message to commit.
@@ -1285,12 +1299,13 @@ declare class AgentPublicService implements TAgentConnectionService {
     waitForOutput: (clientId: string, agentName: AgentName) => Promise<string>;
     /**
      * Commits tool output to the agent.
+     * @param {string} toolId - The `tool_call_id` for openai history
      * @param {string} content - The content to commit.
      * @param {string} clientId - The client ID.
      * @param {AgentName} agentName - The name of the agent.
      * @returns {Promise<unknown>} The commit result.
      */
-    commitToolOutput: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
+    commitToolOutput: (toolId: string, content: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits a system message to the agent.
      * @param {string} message - The message to commit.
@@ -1410,12 +1425,13 @@ declare class SessionPublicService implements TSessionConnectionService {
     connect: (connector: SendMessageFn$1, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
     /**
      * Commits tool output to the session.
+     * @param {string} toolId - The `tool_call_id` for openai history
      * @param {string} content - The content to commit.
      * @param {string} clientId - The client ID.
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    commitToolOutput: (content: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    commitToolOutput: (toolId: string, content: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits a system message to the session.
      * @param {string} message - The message to commit.
@@ -1907,7 +1923,7 @@ declare const getAgentHistory: (clientId: string, agentName: AgentName) => Promi
  * @param {AgentName} agentName - The name of the agent committing the output.
  * @returns {Promise<void>} - A promise that resolves when the operation is complete.
  */
-declare const commitToolOutput: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
+declare const commitToolOutput: (toolId: string, content: string, clientId: string, agentName: AgentName) => Promise<void>;
 
 /**
  * Commits a system message to the active agent in as swarm.

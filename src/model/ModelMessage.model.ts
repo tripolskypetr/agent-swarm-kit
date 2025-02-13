@@ -1,4 +1,5 @@
 import { ExecutionMode } from "../interfaces/Session.interface";
+import { IToolCall } from "./Tool.model";
 
 /**
  * Interface representing a model message.
@@ -32,12 +33,10 @@ export interface IModelMessage {
    * Optional tool calls associated with the message.
    * @type {Array<{ function: { name: string; arguments: { [key: string]: any; }; }; }>}
    */
-  tool_calls?: {
-    function: {
-      name: string;
-      arguments: {
-        [key: string]: any;
-      };
-    };
-  }[];
+  tool_calls?: IToolCall[];
+
+  /**
+   * Tool call that this message is responding to.
+   */
+  tool_call_id?: string;
 }

@@ -115,8 +115,8 @@ test("Will ignote commitToolOutput due to the obsolete agent", async ({
 
   const { complete } = session(CLIENT_ID, TEST_SWARM);
 
-  await commitToolOutput("foo", CLIENT_ID, TEST1_AGENT);
-  await commitToolOutput("bar", CLIENT_ID, TEST2_AGENT);
+  await commitToolOutput(randomString(), "foo", CLIENT_ID, TEST1_AGENT);
+  await commitToolOutput(randomString(), "bar", CLIENT_ID, TEST2_AGENT);
   await complete("test");
 
   {
@@ -129,7 +129,7 @@ test("Will ignote commitToolOutput due to the obsolete agent", async ({
     }
   }
 
-  await commitToolOutput("bar", CLIENT_ID, TEST1_AGENT);
+  await commitToolOutput(randomString(), "bar", CLIENT_ID, TEST1_AGENT);
   await complete("test");
 
   {

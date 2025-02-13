@@ -104,12 +104,14 @@ export class AgentPublicService implements TAgentConnectionService {
 
   /**
    * Commits tool output to the agent.
+   * @param {string} toolId - The `tool_call_id` for openai history
    * @param {string} content - The content to commit.
    * @param {string} clientId - The client ID.
    * @param {AgentName} agentName - The name of the agent.
    * @returns {Promise<unknown>} The commit result.
    */
   public commitToolOutput = async (
+    toolId: string,
     content: string,
     clientId: string,
     agentName: AgentName
@@ -117,11 +119,12 @@ export class AgentPublicService implements TAgentConnectionService {
     this.loggerService.log("agentPublicService commitToolOutput", {
       content,
       clientId,
+      toolId,
       agentName,
     });
     return await ContextService.runInContext(
       async () => {
-        return await this.agentConnectionService.commitToolOutput(content);
+        return await this.agentConnectionService.commitToolOutput(toolId, content);
       },
       {
         clientId,

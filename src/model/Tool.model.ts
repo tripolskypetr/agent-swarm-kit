@@ -2,6 +2,17 @@
  * Represents a tool call with a function name and arguments.
  */
 export interface IToolCall {
+    /**
+     * The ID of the tool call.
+     */
+    id: string;
+    /**
+     * The type of the tool. Currently, only `function` is supported.
+     */
+    type: 'function';
+    /**
+     * The function that the model called.
+     */
     function: {
         /**
          * The name of the function to be called.

@@ -111,17 +111,19 @@ export class AgentConnectionService implements IAgent {
   /**
    * Commits tool output.
    * @param {string} content - The tool output content.
+   * @param {string} toolId - The `tool_call_id` for openai history
    * @returns {Promise<any>} The commit result.
    */
-  public commitToolOutput = async (content: string) => {
+  public commitToolOutput = async (toolId: string, content: string) => {
     this.loggerService.log(`agentConnectionService commitToolOutput`, {
       content,
+      toolId,
       context: this.contextService.context,
     });
     return await this.getAgent(
       this.contextService.context.clientId,
       this.contextService.context.agentName
-    ).commitToolOutput(content);
+    ).commitToolOutput(toolId, content);
   };
 
   /**
