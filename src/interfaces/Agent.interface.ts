@@ -60,7 +60,7 @@ export interface IAgentTool<T = Record<string, unknown>> extends ITool {
    * @param params - The parameters for the tool.
    * @returns A promise that resolves when the tool call is complete.
    */
-  call(toolId: string, clientId: string, agentName: AgentName, params: T): Promise<void>;
+  call(toolId: string, clientId: string, agentName: AgentName, params: T, isLast: boolean): Promise<void>;
   /**
    * Validates the parameters for the tool.
    * @param clientId - The ID of the client.

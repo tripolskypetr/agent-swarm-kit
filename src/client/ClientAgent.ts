@@ -302,7 +302,8 @@ export class ClientAgent implements IAgent {
           ...message,
           agentName: this.params.agentName,
         });
-        for (const tool of toolCalls) {
+        for (let idx = 0; idx !== toolCalls.length; idx++) {
+          const tool = toolCalls[idx];
           const targetFn = this.params.tools?.find(
             (t) => t.function.name === tool.function.name
           );
@@ -366,7 +367,8 @@ export class ClientAgent implements IAgent {
               tool.id,
               this.params.clientId,
               this.params.agentName,
-              tool.function.arguments
+              tool.function.arguments,
+              idx === toolCalls.length - 1,
             )
           ).then(() => {
             targetFn.callbacks?.onAfterCall &&
