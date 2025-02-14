@@ -110,7 +110,7 @@ export class ClientAgent implements IAgent {
     }
     const rawMessage = await this.getCompletion(mode);
     const message = await this.params.map(rawMessage, this.params.clientId, this.params.agentName);
-    const result = message.content;
+    const result = await this.params.transform(message.content, this.params.clientId, this.params.agentName);
     let validation: string | null = null;
     if ((validation = await this.params.validate(result))) {
       this.params.logger.debug(
@@ -401,7 +401,7 @@ export class ClientAgent implements IAgent {
           `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute no tool calls detected`
         );
       }
-      const result = message.content;
+      const result = await this.params.transform(message.content, this.params.clientId, this.params.agentName);
       await this.params.history.push({
         ...message,
         agentName: this.params.agentName,
