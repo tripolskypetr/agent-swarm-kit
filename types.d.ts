@@ -671,7 +671,9 @@ interface IAgentSchema {
      */
     validate?: (output: string) => Promise<string | null>;
     /** The transform function for model output */
-    transform?: (input: string) => string;
+    transform?: (input: string, clientId: string, agentName: AgentName) => Promise<string> | string;
+    /** The map function for assistant messages. Use to transform json to tool_call for deepseek r1 on ollama*/
+    map?: (message: IModelMessage, clientId: string, agentName: AgentName) => Promise<IModelMessage> | IModelMessage;
     /** The lifecycle calbacks of the agent. */
     callbacks?: Partial<IAgentSchemaCallbacks>;
 }
@@ -2086,6 +2088,8 @@ declare const GLOBAL_CONFIG: {
     CC_AGENT_DEFAULT_VALIDATION: (output: string) => Promise<string | null>;
     CC_AGENT_HISTORY_FILTER: (agentName: AgentName) => (message: IModelMessage) => boolean;
     CC_AGENT_OUTPUT_TRANSFORM: (input: string) => string;
+    CC_AGENT_OUTPUT_MAP: (message: IModelMessage) => IModelMessage | Promise<IModelMessage>;
+    CC_AGENT_SYSTEM_PROMPT: string[];
     CC_AGENT_SEPARATE_HISTORY: boolean;
     CC_AGENT_DISALLOWED_TAGS: string[];
     CC_AGENT_DISALLOWED_SYMBOLS: string[];

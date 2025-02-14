@@ -45,21 +45,20 @@ const CC_AGENT_DEFAULT_VALIDATION = validateDefault;
 
 const CC_AGENT_DISALLOWED_TAGS = ["tool_call", "toolcall", "tool"];
 
-const CC_AGENT_DISALLOWED_SYMBOLS = [
-  "{",
-  "}",
-];
+const CC_AGENT_DISALLOWED_SYMBOLS = ["{", "}"];
 
-const CC_AGENT_HISTORY_FILTER = (agentName: AgentName) => (message: IModelMessage): boolean => {
-  let isOk = true;
-  if (message.role === "tool") {
-    isOk = isOk && message.agentName === agentName;
-  }
-  if (message.tool_calls) {
-    isOk = isOk && message.agentName === agentName;
-  }
-  return isOk;
-};
+const CC_AGENT_HISTORY_FILTER =
+  (agentName: AgentName) =>
+  (message: IModelMessage): boolean => {
+    let isOk = true;
+    if (message.role === "tool") {
+      isOk = isOk && message.agentName === agentName;
+    }
+    if (message.tool_calls) {
+      isOk = isOk && message.agentName === agentName;
+    }
+    return isOk;
+  };
 
 const CC_AGENT_OUTPUT_TRANSFORM = removeXmlTags;
 
@@ -70,7 +69,13 @@ const CC_GET_AGENT_HISTORY: (
   agentName: AgentName
 ) => IPubsubArray<IModelMessage> = () => new PubsubArrayAdapter();
 
+const CC_AGENT_OUTPUT_MAP = (
+  message: IModelMessage
+): IModelMessage | Promise<IModelMessage> => message;
+
 const CC_AGENT_SEPARATE_HISTORY = false;
+
+const CC_AGENT_SYSTEM_PROMPT: string[] | undefined = undefined;
 
 export const GLOBAL_CONFIG = {
   CC_TOOL_CALL_EXCEPTION_PROMPT,
@@ -82,6 +87,8 @@ export const GLOBAL_CONFIG = {
   CC_AGENT_DEFAULT_VALIDATION,
   CC_AGENT_HISTORY_FILTER,
   CC_AGENT_OUTPUT_TRANSFORM,
+  CC_AGENT_OUTPUT_MAP,
+  CC_AGENT_SYSTEM_PROMPT,
   CC_AGENT_SEPARATE_HISTORY,
   CC_AGENT_DISALLOWED_TAGS,
   CC_AGENT_DISALLOWED_SYMBOLS,

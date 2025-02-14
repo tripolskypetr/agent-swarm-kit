@@ -6,6 +6,7 @@ import {
   ICompletion,
 } from "../interfaces/Completion.interface";
 import { ExecutionMode } from "./Session.interface";
+import { IModelMessage } from "../model/ModelMessage.model";
 
 /**
  * Interface representing lifecycle callbacks of a tool
@@ -231,7 +232,9 @@ export interface IAgentSchema {
    */
   validate?: (output: string) => Promise<string | null>;
   /** The transform function for model output */
-  transform?: (input: string) => string
+  transform?: (input: string, clientId: string, agentName: AgentName) => Promise<string> | string;
+  /** The map function for assistant messages. Use to transform json to tool_call for deepseek r1 on ollama*/
+  map?: (message: IModelMessage, clientId: string, agentName: AgentName) => Promise<IModelMessage> | IModelMessage;
   /** The lifecycle calbacks of the agent. */
   callbacks?: Partial<IAgentSchemaCallbacks>;
 }

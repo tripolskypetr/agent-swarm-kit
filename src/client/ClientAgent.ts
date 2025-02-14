@@ -45,7 +45,7 @@ export class ClientAgent implements IAgent {
     mode: ExecutionMode,
     rawResult: string
   ): Promise<void> => {
-    const result = this.params.transform(rawResult);
+    const result = await this.params.transform(rawResult, this.params.clientId, this.params.agentName);
     this.params.logger.debug(
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _emitOuput`,
       { mode, result, rawResult }
@@ -53,7 +53,7 @@ export class ClientAgent implements IAgent {
     let validation: string | null = null;
     if ((validation = await this.params.validate(result))) {
       const rawResult = await this._resurrectModel(mode, validation);
-      const result = this.params.transform(rawResult);
+      const result = await this.params.transform(rawResult, this.params.clientId, this.params.agentName);
       if ((validation = await this.params.validate(result))) {
         throw new Error(
           `agent-swarm-kit ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} model ressurect failed: ${validation}`
@@ -108,7 +108,8 @@ export class ClientAgent implements IAgent {
         content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_PROMPT,
       });
     }
-    const message = await this.getCompletion(mode);
+    const rawMessage = await this.getCompletion(mode);
+    const message = await this.params.map(rawMessage, this.params.clientId, this.params.agentName);
     const result = message.content;
     let validation: string | null = null;
     if ((validation = await this.params.validate(result))) {
@@ -286,7 +287,8 @@ export class ClientAgent implements IAgent {
         agentName: this.params.agentName,
         content: incoming.trim(),
       });
-      const message = await this.getCompletion(mode);
+      const rawMessage = await this.getCompletion(mode);
+      const message = await this.params.map(rawMessage, this.params.clientId, this.params.agentName);
       if (message.tool_calls) {
         this.params.logger.debug(
           `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} tool call begin`

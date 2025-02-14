@@ -7,7 +7,6 @@ import { GLOBAL_CONFIG } from "../config/params";
  * @implements {IHistory}
  */
 export class ClientHistory implements IHistory {
-
   /**
    * Filter condition for `toArrayForAgent`
    */
@@ -24,7 +23,9 @@ export class ClientHistory implements IHistory {
         params,
       }
     );
-    this._filterCondition = GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER(this.params.agentName);
+    this._filterCondition = GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER(
+      this.params.agentName
+    );
   }
 
   /**
@@ -98,19 +99,26 @@ export class ClientHistory implements IHistory {
     {
       promptMessages.push({
         agentName: this.params.agentName,
-        mode: 'tool',
+        mode: "tool",
         content: prompt,
         role: "system",
       });
-      system &&
-        system.forEach((content) =>
-          promptMessages.push({
-            agentName: this.params.agentName,
-            mode: 'tool',
-            content,
-            role: "system",
-          })
-        );
+      GLOBAL_CONFIG.CC_AGENT_SYSTEM_PROMPT?.forEach((content) =>
+        promptMessages.push({
+          agentName: this.params.agentName,
+          mode: "tool",
+          content,
+          role: "system",
+        })
+      );
+      system?.forEach((content) =>
+        promptMessages.push({
+          agentName: this.params.agentName,
+          mode: "tool",
+          content,
+          role: "system",
+        })
+      );
     }
     return [...promptMessages, ...systemMessages, ...commonMessages];
   };
