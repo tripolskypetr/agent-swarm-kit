@@ -538,7 +538,13 @@ interface IAgentTool<T = Record<string, unknown>> extends ITool {
      * @param params - The parameters for the tool.
      * @returns A promise that resolves when the tool call is complete.
      */
-    call(toolId: string, clientId: string, agentName: AgentName, params: T, isLast: boolean): Promise<void>;
+    call(dto: {
+        toolId: string;
+        clientId: string;
+        agentName: AgentName;
+        params: T;
+        isLast: boolean;
+    }): Promise<void>;
     /**
      * Validates the parameters for the tool.
      * @param clientId - The ID of the client.
@@ -546,7 +552,11 @@ interface IAgentTool<T = Record<string, unknown>> extends ITool {
      * @param params - The parameters for the tool.
      * @returns A promise that resolves to a boolean indicating whether the parameters are valid, or a boolean.
      */
-    validate(clientId: string, agentName: AgentName, params: T): Promise<boolean> | boolean;
+    validate(dto: {
+        clientId: string;
+        agentName: AgentName;
+        params: T;
+    }): Promise<boolean> | boolean;
     /** The name of the tool. */
     callbacks?: Partial<IAgentToolCallbacks>;
 }

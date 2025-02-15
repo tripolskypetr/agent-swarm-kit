@@ -49,7 +49,7 @@ const useTools = () => {
     addTool({
         toolName: "test-tool",
         type: "function",
-        call: async (toolId, clientId, agentName) => await commitToolOutput(toolId, "Tool execution ok", clientId, agentName),
+        call: async ({ toolId, clientId, agentName }) => await commitToolOutput(toolId, "Tool execution ok", clientId, agentName),
         validate: async () => true,
         function: {
             name: "test-tool(name for model)",

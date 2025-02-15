@@ -21,7 +21,12 @@ export interface IAgentToolCallbacks<T = Record<string, unknown>> {
    * @param params - The parameters for the tool.
    * @returns A promise that resolves when the tool call is complete.
    */
-  onBeforeCall?: (toolId: string, clientId: string, agentName: AgentName, params: T) => Promise<void>;
+  onBeforeCall?: (
+    toolId: string,
+    clientId: string,
+    agentName: AgentName,
+    params: T
+  ) => Promise<void>;
   /**
    * Callback triggered after the tool is called.
    * @param toolId - The `tool_call_id` for openai history
@@ -30,7 +35,12 @@ export interface IAgentToolCallbacks<T = Record<string, unknown>> {
    * @param params - The parameters for the tool.
    * @returns A promise that resolves when the tool call is complete.
    */
-  onAfterCall?: (toolId: string, clientId: string, agentName: AgentName, params: T) => Promise<void>;
+  onAfterCall?: (
+    toolId: string,
+    clientId: string,
+    agentName: AgentName,
+    params: T
+  ) => Promise<void>;
   /**
    * Callback triggered when the tool parameters are validated.
    * @param clientId - The ID of the client.
@@ -60,7 +70,13 @@ export interface IAgentTool<T = Record<string, unknown>> extends ITool {
    * @param params - The parameters for the tool.
    * @returns A promise that resolves when the tool call is complete.
    */
-  call(toolId: string, clientId: string, agentName: AgentName, params: T, isLast: boolean): Promise<void>;
+  call(dto: {
+    toolId: string;
+    clientId: string;
+    agentName: AgentName;
+    params: T;
+    isLast: boolean;
+  }): Promise<void>;
   /**
    * Validates the parameters for the tool.
    * @param clientId - The ID of the client.
@@ -68,11 +84,11 @@ export interface IAgentTool<T = Record<string, unknown>> extends ITool {
    * @param params - The parameters for the tool.
    * @returns A promise that resolves to a boolean indicating whether the parameters are valid, or a boolean.
    */
-  validate(
-    clientId: string,
-    agentName: AgentName,
-    params: T
-  ): Promise<boolean> | boolean;
+  validate(dto: {
+    clientId: string;
+    agentName: AgentName;
+    params: T;
+  }): Promise<boolean> | boolean;
   /** The name of the tool. */
   callbacks?: Partial<IAgentToolCallbacks>;
 }
@@ -207,7 +223,7 @@ export interface IAgentSchemaCallbacks {
   onAfterToolCalls?: (
     clientId: string,
     agentName: AgentName,
-    toolCalls: IToolCall[],
+    toolCalls: IToolCall[]
   ) => void;
 }
 
@@ -232,9 +248,17 @@ export interface IAgentSchema {
    */
   validate?: (output: string) => Promise<string | null>;
   /** The transform function for model output */
-  transform?: (input: string, clientId: string, agentName: AgentName) => Promise<string> | string;
+  transform?: (
+    input: string,
+    clientId: string,
+    agentName: AgentName
+  ) => Promise<string> | string;
   /** The map function for assistant messages. Use to transform json to tool_call for deepseek r1 on ollama*/
-  map?: (message: IModelMessage, clientId: string, agentName: AgentName) => Promise<IModelMessage> | IModelMessage;
+  map?: (
+    message: IModelMessage,
+    clientId: string,
+    agentName: AgentName
+  ) => Promise<IModelMessage> | IModelMessage;
   /** The lifecycle calbacks of the agent. */
   callbacks?: Partial<IAgentSchemaCallbacks>;
 }

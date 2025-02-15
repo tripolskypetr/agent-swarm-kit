@@ -330,11 +330,11 @@ export class ClientAgent implements IAgent {
             );
           if (
             await not(
-              targetFn.validate(
-                this.params.clientId,
-                this.params.agentName,
-                tool.function.arguments
-              )
+              targetFn.validate({
+                clientId: this.params.clientId,
+                agentName: this.params.agentName,
+                params: tool.function.arguments
+              })
             )
           ) {
             this.params.logger.debug(
@@ -363,13 +363,13 @@ export class ClientAgent implements IAgent {
            * @description Do not await to avoid deadlock! The tool can send the message to other agents by emulating user messages
            */
           Promise.resolve(
-            targetFn.call(
-              tool.id,
-              this.params.clientId,
-              this.params.agentName,
-              tool.function.arguments,
-              idx === toolCalls.length - 1,
-            )
+            targetFn.call({
+              toolId: tool.id,
+              clientId: this.params.clientId,
+              agentName: this.params.agentName,
+              params: tool.function.arguments,
+              isLast: idx === toolCalls.length - 1,
+            })
           ).then(() => {
             targetFn.callbacks?.onAfterCall &&
               targetFn.callbacks?.onAfterCall(
