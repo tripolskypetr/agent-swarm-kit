@@ -75,6 +75,7 @@ export interface IAgentTool<T = Record<string, unknown>> extends ITool {
     clientId: string;
     agentName: AgentName;
     params: T;
+    toolCalls: IToolCall[],
     isLast: boolean;
   }): Promise<void>;
   /**
@@ -87,6 +88,7 @@ export interface IAgentTool<T = Record<string, unknown>> extends ITool {
   validate(dto: {
     clientId: string;
     agentName: AgentName;
+    toolCalls: IToolCall[],
     params: T;
   }): Promise<boolean> | boolean;
   /** The name of the tool. */

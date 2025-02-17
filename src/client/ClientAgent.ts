@@ -333,7 +333,8 @@ export class ClientAgent implements IAgent {
               targetFn.validate({
                 clientId: this.params.clientId,
                 agentName: this.params.agentName,
-                params: tool.function.arguments
+                params: tool.function.arguments,
+                toolCalls,
               })
             )
           ) {
@@ -369,6 +370,7 @@ export class ClientAgent implements IAgent {
               agentName: this.params.agentName,
               params: tool.function.arguments,
               isLast: idx === toolCalls.length - 1,
+              toolCalls,
             })
           ).then(() => {
             targetFn.callbacks?.onAfterCall &&

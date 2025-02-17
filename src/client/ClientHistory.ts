@@ -95,6 +95,17 @@ export class ClientHistory implements IHistory {
     const commonMessages = commonMessagesRaw
       .filter(this._filterCondition)
       .slice(-GLOBAL_CONFIG.CC_KEEP_MESSAGES);
+    const assistantToolCallSet = new Set<string>(
+      commonMessages.map(({ tool_call_id }) => tool_call_id!)
+    );
+    const assistantMessages = commonMessages.map(
+      ({ tool_calls, ...message }) => ({
+        ...message,
+        tool_calls: tool_calls?.filter(({ id }) =>
+          assistantToolCallSet.has(id)
+        ),
+      })
+    );
     const promptMessages: IModelMessage[] = [];
     {
       promptMessages.push({
@@ -120,7 +131,7 @@ export class ClientHistory implements IHistory {
         })
       );
     }
-    return [...promptMessages, ...systemMessages, ...commonMessages];
+    return [...promptMessages, ...systemMessages, ...assistantMessages];
   };
 }
 
