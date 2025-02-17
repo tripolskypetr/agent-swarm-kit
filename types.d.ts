@@ -2064,6 +2064,18 @@ declare const commitUserMessageForce: (content: string, clientId: string) => Pro
 declare const emitForce: (content: string, clientId: string) => Promise<void>;
 
 /**
+ * Send the message to the active agent in the swarm content like it income from client side
+ * Should be used to review tool output and initiate conversation from the model side to client
+ *
+ * Will execute even if the agent is inactive
+ *
+ * @param {string} content - The content to be executed.
+ * @param {string} clientId - The ID of the client requesting execution.
+ * @returns {Promise<void>} - A promise that resolves when the execution is complete.
+ */
+declare const executeForce: (content: string, clientId: string) => Promise<string>;
+
+/**
  * Retrieves the last message sent by the user from the client's message history.
  *
  * @param {string} clientId - The ID of the client whose message history is being retrieved.
@@ -2162,4 +2174,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };

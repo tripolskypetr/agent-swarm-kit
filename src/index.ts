@@ -23,6 +23,7 @@ export * from './functions/commitSystemMessageForce';
 export * from './functions/commitFlushForce';
 export * from './functions/commitUserMessageForce';
 export * from './functions/emitForce';
+export * from './functions/executeForce';
 export * from './functions/getLastUserMessage';
 export * from './functions/getAgentName';
 export * from './functions/getUserHistory';
