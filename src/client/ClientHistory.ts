@@ -98,14 +98,14 @@ export class ClientHistory implements IHistory {
     const assistantToolCallSet = new Set<string>(
       commonMessages.map(({ tool_call_id }) => tool_call_id!)
     );
-    const assistantMessages = commonMessages.map(
-      ({ tool_calls, ...message }) => ({
+    const assistantMessages = commonMessages
+      .map(({ tool_calls, ...message }) => ({
         ...message,
         tool_calls: tool_calls?.filter(({ id }) =>
           assistantToolCallSet.has(id)
         ),
-      })
-    );
+      }))
+      .filter(({ content, tool_calls }) => !!content || !!tool_calls?.length);
     const promptMessages: IModelMessage[] = [];
     {
       promptMessages.push({
