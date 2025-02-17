@@ -60,6 +60,9 @@ export class AgentValidationService {
       }
       this.completionValidationService.validate(agent.completion, source);
       agent.tools?.forEach((toolName: ToolName) => {
+        if (typeof toolName !== "string") {
+          throw new Error(`agent-swarm agent ${agentName} tool list is invalid (toolName=${String(toolName)}) source=${source}`);
+        }
         this.toolValidationService.validate(toolName, source);
       });
     }
