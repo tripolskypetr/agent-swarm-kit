@@ -1948,6 +1948,13 @@ declare const getRawHistory: (clientId: string) => Promise<IModelMessage[]>;
 declare const getAgentHistory: (clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
 
 /**
+ * Return the session mode (`"session" | "makeConnection" | "complete"`) for clientId
+ *
+ * @param {string} clientId - The client ID of the session.
+ */
+declare const getSessionMode: (clientId: string) => Promise<SessionMode>;
+
+/**
  * Commits the tool output to the active agent in a swarm session
  *
  * @param {string} content - The content to be committed.
@@ -1977,6 +1984,16 @@ declare const commitSystemMessage: (content: string, clientId: string, agentName
 declare const commitFlush: (clientId: string, agentName: string) => Promise<void>;
 
 /**
+ * Commits a user message to the active agent history in as swarm without answer.
+ *
+ * @param {string} content - The content of the message.
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitUserMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
+
+/**
  * Send the message to the active agent in the swarm content like it income from client side
  * Should be used to review tool output and initiate conversation from the model side to client
  *
@@ -2000,22 +2017,59 @@ declare const execute: (content: string, clientId: string, agentName: AgentName)
 declare const emit: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
 
 /**
+ * Commits the tool output to the active agent in a swarm session without checking active agent
+ *
+ * @param {string} content - The content to be committed.
+ * @param {string} clientId - The client ID associated with the session.
+ * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ */
+declare const commitToolOutputForce: (toolId: string, content: string, clientId: string) => Promise<void>;
+
+/**
+ * Commits a system message to the active agent in as swarm without checking active agent.
+ *
+ * @param {string} content - The content of the system message.
+ * @param {string} clientId - The ID of the client.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitSystemMessageForce: (content: string, clientId: string) => Promise<void>;
+
+/**
+ * Commits flush of agent history without active agent check
+ *
+ * @param {string} clientId - The ID of the client.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitFlushForce: (clientId: string) => Promise<void>;
+
+/**
+ * Commits a user message to the active agent history in as swarm without answer and checking active agent
+ *
+ * @param {string} content - The content of the message.
+ * @param {string} clientId - The ID of the client.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitUserMessageForce: (content: string, clientId: string) => Promise<void>;
+
+/**
+ * Emits a string constant as the model output without executing incoming message and checking active agent
+ * Works only for `makeConnection`
+ *
+ * @param {string} content - The content to be emitted.
+ * @param {string} clientId - The client ID of the session.
+ * @param {AgentName} agentName - The name of the agent to emit the content to.
+ * @throws Will throw an error if the session mode is not "makeConnection".
+ * @returns {Promise<void>} A promise that resolves when the content is emitted.
+ */
+declare const emitForce: (content: string, clientId: string) => Promise<void>;
+
+/**
  * Retrieves the last message sent by the user from the client's message history.
  *
  * @param {string} clientId - The ID of the client whose message history is being retrieved.
  * @returns {Promise<string | null>} - The content of the last user message, or null if no user message is found.
  */
 declare const getLastUserMessage: (clientId: string) => Promise<string>;
-
-/**
- * Commits a user message to the active agent history in as swarm without answer.
- *
- * @param {string} content - The content of the message.
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
- */
-declare const commitUserMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
  * Retrieves the agent name for a given client ID.
@@ -2108,4 +2162,4 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitFlush, commitSystemMessage, commitToolOutput, commitUserMessage, complete, disposeConnection, emit, execute, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };
