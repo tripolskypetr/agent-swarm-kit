@@ -46,6 +46,7 @@ export class ToolValidationService {
       if (!this._toolMap.has(toolName)) {
         throw new Error(`agent-swarm tool ${toolName} not found source=${source}`);
       }
+      return {} as unknown as void;
     }
   ) as (toolName: ToolName, source: string) => void;
 }

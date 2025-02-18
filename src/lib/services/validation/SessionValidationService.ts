@@ -227,6 +227,7 @@ export class SessionValidationService {
         `agent-swarm session clientId=${clientId} not exist source=${source}`
       );
     }
+    return {} as unknown as void;
   };
 
   /**

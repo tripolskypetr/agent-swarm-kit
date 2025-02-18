@@ -76,6 +76,7 @@ export class SwarmValidationService {
       swarm.agentList.forEach((agentName) =>
         this.agentValidationService.validate(agentName, source)
       );
+      return {} as unknown as void;
     }
   ) as (swarmName: SwarmName, source: string) => void;
 }

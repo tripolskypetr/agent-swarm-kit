@@ -117,6 +117,7 @@ export class AgentValidationService {
         }
         this.storageValidationService.validate(storageName, source);
       });
+      return {} as unknown as void;
     }
   ) as (agentName: AgentName, source: string) => void;
 }

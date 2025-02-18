@@ -54,6 +54,7 @@ export class StorageValidationService {
         throw new Error(`storage-swarm storage ${storageName} not found source=${source}`);
       }
       this.embeddingValidationService.validate(storage.embedding, source);
+      return {} as unknown as void;
     }
   ) as (storageName: StorageName, source: string) => void;
 }

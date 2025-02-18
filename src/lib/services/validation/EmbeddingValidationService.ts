@@ -45,6 +45,7 @@ export class EmbeddingValidationService {
       if (!this._embeddingMap.has(embeddingName)) {
         throw new Error(`agent-swarm embedding ${embeddingName} not found source=${source}`);
       }
+      return {} as unknown as void;
     }
   ) as (embeddingName: EmbeddingName, source: string) => void;
 }

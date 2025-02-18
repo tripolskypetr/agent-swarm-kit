@@ -43,6 +43,7 @@ export class CompletionValidationService {
       if (!this._completionSet.has(completionName)) {
         throw new Error(`agent-swarm completion ${completionName} not found source=${source}`);
       }
+      return {} as unknown as void;
     }
   ) as (completionName: CompletionName, source: string) => void;
 }
