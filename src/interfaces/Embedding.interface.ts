@@ -9,12 +9,13 @@ export type Embeddings = number[];
 export interface IEmbedding extends IEmbeddingSchema {}
 
 export interface IEmbeddingCallbacks {
-  onCreate(text: string, embeddings: Embeddings, clientId: string): void;
+  onCreate(text: string, embeddings: Embeddings, clientId: string, embeddingName: EmbeddingName): void;
   onCompare(
     text1: string,
     text2: string,
     similarity: number,
-    clientId: string
+    clientId: string,
+    embeddingName: EmbeddingName,
   ): void;
 }
 

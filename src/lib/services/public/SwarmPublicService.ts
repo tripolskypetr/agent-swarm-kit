@@ -44,6 +44,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };
@@ -67,6 +68,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };
@@ -90,6 +92,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };
@@ -117,6 +120,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };
@@ -142,6 +146,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };
@@ -165,6 +170,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };

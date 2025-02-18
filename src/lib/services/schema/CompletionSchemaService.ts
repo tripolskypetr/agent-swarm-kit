@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import { ToolRegistry } from "functools-kit";
-import { ICompletionSchema } from "../../../interfaces/Completion.interface";
+import { ICompletionSchema, CompletionName } from "../../../interfaces/Completion.interface";
 
 /**
  * Service for managing completion schemas.
@@ -10,24 +10,24 @@ import { ICompletionSchema } from "../../../interfaces/Completion.interface";
 export class CompletionSchemaService {
     readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-    private registry = new ToolRegistry<Record<string, ICompletionSchema>>("completionSchemaService");
+    private registry = new ToolRegistry<Record<CompletionName, ICompletionSchema>>("completionSchemaService");
 
     /**
      * Registers a new completion schema.
-     * @param {string} key - The key for the schema.
+     * @param {CompletionName} key - The key for the schema.
      * @param {ICompletionSchema} value - The schema to register.
      */
-    public register = (key: string, value: ICompletionSchema) => {
+    public register = (key: CompletionName, value: ICompletionSchema) => {
         this.loggerService.log(`completionSchemaService register`, { key });
         this.registry = this.registry.register(key, value);
     };
 
     /**
      * Retrieves a completion schema by key.
-     * @param {string} key - The key of the schema to retrieve.
+     * @param {CompletionName} key - The key of the schema to retrieve.
      * @returns {ICompletionSchema} The retrieved schema.
      */
-    public get = (key: string): ICompletionSchema => {
+    public get = (key: CompletionName): ICompletionSchema => {
         this.loggerService.log(`completionSchemaService get`, { key });
         return this.registry.get(key);
     };

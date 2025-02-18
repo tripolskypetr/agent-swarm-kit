@@ -1,41 +1,46 @@
-import { EmbeddingName, IEmbeddingCallbacks, IEmbeddingSchema } from "./Embedding.interface";
+import {
+  EmbeddingName,
+  IEmbeddingCallbacks,
+  IEmbeddingSchema,
+} from "./Embedding.interface";
 import IHistory from "./History.interface";
 import { ILogger } from "./Logger.interface";
 
 type StorageId = string | number;
 
 export interface IStorageData {
-    id: StorageId;
+  id: StorageId;
 }
 
 export interface IStorageSchema<T extends IStorageData = IStorageData> {
-  data: T[];
+  getData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
   createIndex(item: T): Promise<string>;
-  embeddingName: EmbeddingName;
-  callbacks?: IStorageCallbacks;
+  embedding: EmbeddingName;
+  storageName: StorageName;
+  callbacks?: Partial<IStorageCallbacks<T>>;
 }
 
-export interface IStorageCallbacks extends IEmbeddingCallbacks {
+export interface IStorageCallbacks<T extends IStorageData = IStorageData> {
+  onUpdate: (items: T[], clientId: string, storageName: StorageName) => void;
 }
 
-export interface IStorageParams<T extends IStorageData = IStorageData> extends Omit<IStorageSchema<T>, keyof {
-    embeddingName: never;
-}> {
+export interface IStorageParams<T extends IStorageData = IStorageData>
+  extends IStorageSchema<T>,
+    Partial<IEmbeddingCallbacks> {
   clientId: string;
   calculateSimilarity: IEmbeddingSchema["calculateSimilarity"];
   createEmbedding: IEmbeddingSchema["createEmbedding"];
   storageName: StorageName;
   logger: ILogger;
-  history: IHistory;
 }
 
 export interface IStorage<T extends IStorageData = IStorageData> {
-    take(search: string, total: number): Promise<T[]>;
-    upsert(item: T): Promise<void>;
-    remove(itemId: IStorageData["id"]): Promise<void>;
-    get(itemId: IStorageData["id"]): Promise<T | null>;
-    list(): Promise<T[]>;
-    clear(): Promise<void>;
+  take(search: string, total: number): Promise<T[]>;
+  upsert(item: T): Promise<void>;
+  remove(itemId: IStorageData["id"]): Promise<void>;
+  get(itemId: IStorageData["id"]): Promise<T | null>;
+  list(filter?: (item: T) => boolean): Promise<T[]>;
+  clear(): Promise<void>;
 }
 
 export type StorageName = string;

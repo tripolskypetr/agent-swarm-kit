@@ -1,4 +1,4 @@
-import { execpool, memoize, SortedArray } from "functools-kit";
+import { execpool, memoize, singleshot, SortedArray } from "functools-kit";
 import {
   IStorage,
   IStorageData,
@@ -9,7 +9,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 export class ClientStorage<T extends IStorageData = IStorageData>
   implements IStorage<T>
 {
-  readonly _itemMap = new Map(this.params.data.map((item) => [item.id, item]));
+  private _itemMap = new Map<IStorageData["id"], T>();
 
   constructor(readonly params: IStorageParams<T>) {
     this.params.logger.debug(
@@ -18,7 +18,6 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         params,
       }
     );
-    params.data.forEach(this._createEmbedding);
   }
 
   _createEmbedding = memoize(
@@ -32,12 +31,39 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       );
       const index = await this.params.createIndex(item);
       const embeddings = await this.params.createEmbedding(index);
-      if (this.params.callbacks?.onCreate) {
-        this.params.callbacks.onCreate(index, embeddings, this.params.clientId);
+      if (this.params.onCreate) {
+        this.params.onCreate(
+          index,
+          embeddings,
+          this.params.clientId,
+          this.params.embedding
+        );
       }
       return [embeddings, index] as const;
     }
   );
+
+  waitForInit = singleshot(async () => {
+    this.params.logger.debug(
+      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} waitForInit`
+    );
+    if (!this.params.getData) {
+        return;
+    }
+    const data = await this.params.getData(
+      this.params.clientId,
+      this.params.storageName
+    );
+    await Promise.all(
+      data.map(
+        execpool(this._createEmbedding, {
+          delay: 10,
+          maxExec: GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL,
+        })
+      )
+    );
+    this._itemMap = new Map(data.map((item) => [item.id, item]));
+  });
 
   take = async (search: string, total: number): Promise<T[]> => {
     this.params.logger.debug(
@@ -49,11 +75,12 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     );
     const indexed = new SortedArray<IStorageData>();
     const searchEmbeddings = await this.params.createEmbedding(search);
-    if (this.params.callbacks?.onCreate) {
-      this.params.callbacks.onCreate(
+    if (this.params.onCreate) {
+      this.params.onCreate(
         search,
         searchEmbeddings,
-        this.params.clientId
+        this.params.clientId,
+        this.params.embedding
       );
     }
     await Promise.all(
@@ -65,12 +92,13 @@ export class ClientStorage<T extends IStorageData = IStorageData>
               searchEmbeddings,
               targetEmbeddings
             );
-            if (this.params.callbacks?.onCompare) {
-              this.params.callbacks.onCompare(
+            if (this.params.onCompare) {
+              this.params.onCompare(
                 search,
                 index,
                 score,
-                this.params.clientId
+                this.params.clientId,
+                this.params.embedding
               );
             }
             indexed.push({ id: item.id }, score);
@@ -93,12 +121,19 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     this.params.logger.debug(
       `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} upsert`,
       {
-        id: item.id,
+        item,
       }
     );
     this._itemMap.set(item.id, item);
     this._createEmbedding.clear(item.id);
     await this._createEmbedding(item);
+    if (this.params.callbacks?.onUpdate) {
+      this.params.callbacks?.onUpdate(
+        [...this._itemMap.values()],
+        this.params.clientId,
+        this.params.storageName
+      );
+    }
   };
 
   remove = async (itemId: IStorageData["id"]) => {
@@ -110,6 +145,13 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     );
     this._itemMap.delete(itemId);
     this._createEmbedding.clear(itemId);
+    if (this.params.callbacks?.onUpdate) {
+      this.params.callbacks?.onUpdate(
+        [...this._itemMap.values()],
+        this.params.clientId,
+        this.params.storageName
+      );
+    }
   };
 
   clear = async () => {
@@ -130,11 +172,20 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     return this._itemMap.get(itemId) ?? null;
   };
 
-  list = async () => {
+  list = async (filter?: (item: T) => boolean) => {
     this.params.logger.debug(
       `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} list`
     );
-    return [...this._itemMap.values()];
+    if (!filter) {
+      return [...this._itemMap.values()];
+    }
+    const result: T[] = [];
+    for (const item of this._itemMap.values()) {
+      if (filter(item)) {
+        result.push(item);
+      }
+    }
+    return result;
   };
 }
 

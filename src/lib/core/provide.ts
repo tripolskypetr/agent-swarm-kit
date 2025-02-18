@@ -19,6 +19,12 @@ import CompletionValidationService from "../services/validation/CompletionValida
 import SessionValidationService from "../services/validation/SessionValidationService";
 import SwarmValidationService from "../services/validation/SwarmValidationService";
 import ToolValidationService from "../services/validation/ToolValidationService";
+import EmbeddingSchemaService from "../services/schema/EmbeddingSchemaService";
+import StorageSchemaService from "../services/schema/StorageSchemaService";
+import StorageConnectionService from "../services/connection/StorageConnectionService";
+import StoragePublicService from "../services/public/StoragePublicService";
+import StorageValidationService from "../services/validation/StorageValidationService";
+import EmbeddingValidationService from "../services/validation/EmbeddingValidationService";
 
 {
     provide(TYPES.loggerService, () => new LoggerService());
@@ -30,6 +36,7 @@ import ToolValidationService from "../services/validation/ToolValidationService"
     provide(TYPES.historyConnectionService, () => new HistoryConnectionService());
     provide(TYPES.swarmConnectionService, () => new SwarmConnectionService());
     provide(TYPES.sessionConnectionService, () => new SessionConnectionService());
+    provide(TYPES.storageConnectionService, () => new StorageConnectionService());
 }
 
 {
@@ -37,6 +44,8 @@ import ToolValidationService from "../services/validation/ToolValidationService"
     provide(TYPES.toolSchemaService, () => new ToolSchemaService());
     provide(TYPES.swarmSchemaService, () => new SwarmSchemaService());
     provide(TYPES.completionSchemaService, () => new CompletionSchemaService());
+    provide(TYPES.embeddingSchemaService, () => new EmbeddingSchemaService());
+    provide(TYPES.storageSchemaService, () => new StorageSchemaService());
 }
 
 {
@@ -44,6 +53,7 @@ import ToolValidationService from "../services/validation/ToolValidationService"
     provide(TYPES.historyPublicService, () => new HistoryPublicService());
     provide(TYPES.sessionPublicService, () => new SessionPublicService());
     provide(TYPES.swarmPublicService, () => new SwarmPublicService());
+    provide(TYPES.storagePublicService, () => new StoragePublicService());
 }
 
 {
@@ -59,4 +69,6 @@ import ToolValidationService from "../services/validation/ToolValidationService"
     provide(TYPES.sessionValidationService, () => new SessionValidationService());
     provide(TYPES.swarmValidationService, () => new SwarmValidationService());
     provide(TYPES.toolValidationService, () => new ToolValidationService());
+    provide(TYPES.storageValidationService, () => new StorageValidationService());
+    provide(TYPES.embeddingValidationService, () => new EmbeddingValidationService());
 }

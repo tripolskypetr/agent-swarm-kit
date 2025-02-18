@@ -51,6 +51,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         clientId,
         agentName,
         swarmName: "",
+        storageName: "",
       }
     );
   };
@@ -80,6 +81,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         clientId,
         agentName,
         swarmName: "",
+        storageName: "",
       }
     );
   };
@@ -103,6 +105,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         clientId,
         agentName,
         swarmName: "",
+        storageName: "",
       }
     );
   };
@@ -126,6 +129,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         clientId,
         agentName,
         swarmName: "",
+        storageName: "",
       }
     );
   };

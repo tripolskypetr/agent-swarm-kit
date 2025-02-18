@@ -7,6 +7,7 @@ import {
 } from "../interfaces/Completion.interface";
 import { ExecutionMode } from "./Session.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
+import { StorageName } from "./Storage.interface";
 
 /**
  * Interface representing lifecycle callbacks of a tool
@@ -243,6 +244,8 @@ export interface IAgentSchema {
   system?: string[];
   /** The names of the tools used by the agent. */
   tools?: ToolName[];
+  /** The names of the storages used by the agent. */
+  storages?: StorageName[];
   /**
    * Validates the output.
    * @param output - The output to validate.

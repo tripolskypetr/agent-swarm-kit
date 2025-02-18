@@ -62,6 +62,7 @@ export class SwarmConnectionService implements ISwarm {
             swarmName
           );
         },
+        callbacks,
       });
     }
   );

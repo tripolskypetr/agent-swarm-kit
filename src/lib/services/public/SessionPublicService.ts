@@ -54,6 +54,7 @@ export class SessionPublicService implements TSessionConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };
@@ -85,6 +86,7 @@ export class SessionPublicService implements TSessionConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };
@@ -117,6 +119,7 @@ export class SessionPublicService implements TSessionConnectionService {
                 clientId,
                 swarmName,
                 agentName: "",
+                storageName: "",
               }
             );
           }
@@ -130,6 +133,7 @@ export class SessionPublicService implements TSessionConnectionService {
               clientId,
               swarmName,
               agentName: "",
+              storageName: "",
             }
           );
         };
@@ -138,6 +142,7 @@ export class SessionPublicService implements TSessionConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };
@@ -170,6 +175,7 @@ export class SessionPublicService implements TSessionConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };
@@ -199,6 +205,7 @@ export class SessionPublicService implements TSessionConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };
@@ -228,6 +235,7 @@ export class SessionPublicService implements TSessionConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };
@@ -254,6 +262,7 @@ export class SessionPublicService implements TSessionConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };
@@ -277,6 +286,7 @@ export class SessionPublicService implements TSessionConnectionService {
         clientId,
         swarmName,
         agentName: "",
+        storageName: "",
       }
     );
   };

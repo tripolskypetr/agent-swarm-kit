@@ -8,13 +8,16 @@ const connectionServices = {
     historyConnectionService: Symbol('historyConnectionService'),
     swarmConnectionService: Symbol('swarmConnectionService'),
     sessionConnectionService: Symbol('sessionConnectionService'),
+    storageConnectionService: Symbol('storageConnectionService'),
 };
 
-const specServices = {
+const schemaServices = {
     completionSchemaService: Symbol('completionSchemaService'),
     agentSchemaService: Symbol('agentSchemaService'),
     swarmSchemaService: Symbol('swarmSchemaService'),
     toolSchemaService: Symbol('toolSchemaService'),
+    embeddingSchemaService: Symbol('embeddingSchemaService'),
+    storageSchemaService: Symbol('storageSchemaService'),
 };
 
 const publicServices = {
@@ -22,6 +25,7 @@ const publicServices = {
     historyPublicService: Symbol('historyPublicService'),
     sessionPublicService: Symbol('sessionPublicService'),
     swarmPublicService: Symbol('swarmPublicService'),
+    storagePublicService: Symbol('storagePublicService'),
 };
 
 const validationServices = {
@@ -30,11 +34,13 @@ const validationServices = {
     sessionValidationService: Symbol('sessionValidationService'),
     swarmValidationService: Symbol('swarmValidationService'),
     completionValidationService: Symbol('completionValidationService'),
+    embeddingValidationService: Symbol('embeddingValidationService'),
+    storageValidationService: Symbol('storageValidationService'),
 };
 
 export const TYPES = {
     ...baseServices,
-    ...specServices,
+    ...schemaServices,
     ...connectionServices,
     ...publicServices,
     ...validationServices,

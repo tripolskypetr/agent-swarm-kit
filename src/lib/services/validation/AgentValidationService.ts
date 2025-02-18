@@ -9,6 +9,8 @@ import {
 import ToolValidationService from "./ToolValidationService";
 import CompletionValidationService from "./CompletionValidationService";
 import { memoize } from "functools-kit";
+import StorageValidationService from "./StorageValidationService";
+import { StorageName } from "../../../interfaces/Storage.interface";
 
 /**
  * Service for validating agents within the agent swarm.
@@ -21,8 +23,24 @@ export class AgentValidationService {
   );
   private readonly completionValidationService =
     inject<CompletionValidationService>(TYPES.completionValidationService);
+  private readonly storageValidationService = inject<StorageValidationService>(
+    TYPES.storageValidationService
+  );
 
   private _agentMap = new Map<AgentName, IAgentSchema>();
+
+  /**
+   * Retrieves the storages used by the agent
+   * @param {agentName} agentName - The name of the swarm.
+   * @returns {string[]} The list of storage names.
+   * @throws Will throw an error if the swarm is not found.
+   */
+  public getStorageList = (agentName: string) => {
+    if (!this._agentMap.has(agentName)) {
+      throw new Error(`agent-swarm agent ${agentName} not exist`);
+    }
+    return this._agentMap.get(agentName).storages;
+  };
 
   /**
    * Adds a new agent to the validation service.
@@ -56,14 +74,30 @@ export class AgentValidationService {
       });
       const agent = this._agentMap.get(agentName);
       if (!agent) {
-        throw new Error(`agent-swarm agent ${agentName} not found source=${source}`);
+        throw new Error(
+          `agent-swarm agent ${agentName} not found source=${source}`
+        );
       }
       this.completionValidationService.validate(agent.completion, source);
       agent.tools?.forEach((toolName: ToolName) => {
         if (typeof toolName !== "string") {
-          throw new Error(`agent-swarm agent ${agentName} tool list is invalid (toolName=${String(toolName)}) source=${source}`);
+          throw new Error(
+            `agent-swarm agent ${agentName} tool list is invalid (toolName=${String(
+              toolName
+            )}) source=${source}`
+          );
         }
         this.toolValidationService.validate(toolName, source);
+      });
+      agent.storages?.forEach((storageName: StorageName) => {
+        if (typeof storageName !== "string") {
+          throw new Error(
+            `agent-swarm agent ${agentName} storage list is invalid (storageName=${String(
+              storageName
+            )}) source=${source}`
+          );
+        }
+        this.storageValidationService.validate(storageName, source);
       });
     }
   ) as (agentName: AgentName, source: string) => void;
