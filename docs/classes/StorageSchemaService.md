@@ -1,0 +1,39 @@
+# StorageSchemaService
+
+Service for managing storage schemas.
+
+## Constructor
+
+```ts
+constructor();
+```
+
+## Properties
+
+### loggerService
+
+```ts
+loggerService: LoggerService
+```
+
+### registry
+
+```ts
+registry: any
+```
+
+### register
+
+```ts
+register: (key: string, value: IStorageSchema<IStorageData>) => void
+```
+
+Registers a new storage schema.
+
+### get
+
+```ts
+get: (key: string) => IStorageSchema<IStorageData>
+```
+
+Retrieves a storage schema by key.

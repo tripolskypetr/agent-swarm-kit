@@ -28,11 +28,25 @@ toolValidationService: any
 completionValidationService: any
 ```
 
+### storageValidationService
+
+```ts
+storageValidationService: any
+```
+
 ### _agentMap
 
 ```ts
 _agentMap: any
 ```
+
+### getStorageList
+
+```ts
+getStorageList: (agentName: string) => string[]
+```
+
+Retrieves the storages used by the agent
 
 ### addAgent
 
@@ -41,6 +55,14 @@ addAgent: (agentName: string, agentSchema: IAgentSchema) => void
 ```
 
 Adds a new agent to the validation service.
+
+### hasStorage
+
+```ts
+hasStorage: ((agentName: string, storageName: string) => boolean) & IClearableMemoize<string> & IControlMemoize<string, boolean>
+```
+
+Check if agent got registered storage
 
 ### validate
 

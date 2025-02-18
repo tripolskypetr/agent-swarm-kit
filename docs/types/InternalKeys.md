@@ -2,7 +2,7 @@
 
 ```ts
 type InternalKeys = keyof {
-    getSwarm: never;
+    getStorage: never;
 };
 ```
 

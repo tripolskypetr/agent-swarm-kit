@@ -2,7 +2,8 @@
 
 ```ts
 type InternalKeys$3 = keyof {
-    getAgent: never;
+    getHistory: never;
+    getItems: never;
 };
 ```
 

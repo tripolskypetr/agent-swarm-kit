@@ -1,7 +1,7 @@
 import { scoped } from "di-scoped";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
-import { StorageName } from "src/interfaces/Storage.interface";
+import { StorageName } from "../../../interfaces/Storage.interface";
 
 /**
  * Interface representing the context.

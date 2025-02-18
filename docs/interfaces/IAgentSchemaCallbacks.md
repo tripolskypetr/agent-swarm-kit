@@ -75,3 +75,11 @@ onDispose: (clientId: string, agentName: string) => void
 ```
 
 Callback triggered when agent is disposed
+
+### onAfterToolCalls
+
+```ts
+onAfterToolCalls: (clientId: string, agentName: string, toolCalls: IToolCall[]) => void
+```
+
+Callback triggered after all tools are called

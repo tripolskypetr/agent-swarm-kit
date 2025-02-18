@@ -12,7 +12,7 @@ import CompletionSchemaService from "../schema/CompletionSchemaService";
 import validateDefault from "../../../validation/validateDefault";
 import SessionValidationService from "../validation/SessionValidationService";
 import { ExecutionMode } from "../../../interfaces/Session.interface";
-import { GLOBAL_CONFIG } from "src/config/params";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * Service for managing agent connections.

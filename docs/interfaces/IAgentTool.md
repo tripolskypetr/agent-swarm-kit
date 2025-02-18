@@ -25,7 +25,7 @@ The name of the tool.
 ### call
 
 ```ts
-call: (toolId: string, clientId: string, agentName: string, params: T) => Promise<void>
+call: (dto: { toolId: string; clientId: string; agentName: string; params: T; toolCalls: IToolCall[]; isLast: boolean; }) => Promise<void>
 ```
 
 Calls the tool with the specified parameters.
@@ -33,7 +33,7 @@ Calls the tool with the specified parameters.
 ### validate
 
 ```ts
-validate: (clientId: string, agentName: string, params: T) => boolean | Promise<boolean>
+validate: (dto: { clientId: string; agentName: string; toolCalls: IToolCall[]; params: T; }) => boolean | Promise<boolean>
 ```
 
 Validates the parameters for the tool.

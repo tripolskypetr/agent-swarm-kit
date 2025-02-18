@@ -1,7 +1,6 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { IPubsubArray, Subject } from 'functools-kit';
-import { StorageName as StorageName$1 } from 'src/interfaces/Storage.interface';
 
 /**
  * Interface representing an incoming message.
@@ -567,6 +566,14 @@ interface IAgentToolCallbacks<T = Record<string, unknown>> {
      * @returns A promise that resolves to a boolean indicating whether the parameters are valid.
      */
     onValidate?: (clientId: string, agentName: AgentName, params: T) => Promise<boolean>;
+    /**
+     * Callback triggered when the tool fails to execute
+     * @param clientId - The ID of the client.
+     * @param agentName - The name of the agent.
+     * @param params - The parameters for the tool.
+     * @returns A promise that resolves to a boolean indicating whether the parameters are valid.
+     */
+    onCallError?: (toolId: string, clientId: string, agentName: AgentName, params: T, error: Error) => Promise<void>;
 }
 /**
  * Interface representing a tool used by an agent.
@@ -789,7 +796,7 @@ interface IContext {
     clientId: string;
     agentName: AgentName;
     swarmName: SwarmName;
-    storageName: StorageName$1;
+    storageName: StorageName;
 }
 /**
  * Service providing context information.
@@ -831,6 +838,7 @@ declare class LoggerService implements ILogger {
  */
 declare class ClientAgent implements IAgent {
     readonly params: IAgentParams;
+    readonly _toolErrorSubject: Subject<void>;
     readonly _toolCommitSubject: Subject<void>;
     readonly _outputSubject: Subject<string>;
     /**
@@ -2479,11 +2487,63 @@ type TStorage = {
     [key in keyof IStorage]: unknown;
 };
 declare class StorageUtils implements TStorage {
+    /**
+     * Takes items from the storage.
+     * @param {string} search - The search query.
+     * @param {number} total - The total number of items to take.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
+     * @template T
+     */
     take: <T extends IStorageData = IStorageData>(search: string, total: number, clientId: string, agentName: AgentName, storageName: StorageName) => Promise<T[]>;
+    /**
+     * Upserts an item in the storage.
+     * @param {T} item - The item to upsert.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     * @template T
+     */
     upsert: <T extends IStorageData = IStorageData>(item: T, clientId: string, agentName: AgentName, storageName: StorageName) => Promise<void>;
+    /**
+     * Removes an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     */
     remove: (itemId: IStorageData["id"], clientId: string, agentName: AgentName, storageName: StorageName) => Promise<void>;
+    /**
+     * Gets an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to get.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
+     * @template T
+     */
     get: <T extends IStorageData = IStorageData>(itemId: IStorageData["id"], clientId: string, agentName: AgentName, storageName: StorageName) => Promise<T | null>;
+    /**
+     * Lists items from the storage.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @param {(item: T) => boolean} [filter] - Optional filter function.
+     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
+     * @template T
+     */
     list: <T extends IStorageData = IStorageData>(clientId: string, agentName: AgentName, storageName: StorageName, filter?: (item: T) => boolean) => Promise<T[]>;
+    /**
+     * Clears the storage.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     */
     clear: (clientId: string, agentName: AgentName, storageName: StorageName) => Promise<void>;
 }
 declare const Storage: StorageUtils;

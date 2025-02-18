@@ -44,6 +44,14 @@ tools: string[]
 
 The names of the tools used by the agent.
 
+### storages
+
+```ts
+storages: string[]
+```
+
+The names of the storages used by the agent.
+
 ### validate
 
 ```ts
@@ -55,10 +63,18 @@ Validates the output.
 ### transform
 
 ```ts
-transform: (input: string) => string
+transform: (input: string, clientId: string, agentName: string) => string | Promise<string>
 ```
 
 The transform function for model output
+
+### map
+
+```ts
+map: (message: IModelMessage, clientId: string, agentName: string) => IModelMessage | Promise<IModelMessage>
+```
+
+The map function for assistant messages. Use to transform json to tool_call for deepseek r1 on ollama
 
 ### callbacks
 
