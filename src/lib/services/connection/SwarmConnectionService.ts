@@ -62,6 +62,7 @@ export class SwarmConnectionService implements ISwarm {
             swarmName
           );
         },
+        callbacks,
       });
     }
   );
@@ -148,9 +149,11 @@ export class SwarmConnectionService implements ISwarm {
     this.loggerService.log(`swarmConnectionService dispose`, {
       context: this.contextService.context,
     });
-    this.getSwarm.clear(
-      `${this.contextService.context.clientId}-${this.contextService.context.swarmName}`
-    );
+    const key = `${this.contextService.context.clientId}-${this.contextService.context.swarmName}`;
+    if (!this.getSwarm.has(key)) {
+      return;
+    }
+    this.getSwarm.clear(key);
   };
 }
 

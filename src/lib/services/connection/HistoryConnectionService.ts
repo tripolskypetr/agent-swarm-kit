@@ -109,16 +109,18 @@ export class HistoryConnectionService implements IHistory {
     this.loggerService.log(`historyConnectionService dispose`, {
       context: this.contextService.context,
     });
+    const key = `${this.contextService.context.clientId}-${this.contextService.context.agentName}`;
+    if (!this.getHistory.has(key)) {
+      return;
+    }
     if (GLOBAL_CONFIG.CC_AGENT_SEPARATE_HISTORY) {
       await this.getItems(
         this.contextService.context.clientId,
-        this.contextService.context.agentName,
+        this.contextService.context.agentName
       ).clear();
       this.getItems.clear(this.contextService.context.clientId);
     }
-    this.getHistory.clear(
-      `${this.contextService.context.clientId}-${this.contextService.context.agentName}`
-    );
+    this.getHistory.clear(key);
     this.sessionValidationService.removeHistoryUsage(
       this.contextService.context.clientId,
       this.contextService.context.agentName

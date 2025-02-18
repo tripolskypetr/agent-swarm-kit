@@ -9,6 +9,7 @@ import "./spec/resque.test.mjs";
 import "./spec/ignore.spec.mjs";
 import "./spec/queue.test.mjs";
 import "./spec/scheduled.test.mjs";
+import "./spec/storage.test.mjs"
 
 run(import.meta.url, () => {
     console.log("All tests are finished");

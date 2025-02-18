@@ -28,4 +28,14 @@ export const disposeConnection = async (
         await swarm.historyPublicService.dispose(clientId, agentName);
       }),
   ]);
+  await Promise.all([
+    swarm.swarmValidationService
+      .getAgentList(swarmName)
+      .flatMap((agentName) =>
+        swarm.agentValidationService.getStorageList(agentName)
+      )
+      .map(async (storageName) => {
+        await swarm.storagePublicService.dispose(clientId, storageName);
+      }),
+  ]);
 };

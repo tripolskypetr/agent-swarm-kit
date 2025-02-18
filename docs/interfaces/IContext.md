@@ -21,3 +21,9 @@ agentName: string
 ```ts
 swarmName: string
 ```
+
+### storageName
+
+```ts
+storageName: string
+```

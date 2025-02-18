@@ -12,7 +12,7 @@ import CompletionSchemaService from "../schema/CompletionSchemaService";
 import validateDefault from "../../../validation/validateDefault";
 import SessionValidationService from "../validation/SessionValidationService";
 import { ExecutionMode } from "../../../interfaces/Session.interface";
-import { GLOBAL_CONFIG } from "src/config/params";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * Service for managing agent connections.
@@ -182,13 +182,15 @@ export class AgentConnectionService implements IAgent {
     this.loggerService.log(`agentConnectionService dispose`, {
       context: this.contextService.context,
     });
+    const key = `${this.contextService.context.clientId}-${this.contextService.context.agentName}`;
+    if (!this.getAgent.has(key)) {
+      return;
+    }
     await this.getAgent(
       this.contextService.context.clientId,
       this.contextService.context.agentName
     ).dispose();
-    this.getAgent.clear(
-      `${this.contextService.context.clientId}-${this.contextService.context.agentName}`
-    );
+    this.getAgent.clear(key);
     this.sessionValidationService.removeAgentUsage(
       this.contextService.context.clientId,
       this.contextService.context.agentName

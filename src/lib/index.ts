@@ -22,6 +22,12 @@ import ToolValidationService from "./services/validation/ToolValidationService";
 import SessionValidationService from "./services/validation/SessionValidationService";
 import SwarmValidationService from "./services/validation/SwarmValidationService";
 import CompletionValidationService from "./services/validation/CompletionValidationService";
+import EmbeddingSchemaService from "./services/schema/EmbeddingSchemaService";
+import StorageSchemaService from "./services/schema/StorageSchemaService";
+import StorageConnectionService from "./services/connection/StorageConnectionService";
+import StoragePublicService from "./services/public/StoragePublicService";
+import StorageValidationService from "./services/validation/StorageValidationService";
+import EmbeddingValidationService from "./services/validation/EmbeddingValidationService";
 
 const baseServices = {
   loggerService: inject<LoggerService>(TYPES.loggerService),
@@ -41,15 +47,20 @@ const connectionServices = {
   sessionConnectionService: inject<SessionConnectionService>(
     TYPES.sessionConnectionService
   ),
+  storageConnectionService: inject<StorageConnectionService>(
+    TYPES.storageConnectionService
+  ),
 };
 
-const specServices = {
+const schemaServices = {
   agentSchemaService: inject<AgentSchemaService>(TYPES.agentSchemaService),
   toolSchemaService: inject<ToolSchemaService>(TYPES.toolSchemaService),
   swarmSchemaService: inject<SwarmSchemaService>(TYPES.swarmSchemaService),
   completionSchemaService: inject<CompletionSchemaService>(
     TYPES.completionSchemaService
   ),
+  embeddingSchemaService: inject<EmbeddingSchemaService>(TYPES.embeddingSchemaService),
+  storageSchemaService: inject<StorageSchemaService>(TYPES.storageSchemaService),
 };
 
 const publicServices = {
@@ -61,6 +72,7 @@ const publicServices = {
     TYPES.sessionPublicService
   ),
   swarmPublicService: inject<SwarmPublicService>(TYPES.swarmPublicService),
+  storagePublicService: inject<StoragePublicService>(TYPES.storagePublicService),
 };
 
 const validationServices = {
@@ -69,12 +81,14 @@ const validationServices = {
     sessionValidationService: inject<SessionValidationService>(TYPES.sessionValidationService),
     swarmValidationService: inject<SwarmValidationService>(TYPES.swarmValidationService),
     completionValidationService: inject<CompletionValidationService>(TYPES.completionValidationService),
+    storageValidationService: inject<StorageValidationService>(TYPES.storageValidationService),
+    embeddingValidationService: inject<EmbeddingValidationService>(TYPES.embeddingValidationService),
 };
 
 export const swarm = {
   ...baseServices,
   ...connectionServices,
-  ...specServices,
+  ...schemaServices,
   ...publicServices,
   ...validationServices,
 };

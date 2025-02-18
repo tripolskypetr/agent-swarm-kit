@@ -18,6 +18,12 @@ constructor(params: IAgentParams);
 params: IAgentParams
 ```
 
+### _toolErrorSubject
+
+```ts
+_toolErrorSubject: Subject<void>
+```
+
 ### _toolCommitSubject
 
 ```ts

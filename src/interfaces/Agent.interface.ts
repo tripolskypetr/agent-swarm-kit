@@ -7,6 +7,7 @@ import {
 } from "../interfaces/Completion.interface";
 import { ExecutionMode } from "./Session.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
+import { StorageName } from "./Storage.interface";
 
 /**
  * Interface representing lifecycle callbacks of a tool
@@ -53,6 +54,20 @@ export interface IAgentToolCallbacks<T = Record<string, unknown>> {
     agentName: AgentName,
     params: T
   ) => Promise<boolean>;
+  /**
+   * Callback triggered when the tool fails to execute
+   * @param clientId - The ID of the client.
+   * @param agentName - The name of the agent.
+   * @param params - The parameters for the tool.
+   * @returns A promise that resolves to a boolean indicating whether the parameters are valid.
+   */
+  onCallError?: (
+    toolId: string,
+    clientId: string,
+    agentName: AgentName,
+    params: T,
+    error: Error
+  ) => Promise<void>;
 }
 
 /**
@@ -243,6 +258,8 @@ export interface IAgentSchema {
   system?: string[];
   /** The names of the tools used by the agent. */
   tools?: ToolName[];
+  /** The names of the storages used by the agent. */
+  storages?: StorageName[];
   /**
    * Validates the output.
    * @param output - The output to validate.

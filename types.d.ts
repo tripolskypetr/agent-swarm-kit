@@ -491,6 +491,50 @@ interface ICompletionSchema {
  */
 type CompletionName = string;
 
+type Embeddings = number[];
+interface IEmbeddingCallbacks {
+    onCreate(text: string, embeddings: Embeddings, clientId: string, embeddingName: EmbeddingName): void;
+    onCompare(text1: string, text2: string, similarity: number, clientId: string, embeddingName: EmbeddingName): void;
+}
+interface IEmbeddingSchema {
+    embeddingName: EmbeddingName;
+    createEmbedding(text: string): Promise<Embeddings>;
+    calculateSimilarity(a: Embeddings, b: Embeddings): Promise<number>;
+    callbacks?: Partial<IEmbeddingCallbacks>;
+}
+type EmbeddingName = string;
+
+type StorageId = string | number;
+interface IStorageData {
+    id: StorageId;
+}
+interface IStorageSchema<T extends IStorageData = IStorageData> {
+    getData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
+    createIndex(item: T): Promise<string>;
+    embedding: EmbeddingName;
+    storageName: StorageName;
+    callbacks?: Partial<IStorageCallbacks<T>>;
+}
+interface IStorageCallbacks<T extends IStorageData = IStorageData> {
+    onUpdate: (items: T[], clientId: string, storageName: StorageName) => void;
+}
+interface IStorageParams<T extends IStorageData = IStorageData> extends IStorageSchema<T>, Partial<IEmbeddingCallbacks> {
+    clientId: string;
+    calculateSimilarity: IEmbeddingSchema["calculateSimilarity"];
+    createEmbedding: IEmbeddingSchema["createEmbedding"];
+    storageName: StorageName;
+    logger: ILogger;
+}
+interface IStorage<T extends IStorageData = IStorageData> {
+    take(search: string, total: number): Promise<T[]>;
+    upsert(item: T): Promise<void>;
+    remove(itemId: IStorageData["id"]): Promise<void>;
+    get(itemId: IStorageData["id"]): Promise<T | null>;
+    list(filter?: (item: T) => boolean): Promise<T[]>;
+    clear(): Promise<void>;
+}
+type StorageName = string;
+
 /**
  * Interface representing lifecycle callbacks of a tool
  * @template T - The type of the parameters for the tool.
@@ -522,6 +566,14 @@ interface IAgentToolCallbacks<T = Record<string, unknown>> {
      * @returns A promise that resolves to a boolean indicating whether the parameters are valid.
      */
     onValidate?: (clientId: string, agentName: AgentName, params: T) => Promise<boolean>;
+    /**
+     * Callback triggered when the tool fails to execute
+     * @param clientId - The ID of the client.
+     * @param agentName - The name of the agent.
+     * @param params - The parameters for the tool.
+     * @returns A promise that resolves to a boolean indicating whether the parameters are valid.
+     */
+    onCallError?: (toolId: string, clientId: string, agentName: AgentName, params: T, error: Error) => Promise<void>;
 }
 /**
  * Interface representing a tool used by an agent.
@@ -676,6 +728,8 @@ interface IAgentSchema {
     system?: string[];
     /** The names of the tools used by the agent. */
     tools?: ToolName[];
+    /** The names of the storages used by the agent. */
+    storages?: StorageName[];
     /**
      * Validates the output.
      * @param output - The output to validate.
@@ -742,6 +796,7 @@ interface IContext {
     clientId: string;
     agentName: AgentName;
     swarmName: SwarmName;
+    storageName: StorageName;
 }
 /**
  * Service providing context information.
@@ -783,6 +838,7 @@ declare class LoggerService implements ILogger {
  */
 declare class ClientAgent implements IAgent {
     readonly params: IAgentParams;
+    readonly _toolErrorSubject: Subject<void>;
     readonly _toolCommitSubject: Subject<void>;
     readonly _outputSubject: Subject<string>;
     /**
@@ -1154,16 +1210,16 @@ declare class CompletionSchemaService {
     private registry;
     /**
      * Registers a new completion schema.
-     * @param {string} key - The key for the schema.
+     * @param {CompletionName} key - The key for the schema.
      * @param {ICompletionSchema} value - The schema to register.
      */
-    register: (key: string, value: ICompletionSchema) => void;
+    register: (key: CompletionName, value: ICompletionSchema) => void;
     /**
      * Retrieves a completion schema by key.
-     * @param {string} key - The key of the schema to retrieve.
+     * @param {CompletionName} key - The key of the schema to retrieve.
      * @returns {ICompletionSchema} The retrieved schema.
      */
-    get: (key: string) => ICompletionSchema;
+    get: (key: CompletionName) => ICompletionSchema;
 }
 
 /**
@@ -1295,11 +1351,11 @@ declare class SessionConnectionService implements ISession {
 
 interface IAgentConnectionService extends AgentConnectionService {
 }
-type InternalKeys$3 = keyof {
+type InternalKeys$4 = keyof {
     getAgent: never;
 };
 type TAgentConnectionService = {
-    [key in Exclude<keyof IAgentConnectionService, InternalKeys$3>]: unknown;
+    [key in Exclude<keyof IAgentConnectionService, InternalKeys$4>]: unknown;
 };
 /**
  * Service for managing public agent operations.
@@ -1372,12 +1428,12 @@ declare class AgentPublicService implements TAgentConnectionService {
 
 interface IHistoryConnectionService extends HistoryConnectionService {
 }
-type InternalKeys$2 = keyof {
+type InternalKeys$3 = keyof {
     getHistory: never;
     getItems: never;
 };
 type THistoryConnectionService = {
-    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$2>]: unknown;
+    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$3>]: unknown;
 };
 /**
  * Service for handling public history operations.
@@ -1419,11 +1475,11 @@ declare class HistoryPublicService implements THistoryConnectionService {
 
 interface ISessionConnectionService extends SessionConnectionService {
 }
-type InternalKeys$1 = keyof {
+type InternalKeys$2 = keyof {
     getSession: never;
 };
 type TSessionConnectionService = {
-    [key in Exclude<keyof ISessionConnectionService, InternalKeys$1>]: unknown;
+    [key in Exclude<keyof ISessionConnectionService, InternalKeys$2>]: unknown;
 };
 /**
  * Service for managing public session interactions.
@@ -1498,11 +1554,11 @@ declare class SessionPublicService implements TSessionConnectionService {
 
 interface ISwarmConnectionService extends SwarmConnectionService {
 }
-type InternalKeys = keyof {
+type InternalKeys$1 = keyof {
     getSwarm: never;
 };
 type TSwarmConnectionService = {
-    [key in Exclude<keyof ISwarmConnectionService, InternalKeys>]: unknown;
+    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$1>]: unknown;
 };
 /**
  * Service for managing public swarm interactions.
@@ -1564,7 +1620,15 @@ declare class AgentValidationService {
     private readonly loggerService;
     private readonly toolValidationService;
     private readonly completionValidationService;
+    private readonly storageValidationService;
     private _agentMap;
+    /**
+     * Retrieves the storages used by the agent
+     * @param {agentName} agentName - The name of the swarm.
+     * @returns {string[]} The list of storage names.
+     * @throws Will throw an error if the swarm is not found.
+     */
+    getStorageList: (agentName: string) => string[];
     /**
      * Adds a new agent to the validation service.
      * @param {AgentName} agentName - The name of the agent.
@@ -1572,6 +1636,10 @@ declare class AgentValidationService {
      * @throws {Error} If the agent already exists.
      */
     addAgent: (agentName: AgentName, agentSchema: IAgentSchema) => void;
+    /**
+     * Check if agent got registered storage
+     */
+    hasStorage: ((agentName: AgentName, storageName: StorageName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
      * Validates an agent by its name and source.
      * @param {AgentName} agentName - The name of the agent.
@@ -1747,24 +1815,247 @@ declare class CompletionValidationService {
     validate: (completionName: CompletionName, source: string) => void;
 }
 
+/**
+ * Service for managing embedding schemas.
+ */
+declare class EmbeddingSchemaService {
+    private readonly loggerService;
+    private registry;
+    /**
+     * Registers a embedding with the given key and value.
+     * @param {EmbeddingName} key - The name of the embedding.
+     * @param {IAgentTool} value - The embedding to register.
+     */
+    register: (key: EmbeddingName, value: IEmbeddingSchema) => void;
+    /**
+     * Retrieves a embedding by its key.
+     * @param {EmbeddingName} key - The name of the embedding.
+     * @returns {IAgentTool} The embedding associated with the given key.
+     */
+    get: (key: EmbeddingName) => IEmbeddingSchema;
+}
+
+/**
+ * Service for managing storage schemas.
+ */
+declare class StorageSchemaService {
+    readonly loggerService: LoggerService;
+    private registry;
+    /**
+     * Registers a new storage schema.
+     * @param {StorageName} key - The key for the schema.
+     * @param {IStorageSchema} value - The schema to register.
+     */
+    register: (key: StorageName, value: IStorageSchema) => void;
+    /**
+     * Retrieves a storage schema by key.
+     * @param {StorageName} key - The key of the schema to retrieve.
+     * @returns {IStorageSchema} The retrieved schema.
+     */
+    get: (key: StorageName) => IStorageSchema;
+}
+
+declare class ClientStorage<T extends IStorageData = IStorageData> implements IStorage<T> {
+    readonly params: IStorageParams<T>;
+    private _itemMap;
+    constructor(params: IStorageParams<T>);
+    _createEmbedding: ((item: T) => Promise<readonly [Embeddings, string]>) & functools_kit.IClearableMemoize<string | number> & functools_kit.IControlMemoize<string | number, Promise<readonly [Embeddings, string]>>;
+    waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    take: (search: string, total: number) => Promise<T[]>;
+    upsert: (item: T) => Promise<void>;
+    remove: (itemId: IStorageData["id"]) => Promise<void>;
+    clear: () => Promise<void>;
+    get: (itemId: IStorageData["id"]) => Promise<T | null>;
+    list: (filter?: (item: T) => boolean) => Promise<T[]>;
+}
+
+/**
+ * Service for managing storage connections.
+ * @implements {IStorage}
+ */
+declare class StorageConnectionService implements IStorage {
+    private readonly loggerService;
+    private readonly contextService;
+    private readonly storageSchemaService;
+    private readonly embeddingSchemaService;
+    /**
+     * Retrieves a storage instance based on client ID and storage name.
+     * @param {string} clientId - The client ID.
+     * @param {string} storageName - The storage name.
+     * @returns {ClientStorage} The client storage instance.
+     */
+    getStorage: ((clientId: string, storageName: StorageName) => ClientStorage<IStorageData>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<IStorageData>>;
+    /**
+     * Retrieves a list of storage data based on a search query and total number of items.
+     * @param {string} search - The search query.
+     * @param {number} total - The total number of items to retrieve.
+     * @returns {Promise<IStorageData[]>} The list of storage data.
+     */
+    take: (search: string, total: number) => Promise<IStorageData[]>;
+    /**
+     * Upserts an item in the storage.
+     * @param {IStorageData} item - The item to upsert.
+     * @returns {Promise<void>}
+     */
+    upsert: (item: IStorageData) => Promise<void>;
+    /**
+     * Removes an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
+     * @returns {Promise<void>}
+     */
+    remove: (itemId: IStorageData["id"]) => Promise<void>;
+    /**
+     * Retrieves an item from the storage by its ID.
+     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
+     * @returns {Promise<IStorageData>} The retrieved item.
+     */
+    get: (itemId: IStorageData["id"]) => Promise<IStorageData | null>;
+    /**
+     * Retrieves a list of items from the storage, optionally filtered by a predicate function.
+     * @param {function(IStorageData): boolean} [filter] - The optional filter function.
+     * @returns {Promise<IStorageData[]>} The list of items.
+     */
+    list: (filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
+    /**
+     * Clears all items from the storage.
+     * @returns {Promise<void>}
+     */
+    clear: () => Promise<void>;
+    /**
+     * Disposes of the storage connection.
+     * @returns {Promise<void>}
+     */
+    dispose: () => Promise<void>;
+}
+
+interface IStorageConnectionService extends StorageConnectionService {
+}
+type InternalKeys = keyof {
+    getStorage: never;
+};
+type TStorageConnectionService = {
+    [key in Exclude<keyof IStorageConnectionService, InternalKeys>]: unknown;
+};
+/**
+ * Service for managing public storage interactions.
+ */
+declare class StoragePublicService implements TStorageConnectionService {
+    private readonly loggerService;
+    private readonly storageConnectionService;
+    /**
+     * Retrieves a list of storage data based on a search query and total number of items.
+     * @param {string} search - The search query.
+     * @param {number} total - The total number of items to retrieve.
+     * @returns {Promise<IStorageData[]>} The list of storage data.
+     */
+    take: (search: string, total: number, clientId: string, storageName: StorageName) => Promise<IStorageData[]>;
+    /**
+     * Upserts an item in the storage.
+     * @param {IStorageData} item - The item to upsert.
+     * @returns {Promise<void>}
+     */
+    upsert: (item: IStorageData, clientId: string, storageName: StorageName) => Promise<void>;
+    /**
+     * Removes an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
+     * @returns {Promise<void>}
+     */
+    remove: (itemId: IStorageData["id"], clientId: string, storageName: StorageName) => Promise<void>;
+    /**
+     * Retrieves an item from the storage by its ID.
+     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
+     * @returns {Promise<IStorageData>} The retrieved item.
+     */
+    get: (itemId: IStorageData["id"], clientId: string, storageName: StorageName) => Promise<IStorageData | null>;
+    /**
+     * Retrieves a list of items from the storage, optionally filtered by a predicate function.
+     * @param {function(IStorageData): boolean} [filter] - The optional filter function.
+     * @returns {Promise<IStorageData[]>} The list of items.
+     */
+    list: (clientId: string, storageName: StorageName, filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
+    /**
+     * Clears all items from the storage.
+     * @returns {Promise<void>}
+     */
+    clear: (clientId: string, storageName: StorageName) => Promise<void>;
+    /**
+     * Disposes of the storage.
+     * @param {string} clientId - The client ID.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>}
+     */
+    dispose: (clientId: string, storageName: StorageName) => Promise<void>;
+}
+
+/**
+ * Service for validating storages within the storage swarm.
+ */
+declare class StorageValidationService {
+    private readonly loggerService;
+    private readonly embeddingValidationService;
+    private _storageMap;
+    /**
+     * Adds a new storage to the validation service.
+     * @param {StorageName} storageName - The name of the storage.
+     * @param {IStorageSchema} storageSchema - The schema of the storage.
+     * @throws {Error} If the storage already exists.
+     */
+    addStorage: (storageName: StorageName, storageSchema: IStorageSchema) => void;
+    /**
+     * Validates an storage by its name and source.
+     * @param {StorageName} storageName - The name of the storage.
+     * @param {string} source - The source of the validation request.
+     * @throws {Error} If the storage is not found.
+     */
+    validate: (storageName: StorageName, source: string) => void;
+}
+
+/**
+ * Service for validating embeddings within the agent-swarm.
+ */
+declare class EmbeddingValidationService {
+    private readonly loggerService;
+    private _embeddingMap;
+    /**
+     * Adds a new embedding to the validation service.
+     * @param {EmbeddingName} embeddingName - The name of the embedding to add.
+     * @param {IAgentEmbedding} embeddingSchema - The schema of the embedding to add.
+     * @throws Will throw an error if the embedding already exists.
+     */
+    addEmbedding: (embeddingName: EmbeddingName, embeddingSchema: IEmbeddingSchema) => void;
+    /**
+     * Validates if a embedding exists in the validation service.
+     * @param {EmbeddingName} embeddingName - The name of the embedding to validate.
+     * @param {string} source - The source of the validation request.
+     * @throws Will throw an error if the embedding is not found.
+     */
+    validate: (embeddingName: EmbeddingName, source: string) => void;
+}
+
 declare const swarm: {
     agentValidationService: AgentValidationService;
     toolValidationService: ToolValidationService;
     sessionValidationService: SessionValidationService;
     swarmValidationService: SwarmValidationService;
     completionValidationService: CompletionValidationService;
+    storageValidationService: StorageValidationService;
+    embeddingValidationService: EmbeddingValidationService;
     agentPublicService: AgentPublicService;
     historyPublicService: HistoryPublicService;
     sessionPublicService: SessionPublicService;
     swarmPublicService: SwarmPublicService;
+    storagePublicService: StoragePublicService;
     agentSchemaService: AgentSchemaService;
     toolSchemaService: ToolSchemaService;
     swarmSchemaService: SwarmSchemaService;
     completionSchemaService: CompletionSchemaService;
+    embeddingSchemaService: EmbeddingSchemaService;
+    storageSchemaService: StorageSchemaService;
     agentConnectionService: AgentConnectionService;
     historyConnectionService: HistoryConnectionService;
     swarmConnectionService: SwarmConnectionService;
     sessionConnectionService: SessionConnectionService;
+    storageConnectionService: StorageConnectionService;
     loggerService: LoggerService;
     contextService: {
         readonly context: IContext;
@@ -1804,6 +2095,22 @@ declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
  * @returns {string} The name of the tool that was added.
  */
 declare const addTool: (toolSchema: IAgentTool) => string;
+
+/**
+ * Adds a new embedding to the embedding registry. The swarm takes only those embeddings which was registered
+ *
+ * @param {IEmbeddingSchema} embeddingSchema - The schema of the embedding to be added.
+ * @returns {string} The name of the added embedding.
+ */
+declare const addEmbedding: (embeddingSchema: IEmbeddingSchema) => string;
+
+/**
+ * Adds a new storage to the storage registry. The swarm takes only those storages which was registered
+ *
+ * @param {IStorageSchema} storageSchema - The schema of the storage to be added.
+ * @returns {string} The name of the added storage.
+ */
+declare const addStorage: <T extends IStorageData = IStorageData>(storageSchema: IStorageSchema<T>) => string;
 
 type SendMessageFn = (outgoing: string) => Promise<void>;
 /**
@@ -2171,7 +2478,74 @@ declare const GLOBAL_CONFIG: {
     CC_AGENT_SEPARATE_HISTORY: boolean;
     CC_AGENT_DISALLOWED_TAGS: string[];
     CC_AGENT_DISALLOWED_SYMBOLS: string[];
+    CC_STORAGE_SEARCH_SIMILARITY: number;
+    CC_STORAGE_SEARCH_POOL: number;
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, addAgent, addCompletion, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };
+type TStorage = {
+    [key in keyof IStorage]: unknown;
+};
+declare class StorageUtils implements TStorage {
+    /**
+     * Takes items from the storage.
+     * @param {string} search - The search query.
+     * @param {number} total - The total number of items to take.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
+     * @template T
+     */
+    take: <T extends IStorageData = IStorageData>(search: string, total: number, clientId: string, agentName: AgentName, storageName: StorageName) => Promise<T[]>;
+    /**
+     * Upserts an item in the storage.
+     * @param {T} item - The item to upsert.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     * @template T
+     */
+    upsert: <T extends IStorageData = IStorageData>(item: T, clientId: string, agentName: AgentName, storageName: StorageName) => Promise<void>;
+    /**
+     * Removes an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     */
+    remove: (itemId: IStorageData["id"], clientId: string, agentName: AgentName, storageName: StorageName) => Promise<void>;
+    /**
+     * Gets an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to get.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
+     * @template T
+     */
+    get: <T extends IStorageData = IStorageData>(itemId: IStorageData["id"], clientId: string, agentName: AgentName, storageName: StorageName) => Promise<T | null>;
+    /**
+     * Lists items from the storage.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @param {(item: T) => boolean} [filter] - Optional filter function.
+     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
+     * @template T
+     */
+    list: <T extends IStorageData = IStorageData>(clientId: string, agentName: AgentName, storageName: StorageName, filter?: (item: T) => boolean) => Promise<T[]>;
+    /**
+     * Clears the storage.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     */
+    clear: (clientId: string, agentName: AgentName, storageName: StorageName) => Promise<void>;
+}
+declare const Storage: StorageUtils;
+
+export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, Storage, addAgent, addCompletion, addEmbedding, addStorage, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };
