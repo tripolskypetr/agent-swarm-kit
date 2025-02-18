@@ -27,7 +27,7 @@ storageConnectionService: any
 ### take
 
 ```ts
-take: (search: string, total: number, clientId: string, storageName: string) => Promise<IStorageData[]>
+take: (search: string, total: number, clientId: string, storageName: string, score?: number) => Promise<IStorageData[]>
 ```
 
 Retrieves a list of storage data based on a search query and total number of items.

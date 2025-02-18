@@ -510,7 +510,7 @@ interface IStorageData {
 }
 interface IStorageSchema<T extends IStorageData = IStorageData> {
     getData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
-    createIndex(item: T): Promise<string>;
+    createIndex(item: T): Promise<string> | string;
     embedding: EmbeddingName;
     storageName: StorageName;
     callbacks?: Partial<IStorageCallbacks<T>>;
@@ -526,7 +526,7 @@ interface IStorageParams<T extends IStorageData = IStorageData> extends IStorage
     logger: ILogger;
 }
 interface IStorage<T extends IStorageData = IStorageData> {
-    take(search: string, total: number): Promise<T[]>;
+    take(search: string, total: number, score?: number): Promise<T[]>;
     upsert(item: T): Promise<void>;
     remove(itemId: IStorageData["id"]): Promise<void>;
     get(itemId: IStorageData["id"]): Promise<T | null>;
@@ -1861,7 +1861,7 @@ declare class ClientStorage<T extends IStorageData = IStorageData> implements IS
     constructor(params: IStorageParams<T>);
     _createEmbedding: ((item: T) => Promise<readonly [Embeddings, string]>) & functools_kit.IClearableMemoize<string | number> & functools_kit.IControlMemoize<string | number, Promise<readonly [Embeddings, string]>>;
     waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable;
-    take: (search: string, total: number) => Promise<T[]>;
+    take: (search: string, total: number, score?: number) => Promise<T[]>;
     upsert: (item: T) => Promise<void>;
     remove: (itemId: IStorageData["id"]) => Promise<void>;
     clear: () => Promise<void>;
@@ -1891,7 +1891,7 @@ declare class StorageConnectionService implements IStorage {
      * @param {number} total - The total number of items to retrieve.
      * @returns {Promise<IStorageData[]>} The list of storage data.
      */
-    take: (search: string, total: number) => Promise<IStorageData[]>;
+    take: (search: string, total: number, score?: number) => Promise<IStorageData[]>;
     /**
      * Upserts an item in the storage.
      * @param {IStorageData} item - The item to upsert.
@@ -1948,7 +1948,7 @@ declare class StoragePublicService implements TStorageConnectionService {
      * @param {number} total - The total number of items to retrieve.
      * @returns {Promise<IStorageData[]>} The list of storage data.
      */
-    take: (search: string, total: number, clientId: string, storageName: StorageName) => Promise<IStorageData[]>;
+    take: (search: string, total: number, clientId: string, storageName: StorageName, score?: number) => Promise<IStorageData[]>;
     /**
      * Upserts an item in the storage.
      * @param {IStorageData} item - The item to upsert.
@@ -2497,7 +2497,7 @@ declare class StorageUtils implements TStorage {
      * @returns {Promise<T[]>} - A promise that resolves to an array of items.
      * @template T
      */
-    take: <T extends IStorageData = IStorageData>(search: string, total: number, clientId: string, agentName: AgentName, storageName: StorageName) => Promise<T[]>;
+    take: <T extends IStorageData = IStorageData>(search: string, total: number, clientId: string, agentName: AgentName, storageName: StorageName, score?: number) => Promise<T[]>;
     /**
      * Upserts an item in the storage.
      * @param {T} item - The item to upsert.

@@ -65,7 +65,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     this._itemMap = new Map(data.map((item) => [item.id, item]));
   });
 
-  take = async (search: string, total: number): Promise<T[]> => {
+  take = async (search: string, total: number, score = GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY): Promise<T[]> => {
     this.params.logger.debug(
       `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} take`,
       {
@@ -115,7 +115,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     })
     const filtered = indexed.take(
       total,
-      GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY
+      score,
     );
     return filtered.map(({ id }) => this._itemMap.get(id));
   };

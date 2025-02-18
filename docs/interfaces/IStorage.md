@@ -5,7 +5,7 @@
 ### take
 
 ```ts
-take: (search: string, total: number) => Promise<T[]>
+take: (search: string, total: number, score?: number) => Promise<T[]>
 ```
 
 ### upsert

@@ -27,13 +27,15 @@ export class StorageUtils implements TStorage {
     total: number,
     clientId: string,
     agentName: AgentName,
-    storageName: StorageName
+    storageName: StorageName,
+    score?: number,
   ): Promise<T[]> => {
     swarm.loggerService.log("StorageStatic take", {
       search,
       total,
       clientId,
       storageName,
+      score,
     });
     swarm.storageValidationService.validate(storageName, "StorageStatic");
     if (!swarm.agentValidationService.hasStorage(agentName, storageName)) {
@@ -43,7 +45,8 @@ export class StorageUtils implements TStorage {
       search,
       total,
       clientId,
-      storageName
+      storageName,
+      score,
     )) as T[];
   };
 

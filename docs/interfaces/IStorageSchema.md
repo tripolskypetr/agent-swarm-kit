@@ -31,5 +31,5 @@ callbacks: Partial<IStorageCallbacks<T>>
 ### createIndex
 
 ```ts
-createIndex: (item: T) => Promise<string>
+createIndex: (item: T) => string | Promise<string>
 ```

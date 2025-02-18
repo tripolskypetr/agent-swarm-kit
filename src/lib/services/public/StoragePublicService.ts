@@ -37,17 +37,19 @@ export class StoragePublicService implements TStorageConnectionService {
     search: string,
     total: number,
     clientId: string,
-    storageName: StorageName
+    storageName: StorageName,
+    score?: number,
   ): Promise<IStorageData[]> => {
     this.loggerService.log(`storagePublicService take`, {
       search,
       total,
       clientId,
       storageName,
+      score,
     });
     return await ContextService.runInContext(
       async () => {
-        return await this.storageConnectionService.take(search, total);
+        return await this.storageConnectionService.take(search, total, score);
       },
       {
         clientId,

@@ -47,7 +47,7 @@ Retrieves a storage instance based on client ID and storage name.
 ### take
 
 ```ts
-take: (search: string, total: number) => Promise<IStorageData[]>
+take: (search: string, total: number, score?: number) => Promise<IStorageData[]>
 ```
 
 Retrieves a list of storage data based on a search query and total number of items.

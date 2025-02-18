@@ -73,19 +73,21 @@ export class StorageConnectionService implements IStorage {
    */
   public take = async (
     search: string,
-    total: number
+    total: number,
+    score?: number,
   ): Promise<IStorageData[]> => {
     this.loggerService.log(`storageConnectionService take`, {
       context: this.contextService.context,
       search,
       total,
+      score,
     });
     const storage = this.getStorage(
       this.contextService.context.clientId,
       this.contextService.context.storageName
     );
     await storage.waitForInit();
-    return await storage.take(search, total);
+    return await storage.take(search, total, score);
   };
 
   /**

@@ -14,7 +14,7 @@ export interface IStorageData {
 
 export interface IStorageSchema<T extends IStorageData = IStorageData> {
   getData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
-  createIndex(item: T): Promise<string>;
+  createIndex(item: T): Promise<string> | string;
   embedding: EmbeddingName;
   storageName: StorageName;
   callbacks?: Partial<IStorageCallbacks<T>>;
@@ -35,7 +35,7 @@ export interface IStorageParams<T extends IStorageData = IStorageData>
 }
 
 export interface IStorage<T extends IStorageData = IStorageData> {
-  take(search: string, total: number): Promise<T[]>;
+  take(search: string, total: number, score?: number): Promise<T[]>;
   upsert(item: T): Promise<void>;
   remove(itemId: IStorageData["id"]): Promise<void>;
   get(itemId: IStorageData["id"]): Promise<T | null>;

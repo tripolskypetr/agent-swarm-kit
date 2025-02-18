@@ -13,7 +13,7 @@ constructor();
 ### take
 
 ```ts
-take: <T extends IStorageData = IStorageData>(search: string, total: number, clientId: string, agentName: string, storageName: string) => Promise<T[]>
+take: <T extends IStorageData = IStorageData>(search: string, total: number, clientId: string, agentName: string, storageName: string, score?: number) => Promise<T[]>
 ```
 
 Takes items from the storage.
