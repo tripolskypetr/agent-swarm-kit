@@ -95,17 +95,30 @@ export class ClientHistory implements IHistory {
     const commonMessages = commonMessagesRaw
       .filter(this._filterCondition)
       .slice(-GLOBAL_CONFIG.CC_KEEP_MESSAGES);
-    const assistantToolCallSet = new Set<string>(
+    const assistantToolOutputCallSet = new Set<string>(
       commonMessages.map(({ tool_call_id }) => tool_call_id!)
     );
-    const assistantMessages = commonMessages
+    const assistantRawMessages = commonMessages
       .map(({ tool_calls, ...message }) => ({
         ...message,
         tool_calls: tool_calls?.filter(({ id }) =>
-          assistantToolCallSet.has(id)
+          assistantToolOutputCallSet.has(id)
         ),
       }))
       .filter(({ content, tool_calls }) => !!content || !!tool_calls?.length);
+    const assistantToolCallSet = new Set<string>(
+      assistantRawMessages
+        .filter(({ role }) => role === "tool")
+        .flatMap(({ tool_calls }) => tool_calls?.map(({ id }) => id))
+    );
+    const assistantMessages = assistantRawMessages.filter(
+      ({ role, tool_call_id }) => {
+        if (role === "tool") {
+          return assistantToolCallSet.has(tool_call_id);
+        }
+        return true;
+      }
+    );
     const promptMessages: IModelMessage[] = [];
     {
       promptMessages.push({

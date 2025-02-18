@@ -2171,6 +2171,8 @@ declare const GLOBAL_CONFIG: {
     CC_AGENT_SEPARATE_HISTORY: boolean;
     CC_AGENT_DISALLOWED_TAGS: string[];
     CC_AGENT_DISALLOWED_SYMBOLS: string[];
+    CC_STORAGE_SEARCH_SIMILARITY: number;
+    CC_STORAGE_SEARCH_POOL: number;
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
