@@ -110,6 +110,9 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         )
       )
     );
+    this.params.logger.debug(`ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} take indexed`,{
+        indexed: indexed.getEntries(),
+    })
     const filtered = indexed.take(
       total,
       GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY

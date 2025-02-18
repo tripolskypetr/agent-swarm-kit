@@ -1,0 +1,20 @@
+{
+  "name": "ollama-deepseek-toolcall",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@tensorflow/tfjs-backend-wasm": "^4.22.0",
+    "@tensorflow/tfjs-core": "^4.22.0",
+    "agent-swarm-kit": "^1.0.53",
+    "functools-kit": "^1.0.74",
+    "ollama": "^0.5.13",
+    "pinolog": "^1.0.2"
+  }
+}
