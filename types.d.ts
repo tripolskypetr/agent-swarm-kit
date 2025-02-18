@@ -1855,17 +1855,65 @@ declare class StorageSchemaService {
     get: (key: StorageName) => IStorageSchema;
 }
 
+/**
+ * ClientStorage class to manage storage operations.
+ * @template T - The type of storage data.
+ */
 declare class ClientStorage<T extends IStorageData = IStorageData> implements IStorage<T> {
     readonly params: IStorageParams<T>;
     private _itemMap;
+    /**
+     * Creates an instance of ClientStorage.
+     * @param {IStorageParams<T>} params - The storage parameters.
+     */
     constructor(params: IStorageParams<T>);
+    /**
+     * Creates an embedding for the given item.
+     * @param {T} item - The item to create an embedding for.
+     * @returns {Promise<readonly [any, any]>} - The embeddings and index.
+     */
     _createEmbedding: ((item: T) => Promise<readonly [Embeddings, string]>) & functools_kit.IClearableMemoize<string | number> & functools_kit.IControlMemoize<string | number, Promise<readonly [Embeddings, string]>>;
+    /**
+     * Waits for the initialization of the storage.
+     * @returns {Promise<void>}
+     */
     waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    /**
+     * Takes a specified number of items based on the search criteria.
+     * @param {string} search - The search string.
+     * @param {number} total - The total number of items to take.
+     * @param {number} [score=GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY] - The similarity score.
+     * @returns {Promise<T[]>} - The list of items.
+     */
     take: (search: string, total: number, score?: number) => Promise<T[]>;
+    /**
+     * Upserts an item into the storage.
+     * @param {T} item - The item to upsert.
+     * @returns {Promise<void>}
+     */
     upsert: (item: T) => Promise<void>;
+    /**
+     * Removes an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
+     * @returns {Promise<void>}
+     */
     remove: (itemId: IStorageData["id"]) => Promise<void>;
+    /**
+     * Clears all items from the storage.
+     * @returns {Promise<void>}
+     */
     clear: () => Promise<void>;
+    /**
+     * Gets an item by its ID.
+     * @param {IStorageData["id"]} itemId - The ID of the item to get.
+     * @returns {Promise<T | null>} - The item or null if not found.
+     */
     get: (itemId: IStorageData["id"]) => Promise<T | null>;
+    /**
+     * Lists all items in the storage, optionally filtered by a predicate.
+     * @param {(item: T) => boolean} [filter] - The filter predicate.
+     * @returns {Promise<T[]>} - The list of items.
+     */
     list: (filter?: (item: T) => boolean) => Promise<T[]>;
 }
 
