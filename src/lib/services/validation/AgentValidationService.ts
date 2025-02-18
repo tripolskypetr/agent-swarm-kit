@@ -37,7 +37,7 @@ export class AgentValidationService {
    */
   public getStorageList = (agentName: string) => {
     if (!this._agentMap.has(agentName)) {
-      throw new Error(`agent-swarm agent ${agentName} not exist`);
+      throw new Error(`agent-swarm agent ${agentName} not exist (getStorageList)`);
     }
     return this._agentMap.get(agentName).storages;
   };
@@ -58,6 +58,24 @@ export class AgentValidationService {
     }
     this._agentMap.set(agentName, agentSchema);
   };
+
+  /**
+   * Check if agent got registered storage
+   */
+  public hasStorage = memoize(
+    ([agentName, storageName]) => `${agentName}-${storageName}`,
+    (agentName: AgentName, storageName: StorageName) => {
+      this.loggerService.log("agentValidationService hasStorage", {
+        agentName,
+        storageName,
+      });
+      if (!this._agentMap.has(agentName)) {
+        throw new Error(`agent-swarm agent ${agentName} not exist (hasStorage)`);
+      }
+      const { storages = [] } = this._agentMap.get(agentName);
+      return storages.includes(storageName);
+    }
+  );
 
   /**
    * Validates an agent by its name and source.

@@ -1629,6 +1629,10 @@ declare class AgentValidationService {
      */
     addAgent: (agentName: AgentName, agentSchema: IAgentSchema) => void;
     /**
+     * Check if agent got registered storage
+     */
+    hasStorage: ((agentName: AgentName, storageName: StorageName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
+    /**
      * Validates an agent by its name and source.
      * @param {AgentName} agentName - The name of the agent.
      * @param {string} source - The source of the validation request.
@@ -2475,12 +2479,12 @@ type TStorage = {
     [key in keyof IStorage]: unknown;
 };
 declare class StorageUtils implements TStorage {
-    take: <T extends IStorageData = IStorageData>(search: string, total: number, clientId: string, storageName: StorageName) => Promise<T[]>;
-    upsert: <T extends IStorageData = IStorageData>(item: T, clientId: string, storageName: StorageName) => Promise<void>;
-    remove: (itemId: IStorageData["id"], clientId: string, storageName: StorageName) => Promise<void>;
-    get: <T extends IStorageData = IStorageData>(itemId: IStorageData["id"], clientId: string, storageName: StorageName) => Promise<T | null>;
-    list: <T extends IStorageData = IStorageData>(clientId: string, storageName: StorageName, filter?: (item: T) => boolean) => Promise<T[]>;
-    clear: (clientId: string, storageName: StorageName) => Promise<void>;
+    take: <T extends IStorageData = IStorageData>(search: string, total: number, clientId: string, agentName: AgentName, storageName: StorageName) => Promise<T[]>;
+    upsert: <T extends IStorageData = IStorageData>(item: T, clientId: string, agentName: AgentName, storageName: StorageName) => Promise<void>;
+    remove: (itemId: IStorageData["id"], clientId: string, agentName: AgentName, storageName: StorageName) => Promise<void>;
+    get: <T extends IStorageData = IStorageData>(itemId: IStorageData["id"], clientId: string, agentName: AgentName, storageName: StorageName) => Promise<T | null>;
+    list: <T extends IStorageData = IStorageData>(clientId: string, agentName: AgentName, storageName: StorageName, filter?: (item: T) => boolean) => Promise<T[]>;
+    clear: (clientId: string, agentName: AgentName, storageName: StorageName) => Promise<void>;
 }
 declare const Storage: StorageUtils;
 

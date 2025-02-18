@@ -40,15 +40,14 @@ export class SessionConnectionService implements ISession {
   public getSession = memoize(
     ([clientId, swarmName]) => `${clientId}-${swarmName}`,
     (clientId: string, swarmName: string) => {
-      const { callbacks } =
-        this.swarmSchemaService.get(swarmName);
+      const { callbacks } = this.swarmSchemaService.get(swarmName);
       return new ClientSession({
         clientId,
         logger: this.loggerService,
         swarm: this.swarmConnectionService.getSwarm(clientId, swarmName),
         swarmName,
-        ...callbacks
-      })
+        ...callbacks,
+      });
     }
   );
 
@@ -108,7 +107,10 @@ export class SessionConnectionService implements ISession {
    * @param {string} content - The content to commit.
    * @returns {Promise<void>} A promise that resolves when the content is committed.
    */
-  public commitToolOutput = async (toolId: string, content: string): Promise<void> => {
+  public commitToolOutput = async (
+    toolId: string,
+    content: string
+  ): Promise<void> => {
     this.loggerService.log(`sessionConnectionService commitToolOutput`, {
       context: this.contextService.context,
       content,
@@ -175,13 +177,15 @@ export class SessionConnectionService implements ISession {
     this.loggerService.log(`sessionConnectionService dispose`, {
       context: this.contextService.context,
     });
+    const key = `${this.contextService.context.clientId}-${this.contextService.context.swarmName}`;
+    if (!this.getSession.has(key)) {
+      return;
+    }
     await this.getSession(
       this.contextService.context.clientId,
       this.contextService.context.swarmName
     ).dispose();
-    this.getSession.clear(
-      `${this.contextService.context.clientId}-${this.contextService.context.swarmName}`
-    );
+    this.getSession.clear(key);
   };
 }
 

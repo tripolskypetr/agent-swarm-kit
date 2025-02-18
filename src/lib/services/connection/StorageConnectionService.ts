@@ -39,9 +39,17 @@ export class StorageConnectionService implements IStorage {
   public getStorage = memoize(
     ([clientId, storageName]) => `${clientId}-${storageName}`,
     (clientId: string, storageName: StorageName) => {
-      const { createIndex, getData, embedding: embeddingName, callbacks } = this.storageSchemaService.get(storageName);
-      const { calculateSimilarity, createEmbedding, callbacks: embedding } =
-        this.embeddingSchemaService.get(embeddingName);
+      const {
+        createIndex,
+        getData,
+        embedding: embeddingName,
+        callbacks,
+      } = this.storageSchemaService.get(storageName);
+      const {
+        calculateSimilarity,
+        createEmbedding,
+        callbacks: embedding,
+      } = this.embeddingSchemaService.get(embeddingName);
       return new ClientStorage({
         clientId,
         storageName,
@@ -121,7 +129,9 @@ export class StorageConnectionService implements IStorage {
    * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
    * @returns {Promise<IStorageData>} The retrieved item.
    */
-  public get = async (itemId: IStorageData["id"]): Promise<IStorageData | null> => {
+  public get = async (
+    itemId: IStorageData["id"]
+  ): Promise<IStorageData | null> => {
     this.loggerService.log(`storageConnectionService get`, {
       context: this.contextService.context,
       itemId,
@@ -177,9 +187,11 @@ export class StorageConnectionService implements IStorage {
     this.loggerService.log(`storageConnectionService dispose`, {
       context: this.contextService.context,
     });
-    this.getStorage.clear(
-      `${this.contextService.context.clientId}-${this.contextService.context.storageName}`
-    );
+    const key = `${this.contextService.context.clientId}-${this.contextService.context.storageName}`;
+    if (!this.getStorage.has(key)) {
+      return;
+    }
+    this.getStorage.clear(key);
   };
 }
 

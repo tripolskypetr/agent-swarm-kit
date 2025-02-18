@@ -4,6 +4,7 @@ import {
   IStorageData,
   StorageName,
 } from "../interfaces/Storage.interface";
+import { AgentName } from "../interfaces/Agent.interface";
 
 type TStorage = {
   [key in keyof IStorage]: unknown;
@@ -15,6 +16,7 @@ export class StorageUtils implements TStorage {
     search: string,
     total: number,
     clientId: string,
+    agentName: AgentName,
     storageName: StorageName
   ): Promise<T[]> => {
     swarm.loggerService.log("StorageStatic take", {
@@ -24,6 +26,9 @@ export class StorageUtils implements TStorage {
       storageName,
     });
     swarm.storageValidationService.validate(storageName, "StorageStatic");
+    if (!swarm.agentValidationService.hasStorage(agentName, storageName)) {
+      throw new Error(`agent-swarm StorageUtils ${storageName} not registered in ${agentName} (take)`);
+    }
     return (await swarm.storagePublicService.take(
       search,
       total,
@@ -35,6 +40,7 @@ export class StorageUtils implements TStorage {
   public upsert = async <T extends IStorageData = IStorageData>(
     item: T,
     clientId: string,
+    agentName: AgentName,
     storageName: StorageName
   ): Promise<void> => {
     swarm.loggerService.log("StorageStatic upsert", {
@@ -43,12 +49,16 @@ export class StorageUtils implements TStorage {
       storageName,
     });
     swarm.storageValidationService.validate(storageName, "StorageStatic");
+    if (!swarm.agentValidationService.hasStorage(agentName, storageName)) {
+      throw new Error(`agent-swarm StorageUtils ${storageName} not registered in ${agentName} (upsert)`);
+    }
     return await swarm.storagePublicService.upsert(item, clientId, storageName);
   };
 
   public remove = async (
     itemId: IStorageData["id"],
     clientId: string,
+    agentName: AgentName,
     storageName: StorageName
   ): Promise<void> => {
     swarm.loggerService.log("StorageStatic remove", {
@@ -57,6 +67,9 @@ export class StorageUtils implements TStorage {
       storageName,
     });
     swarm.storageValidationService.validate(storageName, "StorageStatic");
+    if (!swarm.agentValidationService.hasStorage(agentName, storageName)) {
+      throw new Error(`agent-swarm StorageUtils ${storageName} not registered in ${agentName} (remove)`);
+    }
     return await swarm.storagePublicService.remove(
       itemId,
       clientId,
@@ -67,6 +80,7 @@ export class StorageUtils implements TStorage {
   public get = async <T extends IStorageData = IStorageData>(
     itemId: IStorageData["id"],
     clientId: string,
+    agentName: AgentName,
     storageName: StorageName
   ): Promise<T | null> => {
     swarm.loggerService.log("StorageStatic get", {
@@ -75,6 +89,9 @@ export class StorageUtils implements TStorage {
       storageName,
     });
     swarm.storageValidationService.validate(storageName, "StorageStatic");
+    if (!swarm.agentValidationService.hasStorage(agentName, storageName)) {
+      throw new Error(`agent-swarm StorageUtils ${storageName} not registered in ${agentName} (get)`);
+    }
     return (await swarm.storagePublicService.get(
       itemId,
       clientId,
@@ -84,6 +101,7 @@ export class StorageUtils implements TStorage {
 
   public list = async <T extends IStorageData = IStorageData>(
     clientId: string,
+    agentName: AgentName,
     storageName: StorageName,
     filter?: (item: T) => boolean
   ): Promise<T[]> => {
@@ -92,6 +110,9 @@ export class StorageUtils implements TStorage {
       storageName,
     });
     swarm.storageValidationService.validate(storageName, "StorageStatic");
+    if (!swarm.agentValidationService.hasStorage(agentName, storageName)) {
+      throw new Error(`agent-swarm StorageUtils ${storageName} not registered in ${agentName} (list)`);
+    }
     return (await swarm.storagePublicService.list(
       clientId,
       storageName,
@@ -101,6 +122,7 @@ export class StorageUtils implements TStorage {
 
   public clear = async (
     clientId: string,
+    agentName: AgentName,
     storageName: StorageName
   ): Promise<void> => {
     swarm.loggerService.log("StorageStatic clear", {
@@ -108,6 +130,9 @@ export class StorageUtils implements TStorage {
       storageName,
     });
     swarm.storageValidationService.validate(storageName, "StorageStatic");
+    if (!swarm.agentValidationService.hasStorage(agentName, storageName)) {
+      throw new Error(`agent-swarm StorageUtils ${storageName} not registered in ${agentName} (clear)`);
+    }
     return await swarm.storagePublicService.clear(clientId, storageName);
   };
 }
