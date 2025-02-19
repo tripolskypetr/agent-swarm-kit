@@ -96,7 +96,9 @@ export class ClientHistory implements IHistory {
       .filter(this._filterCondition)
       .slice(-GLOBAL_CONFIG.CC_KEEP_MESSAGES);
     const assistantToolOutputCallSet = new Set<string>(
-      commonMessages.map(({ tool_call_id }) => tool_call_id!)
+      commonMessages
+        .filter(({ tool_call_id }) => !!tool_call_id)
+        .map(({ tool_call_id }) => tool_call_id)
     );
     const assistantRawMessages = commonMessages
       .map(({ tool_calls, ...message }) => ({
@@ -108,12 +110,12 @@ export class ClientHistory implements IHistory {
       .filter(({ content, tool_calls }) => !!content || !!tool_calls?.length);
     const assistantToolCallSet = new Set<string>(
       assistantRawMessages
-        .filter(({ role }) => role === "tool")
+        .filter(({ tool_calls }) => !!tool_calls)
         .flatMap(({ tool_calls }) => tool_calls?.map(({ id }) => id))
     );
     const assistantMessages = assistantRawMessages.filter(
-      ({ role, tool_call_id }) => {
-        if (role === "tool") {
+      ({ tool_call_id }) => {
+        if (tool_call_id) {
           return assistantToolCallSet.has(tool_call_id);
         }
         return true;
