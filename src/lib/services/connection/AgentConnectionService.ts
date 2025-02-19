@@ -13,6 +13,7 @@ import validateDefault from "../../../validation/validateDefault";
 import SessionValidationService from "../validation/SessionValidationService";
 import { ExecutionMode } from "../../../interfaces/Session.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import StorageConnectionService from "./StorageConnectionService";
 
 /**
  * Service for managing agent connections.
@@ -23,13 +24,14 @@ export class AgentConnectionService implements IAgent {
   private readonly contextService = inject<TContextService>(
     TYPES.contextService
   );
-
   private readonly sessionValidationService = inject<SessionValidationService>(
     TYPES.sessionValidationService
   );
-
   private readonly historyConnectionService = inject<HistoryConnectionService>(
     TYPES.historyConnectionService
+  );
+  private readonly storageConnectionService = inject<StorageConnectionService>(
+    TYPES.storageConnectionService
   );
   private readonly agentSchemaService = inject<AgentSchemaService>(
     TYPES.agentSchemaService
@@ -57,11 +59,17 @@ export class AgentConnectionService implements IAgent {
         transform = GLOBAL_CONFIG.CC_AGENT_OUTPUT_TRANSFORM,
         map = GLOBAL_CONFIG.CC_AGENT_OUTPUT_MAP,
         callbacks,
+        storages,
         completion: completionName,
         validate = validateDefault,
       } = this.agentSchemaService.get(agentName);
       const completion = this.completionSchemaService.get(completionName);
       this.sessionValidationService.addAgentUsage(clientId, agentName);
+      storages?.forEach((storageName) =>
+        this.storageConnectionService
+          .getStorage(clientId, storageName)
+          .waitForInit()
+      );
       return new ClientAgent({
         clientId,
         agentName,

@@ -915,6 +915,7 @@ declare class AgentConnectionService implements IAgent {
     private readonly contextService;
     private readonly sessionValidationService;
     private readonly historyConnectionService;
+    private readonly storageConnectionService;
     private readonly agentSchemaService;
     private readonly toolSchemaService;
     private readonly completionSchemaService;

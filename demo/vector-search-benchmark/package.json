@@ -12,7 +12,7 @@
   "dependencies": {
     "@tensorflow/tfjs-backend-wasm": "^4.22.0",
     "@tensorflow/tfjs-core": "^4.22.0",
-    "agent-swarm-kit": "^1.0.55",
+    "agent-swarm-kit": "^1.0.58",
     "functools-kit": "^1.0.74",
     "ollama": "^0.5.13",
     "pinolog": "^1.0.2"
