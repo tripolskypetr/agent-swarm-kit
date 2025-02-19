@@ -226,6 +226,33 @@ export class AgentPublicService implements TAgentConnectionService {
   };
 
   /**
+   * Commits change of agent to prevent the next tool execution from being called.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<unknown>} The commit result.
+   */
+  public commitAgentChange = async (
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    this.loggerService.log("agentPublicService commitAgentChange", {
+      clientId,
+      agentName,
+    });
+    return await ContextService.runInContext(
+      async () => {
+        return await this.agentConnectionService.commitAgentChange();
+      },
+      {
+        clientId,
+        agentName,
+        swarmName: "",
+        storageName: "",
+      }
+    );
+  };
+
+  /**
    * Disposes of the agent.
    * @param {string} clientId - The client ID.
    * @param {AgentName} agentName - The name of the agent.

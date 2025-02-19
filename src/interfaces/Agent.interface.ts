@@ -322,6 +322,11 @@ export interface IAgent {
    * @returns A promise that resolves when the flush is committed.
    */
   commitFlush(): Promise<void>;
+  /**
+   * Unlock the queue on agent change. Stop the next tool execution
+   * @returns A promise that resolves when the agent change is committed.
+   */
+  commitAgentChange(): Promise<void>;
 }
 
 /** Type representing the name of an agent. */

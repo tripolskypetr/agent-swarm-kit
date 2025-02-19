@@ -783,6 +783,11 @@ interface IAgent {
      * @returns A promise that resolves when the flush is committed.
      */
     commitFlush(): Promise<void>;
+    /**
+     * Unlock the queue on agent change. Stop the next tool execution
+     * @returns A promise that resolves when the agent change is committed.
+     */
+    commitAgentChange(): Promise<void>;
 }
 /** Type representing the name of an agent. */
 type AgentName = string;
@@ -832,14 +837,16 @@ declare class LoggerService implements ILogger {
     setLogger: (logger: ILogger) => void;
 }
 
+declare const AGENT_CHANGE_SYMBOL: unique symbol;
 /**
  * Represents a client agent that interacts with the system.
  * @implements {IAgent}
  */
 declare class ClientAgent implements IAgent {
     readonly params: IAgentParams;
-    readonly _toolErrorSubject: Subject<void>;
+    readonly _agentChangeSubject: Subject<typeof AGENT_CHANGE_SYMBOL>;
     readonly _toolCommitSubject: Subject<void>;
+    readonly _toolErrorSubject: Subject<void>;
     readonly _outputSubject: Subject<string>;
     /**
      * Creates an instance of ClientAgent.
@@ -881,6 +888,11 @@ declare class ClientAgent implements IAgent {
      * @returns {Promise<void>}
      */
     commitFlush: () => Promise<void>;
+    /**
+     * Commits change of agent to prevent the next tool execution from being called.
+     * @returns {Promise<void>}
+     */
+    commitAgentChange: () => Promise<void>;
     /**
      * Commits a system message to the history.
      * @param {string} message - The system message to commit.
@@ -956,6 +968,11 @@ declare class AgentConnectionService implements IAgent {
      * @returns {Promise<any>} The commit result.
      */
     commitUserMessage: (message: string) => Promise<void>;
+    /**
+     * Commits agent change to prevent the next tool execution from being called.
+     * @returns {Promise<any>} The commit result.
+     */
+    commitAgentChange: () => Promise<void>;
     /**
      * Commits flush of agent history
      * @returns {Promise<any>} The commit result.
@@ -1418,6 +1435,13 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @returns {Promise<unknown>} The commit result.
      */
     commitFlush: (clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Commits change of agent to prevent the next tool execution from being called.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<unknown>} The commit result.
+     */
+    commitAgentChange: (clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Disposes of the agent.
      * @param {string} clientId - The client ID.

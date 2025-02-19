@@ -6,6 +6,8 @@ import { GLOBAL_CONFIG } from "../config/params";
 import { ExecutionMode } from "../interfaces/Session.interface";
 import { IToolCall } from "../model/Tool.model";
 
+const AGENT_CHANGE_SYMBOL = Symbol('agent-change');
+
 const getPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[
     Math.floor(
@@ -18,8 +20,9 @@ const getPlaceholder = () =>
  * @implements {IAgent}
  */
 export class ClientAgent implements IAgent {
-  readonly _toolErrorSubject = new Subject<void>();
+  readonly _agentChangeSubject = new Subject<typeof AGENT_CHANGE_SYMBOL>();
   readonly _toolCommitSubject = new Subject<void>();
+  readonly _toolErrorSubject = new Subject<void>();
   readonly _outputSubject = new Subject<string>();
 
   /**
@@ -230,6 +233,17 @@ export class ClientAgent implements IAgent {
   };
 
   /**
+   * Commits change of agent to prevent the next tool execution from being called.
+   * @returns {Promise<void>}
+   */
+  commitAgentChange = async (): Promise<void> => {
+    this.params.logger.debug(
+      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitAgentChange`
+    );
+    await this._agentChangeSubject.next(AGENT_CHANGE_SYMBOL);
+  };
+
+  /**
    * Commits a system message to the history.
    * @param {string} message - The system message to commit.
    * @returns {Promise<void>}
@@ -417,7 +431,8 @@ export class ClientAgent implements IAgent {
           this.params.logger.debug(
             `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool call executing`
           );
-          await Promise.race([
+          const status = await Promise.race([
+            this._agentChangeSubject.toPromise(),
             this._toolCommitSubject.toPromise(),
             this._toolErrorSubject.toPromise(),
             this._outputSubject.toPromise(),
@@ -425,6 +440,18 @@ export class ClientAgent implements IAgent {
           this.params.logger.debug(
             `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool call end`
           );
+          if (status === AGENT_CHANGE_SYMBOL) {
+            this.params.logger.debug(
+              `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the agent changed`
+            );
+            this.params.callbacks?.onAfterToolCalls &&
+              this.params.callbacks.onAfterToolCalls(
+                this.params.clientId,
+                this.params.agentName,
+                toolCalls
+              );
+            return;
+          }
         }
         this.params.callbacks?.onAfterToolCalls &&
           this.params.callbacks.onAfterToolCalls(

@@ -169,6 +169,20 @@ export class AgentConnectionService implements IAgent {
   };
 
   /**
+   * Commits agent change to prevent the next tool execution from being called.
+   * @returns {Promise<any>} The commit result.
+   */
+  public commitAgentChange = async () => {
+    this.loggerService.log(`agentConnectionService commitAgentChange`, {
+      context: this.contextService.context,
+    });
+    return await this.getAgent(
+      this.contextService.context.clientId,
+      this.contextService.context.agentName
+    ).commitAgentChange();
+  };
+
+  /**
    * Commits flush of agent history
    * @returns {Promise<any>} The commit result.
    */

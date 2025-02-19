@@ -28,15 +28,31 @@ const createChangeAgent = ttl(
       swarm.sessionValidationService.validate(clientId, "changeAgent");
       swarm.agentValidationService.validate(agentName, "changeAgent");
       const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-      await swarm.agentPublicService.dispose(clientId, agentName);
-      await swarm.historyPublicService.dispose(clientId, agentName);
-      await swarm.swarmPublicService.setAgentRef(
-        clientId,
-        swarmName,
-        agentName,
-        await swarm.agentPublicService.createAgentRef(clientId, agentName)
+      await Promise.all(
+        swarm.swarmValidationService
+          .getAgentList(swarmName)
+          .map(async (agentName) => {
+            await swarm.agentPublicService.commitAgentChange(
+              clientId,
+              agentName
+            );
+          })
       );
-      await swarm.swarmPublicService.setAgentName(agentName, clientId, swarmName);
+      {
+        await swarm.agentPublicService.dispose(clientId, agentName);
+        await swarm.historyPublicService.dispose(clientId, agentName);
+        await swarm.swarmPublicService.setAgentRef(
+          clientId,
+          swarmName,
+          agentName,
+          await swarm.agentPublicService.createAgentRef(clientId, agentName)
+        );
+      }
+      await swarm.swarmPublicService.setAgentName(
+        agentName,
+        clientId,
+        swarmName
+      );
     }) as TChangeAgentRun,
   {
     key: ([clientId]) => `${clientId}`,
@@ -62,7 +78,7 @@ const createGc = singleshot(async () => {
  * @returns {Promise<void>} - A promise that resolves when the agent is changed.
  */
 export const changeAgent = async (agentName: AgentName, clientId: string) => {
-  swarm.loggerService.log('function changeAgent', {
+  swarm.loggerService.log("function changeAgent", {
     agentName,
     clientId,
   });
