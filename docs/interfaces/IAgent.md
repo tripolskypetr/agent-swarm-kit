@@ -53,3 +53,11 @@ commitFlush: () => Promise<void>
 ```
 
 Clears the history for the agent.
+
+### commitAgentChange
+
+```ts
+commitAgentChange: () => Promise<void>
+```
+
+Unlock the queue on agent change. Stop the next tool execution

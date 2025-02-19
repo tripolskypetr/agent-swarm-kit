@@ -18,16 +18,22 @@ constructor(params: IAgentParams);
 params: IAgentParams
 ```
 
-### _toolErrorSubject
+### _agentChangeSubject
 
 ```ts
-_toolErrorSubject: Subject<void>
+_agentChangeSubject: Subject<unique symbol>
 ```
 
 ### _toolCommitSubject
 
 ```ts
 _toolCommitSubject: Subject<void>
+```
+
+### _toolErrorSubject
+
+```ts
+_toolErrorSubject: Subject<void>
 ```
 
 ### _outputSubject
@@ -83,6 +89,14 @@ commitFlush: () => Promise<void>
 ```
 
 Commits flush of agent history
+
+### commitAgentChange
+
+```ts
+commitAgentChange: () => Promise<void>
+```
+
+Commits change of agent to prevent the next tool execution from being called.
 
 ### commitSystemMessage
 

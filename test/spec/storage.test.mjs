@@ -47,11 +47,29 @@ test("Will keep separate storages for different connections", async ({
   const CLIENT_ID1 = randomString();
   const CLIENT_ID2 = randomString();
 
-  Storage.upsert({ id: "test", foo: "bar" }, CLIENT_ID1, TEST_AGENT, TEST_STORAGE);
-  Storage.upsert({ id: "test", foo: "baz" }, CLIENT_ID2, TEST_AGENT, TEST_STORAGE);
+  Storage.upsert({
+    agentName: TEST_AGENT,
+    clientId: CLIENT_ID1,
+    item: { id: "test", foo: "bar" },
+    storageName: TEST_STORAGE,
+  });
+  Storage.upsert({
+    agentName: TEST_AGENT,
+    clientId: CLIENT_ID2,
+    item: { id: "test", foo: "baz" },
+    storageName: TEST_STORAGE
+  });
 
-  const [{ foo: test1 }] = await Storage.list(CLIENT_ID1, TEST_AGENT, TEST_STORAGE);
-  const [{ foo: test2 }] = await Storage.list(CLIENT_ID2, TEST_AGENT, TEST_STORAGE);
+  const [{ foo: test1 }] = await Storage.list({
+    agentName: TEST_AGENT,
+    clientId: CLIENT_ID1,
+    storageName: TEST_STORAGE
+  });
+  const [{ foo: test2 }] = await Storage.list({
+    agentName: TEST_AGENT,
+    clientId: CLIENT_ID2,
+    storageName: TEST_STORAGE
+  });
 
   if (test1 !== "bar") {
     fail("CLIENT1 is broken");
@@ -101,12 +119,12 @@ test("Will raise an exception if storage is not declared in agent", async ({
   const CLIENT_ID = randomString();
 
   try {
-    await Storage.upsert(
-      { id: "test", foo: "bar" },
-      CLIENT_ID,
-      TEST_AGENT,
-      TEST_STORAGE
-    );
+    await Storage.upsert({
+      agentName: TEST_AGENT,
+      clientId: CLIENT_ID,
+      item: { id: "test", foo: "bar" },
+      storageName: TEST_STORAGE
+    });
     fail();
   } catch {
     pass();

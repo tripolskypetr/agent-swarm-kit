@@ -80,6 +80,14 @@ commitFlush: (clientId: string, agentName: string) => Promise<void>
 
 Commits flush of agent history
 
+### commitAgentChange
+
+```ts
+commitAgentChange: (clientId: string, agentName: string) => Promise<void>
+```
+
+Commits change of agent to prevent the next tool execution from being called.
+
 ### dispose
 
 ```ts

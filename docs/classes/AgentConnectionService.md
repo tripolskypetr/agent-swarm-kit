@@ -36,6 +36,12 @@ sessionValidationService: any
 historyConnectionService: any
 ```
 
+### storageConnectionService
+
+```ts
+storageConnectionService: any
+```
+
 ### agentSchemaService
 
 ```ts
@@ -101,6 +107,14 @@ commitUserMessage: (message: string) => Promise<void>
 ```
 
 Commits a user message without answer.
+
+### commitAgentChange
+
+```ts
+commitAgentChange: () => Promise<void>
+```
+
+Commits agent change to prevent the next tool execution from being called.
 
 ### commitFlush
 

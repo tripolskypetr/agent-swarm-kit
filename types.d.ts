@@ -2570,7 +2570,14 @@ declare class StorageUtils implements TStorage {
      * @returns {Promise<T[]>} - A promise that resolves to an array of items.
      * @template T
      */
-    take: <T extends IStorageData = IStorageData>(search: string, total: number, clientId: string, agentName: AgentName, storageName: StorageName, score?: number) => Promise<T[]>;
+    take: <T extends IStorageData = IStorageData>(payload: {
+        search: string;
+        total: number;
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+        score?: number;
+    }) => Promise<T[]>;
     /**
      * Upserts an item in the storage.
      * @param {T} item - The item to upsert.
@@ -2580,7 +2587,12 @@ declare class StorageUtils implements TStorage {
      * @returns {Promise<void>} - A promise that resolves when the operation is complete.
      * @template T
      */
-    upsert: <T extends IStorageData = IStorageData>(item: T, clientId: string, agentName: AgentName, storageName: StorageName) => Promise<void>;
+    upsert: <T extends IStorageData = IStorageData>(payload: {
+        item: T;
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+    }) => Promise<void>;
     /**
      * Removes an item from the storage.
      * @param {IStorageData["id"]} itemId - The ID of the item to remove.
@@ -2589,7 +2601,12 @@ declare class StorageUtils implements TStorage {
      * @param {StorageName} storageName - The storage name.
      * @returns {Promise<void>} - A promise that resolves when the operation is complete.
      */
-    remove: (itemId: IStorageData["id"], clientId: string, agentName: AgentName, storageName: StorageName) => Promise<void>;
+    remove: (payload: {
+        itemId: IStorageData["id"];
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+    }) => Promise<void>;
     /**
      * Gets an item from the storage.
      * @param {IStorageData["id"]} itemId - The ID of the item to get.
@@ -2599,7 +2616,12 @@ declare class StorageUtils implements TStorage {
      * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
      * @template T
      */
-    get: <T extends IStorageData = IStorageData>(itemId: IStorageData["id"], clientId: string, agentName: AgentName, storageName: StorageName) => Promise<T | null>;
+    get: <T extends IStorageData = IStorageData>(payload: {
+        itemId: IStorageData["id"];
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+    }) => Promise<T | null>;
     /**
      * Lists items from the storage.
      * @param {string} clientId - The client ID.
@@ -2609,7 +2631,12 @@ declare class StorageUtils implements TStorage {
      * @returns {Promise<T[]>} - A promise that resolves to an array of items.
      * @template T
      */
-    list: <T extends IStorageData = IStorageData>(clientId: string, agentName: AgentName, storageName: StorageName, filter?: (item: T) => boolean) => Promise<T[]>;
+    list: <T extends IStorageData = IStorageData>(payload: {
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+        filter?: (item: T) => boolean;
+    }) => Promise<T[]>;
     /**
      * Clears the storage.
      * @param {string} clientId - The client ID.
@@ -2617,7 +2644,11 @@ declare class StorageUtils implements TStorage {
      * @param {StorageName} storageName - The storage name.
      * @returns {Promise<void>} - A promise that resolves when the operation is complete.
      */
-    clear: (clientId: string, agentName: AgentName, storageName: StorageName) => Promise<void>;
+    clear: (payload: {
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+    }) => Promise<void>;
 }
 declare const Storage: StorageUtils;
 
