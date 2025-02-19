@@ -93,6 +93,11 @@ export class ClientHistory implements IHistory {
       ({ agentName }) => agentName === this.params.agentName
     );
     const commonMessages = commonMessagesRaw
+      .map(({ content, tool_calls, ...other }) => ({
+        ...other,
+        tool_calls,
+        content: tool_calls?.length ? "" : content,
+      }))
       .filter(this._filterCondition)
       .slice(-GLOBAL_CONFIG.CC_KEEP_MESSAGES);
     const assistantToolOutputCallSet = new Set<string>(
