@@ -1,6 +1,6 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
-import { IPubsubArray, Subject } from 'functools-kit';
+import { IPubsubArray, SortedArray, Subject } from 'functools-kit';
 
 /**
  * Interface representing an incoming message.
@@ -517,6 +517,7 @@ interface IStorageSchema<T extends IStorageData = IStorageData> {
 }
 interface IStorageCallbacks<T extends IStorageData = IStorageData> {
     onUpdate: (items: T[], clientId: string, storageName: StorageName) => void;
+    onSearch: (search: string, index: SortedArray<T>, clientId: string, storageName: StorageName) => void;
 }
 interface IStorageParams<T extends IStorageData = IStorageData> extends IStorageSchema<T>, Partial<IEmbeddingCallbacks> {
     clientId: string;

@@ -97,7 +97,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         total,
       }
     );
-    const indexed = new SortedArray<IStorageData>();
+    const indexed = new SortedArray<T>();
     const searchEmbeddings = await this.params.createEmbedding(search);
     if (this.params.onCreate) {
       this.params.onCreate(
@@ -125,7 +125,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
                 this.params.embedding
               );
             }
-            indexed.push({ id: item.id }, score);
+            indexed.push(item, score);
           },
           {
             delay: 10,
@@ -137,11 +137,13 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     this.params.logger.debug(`ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} take indexed`,{
         indexed: indexed.getEntries(),
     })
-    const filtered = indexed.take(
+    if (this.params.callbacks?.onSearch) {
+      this.params.callbacks?.onSearch(search, indexed, this.params.clientId, this.params.storageName);
+    }
+    return indexed.take(
       total,
       score,
     );
-    return filtered.map(({ id }) => this._itemMap.get(id));
   };
 
   /**

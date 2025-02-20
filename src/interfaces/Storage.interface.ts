@@ -1,3 +1,4 @@
+import { SortedArray } from "functools-kit";
 import {
   EmbeddingName,
   IEmbeddingCallbacks,
@@ -22,6 +23,7 @@ export interface IStorageSchema<T extends IStorageData = IStorageData> {
 
 export interface IStorageCallbacks<T extends IStorageData = IStorageData> {
   onUpdate: (items: T[], clientId: string, storageName: StorageName) => void;
+  onSearch: (search: string, index: SortedArray<T>, clientId: string, storageName: StorageName) => void; 
 }
 
 export interface IStorageParams<T extends IStorageData = IStorageData>
