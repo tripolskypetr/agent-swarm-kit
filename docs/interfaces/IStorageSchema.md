@@ -1,5 +1,7 @@
 # IStorageSchema
 
+Interface representing the schema of the storage.
+
 ## Properties
 
 ### getData
@@ -8,11 +10,15 @@
 getData: (clientId: string, storageName: string) => T[] | Promise<T[]>
 ```
 
+Function to get data from the storage.
+
 ### embedding
 
 ```ts
 embedding: string
 ```
+
+The name of the embedding.
 
 ### storageName
 
@@ -20,11 +26,15 @@ embedding: string
 storageName: string
 ```
 
+The name of the storage.
+
 ### callbacks
 
 ```ts
 callbacks: Partial<IStorageCallbacks<T>>
 ```
+
+Optional callbacks for storage events.
 
 ## Methods
 
@@ -33,3 +43,5 @@ callbacks: Partial<IStorageCallbacks<T>>
 ```ts
 createIndex: (item: T) => string | Promise<string>
 ```
+
+Function to create an index for an item.
