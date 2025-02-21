@@ -1,3 +1,4 @@
+import History from "../classes/History";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
 
@@ -38,4 +39,5 @@ export const disposeConnection = async (
         await swarm.storagePublicService.dispose(clientId, storageName);
       }),
   ]);
+  await History.dispose(clientId, null);
 };

@@ -1,7 +1,7 @@
 import { AgentName } from "../interfaces/Agent.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
 import { ILogger } from "../interfaces/Logger.interface";
-import { IPubsubArray } from "functools-kit";
+import { IHistoryAdapter } from "../classes/History";
 
 /**
  * Interface representing the history of model messages.
@@ -56,10 +56,10 @@ export interface IHistoryParams extends IHistorySchema {
  */
 export interface IHistorySchema {
   /**
-   * The array of model messages.
-   * @type {IPubsubArray<IModelMessage>}
+   * The adapter for array of model messages.
+   * @type {IHistoryAdapter}
    */
-  items: IPubsubArray<IModelMessage>;
+  items: IHistoryAdapter;
 }
 
 export default IHistory;

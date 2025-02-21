@@ -11,6 +11,7 @@ import {
   StorageName,
 } from "../../../interfaces/Storage.interface";
 import EmbeddingSchemaService from "../schema/EmbeddingSchemaService";
+import SessionValidationService from "../validation/SessionValidationService";
 
 /**
  * Service for managing storage connections.
@@ -26,6 +27,10 @@ export class StorageConnectionService implements IStorage {
     TYPES.storageSchemaService
   );
 
+  private readonly sessionValidationService = inject<SessionValidationService>(
+    TYPES.sessionValidationService,
+  );
+
   private readonly embeddingSchemaService = inject<EmbeddingSchemaService>(
     TYPES.embeddingSchemaService
   );
@@ -39,6 +44,7 @@ export class StorageConnectionService implements IStorage {
   public getStorage = memoize(
     ([clientId, storageName]) => `${clientId}-${storageName}`,
     (clientId: string, storageName: StorageName) => {
+      this.sessionValidationService.addStorageUsage(clientId, storageName);
       const {
         createIndex,
         getData,
@@ -194,6 +200,10 @@ export class StorageConnectionService implements IStorage {
       return;
     }
     this.getStorage.clear(key);
+    this.sessionValidationService.removeStorageUsage(
+      this.contextService.context.clientId,
+      this.contextService.context.storageName
+    );
   };
 }
 

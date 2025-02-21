@@ -38,7 +38,11 @@ export class ClientHistory implements IHistory {
       `ClientHistory agentName=${this.params.agentName} push`,
       { message }
     );
-    await this.params.items.push(message);
+    await this.params.items.push(
+      message,
+      this.params.clientId,
+      this.params.agentName
+    );
   };
 
   /**
@@ -50,7 +54,10 @@ export class ClientHistory implements IHistory {
       `ClientHistory agentName=${this.params.agentName} toArrayForRaw`
     );
     const result: IModelMessage[] = [];
-    for await (const item of this.params.items) {
+    for await (const item of this.params.items.iterate(
+      this.params.clientId,
+      this.params.agentName
+    )) {
       result.push(item);
     }
     return result;
@@ -71,7 +78,10 @@ export class ClientHistory implements IHistory {
     );
     const commonMessagesRaw: IModelMessage[] = [];
     const systemMessagesRaw: IModelMessage[] = [];
-    for await (const content of this.params.items) {
+    for await (const content of this.params.items.iterate(
+      this.params.clientId,
+      this.params.agentName
+    )) {
       const message: IModelMessage = content;
       if (message.role === "resque") {
         commonMessagesRaw.splice(0, commonMessagesRaw.length);
@@ -152,6 +162,20 @@ export class ClientHistory implements IHistory {
       );
     }
     return [...promptMessages, ...systemMessages, ...assistantMessages];
+  };
+
+  /**
+   * Should call on agent dispose
+   * @returns {Promise<void>}
+   */
+  dispose = async (): Promise<void> => {
+    this.params.logger.debug(
+      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} dispose`
+    );
+    await this.params.items.dispose(
+      this.params.clientId,
+      this.params.agentName
+    );
   };
 }
 

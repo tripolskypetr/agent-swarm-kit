@@ -30,14 +30,6 @@ contextService: any
 sessionValidationService: any
 ```
 
-### getItems
-
-```ts
-getItems: ((clientId: string, agentName: string) => IPubsubArray<IModelMessage>) & IClearableMemoize<string> & IControlMemoize<string, IPubsubArray<IModelMessage>>
-```
-
-Retrieves items for a given client and agent.
-
 ### getHistory
 
 ```ts

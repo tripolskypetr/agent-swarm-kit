@@ -4,6 +4,7 @@ import TYPES from "../../core/types";
 import { SessionId, SessionMode } from "../../../interfaces/Session.interface";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
 import { AgentName } from "../../../interfaces/Agent.interface";
+import { StorageName } from "../../../interfaces/Storage.interface";
 
 /**
  * Service for validating and managing sessions.
@@ -11,9 +12,11 @@ import { AgentName } from "../../../interfaces/Agent.interface";
 export class SessionValidationService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
+  private _storageSwarmMap = new Map<SessionId, StorageName[]>();
   private _historySwarmMap = new Map<SessionId, AgentName[]>();
-  private _sessionSwarmMap = new Map<SessionId, SwarmName>();
   private _agentSwarmMap = new Map<SessionId, AgentName[]>();
+
+  private _sessionSwarmMap = new Map<SessionId, SwarmName>();
   private _sessionModeMap = new Map<SessionId, SessionMode>();
 
   /**
@@ -82,6 +85,29 @@ export class SessionValidationService {
   };
 
   /**
+   * Adds a storage usage to a session.
+   * @param {SessionId} sessionId - The ID of the session.
+   * @param {StorageName} storageName - The name of the storage.
+   */
+  public addStorageUsage = (
+    sessionId: SessionId,
+    storageName: StorageName
+  ): void => {
+    this.loggerService.log("sessionValidationService addStorageUsage", {
+      sessionId,
+      storageName,
+    });
+    if (this._storageSwarmMap.has(sessionId)) {
+      const storages = this._storageSwarmMap.get(sessionId)!;
+      if (!storages.includes(storageName)) {
+        storages.push(storageName);
+      }
+    } else {
+      this._storageSwarmMap.set(sessionId, [storageName]);
+    }
+  };
+
+  /**
    * Removes an agent usage from a session.
    * @param {SessionId} sessionId - The ID of the session.
    * @param {AgentName} agentName - The name of the agent.
@@ -131,6 +157,34 @@ export class SessionValidationService {
       }
       if (agents.length === 0) {
         this._historySwarmMap.delete(sessionId);
+      }
+    } else {
+      throw new Error(`No agents found for sessionId=${sessionId}`);
+    }
+  };
+
+   /**
+   * Removes a storage usage from a session.
+   * @param {SessionId} sessionId - The ID of the session.
+   * @param {StorageName} storageName - The name of the storage.
+   * @throws Will throw an error if no storages are found for the session.
+   */
+   public removeStorageUsage = (
+    sessionId: SessionId,
+    storageName: StorageName
+  ): void => {
+    this.loggerService.log("sessionValidationService removeStorageUsage", {
+      sessionId,
+      storageName,
+    });
+    if (this._storageSwarmMap.has(sessionId)) {
+      const agents = this._storageSwarmMap.get(sessionId)!;
+      const agentIndex = agents.indexOf(storageName);
+      if (agentIndex !== -1) {
+        agents.splice(agentIndex, 1);
+      }
+      if (agents.length === 0) {
+        this._storageSwarmMap.delete(sessionId);
       }
     } else {
       throw new Error(`No agents found for sessionId=${sessionId}`);

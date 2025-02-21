@@ -7,7 +7,7 @@ Interface representing the schema of the history.
 ### items
 
 ```ts
-items: IPubsubArray<IModelMessage>
+items: IHistoryAdapter
 ```
 
-The array of model messages.
+The adapter for array of model messages.

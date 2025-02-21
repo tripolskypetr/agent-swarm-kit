@@ -2,6 +2,8 @@
 
 ## Classes
 
+- [HistoryInstance](classes/HistoryInstance.md)
+- [HistoryUtils](classes/HistoryUtils.md)
 - [LoggerService](classes/LoggerService.md)
 - [ClientAgent](classes/ClientAgent.md)
 - [AgentConnectionService](classes/AgentConnectionService.md)
@@ -55,6 +57,10 @@
 - [IToolCall](interfaces/IToolCall.md)
 - [ITool](interfaces/ITool.md)
 - [IModelMessage](interfaces/IModelMessage.md)
+- [IHistoryInstanceCallbacks](interfaces/IHistoryInstanceCallbacks.md)
+- [IHistoryAdapter](interfaces/IHistoryAdapter.md)
+- [IHistoryControl](interfaces/IHistoryControl.md)
+- [IHistoryInstance](interfaces/IHistoryInstance.md)
 - [IHistory](interfaces/IHistory.md)
 - [IHistoryParams](interfaces/IHistoryParams.md)
 - [IHistorySchema](interfaces/IHistorySchema.md)
@@ -93,6 +99,7 @@
 - [SessionId](types/SessionId.md)
 - [SessionMode](types/SessionMode.md)
 - [ExecutionMode](types/ExecutionMode.md)
+- [THistoryInstanceCtor](types/THistoryInstanceCtor.md)
 - [CompletionName](types/CompletionName.md)
 - [Embeddings](types/Embeddings.md)
 - [EmbeddingName](types/EmbeddingName.md)

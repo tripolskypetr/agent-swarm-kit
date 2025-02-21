@@ -49,3 +49,11 @@ toArrayForAgent: (prompt: string, system?: string[]) => Promise<IModelMessage[]>
 ```
 
 Converts the history to an array of messages for the agent.
+
+### dispose
+
+```ts
+dispose: () => Promise<void>
+```
+
+Should call on agent dispose

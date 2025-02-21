@@ -30,6 +30,12 @@ contextService: any
 storageSchemaService: any
 ```
 
+### sessionValidationService
+
+```ts
+sessionValidationService: any
+```
+
 ### embeddingSchemaService
 
 ```ts

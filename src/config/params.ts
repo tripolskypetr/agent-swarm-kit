@@ -1,9 +1,10 @@
-import { IPubsubArray, PubsubArrayAdapter, sleep } from "functools-kit";
+import { sleep } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import validateDefault from "../validation/validateDefault";
 import removeXmlTags from "../utils/removeXmlTags";
+import { HistoryAdapter, IHistoryAdapter } from "src/classes/History";
 
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
@@ -64,16 +65,14 @@ const CC_AGENT_OUTPUT_TRANSFORM = removeXmlTags;
 
 const CC_KEEP_MESSAGES = 5;
 
-const CC_GET_AGENT_HISTORY: (
+const CC_GET_AGENT_HISTORY_ADAPTER: (
   clientId: string,
   agentName: AgentName
-) => IPubsubArray<IModelMessage> = () => new PubsubArrayAdapter();
+) => IHistoryAdapter = () => HistoryAdapter;
 
 const CC_AGENT_OUTPUT_MAP = (
   message: IModelMessage
 ): IModelMessage | Promise<IModelMessage> => message;
-
-const CC_AGENT_SEPARATE_HISTORY = false;
 
 const CC_AGENT_SYSTEM_PROMPT: string[] | undefined = undefined;
 
@@ -84,7 +83,7 @@ export const GLOBAL_CONFIG = {
   CC_TOOL_CALL_EXCEPTION_PROMPT,
   CC_EMPTY_OUTPUT_PLACEHOLDERS,
   CC_KEEP_MESSAGES,
-  CC_GET_AGENT_HISTORY,
+  CC_GET_AGENT_HISTORY_ADAPTER,
   CC_SWARM_AGENT_CHANGED,
   CC_SWARM_DEFAULT_AGENT,
   CC_AGENT_DEFAULT_VALIDATION,
@@ -92,7 +91,6 @@ export const GLOBAL_CONFIG = {
   CC_AGENT_OUTPUT_TRANSFORM,
   CC_AGENT_OUTPUT_MAP,
   CC_AGENT_SYSTEM_PROMPT,
-  CC_AGENT_SEPARATE_HISTORY,
   CC_AGENT_DISALLOWED_TAGS,
   CC_AGENT_DISALLOWED_SYMBOLS,
   CC_STORAGE_SEARCH_SIMILARITY,

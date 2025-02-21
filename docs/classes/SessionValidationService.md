@@ -16,22 +16,28 @@ constructor();
 loggerService: any
 ```
 
+### _storageSwarmMap
+
+```ts
+_storageSwarmMap: any
+```
+
 ### _historySwarmMap
 
 ```ts
 _historySwarmMap: any
 ```
 
-### _sessionSwarmMap
-
-```ts
-_sessionSwarmMap: any
-```
-
 ### _agentSwarmMap
 
 ```ts
 _agentSwarmMap: any
+```
+
+### _sessionSwarmMap
+
+```ts
+_sessionSwarmMap: any
 ```
 
 ### _sessionModeMap
@@ -64,6 +70,14 @@ addHistoryUsage: (sessionId: string, agentName: string) => void
 
 Adds a history usage to a session.
 
+### addStorageUsage
+
+```ts
+addStorageUsage: (sessionId: string, storageName: string) => void
+```
+
+Adds a storage usage to a session.
+
 ### removeAgentUsage
 
 ```ts
@@ -79,6 +93,14 @@ removeHistoryUsage: (sessionId: string, agentName: string) => void
 ```
 
 Removes a history usage from a session.
+
+### removeStorageUsage
+
+```ts
+removeStorageUsage: (sessionId: string, storageName: string) => void
+```
+
+Removes a storage usage from a session.
 
 ### getSessionMode
 

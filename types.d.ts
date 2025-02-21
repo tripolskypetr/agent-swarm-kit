@@ -1,6 +1,7 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
-import { IPubsubArray, SortedArray, Subject } from 'functools-kit';
+import { SortedArray, Subject } from 'functools-kit';
+import { IHistoryAdapter as IHistoryAdapter$1 } from 'src/classes/History';
 
 /**
  * Interface representing an incoming message.
@@ -374,6 +375,214 @@ interface IModelMessage {
 }
 
 /**
+ * Interface for History Adapter Callbacks
+ */
+interface IHistoryInstanceCallbacks {
+    /**
+     * Filter condition for history messages.
+     * @param message - The model message.
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     * @returns A promise that resolves to a boolean indicating whether the message passes the filter.
+     */
+    filterCondition?: (message: IModelMessage, clientId: string, agentName: AgentName) => Promise<boolean> | boolean;
+    /**
+     * Get data for the history.
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     * @returns A promise that resolves to an array of model messages.
+     */
+    getData: (clientId: string, agentName: AgentName) => Promise<IModelMessage[]> | IModelMessage[];
+    /**
+     * Callback for when the history changes.
+     * @param data - The array of model messages.
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     */
+    onChange: (data: IModelMessage[], clientId: string, agentName: AgentName) => void;
+    /**
+     * Callback for when the history is read.
+     * @param message - The model message.
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     */
+    onRead: (message: IModelMessage, clientId: string, agentName: AgentName) => void;
+    /**
+     * Callback for when the history is disposed.
+     * @param clientId - The client ID.
+     */
+    onDispose: (clientId: string) => void;
+    /**
+     * Callback for when the history is initialized.
+     * @param clientId - The client ID.
+     */
+    onInit: (clientId: string) => void;
+}
+/**
+ * Interface for History Adapter
+ */
+interface IHistoryAdapter {
+    /**
+     * Iterate over the history messages.
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     * @returns An async iterable iterator of model messages.
+     */
+    iterate(clientId: string, agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+    /**
+     * Push a new message to the history.
+     * @param value - The model message to push.
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     * @returns A promise that resolves when the message is pushed.
+     */
+    push: (value: IModelMessage, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Dispose of the history for a given client and agent.
+     * @param clientId - The client ID.
+     * @param agentName - The agent name or null.
+     * @returns A promise that resolves when the history is disposed.
+     */
+    dispose: (clientId: string, agentName: AgentName | null) => Promise<void>;
+}
+/**
+ * Interface for History Control
+ */
+interface IHistoryControl {
+    /**
+     * Use a custom history adapter.
+     * @param Ctor - The constructor for the history instance.
+     */
+    useHistoryAdapter(Ctor: THistoryInstanceCtor): void;
+    /**
+     * Use history lifecycle callbacks.
+     * @param Callbacks - The callbacks dictionary.
+     */
+    useHistoryCallbacks: (Callbacks: Partial<IHistoryInstanceCallbacks>) => void;
+}
+/**
+ * Interface for History Instance
+ */
+interface IHistoryInstance {
+    /**
+     * Iterate over the history messages for a given agent.
+     * @param agentName - The agent name.
+     * @returns An async iterable iterator of model messages.
+     */
+    iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+    /**
+     * Wait for the history to initialize.
+     * @param agentName - The agent name.
+     * @param init - Whether the history is initializing.
+     * @returns A promise that resolves when the history is initialized.
+     */
+    waitForInit(agentName: AgentName, init: boolean): Promise<void>;
+    /**
+     * Push a new message to the history for a given agent.
+     * @param value - The model message to push.
+     * @param agentName - The agent name.
+     * @returns A promise that resolves when the message is pushed.
+     */
+    push(value: IModelMessage, agentName: AgentName): Promise<void>;
+    /**
+     * Dispose of the history for a given agent.
+     * @param agentName - The agent name or null.
+     * @returns A promise that resolves when the history is disposed.
+     */
+    dispose(agentName: AgentName | null): Promise<void>;
+}
+/**
+ * Type for History Instance Constructor
+ */
+type THistoryInstanceCtor = new (clientId: string, ...args: unknown[]) => IHistoryInstance;
+/**
+ * Class representing a History Instance
+ */
+declare class HistoryInstance implements IHistoryInstance {
+    readonly clientId: string;
+    readonly callbacks: Partial<IHistoryInstanceCallbacks>;
+    private _array;
+    /**
+     * Wait for the history to initialize.
+     * @param agentName - The agent name.
+     */
+    waitForInit: ((agentName: AgentName) => Promise<void>) & functools_kit.ISingleshotClearable;
+    /**
+     * Create a HistoryInstance.
+     * @param clientId - The client ID.
+     * @param callbacks - The callbacks for the history instance.
+     */
+    constructor(clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>);
+    /**
+     * Iterate over the history messages for a given agent.
+     * @param agentName - The agent name.
+     * @returns An async iterable iterator of model messages.
+     */
+    iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+    /**
+     * Push a new message to the history for a given agent.
+     * @param value - The model message to push.
+     * @param agentName - The agent name.
+     * @returns A promise that resolves when the message is pushed.
+     */
+    push: (value: IModelMessage, agentName: AgentName) => Promise<void>;
+    /**
+     * Dispose of the history for a given agent.
+     * @param agentName - The agent name or null.
+     * @returns A promise that resolves when the history is disposed.
+     */
+    dispose: (agentName: AgentName | null) => Promise<void>;
+}
+/**
+ * Class representing History Utilities
+ */
+declare class HistoryUtils implements IHistoryAdapter, IHistoryControl {
+    private HistoryFactory;
+    private HistoryCallbacks;
+    private getHistory;
+    /**
+     * Use a custom history adapter.
+     * @param Ctor - The constructor for the history instance.
+     */
+    useHistoryAdapter: (Ctor: THistoryInstanceCtor) => void;
+    /**
+     * Use history lifecycle callbacks.
+     * @param Callbacks - The callbacks dictionary.
+     */
+    useHistoryCallbacks: (Callbacks: Partial<IHistoryInstanceCallbacks>) => void;
+    /**
+     * Iterate over the history messages.
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     * @returns An async iterable iterator of model messages.
+     */
+    iterate(clientId: string, agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+    /**
+     * Push a new message to the history.
+     * @param value - The model message to push.
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     * @returns A promise that resolves when the message is pushed.
+     */
+    push: (value: IModelMessage, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Dispose of the history for a given client and agent.
+     * @param clientId - The client ID.
+     * @param agentName - The agent name or null.
+     * @returns A promise that resolves when the history is disposed.
+     */
+    dispose: (clientId: string, agentName: AgentName | null) => Promise<void>;
+}
+/**
+ * Exported History Adapter instance
+ */
+declare const HistoryAdapter: HistoryUtils;
+/**
+ * Exported History Control instance
+ */
+declare const History: IHistoryControl;
+
+/**
  * Interface representing the history of model messages.
  */
 interface IHistory {
@@ -420,10 +629,10 @@ interface IHistoryParams extends IHistorySchema {
  */
 interface IHistorySchema {
     /**
-     * The array of model messages.
-     * @type {IPubsubArray<IModelMessage>}
+     * The adapter for array of model messages.
+     * @type {IHistoryAdapter}
      */
-    items: IPubsubArray<IModelMessage>;
+    items: IHistoryAdapter;
 }
 
 /**
@@ -1019,6 +1228,11 @@ declare class ClientHistory implements IHistory {
      * @returns {Promise<IModelMessage[]>} - The array of messages for the agent.
      */
     toArrayForAgent: (prompt: string, system?: string[]) => Promise<IModelMessage[]>;
+    /**
+     * Should call on agent dispose
+     * @returns {Promise<void>}
+     */
+    dispose: () => Promise<void>;
 }
 
 /**
@@ -1029,13 +1243,6 @@ declare class HistoryConnectionService implements IHistory {
     private readonly loggerService;
     private readonly contextService;
     private readonly sessionValidationService;
-    /**
-     * Retrieves items for a given client and agent.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @returns {IPubsubArray<IModelMessage>} The items.
-     */
-    getItems: ((clientId: string, agentName: AgentName) => IPubsubArray<IModelMessage>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, IPubsubArray<IModelMessage>>;
     /**
      * Retrieves the history for a given client and agent.
      * @param {string} clientId - The client ID.
@@ -1702,9 +1909,10 @@ declare class ToolValidationService {
  */
 declare class SessionValidationService {
     private readonly loggerService;
+    private _storageSwarmMap;
     private _historySwarmMap;
-    private _sessionSwarmMap;
     private _agentSwarmMap;
+    private _sessionSwarmMap;
     private _sessionModeMap;
     /**
      * Adds a new session.
@@ -1727,6 +1935,12 @@ declare class SessionValidationService {
      */
     addHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
     /**
+     * Adds a storage usage to a session.
+     * @param {SessionId} sessionId - The ID of the session.
+     * @param {StorageName} storageName - The name of the storage.
+     */
+    addStorageUsage: (sessionId: SessionId, storageName: StorageName) => void;
+    /**
      * Removes an agent usage from a session.
      * @param {SessionId} sessionId - The ID of the session.
      * @param {AgentName} agentName - The name of the agent.
@@ -1740,6 +1954,13 @@ declare class SessionValidationService {
      * @throws Will throw an error if no agents are found for the session.
      */
     removeHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
+    /**
+    * Removes a storage usage from a session.
+    * @param {SessionId} sessionId - The ID of the session.
+    * @param {StorageName} storageName - The name of the storage.
+    * @throws Will throw an error if no storages are found for the session.
+    */
+    removeStorageUsage: (sessionId: SessionId, storageName: StorageName) => void;
     /**
      * Gets the mode of a session.
      * @param {SessionId} clientId - The ID of the client.
@@ -1951,6 +2172,7 @@ declare class StorageConnectionService implements IStorage {
     private readonly loggerService;
     private readonly contextService;
     private readonly storageSchemaService;
+    private readonly sessionValidationService;
     private readonly embeddingSchemaService;
     /**
      * Retrieves a storage instance based on client ID and storage name.
@@ -2541,7 +2763,7 @@ declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
     CC_KEEP_MESSAGES: number;
-    CC_GET_AGENT_HISTORY: (clientId: string, agentName: AgentName) => IPubsubArray<IModelMessage>;
+    CC_GET_AGENT_HISTORY_ADAPTER: (clientId: string, agentName: AgentName) => IHistoryAdapter$1;
     CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
     CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
     CC_AGENT_DEFAULT_VALIDATION: (output: string) => Promise<string | null>;
@@ -2549,7 +2771,6 @@ declare const GLOBAL_CONFIG: {
     CC_AGENT_OUTPUT_TRANSFORM: (input: string) => string;
     CC_AGENT_OUTPUT_MAP: (message: IModelMessage) => IModelMessage | Promise<IModelMessage>;
     CC_AGENT_SYSTEM_PROMPT: string[];
-    CC_AGENT_SEPARATE_HISTORY: boolean;
     CC_AGENT_DISALLOWED_TAGS: string[];
     CC_AGENT_DISALLOWED_SYMBOLS: string[];
     CC_STORAGE_SEARCH_SIMILARITY: number;
@@ -2653,4 +2874,4 @@ declare class StorageUtils implements TStorage {
 }
 declare const Storage: StorageUtils;
 
-export { ContextService, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, Storage, addAgent, addCompletion, addEmbedding, addStorage, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { ContextService, History, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, Storage, HistoryAdapter as _HistoryAdapter, HistoryInstance as _HistoryInstance, addAgent, addCompletion, addEmbedding, addStorage, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };

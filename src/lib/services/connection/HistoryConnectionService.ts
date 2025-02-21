@@ -9,6 +9,7 @@ import { TContextService } from "../base/ContextService";
 import SessionValidationService from "../validation/SessionValidationService";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import { IHistoryAdapter } from "../../../classes/History";
 
 /**
  * Service for managing history connections.
@@ -25,20 +26,6 @@ export class HistoryConnectionService implements IHistory {
   );
 
   /**
-   * Retrieves items for a given client and agent.
-   * @param {string} clientId - The client ID.
-   * @param {AgentName} agentName - The agent name.
-   * @returns {IPubsubArray<IModelMessage>} The items.
-   */
-  public getItems = memoize<
-    (clientId: string, agentName: AgentName) => IPubsubArray<IModelMessage>
-  >(
-    ([clientId]) => clientId,
-    (clientId: string, agentName: AgentName) =>
-      GLOBAL_CONFIG.CC_GET_AGENT_HISTORY(clientId, agentName)
-  );
-
-  /**
    * Retrieves the history for a given client and agent.
    * @param {string} clientId - The client ID.
    * @param {string} agentName - The agent name.
@@ -51,7 +38,7 @@ export class HistoryConnectionService implements IHistory {
       return new ClientHistory({
         clientId,
         agentName,
-        items: this.getItems(clientId, agentName),
+        items: GLOBAL_CONFIG.CC_GET_AGENT_HISTORY_ADAPTER(clientId, agentName),
         logger: this.loggerService,
       });
     }
@@ -113,13 +100,10 @@ export class HistoryConnectionService implements IHistory {
     if (!this.getHistory.has(key)) {
       return;
     }
-    if (GLOBAL_CONFIG.CC_AGENT_SEPARATE_HISTORY) {
-      await this.getItems(
-        this.contextService.context.clientId,
-        this.contextService.context.agentName
-      ).clear();
-      this.getItems.clear(this.contextService.context.clientId);
-    }
+    await this.getHistory(
+      this.contextService.context.clientId,
+      this.contextService.context.agentName
+    ).dispose();
     this.getHistory.clear(key);
     this.sessionValidationService.removeHistoryUsage(
       this.contextService.context.clientId,

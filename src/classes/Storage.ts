@@ -29,7 +29,7 @@ export class StorageUtils implements TStorage {
     storageName: StorageName;
     score?: number;
   }): Promise<T[]> => {
-    swarm.loggerService.log("StorageStatic take", {
+    swarm.loggerService.log("StorageUtils take", {
       search: payload.search,
       total: payload.total,
       clientId: payload.clientId,
@@ -38,7 +38,7 @@ export class StorageUtils implements TStorage {
     });
     swarm.storageValidationService.validate(
       payload.storageName,
-      "StorageStatic"
+      "StorageUtils"
     );
     if (
       !swarm.agentValidationService.hasStorage(
@@ -74,14 +74,14 @@ export class StorageUtils implements TStorage {
     agentName: AgentName;
     storageName: StorageName;
   }): Promise<void> => {
-    swarm.loggerService.log("StorageStatic upsert", {
+    swarm.loggerService.log("StorageUtils upsert", {
       item: payload.item,
       clientId: payload.clientId,
       storageName: payload.storageName,
     });
     swarm.storageValidationService.validate(
       payload.storageName,
-      "StorageStatic"
+      "StorageUtils"
     );
     if (
       !swarm.agentValidationService.hasStorage(
@@ -114,14 +114,14 @@ export class StorageUtils implements TStorage {
     agentName: AgentName;
     storageName: StorageName;
   }): Promise<void> => {
-    swarm.loggerService.log("StorageStatic remove", {
+    swarm.loggerService.log("StorageUtils remove", {
       itemId: payload.itemId,
       clientId: payload.clientId,
       storageName: payload.storageName,
     });
     swarm.storageValidationService.validate(
       payload.storageName,
-      "StorageStatic"
+      "StorageUtils"
     );
     if (
       !swarm.agentValidationService.hasStorage(
@@ -155,14 +155,14 @@ export class StorageUtils implements TStorage {
     agentName: AgentName;
     storageName: StorageName;
   }): Promise<T | null> => {
-    swarm.loggerService.log("StorageStatic get", {
+    swarm.loggerService.log("StorageUtils get", {
       itemId: payload.itemId,
       clientId: payload.clientId,
       storageName: payload.storageName,
     });
     swarm.storageValidationService.validate(
       payload.storageName,
-      "StorageStatic"
+      "StorageUtils"
     );
     if (
       !swarm.agentValidationService.hasStorage(
@@ -196,13 +196,13 @@ export class StorageUtils implements TStorage {
     storageName: StorageName;
     filter?: (item: T) => boolean;
   }): Promise<T[]> => {
-    swarm.loggerService.log("StorageStatic list", {
+    swarm.loggerService.log("StorageUtils list", {
       clientId: payload.clientId,
       storageName: payload.storageName,
     });
     swarm.storageValidationService.validate(
       payload.storageName,
-      "StorageStatic"
+      "StorageUtils"
     );
     if (
       !swarm.agentValidationService.hasStorage(
@@ -233,13 +233,13 @@ export class StorageUtils implements TStorage {
     agentName: AgentName;
     storageName: StorageName;
   }): Promise<void> => {
-    swarm.loggerService.log("StorageStatic clear", {
+    swarm.loggerService.log("StorageUtils clear", {
       clientId: payload.clientId,
       storageName: payload.storageName,
     });
     swarm.storageValidationService.validate(
       payload.storageName,
-      "StorageStatic"
+      "StorageUtils"
     );
     if (
       !swarm.agentValidationService.hasStorage(
