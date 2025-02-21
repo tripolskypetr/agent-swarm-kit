@@ -34,7 +34,23 @@ Callback for when the history changes.
 onRead: (message: IModelMessage, clientId: string, agentName: string) => void
 ```
 
-Callback for when the history is read.
+Callback for when the history is read. Will be called for each message
+
+### onReadBegin
+
+```ts
+onReadBegin: (clientId: string, agentName: string) => void
+```
+
+Callback for when the read is begin
+
+### onReadEnd
+
+```ts
+onReadEnd: (clientId: string, agentName: string) => void
+```
+
+Callback for when the read is end
 
 ### onDispose
 

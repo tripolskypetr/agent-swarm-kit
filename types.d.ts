@@ -401,12 +401,24 @@ interface IHistoryInstanceCallbacks {
      */
     onChange: (data: IModelMessage[], clientId: string, agentName: AgentName) => void;
     /**
-     * Callback for when the history is read.
+     * Callback for when the history is read. Will be called for each message
      * @param message - The model message.
      * @param clientId - The client ID.
      * @param agentName - The agent name.
      */
     onRead: (message: IModelMessage, clientId: string, agentName: AgentName) => void;
+    /**
+     * Callback for when the read is begin
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     */
+    onReadBegin: (clientId: string, agentName: AgentName) => void;
+    /**
+     * Callback for when the read is end
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     */
+    onReadEnd: (clientId: string, agentName: AgentName) => void;
     /**
      * Callback for when the history is disposed.
      * @param clientId - The client ID.

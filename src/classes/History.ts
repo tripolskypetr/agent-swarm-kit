@@ -44,7 +44,7 @@ export interface IHistoryInstanceCallbacks {
   ) => void;
 
   /**
-   * Callback for when the history is read.
+   * Callback for when the history is read. Will be called for each message
    * @param message - The model message.
    * @param clientId - The client ID.
    * @param agentName - The agent name.
@@ -54,6 +54,20 @@ export interface IHistoryInstanceCallbacks {
     clientId: string,
     agentName: AgentName
   ) => void;
+
+  /**
+   * Callback for when the read is begin
+   * @param clientId - The client ID.
+   * @param agentName - The agent name.
+   */
+  onReadBegin: (clientId: string, agentName: AgentName) => void;
+
+  /**
+   * Callback for when the read is end
+   * @param clientId - The client ID.
+   * @param agentName - The agent name.
+   */
+  onReadEnd: (clientId: string, agentName: AgentName) => void;
 
   /**
    * Callback for when the history is disposed.
@@ -209,19 +223,35 @@ export class HistoryInstance implements IHistoryInstance {
           agentName,
         });
         if (this.callbacks.onRead) {
+          this.callbacks.onReadBegin &&
+            this.callbacks.onReadBegin(this.clientId, agentName);
           for (const item of this._array) {
-            if (await callbacks.filterCondition(item, this.clientId, agentName)) {
+            if (
+              await this.callbacks.filterCondition(
+                item,
+                this.clientId,
+                agentName
+              )
+            ) {
               this.callbacks.onRead(item, this.clientId, agentName);
               yield item;
             }
           }
+          this.callbacks.onReadEnd &&
+            this.callbacks.onReadEnd(this.clientId, agentName);
           return;
         }
+        this.callbacks.onReadBegin &&
+          this.callbacks.onReadBegin(this.clientId, agentName);
         for (const item of this._array) {
-          if (await callbacks.filterCondition(item, this.clientId, agentName)) {
+          if (
+            await this.callbacks.filterCondition(item, this.clientId, agentName)
+          ) {
             yield item;
           }
         }
+        this.callbacks.onReadEnd &&
+          this.callbacks.onReadEnd(this.clientId, agentName);
       };
     }
   }
@@ -239,15 +269,23 @@ export class HistoryInstance implements IHistoryInstance {
       agentName,
     });
     if (this.callbacks.onRead) {
+      this.callbacks.onReadBegin &&
+        this.callbacks.onReadBegin(this.clientId, agentName);
       for (const item of this._array) {
         this.callbacks.onRead(item, this.clientId, agentName);
         yield item;
       }
-      return
+      this.callbacks.onReadEnd &&
+        this.callbacks.onReadEnd(this.clientId, agentName);
+      return;
     }
+    this.callbacks.onReadBegin &&
+      this.callbacks.onReadBegin(this.clientId, agentName);
     for (const item of this._array) {
       yield item;
     }
+    this.callbacks.onReadEnd &&
+      this.callbacks.onReadEnd(this.clientId, agentName);
   }
 
   /**
