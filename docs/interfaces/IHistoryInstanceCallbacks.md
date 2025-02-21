@@ -28,6 +28,14 @@ onChange: (data: IModelMessage[], clientId: string, agentName: string) => void
 
 Callback for when the history changes.
 
+### onPush
+
+```ts
+onPush: (data: IModelMessage, clientId: string, agentName: string) => void
+```
+
+Callback for when the history get the new message
+
 ### onRead
 
 ```ts

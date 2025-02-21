@@ -44,6 +44,14 @@ export interface IHistoryInstanceCallbacks {
   ) => void;
 
   /**
+   * Callback for when the history get the new message
+   * @param data - The array of model messages.
+   * @param clientId - The client ID.
+   * @param agentName - The agent name.
+   */
+  onPush: (data: IModelMessage, clientId: string, agentName: AgentName) => void;
+
+  /**
    * Callback for when the history is read. Will be called for each message
    * @param message - The model message.
    * @param clientId - The client ID.
@@ -299,6 +307,8 @@ export class HistoryInstance implements IHistoryInstance {
       clientId: this.clientId,
       agentName,
     });
+    this.callbacks.onPush &&
+      this.callbacks.onPush(value, this.clientId, agentName);
     this._array.push(value);
     this.callbacks.onChange &&
       this.callbacks.onChange(this._array, this.clientId, agentName);
@@ -353,7 +363,7 @@ class HistoryUtils implements IHistoryAdapter, IHistoryControl {
     Callbacks: Partial<IHistoryInstanceCallbacks>
   ) => {
     swarm.loggerService.log("HistoryUtils useHistoryCallbacks");
-    this.HistoryCallbacks = Callbacks;
+    Object.assign(this.HistoryCallbacks, Callbacks);
   };
 
   /**
