@@ -12,6 +12,7 @@ interface IStorageConnectionService extends StorageConnectionService {}
 
 type InternalKeys = keyof {
   getStorage: never;
+  getSharedStorage: never;
 };
 
 type TStorageConnectionService = {

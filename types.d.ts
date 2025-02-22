@@ -2309,7 +2309,7 @@ declare class StorageConnectionService implements IStorage {
      * @param {string} storageName - The storage name.
      * @returns {ClientStorage} The client storage instance.
      */
-    private getSharedStorage;
+    getSharedStorage: ((clientId: string, storageName: StorageName) => ClientStorage<IStorageData>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<IStorageData>>;
     /**
      * Retrieves a storage instance based on client ID and storage name.
      * @param {string} clientId - The client ID.
@@ -2364,6 +2364,7 @@ interface IStorageConnectionService extends StorageConnectionService {
 }
 type InternalKeys = keyof {
     getStorage: never;
+    getSharedStorage: never;
 };
 type TStorageConnectionService = {
     [key in Exclude<keyof IStorageConnectionService, InternalKeys>]: unknown;

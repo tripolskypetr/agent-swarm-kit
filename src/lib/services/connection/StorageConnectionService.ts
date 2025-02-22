@@ -41,7 +41,7 @@ export class StorageConnectionService implements IStorage {
    * @param {string} storageName - The storage name.
    * @returns {ClientStorage} The client storage instance.
    */
-  private getSharedStorage = memoize(
+  public getSharedStorage = memoize(
     ([, storageName]) => `${storageName}`,
     (clientId: string, storageName: StorageName) => {
       const {
@@ -56,6 +56,9 @@ export class StorageConnectionService implements IStorage {
         createEmbedding,
         callbacks: embedding,
       } = this.embeddingSchemaService.get(embeddingName);
+      if (!shared) {
+        throw new Error(`agent-swarm storage not shared storageName=${storageName}`)
+      }
       return new ClientStorage({
         clientId,
         storageName,
