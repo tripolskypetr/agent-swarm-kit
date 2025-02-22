@@ -1,4 +1,11 @@
-import { not, queued, randomString, Subject } from "functools-kit";
+import {
+  errorData,
+  getErrorMessage,
+  not,
+  queued,
+  randomString,
+  Subject,
+} from "functools-kit";
 import { omit } from "lodash-es";
 import { IModelMessage } from "../model/ModelMessage.model";
 import { IAgent, IAgentParams } from "../interfaces/Agent.interface";
@@ -6,7 +13,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 import { ExecutionMode } from "../interfaces/Session.interface";
 import { IToolCall } from "../model/Tool.model";
 
-const AGENT_CHANGE_SYMBOL = Symbol('agent-change');
+const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
 
 const getPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[
@@ -418,6 +425,18 @@ export class ClientAgent implements IAgent {
                 );
             })
             .catch((error) => {
+              console.error(
+                `agent-swarm tool call error functionName=${
+                  tool.function.name
+                } error=${getErrorMessage(error)}`,
+                {
+                  clientId: this.params.clientId,
+                  agentName: this.params.agentName,
+                  tool_call_id: tool.id,
+                  arguments: tool.function.arguments,
+                  error: errorData(error),
+                }
+              );
               targetFn.callbacks?.onCallError &&
                 targetFn.callbacks?.onCallError(
                   tool.id,
