@@ -36,19 +36,19 @@ export class StorageConnectionService implements IStorage {
   );
 
   /**
-   * Retrieves a storage instance based on client ID and storage name.
+   * Retrieves a shared storage instance based on storage name.
    * @param {string} clientId - The client ID.
    * @param {string} storageName - The storage name.
    * @returns {ClientStorage} The client storage instance.
    */
-  public getStorage = memoize(
-    ([clientId, storageName]) => `${clientId}-${storageName}`,
+  private getSharedStorage = memoize(
+    ([, storageName]) => `${storageName}`,
     (clientId: string, storageName: StorageName) => {
-      this.sessionValidationService.addStorageUsage(clientId, storageName);
       const {
         createIndex,
         getData,
         embedding: embeddingName,
+        shared,
         callbacks,
       } = this.storageSchemaService.get(storageName);
       const {
@@ -64,6 +64,48 @@ export class StorageConnectionService implements IStorage {
         createEmbedding,
         createIndex,
         getData,
+        shared,
+        logger: this.loggerService,
+        ...embedding,
+        callbacks,
+      });
+    }
+  );
+
+  /**
+   * Retrieves a storage instance based on client ID and storage name.
+   * @param {string} clientId - The client ID.
+   * @param {string} storageName - The storage name.
+   * @returns {ClientStorage} The client storage instance.
+   */
+  public getStorage = memoize(
+    ([clientId, storageName]) => `${clientId}-${storageName}`,
+    (clientId: string, storageName: StorageName) => {
+      this.sessionValidationService.addStorageUsage(clientId, storageName);
+      const {
+        createIndex,
+        getData,
+        embedding: embeddingName,
+        shared = false,
+        callbacks,
+      } = this.storageSchemaService.get(storageName);
+      if (shared) {
+        return this.getSharedStorage(clientId, storageName);
+      }
+      const {
+        calculateSimilarity,
+        createEmbedding,
+        callbacks: embedding,
+      } = this.embeddingSchemaService.get(embeddingName);
+      return new ClientStorage({
+        clientId,
+        storageName,
+        embedding: embeddingName,
+        calculateSimilarity,
+        createEmbedding,
+        createIndex,
+        getData,
+        shared,
         logger: this.loggerService,
         ...embedding,
         callbacks,

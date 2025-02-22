@@ -20,6 +20,12 @@ export interface IStorageData {
  * @template T - Type of the storage data.
  */
 export interface IStorageSchema<T extends IStorageData = IStorageData> {
+
+  /**
+   * All agents will share the same ClientStorage instance
+   */
+  shared?: boolean;
+
   /**
    * Function to get data from the storage.
    * @param clientId - The client ID.

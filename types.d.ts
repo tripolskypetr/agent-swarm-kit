@@ -750,6 +750,10 @@ interface IStorageData {
  */
 interface IStorageSchema<T extends IStorageData = IStorageData> {
     /**
+     * All agents will share the same ClientStorage instance
+     */
+    shared?: boolean;
+    /**
      * Function to get data from the storage.
      * @param clientId - The client ID.
      * @param storageName - The name of the storage.
@@ -2299,6 +2303,13 @@ declare class StorageConnectionService implements IStorage {
     private readonly storageSchemaService;
     private readonly sessionValidationService;
     private readonly embeddingSchemaService;
+    /**
+     * Retrieves a shared storage instance based on storage name.
+     * @param {string} clientId - The client ID.
+     * @param {string} storageName - The storage name.
+     * @returns {ClientStorage} The client storage instance.
+     */
+    private getSharedStorage;
     /**
      * Retrieves a storage instance based on client ID and storage name.
      * @param {string} clientId - The client ID.

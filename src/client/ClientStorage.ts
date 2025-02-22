@@ -21,7 +21,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    */
   constructor(readonly params: IStorageParams<T>) {
     this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} CTOR`,
+      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} CTOR`,
       {
         params,
       }
@@ -37,7 +37,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     ([{ id }]) => id,
     async (item: T) => {
       this.params.logger.debug(
-        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} _createEmbedding`,
+        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} _createEmbedding`,
         {
           id: item.id,
         }
@@ -62,10 +62,10 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    */
   waitForInit = singleshot(async () => {
     this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} waitForInit`
+      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} waitForInit`
     );
     if (!this.params.getData) {
-        return;
+      return;
     }
     const data = await this.params.getData(
       this.params.clientId,
@@ -89,9 +89,13 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @param {number} [score=GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY] - The similarity score.
    * @returns {Promise<T[]>} - The list of items.
    */
-  take = async (search: string, total: number, score = GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY): Promise<T[]> => {
+  take = async (
+    search: string,
+    total: number,
+    score = GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY
+  ): Promise<T[]> => {
     this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} take`,
+      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} take`,
       {
         search,
         total,
@@ -134,16 +138,21 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         )
       )
     );
-    this.params.logger.debug(`ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} take indexed`,{
+    this.params.logger.debug(
+      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} take indexed`,
+      {
         indexed: indexed.getEntries(),
-    })
-    if (this.params.callbacks?.onSearch) {
-      this.params.callbacks?.onSearch(search, indexed, this.params.clientId, this.params.storageName);
-    }
-    return indexed.take(
-      total,
-      score,
+      }
     );
+    if (this.params.callbacks?.onSearch) {
+      this.params.callbacks?.onSearch(
+        search,
+        indexed,
+        this.params.clientId,
+        this.params.storageName
+      );
+    }
+    return indexed.take(total, score);
   };
 
   /**
@@ -153,7 +162,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    */
   upsert = async (item: T) => {
     this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} upsert`,
+      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} upsert`,
       {
         item,
       }
@@ -177,7 +186,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    */
   remove = async (itemId: IStorageData["id"]) => {
     this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} remove`,
+      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} remove`,
       {
         id: itemId,
       }
@@ -199,7 +208,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    */
   clear = async () => {
     this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} clear`
+      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} clear`
     );
     this._itemMap.clear();
     this._createEmbedding.clear();
@@ -212,7 +221,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    */
   get = async (itemId: IStorageData["id"]): Promise<T | null> => {
     this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} get`,
+      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} get`,
       {
         id: itemId,
       }
@@ -227,7 +236,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    */
   list = async (filter?: (item: T) => boolean) => {
     this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} list`
+      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} list`
     );
     if (!filter) {
       return [...this._itemMap.values()];
