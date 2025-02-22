@@ -88,6 +88,12 @@ export interface IHistoryInstanceCallbacks {
    * @param clientId - The client ID.
    */
   onInit: (clientId: string) => void;
+
+  /**
+   * Callback to obtain history ref
+   * @param clientId - The client ID.
+   */
+  onRef: (history: HistoryInstance) => void;
 }
 
 /**
@@ -221,6 +227,9 @@ export class HistoryInstance implements IHistoryInstance {
     });
     if (callbacks.onInit) {
       callbacks.onInit(clientId);
+    }
+    if (callbacks.onRef) {
+      callbacks.onRef(this);
     }
     if (callbacks.filterCondition) {
       this.iterate = async function* (

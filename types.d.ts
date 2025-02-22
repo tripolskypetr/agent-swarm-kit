@@ -436,6 +436,11 @@ interface IHistoryInstanceCallbacks {
      * @param clientId - The client ID.
      */
     onInit: (clientId: string) => void;
+    /**
+     * Callback to obtain history ref
+     * @param clientId - The client ID.
+     */
+    onRef: (history: HistoryInstance) => void;
 }
 /**
  * Interface for History Adapter

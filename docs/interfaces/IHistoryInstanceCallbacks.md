@@ -75,3 +75,11 @@ onInit: (clientId: string) => void
 ```
 
 Callback for when the history is initialized.
+
+### onRef
+
+```ts
+onRef: (history: HistoryInstance) => void
+```
+
+Callback to obtain history ref
