@@ -278,8 +278,8 @@ test("Will keep state order even if not awaited", async ({
   const CLIENT_ID = randomString();
 
   for (let i = 0; i !== TOTAL_TESTS; i++) {
-    State.setState((prevState) => {
-      sleep(Math.random() * 10);
+    State.setState(async (prevState) => {
+      await sleep(Math.random() * 10);
       if (prevState !== i) {
         fail(`Failed for idx=${i}`);
       }
