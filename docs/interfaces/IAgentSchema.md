@@ -52,6 +52,14 @@ storages: string[]
 
 The names of the storages used by the agent.
 
+### states
+
+```ts
+states: string[]
+```
+
+The names of the states used by the agent.
+
 ### validate
 
 ```ts

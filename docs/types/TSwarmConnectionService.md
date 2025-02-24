@@ -2,7 +2,7 @@
 
 ```ts
 type TSwarmConnectionService = {
-    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$1>]: unknown;
+    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$2>]: unknown;
 };
 ```
 

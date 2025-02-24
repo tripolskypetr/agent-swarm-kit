@@ -723,17 +723,61 @@ interface ICompletionSchema {
  */
 type CompletionName = string;
 
+/**
+ * Type representing an array of numbers as embeddings.
+ */
 type Embeddings = number[];
+/**
+ * Interface for embedding callbacks.
+ */
 interface IEmbeddingCallbacks {
+    /**
+     * Callback for when an embedding is created.
+     * @param text - The text used to create the embedding.
+     * @param embeddings - The generated embeddings.
+     * @param clientId - The client ID associated with the embedding.
+     * @param embeddingName - The name of the embedding.
+     */
     onCreate(text: string, embeddings: Embeddings, clientId: string, embeddingName: EmbeddingName): void;
+    /**
+     * Callback for when embeddings are compared.
+     * @param text1 - The first text used in the comparison.
+     * @param text2 - The second text used in the comparison.
+     * @param similarity - The similarity score between the embeddings.
+     * @param clientId - The client ID associated with the comparison.
+     * @param embeddingName - The name of the embedding.
+     */
     onCompare(text1: string, text2: string, similarity: number, clientId: string, embeddingName: EmbeddingName): void;
 }
+/**
+ * Interface representing the schema for embeddings.
+ */
 interface IEmbeddingSchema {
+    /**
+     * The name of the embedding.
+     */
     embeddingName: EmbeddingName;
+    /**
+     * Creates an embedding from the given text.
+     * @param text - The text to create the embedding from.
+     * @returns A promise that resolves to the generated embeddings.
+     */
     createEmbedding(text: string): Promise<Embeddings>;
+    /**
+     * Calculates the similarity between two embeddings.
+     * @param a - The first embedding.
+     * @param b - The second embedding.
+     * @returns A promise that resolves to the similarity score.
+     */
     calculateSimilarity(a: Embeddings, b: Embeddings): Promise<number>;
+    /**
+     * Optional callbacks for embedding events.
+     */
     callbacks?: Partial<IEmbeddingCallbacks>;
 }
+/**
+ * Type representing the name of an embedding.
+ */
 type EmbeddingName = string;
 
 type StorageId = string | number;
@@ -874,31 +918,123 @@ interface IStorage<T extends IStorageData = IStorageData> {
 type StorageName = string;
 
 type IStateData = any;
+/**
+ * Middleware function for state management.
+ * @template T - The type of the state data.
+ * @param {T} state - The current state.
+ * @param {string} clientId - The client ID.
+ * @param {StateName} stateName - The name of the state.
+ * @returns {Promise<T>} - The updated state.
+ */
 interface IStateMiddleware<T extends IStateData = IStateData> {
     (state: T, clientId: string, stateName: StateName): Promise<T>;
 }
+/**
+ * Callbacks for state lifecycle events.
+ * @template T - The type of the state data.
+ */
 interface IStateCallbacks<T extends IStateData = IStateData> {
+    /**
+     * Called when the state is initialized.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     */
     onInit: (clientId: string, stateName: StateName) => void;
+    /**
+     * Called when the state is disposed.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     */
     onDispose: (clientId: string, stateName: StateName) => void;
+    /**
+     * Called when the state is loaded.
+     * @param {T} state - The current state.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     */
     onLoad: (state: T, clientId: string, stateName: StateName) => void;
+    /**
+     * Called when the state is read.
+     * @param {T} state - The current state.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     */
     onRead: (state: T, clientId: string, stateName: StateName) => void;
+    /**
+     * Called when the state is written.
+     * @param {T} state - The current state.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     */
     onWrite: (state: T, clientId: string, stateName: StateName) => void;
 }
+/**
+ * Schema for state management.
+ * @template T - The type of the state data.
+ */
 interface IStateSchema<T extends IStateData = IStateData> {
+    /**
+     * The name of the state.
+     */
     stateName: StateName;
+    /**
+     * Gets the state.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     * @returns {T | Promise<T>} - The current state.
+     */
     getState: (clientId: string, stateName: StateName) => T | Promise<T>;
+    /**
+     * Sets the state.
+     * @param {T} state - The new state.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     * @returns {Promise<void> | void} - A promise that resolves when the state is set.
+     */
     setState?: (state: T, clientId: string, stateName: StateName) => Promise<void> | void;
+    /**
+     * Middleware functions for state management.
+     */
     middlewares?: IStateMiddleware<T>[];
+    /**
+     * Callbacks for state lifecycle events.
+     */
     callbacks?: Partial<IStateCallbacks<T>>;
 }
+/**
+ * Parameters for state management.
+ * @template T - The type of the state data.
+ */
 interface IStateParams<T extends IStateData = IStateData> extends IStateSchema<T> {
+    /**
+     * The client ID.
+     */
     clientId: string;
+    /**
+     * The logger instance.
+     */
     logger: ILogger;
 }
+/**
+ * State management interface.
+ * @template T - The type of the state data.
+ */
 interface IState<T extends IStateData = IStateData> {
+    /**
+     * Gets the state.
+     * @returns {Promise<T>} - The current state.
+     */
     getState: () => Promise<T>;
+    /**
+     * Sets the state.
+     * @param {(prevState: T) => Promise<T>} dispatchFn - The function to dispatch the new state.
+     * @returns {Promise<T>} - The updated state.
+     */
     setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
 }
+/**
+ * The name of the state.
+ */
 type StateName = string;
 
 /**
@@ -2521,25 +2657,75 @@ declare class EmbeddingValidationService {
 }
 
 type DispatchFn<State extends IStateData = IStateData> = (prevState: State) => Promise<State>;
+/**
+ * Class representing the client state.
+ * @template State - The type of the state data.
+ * @implements {IState<State>}
+ */
 declare class ClientState<State extends IStateData = IStateData> implements IState<State> {
     readonly params: IStateParams<State>;
     private _state;
     private dispatch;
+    /**
+     * Creates an instance of ClientState.
+     * @param {IStateParams<State>} params - The state parameters.
+     */
     constructor(params: IStateParams<State>);
+    /**
+     * Waits for the state to initialize.
+     * @returns {Promise<void>}
+     */
     waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    /**
+     * Sets the state using the provided dispatch function.
+     * @param {DispatchFn<State>} dispatchFn - The dispatch function.
+     * @returns {Promise<State>}
+     */
     setState: (dispatchFn: DispatchFn<State>) => Promise<State>;
+    /**
+     * Gets the current state.
+     * @returns {Promise<State>}
+     */
     getState: () => Promise<State>;
+    /**
+     * Disposes of the state.
+     * @returns {Promise<void>}
+     */
     dispose: () => Promise<void>;
 }
 
+/**
+ * Service for managing state connections.
+ * @template T - The type of state data.
+ * @implements {IState<T>}
+ */
 declare class StateConnectionService<T extends IStateData = IStateData> implements IState<T> {
     private readonly loggerService;
     private readonly contextService;
     private readonly stateSchemaService;
     private readonly sessionValidationService;
+    /**
+     * Memoized function to get a state reference.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The state name.
+     * @returns {ClientState} The client state.
+     */
     getStateRef: ((clientId: string, stateName: StateName) => ClientState<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientState<any>>;
+    /**
+     * Sets the state.
+     * @param {function(T): Promise<T>} dispatchFn - The function to dispatch the new state.
+     * @returns {Promise<T>} The new state.
+     */
     setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
+    /**
+     * Gets the state.
+     * @returns {Promise<T>} The current state.
+     */
     getState: () => Promise<T>;
+    /**
+     * Disposes the state connection.
+     * @returns {Promise<void>}
+     */
     dispose: () => Promise<void>;
 }
 
@@ -2554,8 +2740,27 @@ type TStateConnectionService = {
 declare class StatePublicService<T extends IStateData = IStateData> implements TStateConnectionService {
     private readonly loggerService;
     private readonly stateConnectionService;
+    /**
+     * Sets the state using the provided dispatch function.
+     * @param {function(T): Promise<T>} dispatchFn - The function to dispatch the state change.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     * @returns {Promise<T>} - The updated state.
+     */
     setState: (dispatchFn: (prevState: T) => Promise<T>, clientId: string, stateName: StateName) => Promise<T>;
+    /**
+     * Gets the current state.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     * @returns {Promise<T>} - The current state.
+     */
     getState: (clientId: string, stateName: StateName) => Promise<T>;
+    /**
+     * Disposes the state.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     * @returns {Promise<void>} - A promise that resolves when the state is disposed.
+     */
     dispose: (clientId: string, stateName: StateName) => Promise<void>;
 }
 
@@ -3139,18 +3344,47 @@ declare const Storage: StorageUtils;
 type TState = {
     [key in keyof IState]: unknown;
 };
+/**
+ * Utility class for managing state in the agent swarm.
+ * @implements {TState}
+ */
 declare class StateUtils implements TState {
+    /**
+     * Retrieves the state for a given client and state name.
+     * @template T
+     * @param {Object} payload - The payload containing client and state information.
+     * @param {string} payload.clientId - The client ID.
+     * @param {AgentName} payload.agentName - The agent name.
+     * @param {StateName} payload.stateName - The state name.
+     * @returns {Promise<T>} The state data.
+     * @throws Will throw an error if the state is not registered in the agent.
+     */
     getState: <T extends unknown = any>(payload: {
         clientId: string;
         agentName: AgentName;
         stateName: StateName;
     }) => Promise<T>;
+    /**
+     * Sets the state for a given client and state name.
+     * @template T
+     * @param {T | ((prevState: T) => Promise<T>)} dispatchFn - The new state or a function that returns the new state.
+     * @param {Object} payload - The payload containing client and state information.
+     * @param {string} payload.clientId - The client ID.
+     * @param {AgentName} payload.agentName - The agent name.
+     * @param {StateName} payload.stateName - The state name.
+     * @returns {Promise<void>}
+     * @throws Will throw an error if the state is not registered in the agent.
+     */
     setState: <T extends unknown = any>(dispatchFn: T | ((prevState: T) => Promise<T>), payload: {
         clientId: string;
         agentName: AgentName;
         stateName: StateName;
     }) => Promise<void>;
 }
+/**
+ * Instance of StateUtils for managing state.
+ * @type {StateUtils}
+ */
 declare const State: StateUtils;
 
 export { ContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };

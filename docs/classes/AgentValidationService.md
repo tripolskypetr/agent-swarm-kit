@@ -48,6 +48,14 @@ getStorageList: (agentName: string) => string[]
 
 Retrieves the storages used by the agent
 
+### getStateList
+
+```ts
+getStateList: (agentName: string) => string[]
+```
+
+Retrieves the states used by the agent
+
 ### addAgent
 
 ```ts
@@ -63,6 +71,14 @@ hasStorage: ((agentName: string, storageName: string) => boolean) & IClearableMe
 ```
 
 Check if agent got registered storage
+
+### hasState
+
+```ts
+hasState: ((agentName: string, stateName: string) => boolean) & IClearableMemoize<string> & IControlMemoize<string, boolean>
+```
+
+Check if agent got registered state
 
 ### validate
 

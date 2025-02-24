@@ -27,3 +27,9 @@ swarmName: string
 ```ts
 storageName: string
 ```
+
+### stateName
+
+```ts
+stateName: string
+```

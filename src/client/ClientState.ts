@@ -11,6 +11,11 @@ type DispatchFn<State extends IStateData = IStateData> = (
 
 type Action = "read" | "write";
 
+/**
+ * Class representing the client state.
+ * @template State - The type of the state data.
+ * @implements {IState<State>}
+ */
 export class ClientState<State extends IStateData = IStateData>
   implements IState<State>
 {
@@ -32,12 +37,20 @@ export class ClientState<State extends IStateData = IStateData>
     }
   ) as (action: string, payload?: DispatchFn<State>) => Promise<State>;
 
+  /**
+   * Creates an instance of ClientState.
+   * @param {IStateParams<State>} params - The state parameters.
+   */
   constructor(readonly params: IStateParams<State>) {
     if (this.params.callbacks?.onInit) {
       this.params.callbacks.onInit(this.params.clientId, this.params.stateName);
     }
   }
 
+  /**
+   * Waits for the state to initialize.
+   * @returns {Promise<void>}
+   */
   public waitForInit = singleshot(async () => {
     this.params.logger.debug(
       `ClientStorage stateName=${this.params.stateName} clientId=${this.params.clientId} waitForInit`
@@ -59,6 +72,11 @@ export class ClientState<State extends IStateData = IStateData>
     }
   });
 
+  /**
+   * Sets the state using the provided dispatch function.
+   * @param {DispatchFn<State>} dispatchFn - The dispatch function.
+   * @returns {Promise<State>}
+   */
   public setState = async (dispatchFn: DispatchFn<State>) => {
     this.params.logger.debug(
       `ClientStorage stateName=${this.params.stateName} clientId=${this.params.clientId} setState`
@@ -96,6 +114,10 @@ export class ClientState<State extends IStateData = IStateData>
     return this._state;
   };
 
+  /**
+   * Gets the current state.
+   * @returns {Promise<State>}
+   */
   public getState = async () => {
     this.params.logger.debug(
       `ClientStorage stateName=${this.params.stateName} clientId=${this.params.clientId} getState`
@@ -111,6 +133,10 @@ export class ClientState<State extends IStateData = IStateData>
     return this._state;
   };
 
+  /**
+   * Disposes of the state.
+   * @returns {Promise<void>}
+   */
   public dispose = async () => {
     this.params.logger.debug(
       `ClientStorage stateName=${this.params.stateName} clientId=${this.params.clientId} dispose`

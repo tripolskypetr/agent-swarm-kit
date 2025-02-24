@@ -42,6 +42,14 @@ sessionValidationService: any
 embeddingSchemaService: any
 ```
 
+### getSharedStorage
+
+```ts
+getSharedStorage: ((clientId: string, storageName: string) => ClientStorage<IStorageData>) & IClearableMemoize<string> & IControlMemoize<string, ClientStorage<IStorageData>>
+```
+
+Retrieves a shared storage instance based on storage name.
+
 ### getStorage
 
 ```ts

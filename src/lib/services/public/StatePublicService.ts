@@ -24,6 +24,13 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
     TYPES.stateConnectionService
   );
 
+  /**
+   * Sets the state using the provided dispatch function.
+   * @param {function(T): Promise<T>} dispatchFn - The function to dispatch the state change.
+   * @param {string} clientId - The client ID.
+   * @param {StateName} stateName - The name of the state.
+   * @returns {Promise<T>} - The updated state.
+   */
   public setState = async (
     dispatchFn: (prevState: T) => Promise<T>,
     clientId: string,
@@ -47,6 +54,12 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
     );
   };
 
+  /**
+   * Gets the current state.
+   * @param {string} clientId - The client ID.
+   * @param {StateName} stateName - The name of the state.
+   * @returns {Promise<T>} - The current state.
+   */
   public getState = async (
     clientId: string,
     stateName: StateName,
@@ -69,6 +82,12 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
     );
   };
 
+  /**
+   * Disposes the state.
+   * @param {string} clientId - The client ID.
+   * @param {StateName} stateName - The name of the state.
+   * @returns {Promise<void>} - A promise that resolves when the state is disposed.
+   */
   public dispose = async (clientId: string, stateName: StateName) => {
     this.loggerService.log("statePublicService dispose", {
       clientId,

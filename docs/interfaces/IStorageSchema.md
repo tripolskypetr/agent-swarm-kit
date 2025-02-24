@@ -4,6 +4,14 @@ Interface representing the schema of the storage.
 
 ## Properties
 
+### shared
+
+```ts
+shared: boolean
+```
+
+All agents will share the same ClientStorage instance
+
 ### getData
 
 ```ts

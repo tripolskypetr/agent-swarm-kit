@@ -12,6 +12,11 @@ import {
 } from "../../../interfaces/State.interface";
 import SessionValidationService from "../validation/SessionValidationService";
 
+/**
+ * Service for managing state connections.
+ * @template T - The type of state data.
+ * @implements {IState<T>}
+ */
 export class StateConnectionService<T extends IStateData = IStateData>
   implements IState<T>
 {
@@ -28,6 +33,12 @@ export class StateConnectionService<T extends IStateData = IStateData>
     TYPES.sessionValidationService
   );
 
+  /**
+   * Memoized function to get a state reference.
+   * @param {string} clientId - The client ID.
+   * @param {StateName} stateName - The state name.
+   * @returns {ClientState} The client state.
+   */
   public getStateRef = memoize(
     ([clientId, stateName]) => `${clientId}-${stateName}`,
     (clientId: string, stateName: StateName) => {
@@ -54,6 +65,11 @@ export class StateConnectionService<T extends IStateData = IStateData>
     }
   );
 
+  /**
+   * Sets the state.
+   * @param {function(T): Promise<T>} dispatchFn - The function to dispatch the new state.
+   * @returns {Promise<T>} The new state.
+   */
   public setState = async (
     dispatchFn: (prevState: T) => Promise<T>
   ): Promise<T> => {
@@ -68,6 +84,10 @@ export class StateConnectionService<T extends IStateData = IStateData>
     return await state.setState(dispatchFn);
   };
 
+  /**
+   * Gets the state.
+   * @returns {Promise<T>} The current state.
+   */
   public getState = async (): Promise<T> => {
     this.loggerService.log(`stateConnectionService getState`, {
       context: this.contextService.context,
@@ -80,7 +100,11 @@ export class StateConnectionService<T extends IStateData = IStateData>
     return await state.getState();
   };
 
-  public dispose = async () => {
+  /**
+   * Disposes the state connection.
+   * @returns {Promise<void>}
+   */
+  public dispose = async (): Promise<void> => {
     this.loggerService.log(`stateConnectionService dispose`, {
       context: this.contextService.context,
     });

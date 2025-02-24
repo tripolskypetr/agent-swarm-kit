@@ -2,7 +2,7 @@
 
 ```ts
 type InternalKeys = keyof {
-    getStorage: never;
+    getStateRef: never;
 };
 ```
 

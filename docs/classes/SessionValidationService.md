@@ -34,6 +34,12 @@ _historySwarmMap: any
 _agentSwarmMap: any
 ```
 
+### _stateSwarmMap
+
+```ts
+_stateSwarmMap: any
+```
+
 ### _sessionSwarmMap
 
 ```ts
@@ -78,6 +84,14 @@ addStorageUsage: (sessionId: string, storageName: string) => void
 
 Adds a storage usage to a session.
 
+### addStateUsage
+
+```ts
+addStateUsage: (sessionId: string, stateName: string) => void
+```
+
+Adds a state usage to a session.
+
 ### removeAgentUsage
 
 ```ts
@@ -101,6 +115,14 @@ removeStorageUsage: (sessionId: string, storageName: string) => void
 ```
 
 Removes a storage usage from a session.
+
+### removeStateUsage
+
+```ts
+removeStateUsage: (sessionId: string, stateName: string) => void
+```
+
+Removes a state usage from a session.
 
 ### getSessionMode
 

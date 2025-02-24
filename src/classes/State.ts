@@ -6,7 +6,21 @@ type TState = {
   [key in keyof IState]: unknown;
 };
 
+/**
+ * Utility class for managing state in the agent swarm.
+ * @implements {TState}
+ */
 export class StateUtils implements TState {
+  /**
+   * Retrieves the state for a given client and state name.
+   * @template T
+   * @param {Object} payload - The payload containing client and state information.
+   * @param {string} payload.clientId - The client ID.
+   * @param {AgentName} payload.agentName - The agent name.
+   * @param {StateName} payload.stateName - The state name.
+   * @returns {Promise<T>} The state data.
+   * @throws Will throw an error if the state is not registered in the agent.
+   */
   public getState = async <T extends IStateData = IStateData>(payload: {
     clientId: string;
     agentName: AgentName;
@@ -32,6 +46,17 @@ export class StateUtils implements TState {
     );
   };
 
+  /**
+   * Sets the state for a given client and state name.
+   * @template T
+   * @param {T | ((prevState: T) => Promise<T>)} dispatchFn - The new state or a function that returns the new state.
+   * @param {Object} payload - The payload containing client and state information.
+   * @param {string} payload.clientId - The client ID.
+   * @param {AgentName} payload.agentName - The agent name.
+   * @param {StateName} payload.stateName - The state name.
+   * @returns {Promise<void>}
+   * @throws Will throw an error if the state is not registered in the agent.
+   */
   public setState = async <T extends IStateData = IStateData>(
     dispatchFn: T | ((prevState: T) => Promise<T>),
     payload: {
@@ -40,7 +65,7 @@ export class StateUtils implements TState {
       stateName: StateName;
     }
   ): Promise<void> => {
-    swarm.loggerService.log("StateUtils getState", {
+    swarm.loggerService.log("StateUtils setState", {
       clientId: payload.clientId,
       stateName: payload.stateName,
     });
@@ -69,6 +94,10 @@ export class StateUtils implements TState {
   };
 }
 
+/**
+ * Instance of StateUtils for managing state.
+ * @type {StateUtils}
+ */
 export const State = new StateUtils();
 
 export default State;
