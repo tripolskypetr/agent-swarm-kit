@@ -25,6 +25,9 @@ import StorageConnectionService from "../services/connection/StorageConnectionSe
 import StoragePublicService from "../services/public/StoragePublicService";
 import StorageValidationService from "../services/validation/StorageValidationService";
 import EmbeddingValidationService from "../services/validation/EmbeddingValidationService";
+import StateSchemaService from "../services/schema/StateSchemaService";
+import StateConnectionService from "../services/connection/StateConnectionService";
+import StatePublicService from "../services/public/StatePublicService";
 
 {
     provide(TYPES.loggerService, () => new LoggerService());
@@ -37,6 +40,7 @@ import EmbeddingValidationService from "../services/validation/EmbeddingValidati
     provide(TYPES.swarmConnectionService, () => new SwarmConnectionService());
     provide(TYPES.sessionConnectionService, () => new SessionConnectionService());
     provide(TYPES.storageConnectionService, () => new StorageConnectionService());
+    provide(TYPES.stateConnectionService, () => new StateConnectionService());
 }
 
 {
@@ -46,6 +50,7 @@ import EmbeddingValidationService from "../services/validation/EmbeddingValidati
     provide(TYPES.completionSchemaService, () => new CompletionSchemaService());
     provide(TYPES.embeddingSchemaService, () => new EmbeddingSchemaService());
     provide(TYPES.storageSchemaService, () => new StorageSchemaService());
+    provide(TYPES.stateSchemaService, () => new StateSchemaService());
 }
 
 {
@@ -54,6 +59,7 @@ import EmbeddingValidationService from "../services/validation/EmbeddingValidati
     provide(TYPES.sessionPublicService, () => new SessionPublicService());
     provide(TYPES.swarmPublicService, () => new SwarmPublicService());
     provide(TYPES.storagePublicService, () => new StoragePublicService());
+    provide(TYPES.statePublicService, () => new StatePublicService());
 }
 
 {

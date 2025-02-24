@@ -1,7 +1,6 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
-import { IHistoryAdapter as IHistoryAdapter$1 } from 'src/classes/History';
 
 /**
  * Interface representing an incoming message.
@@ -874,6 +873,34 @@ interface IStorage<T extends IStorageData = IStorageData> {
  */
 type StorageName = string;
 
+type IStateData = any;
+interface IStateMiddleware<T extends IStateData = IStateData> {
+    (state: T, clientId: string, stateName: StateName): Promise<T>;
+}
+interface IStateCallbacks<T extends IStateData = IStateData> {
+    onInit: (clientId: string, stateName: StateName) => void;
+    onDispose: (clientId: string, stateName: StateName) => void;
+    onLoad: (state: T, clientId: string, stateName: StateName) => void;
+    onRead: (state: T, clientId: string, stateName: StateName) => void;
+    onWrite: (state: T, clientId: string, stateName: StateName) => void;
+}
+interface IStateSchema<T extends IStateData = IStateData> {
+    stateName: StateName;
+    getState: (clientId: string, stateName: StateName) => T | Promise<T>;
+    setState?: (state: T, clientId: string, stateName: StateName) => Promise<void> | void;
+    middlewares?: IStateMiddleware<T>[];
+    callbacks?: Partial<IStateCallbacks<T>>;
+}
+interface IStateParams<T extends IStateData = IStateData> extends IStateSchema<T> {
+    clientId: string;
+    logger: ILogger;
+}
+interface IState<T extends IStateData = IStateData> {
+    getState: () => Promise<T>;
+    setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
+}
+type StateName = string;
+
 /**
  * Interface representing lifecycle callbacks of a tool
  * @template T - The type of the parameters for the tool.
@@ -1069,6 +1096,8 @@ interface IAgentSchema {
     tools?: ToolName[];
     /** The names of the storages used by the agent. */
     storages?: StorageName[];
+    /** The names of the states used by the agent. */
+    states?: StateName[];
     /**
      * Validates the output.
      * @param output - The output to validate.
@@ -1141,6 +1170,7 @@ interface IContext {
     agentName: AgentName;
     swarmName: SwarmName;
     storageName: StorageName;
+    stateName: StateName;
 }
 /**
  * Service providing context information.
@@ -1706,11 +1736,11 @@ declare class SessionConnectionService implements ISession {
 
 interface IAgentConnectionService extends AgentConnectionService {
 }
-type InternalKeys$4 = keyof {
+type InternalKeys$5 = keyof {
     getAgent: never;
 };
 type TAgentConnectionService = {
-    [key in Exclude<keyof IAgentConnectionService, InternalKeys$4>]: unknown;
+    [key in Exclude<keyof IAgentConnectionService, InternalKeys$5>]: unknown;
 };
 /**
  * Service for managing public agent operations.
@@ -1790,12 +1820,12 @@ declare class AgentPublicService implements TAgentConnectionService {
 
 interface IHistoryConnectionService extends HistoryConnectionService {
 }
-type InternalKeys$3 = keyof {
+type InternalKeys$4 = keyof {
     getHistory: never;
     getItems: never;
 };
 type THistoryConnectionService = {
-    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$3>]: unknown;
+    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$4>]: unknown;
 };
 /**
  * Service for handling public history operations.
@@ -1837,11 +1867,11 @@ declare class HistoryPublicService implements THistoryConnectionService {
 
 interface ISessionConnectionService extends SessionConnectionService {
 }
-type InternalKeys$2 = keyof {
+type InternalKeys$3 = keyof {
     getSession: never;
 };
 type TSessionConnectionService = {
-    [key in Exclude<keyof ISessionConnectionService, InternalKeys$2>]: unknown;
+    [key in Exclude<keyof ISessionConnectionService, InternalKeys$3>]: unknown;
 };
 /**
  * Service for managing public session interactions.
@@ -1916,11 +1946,11 @@ declare class SessionPublicService implements TSessionConnectionService {
 
 interface ISwarmConnectionService extends SwarmConnectionService {
 }
-type InternalKeys$1 = keyof {
+type InternalKeys$2 = keyof {
     getSwarm: never;
 };
 type TSwarmConnectionService = {
-    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$1>]: unknown;
+    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$2>]: unknown;
 };
 /**
  * Service for managing public swarm interactions.
@@ -1992,6 +2022,13 @@ declare class AgentValidationService {
      */
     getStorageList: (agentName: string) => string[];
     /**
+     * Retrieves the states used by the agent
+     * @param {agentName} agentName - The name of the swarm.
+     * @returns {string[]} The list of state names.
+     * @throws Will throw an error if the swarm is not found.
+     */
+    getStateList: (agentName: string) => string[];
+    /**
      * Adds a new agent to the validation service.
      * @param {AgentName} agentName - The name of the agent.
      * @param {IAgentSchema} agentSchema - The schema of the agent.
@@ -2002,6 +2039,10 @@ declare class AgentValidationService {
      * Check if agent got registered storage
      */
     hasStorage: ((agentName: AgentName, storageName: StorageName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
+    /**
+     * Check if agent got registered state
+     */
+    hasState: ((agentName: AgentName, stateName: StateName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
      * Validates an agent by its name and source.
      * @param {AgentName} agentName - The name of the agent.
@@ -2041,6 +2082,7 @@ declare class SessionValidationService {
     private _storageSwarmMap;
     private _historySwarmMap;
     private _agentSwarmMap;
+    private _stateSwarmMap;
     private _sessionSwarmMap;
     private _sessionModeMap;
     /**
@@ -2070,6 +2112,12 @@ declare class SessionValidationService {
      */
     addStorageUsage: (sessionId: SessionId, storageName: StorageName) => void;
     /**
+     * Adds a state usage to a session.
+     * @param {SessionId} sessionId - The ID of the session.
+     * @param {StateName} stateName - The name of the state.
+     */
+    addStateUsage: (sessionId: SessionId, stateName: StateName) => void;
+    /**
      * Removes an agent usage from a session.
      * @param {SessionId} sessionId - The ID of the session.
      * @param {AgentName} agentName - The name of the agent.
@@ -2084,12 +2132,19 @@ declare class SessionValidationService {
      */
     removeHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
     /**
-    * Removes a storage usage from a session.
-    * @param {SessionId} sessionId - The ID of the session.
-    * @param {StorageName} storageName - The name of the storage.
-    * @throws Will throw an error if no storages are found for the session.
-    */
+     * Removes a storage usage from a session.
+     * @param {SessionId} sessionId - The ID of the session.
+     * @param {StorageName} storageName - The name of the storage.
+     * @throws Will throw an error if no storages are found for the session.
+     */
     removeStorageUsage: (sessionId: SessionId, storageName: StorageName) => void;
+    /**
+     * Removes a state usage from a session.
+     * @param {SessionId} sessionId - The ID of the session.
+     * @param {StateName} stateName - The name of the state.
+     * @throws Will throw an error if no states are found for the session.
+     */
+    removeStateUsage: (sessionId: SessionId, stateName: StateName) => void;
     /**
      * Gets the mode of a session.
      * @param {SessionId} clientId - The ID of the client.
@@ -2362,12 +2417,12 @@ declare class StorageConnectionService implements IStorage {
 
 interface IStorageConnectionService extends StorageConnectionService {
 }
-type InternalKeys = keyof {
+type InternalKeys$1 = keyof {
     getStorage: never;
     getSharedStorage: never;
 };
 type TStorageConnectionService = {
-    [key in Exclude<keyof IStorageConnectionService, InternalKeys>]: unknown;
+    [key in Exclude<keyof IStorageConnectionService, InternalKeys$1>]: unknown;
 };
 /**
  * Service for managing public storage interactions.
@@ -2465,6 +2520,65 @@ declare class EmbeddingValidationService {
     validate: (embeddingName: EmbeddingName, source: string) => void;
 }
 
+type DispatchFn<State extends IStateData = IStateData> = (prevState: State) => Promise<State>;
+declare class ClientState<State extends IStateData = IStateData> implements IState<State> {
+    readonly params: IStateParams<State>;
+    private _state;
+    private dispatch;
+    constructor(params: IStateParams<State>);
+    waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    setState: (dispatchFn: DispatchFn<State>) => Promise<State>;
+    getState: () => Promise<State>;
+    dispose: () => Promise<void>;
+}
+
+declare class StateConnectionService<T extends IStateData = IStateData> implements IState<T> {
+    private readonly loggerService;
+    private readonly contextService;
+    private readonly stateSchemaService;
+    private readonly sessionValidationService;
+    getStateRef: ((clientId: string, stateName: StateName) => ClientState<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientState<any>>;
+    setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
+    getState: () => Promise<T>;
+    dispose: () => Promise<void>;
+}
+
+interface IStateConnectionService extends StateConnectionService {
+}
+type InternalKeys = keyof {
+    getStateRef: never;
+};
+type TStateConnectionService = {
+    [key in Exclude<keyof IStateConnectionService, InternalKeys>]: unknown;
+};
+declare class StatePublicService<T extends IStateData = IStateData> implements TStateConnectionService {
+    private readonly loggerService;
+    private readonly stateConnectionService;
+    setState: (dispatchFn: (prevState: T) => Promise<T>, clientId: string, stateName: StateName) => Promise<T>;
+    getState: (clientId: string, stateName: StateName) => Promise<T>;
+    dispose: (clientId: string, stateName: StateName) => Promise<void>;
+}
+
+/**
+ * Service for managing state schemas.
+ */
+declare class StateSchemaService {
+    readonly loggerService: LoggerService;
+    private registry;
+    /**
+     * Registers a new state schema.
+     * @param {StateName} key - The key for the schema.
+     * @param {IStateSchema} value - The schema to register.
+     */
+    register: (key: StateName, value: IStateSchema) => void;
+    /**
+     * Retrieves a state schema by key.
+     * @param {StateName} key - The key of the schema to retrieve.
+     * @returns {IStateSchema} The retrieved schema.
+     */
+    get: (key: StateName) => IStateSchema;
+}
+
 declare const swarm: {
     agentValidationService: AgentValidationService;
     toolValidationService: ToolValidationService;
@@ -2478,17 +2592,20 @@ declare const swarm: {
     sessionPublicService: SessionPublicService;
     swarmPublicService: SwarmPublicService;
     storagePublicService: StoragePublicService;
+    statePublicService: StatePublicService<any>;
     agentSchemaService: AgentSchemaService;
     toolSchemaService: ToolSchemaService;
     swarmSchemaService: SwarmSchemaService;
     completionSchemaService: CompletionSchemaService;
     embeddingSchemaService: EmbeddingSchemaService;
     storageSchemaService: StorageSchemaService;
+    stateSchemaService: StateSchemaService;
     agentConnectionService: AgentConnectionService;
     historyConnectionService: HistoryConnectionService;
     swarmConnectionService: SwarmConnectionService;
     sessionConnectionService: SessionConnectionService;
     storageConnectionService: StorageConnectionService;
+    stateConnectionService: StateConnectionService<any>;
     loggerService: LoggerService;
     contextService: {
         readonly context: IContext;
@@ -2528,6 +2645,14 @@ declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
  * @returns {string} The name of the tool that was added.
  */
 declare const addTool: (toolSchema: IAgentTool) => string;
+
+/**
+ * Adds a new state to the state registry. The swarm takes only those states which was registered
+ *
+ * @param {IStateSchema} stateSchema - The schema of the state to be added.
+ * @returns {string} The name of the added state.
+ */
+declare const addState: (stateSchema: IStateSchema) => string;
 
 /**
  * Adds a new embedding to the embedding registry. The swarm takes only those embeddings which was registered
@@ -2900,7 +3025,7 @@ declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
     CC_KEEP_MESSAGES: number;
-    CC_GET_AGENT_HISTORY_ADAPTER: (clientId: string, agentName: AgentName) => IHistoryAdapter$1;
+    CC_GET_AGENT_HISTORY_ADAPTER: (clientId: string, agentName: AgentName) => IHistoryAdapter;
     CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
     CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
     CC_AGENT_DEFAULT_VALIDATION: (output: string) => Promise<string | null>;
@@ -3011,4 +3136,21 @@ declare class StorageUtils implements TStorage {
 }
 declare const Storage: StorageUtils;
 
-export { ContextService, History, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, Storage, HistoryAdapter as _HistoryAdapter, HistoryInstance as _HistoryInstance, addAgent, addCompletion, addEmbedding, addStorage, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };
+type TState = {
+    [key in keyof IState]: unknown;
+};
+declare class StateUtils implements TState {
+    getState: <T extends unknown = any>(payload: {
+        clientId: string;
+        agentName: AgentName;
+        stateName: StateName;
+    }) => Promise<T>;
+    setState: <T extends unknown = any>(dispatchFn: T | ((prevState: T) => Promise<T>), payload: {
+        clientId: string;
+        agentName: AgentName;
+        stateName: StateName;
+    }) => Promise<void>;
+}
+declare const State: StateUtils;
+
+export { ContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };

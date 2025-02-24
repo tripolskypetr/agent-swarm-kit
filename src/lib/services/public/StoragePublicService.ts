@@ -57,6 +57,7 @@ export class StoragePublicService implements TStorageConnectionService {
         storageName,
         agentName: "",
         swarmName: "",
+        stateName: "",
       }
     );
   };
@@ -85,6 +86,7 @@ export class StoragePublicService implements TStorageConnectionService {
         storageName,
         agentName: "",
         swarmName: "",
+        stateName: "",
       }
     );
   };
@@ -113,6 +115,7 @@ export class StoragePublicService implements TStorageConnectionService {
         storageName,
         agentName: "",
         swarmName: "",
+        stateName: "",
       }
     );
   };
@@ -141,6 +144,7 @@ export class StoragePublicService implements TStorageConnectionService {
         storageName,
         agentName: "",
         swarmName: "",
+        stateName: "",
       }
     );
   };
@@ -168,6 +172,7 @@ export class StoragePublicService implements TStorageConnectionService {
         storageName,
         agentName: "",
         swarmName: "",
+        stateName: "",
       }
     );
   };
@@ -193,6 +198,7 @@ export class StoragePublicService implements TStorageConnectionService {
         storageName,
         agentName: "",
         swarmName: "",
+        stateName: "",
       }
     );
   };
@@ -217,6 +223,7 @@ export class StoragePublicService implements TStorageConnectionService {
         storageName,
         agentName: "",
         swarmName: "",
+        stateName: "",
       }
     );
   };

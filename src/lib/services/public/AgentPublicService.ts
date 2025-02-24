@@ -45,6 +45,7 @@ export class AgentPublicService implements TAgentConnectionService {
         agentName,
         swarmName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -77,6 +78,7 @@ export class AgentPublicService implements TAgentConnectionService {
         agentName,
         swarmName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -101,6 +103,7 @@ export class AgentPublicService implements TAgentConnectionService {
         agentName,
         swarmName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -134,6 +137,7 @@ export class AgentPublicService implements TAgentConnectionService {
         agentName,
         swarmName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -164,6 +168,7 @@ export class AgentPublicService implements TAgentConnectionService {
         agentName,
         swarmName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -194,6 +199,7 @@ export class AgentPublicService implements TAgentConnectionService {
         agentName,
         swarmName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -221,6 +227,7 @@ export class AgentPublicService implements TAgentConnectionService {
         agentName,
         swarmName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -248,6 +255,7 @@ export class AgentPublicService implements TAgentConnectionService {
         agentName,
         swarmName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -272,6 +280,7 @@ export class AgentPublicService implements TAgentConnectionService {
         agentName,
         swarmName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };

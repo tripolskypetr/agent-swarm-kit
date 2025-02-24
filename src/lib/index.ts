@@ -28,6 +28,9 @@ import StorageConnectionService from "./services/connection/StorageConnectionSer
 import StoragePublicService from "./services/public/StoragePublicService";
 import StorageValidationService from "./services/validation/StorageValidationService";
 import EmbeddingValidationService from "./services/validation/EmbeddingValidationService";
+import StatePublicService from "./services/public/StatePublicService";
+import StateSchemaService from "./services/schema/StateSchemaService";
+import StateConnectionService from "./services/connection/StateConnectionService";
 
 const baseServices = {
   loggerService: inject<LoggerService>(TYPES.loggerService),
@@ -50,6 +53,9 @@ const connectionServices = {
   storageConnectionService: inject<StorageConnectionService>(
     TYPES.storageConnectionService
   ),
+  stateConnectionService: inject<StateConnectionService>(
+    TYPES.stateConnectionService
+  ),
 };
 
 const schemaServices = {
@@ -61,6 +67,7 @@ const schemaServices = {
   ),
   embeddingSchemaService: inject<EmbeddingSchemaService>(TYPES.embeddingSchemaService),
   storageSchemaService: inject<StorageSchemaService>(TYPES.storageSchemaService),
+  stateSchemaService: inject<StateSchemaService>(TYPES.stateSchemaService),
 };
 
 const publicServices = {
@@ -73,6 +80,7 @@ const publicServices = {
   ),
   swarmPublicService: inject<SwarmPublicService>(TYPES.swarmPublicService),
   storagePublicService: inject<StoragePublicService>(TYPES.storagePublicService),
+  statePublicService: inject<StatePublicService>(TYPES.statePublicService),
 };
 
 const validationServices = {

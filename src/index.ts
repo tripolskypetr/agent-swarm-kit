@@ -4,6 +4,7 @@ export * from "./functions/addAgent";
 export * from "./functions/addCompletion";
 export * from "./functions/addSwarm";
 export * from "./functions/addTool";
+export * from './functions/addState';
 export * from "./functions/addEmbeding";
 export * from "./functions/addStorage";
 export * from "./functions/makeConnection";
@@ -44,6 +45,7 @@ export { IAgentTool } from "./interfaces/Agent.interface";
 
 export { IEmbeddingSchema } from "./interfaces/Embedding.interface";
 export { IStorageSchema } from "./interfaces/Storage.interface";
+export { IStateSchema } from "./interfaces/State.interface";
 
 export { IModelMessage } from "./model/ModelMessage.model";
 export { IIncomingMessage, IOutgoingMessage } from "./model/EmitMessage.model";
@@ -57,11 +59,14 @@ export {
 export { setConfig } from "./config/params";
 
 export { Storage } from "./classes/Storage";
+
 export {
   History,
-  HistoryAdapter as _HistoryAdapter,
-  HistoryInstance as _HistoryInstance,
+  HistoryAdapter,
+  HistoryInstance,
   IHistoryAdapter,
   IHistoryInstance,
   IHistoryInstanceCallbacks,
 } from "./classes/History";
+
+export { State } from './classes/State';

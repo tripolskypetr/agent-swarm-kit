@@ -60,12 +60,18 @@ export class AgentConnectionService implements IAgent {
         map = GLOBAL_CONFIG.CC_AGENT_OUTPUT_MAP,
         callbacks,
         storages,
+        states,
         completion: completionName,
         validate = validateDefault,
       } = this.agentSchemaService.get(agentName);
       const completion = this.completionSchemaService.get(completionName);
       this.sessionValidationService.addAgentUsage(clientId, agentName);
       storages?.forEach((storageName) =>
+        this.storageConnectionService
+          .getStorage(clientId, storageName)
+          .waitForInit()
+      );
+      states?.forEach((storageName) =>
         this.storageConnectionService
           .getStorage(clientId, storageName)
           .waitForInit()

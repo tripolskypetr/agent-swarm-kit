@@ -8,6 +8,7 @@ import {
 import { ExecutionMode } from "./Session.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
 import { StorageName } from "./Storage.interface";
+import { StateName } from "./State.interface";
 
 /**
  * Interface representing lifecycle callbacks of a tool
@@ -260,6 +261,8 @@ export interface IAgentSchema {
   tools?: ToolName[];
   /** The names of the storages used by the agent. */
   storages?: StorageName[];
+  /** The names of the states used by the agent. */
+  states?: StateName[];
   /**
    * Validates the output.
    * @param output - The output to validate.

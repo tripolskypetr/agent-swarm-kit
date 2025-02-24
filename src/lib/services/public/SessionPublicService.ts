@@ -55,6 +55,7 @@ export class SessionPublicService implements TSessionConnectionService {
         swarmName,
         agentName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -87,6 +88,7 @@ export class SessionPublicService implements TSessionConnectionService {
         swarmName,
         agentName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -120,6 +122,7 @@ export class SessionPublicService implements TSessionConnectionService {
                 swarmName,
                 agentName: "",
                 storageName: "",
+                stateName: "",
               }
             );
           }
@@ -134,6 +137,7 @@ export class SessionPublicService implements TSessionConnectionService {
               swarmName,
               agentName: "",
               storageName: "",
+              stateName: "",
             }
           );
         };
@@ -143,6 +147,7 @@ export class SessionPublicService implements TSessionConnectionService {
         swarmName,
         agentName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -176,6 +181,7 @@ export class SessionPublicService implements TSessionConnectionService {
         swarmName,
         agentName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -206,6 +212,7 @@ export class SessionPublicService implements TSessionConnectionService {
         swarmName,
         agentName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -236,6 +243,7 @@ export class SessionPublicService implements TSessionConnectionService {
         swarmName,
         agentName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -263,6 +271,7 @@ export class SessionPublicService implements TSessionConnectionService {
         swarmName,
         agentName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };
@@ -287,6 +296,7 @@ export class SessionPublicService implements TSessionConnectionService {
         swarmName,
         agentName: "",
         storageName: "",
+        stateName: "",
       }
     );
   };

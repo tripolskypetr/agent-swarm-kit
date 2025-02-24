@@ -35,8 +35,20 @@ export const disposeConnection = async (
       .flatMap((agentName) =>
         swarm.agentValidationService.getStorageList(agentName)
       )
+      .filter(storageName => !!storageName)
       .map(async (storageName) => {
         await swarm.storagePublicService.dispose(clientId, storageName);
+      }),
+  ]);
+  await Promise.all([
+    swarm.swarmValidationService
+      .getAgentList(swarmName)
+      .flatMap((agentName) =>
+        swarm.agentValidationService.getStateList(agentName)
+      )
+      .filter((stateName) => !!stateName)
+      .map(async (stateName) => {
+        await swarm.statePublicService.dispose(clientId, stateName);
       }),
   ]);
   await History.dispose(clientId, null);

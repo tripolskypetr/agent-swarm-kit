@@ -11,6 +11,7 @@ import CompletionValidationService from "./CompletionValidationService";
 import { memoize } from "functools-kit";
 import StorageValidationService from "./StorageValidationService";
 import { StorageName } from "../../../interfaces/Storage.interface";
+import { StateName } from "../../../interfaces/State.interface";
 
 /**
  * Service for validating agents within the agent swarm.
@@ -37,9 +38,26 @@ export class AgentValidationService {
    */
   public getStorageList = (agentName: string) => {
     if (!this._agentMap.has(agentName)) {
-      throw new Error(`agent-swarm agent ${agentName} not exist (getStorageList)`);
+      throw new Error(
+        `agent-swarm agent ${agentName} not exist (getStorageList)`
+      );
     }
     return this._agentMap.get(agentName).storages;
+  };
+
+  /**
+   * Retrieves the states used by the agent
+   * @param {agentName} agentName - The name of the swarm.
+   * @returns {string[]} The list of state names.
+   * @throws Will throw an error if the swarm is not found.
+   */
+  public getStateList = (agentName: string) => {
+    if (!this._agentMap.has(agentName)) {
+      throw new Error(
+        `agent-swarm agent ${agentName} not exist (getStateList)`
+      );
+    }
+    return this._agentMap.get(agentName).states;
   };
 
   /**
@@ -70,10 +88,32 @@ export class AgentValidationService {
         storageName,
       });
       if (!this._agentMap.has(agentName)) {
-        throw new Error(`agent-swarm agent ${agentName} not exist (hasStorage)`);
+        throw new Error(
+          `agent-swarm agent ${agentName} not exist (hasStorage)`
+        );
       }
       const { storages = [] } = this._agentMap.get(agentName);
       return storages.includes(storageName);
+    }
+  );
+
+  /**
+   * Check if agent got registered state
+   */
+  public hasState = memoize(
+    ([agentName, stateName]) => `${agentName}-${stateName}`,
+    (agentName: AgentName, stateName: StateName) => {
+      this.loggerService.log("agentValidationService hasState", {
+        agentName,
+        stateName,
+      });
+      if (!this._agentMap.has(agentName)) {
+        throw new Error(
+          `agent-swarm agent ${agentName} not exist (hasState)`
+        );
+      }
+      const { states = [] } = this._agentMap.get(agentName);
+      return states.includes(stateName);
     }
   );
 

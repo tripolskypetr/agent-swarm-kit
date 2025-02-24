@@ -2,6 +2,7 @@ import { scoped } from "di-scoped";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
 import { StorageName } from "../../../interfaces/Storage.interface";
+import { StateName } from "../../../interfaces/State.interface";
 
 /**
  * Interface representing the context.
@@ -11,6 +12,7 @@ export interface IContext {
   agentName: AgentName;
   swarmName: SwarmName;
   storageName: StorageName;
+  stateName: StateName;
 }
 
 /**

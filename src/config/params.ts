@@ -4,7 +4,7 @@ import { IModelMessage } from "../model/ModelMessage.model";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import validateDefault from "../validation/validateDefault";
 import removeXmlTags from "../utils/removeXmlTags";
-import { HistoryAdapter, IHistoryAdapter } from "src/classes/History";
+import { HistoryAdapter, IHistoryAdapter } from "../classes/History";
 
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
