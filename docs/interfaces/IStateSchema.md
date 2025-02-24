@@ -4,6 +4,14 @@ Schema for state management.
 
 ## Properties
 
+### shared
+
+```ts
+shared: boolean
+```
+
+The agents can share the state
+
 ### stateName
 
 ```ts

@@ -36,6 +36,14 @@ stateSchemaService: any
 sessionValidationService: any
 ```
 
+### getSharedStateRef
+
+```ts
+getSharedStateRef: ((clientId: string, stateName: string) => ClientState<any>) & IClearableMemoize<string> & IControlMemoize<string, ClientState<any>>
+```
+
+Memoized function to get a shared state reference.
+
 ### getStateRef
 
 ```ts

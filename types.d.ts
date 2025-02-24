@@ -842,6 +842,18 @@ interface IStorageCallbacks<T extends IStorageData = IStorageData> {
      * @param storageName - The name of the storage.
      */
     onSearch: (search: string, index: SortedArray<T>, clientId: string, storageName: StorageName) => void;
+    /**
+     * Callback function for init
+     * @param clientId - The client ID.
+     * @param storageName - The name of the storage.
+     */
+    onInit: (clientId: string, storageName: StorageName) => void;
+    /**
+     * Callback function for dispose
+     * @param clientId - The client ID.
+     * @param storageName - The name of the storage.
+     */
+    onDispose: (clientId: string, storageName: StorageName) => void;
 }
 /**
  * Interface representing the parameters for storage.
@@ -973,6 +985,10 @@ interface IStateCallbacks<T extends IStateData = IStateData> {
  * @template T - The type of the state data.
  */
 interface IStateSchema<T extends IStateData = IStateData> {
+    /**
+     * The agents can share the state
+     */
+    shared?: boolean;
     /**
      * The name of the state.
      */
@@ -2482,6 +2498,11 @@ declare class ClientStorage<T extends IStorageData = IStorageData> implements IS
      * @returns {Promise<T[]>} - The list of items.
      */
     list: (filter?: (item: T) => boolean) => Promise<T[]>;
+    /**
+     * Disposes of the state.
+     * @returns {Promise<void>}
+     */
+    dispose: () => Promise<void>;
 }
 
 /**
@@ -2705,6 +2726,13 @@ declare class StateConnectionService<T extends IStateData = IStateData> implemen
     private readonly stateSchemaService;
     private readonly sessionValidationService;
     /**
+     * Memoized function to get a shared state reference.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The state name.
+     * @returns {ClientState} The client state.
+     */
+    getSharedStateRef: ((clientId: string, stateName: StateName) => ClientState<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientState<any>>;
+    /**
      * Memoized function to get a state reference.
      * @param {string} clientId - The client ID.
      * @param {StateName} stateName - The state name.
@@ -2733,6 +2761,7 @@ interface IStateConnectionService extends StateConnectionService {
 }
 type InternalKeys = keyof {
     getStateRef: never;
+    getSharedStateRef: never;
 };
 type TStateConnectionService = {
     [key in Exclude<keyof IStateConnectionService, InternalKeys>]: unknown;

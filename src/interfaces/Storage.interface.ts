@@ -20,7 +20,6 @@ export interface IStorageData {
  * @template T - Type of the storage data.
  */
 export interface IStorageSchema<T extends IStorageData = IStorageData> {
-
   /**
    * All agents will share the same ClientStorage instance
    */
@@ -83,6 +82,20 @@ export interface IStorageCallbacks<T extends IStorageData = IStorageData> {
     clientId: string,
     storageName: StorageName
   ) => void;
+
+  /**
+   * Callback function for init
+   * @param clientId - The client ID.
+   * @param storageName - The name of the storage.
+   */
+  onInit: (clientId: string, storageName: StorageName) => void;
+
+  /**
+   * Callback function for dispose
+   * @param clientId - The client ID.
+   * @param storageName - The name of the storage.
+   */
+  onDispose: (clientId: string, storageName: StorageName) => void;
 }
 
 /**

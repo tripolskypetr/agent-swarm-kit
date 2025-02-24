@@ -19,3 +19,19 @@ onSearch: (search: string, index: SortedArray<T>, clientId: string, storageName:
 ```
 
 Callback function for search events.
+
+### onInit
+
+```ts
+onInit: (clientId: string, storageName: string) => void
+```
+
+Callback function for init
+
+### onDispose
+
+```ts
+onDispose: (clientId: string, storageName: string) => void
+```
+
+Callback function for dispose

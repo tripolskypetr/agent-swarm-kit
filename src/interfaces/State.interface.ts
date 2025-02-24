@@ -63,6 +63,12 @@ export interface IStateCallbacks<T extends IStateData = IStateData> {
  * @template T - The type of the state data.
  */
 export interface IStateSchema<T extends IStateData = IStateData> {
+
+  /**
+   * The agents can share the state
+   */
+  shared?: boolean;
+
   /**
    * The name of the state.
    */

@@ -87,3 +87,11 @@ list: (filter?: (item: T) => boolean) => Promise<T[]>
 ```
 
 Lists all items in the storage, optionally filtered by a predicate.
+
+### dispose
+
+```ts
+dispose: () => Promise<void>
+```
+
+Disposes of the state.

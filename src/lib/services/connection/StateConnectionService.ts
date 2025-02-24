@@ -34,6 +34,42 @@ export class StateConnectionService<T extends IStateData = IStateData>
   );
 
   /**
+   * Memoized function to get a shared state reference.
+   * @param {string} clientId - The client ID.
+   * @param {StateName} stateName - The state name.
+   * @returns {ClientState} The client state.
+   */
+  public getSharedStateRef = memoize(
+    ([, stateName]) => `${stateName}`,
+    (clientId: string, stateName: StateName) => {
+      this.sessionValidationService.addStateUsage(clientId, stateName);
+      const {
+        getState,
+        setState,
+        middlewares = [],
+        shared,
+        callbacks,
+      } = this.stateSchemaService.get(stateName);
+      if (!shared) {
+        throw new Error(`agent-swarm state not shared stateName=${stateName}`)
+      }
+      return new ClientState({
+        clientId,
+        stateName,
+        logger: this.loggerService,
+        setState: setState
+          ? (queued(
+              async (...args) => await setState(...args)
+            ) as typeof setState)
+          : setState,
+        getState,
+        middlewares,
+        callbacks,
+      });
+    }
+  );
+
+  /**
    * Memoized function to get a state reference.
    * @param {string} clientId - The client ID.
    * @param {StateName} stateName - The state name.
@@ -48,15 +84,19 @@ export class StateConnectionService<T extends IStateData = IStateData>
         setState,
         middlewares = [],
         callbacks,
+        shared = false,
       } = this.stateSchemaService.get(stateName);
+      if (shared) {
+        return this.getSharedStateRef(clientId, stateName);
+      }
       return new ClientState({
         clientId,
         stateName,
         logger: this.loggerService,
         setState: setState
-          ? queued(
+          ? (queued(
               async (...args) => await setState(...args)
-            ) as typeof setState
+            ) as typeof setState)
           : setState,
         getState,
         middlewares,
@@ -112,12 +152,14 @@ export class StateConnectionService<T extends IStateData = IStateData>
     if (!this.getStateRef.has(key)) {
       return;
     }
-    const state = this.getStateRef(
-      this.contextService.context.clientId,
-      this.contextService.context.stateName
-    );
-    await state.waitForInit();
-    await state.dispose();
+    if (!this.getSharedStateRef.has(this.contextService.context.stateName)) {
+      const state = this.getStateRef(
+        this.contextService.context.clientId,
+        this.contextService.context.stateName
+      );
+      await state.waitForInit();
+      await state.dispose();
+    }
     this.getStateRef.clear(key);
     this.sessionValidationService.removeStateUsage(
       this.contextService.context.clientId,

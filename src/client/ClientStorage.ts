@@ -26,6 +26,9 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         params,
       }
     );
+    if (this.params.callbacks?.onInit) {
+      this.params.callbacks.onInit(this.params.clientId, this.params.storageName);
+    }
   }
 
   /**
@@ -248,6 +251,22 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       }
     }
     return result;
+  };
+
+  /**
+   * Disposes of the state.
+   * @returns {Promise<void>}
+   */
+  public dispose = async () => {
+    this.params.logger.debug(
+      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} dispose`
+    );
+    if (this.params.callbacks?.onDispose) {
+      this.params.callbacks.onDispose(
+        this.params.clientId,
+        this.params.storageName
+      );
+    }
   };
 }
 

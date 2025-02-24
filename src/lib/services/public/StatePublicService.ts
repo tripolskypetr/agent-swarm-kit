@@ -12,6 +12,7 @@ interface IStateConnectionService extends StateConnectionService {}
 
 type InternalKeys = keyof {
   getStateRef: never;
+  getSharedStateRef: never;
 };
 
 type TStateConnectionService = {

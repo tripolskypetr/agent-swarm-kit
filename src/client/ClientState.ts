@@ -42,6 +42,12 @@ export class ClientState<State extends IStateData = IStateData>
    * @param {IStateParams<State>} params - The state parameters.
    */
   constructor(readonly params: IStateParams<State>) {
+    this.params.logger.debug(
+      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} CTOR`,
+      {
+        params,
+      }
+    );
     if (this.params.callbacks?.onInit) {
       this.params.callbacks.onInit(this.params.clientId, this.params.stateName);
     }
@@ -53,14 +59,14 @@ export class ClientState<State extends IStateData = IStateData>
    */
   public waitForInit = singleshot(async () => {
     this.params.logger.debug(
-      `ClientStorage stateName=${this.params.stateName} clientId=${this.params.clientId} waitForInit`
+      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} waitForInit`
     );
     this._state = await this.params.getState(
       this.params.clientId,
       this.params.stateName
     );
     this.params.logger.debug(
-      `ClientStorage stateName=${this.params.stateName} clientId=${this.params.clientId} waitForInit output`,
+      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} waitForInit output`,
       { initialState: this._state }
     );
     if (this.params.callbacks?.onLoad) {
@@ -79,7 +85,7 @@ export class ClientState<State extends IStateData = IStateData>
    */
   public setState = async (dispatchFn: DispatchFn<State>) => {
     this.params.logger.debug(
-      `ClientStorage stateName=${this.params.stateName} clientId=${this.params.clientId} setState`
+      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} setState`
     );
     await this.dispatch(
       "write",
@@ -95,7 +101,7 @@ export class ClientState<State extends IStateData = IStateData>
       }
     );
     this.params.logger.debug(
-      `ClientStorage stateName=${this.params.stateName} clientId=${this.params.clientId} setState output`,
+      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} setState output`,
       { pendingState: this._state }
     );
     this.params.setState &&
@@ -120,7 +126,7 @@ export class ClientState<State extends IStateData = IStateData>
    */
   public getState = async () => {
     this.params.logger.debug(
-      `ClientStorage stateName=${this.params.stateName} clientId=${this.params.clientId} getState`
+      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} getState`
     );
     await this.dispatch("read");
     if (this.params.callbacks?.onRead) {
@@ -139,7 +145,7 @@ export class ClientState<State extends IStateData = IStateData>
    */
   public dispose = async () => {
     this.params.logger.debug(
-      `ClientStorage stateName=${this.params.stateName} clientId=${this.params.clientId} dispose`
+      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} dispose`
     );
     if (this.params.callbacks?.onDispose) {
       this.params.callbacks.onDispose(

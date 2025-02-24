@@ -244,6 +244,14 @@ export class StorageConnectionService implements IStorage {
     if (!this.getStorage.has(key)) {
       return;
     }
+    if (!this.getSharedStorage.has(this.contextService.context.storageName)) {
+      const storage = this.getSharedStorage(
+        this.contextService.context.clientId,
+        this.contextService.context.storageName
+      );
+      await storage.waitForInit();
+      await storage.dispose();
+    }
     this.getStorage.clear(key);
     this.sessionValidationService.removeStorageUsage(
       this.contextService.context.clientId,
