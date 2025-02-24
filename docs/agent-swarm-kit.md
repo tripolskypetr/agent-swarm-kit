@@ -92,6 +92,19 @@ When implementing applications using this framework:
 
 This modular and extensible architecture makes the Agent Swarm Kit suitable for a wide range of multi-agent applications, from conversational systems to complex problem-solving networks.
 
+## Extensibility Points
+
+The framework provides several key extensibility points:
+
+ - Custom Agents: Implement specialized agents for specific tasks
+ - Custom Tools: Create new tools to extend agent capabilities
+ - Custom Storage Adapters: Integrate with different storage backends
+ - Custom Embedding Providers: Use different embedding models for semantic search
+ - Custom Completion Providers: Integrate with different language models
+ - Custom History Adapters: Implement alternative history storage mechanisms
+
+These extensibility points allow the framework to adapt to a wide range of use cases and integration requirements.
+
 ## ToolValidationService
 
 The `ToolValidationService` is a service designed for validating tools within an agent-swarm system. It provides a way to add new tools and validate their existence. The service utilizes a loggerService for logging purposes and maintains an internal map of tools, represented by `_toolMap`.
