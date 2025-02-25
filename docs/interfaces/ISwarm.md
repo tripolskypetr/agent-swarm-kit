@@ -4,6 +4,14 @@ Interface for a swarm.
 
 ## Methods
 
+### cancelOutput
+
+```ts
+cancelOutput: () => Promise<void>
+```
+
+Will return empty string in waitForOutput
+
 ### waitForOutput
 
 ```ts

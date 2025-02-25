@@ -22,26 +22,26 @@ export const disposeConnection = async (
   swarm.busService.dispose(clientId);
   await swarm.sessionPublicService.dispose(clientId, swarmName);
   await swarm.swarmPublicService.dispose(clientId, swarmName);
-  await Promise.all([
+  await Promise.all(
     swarm.swarmValidationService
       .getAgentList(swarmName)
       .map(async (agentName) => {
         await swarm.agentPublicService.dispose(clientId, agentName);
         await swarm.historyPublicService.dispose(clientId, agentName);
-      }),
-  ]);
-  await Promise.all([
+      })
+  );
+  await Promise.all(
     swarm.swarmValidationService
       .getAgentList(swarmName)
       .flatMap((agentName) =>
         swarm.agentValidationService.getStorageList(agentName)
       )
-      .filter(storageName => !!storageName)
+      .filter((storageName) => !!storageName)
       .map(async (storageName) => {
         await swarm.storagePublicService.dispose(clientId, storageName);
-      }),
-  ]);
-  await Promise.all([
+      })
+  );
+  await Promise.all(
     swarm.swarmValidationService
       .getAgentList(swarmName)
       .flatMap((agentName) =>
@@ -50,7 +50,7 @@ export const disposeConnection = async (
       .filter((stateName) => !!stateName)
       .map(async (stateName) => {
         await swarm.statePublicService.dispose(clientId, stateName);
-      }),
-  ]);
+      })
+  );
   await History.dispose(clientId, null);
 };

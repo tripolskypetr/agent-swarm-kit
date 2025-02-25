@@ -30,6 +30,20 @@ _agentChangedSubject: any
 _activeAgent: any
 ```
 
+### _cancelOutputSubject
+
+```ts
+_cancelOutputSubject: any
+```
+
+### cancelOutput
+
+```ts
+cancelOutput: () => Promise<void>
+```
+
+Cancel the await of output by emit of empty string
+
 ### waitForOutput
 
 ```ts

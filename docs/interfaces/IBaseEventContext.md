@@ -1,5 +1,7 @@
 # IBaseEventContext
 
+Interface representing the base context for an event.
+
 ## Properties
 
 ### agentName
@@ -8,11 +10,15 @@
 agentName: string
 ```
 
+The name of the agent.
+
 ### swarmName
 
 ```ts
 swarmName: string
 ```
+
+The name of the swarm.
 
 ### storageName
 
@@ -20,8 +26,12 @@ swarmName: string
 storageName: string
 ```
 
+The name of the storage.
+
 ### stateName
 
 ```ts
 stateName: string
 ```
+
+The name of the state.

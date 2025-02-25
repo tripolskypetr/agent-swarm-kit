@@ -1,7 +1,7 @@
 # EventSource
 
 ```ts
-type EventSource = "agent" | "history" | "session" | "state" | "storage" | "swarm";
+type EventSource = string;
 ```
 
-
+Type representing the possible sources of an event.

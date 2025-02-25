@@ -411,35 +411,15 @@ interface IBaseEventContext {
 /**
  * Type representing the possible sources of an event.
  */
-type EventSource = "agent" | "history" | "session" | "state" | "storage" | "swarm" | "custom";
+type EventSource = string;
 /**
  * Interface representing the base structure of an event.
  */
 interface IBaseEvent {
     /**
-     * The type of the event.
-     */
-    type: string;
-    /**
      * The source of the event.
      */
     source: EventSource;
-    /**
-     * The payload of the event, if any.
-     */
-    payload?: unknown;
-    /**
-     * The input data for the event.
-     */
-    input: Record<string, any>;
-    /**
-     * The output data for the event.
-     */
-    output: Record<string, any>;
-    /**
-     * The context of the event.
-     */
-    context: Partial<IBaseEventContext>;
 }
 
 interface IBus {
@@ -525,6 +505,11 @@ interface ISwarmSchema {
  * @interface
  */
 interface ISwarm {
+    /**
+     * Will return empty string in waitForOutput
+     * @returns {Promise<void>}
+     */
+    cancelOutput(): Promise<void>;
     /**
      * Waits for the output from the swarm.
      * @returns {Promise<string>} The output from the swarm.
@@ -1704,6 +1689,7 @@ declare class ClientSwarm implements ISwarm {
     readonly params: ISwarmParams;
     private _agentChangedSubject;
     private _activeAgent;
+    private _cancelOutputSubject;
     get _agentList(): [string, IAgent][];
     /**
      * Creates an instance of ClientSwarm.
@@ -1711,9 +1697,13 @@ declare class ClientSwarm implements ISwarm {
      */
     constructor(params: ISwarmParams);
     /**
+     * Cancel the await of output by emit of empty string
+     * @returns {Promise<string>} - The output from the active agent.
+     */
+    cancelOutput: () => Promise<void>;
+    /**
      * Waits for output from the active agent.
      * @returns {Promise<string>} - The output from the active agent.
-     * @throws {Error} - If the timeout is reached.
      */
     waitForOutput: () => Promise<string>;
     /**
@@ -1757,6 +1747,11 @@ declare class SwarmConnectionService implements ISwarm {
      * @returns {ClientSwarm} The client swarm instance.
      */
     getSwarm: ((clientId: string, swarmName: string) => ClientSwarm) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientSwarm>;
+    /**
+     * Cancel the await of output by emit of empty string
+     * @returns {Promise<void>}
+     */
+    cancelOutput: () => Promise<void>;
     /**
      * Waits for the output from the swarm.
      * @returns {Promise<any>} The output from the swarm.
@@ -2184,6 +2179,13 @@ type TSwarmConnectionService = {
 declare class SwarmPublicService implements TSwarmConnectionService {
     private readonly loggerService;
     private readonly swarmConnectionService;
+    /**
+     * Cancel the await of output by emit of empty string
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
+    cancelOutput: (clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Waits for output from the swarm.
      * @param {string} clientId - The client ID.
@@ -2891,6 +2893,7 @@ declare class StateSchemaService {
 
 declare class BusService implements IBus {
     private readonly loggerService;
+    private _eventSourceSet;
     private getEventSubject;
     /**
      * Subscribes to events for a specific client and source.
@@ -3286,6 +3289,16 @@ declare const emitForce: (content: string, clientId: string) => Promise<void>;
 declare const executeForce: (content: string, clientId: string) => Promise<string>;
 
 /**
+ * Listens for an event on the swarm bus service and executes a callback function when the event is received.
+ *
+ * @template T - The type of the data payload.
+ * @param {string} clientId - The ID of the client to listen for events from.
+ * @param {(data: T) => void} fn - The callback function to execute when the event is received. The data payload is passed as an argument to this function.
+ * @returns {void} - Returns nothing.
+ */
+declare const listenEvent: <T extends unknown = any>(clientId: string, topicName: string, fn: (data: T) => void) => () => void;
+
+/**
  * Retrieves the last message sent by the user from the client's message history.
  *
  * @param {string} clientId - The ID of the client whose message history is being retrieved.
@@ -3367,13 +3380,41 @@ declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeou
 };
 
 /**
+ * Emits an event to the swarm bus service.
+ *
+ * @template T - The type of the payload.
+ * @param {string} clientId - The ID of the client emitting the event.
+ * @param {T} payload - The payload of the event.
+ * @returns {boolean} - Returns true if the event was successfully emitted.
+ */
+declare const event: <T extends unknown = any>(clientId: string, topicName: string, payload: T) => Promise<void>;
+
+/**
+ * Cancel the await of output by emit of empty string
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the output is canceled
+ */
+declare const cancelOutput: (clientId: string, agentName: string) => Promise<void>;
+
+/**
+ * Cancel the await of output by emit of empty string without checking active agent
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the output is canceled
+ */
+declare const cancelOutputForce: (clientId: string) => Promise<void>;
+
+/**
  * Hook to subscribe to agent events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to events for.
  * @param {function} fn - The callback function to handle the event.
  * @returns {function} - A function to unsubscribe from the event.
  */
-declare const useAgentEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+declare const listenAgentEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to history events for a specific client.
@@ -3382,7 +3423,7 @@ declare const useAgentEvent: (clientId: string, fn: (event: IBaseEvent) => void)
  * @param {(event: IBaseEvent) => void} fn - The callback function to handle the event.
  * @returns {Function} - The unsubscribe function.
  */
-declare const useHistoryEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+declare const listenHistoryEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to session events for a specific client.
@@ -3391,7 +3432,7 @@ declare const useHistoryEvent: (clientId: string, fn: (event: IBaseEvent) => voi
  * @param {function} fn - The callback function to handle the session events.
  * @returns {function} - The unsubscribe function to stop listening to session events.
  */
-declare const useSessionEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+declare const listenSessionEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to state events for a specific client.
@@ -3400,7 +3441,7 @@ declare const useSessionEvent: (clientId: string, fn: (event: IBaseEvent) => voi
  * @param {function} fn - The callback function to handle the event.
  * @returns {function} - The unsubscribe function to stop listening to the events.
  */
-declare const useStateEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+declare const listenStateEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to storage events for a specific client.
@@ -3409,7 +3450,7 @@ declare const useStateEvent: (clientId: string, fn: (event: IBaseEvent) => void)
  * @param {function} fn - The callback function to handle the storage event.
  * @returns {function} - A function to unsubscribe from the storage events.
  */
-declare const useStorageEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+declare const listenStorageEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to swarm events for a specific client.
@@ -3418,7 +3459,7 @@ declare const useStorageEvent: (clientId: string, fn: (event: IBaseEvent) => voi
  * @param {(event: IBaseEvent) => void} fn - The callback function to handle the event.
  * @returns {Function} - A function to unsubscribe from the event.
  */
-declare const useSwarmEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+declare const listenSwarmEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
 
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
@@ -3581,4 +3622,4 @@ declare class StateUtils implements TState {
  */
 declare const State: StateUtils;
 
-export { ContextService, type EventSource, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBaseEventContext, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm, useAgentEvent, useHistoryEvent, useSessionEvent, useStateEvent, useStorageEvent, useSwarmEvent };
+export { ContextService, type EventSource, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBaseEventContext, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenEvent, listenHistoryEvent, listenSessionEvent, listenStateEvent, listenStorageEvent, listenSwarmEvent, makeAutoDispose, makeConnection, session, setConfig, swarm };

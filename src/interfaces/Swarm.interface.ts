@@ -101,6 +101,13 @@ export interface ISwarmSchema {
  * @interface
  */
 export interface ISwarm {
+
+  /**
+   * Will return empty string in waitForOutput
+   * @returns {Promise<void>}
+   */
+  cancelOutput(): Promise<void>;
+
   /**
    * Waits for the output from the swarm.
    * @returns {Promise<string>} The output from the swarm.

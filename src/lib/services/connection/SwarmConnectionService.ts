@@ -71,6 +71,20 @@ export class SwarmConnectionService implements ISwarm {
   );
 
   /**
+   * Cancel the await of output by emit of empty string
+   * @returns {Promise<void>}
+   */
+  public cancelOutput = async () => {
+    this.loggerService.log(`swarmConnectionService cancelOutput`, {
+      context: this.contextService.context,
+    });
+    return await this.getSwarm(
+      this.contextService.context.clientId,
+      this.contextService.context.swarmName
+    ).cancelOutput();
+  };
+
+  /**
    * Waits for the output from the swarm.
    * @returns {Promise<any>} The output from the swarm.
    */

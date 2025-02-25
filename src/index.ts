@@ -36,6 +36,8 @@ export * from "./functions/getLastAssistantMessage";
 export * from "./functions/getLastSystemMessage";
 export * from "./functions/makeAutoDispose";
 export * from './functions/event';
+export * from './functions/cancelOutput';
+export * from './functions/cancelOutputForce';
 
 export * from './middlewares/listenAgentEvent';
 export * from './middlewares/listenHistoryEvent';

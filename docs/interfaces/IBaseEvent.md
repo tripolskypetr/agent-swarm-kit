@@ -1,33 +1,13 @@
 # IBaseEvent
 
+Interface representing the base structure of an event.
+
 ## Properties
-
-### type
-
-```ts
-type: string
-```
 
 ### source
 
 ```ts
-source: EventSource
+source: string
 ```
 
-### input
-
-```ts
-input: Record<string, any>
-```
-
-### output
-
-```ts
-output: Record<string, any>
-```
-
-### context
-
-```ts
-context: Partial<IBaseEventContext>
-```
+The source of the event.
