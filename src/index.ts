@@ -27,6 +27,7 @@ export * from "./functions/commitFlushForce";
 export * from "./functions/commitUserMessageForce";
 export * from "./functions/emitForce";
 export * from "./functions/executeForce";
+export * from './functions/listenEvent';
 export * from "./functions/getLastUserMessage";
 export * from "./functions/getAgentName";
 export * from "./functions/getUserHistory";
@@ -34,8 +35,14 @@ export * from "./functions/getAssistantHistory";
 export * from "./functions/getLastAssistantMessage";
 export * from "./functions/getLastSystemMessage";
 export * from "./functions/makeAutoDispose";
+export * from './functions/event';
 
-export * from './hooks/useAfterConnect';
+export * from './middlewares/listenAgentEvent';
+export * from './middlewares/listenHistoryEvent';
+export * from './middlewares/listenSessionEvent';
+export * from './middlewares/listenStateEvent';
+export * from './middlewares/listenStorageEvent';
+export * from './middlewares/listenSwarmEvent';
 
 export { IAgentSchema } from "./interfaces/Agent.interface";
 export {

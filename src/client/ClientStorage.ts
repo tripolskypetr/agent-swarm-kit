@@ -5,6 +5,7 @@ import {
   IStorageParams,
 } from "../interfaces/Storage.interface";
 import { GLOBAL_CONFIG } from "../config/params";
+import { IBusEvent } from "../model/Event.model";
 
 /**
  * ClientStorage class to manage storage operations.
@@ -155,7 +156,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         this.params.storageName
       );
     }
-    await this.params.bus.emit(this.params.clientId, {
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "take",
       source: "storage",
       input: {
@@ -195,7 +196,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         this.params.storageName
       );
     }
-    await this.params.bus.emit(this.params.clientId, {
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "upsert",
       source: "storage",
       input: {
@@ -229,7 +230,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         this.params.storageName
       );
     }
-    await this.params.bus.emit(this.params.clientId, {
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "remove",
       source: "storage",
       input: {
@@ -252,7 +253,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     );
     this._itemMap.clear();
     this._createEmbedding.clear();
-    await this.params.bus.emit(this.params.clientId, {
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "clear",
       source: "storage",
       input: {},
@@ -276,7 +277,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       }
     );
     const result = this._itemMap.get(itemId) ?? null;
-    await this.params.bus.emit(this.params.clientId, {
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "get",
       source: "storage",
       input: {
@@ -310,7 +311,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         result.push(item);
       }
     }
-    await this.params.bus.emit(this.params.clientId, {
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "list",
       source: "storage",
       input: {

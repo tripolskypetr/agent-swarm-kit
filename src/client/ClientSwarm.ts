@@ -2,6 +2,7 @@ import { cancelable, CANCELED_PROMISE_SYMBOL, createAwaiter, queued, Subject } f
 import { GLOBAL_CONFIG } from "../config/params";
 import { AgentName, IAgent } from "../interfaces/Agent.interface";
 import ISwarm, { ISwarmParams } from "../interfaces/Swarm.interface";
+import { IBusEvent } from "../model/Event.model";
 
 const AGENT_REF_CHANGED = Symbol("agent-ref-changed");
 const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
@@ -70,7 +71,7 @@ export class ClientSwarm implements ISwarm {
       { agentName, expectAgent }
     );
 
-    await this.params.bus.emit(this.params.clientId, {
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "wait-for-output",
       source: "swarm",
       input: {
@@ -102,7 +103,7 @@ export class ClientSwarm implements ISwarm {
         this.params.defaultAgent
       );
     }
-    await this.params.bus.emit(this.params.clientId, {
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "get-agent-name",
       source: "swarm",
       input: {},
@@ -126,7 +127,7 @@ export class ClientSwarm implements ISwarm {
     );
     const agent = await this.getAgentName();
     const result = this.params.agentMap[agent];
-    await this.params.bus.emit(this.params.clientId, {
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "get-agent",
       source: "swarm",
       input: {
@@ -154,7 +155,7 @@ export class ClientSwarm implements ISwarm {
       throw new Error(`agent-swarm agent ${agentName} not in the swarm`);
     }
     this.params.agentMap[agentName] = agent;
-    await this.params.bus.emit(this.params.clientId, {
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "set-agent-ref",
       source: "swarm",
       input: {
@@ -183,7 +184,7 @@ export class ClientSwarm implements ISwarm {
       agentName,
       this.params.swarmName
     );
-    await this.params.bus.emit(this.params.clientId, {
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "set-agent-name",
       source: "swarm",
       input: {

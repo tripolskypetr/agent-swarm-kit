@@ -387,18 +387,58 @@ interface IState<T extends IStateData = IStateData> {
  */
 type StateName = string;
 
+/**
+ * Interface representing the base context for an event.
+ */
 interface IBaseEventContext {
+    /**
+     * The name of the agent.
+     */
     agentName: AgentName;
+    /**
+     * The name of the swarm.
+     */
     swarmName: SwarmName;
+    /**
+     * The name of the storage.
+     */
     storageName: StorageName;
+    /**
+     * The name of the state.
+     */
     stateName: StateName;
 }
-type EventSource = "agent" | "history" | "session" | "state" | "storage" | "swarm";
+/**
+ * Type representing the possible sources of an event.
+ */
+type EventSource = "agent" | "history" | "session" | "state" | "storage" | "swarm" | "custom";
+/**
+ * Interface representing the base structure of an event.
+ */
 interface IBaseEvent {
+    /**
+     * The type of the event.
+     */
     type: string;
+    /**
+     * The source of the event.
+     */
     source: EventSource;
+    /**
+     * The payload of the event, if any.
+     */
+    payload?: unknown;
+    /**
+     * The input data for the event.
+     */
     input: Record<string, any>;
+    /**
+     * The output data for the event.
+     */
     output: Record<string, any>;
+    /**
+     * The context of the event.
+     */
     context: Partial<IBaseEventContext>;
 }
 
@@ -2852,9 +2892,34 @@ declare class StateSchemaService {
 declare class BusService implements IBus {
     private readonly loggerService;
     private getEventSubject;
+    /**
+     * Subscribes to events for a specific client and source.
+     * @param {string} clientId - The client ID.
+     * @param {EventSource} source - The event source.
+     * @param {(event: T) => void} fn - The callback function to handle the event.
+     * @returns {Subscription} The subscription object.
+     */
     subscribe: <T extends IBaseEvent>(clientId: string, source: EventSource, fn: (event: T) => void) => () => void;
+    /**
+     * Subscribes to a single event for a specific client and source.
+     * @param {string} clientId - The client ID.
+     * @param {EventSource} source - The event source.
+     * @param {(event: T) => boolean} filterFn - The filter function to determine if the event should be handled.
+     * @param {(event: T) => void} fn - The callback function to handle the event.
+     * @returns {Subscription} The subscription object.
+     */
     once: <T extends IBaseEvent>(clientId: string, source: EventSource, filterFn: (event: T) => boolean, fn: (event: T) => void) => () => void;
+    /**
+     * Emits an event for a specific client.
+     * @param {string} clientId - The client ID.
+     * @param {T} event - The event to emit.
+     * @returns {Promise<void>} A promise that resolves when the event has been emitted.
+     */
     emit: <T extends IBaseEvent>(clientId: string, event: T) => Promise<void>;
+    /**
+     * Disposes of all event subscriptions for a specific client.
+     * @param {string} clientId - The client ID.
+     */
     dispose: (clientId: string) => void;
 }
 
@@ -3301,6 +3366,60 @@ declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeou
     destroy(): void;
 };
 
+/**
+ * Hook to subscribe to agent events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to events for.
+ * @param {function} fn - The callback function to handle the event.
+ * @returns {function} - A function to unsubscribe from the event.
+ */
+declare const useAgentEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to history events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to.
+ * @param {(event: IBaseEvent) => void} fn - The callback function to handle the event.
+ * @returns {Function} - The unsubscribe function.
+ */
+declare const useHistoryEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to session events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to session events for.
+ * @param {function} fn - The callback function to handle the session events.
+ * @returns {function} - The unsubscribe function to stop listening to session events.
+ */
+declare const useSessionEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to state events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to.
+ * @param {function} fn - The callback function to handle the event.
+ * @returns {function} - The unsubscribe function to stop listening to the events.
+ */
+declare const useStateEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to storage events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to storage events for.
+ * @param {function} fn - The callback function to handle the storage event.
+ * @returns {function} - A function to unsubscribe from the storage events.
+ */
+declare const useStorageEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to swarm events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to events for.
+ * @param {(event: IBaseEvent) => void} fn - The callback function to handle the event.
+ * @returns {Function} - A function to unsubscribe from the event.
+ */
+declare const useSwarmEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
@@ -3462,4 +3581,4 @@ declare class StateUtils implements TState {
  */
 declare const State: StateUtils;
 
-export { ContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { ContextService, type EventSource, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBaseEventContext, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm, useAgentEvent, useHistoryEvent, useSessionEvent, useStateEvent, useStorageEvent, useSwarmEvent };
