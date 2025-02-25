@@ -1,4 +1,4 @@
-import IBaseEvent from "../model/Event.model";
+import { IBusEvent } from "../model/Event.model";
 import swarm from "../lib";
 
 /**
@@ -10,7 +10,7 @@ import swarm from "../lib";
  */
 export const listenSessionEvent = (
   clientId: string,
-  fn: (event: IBaseEvent) => void
+  fn: (event: IBusEvent) => void
 ) => {
   swarm.loggerService.log("middleware listenSessionEvent", {
     clientId,

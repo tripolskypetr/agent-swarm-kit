@@ -421,6 +421,24 @@ interface IBaseEvent {
      */
     source: EventSource;
 }
+interface IBusEvent extends IBaseEvent {
+    /**
+     * The type of the event.
+     */
+    type: string;
+    /**
+     * The input data for the event.
+     */
+    input: Record<string, any>;
+    /**
+     * The output data for the event.
+     */
+    output: Record<string, any>;
+    /**
+     * The context of the event.
+     */
+    context: Partial<IBaseEventContext>;
+}
 
 interface IBus {
     emit<T extends IBaseEvent>(clientId: string, event: T): Promise<void>;
@@ -3414,16 +3432,16 @@ declare const cancelOutputForce: (clientId: string) => Promise<void>;
  * @param {function} fn - The callback function to handle the event.
  * @returns {function} - A function to unsubscribe from the event.
  */
-declare const listenAgentEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+declare const listenAgentEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to history events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to.
- * @param {(event: IBaseEvent) => void} fn - The callback function to handle the event.
+ * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
  * @returns {Function} - The unsubscribe function.
  */
-declare const listenHistoryEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+declare const listenHistoryEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to session events for a specific client.
@@ -3432,7 +3450,7 @@ declare const listenHistoryEvent: (clientId: string, fn: (event: IBaseEvent) => 
  * @param {function} fn - The callback function to handle the session events.
  * @returns {function} - The unsubscribe function to stop listening to session events.
  */
-declare const listenSessionEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+declare const listenSessionEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to state events for a specific client.
@@ -3441,7 +3459,7 @@ declare const listenSessionEvent: (clientId: string, fn: (event: IBaseEvent) => 
  * @param {function} fn - The callback function to handle the event.
  * @returns {function} - The unsubscribe function to stop listening to the events.
  */
-declare const listenStateEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+declare const listenStateEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to storage events for a specific client.
@@ -3450,16 +3468,16 @@ declare const listenStateEvent: (clientId: string, fn: (event: IBaseEvent) => vo
  * @param {function} fn - The callback function to handle the storage event.
  * @returns {function} - A function to unsubscribe from the storage events.
  */
-declare const listenStorageEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+declare const listenStorageEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to swarm events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to events for.
- * @param {(event: IBaseEvent) => void} fn - The callback function to handle the event.
+ * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
  * @returns {Function} - A function to unsubscribe from the event.
  */
-declare const listenSwarmEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+declare const listenSwarmEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
