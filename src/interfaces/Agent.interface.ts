@@ -9,6 +9,7 @@ import { ExecutionMode } from "./Session.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
 import { StorageName } from "./Storage.interface";
 import { StateName } from "./State.interface";
+import { IBus } from "./Bus.interface";
 
 /**
  * Interface representing lifecycle callbacks of a tool
@@ -91,7 +92,7 @@ export interface IAgentTool<T = Record<string, unknown>> extends ITool {
     clientId: string;
     agentName: AgentName;
     params: T;
-    toolCalls: IToolCall[],
+    toolCalls: IToolCall[];
     isLast: boolean;
   }): Promise<void>;
   /**
@@ -104,7 +105,7 @@ export interface IAgentTool<T = Record<string, unknown>> extends ITool {
   validate(dto: {
     clientId: string;
     agentName: AgentName;
-    toolCalls: IToolCall[],
+    toolCalls: IToolCall[];
     params: T;
   }): Promise<boolean> | boolean;
   /** The name of the tool. */
@@ -128,6 +129,8 @@ export interface IAgentParams
   clientId: string;
   /** The logger instance. */
   logger: ILogger;
+  /** The bus instance. */
+  bus: IBus;
   /** The history instance. */
   history: IHistory;
   /** The completion instance. */

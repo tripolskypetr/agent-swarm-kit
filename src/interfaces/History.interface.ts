@@ -2,6 +2,7 @@ import { AgentName } from "../interfaces/Agent.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
 import { ILogger } from "../interfaces/Logger.interface";
 import { IHistoryAdapter } from "../classes/History";
+import { IBus } from "./Bus.interface";
 
 /**
  * Interface representing the history of model messages.
@@ -49,6 +50,9 @@ export interface IHistoryParams extends IHistorySchema {
    * @type {ILogger}
    */
   logger: ILogger;
+
+  /** The bus instance. */
+  bus: IBus;
 }
 
 /**

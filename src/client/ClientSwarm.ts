@@ -1,7 +1,14 @@
-import { cancelable, CANCELED_PROMISE_SYMBOL, createAwaiter, queued, Subject } from "functools-kit";
+import {
+  cancelable,
+  CANCELED_PROMISE_SYMBOL,
+  createAwaiter,
+  queued,
+  Subject,
+} from "functools-kit";
 import { GLOBAL_CONFIG } from "../config/params";
 import { AgentName, IAgent } from "../interfaces/Agent.interface";
 import ISwarm, { ISwarmParams } from "../interfaces/Swarm.interface";
+import { IBusEvent } from "../model/Event.model";
 
 const AGENT_REF_CHANGED = Symbol("agent-ref-changed");
 const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
@@ -10,9 +17,16 @@ const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
  * ClientSwarm class implements the ISwarm interface and manages agents within a swarm.
  */
 export class ClientSwarm implements ISwarm {
-  private _agentChangedSubject = new Subject<[agentName: AgentName, agent: IAgent]>();
+  private _agentChangedSubject = new Subject<
+    [agentName: AgentName, agent: IAgent]
+  >();
 
   private _activeAgent: AgentName | typeof AGENT_NEED_FETCH = AGENT_NEED_FETCH;
+
+  private _cancelOutputSubject = new Subject<{
+    agentName: string;
+    output: string;
+  }>();
 
   get _agentList() {
     return Object.entries(this.params.agentMap);
@@ -32,20 +46,53 @@ export class ClientSwarm implements ISwarm {
   }
 
   /**
+   * Cancel the await of output by emit of empty string
+   * @returns {Promise<string>} - The output from the active agent.
+   */
+  cancelOutput = async () => {
+    this.params.logger.debug(
+      `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} cancelOutput`
+    );
+    await this._cancelOutputSubject.next({
+      agentName: await this.getAgentName(),
+      output: "",
+    });
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "cancel-output",
+      source: "swarm",
+      input: {},
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      },
+    });
+  };
+
+  /**
    * Waits for output from the active agent.
    * @returns {Promise<string>} - The output from the active agent.
-   * @throws {Error} - If the timeout is reached.
    */
   waitForOutput = queued(async (): Promise<string> => {
     this.params.logger.debug(
       `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} waitForOutput`
     );
 
-    const [awaiter, { resolve }] = createAwaiter<{agentName: AgentName, output: string}>();
+    const [awaiter, { resolve }] = createAwaiter<{
+      agentName: AgentName;
+      output: string;
+    }>();
 
-    const getOutput = cancelable(async () => await Promise.race(this._agentList.map(
-      async ([agentName, agent]) => ({agentName, output: await agent.waitForOutput()}),
-    )));
+    const getOutput = cancelable(
+      async () =>
+        await Promise.race(
+          this._agentList
+            .map(async ([agentName, agent]) => ({
+              agentName,
+              output: await agent.waitForOutput(),
+            }))
+            .concat(this._cancelOutputSubject.toPromise())
+        )
+    );
 
     const handleOutput = () => {
       getOutput.cancel();
@@ -54,24 +101,36 @@ export class ClientSwarm implements ISwarm {
           return;
         }
         resolve(value);
-      })
+      });
     };
 
     const un = this._agentChangedSubject.subscribe(handleOutput);
     handleOutput();
-  
+
     const { agentName, output } = await awaiter;
     un();
 
     const expectAgent = await this.getAgentName();
 
-    agentName !== expectAgent && this.params.logger.debug(
-      `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} waitForAgent agent miss`,
-      { agentName, expectAgent }
-    );
+    agentName !== expectAgent &&
+      this.params.logger.debug(
+        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} waitForAgent agent miss`,
+        { agentName, expectAgent }
+      );
+
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "wait-for-output",
+      source: "swarm",
+      input: {},
+      output: {
+        result: output,
+      },
+      context: {
+        swarmName: this.params.swarmName,
+      },
+    });
 
     return output;
-
   }) as () => Promise<string>;
 
   /**
@@ -89,6 +148,17 @@ export class ClientSwarm implements ISwarm {
         this.params.defaultAgent
       );
     }
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "get-agent-name",
+      source: "swarm",
+      input: {},
+      output: {
+        activeAgent: this._activeAgent,
+      },
+      context: {
+        swarmName: this.params.swarmName,
+      },
+    });
     return this._activeAgent;
   };
 
@@ -101,7 +171,19 @@ export class ClientSwarm implements ISwarm {
       `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgent`
     );
     const agent = await this.getAgentName();
-    return this.params.agentMap[agent];
+    const result = this.params.agentMap[agent];
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "get-agent",
+      source: "swarm",
+      input: {
+        result,
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      },
+    });
+    return result;
   };
 
   /**
@@ -118,6 +200,18 @@ export class ClientSwarm implements ISwarm {
       throw new Error(`agent-swarm agent ${agentName} not in the swarm`);
     }
     this.params.agentMap[agentName] = agent;
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "set-agent-ref",
+      source: "swarm",
+      input: {
+        agentName,
+        agent,
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      },
+    });
     await this._agentChangedSubject.next([agentName, agent]);
   };
 
@@ -135,6 +229,17 @@ export class ClientSwarm implements ISwarm {
       agentName,
       this.params.swarmName
     );
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "set-agent-name",
+      source: "swarm",
+      input: {
+        agentName,
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      },
+    });
   };
 }
 

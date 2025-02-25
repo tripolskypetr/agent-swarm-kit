@@ -53,6 +53,379 @@ interface ILogger {
     debug(...args: any[]): void;
 }
 
+/**
+ * Type representing an array of numbers as embeddings.
+ */
+type Embeddings = number[];
+/**
+ * Interface for embedding callbacks.
+ */
+interface IEmbeddingCallbacks {
+    /**
+     * Callback for when an embedding is created.
+     * @param text - The text used to create the embedding.
+     * @param embeddings - The generated embeddings.
+     * @param clientId - The client ID associated with the embedding.
+     * @param embeddingName - The name of the embedding.
+     */
+    onCreate(text: string, embeddings: Embeddings, clientId: string, embeddingName: EmbeddingName): void;
+    /**
+     * Callback for when embeddings are compared.
+     * @param text1 - The first text used in the comparison.
+     * @param text2 - The second text used in the comparison.
+     * @param similarity - The similarity score between the embeddings.
+     * @param clientId - The client ID associated with the comparison.
+     * @param embeddingName - The name of the embedding.
+     */
+    onCompare(text1: string, text2: string, similarity: number, clientId: string, embeddingName: EmbeddingName): void;
+}
+/**
+ * Interface representing the schema for embeddings.
+ */
+interface IEmbeddingSchema {
+    /**
+     * The name of the embedding.
+     */
+    embeddingName: EmbeddingName;
+    /**
+     * Creates an embedding from the given text.
+     * @param text - The text to create the embedding from.
+     * @returns A promise that resolves to the generated embeddings.
+     */
+    createEmbedding(text: string): Promise<Embeddings>;
+    /**
+     * Calculates the similarity between two embeddings.
+     * @param a - The first embedding.
+     * @param b - The second embedding.
+     * @returns A promise that resolves to the similarity score.
+     */
+    calculateSimilarity(a: Embeddings, b: Embeddings): Promise<number>;
+    /**
+     * Optional callbacks for embedding events.
+     */
+    callbacks?: Partial<IEmbeddingCallbacks>;
+}
+/**
+ * Type representing the name of an embedding.
+ */
+type EmbeddingName = string;
+
+type StorageId = string | number;
+/**
+ * Interface representing the data stored in the storage.
+ */
+interface IStorageData {
+    id: StorageId;
+}
+/**
+ * Interface representing the schema of the storage.
+ * @template T - Type of the storage data.
+ */
+interface IStorageSchema<T extends IStorageData = IStorageData> {
+    /**
+     * All agents will share the same ClientStorage instance
+     */
+    shared?: boolean;
+    /**
+     * Function to get data from the storage.
+     * @param clientId - The client ID.
+     * @param storageName - The name of the storage.
+     * @returns A promise that resolves to an array of storage data or an array of storage data.
+     */
+    getData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
+    /**
+     * Function to create an index for an item.
+     * @param item - The item to index.
+     * @returns A promise that resolves to a string or a string.
+     */
+    createIndex(item: T): Promise<string> | string;
+    /**
+     * The name of the embedding.
+     */
+    embedding: EmbeddingName;
+    /**
+     * The name of the storage.
+     */
+    storageName: StorageName;
+    /**
+     * Optional callbacks for storage events.
+     */
+    callbacks?: Partial<IStorageCallbacks<T>>;
+}
+/**
+ * Interface representing the callbacks for storage events.
+ * @template T - Type of the storage data.
+ */
+interface IStorageCallbacks<T extends IStorageData = IStorageData> {
+    /**
+     * Callback function for update events.
+     * @param items - The updated items.
+     * @param clientId - The client ID.
+     * @param storageName - The name of the storage.
+     */
+    onUpdate: (items: T[], clientId: string, storageName: StorageName) => void;
+    /**
+     * Callback function for search events.
+     * @param search - The search query.
+     * @param index - The sorted array of storage data.
+     * @param clientId - The client ID.
+     * @param storageName - The name of the storage.
+     */
+    onSearch: (search: string, index: SortedArray<T>, clientId: string, storageName: StorageName) => void;
+    /**
+     * Callback function for init
+     * @param clientId - The client ID.
+     * @param storageName - The name of the storage.
+     */
+    onInit: (clientId: string, storageName: StorageName) => void;
+    /**
+     * Callback function for dispose
+     * @param clientId - The client ID.
+     * @param storageName - The name of the storage.
+     */
+    onDispose: (clientId: string, storageName: StorageName) => void;
+}
+/**
+ * Interface representing the parameters for storage.
+ * @template T - Type of the storage data.
+ */
+interface IStorageParams<T extends IStorageData = IStorageData> extends IStorageSchema<T>, Partial<IEmbeddingCallbacks> {
+    /**
+     * The client ID.
+     */
+    clientId: string;
+    /**
+     * Function to calculate similarity.
+     */
+    calculateSimilarity: IEmbeddingSchema["calculateSimilarity"];
+    /**
+     * Function to create an embedding.
+     */
+    createEmbedding: IEmbeddingSchema["createEmbedding"];
+    /**
+     * The name of the storage.
+     */
+    storageName: StorageName;
+    /**
+     * Logger instance.
+     */
+    logger: ILogger;
+    /** The bus instance. */
+    bus: IBus;
+}
+/**
+ * Interface representing the storage.
+ * @template T - Type of the storage data.
+ */
+interface IStorage<T extends IStorageData = IStorageData> {
+    /**
+     * Function to take items from the storage.
+     * @param search - The search query.
+     * @param total - The total number of items to take.
+     * @param score - Optional score parameter.
+     * @returns A promise that resolves to an array of storage data.
+     */
+    take(search: string, total: number, score?: number): Promise<T[]>;
+    /**
+     * Function to upsert an item in the storage.
+     * @param item - The item to upsert.
+     * @returns A promise that resolves when the operation is complete.
+     */
+    upsert(item: T): Promise<void>;
+    /**
+     * Function to remove an item from the storage.
+     * @param itemId - The ID of the item to remove.
+     * @returns A promise that resolves when the operation is complete.
+     */
+    remove(itemId: IStorageData["id"]): Promise<void>;
+    /**
+     * Function to get an item from the storage.
+     * @param itemId - The ID of the item to get.
+     * @returns A promise that resolves to the item or null if not found.
+     */
+    get(itemId: IStorageData["id"]): Promise<T | null>;
+    /**
+     * Function to list items from the storage.
+     * @param filter - Optional filter function.
+     * @returns A promise that resolves to an array of storage data.
+     */
+    list(filter?: (item: T) => boolean): Promise<T[]>;
+    /**
+     * Function to clear the storage.
+     * @returns A promise that resolves when the operation is complete.
+     */
+    clear(): Promise<void>;
+}
+/**
+ * Type representing the name of the storage.
+ */
+type StorageName = string;
+
+type IStateData = any;
+/**
+ * Middleware function for state management.
+ * @template T - The type of the state data.
+ * @param {T} state - The current state.
+ * @param {string} clientId - The client ID.
+ * @param {StateName} stateName - The name of the state.
+ * @returns {Promise<T>} - The updated state.
+ */
+interface IStateMiddleware<T extends IStateData = IStateData> {
+    (state: T, clientId: string, stateName: StateName): Promise<T>;
+}
+/**
+ * Callbacks for state lifecycle events.
+ * @template T - The type of the state data.
+ */
+interface IStateCallbacks<T extends IStateData = IStateData> {
+    /**
+     * Called when the state is initialized.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     */
+    onInit: (clientId: string, stateName: StateName) => void;
+    /**
+     * Called when the state is disposed.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     */
+    onDispose: (clientId: string, stateName: StateName) => void;
+    /**
+     * Called when the state is loaded.
+     * @param {T} state - The current state.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     */
+    onLoad: (state: T, clientId: string, stateName: StateName) => void;
+    /**
+     * Called when the state is read.
+     * @param {T} state - The current state.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     */
+    onRead: (state: T, clientId: string, stateName: StateName) => void;
+    /**
+     * Called when the state is written.
+     * @param {T} state - The current state.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     */
+    onWrite: (state: T, clientId: string, stateName: StateName) => void;
+}
+/**
+ * Schema for state management.
+ * @template T - The type of the state data.
+ */
+interface IStateSchema<T extends IStateData = IStateData> {
+    /**
+     * The agents can share the state
+     */
+    shared?: boolean;
+    /**
+     * The name of the state.
+     */
+    stateName: StateName;
+    /**
+     * Gets the state.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     * @returns {T | Promise<T>} - The current state.
+     */
+    getState: (clientId: string, stateName: StateName) => T | Promise<T>;
+    /**
+     * Sets the state.
+     * @param {T} state - The new state.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     * @returns {Promise<void> | void} - A promise that resolves when the state is set.
+     */
+    setState?: (state: T, clientId: string, stateName: StateName) => Promise<void> | void;
+    /**
+     * Middleware functions for state management.
+     */
+    middlewares?: IStateMiddleware<T>[];
+    /**
+     * Callbacks for state lifecycle events.
+     */
+    callbacks?: Partial<IStateCallbacks<T>>;
+}
+/**
+ * Parameters for state management.
+ * @template T - The type of the state data.
+ */
+interface IStateParams<T extends IStateData = IStateData> extends IStateSchema<T> {
+    /**
+     * The client ID.
+     */
+    clientId: string;
+    /**
+     * The logger instance.
+     */
+    logger: ILogger;
+    /** The bus instance. */
+    bus: IBus;
+}
+/**
+ * State management interface.
+ * @template T - The type of the state data.
+ */
+interface IState<T extends IStateData = IStateData> {
+    /**
+     * Gets the state.
+     * @returns {Promise<T>} - The current state.
+     */
+    getState: () => Promise<T>;
+    /**
+     * Sets the state.
+     * @param {(prevState: T) => Promise<T>} dispatchFn - The function to dispatch the new state.
+     * @returns {Promise<T>} - The updated state.
+     */
+    setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
+}
+/**
+ * The name of the state.
+ */
+type StateName = string;
+
+/**
+ * Interface representing the base context for an event.
+ */
+interface IBaseEventContext {
+    /**
+     * The name of the agent.
+     */
+    agentName: AgentName;
+    /**
+     * The name of the swarm.
+     */
+    swarmName: SwarmName;
+    /**
+     * The name of the storage.
+     */
+    storageName: StorageName;
+    /**
+     * The name of the state.
+     */
+    stateName: StateName;
+}
+/**
+ * Type representing the possible sources of an event.
+ */
+type EventSource = string;
+/**
+ * Interface representing the base structure of an event.
+ */
+interface IBaseEvent {
+    /**
+     * The source of the event.
+     */
+    source: EventSource;
+}
+
+interface IBus {
+    emit<T extends IBaseEvent>(clientId: string, event: T): Promise<void>;
+}
+
 interface ISwarmSessionCallbacks {
     /**
      * Callback triggered when a client connects.
@@ -108,6 +481,8 @@ interface ISwarmParams extends Omit<ISwarmSchema, keyof {
     clientId: string;
     /** Logger instance */
     logger: ILogger;
+    /** The bus instance. */
+    bus: IBus;
     /** Map of agent names to agent instances */
     agentMap: Record<AgentName, IAgent>;
 }
@@ -130,6 +505,11 @@ interface ISwarmSchema {
  * @interface
  */
 interface ISwarm {
+    /**
+     * Will return empty string in waitForOutput
+     * @returns {Promise<void>}
+     */
+    cancelOutput(): Promise<void>;
     /**
      * Waits for the output from the swarm.
      * @returns {Promise<string>} The output from the swarm.
@@ -169,6 +549,7 @@ type SwarmName = string;
 interface ISessionParams extends ISessionSchema, ISwarmSessionCallbacks {
     clientId: string;
     logger: ILogger;
+    bus: IBus;
     swarm: ISwarm;
     swarmName: SwarmName;
 }
@@ -646,6 +1027,8 @@ interface IHistoryParams extends IHistorySchema {
      * @type {ILogger}
      */
     logger: ILogger;
+    /** The bus instance. */
+    bus: IBus;
 }
 /**
  * Interface representing the schema of the history.
@@ -722,336 +1105,6 @@ interface ICompletionSchema {
  * Type representing the name of a completion.
  */
 type CompletionName = string;
-
-/**
- * Type representing an array of numbers as embeddings.
- */
-type Embeddings = number[];
-/**
- * Interface for embedding callbacks.
- */
-interface IEmbeddingCallbacks {
-    /**
-     * Callback for when an embedding is created.
-     * @param text - The text used to create the embedding.
-     * @param embeddings - The generated embeddings.
-     * @param clientId - The client ID associated with the embedding.
-     * @param embeddingName - The name of the embedding.
-     */
-    onCreate(text: string, embeddings: Embeddings, clientId: string, embeddingName: EmbeddingName): void;
-    /**
-     * Callback for when embeddings are compared.
-     * @param text1 - The first text used in the comparison.
-     * @param text2 - The second text used in the comparison.
-     * @param similarity - The similarity score between the embeddings.
-     * @param clientId - The client ID associated with the comparison.
-     * @param embeddingName - The name of the embedding.
-     */
-    onCompare(text1: string, text2: string, similarity: number, clientId: string, embeddingName: EmbeddingName): void;
-}
-/**
- * Interface representing the schema for embeddings.
- */
-interface IEmbeddingSchema {
-    /**
-     * The name of the embedding.
-     */
-    embeddingName: EmbeddingName;
-    /**
-     * Creates an embedding from the given text.
-     * @param text - The text to create the embedding from.
-     * @returns A promise that resolves to the generated embeddings.
-     */
-    createEmbedding(text: string): Promise<Embeddings>;
-    /**
-     * Calculates the similarity between two embeddings.
-     * @param a - The first embedding.
-     * @param b - The second embedding.
-     * @returns A promise that resolves to the similarity score.
-     */
-    calculateSimilarity(a: Embeddings, b: Embeddings): Promise<number>;
-    /**
-     * Optional callbacks for embedding events.
-     */
-    callbacks?: Partial<IEmbeddingCallbacks>;
-}
-/**
- * Type representing the name of an embedding.
- */
-type EmbeddingName = string;
-
-type StorageId = string | number;
-/**
- * Interface representing the data stored in the storage.
- */
-interface IStorageData {
-    id: StorageId;
-}
-/**
- * Interface representing the schema of the storage.
- * @template T - Type of the storage data.
- */
-interface IStorageSchema<T extends IStorageData = IStorageData> {
-    /**
-     * All agents will share the same ClientStorage instance
-     */
-    shared?: boolean;
-    /**
-     * Function to get data from the storage.
-     * @param clientId - The client ID.
-     * @param storageName - The name of the storage.
-     * @returns A promise that resolves to an array of storage data or an array of storage data.
-     */
-    getData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
-    /**
-     * Function to create an index for an item.
-     * @param item - The item to index.
-     * @returns A promise that resolves to a string or a string.
-     */
-    createIndex(item: T): Promise<string> | string;
-    /**
-     * The name of the embedding.
-     */
-    embedding: EmbeddingName;
-    /**
-     * The name of the storage.
-     */
-    storageName: StorageName;
-    /**
-     * Optional callbacks for storage events.
-     */
-    callbacks?: Partial<IStorageCallbacks<T>>;
-}
-/**
- * Interface representing the callbacks for storage events.
- * @template T - Type of the storage data.
- */
-interface IStorageCallbacks<T extends IStorageData = IStorageData> {
-    /**
-     * Callback function for update events.
-     * @param items - The updated items.
-     * @param clientId - The client ID.
-     * @param storageName - The name of the storage.
-     */
-    onUpdate: (items: T[], clientId: string, storageName: StorageName) => void;
-    /**
-     * Callback function for search events.
-     * @param search - The search query.
-     * @param index - The sorted array of storage data.
-     * @param clientId - The client ID.
-     * @param storageName - The name of the storage.
-     */
-    onSearch: (search: string, index: SortedArray<T>, clientId: string, storageName: StorageName) => void;
-    /**
-     * Callback function for init
-     * @param clientId - The client ID.
-     * @param storageName - The name of the storage.
-     */
-    onInit: (clientId: string, storageName: StorageName) => void;
-    /**
-     * Callback function for dispose
-     * @param clientId - The client ID.
-     * @param storageName - The name of the storage.
-     */
-    onDispose: (clientId: string, storageName: StorageName) => void;
-}
-/**
- * Interface representing the parameters for storage.
- * @template T - Type of the storage data.
- */
-interface IStorageParams<T extends IStorageData = IStorageData> extends IStorageSchema<T>, Partial<IEmbeddingCallbacks> {
-    /**
-     * The client ID.
-     */
-    clientId: string;
-    /**
-     * Function to calculate similarity.
-     */
-    calculateSimilarity: IEmbeddingSchema["calculateSimilarity"];
-    /**
-     * Function to create an embedding.
-     */
-    createEmbedding: IEmbeddingSchema["createEmbedding"];
-    /**
-     * The name of the storage.
-     */
-    storageName: StorageName;
-    /**
-     * Logger instance.
-     */
-    logger: ILogger;
-}
-/**
- * Interface representing the storage.
- * @template T - Type of the storage data.
- */
-interface IStorage<T extends IStorageData = IStorageData> {
-    /**
-     * Function to take items from the storage.
-     * @param search - The search query.
-     * @param total - The total number of items to take.
-     * @param score - Optional score parameter.
-     * @returns A promise that resolves to an array of storage data.
-     */
-    take(search: string, total: number, score?: number): Promise<T[]>;
-    /**
-     * Function to upsert an item in the storage.
-     * @param item - The item to upsert.
-     * @returns A promise that resolves when the operation is complete.
-     */
-    upsert(item: T): Promise<void>;
-    /**
-     * Function to remove an item from the storage.
-     * @param itemId - The ID of the item to remove.
-     * @returns A promise that resolves when the operation is complete.
-     */
-    remove(itemId: IStorageData["id"]): Promise<void>;
-    /**
-     * Function to get an item from the storage.
-     * @param itemId - The ID of the item to get.
-     * @returns A promise that resolves to the item or null if not found.
-     */
-    get(itemId: IStorageData["id"]): Promise<T | null>;
-    /**
-     * Function to list items from the storage.
-     * @param filter - Optional filter function.
-     * @returns A promise that resolves to an array of storage data.
-     */
-    list(filter?: (item: T) => boolean): Promise<T[]>;
-    /**
-     * Function to clear the storage.
-     * @returns A promise that resolves when the operation is complete.
-     */
-    clear(): Promise<void>;
-}
-/**
- * Type representing the name of the storage.
- */
-type StorageName = string;
-
-type IStateData = any;
-/**
- * Middleware function for state management.
- * @template T - The type of the state data.
- * @param {T} state - The current state.
- * @param {string} clientId - The client ID.
- * @param {StateName} stateName - The name of the state.
- * @returns {Promise<T>} - The updated state.
- */
-interface IStateMiddleware<T extends IStateData = IStateData> {
-    (state: T, clientId: string, stateName: StateName): Promise<T>;
-}
-/**
- * Callbacks for state lifecycle events.
- * @template T - The type of the state data.
- */
-interface IStateCallbacks<T extends IStateData = IStateData> {
-    /**
-     * Called when the state is initialized.
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The name of the state.
-     */
-    onInit: (clientId: string, stateName: StateName) => void;
-    /**
-     * Called when the state is disposed.
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The name of the state.
-     */
-    onDispose: (clientId: string, stateName: StateName) => void;
-    /**
-     * Called when the state is loaded.
-     * @param {T} state - The current state.
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The name of the state.
-     */
-    onLoad: (state: T, clientId: string, stateName: StateName) => void;
-    /**
-     * Called when the state is read.
-     * @param {T} state - The current state.
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The name of the state.
-     */
-    onRead: (state: T, clientId: string, stateName: StateName) => void;
-    /**
-     * Called when the state is written.
-     * @param {T} state - The current state.
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The name of the state.
-     */
-    onWrite: (state: T, clientId: string, stateName: StateName) => void;
-}
-/**
- * Schema for state management.
- * @template T - The type of the state data.
- */
-interface IStateSchema<T extends IStateData = IStateData> {
-    /**
-     * The agents can share the state
-     */
-    shared?: boolean;
-    /**
-     * The name of the state.
-     */
-    stateName: StateName;
-    /**
-     * Gets the state.
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The name of the state.
-     * @returns {T | Promise<T>} - The current state.
-     */
-    getState: (clientId: string, stateName: StateName) => T | Promise<T>;
-    /**
-     * Sets the state.
-     * @param {T} state - The new state.
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The name of the state.
-     * @returns {Promise<void> | void} - A promise that resolves when the state is set.
-     */
-    setState?: (state: T, clientId: string, stateName: StateName) => Promise<void> | void;
-    /**
-     * Middleware functions for state management.
-     */
-    middlewares?: IStateMiddleware<T>[];
-    /**
-     * Callbacks for state lifecycle events.
-     */
-    callbacks?: Partial<IStateCallbacks<T>>;
-}
-/**
- * Parameters for state management.
- * @template T - The type of the state data.
- */
-interface IStateParams<T extends IStateData = IStateData> extends IStateSchema<T> {
-    /**
-     * The client ID.
-     */
-    clientId: string;
-    /**
-     * The logger instance.
-     */
-    logger: ILogger;
-}
-/**
- * State management interface.
- * @template T - The type of the state data.
- */
-interface IState<T extends IStateData = IStateData> {
-    /**
-     * Gets the state.
-     * @returns {Promise<T>} - The current state.
-     */
-    getState: () => Promise<T>;
-    /**
-     * Sets the state.
-     * @param {(prevState: T) => Promise<T>} dispatchFn - The function to dispatch the new state.
-     * @returns {Promise<T>} - The updated state.
-     */
-    setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
-}
-/**
- * The name of the state.
- */
-type StateName = string;
 
 /**
  * Interface representing lifecycle callbacks of a tool
@@ -1144,6 +1197,8 @@ interface IAgentParams extends Omit<IAgentSchema, keyof {
     clientId: string;
     /** The logger instance. */
     logger: ILogger;
+    /** The bus instance. */
+    bus: IBus;
     /** The history instance. */
     history: IHistory;
     /** The completion instance. */
@@ -1445,6 +1500,7 @@ declare class ClientAgent implements IAgent {
  */
 declare class AgentConnectionService implements IAgent {
     private readonly loggerService;
+    private readonly busService;
     private readonly contextService;
     private readonly sessionValidationService;
     private readonly historyConnectionService;
@@ -1552,6 +1608,7 @@ declare class ClientHistory implements IHistory {
  */
 declare class HistoryConnectionService implements IHistory {
     private readonly loggerService;
+    private readonly busService;
     private readonly contextService;
     private readonly sessionValidationService;
     /**
@@ -1632,6 +1689,7 @@ declare class ClientSwarm implements ISwarm {
     readonly params: ISwarmParams;
     private _agentChangedSubject;
     private _activeAgent;
+    private _cancelOutputSubject;
     get _agentList(): [string, IAgent][];
     /**
      * Creates an instance of ClientSwarm.
@@ -1639,9 +1697,13 @@ declare class ClientSwarm implements ISwarm {
      */
     constructor(params: ISwarmParams);
     /**
+     * Cancel the await of output by emit of empty string
+     * @returns {Promise<string>} - The output from the active agent.
+     */
+    cancelOutput: () => Promise<void>;
+    /**
      * Waits for output from the active agent.
      * @returns {Promise<string>} - The output from the active agent.
-     * @throws {Error} - If the timeout is reached.
      */
     waitForOutput: () => Promise<string>;
     /**
@@ -1674,6 +1736,7 @@ declare class ClientSwarm implements ISwarm {
  */
 declare class SwarmConnectionService implements ISwarm {
     private readonly loggerService;
+    private readonly busService;
     private readonly contextService;
     private readonly agentConnectionService;
     private readonly swarmSchemaService;
@@ -1684,6 +1747,11 @@ declare class SwarmConnectionService implements ISwarm {
      * @returns {ClientSwarm} The client swarm instance.
      */
     getSwarm: ((clientId: string, swarmName: string) => ClientSwarm) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientSwarm>;
+    /**
+     * Cancel the await of output by emit of empty string
+     * @returns {Promise<void>}
+     */
+    cancelOutput: () => Promise<void>;
     /**
      * Waits for the output from the swarm.
      * @returns {Promise<any>} The output from the swarm.
@@ -1826,6 +1894,7 @@ declare class ClientSession implements ISession {
  */
 declare class SessionConnectionService implements ISession {
     private readonly loggerService;
+    private readonly busService;
     private readonly contextService;
     private readonly swarmConnectionService;
     private readonly swarmSchemaService;
@@ -2110,6 +2179,13 @@ type TSwarmConnectionService = {
 declare class SwarmPublicService implements TSwarmConnectionService {
     private readonly loggerService;
     private readonly swarmConnectionService;
+    /**
+     * Cancel the await of output by emit of empty string
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
+    cancelOutput: (clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Waits for output from the swarm.
      * @param {string} clientId - The client ID.
@@ -2511,6 +2587,7 @@ declare class ClientStorage<T extends IStorageData = IStorageData> implements IS
  */
 declare class StorageConnectionService implements IStorage {
     private readonly loggerService;
+    private readonly busService;
     private readonly contextService;
     private readonly storageSchemaService;
     private readonly sessionValidationService;
@@ -2722,6 +2799,7 @@ declare class ClientState<State extends IStateData = IStateData> implements ISta
  */
 declare class StateConnectionService<T extends IStateData = IStateData> implements IState<T> {
     private readonly loggerService;
+    private readonly busService;
     private readonly contextService;
     private readonly stateSchemaService;
     private readonly sessionValidationService;
@@ -2813,6 +2891,41 @@ declare class StateSchemaService {
     get: (key: StateName) => IStateSchema;
 }
 
+declare class BusService implements IBus {
+    private readonly loggerService;
+    private _eventSourceSet;
+    private getEventSubject;
+    /**
+     * Subscribes to events for a specific client and source.
+     * @param {string} clientId - The client ID.
+     * @param {EventSource} source - The event source.
+     * @param {(event: T) => void} fn - The callback function to handle the event.
+     * @returns {Subscription} The subscription object.
+     */
+    subscribe: <T extends IBaseEvent>(clientId: string, source: EventSource, fn: (event: T) => void) => () => void;
+    /**
+     * Subscribes to a single event for a specific client and source.
+     * @param {string} clientId - The client ID.
+     * @param {EventSource} source - The event source.
+     * @param {(event: T) => boolean} filterFn - The filter function to determine if the event should be handled.
+     * @param {(event: T) => void} fn - The callback function to handle the event.
+     * @returns {Subscription} The subscription object.
+     */
+    once: <T extends IBaseEvent>(clientId: string, source: EventSource, filterFn: (event: T) => boolean, fn: (event: T) => void) => () => void;
+    /**
+     * Emits an event for a specific client.
+     * @param {string} clientId - The client ID.
+     * @param {T} event - The event to emit.
+     * @returns {Promise<void>} A promise that resolves when the event has been emitted.
+     */
+    emit: <T extends IBaseEvent>(clientId: string, event: T) => Promise<void>;
+    /**
+     * Disposes of all event subscriptions for a specific client.
+     * @param {string} clientId - The client ID.
+     */
+    dispose: (clientId: string) => void;
+}
+
 declare const swarm: {
     agentValidationService: AgentValidationService;
     toolValidationService: ToolValidationService;
@@ -2840,6 +2953,7 @@ declare const swarm: {
     sessionConnectionService: SessionConnectionService;
     storageConnectionService: StorageConnectionService;
     stateConnectionService: StateConnectionService<any>;
+    busService: BusService;
     loggerService: LoggerService;
     contextService: {
         readonly context: IContext;
@@ -3175,6 +3289,16 @@ declare const emitForce: (content: string, clientId: string) => Promise<void>;
 declare const executeForce: (content: string, clientId: string) => Promise<string>;
 
 /**
+ * Listens for an event on the swarm bus service and executes a callback function when the event is received.
+ *
+ * @template T - The type of the data payload.
+ * @param {string} clientId - The ID of the client to listen for events from.
+ * @param {(data: T) => void} fn - The callback function to execute when the event is received. The data payload is passed as an argument to this function.
+ * @returns {void} - Returns nothing.
+ */
+declare const listenEvent: <T extends unknown = any>(clientId: string, topicName: string, fn: (data: T) => void) => () => void;
+
+/**
  * Retrieves the last message sent by the user from the client's message history.
  *
  * @param {string} clientId - The ID of the client whose message history is being retrieved.
@@ -3254,6 +3378,88 @@ declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeou
      */
     destroy(): void;
 };
+
+/**
+ * Emits an event to the swarm bus service.
+ *
+ * @template T - The type of the payload.
+ * @param {string} clientId - The ID of the client emitting the event.
+ * @param {T} payload - The payload of the event.
+ * @returns {boolean} - Returns true if the event was successfully emitted.
+ */
+declare const event: <T extends unknown = any>(clientId: string, topicName: string, payload: T) => Promise<void>;
+
+/**
+ * Cancel the await of output by emit of empty string
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the output is canceled
+ */
+declare const cancelOutput: (clientId: string, agentName: string) => Promise<void>;
+
+/**
+ * Cancel the await of output by emit of empty string without checking active agent
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the output is canceled
+ */
+declare const cancelOutputForce: (clientId: string) => Promise<void>;
+
+/**
+ * Hook to subscribe to agent events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to events for.
+ * @param {function} fn - The callback function to handle the event.
+ * @returns {function} - A function to unsubscribe from the event.
+ */
+declare const listenAgentEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to history events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to.
+ * @param {(event: IBaseEvent) => void} fn - The callback function to handle the event.
+ * @returns {Function} - The unsubscribe function.
+ */
+declare const listenHistoryEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to session events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to session events for.
+ * @param {function} fn - The callback function to handle the session events.
+ * @returns {function} - The unsubscribe function to stop listening to session events.
+ */
+declare const listenSessionEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to state events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to.
+ * @param {function} fn - The callback function to handle the event.
+ * @returns {function} - The unsubscribe function to stop listening to the events.
+ */
+declare const listenStateEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to storage events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to storage events for.
+ * @param {function} fn - The callback function to handle the storage event.
+ * @returns {function} - A function to unsubscribe from the storage events.
+ */
+declare const listenStorageEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to swarm events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to events for.
+ * @param {(event: IBaseEvent) => void} fn - The callback function to handle the event.
+ * @returns {Function} - A function to unsubscribe from the event.
+ */
+declare const listenSwarmEvent: (clientId: string, fn: (event: IBaseEvent) => void) => () => void;
 
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
@@ -3416,4 +3622,4 @@ declare class StateUtils implements TState {
  */
 declare const State: StateUtils;
 
-export { ContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { ContextService, type EventSource, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBaseEventContext, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenEvent, listenHistoryEvent, listenSessionEvent, listenStateEvent, listenStorageEvent, listenSwarmEvent, makeAutoDispose, makeConnection, session, setConfig, swarm };

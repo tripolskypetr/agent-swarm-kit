@@ -8,6 +8,7 @@ import {
   SendMessageFn,
 } from "../interfaces/Session.interface";
 import { ISession } from "../interfaces/Session.interface";
+import { IBusEvent } from "../model/Event.model";
 
 /**
  * ClientSession class implements the ISession interface.
@@ -44,6 +45,17 @@ export class ClientSession implements ISession {
     this.params.onEmit &&
       this.params.onEmit(this.params.clientId, this.params.swarmName, message);
     await this._emitSubject.next(message);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "emit",
+      source: "session",
+      input: {
+        message
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      }
+    });
   };
 
   /**
@@ -71,6 +83,20 @@ export class ClientSession implements ISession {
     const outputAwaiter = this.params.swarm.waitForOutput();
     agent.execute(message, mode);
     const output = await outputAwaiter;
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "execute",
+      source: "session",
+      input: {
+        message,
+        mode,
+      },
+      output: {
+        result: output,
+      },
+      context: {
+        swarmName: this.params.swarmName,
+      }
+    });
     return output;
   };
 
@@ -89,7 +115,20 @@ export class ClientSession implements ISession {
       }
     );
     const agent = await this.params.swarm.getAgent();
-    return await agent.commitToolOutput(toolId, content);
+    const result = await agent.commitToolOutput(toolId, content);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-tool-output",
+      source: "session",
+      input: {
+        toolId,
+        content,
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      }
+    });
+    return result;
   };
 
   /**
@@ -105,7 +144,19 @@ export class ClientSession implements ISession {
       }
     );
     const agent = await this.params.swarm.getAgent();
-    return await agent.commitUserMessage(message);
+    const result = await agent.commitUserMessage(message);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-user-message",
+      source: "session",
+      input: {
+        message,
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      }
+    });
+    return result;
   };
 
   /**
@@ -117,7 +168,17 @@ export class ClientSession implements ISession {
       `ClientSession clientId=${this.params.clientId} commitFlush`
     );
     const agent = await this.params.swarm.getAgent();
-    return await agent.commitFlush();
+    const result = await agent.commitFlush();
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-flush",
+      source: "session",
+      input: {},
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      }
+    });
+    return result;
   };
 
   /**
@@ -133,7 +194,19 @@ export class ClientSession implements ISession {
       }
     );
     const agent = await this.params.swarm.getAgent();
-    return await agent.commitSystemMessage(message);
+    const result = await agent.commitSystemMessage(message);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-system-message",
+      source: "session",
+      input: {
+        message
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      }
+    });
+    return result
   };
 
   /**
@@ -155,6 +228,15 @@ export class ClientSession implements ISession {
           clientId: this.params.clientId,
         })
     );
+    this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "connect",
+      source: "session",
+      input: {},
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      }
+    });
     return async (incoming: IIncomingMessage) => {
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} connect call`

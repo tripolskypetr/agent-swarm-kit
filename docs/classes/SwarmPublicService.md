@@ -24,6 +24,14 @@ loggerService: any
 swarmConnectionService: any
 ```
 
+### cancelOutput
+
+```ts
+cancelOutput: (clientId: string, swarmName: string) => Promise<void>
+```
+
+Cancel the await of output by emit of empty string
+
 ### waitForOutput
 
 ```ts

@@ -16,6 +16,12 @@ clientId: string
 logger: ILogger
 ```
 
+### bus
+
+```ts
+bus: IBus
+```
+
 ### swarm
 
 ```ts

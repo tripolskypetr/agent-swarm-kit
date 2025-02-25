@@ -4,6 +4,7 @@ import {
   IStateData,
   IStateParams,
 } from "../interfaces/State.interface";
+import { IBusEvent } from "../model/Event.model";
 
 type DispatchFn<State extends IStateData = IStateData> = (
   prevState: State
@@ -117,6 +118,17 @@ export class ClientState<State extends IStateData = IStateData>
         this.params.stateName
       );
     }
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "set-state",
+      source: "state",
+      input: {},
+      output: {
+        state: this._state,
+      },
+      context: {
+        stateName: this.params.stateName,
+      }
+    });
     return this._state;
   };
 
@@ -136,6 +148,17 @@ export class ClientState<State extends IStateData = IStateData>
         this.params.stateName
       );
     }
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "get-state",
+      source: "state",
+      input: {},
+      output: {
+        state: this._state,
+      },
+      context: {
+        stateName: this.params.stateName,
+      }
+    });
     return this._state;
   };
 

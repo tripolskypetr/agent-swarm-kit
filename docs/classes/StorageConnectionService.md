@@ -18,6 +18,12 @@ constructor();
 loggerService: any
 ```
 
+### busService
+
+```ts
+busService: any
+```
+
 ### contextService
 
 ```ts

@@ -1,6 +1,7 @@
 import { IModelMessage } from "../model/ModelMessage.model";
 import IHistory, { IHistoryParams } from "../interfaces/History.interface";
 import { GLOBAL_CONFIG } from "../config/params";
+import { IBusEvent } from "../model/Event.model";
 
 /**
  * Class representing the history of client messages.
@@ -43,6 +44,17 @@ export class ClientHistory implements IHistory {
       this.params.clientId,
       this.params.agentName
     );
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "push",
+      source: "history",
+      input: {
+        message
+      },
+      output: {},
+      context: {
+        agentName: this.params.agentName,
+      }
+    });
   };
 
   /**

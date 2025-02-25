@@ -12,6 +12,7 @@ import { IAgent, IAgentParams } from "../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import { ExecutionMode } from "../interfaces/Session.interface";
 import { IToolCall } from "../model/Tool.model";
+import { IBusEvent } from "../model/Event.model";
 
 const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
 
@@ -85,11 +86,39 @@ export class ClientAgent implements IAgent {
           result
         );
       await this._outputSubject.next(result);
+      await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+        type: "emit-output",
+        source: "agent",
+        input: {
+          mode,
+          rawResult,
+        },
+        output: {
+          result,
+        },
+        context: {
+          agentName: this.params.agentName,
+        }
+      });
       return;
     }
     this.params.onOutput &&
       this.params.onOutput(this.params.clientId, this.params.agentName, result);
     await this._outputSubject.next(result);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "emit-output",
+      source: "agent",
+      input: {
+        mode,
+        rawResult,
+      },
+      output: {
+        result,
+      },
+      context: {
+        agentName: this.params.agentName,
+      }
+    });
     return;
   };
 
@@ -219,6 +248,17 @@ export class ClientAgent implements IAgent {
       mode: "user",
       content: message.trim(),
     });
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-user-message",
+      source: "agent",
+      input: {
+        message,
+      },
+      output: {},
+      context: {
+        agentName: this.params.agentName,
+      }
+    });
   };
 
   /**
@@ -237,6 +277,15 @@ export class ClientAgent implements IAgent {
       mode: "tool",
       content: "",
     });
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-flush",
+      source: "agent",
+      input: {},
+      output: {},
+      context: {
+        agentName: this.params.agentName,
+      }
+    });
   };
 
   /**
@@ -248,6 +297,15 @@ export class ClientAgent implements IAgent {
       `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitAgentChange`
     );
     await this._agentChangeSubject.next(AGENT_CHANGE_SYMBOL);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-agent-change",
+      source: "agent",
+      input: {},
+      output: {},
+      context: {
+        agentName: this.params.agentName,
+      }
+    });
   };
 
   /**
@@ -271,6 +329,17 @@ export class ClientAgent implements IAgent {
       agentName: this.params.agentName,
       mode: "tool",
       content: message.trim(),
+    });
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-system-message",
+      source: "agent",
+      input: {
+        message,
+      },
+      output: {},
+      context: {
+        agentName: this.params.agentName,
+      }
     });
   };
 
@@ -299,6 +368,18 @@ export class ClientAgent implements IAgent {
       tool_call_id: toolId,
     });
     await this._toolCommitSubject.next();
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-tool-output",
+      source: "agent",
+      input: {
+        toolId,
+        content,
+      },
+      output: {},
+      context: {
+        agentName: this.params.agentName,
+      }
+    });
   };
 
   /**

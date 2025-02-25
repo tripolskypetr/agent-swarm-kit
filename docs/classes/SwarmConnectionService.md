@@ -18,6 +18,12 @@ constructor();
 loggerService: any
 ```
 
+### busService
+
+```ts
+busService: any
+```
+
 ### contextService
 
 ```ts
@@ -43,6 +49,14 @@ getSwarm: ((clientId: string, swarmName: string) => ClientSwarm) & IClearableMem
 ```
 
 Retrieves a swarm instance based on client ID and swarm name.
+
+### cancelOutput
+
+```ts
+cancelOutput: () => Promise<void>
+```
+
+Cancel the await of output by emit of empty string
 
 ### waitForOutput
 
