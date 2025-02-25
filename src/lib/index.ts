@@ -31,8 +31,10 @@ import EmbeddingValidationService from "./services/validation/EmbeddingValidatio
 import StatePublicService from "./services/public/StatePublicService";
 import StateSchemaService from "./services/schema/StateSchemaService";
 import StateConnectionService from "./services/connection/StateConnectionService";
+import BusService from "./services/base/BusService";
 
 const baseServices = {
+  busService: inject<BusService>(TYPES.busService),
   loggerService: inject<LoggerService>(TYPES.loggerService),
   contextService: inject<TContextService>(TYPES.contextService),
 };

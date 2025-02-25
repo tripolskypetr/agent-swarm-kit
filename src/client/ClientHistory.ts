@@ -43,6 +43,17 @@ export class ClientHistory implements IHistory {
       this.params.clientId,
       this.params.agentName
     );
+    await this.params.bus.emit(this.params.clientId, {
+      type: "push",
+      source: "history",
+      input: {
+        message
+      },
+      output: {},
+      context: {
+        agentName: this.params.agentName,
+      }
+    });
   };
 
   /**

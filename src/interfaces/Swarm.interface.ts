@@ -1,5 +1,6 @@
 import { AgentName, IAgent } from "../interfaces/Agent.interface";
 import { ILogger } from "../interfaces/Logger.interface";
+import { IBus } from "./Bus.interface";
 import { ExecutionMode } from "./Session.interface";
 
 export interface ISwarmSessionCallbacks {
@@ -63,19 +64,21 @@ export interface ISwarmCallbacks extends ISwarmSessionCallbacks {
  */
 export interface ISwarmParams
   extends Omit<
-    ISwarmSchema,
-    keyof {
-      agentList: never;
-      onAgentChanged: never;
-    }
-  >, ISwarmCallbacks {
+      ISwarmSchema,
+      keyof {
+        agentList: never;
+        onAgentChanged: never;
+      }
+    >,
+    ISwarmCallbacks {
   /** Client identifier */
   clientId: string;
   /** Logger instance */
   logger: ILogger;
+  /** The bus instance. */
+  bus: IBus;
   /** Map of agent names to agent instances */
   agentMap: Record<AgentName, IAgent>;
-
 }
 
 /**

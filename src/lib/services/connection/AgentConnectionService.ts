@@ -14,6 +14,7 @@ import SessionValidationService from "../validation/SessionValidationService";
 import { ExecutionMode } from "../../../interfaces/Session.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import StorageConnectionService from "./StorageConnectionService";
+import BusService from "../base/BusService";
 
 /**
  * Service for managing agent connections.
@@ -21,6 +22,7 @@ import StorageConnectionService from "./StorageConnectionService";
  */
 export class AgentConnectionService implements IAgent {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+  private readonly busService = inject<BusService>(TYPES.busService);
   private readonly contextService = inject<TContextService>(
     TYPES.contextService
   );
@@ -81,6 +83,7 @@ export class AgentConnectionService implements IAgent {
         agentName,
         validate,
         logger: this.loggerService,
+        bus: this.busService,
         history: this.historyConnectionService.getHistory(clientId, agentName),
         prompt,
         system,

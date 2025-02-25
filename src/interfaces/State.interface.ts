@@ -1,3 +1,4 @@
+import { IBus } from "./Bus.interface";
 import { ILogger } from "./Logger.interface";
 
 export type IStateData = any;
@@ -63,7 +64,6 @@ export interface IStateCallbacks<T extends IStateData = IStateData> {
  * @template T - The type of the state data.
  */
 export interface IStateSchema<T extends IStateData = IStateData> {
-
   /**
    * The agents can share the state
    */
@@ -121,6 +121,9 @@ export interface IStateParams<T extends IStateData = IStateData>
    * The logger instance.
    */
   logger: ILogger;
+
+  /** The bus instance. */
+  bus: IBus;
 }
 
 /**

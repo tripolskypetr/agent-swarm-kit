@@ -117,6 +117,17 @@ export class ClientState<State extends IStateData = IStateData>
         this.params.stateName
       );
     }
+    await this.params.bus.emit(this.params.clientId, {
+      type: "set-state",
+      source: "state",
+      input: {},
+      output: {
+        state: this._state,
+      },
+      context: {
+        stateName: this.params.stateName,
+      }
+    });
     return this._state;
   };
 
@@ -136,6 +147,17 @@ export class ClientState<State extends IStateData = IStateData>
         this.params.stateName
       );
     }
+    await this.params.bus.emit(this.params.clientId, {
+      type: "get-state",
+      source: "state",
+      input: {},
+      output: {
+        state: this._state,
+      },
+      context: {
+        stateName: this.params.stateName,
+      }
+    });
     return this._state;
   };
 

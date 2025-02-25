@@ -28,8 +28,10 @@ import EmbeddingValidationService from "../services/validation/EmbeddingValidati
 import StateSchemaService from "../services/schema/StateSchemaService";
 import StateConnectionService from "../services/connection/StateConnectionService";
 import StatePublicService from "../services/public/StatePublicService";
+import BusService from "../services/base/BusService";
 
 {
+    provide(TYPES.busService, () => new BusService());
     provide(TYPES.loggerService, () => new LoggerService());
     provide(TYPES.contextService, () => new ContextService());
 }

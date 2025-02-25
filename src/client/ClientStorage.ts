@@ -155,6 +155,21 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         this.params.storageName
       );
     }
+    await this.params.bus.emit(this.params.clientId, {
+      type: "take",
+      source: "storage",
+      input: {
+        search,
+        total,
+        score,
+      },
+      output: {
+        indexed,
+      },
+      context: {
+        storageName: this.params.storageName,
+      }
+    });
     return indexed.take(total, score);
   };
 
@@ -180,6 +195,17 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         this.params.storageName
       );
     }
+    await this.params.bus.emit(this.params.clientId, {
+      type: "upsert",
+      source: "storage",
+      input: {
+        item,
+      },
+      output: {},
+      context: {
+        storageName: this.params.storageName,
+      }
+    });
   };
 
   /**
@@ -203,6 +229,17 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         this.params.storageName
       );
     }
+    await this.params.bus.emit(this.params.clientId, {
+      type: "remove",
+      source: "storage",
+      input: {
+        itemId,
+      },
+      output: {},
+      context: {
+        storageName: this.params.storageName,
+      }
+    });
   };
 
   /**
@@ -215,6 +252,15 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     );
     this._itemMap.clear();
     this._createEmbedding.clear();
+    await this.params.bus.emit(this.params.clientId, {
+      type: "clear",
+      source: "storage",
+      input: {},
+      output: {},
+      context: {
+        storageName: this.params.storageName,
+      }
+    });
   };
 
   /**
@@ -229,7 +275,21 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         id: itemId,
       }
     );
-    return this._itemMap.get(itemId) ?? null;
+    const result = this._itemMap.get(itemId) ?? null;
+    await this.params.bus.emit(this.params.clientId, {
+      type: "get",
+      source: "storage",
+      input: {
+        itemId,
+      },
+      output: {
+        result,
+      },
+      context: {
+        storageName: this.params.storageName,
+      }
+    });
+    return result;
   };
 
   /**
@@ -250,6 +310,18 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         result.push(item);
       }
     }
+    await this.params.bus.emit(this.params.clientId, {
+      type: "list",
+      source: "storage",
+      input: {
+      },
+      output: {
+        result,
+      },
+      context: {
+        storageName: this.params.storageName,
+      }
+    });
     return result;
   };
 

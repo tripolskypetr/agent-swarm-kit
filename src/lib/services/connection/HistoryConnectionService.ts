@@ -10,6 +10,7 @@ import SessionValidationService from "../validation/SessionValidationService";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import { IHistoryAdapter } from "../../../classes/History";
+import BusService from "../base/BusService";
 
 /**
  * Service for managing history connections.
@@ -17,6 +18,7 @@ import { IHistoryAdapter } from "../../../classes/History";
  */
 export class HistoryConnectionService implements IHistory {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+  private readonly busService = inject<BusService>(TYPES.busService);
   private readonly contextService = inject<TContextService>(
     TYPES.contextService
   );
@@ -38,6 +40,7 @@ export class HistoryConnectionService implements IHistory {
       return new ClientHistory({
         clientId,
         agentName,
+        bus: this.busService,
         items: GLOBAL_CONFIG.CC_GET_AGENT_HISTORY_ADAPTER(clientId, agentName),
         logger: this.loggerService,
       });

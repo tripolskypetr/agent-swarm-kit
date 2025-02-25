@@ -11,6 +11,7 @@ import {
   StateName,
 } from "../../../interfaces/State.interface";
 import SessionValidationService from "../validation/SessionValidationService";
+import BusService from "../base/BusService";
 
 /**
  * Service for managing state connections.
@@ -21,6 +22,7 @@ export class StateConnectionService<T extends IStateData = IStateData>
   implements IState<T>
 {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+  private readonly busService = inject<BusService>(TYPES.busService);
   private readonly contextService = inject<TContextService>(
     TYPES.contextService
   );
@@ -51,12 +53,13 @@ export class StateConnectionService<T extends IStateData = IStateData>
         callbacks,
       } = this.stateSchemaService.get(stateName);
       if (!shared) {
-        throw new Error(`agent-swarm state not shared stateName=${stateName}`)
+        throw new Error(`agent-swarm state not shared stateName=${stateName}`);
       }
       return new ClientState({
         clientId,
         stateName,
         logger: this.loggerService,
+        bus: this.busService,
         setState: setState
           ? (queued(
               async (...args) => await setState(...args)
@@ -93,6 +96,7 @@ export class StateConnectionService<T extends IStateData = IStateData>
         clientId,
         stateName,
         logger: this.loggerService,
+        bus: this.busService,
         setState: setState
           ? (queued(
               async (...args) => await setState(...args)

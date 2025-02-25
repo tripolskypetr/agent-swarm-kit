@@ -12,6 +12,7 @@ import {
   SendMessageFn,
 } from "../../../interfaces/Session.interface";
 import SwarmSchemaService from "../schema/SwarmSchemaService";
+import BusService from "../base/BusService";
 
 /**
  * Service for managing session connections.
@@ -19,6 +20,7 @@ import SwarmSchemaService from "../schema/SwarmSchemaService";
  */
 export class SessionConnectionService implements ISession {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+  private readonly busService = inject<BusService>(TYPES.busService);
   private readonly contextService = inject<TContextService>(
     TYPES.contextService
   );
@@ -44,6 +46,7 @@ export class SessionConnectionService implements ISession {
       return new ClientSession({
         clientId,
         logger: this.loggerService,
+        bus: this.busService,
         swarm: this.swarmConnectionService.getSwarm(clientId, swarmName),
         swarmName,
         ...callbacks,

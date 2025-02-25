@@ -70,6 +70,19 @@ export class ClientSwarm implements ISwarm {
       { agentName, expectAgent }
     );
 
+    await this.params.bus.emit(this.params.clientId, {
+      type: "wait-for-output",
+      source: "swarm",
+      input: {
+      },
+      output: {
+        result: output,
+      },
+      context: {
+        swarmName: this.params.swarmName,
+      }
+    });
+
     return output;
 
   }) as () => Promise<string>;
@@ -89,6 +102,17 @@ export class ClientSwarm implements ISwarm {
         this.params.defaultAgent
       );
     }
+    await this.params.bus.emit(this.params.clientId, {
+      type: "get-agent-name",
+      source: "swarm",
+      input: {},
+      output: {
+        activeAgent: this._activeAgent,
+      },
+      context: {
+        swarmName: this.params.swarmName,
+      }
+    });
     return this._activeAgent;
   };
 
@@ -101,7 +125,19 @@ export class ClientSwarm implements ISwarm {
       `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgent`
     );
     const agent = await this.getAgentName();
-    return this.params.agentMap[agent];
+    const result = this.params.agentMap[agent];
+    await this.params.bus.emit(this.params.clientId, {
+      type: "get-agent",
+      source: "swarm",
+      input: {
+        result,
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      }
+    });
+    return result;
   };
 
   /**
@@ -118,6 +154,18 @@ export class ClientSwarm implements ISwarm {
       throw new Error(`agent-swarm agent ${agentName} not in the swarm`);
     }
     this.params.agentMap[agentName] = agent;
+    await this.params.bus.emit(this.params.clientId, {
+      type: "set-agent-ref",
+      source: "swarm",
+      input: {
+        agentName, 
+        agent,
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      }
+    });
     await this._agentChangedSubject.next([agentName, agent]);
   };
 
@@ -135,6 +183,17 @@ export class ClientSwarm implements ISwarm {
       agentName,
       this.params.swarmName
     );
+    await this.params.bus.emit(this.params.clientId, {
+      type: "set-agent-name",
+      source: "swarm",
+      input: {
+        agentName,
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      }
+    });
   };
 }
 

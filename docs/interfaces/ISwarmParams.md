@@ -20,6 +20,14 @@ logger: ILogger
 
 Logger instance
 
+### bus
+
+```ts
+bus: IBus
+```
+
+The bus instance.
+
 ### agentMap
 
 ```ts

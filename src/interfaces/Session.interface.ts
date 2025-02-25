@@ -1,6 +1,10 @@
 import { IIncomingMessage, IOutgoingMessage } from "../model/EmitMessage.model";
 import { ILogger } from "../interfaces/Logger.interface";
-import ISwarm, { ISwarmSessionCallbacks, SwarmName } from "../interfaces/Swarm.interface";
+import ISwarm, {
+  ISwarmSessionCallbacks,
+  SwarmName,
+} from "../interfaces/Swarm.interface";
+import { IBus } from "./Bus.interface";
 
 /**
  * Parameters required to create a session.
@@ -9,6 +13,7 @@ import ISwarm, { ISwarmSessionCallbacks, SwarmName } from "../interfaces/Swarm.i
 export interface ISessionParams extends ISessionSchema, ISwarmSessionCallbacks {
   clientId: string;
   logger: ILogger;
+  bus: IBus;
   swarm: ISwarm;
   swarmName: SwarmName;
 }
@@ -17,8 +22,7 @@ export interface ISessionParams extends ISessionSchema, ISwarmSessionCallbacks {
  * Schema for session data.
  * @interface
  */
-export interface ISessionSchema {
-}
+export interface ISessionSchema {}
 
 /**
  * Function type for sending messages.

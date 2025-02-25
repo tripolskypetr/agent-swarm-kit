@@ -1,4 +1,5 @@
 const baseServices = {
+    busService: Symbol('busService'),
     loggerService: Symbol('loggerService'),
     contextService: Symbol('contextService'),
 };

@@ -35,6 +35,8 @@ export * from "./functions/getLastAssistantMessage";
 export * from "./functions/getLastSystemMessage";
 export * from "./functions/makeAutoDispose";
 
+export * from './hooks/useAfterConnect';
+
 export { IAgentSchema } from "./interfaces/Agent.interface";
 export {
   ICompletionSchema,
@@ -55,6 +57,12 @@ export {
   SendMessageFn,
   ReceiveMessageFn,
 } from "./interfaces/Session.interface";
+
+export {
+  EventSource,
+  IBaseEvent,
+  IBaseEventContext,
+} from "./model/Event.model";
 
 export { setConfig } from "./config/params";
 

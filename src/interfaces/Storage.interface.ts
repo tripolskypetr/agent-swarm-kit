@@ -5,6 +5,7 @@ import {
   IEmbeddingSchema,
 } from "./Embedding.interface";
 import { ILogger } from "./Logger.interface";
+import { IBus } from "./Bus.interface";
 
 type StorageId = string | number;
 
@@ -129,6 +130,9 @@ export interface IStorageParams<T extends IStorageData = IStorageData>
    * Logger instance.
    */
   logger: ILogger;
+
+  /** The bus instance. */
+  bus: IBus;
 }
 
 /**

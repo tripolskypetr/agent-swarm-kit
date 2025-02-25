@@ -9,6 +9,7 @@ import AgentConnectionService from "./AgentConnectionService";
 import { AgentName, IAgent } from "../../../interfaces/Agent.interface";
 import ISwarm from "../../../interfaces/Swarm.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import BusService from "../base/BusService";
 
 /**
  * Service for managing swarm connections.
@@ -16,6 +17,7 @@ import { GLOBAL_CONFIG } from "../../../config/params";
  */
 export class SwarmConnectionService implements ISwarm {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+  private readonly busService = inject<BusService>(TYPES.busService);
   private readonly contextService = inject<TContextService>(
     TYPES.contextService
   );
@@ -52,6 +54,7 @@ export class SwarmConnectionService implements ISwarm {
         defaultAgent,
         swarmName,
         logger: this.loggerService,
+        bus: this.busService,
         async onAgentChanged(clientId, agentName, swarmName) {
           if (callbacks && callbacks.onAgentChanged) {
             callbacks.onAgentChanged(clientId, agentName, swarmName);

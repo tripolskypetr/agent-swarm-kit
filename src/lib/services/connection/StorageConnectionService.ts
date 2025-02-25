@@ -12,6 +12,7 @@ import {
 } from "../../../interfaces/Storage.interface";
 import EmbeddingSchemaService from "../schema/EmbeddingSchemaService";
 import SessionValidationService from "../validation/SessionValidationService";
+import BusService from "../base/BusService";
 
 /**
  * Service for managing storage connections.
@@ -19,6 +20,7 @@ import SessionValidationService from "../validation/SessionValidationService";
  */
 export class StorageConnectionService implements IStorage {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+  private readonly busService = inject<BusService>(TYPES.busService);
   private readonly contextService = inject<TContextService>(
     TYPES.contextService
   );
@@ -28,7 +30,7 @@ export class StorageConnectionService implements IStorage {
   );
 
   private readonly sessionValidationService = inject<SessionValidationService>(
-    TYPES.sessionValidationService,
+    TYPES.sessionValidationService
   );
 
   private readonly embeddingSchemaService = inject<EmbeddingSchemaService>(
@@ -57,7 +59,9 @@ export class StorageConnectionService implements IStorage {
         callbacks: embedding,
       } = this.embeddingSchemaService.get(embeddingName);
       if (!shared) {
-        throw new Error(`agent-swarm storage not shared storageName=${storageName}`)
+        throw new Error(
+          `agent-swarm storage not shared storageName=${storageName}`
+        );
       }
       return new ClientStorage({
         clientId,
@@ -69,6 +73,7 @@ export class StorageConnectionService implements IStorage {
         getData,
         shared,
         logger: this.loggerService,
+        bus: this.busService,
         ...embedding,
         callbacks,
       });
@@ -110,6 +115,7 @@ export class StorageConnectionService implements IStorage {
         getData,
         shared,
         logger: this.loggerService,
+        bus: this.busService,
         ...embedding,
         callbacks,
       });
@@ -125,7 +131,7 @@ export class StorageConnectionService implements IStorage {
   public take = async (
     search: string,
     total: number,
-    score?: number,
+    score?: number
   ): Promise<IStorageData[]> => {
     this.loggerService.log(`storageConnectionService take`, {
       context: this.contextService.context,

@@ -20,6 +20,14 @@ logger: ILogger
 
 The logger instance.
 
+### bus
+
+```ts
+bus: IBus
+```
+
+The bus instance.
+
 ### history
 
 ```ts
