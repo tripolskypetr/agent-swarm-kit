@@ -6,7 +6,7 @@ import { StateName } from "../interfaces/State.interface";
 /**
  * Interface representing the base context for an event.
  */
-export interface IBaseEventContext {
+export interface IBusEventContext {
   /**
    * The name of the agent.
    */
@@ -41,6 +41,11 @@ export interface IBaseEvent {
    * The source of the event.
    */
   source: EventSource;
+  
+  /**
+   * The client id
+   */
+  clientId: string;
 }
 
 export interface IBusEvent extends IBaseEvent {
@@ -62,7 +67,7 @@ export interface IBusEvent extends IBaseEvent {
   /**
    * The context of the event.
    */
-  context: Partial<IBaseEventContext>;
+  context: Partial<IBusEventContext>;
 }
 
 export interface ICustomEvent<T extends any = any> extends IBaseEvent {

@@ -390,7 +390,7 @@ type StateName = string;
 /**
  * Interface representing the base context for an event.
  */
-interface IBaseEventContext {
+interface IBusEventContext {
     /**
      * The name of the agent.
      */
@@ -420,6 +420,10 @@ interface IBaseEvent {
      * The source of the event.
      */
     source: EventSource;
+    /**
+     * The client id
+     */
+    clientId: string;
 }
 interface IBusEvent extends IBaseEvent {
     /**
@@ -437,7 +441,13 @@ interface IBusEvent extends IBaseEvent {
     /**
      * The context of the event.
      */
-    context: Partial<IBaseEventContext>;
+    context: Partial<IBusEventContext>;
+}
+interface ICustomEvent<T extends any = any> extends IBaseEvent {
+    /**
+     * The payload of the event, if any.
+     */
+    payload?: T;
 }
 
 interface IBus {
@@ -2911,16 +2921,17 @@ declare class StateSchemaService {
 
 declare class BusService implements IBus {
     private readonly loggerService;
+    private readonly sessionValidationService;
     private _eventSourceSet;
+    private _eventWildcardMap;
     private getEventSubject;
     /**
      * Subscribes to events for a specific client and source.
      * @param {string} clientId - The client ID.
      * @param {EventSource} source - The event source.
      * @param {(event: T) => void} fn - The callback function to handle the event.
-     * @returns {Subscription} The subscription object.
      */
-    subscribe: <T extends IBaseEvent>(clientId: string, source: EventSource, fn: (event: T) => void) => () => void;
+    subscribe: <T extends IBaseEvent>(clientId: string, source: EventSource, fn: (event: T) => void) => void;
     /**
      * Subscribes to a single event for a specific client and source.
      * @param {string} clientId - The client ID.
@@ -3312,9 +3323,8 @@ declare const executeForce: (content: string, clientId: string) => Promise<strin
  * @template T - The type of the data payload.
  * @param {string} clientId - The ID of the client to listen for events from.
  * @param {(data: T) => void} fn - The callback function to execute when the event is received. The data payload is passed as an argument to this function.
- * @returns {void} - Returns nothing.
  */
-declare const listenEvent: <T extends unknown = any>(clientId: string, topicName: string, fn: (data: T) => void) => () => void;
+declare const listenEvent: <T extends unknown = any>(clientId: string, topicName: string, fn: (data: T) => void) => void;
 
 /**
  * Retrieves the last message sent by the user from the client's message history.
@@ -3430,54 +3440,48 @@ declare const cancelOutputForce: (clientId: string) => Promise<void>;
  *
  * @param {string} clientId - The ID of the client to subscribe to events for.
  * @param {function} fn - The callback function to handle the event.
- * @returns {function} - A function to unsubscribe from the event.
  */
-declare const listenAgentEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
+declare const listenAgentEvent: (clientId: string, fn: (event: IBusEvent) => void) => void;
 
 /**
  * Hook to subscribe to history events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to.
  * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
- * @returns {Function} - The unsubscribe function.
  */
-declare const listenHistoryEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
+declare const listenHistoryEvent: (clientId: string, fn: (event: IBusEvent) => void) => void;
 
 /**
  * Hook to subscribe to session events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to session events for.
  * @param {function} fn - The callback function to handle the session events.
- * @returns {function} - The unsubscribe function to stop listening to session events.
  */
-declare const listenSessionEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
+declare const listenSessionEvent: (clientId: string, fn: (event: IBusEvent) => void) => void;
 
 /**
  * Hook to subscribe to state events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to.
  * @param {function} fn - The callback function to handle the event.
- * @returns {function} - The unsubscribe function to stop listening to the events.
  */
-declare const listenStateEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
+declare const listenStateEvent: (clientId: string, fn: (event: IBusEvent) => void) => void;
 
 /**
  * Hook to subscribe to storage events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to storage events for.
  * @param {function} fn - The callback function to handle the storage event.
- * @returns {function} - A function to unsubscribe from the storage events.
  */
-declare const listenStorageEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
+declare const listenStorageEvent: (clientId: string, fn: (event: IBusEvent) => void) => void;
 
 /**
  * Hook to subscribe to swarm events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to events for.
  * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
- * @returns {Function} - A function to unsubscribe from the event.
  */
-declare const listenSwarmEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
+declare const listenSwarmEvent: (clientId: string, fn: (event: IBusEvent) => void) => void;
 
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
@@ -3640,4 +3644,4 @@ declare class StateUtils implements TState {
  */
 declare const State: StateUtils;
 
-export { ContextService, type EventSource, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBaseEventContext, type ICompletionArgs, type ICompletionSchema, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenEvent, listenHistoryEvent, listenSessionEvent, listenStateEvent, listenStorageEvent, listenSwarmEvent, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { ContextService, type EventSource, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenEvent, listenHistoryEvent, listenSessionEvent, listenStateEvent, listenStorageEvent, listenSwarmEvent, makeAutoDispose, makeConnection, session, setConfig, swarm };

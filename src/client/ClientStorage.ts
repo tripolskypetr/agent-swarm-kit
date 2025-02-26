@@ -169,7 +169,8 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       },
       context: {
         storageName: this.params.storageName,
-      }
+      },
+      clientId: this.params.clientId,
     });
     return indexed.take(total, score);
   };
@@ -205,7 +206,8 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       output: {},
       context: {
         storageName: this.params.storageName,
-      }
+      },
+      clientId: this.params.clientId,
     });
   };
 
@@ -239,7 +241,8 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       output: {},
       context: {
         storageName: this.params.storageName,
-      }
+      },
+      clientId: this.params.clientId,
     });
   };
 
@@ -260,7 +263,8 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       output: {},
       context: {
         storageName: this.params.storageName,
-      }
+      },
+      clientId: this.params.clientId,
     });
   };
 
@@ -288,7 +292,8 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       },
       context: {
         storageName: this.params.storageName,
-      }
+      },
+      clientId: this.params.clientId,
     });
     return result;
   };
@@ -321,7 +326,8 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       },
       context: {
         storageName: this.params.storageName,
-      }
+      },
+      clientId: this.params.clientId,
     });
     return result;
   };

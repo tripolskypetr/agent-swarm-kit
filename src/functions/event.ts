@@ -1,4 +1,4 @@
-import { EventSource } from "../model/Event.model";
+import { EventSource, ICustomEvent } from "../model/Event.model";
 import swarm from "../lib";
 
 const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
@@ -29,8 +29,9 @@ export const event = <T extends unknown = any>(
   if (DISALLOWED_EVENT_SOURCE_LIST.has(topicName)) {
     throw new Error(`agent-swarm event topic is reserved topicName=${topicName}`);
   }
-  return swarm.busService.emit(clientId, {
+  return swarm.busService.emit<ICustomEvent>(clientId, {
     source: topicName,
     payload,
+    clientId,
   })
 };

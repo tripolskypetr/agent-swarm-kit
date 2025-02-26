@@ -127,7 +127,8 @@ export class ClientState<State extends IStateData = IStateData>
       },
       context: {
         stateName: this.params.stateName,
-      }
+      },
+      clientId: this.params.clientId,
     });
     return this._state;
   };
@@ -157,7 +158,8 @@ export class ClientState<State extends IStateData = IStateData>
       },
       context: {
         stateName: this.params.stateName,
-      }
+      },
+      clientId: this.params.clientId,
     });
     return this._state;
   };

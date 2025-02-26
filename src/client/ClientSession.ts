@@ -54,7 +54,8 @@ export class ClientSession implements ISession {
       output: {},
       context: {
         swarmName: this.params.swarmName,
-      }
+      },
+      clientId: this.params.clientId,
     });
   };
 
@@ -95,7 +96,8 @@ export class ClientSession implements ISession {
       },
       context: {
         swarmName: this.params.swarmName,
-      }
+      },
+      clientId: this.params.clientId,
     });
     return output;
   };
@@ -126,7 +128,8 @@ export class ClientSession implements ISession {
       output: {},
       context: {
         swarmName: this.params.swarmName,
-      }
+      },
+      clientId: this.params.clientId,
     });
     return result;
   };
@@ -154,7 +157,8 @@ export class ClientSession implements ISession {
       output: {},
       context: {
         swarmName: this.params.swarmName,
-      }
+      },
+      clientId: this.params.clientId,
     });
     return result;
   };
@@ -176,7 +180,8 @@ export class ClientSession implements ISession {
       output: {},
       context: {
         swarmName: this.params.swarmName,
-      }
+      },
+      clientId: this.params.clientId,
     });
     return result;
   };
@@ -204,7 +209,8 @@ export class ClientSession implements ISession {
       output: {},
       context: {
         swarmName: this.params.swarmName,
-      }
+      },
+      clientId: this.params.clientId,
     });
     return result
   };
@@ -235,7 +241,8 @@ export class ClientSession implements ISession {
       output: {},
       context: {
         swarmName: this.params.swarmName,
-      }
+      },
+      clientId: this.params.clientId,
     });
     return async (incoming: IIncomingMessage) => {
       this.params.logger.debug(

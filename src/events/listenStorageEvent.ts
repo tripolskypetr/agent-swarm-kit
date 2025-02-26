@@ -1,12 +1,20 @@
 import { IBusEvent } from "../model/Event.model";
 import swarm from "../lib";
 
+const validateClientId = (clientId: string) => {
+  if (clientId === "*") {
+    return;
+  }
+  if (!swarm.sessionValidationService.hasSession(clientId)) {
+    throw new Error(`agent-swarm listenStorageEvent session not found for clientId=${clientId}`);
+  }
+};
+
 /**
  * Hook to subscribe to storage events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to storage events for.
  * @param {function} fn - The callback function to handle the storage event.
- * @returns {function} - A function to unsubscribe from the storage events.
  */
 export const listenStorageEvent = (
   clientId: string,
@@ -15,7 +23,8 @@ export const listenStorageEvent = (
   swarm.loggerService.log("middleware listenStorageEvent", {
     clientId,
   });
-  return swarm.busService.subscribe(
+  validateClientId(clientId)
+  swarm.busService.subscribe(
     clientId,
     "storage",
     fn

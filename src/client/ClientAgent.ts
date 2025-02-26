@@ -98,7 +98,8 @@ export class ClientAgent implements IAgent {
         },
         context: {
           agentName: this.params.agentName,
-        }
+        },
+        clientId: this.params.clientId,
       });
       return;
     }
@@ -117,7 +118,8 @@ export class ClientAgent implements IAgent {
       },
       context: {
         agentName: this.params.agentName,
-      }
+      },
+      clientId: this.params.clientId,
     });
     return;
   };
@@ -257,7 +259,8 @@ export class ClientAgent implements IAgent {
       output: {},
       context: {
         agentName: this.params.agentName,
-      }
+      },
+      clientId: this.params.clientId,
     });
   };
 
@@ -284,7 +287,8 @@ export class ClientAgent implements IAgent {
       output: {},
       context: {
         agentName: this.params.agentName,
-      }
+      },
+      clientId: this.params.clientId,
     });
   };
 
@@ -304,7 +308,8 @@ export class ClientAgent implements IAgent {
       output: {},
       context: {
         agentName: this.params.agentName,
-      }
+      },
+      clientId: this.params.clientId,
     });
   };
 
@@ -339,7 +344,8 @@ export class ClientAgent implements IAgent {
       output: {},
       context: {
         agentName: this.params.agentName,
-      }
+      },
+      clientId: this.params.clientId,
     });
   };
 
@@ -378,7 +384,8 @@ export class ClientAgent implements IAgent {
       output: {},
       context: {
         agentName: this.params.agentName,
-      }
+      },
+      clientId: this.params.clientId,
     });
   };
 

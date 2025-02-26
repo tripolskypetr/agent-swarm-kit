@@ -39,12 +39,12 @@ export * from './functions/event';
 export * from './functions/cancelOutput';
 export * from './functions/cancelOutputForce';
 
-export * from './middlewares/listenAgentEvent';
-export * from './middlewares/listenHistoryEvent';
-export * from './middlewares/listenSessionEvent';
-export * from './middlewares/listenStateEvent';
-export * from './middlewares/listenStorageEvent';
-export * from './middlewares/listenSwarmEvent';
+export * from './events/listenAgentEvent';
+export * from './events/listenHistoryEvent';
+export * from './events/listenSessionEvent';
+export * from './events/listenStateEvent';
+export * from './events/listenStorageEvent';
+export * from './events/listenSwarmEvent';
 
 export { IAgentSchema } from "./interfaces/Agent.interface";
 export {
@@ -70,7 +70,9 @@ export {
 export {
   EventSource,
   IBaseEvent,
-  IBaseEventContext,
+  IBusEvent,
+  ICustomEvent,
+  IBusEventContext,
 } from "./model/Event.model";
 
 export { setConfig } from "./config/params";

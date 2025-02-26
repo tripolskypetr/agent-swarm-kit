@@ -53,7 +53,8 @@ export class ClientHistory implements IHistory {
       output: {},
       context: {
         agentName: this.params.agentName,
-      }
+      },
+      clientId: this.params.clientId,
     });
   };
 

@@ -65,6 +65,7 @@ export class ClientSwarm implements ISwarm {
       context: {
         swarmName: this.params.swarmName,
       },
+      clientId: this.params.clientId,
     });
   };
 
@@ -128,6 +129,7 @@ export class ClientSwarm implements ISwarm {
       context: {
         swarmName: this.params.swarmName,
       },
+      clientId: this.params.clientId,
     });
 
     return output;
@@ -158,6 +160,7 @@ export class ClientSwarm implements ISwarm {
       context: {
         swarmName: this.params.swarmName,
       },
+      clientId: this.params.clientId,
     });
     return this._activeAgent;
   };
@@ -182,6 +185,7 @@ export class ClientSwarm implements ISwarm {
       context: {
         swarmName: this.params.swarmName,
       },
+      clientId: this.params.clientId,
     });
     return result;
   };
@@ -211,6 +215,7 @@ export class ClientSwarm implements ISwarm {
       context: {
         swarmName: this.params.swarmName,
       },
+      clientId: this.params.clientId,
     });
     await this._agentChangedSubject.next([agentName, agent]);
   };
@@ -239,6 +244,7 @@ export class ClientSwarm implements ISwarm {
       context: {
         swarmName: this.params.swarmName,
       },
+      clientId: this.params.clientId,
     });
   };
 }

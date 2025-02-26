@@ -1,12 +1,20 @@
 import { IBusEvent } from "../model/Event.model";
 import swarm from "../lib";
 
+const validateClientId = (clientId: string) => {
+  if (clientId === "*") {
+    return;
+  }
+  if (!swarm.sessionValidationService.hasSession(clientId)) {
+    throw new Error(`agent-swarm listenSessionEvent session not found for clientId=${clientId}`);
+  }
+};
+
 /**
  * Hook to subscribe to session events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to session events for.
  * @param {function} fn - The callback function to handle the session events.
- * @returns {function} - The unsubscribe function to stop listening to session events.
  */
 export const listenSessionEvent = (
   clientId: string,
@@ -15,7 +23,8 @@ export const listenSessionEvent = (
   swarm.loggerService.log("middleware listenSessionEvent", {
     clientId,
   });
-  return swarm.busService.subscribe(
+  validateClientId(clientId);
+  swarm.busService.subscribe(
     clientId,
     "session",
     fn

@@ -4,11 +4,14 @@ import LoggerService from "./LoggerService";
 import TYPES from "../../../lib/core/types";
 import { IBus } from "../../../interfaces/Bus.interface";
 import IBaseEvent, { EventSource } from "../../../model/Event.model";
+import SessionValidationService from "../validation/SessionValidationService";
 
 export class BusService implements IBus {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+  private readonly sessionValidationService = inject<SessionValidationService>(TYPES.sessionValidationService);
 
   private _eventSourceSet = new Set<EventSource>();
+  private _eventWildcardMap = new Map<EventSource, boolean>();
 
   private getEventSubject = memoize<
     (clientId: string, source: EventSource) => Subject<IBaseEvent>
@@ -22,7 +25,6 @@ export class BusService implements IBus {
    * @param {string} clientId - The client ID.
    * @param {EventSource} source - The event source.
    * @param {(event: T) => void} fn - The callback function to handle the event.
-   * @returns {Subscription} The subscription object.
    */
   public subscribe = <T extends IBaseEvent>(
     clientId: string,
@@ -33,8 +35,11 @@ export class BusService implements IBus {
       clientId,
       source,
     });
+    if (clientId === "*") {
+      this._eventWildcardMap.set(source, true);
+    }
     this._eventSourceSet.add(source);
-    return this.getEventSubject(clientId, source).subscribe(fn);
+    this.getEventSubject(clientId, source).subscribe(fn);
   };
 
   /**
@@ -55,6 +60,9 @@ export class BusService implements IBus {
       clientId,
       source,
     });
+    if (clientId === "*") {
+      this._eventWildcardMap.set(source, true);
+    }
     this._eventSourceSet.add(source);
     return this.getEventSubject(clientId, source).filter(filterFn).once(fn);
   };
@@ -70,10 +78,15 @@ export class BusService implements IBus {
       clientId,
       event,
     });
-    if (!this.getEventSubject.has(`${clientId}-${event.source}`)) {
+    if (!this.sessionValidationService.hasSession(clientId)) {
       return;
     }
-    await this.getEventSubject(clientId, event.source).next(event);
+    if (this.getEventSubject.has(`${clientId}-${event.source}`)) {
+      await this.getEventSubject(clientId, event.source).next(event);
+    }
+    if (this._eventWildcardMap.has(event.source)) {
+      await this.getEventSubject("*", event.source).next(event);
+    }
   };
 
   /**
