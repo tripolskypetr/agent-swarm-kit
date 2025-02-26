@@ -120,7 +120,7 @@ export class ClientState<State extends IStateData = IStateData>
     }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "set-state",
-      source: "state",
+      source: "state-bus",
       input: {},
       output: {
         state: this._state,
@@ -151,7 +151,7 @@ export class ClientState<State extends IStateData = IStateData>
     }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "get-state",
-      source: "state",
+      source: "state-bus",
       input: {},
       output: {
         state: this._state,

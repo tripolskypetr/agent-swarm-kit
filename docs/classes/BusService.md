@@ -16,10 +16,22 @@ constructor();
 loggerService: any
 ```
 
+### sessionValidationService
+
+```ts
+sessionValidationService: any
+```
+
 ### _eventSourceSet
 
 ```ts
 _eventSourceSet: any
+```
+
+### _eventWildcardMap
+
+```ts
+_eventWildcardMap: any
 ```
 
 ### getEventSubject
@@ -31,7 +43,7 @@ getEventSubject: any
 ### subscribe
 
 ```ts
-subscribe: <T extends IBaseEvent>(clientId: string, source: string, fn: (event: T) => void) => () => void
+subscribe: <T extends IBaseEvent>(clientId: string, source: string, fn: (event: T) => void) => void
 ```
 
 Subscribes to events for a specific client and source.

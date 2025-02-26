@@ -26,7 +26,7 @@ export const listenHistoryEvent = (
   validateClientId(clientId);
   swarm.busService.subscribe(
     clientId,
-    "history",
+    "history-bus",
     fn
   );
 };

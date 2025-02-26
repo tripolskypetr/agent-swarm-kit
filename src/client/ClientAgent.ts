@@ -88,7 +88,7 @@ export class ClientAgent implements IAgent {
       await this._outputSubject.next(result);
       await this.params.bus.emit<IBusEvent>(this.params.clientId, {
         type: "emit-output",
-        source: "agent",
+        source: "agent-bus",
         input: {
           mode,
           rawResult,
@@ -108,7 +108,7 @@ export class ClientAgent implements IAgent {
     await this._outputSubject.next(result);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "emit-output",
-      source: "agent",
+      source: "agent-bus",
       input: {
         mode,
         rawResult,
@@ -252,7 +252,7 @@ export class ClientAgent implements IAgent {
     });
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-user-message",
-      source: "agent",
+      source: "agent-bus",
       input: {
         message,
       },
@@ -282,7 +282,7 @@ export class ClientAgent implements IAgent {
     });
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-flush",
-      source: "agent",
+      source: "agent-bus",
       input: {},
       output: {},
       context: {
@@ -303,7 +303,7 @@ export class ClientAgent implements IAgent {
     await this._agentChangeSubject.next(AGENT_CHANGE_SYMBOL);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-agent-change",
-      source: "agent",
+      source: "agent-bus",
       input: {},
       output: {},
       context: {
@@ -337,7 +337,7 @@ export class ClientAgent implements IAgent {
     });
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-system-message",
-      source: "agent",
+      source: "agent-bus",
       input: {
         message,
       },
@@ -376,7 +376,7 @@ export class ClientAgent implements IAgent {
     await this._toolCommitSubject.next();
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-tool-output",
-      source: "agent",
+      source: "agent-bus",
       input: {
         toolId,
         content,

@@ -413,6 +413,10 @@ interface IBusEventContext {
  */
 type EventSource = string;
 /**
+ * Type representing the possible sources of an event for the internal bus.
+ */
+type EventBusSource = "agent-bus" | "history-bus" | "session-bus" | "state-bus" | "storage-bus" | "swarm-bus";
+/**
  * Interface representing the base structure of an event.
  */
 interface IBaseEvent {
@@ -425,7 +429,13 @@ interface IBaseEvent {
      */
     clientId: string;
 }
-interface IBusEvent extends IBaseEvent {
+interface IBusEvent extends Omit<IBaseEvent, keyof {
+    source: never;
+}> {
+    /**
+     * The source of the event.
+     */
+    source: EventBusSource;
     /**
      * The type of the event.
      */

@@ -46,7 +46,7 @@ export class ClientHistory implements IHistory {
     );
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "push",
-      source: "history",
+      source: "history-bus",
       input: {
         message
       },

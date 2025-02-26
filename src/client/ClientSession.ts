@@ -47,7 +47,7 @@ export class ClientSession implements ISession {
     await this._emitSubject.next(message);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "emit",
-      source: "session",
+      source: "session-bus",
       input: {
         message
       },
@@ -86,7 +86,7 @@ export class ClientSession implements ISession {
     const output = await outputAwaiter;
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "execute",
-      source: "session",
+      source: "session-bus",
       input: {
         message,
         mode,
@@ -120,7 +120,7 @@ export class ClientSession implements ISession {
     const result = await agent.commitToolOutput(toolId, content);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-tool-output",
-      source: "session",
+      source: "session-bus",
       input: {
         toolId,
         content,
@@ -150,7 +150,7 @@ export class ClientSession implements ISession {
     const result = await agent.commitUserMessage(message);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-user-message",
-      source: "session",
+      source: "session-bus",
       input: {
         message,
       },
@@ -175,7 +175,7 @@ export class ClientSession implements ISession {
     const result = await agent.commitFlush();
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-flush",
-      source: "session",
+      source: "session-bus",
       input: {},
       output: {},
       context: {
@@ -202,7 +202,7 @@ export class ClientSession implements ISession {
     const result = await agent.commitSystemMessage(message);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-system-message",
-      source: "session",
+      source: "session-bus",
       input: {
         message
       },
@@ -236,7 +236,7 @@ export class ClientSession implements ISession {
     );
     this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "connect",
-      source: "session",
+      source: "session-bus",
       input: {},
       output: {},
       context: {

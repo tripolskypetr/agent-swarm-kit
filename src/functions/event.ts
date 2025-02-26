@@ -2,12 +2,12 @@ import { EventSource, ICustomEvent } from "../model/Event.model";
 import swarm from "../lib";
 
 const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
-    "agent",
-    "history",
-    "session",
-    "state",
-    "storage",
-    "swarm",
+    "agent-bus",
+    "history-bus",
+    "session-bus",
+    "state-bus",
+    "storage-bus",
+    "swarm-bus",
 ]);
 
 /**

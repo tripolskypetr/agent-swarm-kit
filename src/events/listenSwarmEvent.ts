@@ -26,7 +26,7 @@ export const listenSwarmEvent = (
   validateClientId(clientId);
   swarm.busService.subscribe(
     clientId,
-    "swarm",
+    "swarm-bus",
     fn
   );
 };

@@ -158,7 +158,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "take",
-      source: "storage",
+      source: "storage-bus",
       input: {
         search,
         total,
@@ -199,7 +199,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "upsert",
-      source: "storage",
+      source: "storage-bus",
       input: {
         item,
       },
@@ -234,7 +234,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "remove",
-      source: "storage",
+      source: "storage-bus",
       input: {
         itemId,
       },
@@ -258,7 +258,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     this._createEmbedding.clear();
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "clear",
-      source: "storage",
+      source: "storage-bus",
       input: {},
       output: {},
       context: {
@@ -283,7 +283,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     const result = this._itemMap.get(itemId) ?? null;
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "get",
-      source: "storage",
+      source: "storage-bus",
       input: {
         itemId,
       },
@@ -318,7 +318,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "list",
-      source: "storage",
+      source: "storage-bus",
       input: {
       },
       output: {

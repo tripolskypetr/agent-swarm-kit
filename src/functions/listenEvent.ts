@@ -2,12 +2,12 @@ import { EventSource, ICustomEvent } from "../model/Event.model";
 import swarm from "../lib";
 
 const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
-    "agent",
-    "history",
-    "session",
-    "state",
-    "storage",
-    "swarm",
+  "agent-bus",
+  "history-bus",
+  "session-bus",
+  "state-bus",
+  "storage-bus",
+  "swarm-bus",
 ]);
 
 const validateClientId = (clientId: string) => {
@@ -15,7 +15,9 @@ const validateClientId = (clientId: string) => {
     return;
   }
   if (!swarm.sessionValidationService.hasSession(clientId)) {
-    throw new Error(`agent-swarm listenEvent session not found for clientId=${clientId}`);
+    throw new Error(
+      `agent-swarm listenEvent session not found for clientId=${clientId}`
+    );
   }
 };
 
@@ -35,10 +37,14 @@ export const listenEvent = <T extends unknown = any>(
     clientId,
   });
   if (DISALLOWED_EVENT_SOURCE_LIST.has(topicName)) {
-    throw new Error(`agent-swarm listenEvent topic is reserved topicName=${topicName}`);
+    throw new Error(
+      `agent-swarm listenEvent topic is reserved topicName=${topicName}`
+    );
   }
   validateClientId(clientId);
-  return swarm.busService.subscribe<ICustomEvent<T>>(clientId, topicName, ({ payload }) =>
-    fn(payload)
+  return swarm.busService.subscribe<ICustomEvent<T>>(
+    clientId,
+    topicName,
+    ({ payload }) => fn(payload)
   );
 };

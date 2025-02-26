@@ -59,7 +59,7 @@ export class ClientSwarm implements ISwarm {
     });
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "cancel-output",
-      source: "swarm",
+      source: "swarm-bus",
       input: {},
       output: {},
       context: {
@@ -121,7 +121,7 @@ export class ClientSwarm implements ISwarm {
 
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "wait-for-output",
-      source: "swarm",
+      source: "swarm-bus",
       input: {},
       output: {
         result: output,
@@ -152,7 +152,7 @@ export class ClientSwarm implements ISwarm {
     }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "get-agent-name",
-      source: "swarm",
+      source: "swarm-bus",
       input: {},
       output: {
         activeAgent: this._activeAgent,
@@ -177,7 +177,7 @@ export class ClientSwarm implements ISwarm {
     const result = this.params.agentMap[agent];
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "get-agent",
-      source: "swarm",
+      source: "swarm-bus",
       input: {
         result,
       },
@@ -206,7 +206,7 @@ export class ClientSwarm implements ISwarm {
     this.params.agentMap[agentName] = agent;
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "set-agent-ref",
-      source: "swarm",
+      source: "swarm-bus",
       input: {
         agentName,
         agent,
@@ -236,7 +236,7 @@ export class ClientSwarm implements ISwarm {
     );
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "set-agent-name",
-      source: "swarm",
+      source: "swarm-bus",
       input: {
         agentName,
       },

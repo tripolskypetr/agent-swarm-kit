@@ -1,4 +1,4 @@
-# IBaseEventContext
+# IBusEventContext
 
 Interface representing the base context for an event.
 

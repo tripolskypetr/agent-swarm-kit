@@ -34,6 +34,17 @@ export interface IBusEventContext {
 export type EventSource = string;
 
 /**
+ * Type representing the possible sources of an event for the internal bus.
+ */
+export type EventBusSource =
+  | "agent-bus"
+  | "history-bus"
+  | "session-bus"
+  | "state-bus"
+  | "storage-bus"
+  | "swarm-bus";
+
+/**
  * Interface representing the base structure of an event.
  */
 export interface IBaseEvent {
@@ -41,14 +52,25 @@ export interface IBaseEvent {
    * The source of the event.
    */
   source: EventSource;
-  
+
   /**
    * The client id
    */
   clientId: string;
 }
 
-export interface IBusEvent extends IBaseEvent {
+export interface IBusEvent
+  extends Omit<
+    IBaseEvent,
+    keyof {
+      source: never;
+    }
+  > {
+  /**
+   * The source of the event.
+   */
+  source: EventBusSource;
+
   /**
    * The type of the event.
    */

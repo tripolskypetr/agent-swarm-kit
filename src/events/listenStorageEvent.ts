@@ -26,7 +26,7 @@ export const listenStorageEvent = (
   validateClientId(clientId)
   swarm.busService.subscribe(
     clientId,
-    "storage",
+    "storage-bus",
     fn
   );
 };
