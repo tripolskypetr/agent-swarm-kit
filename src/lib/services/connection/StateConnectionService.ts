@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import { memoize, queued } from "functools-kit";
-import { TContextService } from "../base/ContextService";
+import { TMethodContextService } from "../context/MethodContextService";
 import ClientState from "../../../client/ClientState";
 import StateSchemaService from "../schema/StateSchemaService";
 import {
@@ -23,8 +23,8 @@ export class StateConnectionService<T extends IStateData = IStateData>
 {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly busService = inject<BusService>(TYPES.busService);
-  private readonly contextService = inject<TContextService>(
-    TYPES.contextService
+  private readonly methodContextService = inject<TMethodContextService>(
+    TYPES.methodContextService
   );
 
   private readonly stateSchemaService = inject<StateSchemaService>(
@@ -119,8 +119,8 @@ export class StateConnectionService<T extends IStateData = IStateData>
   ): Promise<T> => {
     this.loggerService.log(`stateConnectionService setState`);
     const state = this.getStateRef(
-      this.contextService.context.clientId,
-      this.contextService.context.stateName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.stateName
     );
     await state.waitForInit();
     return await state.setState(dispatchFn);
@@ -133,8 +133,8 @@ export class StateConnectionService<T extends IStateData = IStateData>
   public getState = async (): Promise<T> => {
     this.loggerService.log(`stateConnectionService getState`);
     const state = this.getStateRef(
-      this.contextService.context.clientId,
-      this.contextService.context.stateName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.stateName
     );
     await state.waitForInit();
     return await state.getState();
@@ -146,22 +146,22 @@ export class StateConnectionService<T extends IStateData = IStateData>
    */
   public dispose = async (): Promise<void> => {
     this.loggerService.log(`stateConnectionService dispose`);
-    const key = `${this.contextService.context.clientId}-${this.contextService.context.stateName}`;
+    const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.stateName}`;
     if (!this.getStateRef.has(key)) {
       return;
     }
-    if (!this.getSharedStateRef.has(this.contextService.context.stateName)) {
+    if (!this.getSharedStateRef.has(this.methodContextService.context.stateName)) {
       const state = this.getStateRef(
-        this.contextService.context.clientId,
-        this.contextService.context.stateName
+        this.methodContextService.context.clientId,
+        this.methodContextService.context.stateName
       );
       await state.waitForInit();
       await state.dispose();
     }
     this.getStateRef.clear(key);
     this.sessionValidationService.removeStateUsage(
-      this.contextService.context.clientId,
-      this.contextService.context.stateName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.stateName
     );
   };
 }

@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import { SwarmConnectionService } from "../connection/SwarmConnectionService";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import ContextService from "../base/ContextService";
+import MethodContextService from "../context/MethodContextService";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
 import { AgentName, IAgent } from "../../../interfaces/Agent.interface";
 
@@ -36,7 +36,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.cancelOutput();
       },
@@ -63,7 +63,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
       methodName,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.waitForOutput();
       },
@@ -90,7 +90,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
       swarmName,
       methodName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.getAgentName();
       },
@@ -116,7 +116,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.getAgent();
       },
@@ -153,7 +153,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.setAgentRef(agentName, agent);
       },
@@ -187,7 +187,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.setAgentName(agentName);
       },
@@ -214,7 +214,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.dispose();
       },

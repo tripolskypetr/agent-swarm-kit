@@ -1,4 +1,4 @@
-import ContextService from "../services/base/ContextService";
+import MethodContextService from "../services/context/MethodContextService";
 import LoggerService from "../services/base/LoggerService";
 import AgentSchemaService from "../services/schema/AgentSchemaService";
 import AgentConnectionService from "../services/connection/AgentConnectionService";
@@ -29,11 +29,16 @@ import StateSchemaService from "../services/schema/StateSchemaService";
 import StateConnectionService from "../services/connection/StateConnectionService";
 import StatePublicService from "../services/public/StatePublicService";
 import BusService from "../services/base/BusService";
+import ExecutionContextService from "../services/context/ExecutionContextService";
 
 {
     provide(TYPES.busService, () => new BusService());
     provide(TYPES.loggerService, () => new LoggerService());
-    provide(TYPES.contextService, () => new ContextService());
+}
+
+{
+    provide(TYPES.methodContextService, () => new MethodContextService());
+    provide(TYPES.executionContextService, () => new ExecutionContextService());
 }
 
 {

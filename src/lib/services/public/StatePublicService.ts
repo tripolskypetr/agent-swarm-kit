@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import { StateConnectionService } from "../connection/StateConnectionService";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import ContextService from "../base/ContextService";
+import MethodContextService from "../context/MethodContextService";
 import {
   IStateData,
   StateName,
@@ -43,7 +43,7 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
       clientId,
       stateName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.stateConnectionService.setState(dispatchFn);
       },
@@ -73,7 +73,7 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
       clientId,
       stateName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.stateConnectionService.getState();
       },
@@ -100,7 +100,7 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
       clientId,
       stateName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.stateConnectionService.dispose();
       },

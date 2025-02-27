@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import { AgentConnectionService } from "../connection/AgentConnectionService";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import ContextService from "../base/ContextService";
+import MethodContextService from "../context/MethodContextService";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { ExecutionMode } from "../../../interfaces/Session.interface";
 
@@ -37,7 +37,7 @@ export class AgentPublicService implements TAgentConnectionService {
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.getAgent(clientId, agentName);
       },
@@ -73,7 +73,7 @@ export class AgentPublicService implements TAgentConnectionService {
       agentName,
       mode,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.execute(input, mode);
       },
@@ -100,7 +100,7 @@ export class AgentPublicService implements TAgentConnectionService {
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.waitForOutput();
       },
@@ -137,7 +137,7 @@ export class AgentPublicService implements TAgentConnectionService {
       toolId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitToolOutput(toolId, content);
       },
@@ -171,7 +171,7 @@ export class AgentPublicService implements TAgentConnectionService {
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitSystemMessage(message);
       },
@@ -205,7 +205,7 @@ export class AgentPublicService implements TAgentConnectionService {
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitUserMessage(message);
       },
@@ -236,7 +236,7 @@ export class AgentPublicService implements TAgentConnectionService {
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitFlush();
       },
@@ -267,7 +267,7 @@ export class AgentPublicService implements TAgentConnectionService {
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitAgentChange();
       },
@@ -294,7 +294,7 @@ export class AgentPublicService implements TAgentConnectionService {
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.dispose();
       },

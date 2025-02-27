@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import { memoize } from "functools-kit";
-import { TContextService } from "../base/ContextService";
+import { TMethodContextService } from "../context/MethodContextService";
 import ClientStorage from "../../../client/ClientStorage";
 import StorageSchemaService from "../schema/StorageSchemaService";
 import {
@@ -21,8 +21,8 @@ import BusService from "../base/BusService";
 export class StorageConnectionService implements IStorage {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly busService = inject<BusService>(TYPES.busService);
-  private readonly contextService = inject<TContextService>(
-    TYPES.contextService
+  private readonly methodContextService = inject<TMethodContextService>(
+    TYPES.methodContextService
   );
 
   private readonly storageSchemaService = inject<StorageSchemaService>(
@@ -139,8 +139,8 @@ export class StorageConnectionService implements IStorage {
       score,
     });
     const storage = this.getStorage(
-      this.contextService.context.clientId,
-      this.contextService.context.storageName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.storageName
     );
     await storage.waitForInit();
     return await storage.take(search, total, score);
@@ -156,8 +156,8 @@ export class StorageConnectionService implements IStorage {
       item,
     });
     const storage = this.getStorage(
-      this.contextService.context.clientId,
-      this.contextService.context.storageName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.storageName
     );
     await storage.waitForInit();
     return await storage.upsert(item);
@@ -173,8 +173,8 @@ export class StorageConnectionService implements IStorage {
       itemId,
     });
     const storage = this.getStorage(
-      this.contextService.context.clientId,
-      this.contextService.context.storageName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.storageName
     );
     await storage.waitForInit();
     return await storage.remove(itemId);
@@ -192,8 +192,8 @@ export class StorageConnectionService implements IStorage {
       itemId,
     });
     const storage = this.getStorage(
-      this.contextService.context.clientId,
-      this.contextService.context.storageName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.storageName
     );
     await storage.waitForInit();
     return await storage.get(itemId);
@@ -209,8 +209,8 @@ export class StorageConnectionService implements IStorage {
   ): Promise<IStorageData[]> => {
     this.loggerService.log(`storageConnectionService list`);
     const storage = this.getStorage(
-      this.contextService.context.clientId,
-      this.contextService.context.storageName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.storageName
     );
     await storage.waitForInit();
     return await storage.list(filter);
@@ -223,8 +223,8 @@ export class StorageConnectionService implements IStorage {
   public clear = async (): Promise<void> => {
     this.loggerService.log(`storageConnectionService clear`);
     const storage = this.getStorage(
-      this.contextService.context.clientId,
-      this.contextService.context.storageName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.storageName
     );
     await storage.waitForInit();
     return await storage.clear();
@@ -236,22 +236,22 @@ export class StorageConnectionService implements IStorage {
    */
   public dispose = async () => {
     this.loggerService.log(`storageConnectionService dispose`);
-    const key = `${this.contextService.context.clientId}-${this.contextService.context.storageName}`;
+    const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.storageName}`;
     if (!this.getStorage.has(key)) {
       return;
     }
-    if (!this.getSharedStorage.has(this.contextService.context.storageName)) {
+    if (!this.getSharedStorage.has(this.methodContextService.context.storageName)) {
       const storage = this.getSharedStorage(
-        this.contextService.context.clientId,
-        this.contextService.context.storageName
+        this.methodContextService.context.clientId,
+        this.methodContextService.context.storageName
       );
       await storage.waitForInit();
       await storage.dispose();
     }
     this.getStorage.clear(key);
     this.sessionValidationService.removeStorageUsage(
-      this.contextService.context.clientId,
-      this.contextService.context.storageName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.storageName
     );
   };
 }

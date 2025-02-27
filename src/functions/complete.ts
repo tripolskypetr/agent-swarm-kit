@@ -1,6 +1,6 @@
 import { queued, randomString, singleshot, ttl } from "functools-kit";
 import { SwarmName } from "../interfaces/Swarm.interface";
-import swarm from "../lib";
+import swarm, { ExecutionContextService } from "../lib";
 import { disposeConnection } from "./disposeConnection";
 
 /**
@@ -61,13 +61,20 @@ export const complete = async (
   clientId: string,
   swarmName: SwarmName
 ) => {
-  const methodName = "function complete"
+  const methodName = "function complete";
+  const executionId = randomString();
   swarm.loggerService.log("function complete", {
     content,
     clientId,
+    executionId,
     swarmName,
   });
   const run = await createComplete(clientId, swarmName);
   createGc();
-  return await run(methodName, content);
+  return ExecutionContextService.runInContext(async () => {
+    return await run(methodName, content);
+  }, {
+    clientId,
+    executionId,
+  });
 };

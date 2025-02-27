@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import { memoize } from "functools-kit";
-import { TContextService } from "../base/ContextService";
+import { TMethodContextService } from "../context/MethodContextService";
 import ClientSwarm from "../../../client/ClientSwarm";
 import SwarmSchemaService from "../schema/SwarmSchemaService";
 import AgentConnectionService from "./AgentConnectionService";
@@ -18,8 +18,8 @@ import BusService from "../base/BusService";
 export class SwarmConnectionService implements ISwarm {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly busService = inject<BusService>(TYPES.busService);
-  private readonly contextService = inject<TContextService>(
-    TYPES.contextService
+  private readonly methodContextService = inject<TMethodContextService>(
+    TYPES.methodContextService
   );
 
   private readonly agentConnectionService = inject<AgentConnectionService>(
@@ -77,8 +77,8 @@ export class SwarmConnectionService implements ISwarm {
   public cancelOutput = async () => {
     this.loggerService.log(`swarmConnectionService cancelOutput`);
     return await this.getSwarm(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).cancelOutput();
   };
 
@@ -89,8 +89,8 @@ export class SwarmConnectionService implements ISwarm {
   public waitForOutput = async () => {
     this.loggerService.log(`swarmConnectionService waitForOutput`);
     return await this.getSwarm(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).waitForOutput();
   };
 
@@ -101,8 +101,8 @@ export class SwarmConnectionService implements ISwarm {
   public getAgentName = async () => {
     this.loggerService.log(`swarmConnectionService getAgentName`);
     return await this.getSwarm(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).getAgentName();
   };
 
@@ -113,8 +113,8 @@ export class SwarmConnectionService implements ISwarm {
   public getAgent = async () => {
     this.loggerService.log(`swarmConnectionService getAgent`);
     return await this.getSwarm(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).getAgent();
   };
 
@@ -129,8 +129,8 @@ export class SwarmConnectionService implements ISwarm {
       agentName,
     });
     return await this.getSwarm(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).setAgentRef(agentName, agent);
   };
 
@@ -144,8 +144,8 @@ export class SwarmConnectionService implements ISwarm {
       agentName,
     });
     return await this.getSwarm(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).setAgentName(agentName);
   };
 
@@ -155,7 +155,7 @@ export class SwarmConnectionService implements ISwarm {
    */
   public dispose = async () => {
     this.loggerService.log(`swarmConnectionService dispose`);
-    const key = `${this.contextService.context.clientId}-${this.contextService.context.swarmName}`;
+    const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.swarmName}`;
     if (!this.getSwarm.has(key)) {
       return;
     }

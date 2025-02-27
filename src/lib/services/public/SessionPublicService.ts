@@ -2,13 +2,16 @@ import { inject } from "../../core/di";
 import { SessionConnectionService } from "../connection/SessionConnectionService";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import ContextService from "../base/ContextService";
+import MethodContextService from "../context/MethodContextService";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
 import {
   ExecutionMode,
   ReceiveMessageFn,
   SendMessageFn,
 } from "../../../interfaces/Session.interface";
+import ExecutionContextService from "../context/ExecutionContextService";
+import { randomString } from "functools-kit";
+import { IIncomingMessage } from "../../../model/EmitMessage.model";
 
 interface ISessionConnectionService extends SessionConnectionService {}
 
@@ -48,7 +51,7 @@ export class SessionPublicService implements TSessionConnectionService {
       methodName,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.emit(content);
       },
@@ -83,7 +86,7 @@ export class SessionPublicService implements TSessionConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.execute(content, mode);
       },
@@ -116,11 +119,20 @@ export class SessionPublicService implements TSessionConnectionService {
       clientId,
       swarmName,
     });
-    return this.sessionConnectionService.connect(
+    const send = this.sessionConnectionService.connect(
       connector,
       clientId,
       swarmName
     );
+    return async (incoming: IIncomingMessage) => {
+      const executionId = randomString();
+      return ExecutionContextService.runInContext(async () => {
+        return await send(incoming);
+      }, {
+        clientId,
+        executionId,
+      })
+    };
   };
 
   /**
@@ -145,7 +157,7 @@ export class SessionPublicService implements TSessionConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitToolOutput(
           toolId,
@@ -182,7 +194,7 @@ export class SessionPublicService implements TSessionConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitSystemMessage(message);
       },
@@ -216,7 +228,7 @@ export class SessionPublicService implements TSessionConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitUserMessage(message);
       },
@@ -246,7 +258,7 @@ export class SessionPublicService implements TSessionConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitFlush();
       },
@@ -277,7 +289,7 @@ export class SessionPublicService implements TSessionConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.dispose();
       },

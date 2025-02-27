@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import { StorageConnectionService } from "../connection/StorageConnectionService";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import ContextService from "../base/ContextService";
+import MethodContextService from "../context/MethodContextService";
 import {
   IStorageData,
   StorageName,
@@ -50,7 +50,7 @@ export class StoragePublicService implements TStorageConnectionService {
       storageName,
       score,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.take(search, total, score);
       },
@@ -81,7 +81,7 @@ export class StoragePublicService implements TStorageConnectionService {
       clientId,
       storageName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.upsert(item);
       },
@@ -112,7 +112,7 @@ export class StoragePublicService implements TStorageConnectionService {
       clientId,
       storageName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.remove(itemId);
       },
@@ -144,7 +144,7 @@ export class StoragePublicService implements TStorageConnectionService {
       clientId,
       storageName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.get(itemId);
       },
@@ -175,7 +175,7 @@ export class StoragePublicService implements TStorageConnectionService {
       clientId,
       storageName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.list(filter);
       },
@@ -204,7 +204,7 @@ export class StoragePublicService implements TStorageConnectionService {
       clientId,
       storageName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.clear();
       },
@@ -230,7 +230,7 @@ export class StoragePublicService implements TStorageConnectionService {
       clientId,
       storageName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.dispose();
       },

@@ -9,9 +9,9 @@ import ToolSchemaService from "./services/schema/ToolSchemaService";
 import SwarmConnectionService from "./services/connection/SwarmConnectionService";
 import SwarmSchemaService from "./services/schema/SwarmSchemaService";
 import CompletionSchemaService from "./services/schema/CompletionSchemaService";
-import ContextService, {
-  TContextService,
-} from "./services/base/ContextService";
+import MethodContextService, {
+  TMethodContextService,
+} from "./services/context/MethodContextService";
 import SessionConnectionService from "./services/connection/SessionConnectionService";
 import AgentPublicService from "./services/public/AgentPublicService";
 import HistoryPublicService from "./services/public/HistoryPublicService";
@@ -32,11 +32,22 @@ import StatePublicService from "./services/public/StatePublicService";
 import StateSchemaService from "./services/schema/StateSchemaService";
 import StateConnectionService from "./services/connection/StateConnectionService";
 import BusService from "./services/base/BusService";
+import ExecutionContextService, {
+  TExecutionContextService,
+} from "./services/context/ExecutionContextService";
 
 const baseServices = {
   busService: inject<BusService>(TYPES.busService),
   loggerService: inject<LoggerService>(TYPES.loggerService),
-  contextService: inject<TContextService>(TYPES.contextService),
+};
+
+const contextServices = {
+  methodContextService: inject<TMethodContextService>(
+    TYPES.methodContextService
+  ),
+  executionContextService: inject<TExecutionContextService>(
+    TYPES.executionContextService
+  ),
 };
 
 const connectionServices = {
@@ -67,8 +78,12 @@ const schemaServices = {
   completionSchemaService: inject<CompletionSchemaService>(
     TYPES.completionSchemaService
   ),
-  embeddingSchemaService: inject<EmbeddingSchemaService>(TYPES.embeddingSchemaService),
-  storageSchemaService: inject<StorageSchemaService>(TYPES.storageSchemaService),
+  embeddingSchemaService: inject<EmbeddingSchemaService>(
+    TYPES.embeddingSchemaService
+  ),
+  storageSchemaService: inject<StorageSchemaService>(
+    TYPES.storageSchemaService
+  ),
   stateSchemaService: inject<StateSchemaService>(TYPES.stateSchemaService),
 };
 
@@ -81,22 +96,39 @@ const publicServices = {
     TYPES.sessionPublicService
   ),
   swarmPublicService: inject<SwarmPublicService>(TYPES.swarmPublicService),
-  storagePublicService: inject<StoragePublicService>(TYPES.storagePublicService),
+  storagePublicService: inject<StoragePublicService>(
+    TYPES.storagePublicService
+  ),
   statePublicService: inject<StatePublicService>(TYPES.statePublicService),
 };
 
 const validationServices = {
-    agentValidationService: inject<AgentValidationService>(TYPES.agentValidationService),
-    toolValidationService: inject<ToolValidationService>(TYPES.toolValidationService),
-    sessionValidationService: inject<SessionValidationService>(TYPES.sessionValidationService),
-    swarmValidationService: inject<SwarmValidationService>(TYPES.swarmValidationService),
-    completionValidationService: inject<CompletionValidationService>(TYPES.completionValidationService),
-    storageValidationService: inject<StorageValidationService>(TYPES.storageValidationService),
-    embeddingValidationService: inject<EmbeddingValidationService>(TYPES.embeddingValidationService),
+  agentValidationService: inject<AgentValidationService>(
+    TYPES.agentValidationService
+  ),
+  toolValidationService: inject<ToolValidationService>(
+    TYPES.toolValidationService
+  ),
+  sessionValidationService: inject<SessionValidationService>(
+    TYPES.sessionValidationService
+  ),
+  swarmValidationService: inject<SwarmValidationService>(
+    TYPES.swarmValidationService
+  ),
+  completionValidationService: inject<CompletionValidationService>(
+    TYPES.completionValidationService
+  ),
+  storageValidationService: inject<StorageValidationService>(
+    TYPES.storageValidationService
+  ),
+  embeddingValidationService: inject<EmbeddingValidationService>(
+    TYPES.embeddingValidationService
+  ),
 };
 
 export const swarm = {
   ...baseServices,
+  ...contextServices,
   ...connectionServices,
   ...schemaServices,
   ...publicServices,
@@ -105,6 +137,8 @@ export const swarm = {
 
 init();
 
-export { ContextService };
+export { MethodContextService };
+
+export { ExecutionContextService };
 
 export default swarm;

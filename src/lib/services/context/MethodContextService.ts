@@ -7,7 +7,7 @@ import { StateName } from "../../../interfaces/State.interface";
 /**
  * Interface representing the context.
  */
-export interface IContext {
+export interface IMethodContext {
   clientId: string;
   methodName: string;
   agentName: AgentName;
@@ -17,21 +17,21 @@ export interface IContext {
 }
 
 /**
- * Service providing context information.
+ * Service providing method call context information.
  */
-export const ContextService = scoped(
+export const MethodContextService = scoped(
   class {
     /**
-     * Creates an instance of ContextService.
-     * @param {IContext} context - The context object.
+     * Creates an instance of MethodContextService.
+     * @param {IMethodContext} context - The context object.
      */
-    constructor(readonly context: IContext) {}
+    constructor(readonly context: IMethodContext) {}
   }
 );
 
 /**
- * Type representing an instance of ContextService.
+ * Type representing an instance of MethodContextService.
  */
-export type TContextService = InstanceType<typeof ContextService>;
+export type TMethodContextService = InstanceType<typeof MethodContextService>;
 
-export default ContextService;
+export default MethodContextService;

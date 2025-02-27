@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import { HistoryConnectionService } from "../connection/HistoryConnectionService";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import ContextService from "../base/ContextService";
+import MethodContextService from "../context/MethodContextService";
 import { IModelMessage } from "../../../model/ModelMessage.model";
 import { AgentName } from "../../../interfaces/Agent.interface";
 
@@ -45,7 +45,7 @@ export class HistoryPublicService implements THistoryConnectionService {
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.historyConnectionService.push(message);
       },
@@ -78,7 +78,7 @@ export class HistoryPublicService implements THistoryConnectionService {
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.historyConnectionService.toArrayForAgent(prompt);
       },
@@ -105,7 +105,7 @@ export class HistoryPublicService implements THistoryConnectionService {
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.historyConnectionService.toArrayForRaw();
       },
@@ -131,7 +131,7 @@ export class HistoryPublicService implements THistoryConnectionService {
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.historyConnectionService.dispose();
       },

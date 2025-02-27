@@ -1,6 +1,6 @@
 import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
-import { TContextService } from "../base/ContextService";
+import { TMethodContextService } from "../context/MethodContextService";
 import TYPES from "../../core/types";
 import { memoize } from "functools-kit";
 import ClientSession from "../../../client/ClientSession";
@@ -22,8 +22,8 @@ import { SwarmName } from "../../../interfaces/Swarm.interface";
 export class SessionConnectionService implements ISession {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly busService = inject<BusService>(TYPES.busService);
-  private readonly contextService = inject<TContextService>(
-    TYPES.contextService
+  private readonly methodContextService = inject<TMethodContextService>(
+    TYPES.methodContextService
   );
 
   private readonly swarmConnectionService = inject<SwarmConnectionService>(
@@ -65,8 +65,8 @@ export class SessionConnectionService implements ISession {
       content,
     });
     return await this.getSession(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).emit(content);
   };
 
@@ -84,8 +84,8 @@ export class SessionConnectionService implements ISession {
       mode,
     });
     return await this.getSession(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).execute(content, mode);
   };
 
@@ -117,8 +117,8 @@ export class SessionConnectionService implements ISession {
       toolId,
     });
     return await this.getSession(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).commitToolOutput(toolId, content);
   };
 
@@ -132,8 +132,8 @@ export class SessionConnectionService implements ISession {
       message,
     });
     return await this.getSession(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).commitSystemMessage(message);
   };
 
@@ -147,8 +147,8 @@ export class SessionConnectionService implements ISession {
       message,
     });
     return await this.getSession(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).commitUserMessage(message);
   };
 
@@ -160,8 +160,8 @@ export class SessionConnectionService implements ISession {
   public commitFlush = async (): Promise<void> => {
     this.loggerService.log(`sessionConnectionService commitFlush`);
     return await this.getSession(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).commitFlush();
   };
 
@@ -171,13 +171,13 @@ export class SessionConnectionService implements ISession {
    */
   public dispose = async () => {
     this.loggerService.log(`sessionConnectionService dispose`);
-    const key = `${this.contextService.context.clientId}-${this.contextService.context.swarmName}`;
+    const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.swarmName}`;
     if (!this.getSession.has(key)) {
       return;
     }
     await this.getSession(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
     ).dispose();
     this.getSession.clear(key);
   };

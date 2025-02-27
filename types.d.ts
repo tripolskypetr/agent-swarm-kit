@@ -3,6 +3,24 @@ import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
 
 /**
+ * Interface representing the context.
+ */
+interface IExecutionContext {
+    clientId: string;
+    executionId: string;
+}
+/**
+ * Service providing execution context information.
+ */
+declare const ExecutionContextService: (new () => {
+    readonly context: IExecutionContext;
+}) & Omit<{
+    new (context: IExecutionContext): {
+        readonly context: IExecutionContext;
+    };
+}, "prototype"> & di_scoped.IScopedClassRun<[context: IExecutionContext]>;
+
+/**
  * Interface representing an incoming message.
  */
 interface IIncomingMessage {
@@ -1421,7 +1439,7 @@ type ToolName = string;
 /**
  * Interface representing the context.
  */
-interface IContext {
+interface IMethodContext {
     clientId: string;
     methodName: string;
     agentName: AgentName;
@@ -1430,22 +1448,23 @@ interface IContext {
     stateName: StateName;
 }
 /**
- * Service providing context information.
+ * Service providing method call context information.
  */
-declare const ContextService: (new () => {
-    readonly context: IContext;
+declare const MethodContextService: (new () => {
+    readonly context: IMethodContext;
 }) & Omit<{
-    new (context: IContext): {
-        readonly context: IContext;
+    new (context: IMethodContext): {
+        readonly context: IMethodContext;
     };
-}, "prototype"> & di_scoped.IScopedClassRun<[context: IContext]>;
+}, "prototype"> & di_scoped.IScopedClassRun<[context: IMethodContext]>;
 
 /**
  * LoggerService class that implements the ILogger interface.
  * Provides methods to log and debug messages.
  */
 declare class LoggerService implements ILogger {
-    private readonly contextService;
+    private readonly methodContextService;
+    private readonly executionContextService;
     private _logger;
     /**
      * Logs messages using the current logger.
@@ -1552,7 +1571,7 @@ declare class ClientAgent implements IAgent {
 declare class AgentConnectionService implements IAgent {
     private readonly loggerService;
     private readonly busService;
-    private readonly contextService;
+    private readonly methodContextService;
     private readonly sessionValidationService;
     private readonly historyConnectionService;
     private readonly storageConnectionService;
@@ -1660,7 +1679,7 @@ declare class ClientHistory implements IHistory {
 declare class HistoryConnectionService implements IHistory {
     private readonly loggerService;
     private readonly busService;
-    private readonly contextService;
+    private readonly methodContextService;
     private readonly sessionValidationService;
     /**
      * Retrieves the history for a given client and agent.
@@ -1788,7 +1807,7 @@ declare class ClientSwarm implements ISwarm {
 declare class SwarmConnectionService implements ISwarm {
     private readonly loggerService;
     private readonly busService;
-    private readonly contextService;
+    private readonly methodContextService;
     private readonly agentConnectionService;
     private readonly swarmSchemaService;
     /**
@@ -1946,7 +1965,7 @@ declare class ClientSession implements ISession {
 declare class SessionConnectionService implements ISession {
     private readonly loggerService;
     private readonly busService;
-    private readonly contextService;
+    private readonly methodContextService;
     private readonly swarmConnectionService;
     private readonly swarmSchemaService;
     /**
@@ -2639,7 +2658,7 @@ declare class ClientStorage<T extends IStorageData = IStorageData> implements IS
 declare class StorageConnectionService implements IStorage {
     private readonly loggerService;
     private readonly busService;
-    private readonly contextService;
+    private readonly methodContextService;
     private readonly storageSchemaService;
     private readonly sessionValidationService;
     private readonly embeddingSchemaService;
@@ -2851,7 +2870,7 @@ declare class ClientState<State extends IStateData = IStateData> implements ISta
 declare class StateConnectionService<T extends IStateData = IStateData> implements IState<T> {
     private readonly loggerService;
     private readonly busService;
-    private readonly contextService;
+    private readonly methodContextService;
     private readonly stateSchemaService;
     private readonly sessionValidationService;
     /**
@@ -3005,11 +3024,14 @@ declare const swarm: {
     sessionConnectionService: SessionConnectionService;
     storageConnectionService: StorageConnectionService;
     stateConnectionService: StateConnectionService<any>;
+    methodContextService: {
+        readonly context: IMethodContext;
+    };
+    executionContextService: {
+        readonly context: IExecutionContext;
+    };
     busService: BusService;
     loggerService: LoggerService;
-    contextService: {
-        readonly context: IContext;
-    };
 };
 
 /**
@@ -3160,7 +3182,7 @@ declare const session: {
      * @returns {TComplete} complete - A function to complete the session with content.
      * @returns {Function} dispose - A function to dispose of the session.
      */
-    scheduled(clientId: string, swarmName: SwarmName, { delay, }?: Partial<ISessionConfig>): {
+    scheduled(clientId: string, swarmName: SwarmName, { delay }?: Partial<ISessionConfig>): {
         /**
          * Completes the scheduled session with the given content.
          *
@@ -3737,4 +3759,4 @@ declare class LoggerUtils {
  */
 declare const Logger: LoggerUtils;
 
-export { ContextService, type EventSource, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, MethodContextService, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };
