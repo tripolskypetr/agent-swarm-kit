@@ -24,10 +24,10 @@ loggerService: any
 busService: any
 ```
 
-### contextService
+### methodContextService
 
 ```ts
-contextService: any
+methodContextService: any
 ```
 
 ### storageSchemaService

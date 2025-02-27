@@ -50,6 +50,7 @@
 
 ## Interfaces
 
+- [IExecutionContext](interfaces/IExecutionContext.md)
 - [IIncomingMessage](interfaces/IIncomingMessage.md)
 - [IOutgoingMessage](interfaces/IOutgoingMessage.md)
 - [ILogger](interfaces/ILogger.md)
@@ -98,7 +99,7 @@
 - [IAgentSchemaCallbacks](interfaces/IAgentSchemaCallbacks.md)
 - [IAgentSchema](interfaces/IAgentSchema.md)
 - [IAgent](interfaces/IAgent.md)
-- [IContext](interfaces/IContext.md)
+- [IMethodContext](interfaces/IMethodContext.md)
 - [IAgentConnectionService](interfaces/IAgentConnectionService.md)
 - [IHistoryConnectionService](interfaces/IHistoryConnectionService.md)
 - [ISessionConnectionService](interfaces/ISessionConnectionService.md)

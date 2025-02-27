@@ -27,7 +27,7 @@ storageConnectionService: any
 ### take
 
 ```ts
-take: (search: string, total: number, requestId: string, clientId: string, storageName: string, score?: number) => Promise<IStorageData[]>
+take: (search: string, total: number, methodName: string, clientId: string, storageName: string, score?: number) => Promise<IStorageData[]>
 ```
 
 Retrieves a list of storage data based on a search query and total number of items.
@@ -35,7 +35,7 @@ Retrieves a list of storage data based on a search query and total number of ite
 ### upsert
 
 ```ts
-upsert: (item: IStorageData, requestId: string, clientId: string, storageName: string) => Promise<void>
+upsert: (item: IStorageData, methodName: string, clientId: string, storageName: string) => Promise<void>
 ```
 
 Upserts an item in the storage.
@@ -43,7 +43,7 @@ Upserts an item in the storage.
 ### remove
 
 ```ts
-remove: (itemId: StorageId, requestId: string, clientId: string, storageName: string) => Promise<void>
+remove: (itemId: StorageId, methodName: string, clientId: string, storageName: string) => Promise<void>
 ```
 
 Removes an item from the storage.
@@ -51,7 +51,7 @@ Removes an item from the storage.
 ### get
 
 ```ts
-get: (itemId: StorageId, requestId: string, clientId: string, storageName: string) => Promise<IStorageData>
+get: (itemId: StorageId, methodName: string, clientId: string, storageName: string) => Promise<IStorageData>
 ```
 
 Retrieves an item from the storage by its ID.
@@ -59,7 +59,7 @@ Retrieves an item from the storage by its ID.
 ### list
 
 ```ts
-list: (requestId: string, clientId: string, storageName: string, filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>
+list: (methodName: string, clientId: string, storageName: string, filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>
 ```
 
 Retrieves a list of items from the storage, optionally filtered by a predicate function.
@@ -67,7 +67,7 @@ Retrieves a list of items from the storage, optionally filtered by a predicate f
 ### clear
 
 ```ts
-clear: (requestId: string, clientId: string, storageName: string) => Promise<void>
+clear: (methodName: string, clientId: string, storageName: string) => Promise<void>
 ```
 
 Clears all items from the storage.
@@ -75,7 +75,7 @@ Clears all items from the storage.
 ### dispose
 
 ```ts
-dispose: (requestId: string, clientId: string, storageName: string) => Promise<void>
+dispose: (methodName: string, clientId: string, storageName: string) => Promise<void>
 ```
 
 Disposes of the storage.

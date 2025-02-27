@@ -1,4 +1,4 @@
-# IContext
+# IMethodContext
 
 Interface representing the context.
 
@@ -10,10 +10,10 @@ Interface representing the context.
 clientId: string
 ```
 
-### requestId
+### methodName
 
 ```ts
-requestId: string
+methodName: string
 ```
 
 ### agentName

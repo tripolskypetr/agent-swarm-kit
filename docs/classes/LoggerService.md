@@ -13,10 +13,16 @@ constructor();
 
 ## Properties
 
-### contextService
+### methodContextService
 
 ```ts
-contextService: any
+methodContextService: any
+```
+
+### executionContextService
+
+```ts
+executionContextService: any
 ```
 
 ### _logger
@@ -40,6 +46,14 @@ debug: (...args: any[]) => void
 ```
 
 Logs debug messages using the current logger.
+
+### info
+
+```ts
+info: (...args: any[]) => void
+```
+
+Logs info messages using the current logger.
 
 ### setLogger
 

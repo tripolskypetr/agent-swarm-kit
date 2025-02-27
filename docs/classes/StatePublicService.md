@@ -25,7 +25,7 @@ stateConnectionService: any
 ### setState
 
 ```ts
-setState: (dispatchFn: (prevState: T) => Promise<T>, requestId: string, clientId: string, stateName: string) => Promise<T>
+setState: (dispatchFn: (prevState: T) => Promise<T>, methodName: string, clientId: string, stateName: string) => Promise<T>
 ```
 
 Sets the state using the provided dispatch function.
@@ -33,7 +33,7 @@ Sets the state using the provided dispatch function.
 ### getState
 
 ```ts
-getState: (requestId: string, clientId: string, stateName: string) => Promise<T>
+getState: (methodName: string, clientId: string, stateName: string) => Promise<T>
 ```
 
 Gets the current state.
@@ -41,7 +41,7 @@ Gets the current state.
 ### dispose
 
 ```ts
-dispose: (requestId: string, clientId: string, stateName: string) => Promise<void>
+dispose: (methodName: string, clientId: string, stateName: string) => Promise<void>
 ```
 
 Disposes the state.

@@ -27,7 +27,7 @@ agentConnectionService: any
 ### createAgentRef
 
 ```ts
-createAgentRef: (requestId: string, clientId: string, agentName: string) => Promise<ClientAgent>
+createAgentRef: (methodName: string, clientId: string, agentName: string) => Promise<ClientAgent>
 ```
 
 Creates a reference to an agent.
@@ -35,7 +35,7 @@ Creates a reference to an agent.
 ### execute
 
 ```ts
-execute: (input: string, mode: ExecutionMode, requestId: string, clientId: string, agentName: string) => Promise<void>
+execute: (input: string, mode: ExecutionMode, methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
 Executes a command on the agent.
@@ -43,7 +43,7 @@ Executes a command on the agent.
 ### waitForOutput
 
 ```ts
-waitForOutput: (requestId: string, clientId: string, agentName: string) => Promise<string>
+waitForOutput: (methodName: string, clientId: string, agentName: string) => Promise<string>
 ```
 
 Waits for the agent's output.
@@ -51,7 +51,7 @@ Waits for the agent's output.
 ### commitToolOutput
 
 ```ts
-commitToolOutput: (toolId: string, content: string, requestId: string, clientId: string, agentName: string) => Promise<void>
+commitToolOutput: (toolId: string, content: string, methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
 Commits tool output to the agent.
@@ -59,7 +59,7 @@ Commits tool output to the agent.
 ### commitSystemMessage
 
 ```ts
-commitSystemMessage: (message: string, requestId: string, clientId: string, agentName: string) => Promise<void>
+commitSystemMessage: (message: string, methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
 Commits a system message to the agent.
@@ -67,7 +67,7 @@ Commits a system message to the agent.
 ### commitUserMessage
 
 ```ts
-commitUserMessage: (message: string, requestId: string, clientId: string, agentName: string) => Promise<void>
+commitUserMessage: (message: string, methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
 Commits user message to the agent without answer.
@@ -75,7 +75,7 @@ Commits user message to the agent without answer.
 ### commitFlush
 
 ```ts
-commitFlush: (requestId: string, clientId: string, agentName: string) => Promise<void>
+commitFlush: (methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
 Commits flush of agent history
@@ -83,7 +83,7 @@ Commits flush of agent history
 ### commitAgentChange
 
 ```ts
-commitAgentChange: (requestId: string, clientId: string, agentName: string) => Promise<void>
+commitAgentChange: (methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
 Commits change of agent to prevent the next tool execution from being called.
@@ -91,7 +91,7 @@ Commits change of agent to prevent the next tool execution from being called.
 ### dispose
 
 ```ts
-dispose: (requestId: string, clientId: string, agentName: string) => Promise<void>
+dispose: (methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
 Disposes of the agent.

@@ -19,3 +19,11 @@ debug: (...args: any[]) => void
 ```
 
 Logs a debug message.
+
+### info
+
+```ts
+info: (...args: any[]) => void
+```
+
+Logs a info message.
