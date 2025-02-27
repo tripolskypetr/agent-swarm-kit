@@ -1,3 +1,4 @@
+import { randomString } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 
@@ -15,9 +16,11 @@ export const emitForce = async (
   content: string,
   clientId: string,
 ) => {
+  const requestId = randomString();
   swarm.loggerService.log("function emitForce", {
     content,
     clientId,
+    requestId,
   });
   if (swarm.sessionValidationService.getSessionMode(clientId) !== "makeConnection") {
     throw new Error(`agent-swarm-kit emitForce session is not makeConnection clientId=${clientId}`);
@@ -25,5 +28,5 @@ export const emitForce = async (
   swarm.sessionValidationService.validate(clientId, "emitForce");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, "emitForce");
-  return await swarm.sessionPublicService.emit(content, clientId, swarmName);
+  return await swarm.sessionPublicService.emit(content, requestId, clientId, swarmName);
 };

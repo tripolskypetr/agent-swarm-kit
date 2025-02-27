@@ -1,3 +1,4 @@
+import { randomString } from "functools-kit";
 import swarm from "../lib";
 
 /**
@@ -7,11 +8,13 @@ import swarm from "../lib";
  * @returns {Promise<void>} - A promise that resolves when the message is committed.
  */
 export const commitFlushForce = async (clientId: string) => {
+    const requestId = randomString();
     swarm.loggerService.log('function commitFlushForce', {
         clientId,
+        requestId,
     });
     swarm.sessionValidationService.validate(clientId, "commitFlushForce");
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
     swarm.swarmValidationService.validate(swarmName, "commitFlushForce");
-    await swarm.sessionPublicService.commitFlush(clientId, swarmName);
+    await swarm.sessionPublicService.commitFlush(requestId, clientId, swarmName);
 }

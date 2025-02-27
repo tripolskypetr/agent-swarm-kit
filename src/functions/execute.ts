@@ -1,10 +1,11 @@
+import { randomString } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 
 /**
  * Send the message to the active agent in the swarm content like it income from client side
  * Should be used to review tool output and initiate conversation from the model side to client
- * 
+ *
  * @param {string} content - The content to be executed.
  * @param {string} clientId - The ID of the client requesting execution.
  * @param {AgentName} agentName - The name of the agent executing the command.
@@ -15,16 +16,19 @@ export const execute = async (
   clientId: string,
   agentName: AgentName
 ) => {
+  const requestId = randomString();
   swarm.loggerService.log("function execute", {
     content,
     clientId,
     agentName,
+    requestId,
   });
   swarm.agentValidationService.validate(agentName, "execute");
   swarm.sessionValidationService.validate(clientId, "execute");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, "execute");
   const currentAgentName = await swarm.swarmPublicService.getAgentName(
+    requestId,
     clientId,
     swarmName
   );
@@ -39,5 +43,11 @@ export const execute = async (
     );
     return;
   }
-  return await swarm.sessionPublicService.execute(content, "tool", clientId, swarmName);
+  return await swarm.sessionPublicService.execute(
+    content,
+    "tool",
+    requestId,
+    clientId,
+    swarmName
+  );
 };

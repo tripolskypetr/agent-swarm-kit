@@ -1,3 +1,4 @@
+import { randomString } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 
@@ -16,32 +17,41 @@ export const emit = async (
   clientId: string,
   agentName: AgentName
 ) => {
+  const requestId = randomString();
   swarm.loggerService.log("function emit", {
     content,
     clientId,
     agentName,
+    requestId,
   });
-  if (swarm.sessionValidationService.getSessionMode(clientId) !== "makeConnection") {
-    throw new Error(`agent-swarm-kit emit session is not makeConnection clientId=${clientId}`);
+  if (
+    swarm.sessionValidationService.getSessionMode(clientId) !== "makeConnection"
+  ) {
+    throw new Error(
+      `agent-swarm-kit emit session is not makeConnection clientId=${clientId}`
+    );
   }
   swarm.agentValidationService.validate(agentName, "emit");
   swarm.sessionValidationService.validate(clientId, "emit");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, "emit");
   const currentAgentName = await swarm.swarmPublicService.getAgentName(
+    requestId,
     clientId,
     swarmName
   );
   if (currentAgentName !== agentName) {
-    swarm.loggerService.log(
-      'function "emit" skipped due to the agent change',
-      {
-        currentAgentName,
-        agentName,
-        clientId,
-      }
-    );
+    swarm.loggerService.log('function "emit" skipped due to the agent change', {
+      currentAgentName,
+      agentName,
+      clientId,
+    });
     return;
   }
-  return await swarm.sessionPublicService.emit(content, clientId, swarmName);
+  return await swarm.sessionPublicService.emit(
+    content,
+    requestId,
+    clientId,
+    swarmName
+  );
 };

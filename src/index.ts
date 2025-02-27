@@ -97,3 +97,5 @@ export {
 } from "./classes/History";
 
 export { State } from './classes/State';
+
+export { Logger } from './classes/Logger';

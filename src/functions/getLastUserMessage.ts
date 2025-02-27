@@ -1,3 +1,4 @@
+import { randomString } from "functools-kit";
 import swarm from "../lib";
 import { getRawHistory } from "./getRawHistory";
 
@@ -8,10 +9,12 @@ import { getRawHistory } from "./getRawHistory";
  * @returns {Promise<string | null>} - The content of the last user message, or null if no user message is found.
  */
 export const getLastUserMessage = async (clientId: string) => {
+  const requestId = randomString();
   swarm.loggerService.log("function getLastUserMessage", {
     clientId,
+    requestId,
   });
-  const history = await getRawHistory(clientId);
+  const history = await getRawHistory(clientId, requestId);
   const last = history.findLast(({ role, mode }) => role === "user" && mode === "user");
   return last ? last.content : null;
 };

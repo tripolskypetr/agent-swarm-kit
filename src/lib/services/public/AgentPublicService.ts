@@ -31,8 +31,9 @@ export class AgentPublicService implements TAgentConnectionService {
    * @param {AgentName} agentName - The name of the agent.
    * @returns {Promise<unknown>} The agent reference.
    */
-  public createAgentRef = async (clientId: string, agentName: AgentName) => {
+  public createAgentRef = async (requestId: string, clientId: string, agentName: AgentName) => {
     this.loggerService.log("agentPublicService createAgentRef", {
+      requestId,
       clientId,
       agentName,
     });
@@ -41,6 +42,7 @@ export class AgentPublicService implements TAgentConnectionService {
         return await this.agentConnectionService.getAgent(clientId, agentName);
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",
@@ -60,10 +62,12 @@ export class AgentPublicService implements TAgentConnectionService {
   public execute = async (
     input: string,
     mode: ExecutionMode,
+    requestId: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("agentPublicService execute", {
+      requestId,
       input,
       clientId,
       agentName,
@@ -74,6 +78,7 @@ export class AgentPublicService implements TAgentConnectionService {
         return await this.agentConnectionService.execute(input, mode);
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",
@@ -89,8 +94,9 @@ export class AgentPublicService implements TAgentConnectionService {
    * @param {AgentName} agentName - The name of the agent.
    * @returns {Promise<unknown>} The output result.
    */
-  public waitForOutput = async (clientId: string, agentName: AgentName) => {
+  public waitForOutput = async (requestId: string, clientId: string, agentName: AgentName) => {
     this.loggerService.log("agentPublicService waitForOutput", {
+      requestId,
       clientId,
       agentName,
     });
@@ -99,6 +105,7 @@ export class AgentPublicService implements TAgentConnectionService {
         return await this.agentConnectionService.waitForOutput();
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",
@@ -119,10 +126,12 @@ export class AgentPublicService implements TAgentConnectionService {
   public commitToolOutput = async (
     toolId: string,
     content: string,
+    requestId: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("agentPublicService commitToolOutput", {
+      requestId,
       content,
       clientId,
       toolId,
@@ -133,6 +142,7 @@ export class AgentPublicService implements TAgentConnectionService {
         return await this.agentConnectionService.commitToolOutput(toolId, content);
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",
@@ -151,10 +161,12 @@ export class AgentPublicService implements TAgentConnectionService {
    */
   public commitSystemMessage = async (
     message: string,
+    requestId: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("agentPublicService commitSystemMessage", {
+      requestId,
       message,
       clientId,
       agentName,
@@ -164,6 +176,7 @@ export class AgentPublicService implements TAgentConnectionService {
         return await this.agentConnectionService.commitSystemMessage(message);
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",
@@ -182,10 +195,12 @@ export class AgentPublicService implements TAgentConnectionService {
    */
   public commitUserMessage = async (
     message: string,
+    requestId: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("agentPublicService commitUserMessage", {
+      requestId,
       message,
       clientId,
       agentName,
@@ -195,6 +210,7 @@ export class AgentPublicService implements TAgentConnectionService {
         return await this.agentConnectionService.commitUserMessage(message);
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",
@@ -211,10 +227,12 @@ export class AgentPublicService implements TAgentConnectionService {
    * @returns {Promise<unknown>} The commit result.
    */
   public commitFlush = async (
+    requestId: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("agentPublicService commitFlush", {
+      requestId,
       clientId,
       agentName,
     });
@@ -223,6 +241,7 @@ export class AgentPublicService implements TAgentConnectionService {
         return await this.agentConnectionService.commitFlush();
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",
@@ -239,10 +258,12 @@ export class AgentPublicService implements TAgentConnectionService {
    * @returns {Promise<unknown>} The commit result.
    */
   public commitAgentChange = async (
+    requestId: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("agentPublicService commitAgentChange", {
+      requestId,
       clientId,
       agentName,
     });
@@ -251,6 +272,7 @@ export class AgentPublicService implements TAgentConnectionService {
         return await this.agentConnectionService.commitAgentChange();
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",
@@ -266,8 +288,9 @@ export class AgentPublicService implements TAgentConnectionService {
    * @param {AgentName} agentName - The name of the agent.
    * @returns {Promise<unknown>} The dispose result.
    */
-  public dispose = async (clientId: string, agentName: AgentName) => {
+  public dispose = async (requestId: string, clientId: string, agentName: AgentName) => {
     this.loggerService.log("agentPublicService dispose", {
+      requestId,
       clientId,
       agentName,
     });
@@ -276,6 +299,7 @@ export class AgentPublicService implements TAgentConnectionService {
         return await this.agentConnectionService.dispose();
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",

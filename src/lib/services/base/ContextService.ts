@@ -9,6 +9,7 @@ import { StateName } from "../../../interfaces/State.interface";
  */
 export interface IContext {
   clientId: string;
+  requestId: string;
   agentName: AgentName;
   swarmName: SwarmName;
   storageName: StorageName;

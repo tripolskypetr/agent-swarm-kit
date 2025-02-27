@@ -1,3 +1,4 @@
+import { randomString } from "functools-kit";
 import History from "../classes/History";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
@@ -11,23 +12,25 @@ import swarm from "../lib";
  */
 export const disposeConnection = async (
   clientId: string,
-  swarmName: SwarmName
+  swarmName: SwarmName,
+  requestId = randomString(),
 ) => {
   swarm.loggerService.log("function disposeConnection", {
     clientId,
     swarmName,
+    requestId,
   });
   swarm.swarmValidationService.validate(swarmName, "disposeConnection");
   swarm.sessionValidationService.removeSession(clientId);
   swarm.busService.dispose(clientId);
-  await swarm.sessionPublicService.dispose(clientId, swarmName);
-  await swarm.swarmPublicService.dispose(clientId, swarmName);
+  await swarm.sessionPublicService.dispose(requestId, clientId, swarmName);
+  await swarm.swarmPublicService.dispose(requestId, clientId, swarmName);
   await Promise.all(
     swarm.swarmValidationService
       .getAgentList(swarmName)
       .map(async (agentName) => {
-        await swarm.agentPublicService.dispose(clientId, agentName);
-        await swarm.historyPublicService.dispose(clientId, agentName);
+        await swarm.agentPublicService.dispose(requestId, clientId, agentName);
+        await swarm.historyPublicService.dispose(requestId, clientId, agentName);
       })
   );
   await Promise.all(
@@ -38,7 +41,7 @@ export const disposeConnection = async (
       )
       .filter((storageName) => !!storageName)
       .map(async (storageName) => {
-        await swarm.storagePublicService.dispose(clientId, storageName);
+        await swarm.storagePublicService.dispose(requestId, clientId, storageName);
       })
   );
   await Promise.all(
@@ -49,7 +52,7 @@ export const disposeConnection = async (
       )
       .filter((stateName) => !!stateName)
       .map(async (stateName) => {
-        await swarm.statePublicService.dispose(clientId, stateName);
+        await swarm.statePublicService.dispose(requestId, clientId, stateName);
       })
   );
   await History.dispose(clientId, null);

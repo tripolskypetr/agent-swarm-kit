@@ -1,4 +1,4 @@
-import { queued, schedule } from "functools-kit";
+import { queued, randomString, schedule } from "functools-kit";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
 import { disposeConnection } from "./disposeConnection";
@@ -19,9 +19,11 @@ const SCHEDULED_DELAY = 1_000;
  * @returns {Function} dispose - A function to dispose of the session.
  */
 const session = (clientId: string, swarmName: SwarmName) => {
+  const requestId = randomString();
   swarm.loggerService.log("function session", {
     clientId,
     swarmName,
+    requestId,
   });
   swarm.swarmValidationService.validate(swarmName, "session");
   swarm.sessionValidationService.addSession(clientId, swarmName, "session");
@@ -37,6 +39,7 @@ const session = (clientId: string, swarmName: SwarmName) => {
       return await swarm.sessionPublicService.execute(
         content,
         "user",
+        requestId,
         clientId,
         swarmName
       );
@@ -48,7 +51,7 @@ const session = (clientId: string, swarmName: SwarmName) => {
      * @returns {Promise<void>} A promise that resolves when the session is disposed.
      */
     dispose: async () => {
-      return await disposeConnection(clientId, swarmName);
+      return await disposeConnection(clientId, swarmName, requestId);
     },
   };
 };

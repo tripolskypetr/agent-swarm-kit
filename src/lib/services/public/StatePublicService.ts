@@ -34,10 +34,12 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
    */
   public setState = async (
     dispatchFn: (prevState: T) => Promise<T>,
+    requestId: string,
     clientId: string,
     stateName: StateName,
   ): Promise<T> => {
     this.loggerService.log(`statePublicService setState`, {
+      requestId,
       clientId,
       stateName,
     });
@@ -46,6 +48,7 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
         return await this.stateConnectionService.setState(dispatchFn);
       },
       {
+        requestId,
         clientId,
         stateName,
         agentName: "",
@@ -62,6 +65,7 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
    * @returns {Promise<T>} - The current state.
    */
   public getState = async (
+    requestId: string,
     clientId: string,
     stateName: StateName,
   ): Promise<T> => {
@@ -74,6 +78,7 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
         return await this.stateConnectionService.getState();
       },
       {
+        requestId,
         clientId,
         stateName,
         agentName: "",
@@ -89,8 +94,9 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
    * @param {StateName} stateName - The name of the state.
    * @returns {Promise<void>} - A promise that resolves when the state is disposed.
    */
-  public dispose = async (clientId: string, stateName: StateName) => {
+  public dispose = async (requestId: string, clientId: string, stateName: StateName) => {
     this.loggerService.log("statePublicService dispose", {
+      requestId,
       clientId,
       stateName,
     });
@@ -99,6 +105,7 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
         return await this.stateConnectionService.dispose();
       },
       {
+        requestId,
         clientId,
         stateName,
         agentName: "",

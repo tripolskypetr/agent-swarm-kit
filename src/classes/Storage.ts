@@ -5,6 +5,7 @@ import {
   StorageName,
 } from "../interfaces/Storage.interface";
 import { AgentName } from "../interfaces/Agent.interface";
+import { randomString } from "functools-kit";
 
 type TStorage = {
   [key in keyof IStorage]: unknown;
@@ -29,12 +30,14 @@ export class StorageUtils implements TStorage {
     storageName: StorageName;
     score?: number;
   }): Promise<T[]> => {
+    const requestId = randomString();
     swarm.loggerService.log("StorageUtils take", {
       search: payload.search,
       total: payload.total,
       clientId: payload.clientId,
       storageName: payload.storageName,
       score: payload.score,
+      requestId,
     });
     swarm.storageValidationService.validate(
       payload.storageName,
@@ -53,6 +56,7 @@ export class StorageUtils implements TStorage {
     return (await swarm.storagePublicService.take(
       payload.search,
       payload.total,
+      requestId,
       payload.clientId,
       payload.storageName,
       payload.score
@@ -74,10 +78,12 @@ export class StorageUtils implements TStorage {
     agentName: AgentName;
     storageName: StorageName;
   }): Promise<void> => {
+    const requestId = randomString();
     swarm.loggerService.log("StorageUtils upsert", {
       item: payload.item,
       clientId: payload.clientId,
       storageName: payload.storageName,
+      requestId,
     });
     swarm.storageValidationService.validate(
       payload.storageName,
@@ -95,6 +101,7 @@ export class StorageUtils implements TStorage {
     }
     return await swarm.storagePublicService.upsert(
       payload.item,
+      requestId,
       payload.clientId,
       payload.storageName
     );
@@ -114,10 +121,12 @@ export class StorageUtils implements TStorage {
     agentName: AgentName;
     storageName: StorageName;
   }): Promise<void> => {
+    const requestId = randomString();
     swarm.loggerService.log("StorageUtils remove", {
       itemId: payload.itemId,
       clientId: payload.clientId,
       storageName: payload.storageName,
+      requestId,
     });
     swarm.storageValidationService.validate(
       payload.storageName,
@@ -135,6 +144,7 @@ export class StorageUtils implements TStorage {
     }
     return await swarm.storagePublicService.remove(
       payload.itemId,
+      requestId,
       payload.clientId,
       payload.storageName
     );
@@ -155,10 +165,12 @@ export class StorageUtils implements TStorage {
     agentName: AgentName;
     storageName: StorageName;
   }): Promise<T | null> => {
+    const requestId = randomString();
     swarm.loggerService.log("StorageUtils get", {
       itemId: payload.itemId,
       clientId: payload.clientId,
       storageName: payload.storageName,
+      requestId,
     });
     swarm.storageValidationService.validate(
       payload.storageName,
@@ -176,6 +188,7 @@ export class StorageUtils implements TStorage {
     }
     return (await swarm.storagePublicService.get(
       payload.itemId,
+      requestId,
       payload.clientId,
       payload.storageName
     )) as T | null;
@@ -196,9 +209,11 @@ export class StorageUtils implements TStorage {
     storageName: StorageName;
     filter?: (item: T) => boolean;
   }): Promise<T[]> => {
+    const requestId = randomString();
     swarm.loggerService.log("StorageUtils list", {
       clientId: payload.clientId,
       storageName: payload.storageName,
+      requestId,
     });
     swarm.storageValidationService.validate(
       payload.storageName,
@@ -215,6 +230,7 @@ export class StorageUtils implements TStorage {
       );
     }
     return (await swarm.storagePublicService.list(
+      requestId,
       payload.clientId,
       payload.storageName,
       payload.filter
@@ -233,9 +249,11 @@ export class StorageUtils implements TStorage {
     agentName: AgentName;
     storageName: StorageName;
   }): Promise<void> => {
+    const requestId = randomString();
     swarm.loggerService.log("StorageUtils clear", {
       clientId: payload.clientId,
       storageName: payload.storageName,
+      requestId,
     });
     swarm.storageValidationService.validate(
       payload.storageName,
@@ -252,6 +270,7 @@ export class StorageUtils implements TStorage {
       );
     }
     return await swarm.storagePublicService.clear(
+      requestId,
       payload.clientId,
       payload.storageName
     );

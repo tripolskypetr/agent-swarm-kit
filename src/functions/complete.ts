@@ -1,4 +1,4 @@
-import { queued, singleshot, ttl } from "functools-kit";
+import { queued, randomString, singleshot, ttl } from "functools-kit";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
 import { disposeConnection } from "./disposeConnection";
@@ -7,7 +7,7 @@ import { disposeConnection } from "./disposeConnection";
  * Type definition for the complete run function.
  * @typedef {function(string): Promise<string>} TCompleteRun
  */
-type TCompleteRun = (content: string) => Promise<string>;
+type TCompleteRun = (requestId: string, content: string) => Promise<string>;
 
 const COMPLETE_TTL = 15 * 60 * 1_000;
 const COMPLETE_GC = 60 * 1_000;
@@ -20,16 +20,17 @@ const COMPLETE_GC = 60 * 1_000;
  */
 const createComplete = ttl(
   (clientId: string, swarmName: SwarmName) =>
-    queued(async (content: string) => {
+    queued(async (requestId: string, content: string) => {
       swarm.swarmValidationService.validate(swarmName, "complete");
       swarm.sessionValidationService.addSession(clientId, swarmName, "complete");
       const result = await swarm.sessionPublicService.execute(
         content,
         "user",
+        requestId,
         clientId,
         swarmName
       );
-      await disposeConnection(clientId, swarmName);
+      await disposeConnection(clientId, swarmName, requestId);
       return result;
     }) as TCompleteRun,
   {
@@ -60,12 +61,14 @@ export const complete = async (
   clientId: string,
   swarmName: SwarmName
 ) => {
+  const requestId = randomString();
   swarm.loggerService.log("function complete", {
     content,
     clientId,
     swarmName,
+    requestId,
   });
   const run = await createComplete(clientId, swarmName);
   createGc();
-  return await run(content);
+  return await run(requestId, content);
 };

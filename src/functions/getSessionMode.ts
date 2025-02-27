@@ -1,4 +1,3 @@
-import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
 
 /**

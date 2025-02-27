@@ -1,4 +1,4 @@
-import { queued, schedule } from "functools-kit";
+import { queued, randomString, schedule } from "functools-kit";
 import { ReceiveMessageFn } from "../interfaces/Session.interface";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
@@ -22,14 +22,17 @@ const makeConnection = (
   clientId: string,
   swarmName: SwarmName
 ): SendMessageFn => {
+  const requestId = randomString();
   swarm.loggerService.log("function makeConnection", {
     clientId,
     swarmName,
+    requestId,
   });
   swarm.swarmValidationService.validate(swarmName, "makeConnection");
   swarm.sessionValidationService.addSession(clientId, swarmName, "makeConnection");
   const send = swarm.sessionPublicService.connect(
     connector,
+    requestId,
     clientId,
     swarmName
   );
@@ -38,6 +41,7 @@ const makeConnection = (
     return await send({
       data: outgoing,
       agentName: await swarm.swarmPublicService.getAgentName(
+        requestId,
         clientId,
         swarmName
       ),

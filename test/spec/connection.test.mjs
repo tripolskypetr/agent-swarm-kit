@@ -170,6 +170,7 @@ test("Will orchestrate swarms for each connection", async ({ pass, fail }) => {
 
   for (const [clientId, agentName] of clientMap) {
     const currentAgent = await swarm.swarmPublicService.getAgentName(
+      "request-id",
       clientId,
       TEST_SWARM
     );

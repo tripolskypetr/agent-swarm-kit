@@ -35,10 +35,12 @@ export class HistoryPublicService implements THistoryConnectionService {
    */
   public push = async (
     message: IModelMessage,
+    requestId: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("historyPublicService push", {
+      requestId,
       message,
       clientId,
       agentName,
@@ -48,6 +50,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         return await this.historyConnectionService.push(message);
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",
@@ -66,6 +69,7 @@ export class HistoryPublicService implements THistoryConnectionService {
    */
   public toArrayForAgent = async (
     prompt: string,
+    requestId: string,
     clientId: string,
     agentName: AgentName
   ) => {
@@ -79,6 +83,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         return await this.historyConnectionService.toArrayForAgent(prompt);
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",
@@ -94,8 +99,9 @@ export class HistoryPublicService implements THistoryConnectionService {
    * @param {AgentName} agentName - The agent name.
    * @returns {Promise<any[]>} A promise that resolves to a raw array of history items.
    */
-  public toArrayForRaw = async (clientId: string, agentName: AgentName) => {
+  public toArrayForRaw = async (requestId: string, clientId: string, agentName: AgentName) => {
     this.loggerService.log("historyPublicService toArrayForRaw", {
+      requestId,
       clientId,
       agentName,
     });
@@ -104,6 +110,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         return await this.historyConnectionService.toArrayForRaw();
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",
@@ -119,7 +126,7 @@ export class HistoryPublicService implements THistoryConnectionService {
    * @param {AgentName} agentName - The agent name.
    * @returns {Promise<void>} A promise that resolves when the operation is complete.
    */
-  public dispose = async (clientId: string, agentName: AgentName) => {
+  public dispose = async (requestId: string, clientId: string, agentName: AgentName) => {
     this.loggerService.log("historyPublicService dispose", {
       clientId,
       agentName,
@@ -129,6 +136,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         return await this.historyConnectionService.dispose();
       },
       {
+        requestId,
         clientId,
         agentName,
         swarmName: "",

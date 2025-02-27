@@ -38,12 +38,14 @@ export class SessionPublicService implements TSessionConnectionService {
    */
   public emit = async (
     content: string,
+    requestId: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
     this.loggerService.log("sessionPublicService emit", {
       content,
       clientId,
+      requestId,
       swarmName,
     });
     return await ContextService.runInContext(
@@ -51,6 +53,7 @@ export class SessionPublicService implements TSessionConnectionService {
         return await this.sessionConnectionService.emit(content);
       },
       {
+        requestId,
         clientId,
         swarmName,
         agentName: "",
@@ -70,6 +73,7 @@ export class SessionPublicService implements TSessionConnectionService {
   public execute = async (
     content: string,
     mode: ExecutionMode,
+    requestId: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
@@ -84,6 +88,7 @@ export class SessionPublicService implements TSessionConnectionService {
         return await this.sessionConnectionService.execute(content, mode);
       },
       {
+        requestId,
         clientId,
         swarmName,
         agentName: "",
@@ -102,10 +107,12 @@ export class SessionPublicService implements TSessionConnectionService {
    */
   public connect = (
     connector: SendMessageFn,
+    requestId: string,
     clientId: string,
     swarmName: SwarmName
   ): ReceiveMessageFn => {
     this.loggerService.log("sessionPublicService connect", {
+      requestId,
       clientId,
       swarmName,
     });
@@ -118,6 +125,7 @@ export class SessionPublicService implements TSessionConnectionService {
                 return await connector(outgoing);
               },
               {
+                requestId,
                 clientId,
                 swarmName,
                 agentName: "",
@@ -133,6 +141,7 @@ export class SessionPublicService implements TSessionConnectionService {
               return receive(incoming);
             },
             {
+              requestId,
               clientId,
               swarmName,
               agentName: "",
@@ -143,6 +152,7 @@ export class SessionPublicService implements TSessionConnectionService {
         };
       },
       {
+        requestId,
         clientId,
         swarmName,
         agentName: "",
@@ -163,10 +173,12 @@ export class SessionPublicService implements TSessionConnectionService {
   public commitToolOutput = async (
     toolId: string,
     content: string,
+    requestId: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
     this.loggerService.log("sessionPublicService commitToolOutput", {
+      requestId,
       toolId,
       content,
       clientId,
@@ -177,6 +189,7 @@ export class SessionPublicService implements TSessionConnectionService {
         return await this.sessionConnectionService.commitToolOutput(toolId, content);
       },
       {
+        requestId,
         clientId,
         swarmName,
         agentName: "",
@@ -195,10 +208,12 @@ export class SessionPublicService implements TSessionConnectionService {
    */
   public commitSystemMessage = async (
     message: string,
+    requestId: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
     this.loggerService.log("sessionPublicService commitSystemMessage", {
+      requestId,
       message,
       clientId,
       swarmName,
@@ -208,6 +223,7 @@ export class SessionPublicService implements TSessionConnectionService {
         return await this.sessionConnectionService.commitSystemMessage(message);
       },
       {
+        requestId,
         clientId,
         swarmName,
         agentName: "",
@@ -226,10 +242,12 @@ export class SessionPublicService implements TSessionConnectionService {
    */
   public commitUserMessage = async (
     message: string,
+    requestId: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
     this.loggerService.log("sessionPublicService commitUserMessage", {
+      requestId,
       message,
       clientId,
       swarmName,
@@ -239,6 +257,7 @@ export class SessionPublicService implements TSessionConnectionService {
         return await this.sessionConnectionService.commitUserMessage(message);
       },
       {
+        requestId,
         clientId,
         swarmName,
         agentName: "",
@@ -255,6 +274,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * @returns {Promise<void>}
    */
   public commitFlush = async (
+    requestId: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
@@ -267,6 +287,7 @@ export class SessionPublicService implements TSessionConnectionService {
         return await this.sessionConnectionService.commitFlush();
       },
       {
+        requestId,
         clientId,
         swarmName,
         agentName: "",
@@ -282,8 +303,9 @@ export class SessionPublicService implements TSessionConnectionService {
    * @param {SwarmName} swarmName - The swarm name.
    * @returns {Promise<void>}
    */
-  public dispose = async (clientId: string, swarmName: SwarmName) => {
+  public dispose = async (requestId: string, clientId: string, swarmName: SwarmName) => {
     this.loggerService.log("sessionPublicService dispose", {
+      requestId,
       clientId,
       swarmName,
     });
@@ -292,6 +314,7 @@ export class SessionPublicService implements TSessionConnectionService {
         return await this.sessionConnectionService.dispose();
       },
       {
+        requestId,
         clientId,
         swarmName,
         agentName: "",

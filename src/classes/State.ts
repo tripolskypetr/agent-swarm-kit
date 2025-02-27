@@ -1,6 +1,7 @@
 import swarm from "../lib";
 import { IState, IStateData, StateName } from "../interfaces/State.interface";
 import { AgentName } from "../interfaces/Agent.interface";
+import { randomString } from "functools-kit";
 
 type TState = {
   [key in keyof IState]: unknown;
@@ -26,9 +27,11 @@ export class StateUtils implements TState {
     agentName: AgentName;
     stateName: StateName;
   }): Promise<T> => {
+    const requestId = randomString();
     swarm.loggerService.log("StateUtils getState", {
       clientId: payload.clientId,
       stateName: payload.stateName,
+      requestId,
     });
     if (
       !swarm.agentValidationService.hasState(
@@ -41,6 +44,7 @@ export class StateUtils implements TState {
       );
     }
     return await swarm.statePublicService.getState(
+      requestId,
       payload.clientId,
       payload.stateName
     );
@@ -65,9 +69,11 @@ export class StateUtils implements TState {
       stateName: StateName;
     }
   ): Promise<void> => {
+    const requestId = randomString();
     swarm.loggerService.log("StateUtils setState", {
       clientId: payload.clientId,
       stateName: payload.stateName,
+      requestId,
     });
     if (
       !swarm.agentValidationService.hasState(
@@ -82,12 +88,14 @@ export class StateUtils implements TState {
     if (typeof dispatchFn === "function") {
       return await swarm.statePublicService.setState(
         dispatchFn as (prevState: T) => Promise<T>,
+        requestId,
         payload.clientId,
         payload.stateName
       );
     }
     return await swarm.statePublicService.setState(
       async () => dispatchFn as T,
+      requestId,
       payload.clientId,
       payload.stateName
     );
