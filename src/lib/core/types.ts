@@ -1,7 +1,11 @@
 const baseServices = {
     busService: Symbol('busService'),
     loggerService: Symbol('loggerService'),
-    contextService: Symbol('contextService'),
+};
+
+const contextServices = {
+    methodContextService: Symbol('methodContextService'),
+    executionContextService: Symbol('executionContextService'),
 };
 
 const connectionServices = {
@@ -44,6 +48,7 @@ const validationServices = {
 
 export const TYPES = {
     ...baseServices,
+    ...contextServices,
     ...schemaServices,
     ...connectionServices,
     ...publicServices,

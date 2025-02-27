@@ -1,5 +1,5 @@
 import { randomString } from "functools-kit";
-import swarm from "../lib";
+import swarm, { ExecutionContextService } from "../lib";
 
 /**
  * Send the message to the active agent in the swarm content like it income from client side
@@ -12,20 +12,29 @@ import swarm from "../lib";
  * @returns {Promise<void>} - A promise that resolves when the execution is complete.
  */
 export const executeForce = async (content: string, clientId: string) => {
-  const requestId = randomString();
+  const methodName = "function executeForce";
+  const executionId = randomString();
   swarm.loggerService.log("function executeForce", {
     content,
     clientId,
-    requestId,
+    executionId,
   });
   swarm.sessionValidationService.validate(clientId, "executeForce");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, "executeForce");
-  return await swarm.sessionPublicService.execute(
-    content,
-    "tool",
-    requestId,
-    clientId,
-    swarmName
+  return ExecutionContextService.runInContext(
+    async () => {
+      return await swarm.sessionPublicService.execute(
+        content,
+        "tool",
+        methodName,
+        clientId,
+        swarmName
+      );
+    },
+    {
+      clientId,
+      executionId,
+    }
   );
 };

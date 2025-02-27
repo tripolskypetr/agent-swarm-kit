@@ -17,12 +17,11 @@ export const emit = async (
   clientId: string,
   agentName: AgentName
 ) => {
-  const requestId = randomString();
+  const methodName = "function emit"
   swarm.loggerService.log("function emit", {
     content,
     clientId,
     agentName,
-    requestId,
   });
   if (
     swarm.sessionValidationService.getSessionMode(clientId) !== "makeConnection"
@@ -36,7 +35,7 @@ export const emit = async (
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, "emit");
   const currentAgentName = await swarm.swarmPublicService.getAgentName(
-    requestId,
+    methodName,
     clientId,
     swarmName
   );
@@ -50,7 +49,7 @@ export const emit = async (
   }
   return await swarm.sessionPublicService.emit(
     content,
-    requestId,
+    methodName,
     clientId,
     swarmName
   );

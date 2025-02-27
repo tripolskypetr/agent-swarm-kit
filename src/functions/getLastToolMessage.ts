@@ -9,12 +9,11 @@ import { getRawHistory } from "./getRawHistory";
  * @returns {Promise<string | null>} - The content of the last tool message, or null if no user message is found.
  */
 export const getLastToolMessage = async (clientId: string) => {
-  const requestId = randomString();
+  const methodName = "function getLastToolMessage"
   swarm.loggerService.log("function getLastToolMessage", {
     clientId,
-    requestId,
   });
-  const history = await getRawHistory(clientId, requestId);
+  const history = await getRawHistory(clientId, methodName);
   const last = history.findLast(({ role }) => role === "tool");
   return last ? last.content : null;
 };

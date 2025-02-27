@@ -9,12 +9,11 @@ import { getRawHistory } from "./getRawHistory";
  * @returns {Promise<string | null>} - The content of the last system message, or null if no user message is found.
  */
 export const getLastSystemMessage = async (clientId: string) => {
-  const requestId = randomString();
+  const methodName = "function getLastSystemMessage"
   swarm.loggerService.log("function getLastSystemMessage", {
     clientId,
-    requestId,
   });
-  const history = await getRawHistory(clientId, requestId);
+  const history = await getRawHistory(clientId, methodName);
   const last = history.findLast(({ role }) => role === "system");
   return last ? last.content : null;
 };

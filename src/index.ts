@@ -97,5 +97,7 @@ export {
 } from "./classes/History";
 
 export { State } from './classes/State';
-
 export { Logger } from './classes/Logger';
+
+export { ExecutionContextService } from './lib/services/context/ExecutionContextService';
+export { MethodContextService } from './lib/services/context/MethodContextService';

@@ -1,7 +1,7 @@
 import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import { TContextService } from "../base/ContextService";
+import { TMethodContextService } from "../context/MethodContextService";
 import { memoize } from "functools-kit";
 import ClientAgent from "../../../client/ClientAgent";
 import HistoryConnectionService from "./HistoryConnectionService";
@@ -23,8 +23,8 @@ import BusService from "../base/BusService";
 export class AgentConnectionService implements IAgent {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly busService = inject<BusService>(TYPES.busService);
-  private readonly contextService = inject<TContextService>(
-    TYPES.contextService
+  private readonly methodContextService = inject<TMethodContextService>(
+    TYPES.methodContextService
   );
   private readonly sessionValidationService = inject<SessionValidationService>(
     TYPES.sessionValidationService
@@ -107,8 +107,8 @@ export class AgentConnectionService implements IAgent {
       mode,
     });
     return await this.getAgent(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     ).execute(input, mode);
   };
 
@@ -119,8 +119,8 @@ export class AgentConnectionService implements IAgent {
   public waitForOutput = async () => {
     this.loggerService.log(`agentConnectionService waitForOutput`);
     return await this.getAgent(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     ).waitForOutput();
   };
 
@@ -136,8 +136,8 @@ export class AgentConnectionService implements IAgent {
       toolId,
     });
     return await this.getAgent(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     ).commitToolOutput(toolId, content);
   };
 
@@ -151,8 +151,8 @@ export class AgentConnectionService implements IAgent {
       message,
     });
     return await this.getAgent(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     ).commitSystemMessage(message);
   };
 
@@ -166,8 +166,8 @@ export class AgentConnectionService implements IAgent {
       message,
     });
     return await this.getAgent(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     ).commitUserMessage(message);
   };
 
@@ -178,8 +178,8 @@ export class AgentConnectionService implements IAgent {
   public commitAgentChange = async () => {
     this.loggerService.log(`agentConnectionService commitAgentChange`);
     return await this.getAgent(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     ).commitAgentChange();
   };
 
@@ -190,8 +190,8 @@ export class AgentConnectionService implements IAgent {
   public commitFlush = async () => {
     this.loggerService.log(`agentConnectionService commitFlush`);
     return await this.getAgent(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     ).commitFlush();
   };
 
@@ -201,18 +201,18 @@ export class AgentConnectionService implements IAgent {
    */
   public dispose = async () => {
     this.loggerService.log(`agentConnectionService dispose`);
-    const key = `${this.contextService.context.clientId}-${this.contextService.context.agentName}`;
+    const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.agentName}`;
     if (!this.getAgent.has(key)) {
       return;
     }
     await this.getAgent(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     ).dispose();
     this.getAgent.clear(key);
     this.sessionValidationService.removeAgentUsage(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     );
   };
 }

@@ -16,11 +16,10 @@ export const emitForce = async (
   content: string,
   clientId: string,
 ) => {
-  const requestId = randomString();
+  const methodName = "function emitForce"
   swarm.loggerService.log("function emitForce", {
     content,
     clientId,
-    requestId,
   });
   if (swarm.sessionValidationService.getSessionMode(clientId) !== "makeConnection") {
     throw new Error(`agent-swarm-kit emitForce session is not makeConnection clientId=${clientId}`);
@@ -28,5 +27,5 @@ export const emitForce = async (
   swarm.sessionValidationService.validate(clientId, "emitForce");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, "emitForce");
-  return await swarm.sessionPublicService.emit(content, requestId, clientId, swarmName);
+  return await swarm.sessionPublicService.emit(content, methodName, clientId, swarmName);
 };

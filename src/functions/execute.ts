@@ -1,6 +1,6 @@
 import { randomString } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
-import swarm from "../lib";
+import swarm, { ExecutionContextService } from "../lib";
 
 /**
  * Send the message to the active agent in the swarm content like it income from client side
@@ -16,19 +16,21 @@ export const execute = async (
   clientId: string,
   agentName: AgentName
 ) => {
-  const requestId = randomString();
+  const methodName = "function execute";
+  const executionId = randomString();
   swarm.loggerService.log("function execute", {
     content,
     clientId,
     agentName,
-    requestId,
+    methodName,
+    executionId,
   });
   swarm.agentValidationService.validate(agentName, "execute");
   swarm.sessionValidationService.validate(clientId, "execute");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, "execute");
   const currentAgentName = await swarm.swarmPublicService.getAgentName(
-    requestId,
+    methodName,
     clientId,
     swarmName
   );
@@ -43,11 +45,19 @@ export const execute = async (
     );
     return;
   }
-  return await swarm.sessionPublicService.execute(
-    content,
-    "tool",
-    requestId,
-    clientId,
-    swarmName
+  return ExecutionContextService.runInContext(
+    async () => {
+      return await swarm.sessionPublicService.execute(
+        content,
+        "tool",
+        methodName,
+        clientId,
+        swarmName
+      );
+    },
+    {
+      clientId,
+      executionId,
+    }
   );
 };

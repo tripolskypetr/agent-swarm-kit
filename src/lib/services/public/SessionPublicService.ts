@@ -2,13 +2,16 @@ import { inject } from "../../core/di";
 import { SessionConnectionService } from "../connection/SessionConnectionService";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import ContextService from "../base/ContextService";
+import MethodContextService from "../context/MethodContextService";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
 import {
   ExecutionMode,
   ReceiveMessageFn,
   SendMessageFn,
 } from "../../../interfaces/Session.interface";
+import ExecutionContextService from "../context/ExecutionContextService";
+import { randomString } from "functools-kit";
+import { IIncomingMessage } from "../../../model/EmitMessage.model";
 
 interface ISessionConnectionService extends SessionConnectionService {}
 
@@ -38,22 +41,22 @@ export class SessionPublicService implements TSessionConnectionService {
    */
   public emit = async (
     content: string,
-    requestId: string,
+    methodName: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
     this.loggerService.log("sessionPublicService emit", {
       content,
       clientId,
-      requestId,
+      methodName,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.emit(content);
       },
       {
-        requestId,
+        methodName,
         clientId,
         swarmName,
         agentName: "",
@@ -73,7 +76,7 @@ export class SessionPublicService implements TSessionConnectionService {
   public execute = async (
     content: string,
     mode: ExecutionMode,
-    requestId: string,
+    methodName: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
@@ -83,12 +86,12 @@ export class SessionPublicService implements TSessionConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.execute(content, mode);
       },
       {
-        requestId,
+        methodName,
         clientId,
         swarmName,
         agentName: "",
@@ -107,20 +110,29 @@ export class SessionPublicService implements TSessionConnectionService {
    */
   public connect = (
     connector: SendMessageFn,
-    requestId: string,
+    methodName: string,
     clientId: string,
     swarmName: SwarmName
   ): ReceiveMessageFn => {
     this.loggerService.log("sessionPublicService connect", {
-      requestId,
+      methodName,
       clientId,
       swarmName,
     });
-    return this.sessionConnectionService.connect(
+    const send = this.sessionConnectionService.connect(
       connector,
       clientId,
       swarmName
     );
+    return async (incoming: IIncomingMessage) => {
+      const executionId = randomString();
+      return ExecutionContextService.runInContext(async () => {
+        return await send(incoming);
+      }, {
+        clientId,
+        executionId,
+      })
+    };
   };
 
   /**
@@ -134,18 +146,18 @@ export class SessionPublicService implements TSessionConnectionService {
   public commitToolOutput = async (
     toolId: string,
     content: string,
-    requestId: string,
+    methodName: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
     this.loggerService.log("sessionPublicService commitToolOutput", {
-      requestId,
+      methodName,
       toolId,
       content,
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitToolOutput(
           toolId,
@@ -153,7 +165,7 @@ export class SessionPublicService implements TSessionConnectionService {
         );
       },
       {
-        requestId,
+        methodName,
         clientId,
         swarmName,
         agentName: "",
@@ -172,22 +184,22 @@ export class SessionPublicService implements TSessionConnectionService {
    */
   public commitSystemMessage = async (
     message: string,
-    requestId: string,
+    methodName: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
     this.loggerService.log("sessionPublicService commitSystemMessage", {
-      requestId,
+      methodName,
       message,
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitSystemMessage(message);
       },
       {
-        requestId,
+        methodName,
         clientId,
         swarmName,
         agentName: "",
@@ -206,22 +218,22 @@ export class SessionPublicService implements TSessionConnectionService {
    */
   public commitUserMessage = async (
     message: string,
-    requestId: string,
+    methodName: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
     this.loggerService.log("sessionPublicService commitUserMessage", {
-      requestId,
+      methodName,
       message,
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitUserMessage(message);
       },
       {
-        requestId,
+        methodName,
         clientId,
         swarmName,
         agentName: "",
@@ -238,7 +250,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * @returns {Promise<void>}
    */
   public commitFlush = async (
-    requestId: string,
+    methodName: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
@@ -246,12 +258,12 @@ export class SessionPublicService implements TSessionConnectionService {
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitFlush();
       },
       {
-        requestId,
+        methodName,
         clientId,
         swarmName,
         agentName: "",
@@ -268,21 +280,21 @@ export class SessionPublicService implements TSessionConnectionService {
    * @returns {Promise<void>}
    */
   public dispose = async (
-    requestId: string,
+    methodName: string,
     clientId: string,
     swarmName: SwarmName
   ) => {
     this.loggerService.log("sessionPublicService dispose", {
-      requestId,
+      methodName,
       clientId,
       swarmName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.dispose();
       },
       {
-        requestId,
+        methodName,
         clientId,
         swarmName,
         agentName: "",

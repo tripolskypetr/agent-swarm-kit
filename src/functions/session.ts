@@ -1,6 +1,6 @@
 import { queued, randomString, schedule } from "functools-kit";
 import { SwarmName } from "../interfaces/Swarm.interface";
-import swarm from "../lib";
+import swarm, { ExecutionContextService } from "../lib";
 import { disposeConnection } from "./disposeConnection";
 import { commitUserMessage } from "./commitUserMessage";
 import { getAgentName } from "./getAgentName";
@@ -19,11 +19,12 @@ const SCHEDULED_DELAY = 1_000;
  * @returns {Function} dispose - A function to dispose of the session.
  */
 const session = (clientId: string, swarmName: SwarmName) => {
-  const requestId = randomString();
+  const methodName = "function session";
+  const executionId = randomString();
   swarm.loggerService.log("function session", {
     clientId,
     swarmName,
-    requestId,
+    executionId,
   });
   swarm.swarmValidationService.validate(swarmName, "session");
   swarm.sessionValidationService.addSession(clientId, swarmName, "session");
@@ -36,12 +37,20 @@ const session = (clientId: string, swarmName: SwarmName) => {
      */
     complete: queued(async (content: string) => {
       swarm.sessionValidationService.validate(clientId, "session");
-      return await swarm.sessionPublicService.execute(
-        content,
-        "user",
-        requestId,
-        clientId,
-        swarmName
+      return ExecutionContextService.runInContext(
+        async () => {
+          return await swarm.sessionPublicService.execute(
+            content,
+            "user",
+            methodName,
+            clientId,
+            swarmName
+          );
+        },
+        {
+          clientId,
+          executionId,
+        }
       );
     }) as TComplete,
 
@@ -51,7 +60,7 @@ const session = (clientId: string, swarmName: SwarmName) => {
      * @returns {Promise<void>} A promise that resolves when the session is disposed.
      */
     dispose: async () => {
-      return await disposeConnection(clientId, swarmName, requestId);
+      return await disposeConnection(clientId, swarmName, methodName);
     },
   };
 };
@@ -77,9 +86,11 @@ export interface ISessionConfig {
  * @returns {TComplete} complete - A function to complete the session with content.
  * @returns {Function} dispose - A function to dispose of the session.
  */
-session.scheduled = (clientId: string, swarmName: SwarmName, {
-  delay = SCHEDULED_DELAY,
-}: Partial<ISessionConfig> = {}) => {
+session.scheduled = (
+  clientId: string,
+  swarmName: SwarmName,
+  { delay = SCHEDULED_DELAY }: Partial<ISessionConfig> = {}
+) => {
   const { complete, dispose } = session(clientId, swarmName);
 
   let isMounted = true;

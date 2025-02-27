@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import { AgentConnectionService } from "../connection/AgentConnectionService";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import ContextService from "../base/ContextService";
+import MethodContextService from "../context/MethodContextService";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { ExecutionMode } from "../../../interfaces/Session.interface";
 
@@ -31,18 +31,18 @@ export class AgentPublicService implements TAgentConnectionService {
    * @param {AgentName} agentName - The name of the agent.
    * @returns {Promise<unknown>} The agent reference.
    */
-  public createAgentRef = async (requestId: string, clientId: string, agentName: AgentName) => {
+  public createAgentRef = async (methodName: string, clientId: string, agentName: AgentName) => {
     this.loggerService.log("agentPublicService createAgentRef", {
-      requestId,
+      methodName,
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.getAgent(clientId, agentName);
       },
       {
-        requestId,
+        methodName,
         clientId,
         agentName,
         swarmName: "",
@@ -62,23 +62,23 @@ export class AgentPublicService implements TAgentConnectionService {
   public execute = async (
     input: string,
     mode: ExecutionMode,
-    requestId: string,
+    methodName: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("agentPublicService execute", {
-      requestId,
+      methodName,
       input,
       clientId,
       agentName,
       mode,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.execute(input, mode);
       },
       {
-        requestId,
+        methodName,
         clientId,
         agentName,
         swarmName: "",
@@ -94,18 +94,18 @@ export class AgentPublicService implements TAgentConnectionService {
    * @param {AgentName} agentName - The name of the agent.
    * @returns {Promise<unknown>} The output result.
    */
-  public waitForOutput = async (requestId: string, clientId: string, agentName: AgentName) => {
+  public waitForOutput = async (methodName: string, clientId: string, agentName: AgentName) => {
     this.loggerService.log("agentPublicService waitForOutput", {
-      requestId,
+      methodName,
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.waitForOutput();
       },
       {
-        requestId,
+        methodName,
         clientId,
         agentName,
         swarmName: "",
@@ -126,23 +126,23 @@ export class AgentPublicService implements TAgentConnectionService {
   public commitToolOutput = async (
     toolId: string,
     content: string,
-    requestId: string,
+    methodName: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("agentPublicService commitToolOutput", {
-      requestId,
+      methodName,
       content,
       clientId,
       toolId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitToolOutput(toolId, content);
       },
       {
-        requestId,
+        methodName,
         clientId,
         agentName,
         swarmName: "",
@@ -161,22 +161,22 @@ export class AgentPublicService implements TAgentConnectionService {
    */
   public commitSystemMessage = async (
     message: string,
-    requestId: string,
+    methodName: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("agentPublicService commitSystemMessage", {
-      requestId,
+      methodName,
       message,
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitSystemMessage(message);
       },
       {
-        requestId,
+        methodName,
         clientId,
         agentName,
         swarmName: "",
@@ -195,22 +195,22 @@ export class AgentPublicService implements TAgentConnectionService {
    */
   public commitUserMessage = async (
     message: string,
-    requestId: string,
+    methodName: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("agentPublicService commitUserMessage", {
-      requestId,
+      methodName,
       message,
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitUserMessage(message);
       },
       {
-        requestId,
+        methodName,
         clientId,
         agentName,
         swarmName: "",
@@ -227,21 +227,21 @@ export class AgentPublicService implements TAgentConnectionService {
    * @returns {Promise<unknown>} The commit result.
    */
   public commitFlush = async (
-    requestId: string,
+    methodName: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("agentPublicService commitFlush", {
-      requestId,
+      methodName,
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitFlush();
       },
       {
-        requestId,
+        methodName,
         clientId,
         agentName,
         swarmName: "",
@@ -258,21 +258,21 @@ export class AgentPublicService implements TAgentConnectionService {
    * @returns {Promise<unknown>} The commit result.
    */
   public commitAgentChange = async (
-    requestId: string,
+    methodName: string,
     clientId: string,
     agentName: AgentName
   ) => {
     this.loggerService.log("agentPublicService commitAgentChange", {
-      requestId,
+      methodName,
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitAgentChange();
       },
       {
-        requestId,
+        methodName,
         clientId,
         agentName,
         swarmName: "",
@@ -288,18 +288,18 @@ export class AgentPublicService implements TAgentConnectionService {
    * @param {AgentName} agentName - The name of the agent.
    * @returns {Promise<unknown>} The dispose result.
    */
-  public dispose = async (requestId: string, clientId: string, agentName: AgentName) => {
+  public dispose = async (methodName: string, clientId: string, agentName: AgentName) => {
     this.loggerService.log("agentPublicService dispose", {
-      requestId,
+      methodName,
       clientId,
       agentName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.dispose();
       },
       {
-        requestId,
+        methodName,
         clientId,
         agentName,
         swarmName: "",

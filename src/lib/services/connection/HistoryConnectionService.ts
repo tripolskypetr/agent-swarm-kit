@@ -5,7 +5,7 @@ import IHistory from "../../../interfaces/History.interface";
 import { IModelMessage } from "../../../model/ModelMessage.model";
 import { IPubsubArray, memoize } from "functools-kit";
 import ClientHistory from "../../../client/ClientHistory";
-import { TContextService } from "../base/ContextService";
+import { TMethodContextService } from "../context/MethodContextService";
 import SessionValidationService from "../validation/SessionValidationService";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
@@ -19,8 +19,8 @@ import BusService from "../base/BusService";
 export class HistoryConnectionService implements IHistory {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly busService = inject<BusService>(TYPES.busService);
-  private readonly contextService = inject<TContextService>(
-    TYPES.contextService
+  private readonly methodContextService = inject<TMethodContextService>(
+    TYPES.methodContextService
   );
 
   private readonly sessionValidationService = inject<SessionValidationService>(
@@ -57,8 +57,8 @@ export class HistoryConnectionService implements IHistory {
       message,
     });
     return await this.getHistory(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     ).push(message);
   };
 
@@ -72,8 +72,8 @@ export class HistoryConnectionService implements IHistory {
       prompt,
     });
     return await this.getHistory(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     ).toArrayForAgent(prompt);
   };
 
@@ -84,8 +84,8 @@ export class HistoryConnectionService implements IHistory {
   public toArrayForRaw = async () => {
     this.loggerService.log(`historyConnectionService toArrayForRaw`);
     return await this.getHistory(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     ).toArrayForRaw();
   };
 
@@ -95,18 +95,18 @@ export class HistoryConnectionService implements IHistory {
    */
   public dispose = async () => {
     this.loggerService.log(`historyConnectionService dispose`);
-    const key = `${this.contextService.context.clientId}-${this.contextService.context.agentName}`;
+    const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.agentName}`;
     if (!this.getHistory.has(key)) {
       return;
     }
     await this.getHistory(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     ).dispose();
     this.getHistory.clear(key);
     this.sessionValidationService.removeHistoryUsage(
-      this.contextService.context.clientId,
-      this.contextService.context.agentName
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
     );
   };
 }

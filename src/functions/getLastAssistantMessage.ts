@@ -9,12 +9,11 @@ import { getRawHistory } from "./getRawHistory";
  * @returns {Promise<string | null>} - The content of the last assistant message, or null if no user message is found.
  */
 export const getLastAssistantMessage = async (clientId: string) => {
-  const requestId = randomString();
+  const methodName = "function getLastAssistantMessage"
   swarm.loggerService.log("function getLastAssistantMessage", {
     clientId,
-    requestId,
   });
-  const history = await getRawHistory(clientId, requestId);
+  const history = await getRawHistory(clientId, methodName);
   const last = history.findLast(({ role }) => role === "assistant");
   return last ? last.content : null;
 };

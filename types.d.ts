@@ -3,6 +3,24 @@ import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
 
 /**
+ * Interface representing the context.
+ */
+interface IExecutionContext {
+    clientId: string;
+    executionId: string;
+}
+/**
+ * Service providing execution context information.
+ */
+declare const ExecutionContextService: (new () => {
+    readonly context: IExecutionContext;
+}) & Omit<{
+    new (context: IExecutionContext): {
+        readonly context: IExecutionContext;
+    };
+}, "prototype"> & di_scoped.IScopedClassRun<[context: IExecutionContext]>;
+
+/**
  * Interface representing an incoming message.
  */
 interface IIncomingMessage {
@@ -1421,31 +1439,32 @@ type ToolName = string;
 /**
  * Interface representing the context.
  */
-interface IContext {
+interface IMethodContext {
     clientId: string;
-    requestId: string;
+    methodName: string;
     agentName: AgentName;
     swarmName: SwarmName;
     storageName: StorageName;
     stateName: StateName;
 }
 /**
- * Service providing context information.
+ * Service providing method call context information.
  */
-declare const ContextService: (new () => {
-    readonly context: IContext;
+declare const MethodContextService: (new () => {
+    readonly context: IMethodContext;
 }) & Omit<{
-    new (context: IContext): {
-        readonly context: IContext;
+    new (context: IMethodContext): {
+        readonly context: IMethodContext;
     };
-}, "prototype"> & di_scoped.IScopedClassRun<[context: IContext]>;
+}, "prototype"> & di_scoped.IScopedClassRun<[context: IMethodContext]>;
 
 /**
  * LoggerService class that implements the ILogger interface.
  * Provides methods to log and debug messages.
  */
 declare class LoggerService implements ILogger {
-    private readonly contextService;
+    private readonly methodContextService;
+    private readonly executionContextService;
     private _logger;
     /**
      * Logs messages using the current logger.
@@ -1552,7 +1571,7 @@ declare class ClientAgent implements IAgent {
 declare class AgentConnectionService implements IAgent {
     private readonly loggerService;
     private readonly busService;
-    private readonly contextService;
+    private readonly methodContextService;
     private readonly sessionValidationService;
     private readonly historyConnectionService;
     private readonly storageConnectionService;
@@ -1660,7 +1679,7 @@ declare class ClientHistory implements IHistory {
 declare class HistoryConnectionService implements IHistory {
     private readonly loggerService;
     private readonly busService;
-    private readonly contextService;
+    private readonly methodContextService;
     private readonly sessionValidationService;
     /**
      * Retrieves the history for a given client and agent.
@@ -1788,7 +1807,7 @@ declare class ClientSwarm implements ISwarm {
 declare class SwarmConnectionService implements ISwarm {
     private readonly loggerService;
     private readonly busService;
-    private readonly contextService;
+    private readonly methodContextService;
     private readonly agentConnectionService;
     private readonly swarmSchemaService;
     /**
@@ -1946,7 +1965,7 @@ declare class ClientSession implements ISession {
 declare class SessionConnectionService implements ISession {
     private readonly loggerService;
     private readonly busService;
-    private readonly contextService;
+    private readonly methodContextService;
     private readonly swarmConnectionService;
     private readonly swarmSchemaService;
     /**
@@ -2026,7 +2045,7 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @param {AgentName} agentName - The name of the agent.
      * @returns {Promise<unknown>} The agent reference.
      */
-    createAgentRef: (requestId: string, clientId: string, agentName: AgentName) => Promise<ClientAgent>;
+    createAgentRef: (methodName: string, clientId: string, agentName: AgentName) => Promise<ClientAgent>;
     /**
      * Executes a command on the agent.
      * @param {string} input - The input command.
@@ -2034,14 +2053,14 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @param {AgentName} agentName - The name of the agent.
      * @returns {Promise<unknown>} The execution result.
      */
-    execute: (input: string, mode: ExecutionMode, requestId: string, clientId: string, agentName: AgentName) => Promise<void>;
+    execute: (input: string, mode: ExecutionMode, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Waits for the agent's output.
      * @param {string} clientId - The client ID.
      * @param {AgentName} agentName - The name of the agent.
      * @returns {Promise<unknown>} The output result.
      */
-    waitForOutput: (requestId: string, clientId: string, agentName: AgentName) => Promise<string>;
+    waitForOutput: (methodName: string, clientId: string, agentName: AgentName) => Promise<string>;
     /**
      * Commits tool output to the agent.
      * @param {string} toolId - The `tool_call_id` for openai history
@@ -2050,7 +2069,7 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @param {AgentName} agentName - The name of the agent.
      * @returns {Promise<unknown>} The commit result.
      */
-    commitToolOutput: (toolId: string, content: string, requestId: string, clientId: string, agentName: AgentName) => Promise<void>;
+    commitToolOutput: (toolId: string, content: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits a system message to the agent.
      * @param {string} message - The message to commit.
@@ -2058,7 +2077,7 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @param {AgentName} agentName - The name of the agent.
      * @returns {Promise<unknown>} The commit result.
      */
-    commitSystemMessage: (message: string, requestId: string, clientId: string, agentName: AgentName) => Promise<void>;
+    commitSystemMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits user message to the agent without answer.
      * @param {string} message - The message to commit.
@@ -2066,28 +2085,28 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @param {AgentName} agentName - The name of the agent.
      * @returns {Promise<unknown>} The commit result.
      */
-    commitUserMessage: (message: string, requestId: string, clientId: string, agentName: AgentName) => Promise<void>;
+    commitUserMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits flush of agent history
      * @param {string} clientId - The client ID.
      * @param {AgentName} agentName - The name of the agent.
      * @returns {Promise<unknown>} The commit result.
      */
-    commitFlush: (requestId: string, clientId: string, agentName: AgentName) => Promise<void>;
+    commitFlush: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits change of agent to prevent the next tool execution from being called.
      * @param {string} clientId - The client ID.
      * @param {AgentName} agentName - The name of the agent.
      * @returns {Promise<unknown>} The commit result.
      */
-    commitAgentChange: (requestId: string, clientId: string, agentName: AgentName) => Promise<void>;
+    commitAgentChange: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Disposes of the agent.
      * @param {string} clientId - The client ID.
      * @param {AgentName} agentName - The name of the agent.
      * @returns {Promise<unknown>} The dispose result.
      */
-    dispose: (requestId: string, clientId: string, agentName: AgentName) => Promise<void>;
+    dispose: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
 }
 
 interface IHistoryConnectionService extends HistoryConnectionService {
@@ -2112,7 +2131,7 @@ declare class HistoryPublicService implements THistoryConnectionService {
      * @param {AgentName} agentName - The agent name.
      * @returns {Promise<void>} A promise that resolves when the operation is complete.
      */
-    push: (message: IModelMessage, requestId: string, clientId: string, agentName: AgentName) => Promise<void>;
+    push: (message: IModelMessage, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Converts history to an array for a specific agent.
      * @param {string} prompt - The prompt.
@@ -2120,21 +2139,21 @@ declare class HistoryPublicService implements THistoryConnectionService {
      * @param {AgentName} agentName - The agent name.
      * @returns {Promise<any[]>} A promise that resolves to an array of history items.
      */
-    toArrayForAgent: (prompt: string, requestId: string, clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
+    toArrayForAgent: (prompt: string, methodName: string, clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
     /**
      * Converts history to a raw array.
      * @param {string} clientId - The client ID.
      * @param {AgentName} agentName - The agent name.
      * @returns {Promise<any[]>} A promise that resolves to a raw array of history items.
      */
-    toArrayForRaw: (requestId: string, clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
+    toArrayForRaw: (methodName: string, clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
     /**
      * Disposes of the history.
      * @param {string} clientId - The client ID.
      * @param {AgentName} agentName - The agent name.
      * @returns {Promise<void>} A promise that resolves when the operation is complete.
      */
-    dispose: (requestId: string, clientId: string, agentName: AgentName) => Promise<void>;
+    dispose: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
 }
 
 interface ISessionConnectionService extends SessionConnectionService {
@@ -2158,7 +2177,7 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    emit: (content: string, requestId: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    emit: (content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Executes a command in the session.
      * @param {string} content - The content to execute.
@@ -2166,7 +2185,7 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    execute: (content: string, mode: ExecutionMode, requestId: string, clientId: string, swarmName: SwarmName) => Promise<string>;
+    execute: (content: string, mode: ExecutionMode, methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Connects to the session.
      * @param {SendMessageFn} connector - The function to send messages.
@@ -2174,7 +2193,7 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {ReceiveMessageFn}
      */
-    connect: (connector: SendMessageFn$1, requestId: string, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
+    connect: (connector: SendMessageFn$1, methodName: string, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
     /**
      * Commits tool output to the session.
      * @param {string} toolId - The `tool_call_id` for openai history
@@ -2183,7 +2202,7 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    commitToolOutput: (toolId: string, content: string, requestId: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    commitToolOutput: (toolId: string, content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits a system message to the session.
      * @param {string} message - The message to commit.
@@ -2191,7 +2210,7 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    commitSystemMessage: (message: string, requestId: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    commitSystemMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits user message to the agent without answer.
      * @param {string} message - The message to commit.
@@ -2199,21 +2218,21 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    commitUserMessage: (message: string, requestId: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    commitUserMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits flush of agent history
      * @param {string} clientId - The client ID.
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    commitFlush: (requestId: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    commitFlush: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Disposes of the session.
      * @param {string} clientId - The client ID.
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    dispose: (requestId: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    dispose: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
 }
 
 interface ISwarmConnectionService extends SwarmConnectionService {
@@ -2236,28 +2255,28 @@ declare class SwarmPublicService implements TSwarmConnectionService {
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    cancelOutput: (requestId: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    cancelOutput: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Waits for output from the swarm.
      * @param {string} clientId - The client ID.
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    waitForOutput: (requestId: string, clientId: string, swarmName: SwarmName) => Promise<string>;
+    waitForOutput: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Gets the agent name from the swarm.
      * @param {string} clientId - The client ID.
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<string>}
      */
-    getAgentName: (requestId: string, clientId: string, swarmName: SwarmName) => Promise<string>;
+    getAgentName: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Gets the agent from the swarm.
      * @param {string} clientId - The client ID.
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<IAgent>}
      */
-    getAgent: (requestId: string, clientId: string, swarmName: SwarmName) => Promise<IAgent>;
+    getAgent: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<IAgent>;
     /**
      * Sets the agent reference in the swarm.
      * @param {string} clientId - The client ID.
@@ -2266,7 +2285,7 @@ declare class SwarmPublicService implements TSwarmConnectionService {
      * @param {IAgent} agent - The agent instance.
      * @returns {Promise<void>}
      */
-    setAgentRef: (requestId: string, clientId: string, swarmName: SwarmName, agentName: AgentName, agent: IAgent) => Promise<void>;
+    setAgentRef: (methodName: string, clientId: string, swarmName: SwarmName, agentName: AgentName, agent: IAgent) => Promise<void>;
     /**
      * Sets the agent name in the swarm.
      * @param {AgentName} agentName - The agent name.
@@ -2274,14 +2293,14 @@ declare class SwarmPublicService implements TSwarmConnectionService {
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    setAgentName: (agentName: AgentName, requestId: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    setAgentName: (agentName: AgentName, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Disposes of the swarm.
      * @param {string} clientId - The client ID.
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {Promise<void>}
      */
-    dispose: (requestId: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    dispose: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
 }
 
 /**
@@ -2639,7 +2658,7 @@ declare class ClientStorage<T extends IStorageData = IStorageData> implements IS
 declare class StorageConnectionService implements IStorage {
     private readonly loggerService;
     private readonly busService;
-    private readonly contextService;
+    private readonly methodContextService;
     private readonly storageSchemaService;
     private readonly sessionValidationService;
     private readonly embeddingSchemaService;
@@ -2721,43 +2740,43 @@ declare class StoragePublicService implements TStorageConnectionService {
      * @param {number} total - The total number of items to retrieve.
      * @returns {Promise<IStorageData[]>} The list of storage data.
      */
-    take: (search: string, total: number, requestId: string, clientId: string, storageName: StorageName, score?: number) => Promise<IStorageData[]>;
+    take: (search: string, total: number, methodName: string, clientId: string, storageName: StorageName, score?: number) => Promise<IStorageData[]>;
     /**
      * Upserts an item in the storage.
      * @param {IStorageData} item - The item to upsert.
      * @returns {Promise<void>}
      */
-    upsert: (item: IStorageData, requestId: string, clientId: string, storageName: StorageName) => Promise<void>;
+    upsert: (item: IStorageData, methodName: string, clientId: string, storageName: StorageName) => Promise<void>;
     /**
      * Removes an item from the storage.
      * @param {IStorageData["id"]} itemId - The ID of the item to remove.
      * @returns {Promise<void>}
      */
-    remove: (itemId: IStorageData["id"], requestId: string, clientId: string, storageName: StorageName) => Promise<void>;
+    remove: (itemId: IStorageData["id"], methodName: string, clientId: string, storageName: StorageName) => Promise<void>;
     /**
      * Retrieves an item from the storage by its ID.
      * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
      * @returns {Promise<IStorageData>} The retrieved item.
      */
-    get: (itemId: IStorageData["id"], requestId: string, clientId: string, storageName: StorageName) => Promise<IStorageData | null>;
+    get: (itemId: IStorageData["id"], methodName: string, clientId: string, storageName: StorageName) => Promise<IStorageData | null>;
     /**
      * Retrieves a list of items from the storage, optionally filtered by a predicate function.
      * @param {function(IStorageData): boolean} [filter] - The optional filter function.
      * @returns {Promise<IStorageData[]>} The list of items.
      */
-    list: (requestId: string, clientId: string, storageName: StorageName, filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
+    list: (methodName: string, clientId: string, storageName: StorageName, filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
     /**
      * Clears all items from the storage.
      * @returns {Promise<void>}
      */
-    clear: (requestId: string, clientId: string, storageName: StorageName) => Promise<void>;
+    clear: (methodName: string, clientId: string, storageName: StorageName) => Promise<void>;
     /**
      * Disposes of the storage.
      * @param {string} clientId - The client ID.
      * @param {StorageName} storageName - The storage name.
      * @returns {Promise<void>}
      */
-    dispose: (requestId: string, clientId: string, storageName: StorageName) => Promise<void>;
+    dispose: (methodName: string, clientId: string, storageName: StorageName) => Promise<void>;
 }
 
 /**
@@ -2851,7 +2870,7 @@ declare class ClientState<State extends IStateData = IStateData> implements ISta
 declare class StateConnectionService<T extends IStateData = IStateData> implements IState<T> {
     private readonly loggerService;
     private readonly busService;
-    private readonly contextService;
+    private readonly methodContextService;
     private readonly stateSchemaService;
     private readonly sessionValidationService;
     /**
@@ -2905,21 +2924,21 @@ declare class StatePublicService<T extends IStateData = IStateData> implements T
      * @param {StateName} stateName - The name of the state.
      * @returns {Promise<T>} - The updated state.
      */
-    setState: (dispatchFn: (prevState: T) => Promise<T>, requestId: string, clientId: string, stateName: StateName) => Promise<T>;
+    setState: (dispatchFn: (prevState: T) => Promise<T>, methodName: string, clientId: string, stateName: StateName) => Promise<T>;
     /**
      * Gets the current state.
      * @param {string} clientId - The client ID.
      * @param {StateName} stateName - The name of the state.
      * @returns {Promise<T>} - The current state.
      */
-    getState: (requestId: string, clientId: string, stateName: StateName) => Promise<T>;
+    getState: (methodName: string, clientId: string, stateName: StateName) => Promise<T>;
     /**
      * Disposes the state.
      * @param {string} clientId - The client ID.
      * @param {StateName} stateName - The name of the state.
      * @returns {Promise<void>} - A promise that resolves when the state is disposed.
      */
-    dispose: (requestId: string, clientId: string, stateName: StateName) => Promise<void>;
+    dispose: (methodName: string, clientId: string, stateName: StateName) => Promise<void>;
 }
 
 /**
@@ -3005,11 +3024,14 @@ declare const swarm: {
     sessionConnectionService: SessionConnectionService;
     storageConnectionService: StorageConnectionService;
     stateConnectionService: StateConnectionService<any>;
+    methodContextService: {
+        readonly context: IMethodContext;
+    };
+    executionContextService: {
+        readonly context: IExecutionContext;
+    };
     busService: BusService;
     loggerService: LoggerService;
-    contextService: {
-        readonly context: IContext;
-    };
 };
 
 /**
@@ -3160,7 +3182,7 @@ declare const session: {
      * @returns {TComplete} complete - A function to complete the session with content.
      * @returns {Function} dispose - A function to dispose of the session.
      */
-    scheduled(clientId: string, swarmName: SwarmName, { delay, }?: Partial<ISessionConfig>): {
+    scheduled(clientId: string, swarmName: SwarmName, { delay }?: Partial<ISessionConfig>): {
         /**
          * Completes the scheduled session with the given content.
          *
@@ -3193,7 +3215,7 @@ interface ISessionConfig {
  * @param {SwarmName} swarmName - The name of the swarm.
  * @returns {Promise<void>} A promise that resolves when the connection is disposed.
  */
-declare const disposeConnection: (clientId: string, swarmName: SwarmName, requestId?: string) => Promise<void>;
+declare const disposeConnection: (clientId: string, swarmName: SwarmName, methodName?: string) => Promise<void>;
 
 /**
  * Retrieves the raw history as it is for a given client ID without any modifications.
@@ -3201,7 +3223,7 @@ declare const disposeConnection: (clientId: string, swarmName: SwarmName, reques
  * @param {string} clientId - The ID of the client whose history is to be retrieved.
  * @returns {Promise<Array>} A promise that resolves to an array containing the raw history.
  */
-declare const getRawHistory: (clientId: string, requestId?: string) => Promise<IModelMessage[]>;
+declare const getRawHistory: (clientId: string, methodName?: string) => Promise<IModelMessage[]>;
 
 /**
  * Retrieves the history prepared for a specific agent with resque algorithm tweaks
@@ -3737,4 +3759,4 @@ declare class LoggerUtils {
  */
 declare const Logger: LoggerUtils;
 
-export { ContextService, type EventSource, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, MethodContextService, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };

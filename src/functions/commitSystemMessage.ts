@@ -10,18 +10,17 @@ import swarm from "../lib";
  * @returns {Promise<void>} - A promise that resolves when the message is committed.
  */
 export const commitSystemMessage = async (content: string, clientId: string, agentName: string) => {
-    const requestId = randomString();
+    const methodName = 'function commitSystemMessage'
     swarm.loggerService.log('function commitSystemMessage', {
         content,
         clientId,
         agentName,
-        requestId,
     });
     swarm.agentValidationService.validate(agentName, "commitSystemMessage");
     swarm.sessionValidationService.validate(clientId, "commitSystemMessage");
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
     swarm.swarmValidationService.validate(swarmName, "commitSystemMessage");
-    const currentAgentName = await swarm.swarmPublicService.getAgentName(requestId, clientId, swarmName);
+    const currentAgentName = await swarm.swarmPublicService.getAgentName(methodName, clientId, swarmName);
     if (currentAgentName !== agentName) {
         swarm.loggerService.log('function "commitSystemMessage" skipped due to the agent change', {
             currentAgentName,
@@ -30,5 +29,5 @@ export const commitSystemMessage = async (content: string, clientId: string, age
         });
         return;
     }
-    await swarm.sessionPublicService.commitSystemMessage(content, requestId, clientId, swarmName);
+    await swarm.sessionPublicService.commitSystemMessage(content, methodName, clientId, swarmName);
 }

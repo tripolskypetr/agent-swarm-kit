@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import { StateConnectionService } from "../connection/StateConnectionService";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import ContextService from "../base/ContextService";
+import MethodContextService from "../context/MethodContextService";
 import {
   IStateData,
   StateName,
@@ -34,21 +34,21 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
    */
   public setState = async (
     dispatchFn: (prevState: T) => Promise<T>,
-    requestId: string,
+    methodName: string,
     clientId: string,
     stateName: StateName,
   ): Promise<T> => {
     this.loggerService.log(`statePublicService setState`, {
-      requestId,
+      methodName,
       clientId,
       stateName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.stateConnectionService.setState(dispatchFn);
       },
       {
-        requestId,
+        methodName,
         clientId,
         stateName,
         agentName: "",
@@ -65,7 +65,7 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
    * @returns {Promise<T>} - The current state.
    */
   public getState = async (
-    requestId: string,
+    methodName: string,
     clientId: string,
     stateName: StateName,
   ): Promise<T> => {
@@ -73,12 +73,12 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
       clientId,
       stateName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.stateConnectionService.getState();
       },
       {
-        requestId,
+        methodName,
         clientId,
         stateName,
         agentName: "",
@@ -94,18 +94,18 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
    * @param {StateName} stateName - The name of the state.
    * @returns {Promise<void>} - A promise that resolves when the state is disposed.
    */
-  public dispose = async (requestId: string, clientId: string, stateName: StateName) => {
+  public dispose = async (methodName: string, clientId: string, stateName: StateName) => {
     this.loggerService.log("statePublicService dispose", {
-      requestId,
+      methodName,
       clientId,
       stateName,
     });
-    return await ContextService.runInContext(
+    return await MethodContextService.runInContext(
       async () => {
         return await this.stateConnectionService.dispose();
       },
       {
-        requestId,
+        methodName,
         clientId,
         stateName,
         agentName: "",

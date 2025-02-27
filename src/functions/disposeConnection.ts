@@ -13,24 +13,23 @@ import swarm from "../lib";
 export const disposeConnection = async (
   clientId: string,
   swarmName: SwarmName,
-  requestId = randomString(),
+  methodName = "function disposeConnection"
 ) => {
   swarm.loggerService.log("function disposeConnection", {
     clientId,
     swarmName,
-    requestId,
   });
   swarm.swarmValidationService.validate(swarmName, "disposeConnection");
   swarm.sessionValidationService.removeSession(clientId);
   swarm.busService.dispose(clientId);
-  await swarm.sessionPublicService.dispose(requestId, clientId, swarmName);
-  await swarm.swarmPublicService.dispose(requestId, clientId, swarmName);
+  await swarm.sessionPublicService.dispose(methodName, clientId, swarmName);
+  await swarm.swarmPublicService.dispose(methodName, clientId, swarmName);
   await Promise.all(
     swarm.swarmValidationService
       .getAgentList(swarmName)
       .map(async (agentName) => {
-        await swarm.agentPublicService.dispose(requestId, clientId, agentName);
-        await swarm.historyPublicService.dispose(requestId, clientId, agentName);
+        await swarm.agentPublicService.dispose(methodName, clientId, agentName);
+        await swarm.historyPublicService.dispose(methodName, clientId, agentName);
       })
   );
   await Promise.all(
@@ -41,7 +40,7 @@ export const disposeConnection = async (
       )
       .filter((storageName) => !!storageName)
       .map(async (storageName) => {
-        await swarm.storagePublicService.dispose(requestId, clientId, storageName);
+        await swarm.storagePublicService.dispose(methodName, clientId, storageName);
       })
   );
   await Promise.all(
@@ -52,7 +51,7 @@ export const disposeConnection = async (
       )
       .filter((stateName) => !!stateName)
       .map(async (stateName) => {
-        await swarm.statePublicService.dispose(requestId, clientId, stateName);
+        await swarm.statePublicService.dispose(methodName, clientId, stateName);
       })
   );
   await History.dispose(clientId, null);
