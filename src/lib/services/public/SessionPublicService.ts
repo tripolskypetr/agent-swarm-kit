@@ -116,49 +116,10 @@ export class SessionPublicService implements TSessionConnectionService {
       clientId,
       swarmName,
     });
-    return ContextService.runInContext(
-      () => {
-        const receive = this.sessionConnectionService.connect(
-          async (outgoing) => {
-            return await ContextService.runInContext(
-              async () => {
-                return await connector(outgoing);
-              },
-              {
-                requestId,
-                clientId,
-                swarmName,
-                agentName: "",
-                storageName: "",
-                stateName: "",
-              }
-            );
-          }
-        );
-        return (incoming) => {
-          return ContextService.runInContext(
-            () => {
-              return receive(incoming);
-            },
-            {
-              requestId,
-              clientId,
-              swarmName,
-              agentName: "",
-              storageName: "",
-              stateName: "",
-            }
-          );
-        };
-      },
-      {
-        requestId,
-        clientId,
-        swarmName,
-        agentName: "",
-        storageName: "",
-        stateName: "",
-      }
+    return this.sessionConnectionService.connect(
+      connector,
+      clientId,
+      swarmName
     );
   };
 
@@ -186,7 +147,10 @@ export class SessionPublicService implements TSessionConnectionService {
     });
     return await ContextService.runInContext(
       async () => {
-        return await this.sessionConnectionService.commitToolOutput(toolId, content);
+        return await this.sessionConnectionService.commitToolOutput(
+          toolId,
+          content
+        );
       },
       {
         requestId,
@@ -303,7 +267,11 @@ export class SessionPublicService implements TSessionConnectionService {
    * @param {SwarmName} swarmName - The swarm name.
    * @returns {Promise<void>}
    */
-  public dispose = async (requestId: string, clientId: string, swarmName: SwarmName) => {
+  public dispose = async (
+    requestId: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
     this.loggerService.log("sessionPublicService dispose", {
       requestId,
       clientId,

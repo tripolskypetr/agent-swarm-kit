@@ -69,7 +69,7 @@ export interface ISession {
    * @param {SendMessageFn} connector - The function to send messages.
    * @returns {ReceiveMessageFn}
    */
-  connect(connector: SendMessageFn): ReceiveMessageFn;
+  connect(connector: SendMessageFn, ...args: unknown[]): ReceiveMessageFn;
 
   /**
    * Commit tool output.

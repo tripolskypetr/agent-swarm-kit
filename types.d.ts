@@ -645,7 +645,7 @@ interface ISession {
      * @param {SendMessageFn} connector - The function to send messages.
      * @returns {ReceiveMessageFn}
      */
-    connect(connector: SendMessageFn$1): ReceiveMessageFn;
+    connect(connector: SendMessageFn$1, ...args: unknown[]): ReceiveMessageFn;
     /**
      * Commit tool output.
      * @param {string} toolId - The `tool_call_id` for openai history
@@ -1973,7 +1973,7 @@ declare class SessionConnectionService implements ISession {
      * @param {SendMessageFn} connector - The function to send messages.
      * @returns {ReceiveMessageFn} The function to receive messages.
      */
-    connect: (connector: SendMessageFn$1) => ReceiveMessageFn;
+    connect: (connector: SendMessageFn$1, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
     /**
      * Commits tool output to the session.
      * @param {string} toolId - The `tool_call_id` for openai history

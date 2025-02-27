@@ -13,6 +13,7 @@ import {
 } from "../../../interfaces/Session.interface";
 import SwarmSchemaService from "../schema/SwarmSchemaService";
 import BusService from "../base/BusService";
+import { SwarmName } from "../../../interfaces/Swarm.interface";
 
 /**
  * Service for managing session connections.
@@ -93,11 +94,11 @@ export class SessionConnectionService implements ISession {
    * @param {SendMessageFn} connector - The function to send messages.
    * @returns {ReceiveMessageFn} The function to receive messages.
    */
-  public connect = (connector: SendMessageFn): ReceiveMessageFn => {
+  public connect = (connector: SendMessageFn, clientId: string, swarmName: SwarmName): ReceiveMessageFn => {
     this.loggerService.log(`sessionConnectionService connect`);
     return this.getSession(
-      this.contextService.context.clientId,
-      this.contextService.context.swarmName
+      clientId,
+      swarmName,
     ).connect(connector);
   };
 
