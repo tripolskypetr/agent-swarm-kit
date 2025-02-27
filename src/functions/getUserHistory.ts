@@ -9,11 +9,10 @@ import { getRawHistory } from "./getRawHistory";
  * @returns {Promise<Array>} A promise that resolves to an array of history objects filtered by user role.
  */
 export const getUserHistory = async (clientId: string) => {
-  const requestId = randomString();
+  const methodName = "function getUserHistory"
   swarm.loggerService.log("function getUserHistory", {
     clientId,
-    requestId,
   });
-  const history = await getRawHistory(clientId, requestId);
+  const history = await getRawHistory(clientId, methodName);
   return history.filter(({ role, mode }) => role === "user" && mode === "user");
 };

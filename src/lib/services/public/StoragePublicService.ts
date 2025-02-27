@@ -37,13 +37,13 @@ export class StoragePublicService implements TStorageConnectionService {
   public take = async (
     search: string,
     total: number,
-    requestId: string,
+    methodName: string,
     clientId: string,
     storageName: StorageName,
     score?: number,
   ): Promise<IStorageData[]> => {
     this.loggerService.log(`storagePublicService take`, {
-      requestId,
+      methodName,
       search,
       total,
       clientId,
@@ -55,7 +55,7 @@ export class StoragePublicService implements TStorageConnectionService {
         return await this.storageConnectionService.take(search, total, score);
       },
       {
-        requestId,
+        methodName,
         clientId,
         storageName,
         agentName: "",
@@ -72,7 +72,7 @@ export class StoragePublicService implements TStorageConnectionService {
    */
   public upsert = async (
     item: IStorageData,
-    requestId: string,
+    methodName: string,
     clientId: string,
     storageName: StorageName
   ): Promise<void> => {
@@ -86,7 +86,7 @@ export class StoragePublicService implements TStorageConnectionService {
         return await this.storageConnectionService.upsert(item);
       },
       {
-        requestId,
+        methodName,
         clientId,
         storageName,
         agentName: "",
@@ -103,7 +103,7 @@ export class StoragePublicService implements TStorageConnectionService {
    */
   public remove = async (
     itemId: IStorageData["id"],
-    requestId: string,
+    methodName: string,
     clientId: string,
     storageName: StorageName
   ): Promise<void> => {
@@ -117,7 +117,7 @@ export class StoragePublicService implements TStorageConnectionService {
         return await this.storageConnectionService.remove(itemId);
       },
       {
-        requestId,
+        methodName,
         clientId,
         storageName,
         agentName: "",
@@ -134,12 +134,12 @@ export class StoragePublicService implements TStorageConnectionService {
    */
   public get = async (
     itemId: IStorageData["id"],
-    requestId: string,
+    methodName: string,
     clientId: string,
     storageName: StorageName
   ): Promise<IStorageData | null> => {
     this.loggerService.log(`storagePublicService get`, {
-      requestId,
+      methodName,
       itemId,
       clientId,
       storageName,
@@ -149,7 +149,7 @@ export class StoragePublicService implements TStorageConnectionService {
         return await this.storageConnectionService.get(itemId);
       },
       {
-        requestId,
+        methodName,
         clientId,
         storageName,
         agentName: "",
@@ -165,13 +165,13 @@ export class StoragePublicService implements TStorageConnectionService {
    * @returns {Promise<IStorageData[]>} The list of items.
    */
   public list = async (
-    requestId: string,
+    methodName: string,
     clientId: string,
     storageName: StorageName,
     filter?: (item: IStorageData) => boolean
   ): Promise<IStorageData[]> => {
     this.loggerService.log(`storagePublicService list`, {
-      requestId,
+      methodName,
       clientId,
       storageName,
     });
@@ -180,7 +180,7 @@ export class StoragePublicService implements TStorageConnectionService {
         return await this.storageConnectionService.list(filter);
       },
       {
-        requestId,
+        methodName,
         clientId,
         storageName,
         agentName: "",
@@ -195,12 +195,12 @@ export class StoragePublicService implements TStorageConnectionService {
    * @returns {Promise<void>}
    */
   public clear = async (
-    requestId: string,
+    methodName: string,
     clientId: string,
     storageName: StorageName
   ): Promise<void> => {
     this.loggerService.log(`storagePublicService clear`, {
-      requestId,
+      methodName,
       clientId,
       storageName,
     });
@@ -209,7 +209,7 @@ export class StoragePublicService implements TStorageConnectionService {
         return await this.storageConnectionService.clear();
       },
       {
-        requestId,
+        methodName,
         clientId,
         storageName,
         agentName: "",
@@ -225,7 +225,7 @@ export class StoragePublicService implements TStorageConnectionService {
    * @param {StorageName} storageName - The storage name.
    * @returns {Promise<void>}
    */
-  public dispose = async (requestId: string, clientId: string, storageName: StorageName) => {
+  public dispose = async (methodName: string, clientId: string, storageName: StorageName) => {
     this.loggerService.log("storagePublicService dispose", {
       clientId,
       storageName,
@@ -235,7 +235,7 @@ export class StoragePublicService implements TStorageConnectionService {
         return await this.storageConnectionService.dispose();
       },
       {
-        requestId,
+        methodName,
         clientId,
         storageName,
         agentName: "",

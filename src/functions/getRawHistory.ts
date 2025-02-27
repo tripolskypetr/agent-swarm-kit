@@ -7,21 +7,20 @@ import swarm from "../lib";
  * @param {string} clientId - The ID of the client whose history is to be retrieved.
  * @returns {Promise<Array>} A promise that resolves to an array containing the raw history.
  */
-export const getRawHistory = async (clientId: string, requestId = randomString()) => {
+export const getRawHistory = async (clientId: string, methodName = "function getRawHistory") => {
   swarm.loggerService.log("function getRawHistory", {
     clientId,
-    requestId,
   });
   swarm.sessionValidationService.validate(clientId, "getRawHistory");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, "getRawHistory");
   const agentName = await swarm.swarmPublicService.getAgentName(
-    requestId,
+    methodName,
     clientId,
     swarmName
   );
   const history = await swarm.historyPublicService.toArrayForRaw(
-    requestId,
+    methodName,
     clientId,
     agentName
   );

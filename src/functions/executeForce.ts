@@ -12,11 +12,10 @@ import swarm from "../lib";
  * @returns {Promise<void>} - A promise that resolves when the execution is complete.
  */
 export const executeForce = async (content: string, clientId: string) => {
-  const requestId = randomString();
+  const methodName = "function executeForce"
   swarm.loggerService.log("function executeForce", {
     content,
     clientId,
-    requestId,
   });
   swarm.sessionValidationService.validate(clientId, "executeForce");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
@@ -24,7 +23,7 @@ export const executeForce = async (content: string, clientId: string) => {
   return await swarm.sessionPublicService.execute(
     content,
     "tool",
-    requestId,
+    methodName,
     clientId,
     swarmName
   );

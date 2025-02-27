@@ -7,7 +7,7 @@ import { disposeConnection } from "./disposeConnection";
  * Type definition for the complete run function.
  * @typedef {function(string): Promise<string>} TCompleteRun
  */
-type TCompleteRun = (requestId: string, content: string) => Promise<string>;
+type TCompleteRun = (methodName: string, content: string) => Promise<string>;
 
 const COMPLETE_TTL = 15 * 60 * 1_000;
 const COMPLETE_GC = 60 * 1_000;
@@ -20,17 +20,17 @@ const COMPLETE_GC = 60 * 1_000;
  */
 const createComplete = ttl(
   (clientId: string, swarmName: SwarmName) =>
-    queued(async (requestId: string, content: string) => {
+    queued(async (methodName: string, content: string) => {
       swarm.swarmValidationService.validate(swarmName, "complete");
       swarm.sessionValidationService.addSession(clientId, swarmName, "complete");
       const result = await swarm.sessionPublicService.execute(
         content,
         "user",
-        requestId,
+        methodName,
         clientId,
         swarmName
       );
-      await disposeConnection(clientId, swarmName, requestId);
+      await disposeConnection(clientId, swarmName, methodName);
       return result;
     }) as TCompleteRun,
   {
@@ -61,14 +61,13 @@ export const complete = async (
   clientId: string,
   swarmName: SwarmName
 ) => {
-  const requestId = randomString();
+  const methodName = "function complete"
   swarm.loggerService.log("function complete", {
     content,
     clientId,
     swarmName,
-    requestId,
   });
   const run = await createComplete(clientId, swarmName);
   createGc();
-  return await run(requestId, content);
+  return await run(methodName, content);
 };

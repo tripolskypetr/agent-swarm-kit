@@ -9,14 +9,13 @@ import swarm from "../lib";
  * @returns {Promise<void>} - A promise that resolves when the message is committed.
  */
 export const commitUserMessageForce = async (content: string, clientId: string) => {
-    const requestId = randomString();
+    const methodName = 'function commitSystemMessage';
     swarm.loggerService.log('function commitSystemMessage', {
         content,
         clientId,
-        requestId,
     });
     swarm.sessionValidationService.validate(clientId, "commitUserMessageForce");
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
     swarm.swarmValidationService.validate(swarmName, "commitUserMessageForce");
-    await swarm.sessionPublicService.commitUserMessage(content, requestId, clientId, swarmName);
+    await swarm.sessionPublicService.commitUserMessage(content, methodName, clientId, swarmName);
 }

@@ -27,11 +27,10 @@ export class StateUtils implements TState {
     agentName: AgentName;
     stateName: StateName;
   }): Promise<T> => {
-    const requestId = randomString();
+    const methodName = "StateUtils getState";
     swarm.loggerService.log("StateUtils getState", {
       clientId: payload.clientId,
       stateName: payload.stateName,
-      requestId,
     });
     if (
       !swarm.agentValidationService.hasState(
@@ -44,7 +43,7 @@ export class StateUtils implements TState {
       );
     }
     return await swarm.statePublicService.getState(
-      requestId,
+      methodName,
       payload.clientId,
       payload.stateName
     );
@@ -69,11 +68,10 @@ export class StateUtils implements TState {
       stateName: StateName;
     }
   ): Promise<void> => {
-    const requestId = randomString();
+    const methodName = "StateUtils setState";
     swarm.loggerService.log("StateUtils setState", {
       clientId: payload.clientId,
       stateName: payload.stateName,
-      requestId,
     });
     if (
       !swarm.agentValidationService.hasState(
@@ -88,14 +86,14 @@ export class StateUtils implements TState {
     if (typeof dispatchFn === "function") {
       return await swarm.statePublicService.setState(
         dispatchFn as (prevState: T) => Promise<T>,
-        requestId,
+        methodName,
         payload.clientId,
         payload.stateName
       );
     }
     return await swarm.statePublicService.setState(
       async () => dispatchFn as T,
-      requestId,
+      methodName,
       payload.clientId,
       payload.stateName
     );

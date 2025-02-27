@@ -9,17 +9,16 @@ import swarm from "../lib";
  * @returns {Promise<void>} - A promise that resolves when the output is canceled
  */
 export const cancelOutput = async (clientId: string, agentName: string) => {
-    const requestId = randomString();
+    const methodName = 'function cancelOutput';
     swarm.loggerService.log('function cancelOutput', {
         clientId,
         agentName,
-        requestId,
     });
     swarm.agentValidationService.validate(agentName, "cancelOutput");
     swarm.sessionValidationService.validate(clientId, "cancelOutput");
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
     swarm.swarmValidationService.validate(swarmName, "cancelOutput");
-    const currentAgentName = await swarm.swarmPublicService.getAgentName(requestId, clientId, swarmName);
+    const currentAgentName = await swarm.swarmPublicService.getAgentName(methodName, clientId, swarmName);
     if (currentAgentName !== agentName) {
         swarm.loggerService.log('function "cancelOutput" skipped due to the agent change', {
             currentAgentName,
@@ -28,5 +27,5 @@ export const cancelOutput = async (clientId: string, agentName: string) => {
         });
         return;
     }
-    await swarm.swarmPublicService.cancelOutput(requestId, clientId, swarmName);
+    await swarm.swarmPublicService.cancelOutput(methodName, clientId, swarmName);
 }

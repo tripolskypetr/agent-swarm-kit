@@ -10,15 +10,14 @@ import swarm from "../lib";
  * @returns {Promise<void>} - A promise that resolves when the operation is complete.
  */
 export const commitToolOutputForce = async (toolId: string, content: string, clientId: string) => {
-    const requestId = randomString();
+    const methodName = 'function commitToolOutputForce';
     swarm.loggerService.log('function commitToolOutputForce', {
         toolId,
         content,
         clientId,
-        requestId,
     });
     swarm.sessionValidationService.validate(clientId, "commitToolOutputForce");
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
     swarm.swarmValidationService.validate(swarmName, "commitToolOutputForce");
-    await swarm.sessionPublicService.commitToolOutput(toolId, content, requestId, clientId, swarmName);
+    await swarm.sessionPublicService.commitToolOutput(toolId, content, methodName, clientId, swarmName);
 }

@@ -13,17 +13,16 @@ export const getAgentHistory = async (
   clientId: string,
   agentName: AgentName
 ) => {
-  const requestId = randomString();
+  const methodName = "function getAgentHistory"
   swarm.loggerService.log("function getAgentHistory", {
     clientId,
     agentName,
-    requestId,
   });
   swarm.agentValidationService.validate(agentName, "getAgentHistory");
   const { prompt } = swarm.agentSchemaService.get(agentName);
   const history = await swarm.historyPublicService.toArrayForAgent(
     prompt,
-    requestId,
+    methodName,
     clientId,
     agentName
   );

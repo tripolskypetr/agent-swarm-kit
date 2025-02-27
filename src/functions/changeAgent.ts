@@ -14,7 +14,7 @@ const CHANGE_AGENT_TTL = 15 * 60 * 1_000;
  */
 const CHANGE_AGENT_GC = 60 * 1_000;
 
-type TChangeAgentRun = (requestId: string, agentName: string) => Promise<void>;
+type TChangeAgentRun = (methodName: string, agentName: string) => Promise<void>;
 
 /**
  * Creates a change agent function with TTL and queuing.
@@ -24,7 +24,7 @@ type TChangeAgentRun = (requestId: string, agentName: string) => Promise<void>;
  */
 const createChangeAgent = ttl(
   (clientId: string) =>
-    queued(async (requestId: string, agentName: AgentName) => {
+    queued(async (methodName: string, agentName: AgentName) => {
       swarm.sessionValidationService.validate(clientId, "changeAgent");
       swarm.agentValidationService.validate(agentName, "changeAgent");
       const swarmName = swarm.sessionValidationService.getSwarm(clientId);
@@ -33,26 +33,26 @@ const createChangeAgent = ttl(
           .getAgentList(swarmName)
           .map(async (agentName) => {
             await swarm.agentPublicService.commitAgentChange(
-              requestId,
+              methodName,
               clientId,
               agentName
             );
           })
       );
       {
-        await swarm.agentPublicService.dispose(requestId, clientId, agentName);
-        await swarm.historyPublicService.dispose(requestId, clientId, agentName);
+        await swarm.agentPublicService.dispose(methodName, clientId, agentName);
+        await swarm.historyPublicService.dispose(methodName, clientId, agentName);
         await swarm.swarmPublicService.setAgentRef(
-          requestId,
+          methodName,
           clientId,
           swarmName,
           agentName,
-          await swarm.agentPublicService.createAgentRef(requestId, clientId, agentName)
+          await swarm.agentPublicService.createAgentRef(methodName, clientId, agentName)
         );
       }
       await swarm.swarmPublicService.setAgentName(
         agentName,
-        requestId,
+        methodName,
         clientId,
         swarmName
       );
@@ -81,12 +81,12 @@ const createGc = singleshot(async () => {
  * @returns {Promise<void>} - A promise that resolves when the agent is changed.
  */
 export const changeAgent = async (agentName: AgentName, clientId: string) => {
-  const requestId = randomString();
+  const methodName = "function changeAgent";
   swarm.loggerService.log("function changeAgent", {
     agentName,
     clientId,
   });
   const run = await createChangeAgent(clientId);
   createGc();
-  return await run(requestId, agentName);
+  return await run(methodName, agentName);
 };

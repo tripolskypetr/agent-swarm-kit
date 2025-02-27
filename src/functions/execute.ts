@@ -16,19 +16,19 @@ export const execute = async (
   clientId: string,
   agentName: AgentName
 ) => {
-  const requestId = randomString();
+  const methodName = "function execute"
   swarm.loggerService.log("function execute", {
     content,
     clientId,
     agentName,
-    requestId,
+    methodName,
   });
   swarm.agentValidationService.validate(agentName, "execute");
   swarm.sessionValidationService.validate(clientId, "execute");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, "execute");
   const currentAgentName = await swarm.swarmPublicService.getAgentName(
-    requestId,
+    methodName,
     clientId,
     swarmName
   );
@@ -46,7 +46,7 @@ export const execute = async (
   return await swarm.sessionPublicService.execute(
     content,
     "tool",
-    requestId,
+    methodName,
     clientId,
     swarmName
   );
