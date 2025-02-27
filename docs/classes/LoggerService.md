@@ -13,6 +13,12 @@ constructor();
 
 ## Properties
 
+### contextService
+
+```ts
+contextService: any
+```
+
 ### _logger
 
 ```ts

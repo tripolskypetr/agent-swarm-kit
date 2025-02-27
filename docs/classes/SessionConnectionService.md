@@ -69,7 +69,7 @@ Executes a command in the session.
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn$1) => ReceiveMessageFn
+connect: (connector: SendMessageFn$1, clientId: string, swarmName: string) => ReceiveMessageFn
 ```
 
 Connects to the session using the provided connector.

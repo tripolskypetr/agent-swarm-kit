@@ -27,7 +27,7 @@ sessionConnectionService: any
 ### emit
 
 ```ts
-emit: (content: string, clientId: string, swarmName: string) => Promise<void>
+emit: (content: string, requestId: string, clientId: string, swarmName: string) => Promise<void>
 ```
 
 Emits a message to the session.
@@ -35,7 +35,7 @@ Emits a message to the session.
 ### execute
 
 ```ts
-execute: (content: string, mode: ExecutionMode, clientId: string, swarmName: string) => Promise<string>
+execute: (content: string, mode: ExecutionMode, requestId: string, clientId: string, swarmName: string) => Promise<string>
 ```
 
 Executes a command in the session.
@@ -43,7 +43,7 @@ Executes a command in the session.
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn$1, clientId: string, swarmName: string) => ReceiveMessageFn
+connect: (connector: SendMessageFn$1, requestId: string, clientId: string, swarmName: string) => ReceiveMessageFn
 ```
 
 Connects to the session.
@@ -51,7 +51,7 @@ Connects to the session.
 ### commitToolOutput
 
 ```ts
-commitToolOutput: (toolId: string, content: string, clientId: string, swarmName: string) => Promise<void>
+commitToolOutput: (toolId: string, content: string, requestId: string, clientId: string, swarmName: string) => Promise<void>
 ```
 
 Commits tool output to the session.
@@ -59,7 +59,7 @@ Commits tool output to the session.
 ### commitSystemMessage
 
 ```ts
-commitSystemMessage: (message: string, clientId: string, swarmName: string) => Promise<void>
+commitSystemMessage: (message: string, requestId: string, clientId: string, swarmName: string) => Promise<void>
 ```
 
 Commits a system message to the session.
@@ -67,7 +67,7 @@ Commits a system message to the session.
 ### commitUserMessage
 
 ```ts
-commitUserMessage: (message: string, clientId: string, swarmName: string) => Promise<void>
+commitUserMessage: (message: string, requestId: string, clientId: string, swarmName: string) => Promise<void>
 ```
 
 Commits user message to the agent without answer.
@@ -75,7 +75,7 @@ Commits user message to the agent without answer.
 ### commitFlush
 
 ```ts
-commitFlush: (clientId: string, swarmName: string) => Promise<void>
+commitFlush: (requestId: string, clientId: string, swarmName: string) => Promise<void>
 ```
 
 Commits flush of agent history
@@ -83,7 +83,7 @@ Commits flush of agent history
 ### dispose
 
 ```ts
-dispose: (clientId: string, swarmName: string) => Promise<void>
+dispose: (requestId: string, clientId: string, swarmName: string) => Promise<void>
 ```
 
 Disposes of the session.

@@ -10,6 +10,12 @@ Interface representing the context.
 clientId: string
 ```
 
+### requestId
+
+```ts
+requestId: string
+```
+
 ### agentName
 
 ```ts

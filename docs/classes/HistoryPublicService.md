@@ -27,7 +27,7 @@ historyConnectionService: any
 ### push
 
 ```ts
-push: (message: IModelMessage, clientId: string, agentName: string) => Promise<void>
+push: (message: IModelMessage, requestId: string, clientId: string, agentName: string) => Promise<void>
 ```
 
 Pushes a message to the history.
@@ -35,7 +35,7 @@ Pushes a message to the history.
 ### toArrayForAgent
 
 ```ts
-toArrayForAgent: (prompt: string, clientId: string, agentName: string) => Promise<IModelMessage[]>
+toArrayForAgent: (prompt: string, requestId: string, clientId: string, agentName: string) => Promise<IModelMessage[]>
 ```
 
 Converts history to an array for a specific agent.
@@ -43,7 +43,7 @@ Converts history to an array for a specific agent.
 ### toArrayForRaw
 
 ```ts
-toArrayForRaw: (clientId: string, agentName: string) => Promise<IModelMessage[]>
+toArrayForRaw: (requestId: string, clientId: string, agentName: string) => Promise<IModelMessage[]>
 ```
 
 Converts history to a raw array.
@@ -51,7 +51,7 @@ Converts history to a raw array.
 ### dispose
 
 ```ts
-dispose: (clientId: string, agentName: string) => Promise<void>
+dispose: (requestId: string, clientId: string, agentName: string) => Promise<void>
 ```
 
 Disposes of the history.

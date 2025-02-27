@@ -41,7 +41,7 @@ Execute a command.
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn$1) => ReceiveMessageFn
+connect: (connector: SendMessageFn$1, ...args: unknown[]) => ReceiveMessageFn
 ```
 
 Connect to a message sender.

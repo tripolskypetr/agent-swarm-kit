@@ -40,6 +40,7 @@
 - [BusService](classes/BusService.md)
 - [StorageUtils](classes/StorageUtils.md)
 - [StateUtils](classes/StateUtils.md)
+- [LoggerUtils](classes/LoggerUtils.md)
 
 ## Enums
 

@@ -43,7 +43,7 @@ getEventSubject: any
 ### subscribe
 
 ```ts
-subscribe: <T extends IBaseEvent>(clientId: string, source: string, fn: (event: T) => void) => void
+subscribe: <T extends IBaseEvent>(clientId: string, source: string, fn: (event: T) => void) => () => void
 ```
 
 Subscribes to events for a specific client and source.
