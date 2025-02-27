@@ -134,7 +134,6 @@ export class StorageConnectionService implements IStorage {
     score?: number
   ): Promise<IStorageData[]> => {
     this.loggerService.log(`storageConnectionService take`, {
-      context: this.contextService.context,
       search,
       total,
       score,
@@ -154,7 +153,6 @@ export class StorageConnectionService implements IStorage {
    */
   public upsert = async (item: IStorageData): Promise<void> => {
     this.loggerService.log(`storageConnectionService upsert`, {
-      context: this.contextService.context,
       item,
     });
     const storage = this.getStorage(
@@ -172,7 +170,6 @@ export class StorageConnectionService implements IStorage {
    */
   public remove = async (itemId: IStorageData["id"]): Promise<void> => {
     this.loggerService.log(`storageConnectionService remove`, {
-      context: this.contextService.context,
       itemId,
     });
     const storage = this.getStorage(
@@ -192,7 +189,6 @@ export class StorageConnectionService implements IStorage {
     itemId: IStorageData["id"]
   ): Promise<IStorageData | null> => {
     this.loggerService.log(`storageConnectionService get`, {
-      context: this.contextService.context,
       itemId,
     });
     const storage = this.getStorage(
@@ -211,9 +207,7 @@ export class StorageConnectionService implements IStorage {
   public list = async (
     filter?: (item: IStorageData) => boolean
   ): Promise<IStorageData[]> => {
-    this.loggerService.log(`storageConnectionService list`, {
-      context: this.contextService.context,
-    });
+    this.loggerService.log(`storageConnectionService list`);
     const storage = this.getStorage(
       this.contextService.context.clientId,
       this.contextService.context.storageName
@@ -227,9 +221,7 @@ export class StorageConnectionService implements IStorage {
    * @returns {Promise<void>}
    */
   public clear = async (): Promise<void> => {
-    this.loggerService.log(`storageConnectionService clear`, {
-      context: this.contextService.context,
-    });
+    this.loggerService.log(`storageConnectionService clear`);
     const storage = this.getStorage(
       this.contextService.context.clientId,
       this.contextService.context.storageName
@@ -243,9 +235,7 @@ export class StorageConnectionService implements IStorage {
    * @returns {Promise<void>}
    */
   public dispose = async () => {
-    this.loggerService.log(`storageConnectionService dispose`, {
-      context: this.contextService.context,
-    });
+    this.loggerService.log(`storageConnectionService dispose`);
     const key = `${this.contextService.context.clientId}-${this.contextService.context.storageName}`;
     if (!this.getStorage.has(key)) {
       return;

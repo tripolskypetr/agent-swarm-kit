@@ -61,7 +61,7 @@ export class SessionConnectionService implements ISession {
    */
   public emit = async (content: string) => {
     this.loggerService.log(`sessionConnectionService emit`, {
-      context: this.contextService.context,
+      content,
     });
     return await this.getSession(
       this.contextService.context.clientId,
@@ -79,7 +79,6 @@ export class SessionConnectionService implements ISession {
     mode: ExecutionMode
   ): Promise<string> => {
     this.loggerService.log(`sessionConnectionService execute`, {
-      context: this.contextService.context,
       content,
       mode,
     });
@@ -95,9 +94,7 @@ export class SessionConnectionService implements ISession {
    * @returns {ReceiveMessageFn} The function to receive messages.
    */
   public connect = (connector: SendMessageFn): ReceiveMessageFn => {
-    this.loggerService.log(`sessionConnectionService connect`, {
-      context: this.contextService.context,
-    });
+    this.loggerService.log(`sessionConnectionService connect`);
     return this.getSession(
       this.contextService.context.clientId,
       this.contextService.context.swarmName
@@ -115,7 +112,6 @@ export class SessionConnectionService implements ISession {
     content: string
   ): Promise<void> => {
     this.loggerService.log(`sessionConnectionService commitToolOutput`, {
-      context: this.contextService.context,
       content,
       toolId,
     });
@@ -132,7 +128,6 @@ export class SessionConnectionService implements ISession {
    */
   public commitSystemMessage = async (message: string): Promise<void> => {
     this.loggerService.log(`sessionConnectionService commitSystemMessage`, {
-      context: this.contextService.context,
       message,
     });
     return await this.getSession(
@@ -148,7 +143,6 @@ export class SessionConnectionService implements ISession {
    */
   public commitUserMessage = async (message: string): Promise<void> => {
     this.loggerService.log(`sessionConnectionService commitUserMessage`, {
-      context: this.contextService.context,
       message,
     });
     return await this.getSession(
@@ -163,9 +157,7 @@ export class SessionConnectionService implements ISession {
    * @returns {Promise<void>} A promise that resolves when the message is committed.
    */
   public commitFlush = async (): Promise<void> => {
-    this.loggerService.log(`sessionConnectionService commitFlush`, {
-      context: this.contextService.context,
-    });
+    this.loggerService.log(`sessionConnectionService commitFlush`);
     return await this.getSession(
       this.contextService.context.clientId,
       this.contextService.context.swarmName
@@ -177,9 +169,7 @@ export class SessionConnectionService implements ISession {
    * @returns {Promise<void>} A promise that resolves when the service is disposed.
    */
   public dispose = async () => {
-    this.loggerService.log(`sessionConnectionService dispose`, {
-      context: this.contextService.context,
-    });
+    this.loggerService.log(`sessionConnectionService dispose`);
     const key = `${this.contextService.context.clientId}-${this.contextService.context.swarmName}`;
     if (!this.getSession.has(key)) {
       return;

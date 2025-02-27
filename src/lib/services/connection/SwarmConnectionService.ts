@@ -75,9 +75,7 @@ export class SwarmConnectionService implements ISwarm {
    * @returns {Promise<void>}
    */
   public cancelOutput = async () => {
-    this.loggerService.log(`swarmConnectionService cancelOutput`, {
-      context: this.contextService.context,
-    });
+    this.loggerService.log(`swarmConnectionService cancelOutput`);
     return await this.getSwarm(
       this.contextService.context.clientId,
       this.contextService.context.swarmName
@@ -89,9 +87,7 @@ export class SwarmConnectionService implements ISwarm {
    * @returns {Promise<any>} The output from the swarm.
    */
   public waitForOutput = async () => {
-    this.loggerService.log(`swarmConnectionService waitForOutput`, {
-      context: this.contextService.context,
-    });
+    this.loggerService.log(`swarmConnectionService waitForOutput`);
     return await this.getSwarm(
       this.contextService.context.clientId,
       this.contextService.context.swarmName
@@ -103,9 +99,7 @@ export class SwarmConnectionService implements ISwarm {
    * @returns {Promise<string>} The agent name.
    */
   public getAgentName = async () => {
-    this.loggerService.log(`swarmConnectionService getAgentName`, {
-      context: this.contextService.context,
-    });
+    this.loggerService.log(`swarmConnectionService getAgentName`);
     return await this.getSwarm(
       this.contextService.context.clientId,
       this.contextService.context.swarmName
@@ -117,9 +111,7 @@ export class SwarmConnectionService implements ISwarm {
    * @returns {Promise<IAgent>} The agent instance.
    */
   public getAgent = async () => {
-    this.loggerService.log(`swarmConnectionService getAgent`, {
-      context: this.contextService.context,
-    });
+    this.loggerService.log(`swarmConnectionService getAgent`);
     return await this.getSwarm(
       this.contextService.context.clientId,
       this.contextService.context.swarmName
@@ -134,7 +126,7 @@ export class SwarmConnectionService implements ISwarm {
    */
   public setAgentRef = async (agentName: AgentName, agent: IAgent) => {
     this.loggerService.log(`swarmConnectionService setAgentRef`, {
-      context: this.contextService.context,
+      agentName,
     });
     return await this.getSwarm(
       this.contextService.context.clientId,
@@ -150,7 +142,6 @@ export class SwarmConnectionService implements ISwarm {
   public setAgentName = async (agentName: AgentName) => {
     this.loggerService.log(`swarmConnectionService setAgentName`, {
       agentName,
-      context: this.contextService.context,
     });
     return await this.getSwarm(
       this.contextService.context.clientId,
@@ -163,9 +154,7 @@ export class SwarmConnectionService implements ISwarm {
    * @returns {Promise<void>}
    */
   public dispose = async () => {
-    this.loggerService.log(`swarmConnectionService dispose`, {
-      context: this.contextService.context,
-    });
+    this.loggerService.log(`swarmConnectionService dispose`);
     const key = `${this.contextService.context.clientId}-${this.contextService.context.swarmName}`;
     if (!this.getSwarm.has(key)) {
       return;
