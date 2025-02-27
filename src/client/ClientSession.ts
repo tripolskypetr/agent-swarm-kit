@@ -248,8 +248,12 @@ export class ClientSession implements ISession {
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} connect call`
       );
+      const data = await this.execute(incoming.data, "user");
+      if (!data) {
+        return;
+      }
       await connector({
-        data: await this.execute(incoming.data, "user"),
+        data,
         agentName: await this.params.swarm.getAgentName(),
         clientId: incoming.clientId,
       });

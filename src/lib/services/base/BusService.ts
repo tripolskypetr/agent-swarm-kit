@@ -39,7 +39,7 @@ export class BusService implements IBus {
       this._eventWildcardMap.set(source, true);
     }
     this._eventSourceSet.add(source);
-    this.getEventSubject(clientId, source).subscribe(fn);
+    return this.getEventSubject(clientId, source).subscribe(fn);
   };
 
   /**

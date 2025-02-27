@@ -2941,7 +2941,7 @@ declare class BusService implements IBus {
      * @param {EventSource} source - The event source.
      * @param {(event: T) => void} fn - The callback function to handle the event.
      */
-    subscribe: <T extends IBaseEvent>(clientId: string, source: EventSource, fn: (event: T) => void) => void;
+    subscribe: <T extends IBaseEvent>(clientId: string, source: EventSource, fn: (event: T) => void) => () => void;
     /**
      * Subscribes to a single event for a specific client and source.
      * @param {string} clientId - The client ID.
@@ -3334,7 +3334,16 @@ declare const executeForce: (content: string, clientId: string) => Promise<strin
  * @param {string} clientId - The ID of the client to listen for events from.
  * @param {(data: T) => void} fn - The callback function to execute when the event is received. The data payload is passed as an argument to this function.
  */
-declare const listenEvent: <T extends unknown = any>(clientId: string, topicName: string, fn: (data: T) => void) => void;
+declare const listenEvent: <T extends unknown = any>(clientId: string, topicName: string, fn: (data: T) => void) => () => void;
+
+/**
+ * Listens for an event on the swarm bus service and executes a callback function when the event is received.
+ *
+ * @template T - The type of the data payload.
+ * @param {string} clientId - The ID of the client to listen for events from.
+ * @param {(data: T) => void} fn - The callback function to execute when the event is received. The data payload is passed as an argument to this function.
+ */
+declare const listenEventOnce: <T extends unknown = any>(clientId: string, topicName: string, filterFn: (event: T) => boolean, fn: (data: T) => void) => () => void;
 
 /**
  * Retrieves the last message sent by the user from the client's message history.
@@ -3451,7 +3460,7 @@ declare const cancelOutputForce: (clientId: string) => Promise<void>;
  * @param {string} clientId - The ID of the client to subscribe to events for.
  * @param {function} fn - The callback function to handle the event.
  */
-declare const listenAgentEvent: (clientId: string, fn: (event: IBusEvent) => void) => void;
+declare const listenAgentEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to history events for a specific client.
@@ -3459,7 +3468,7 @@ declare const listenAgentEvent: (clientId: string, fn: (event: IBusEvent) => voi
  * @param {string} clientId - The ID of the client to subscribe to.
  * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
  */
-declare const listenHistoryEvent: (clientId: string, fn: (event: IBusEvent) => void) => void;
+declare const listenHistoryEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to session events for a specific client.
@@ -3467,7 +3476,7 @@ declare const listenHistoryEvent: (clientId: string, fn: (event: IBusEvent) => v
  * @param {string} clientId - The ID of the client to subscribe to session events for.
  * @param {function} fn - The callback function to handle the session events.
  */
-declare const listenSessionEvent: (clientId: string, fn: (event: IBusEvent) => void) => void;
+declare const listenSessionEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to state events for a specific client.
@@ -3475,7 +3484,7 @@ declare const listenSessionEvent: (clientId: string, fn: (event: IBusEvent) => v
  * @param {string} clientId - The ID of the client to subscribe to.
  * @param {function} fn - The callback function to handle the event.
  */
-declare const listenStateEvent: (clientId: string, fn: (event: IBusEvent) => void) => void;
+declare const listenStateEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to storage events for a specific client.
@@ -3483,7 +3492,7 @@ declare const listenStateEvent: (clientId: string, fn: (event: IBusEvent) => voi
  * @param {string} clientId - The ID of the client to subscribe to storage events for.
  * @param {function} fn - The callback function to handle the storage event.
  */
-declare const listenStorageEvent: (clientId: string, fn: (event: IBusEvent) => void) => void;
+declare const listenStorageEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
  * Hook to subscribe to swarm events for a specific client.
@@ -3491,7 +3500,55 @@ declare const listenStorageEvent: (clientId: string, fn: (event: IBusEvent) => v
  * @param {string} clientId - The ID of the client to subscribe to events for.
  * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
  */
-declare const listenSwarmEvent: (clientId: string, fn: (event: IBusEvent) => void) => void;
+declare const listenSwarmEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to agent events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to events for.
+ * @param {function} fn - The callback function to handle the event.
+ */
+declare const listenAgentEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to history events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to.
+ * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
+ */
+declare const listenHistoryEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to session events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to session events for.
+ * @param {function} fn - The callback function to handle the session events.
+ */
+declare const listenSessionEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to state events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to.
+ * @param {function} fn - The callback function to handle the event.
+ */
+declare const listenStateEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to storage events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to storage events for.
+ * @param {function} fn - The callback function to handle the storage event.
+ */
+declare const listenStorageEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to swarm events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to events for.
+ * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
+ */
+declare const listenSwarmEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
@@ -3654,4 +3711,4 @@ declare class StateUtils implements TState {
  */
 declare const State: StateUtils;
 
-export { ContextService, type EventSource, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenEvent, listenHistoryEvent, listenSessionEvent, listenStateEvent, listenStorageEvent, listenSwarmEvent, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { ContextService, type EventSource, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type ReceiveMessageFn, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };

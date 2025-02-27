@@ -6,7 +6,7 @@ const validateClientId = (clientId: string) => {
     return;
   }
   if (!swarm.sessionValidationService.hasSession(clientId)) {
-    throw new Error(`agent-swarm listenAgentEvent session not found for clientId=${clientId}`);
+    throw new Error(`agent-swarm listenAgentEventOnce session not found for clientId=${clientId}`);
   }
 };
 
@@ -16,19 +16,21 @@ const validateClientId = (clientId: string) => {
  * @param {string} clientId - The ID of the client to subscribe to events for.
  * @param {function} fn - The callback function to handle the event.
  */
-export const listenAgentEvent = (
+export const listenAgentEventOnce = (
   clientId: string,
+  filterFn: (event: IBusEvent) => boolean,
   fn: (event: IBusEvent) => void
 ) => {
-  swarm.loggerService.log("middleware listenAgentEvent", {
+  swarm.loggerService.log("middleware listenAgentEventOnce", {
     clientId,
   });
   validateClientId(clientId);
-  return swarm.busService.subscribe(
+  return swarm.busService.once(
     clientId,
     "agent-bus",
+    filterFn,
     fn
   );
 };
 
-export default listenAgentEvent;
+export default listenAgentEventOnce;
