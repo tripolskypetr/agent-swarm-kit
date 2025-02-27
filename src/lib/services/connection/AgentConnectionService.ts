@@ -102,7 +102,7 @@ export class AgentConnectionService implements IAgent {
    * @returns {Promise<any>} The execution result.
    */
   public execute = async (input: string, mode: ExecutionMode) => {
-    this.loggerService.log(`agentConnectionService execute`, {
+    this.loggerService.info(`agentConnectionService execute`, {
       input,
       mode,
     });
@@ -117,7 +117,7 @@ export class AgentConnectionService implements IAgent {
    * @returns {Promise<any>} The output result.
    */
   public waitForOutput = async () => {
-    this.loggerService.log(`agentConnectionService waitForOutput`);
+    this.loggerService.info(`agentConnectionService waitForOutput`);
     return await this.getAgent(
       this.methodContextService.context.clientId,
       this.methodContextService.context.agentName
@@ -131,7 +131,7 @@ export class AgentConnectionService implements IAgent {
    * @returns {Promise<any>} The commit result.
    */
   public commitToolOutput = async (toolId: string, content: string) => {
-    this.loggerService.log(`agentConnectionService commitToolOutput`, {
+    this.loggerService.info(`agentConnectionService commitToolOutput`, {
       content,
       toolId,
     });
@@ -147,7 +147,7 @@ export class AgentConnectionService implements IAgent {
    * @returns {Promise<any>} The commit result.
    */
   public commitSystemMessage = async (message: string) => {
-    this.loggerService.log(`agentConnectionService commitSystemMessage`, {
+    this.loggerService.info(`agentConnectionService commitSystemMessage`, {
       message,
     });
     return await this.getAgent(
@@ -162,7 +162,7 @@ export class AgentConnectionService implements IAgent {
    * @returns {Promise<any>} The commit result.
    */
   public commitUserMessage = async (message: string) => {
-    this.loggerService.log(`agentConnectionService commitUserMessage`, {
+    this.loggerService.info(`agentConnectionService commitUserMessage`, {
       message,
     });
     return await this.getAgent(
@@ -176,7 +176,7 @@ export class AgentConnectionService implements IAgent {
    * @returns {Promise<any>} The commit result.
    */
   public commitAgentChange = async () => {
-    this.loggerService.log(`agentConnectionService commitAgentChange`);
+    this.loggerService.info(`agentConnectionService commitAgentChange`);
     return await this.getAgent(
       this.methodContextService.context.clientId,
       this.methodContextService.context.agentName
@@ -188,7 +188,7 @@ export class AgentConnectionService implements IAgent {
    * @returns {Promise<any>} The commit result.
    */
   public commitFlush = async () => {
-    this.loggerService.log(`agentConnectionService commitFlush`);
+    this.loggerService.info(`agentConnectionService commitFlush`);
     return await this.getAgent(
       this.methodContextService.context.clientId,
       this.methodContextService.context.agentName
@@ -200,7 +200,7 @@ export class AgentConnectionService implements IAgent {
    * @returns {Promise<void>} The dispose result.
    */
   public dispose = async () => {
-    this.loggerService.log(`agentConnectionService dispose`);
+    this.loggerService.info(`agentConnectionService dispose`);
     const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.agentName}`;
     if (!this.getAgent.has(key)) {
       return;

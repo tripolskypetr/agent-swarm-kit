@@ -33,7 +33,7 @@ export class SessionValidationService {
     swarmName: SwarmName,
     sessionMode: SessionMode
   ) => {
-    this.loggerService.log("sessionValidationService addSession", {
+    this.loggerService.info("sessionValidationService addSession", {
       clientId,
     });
     if (this._sessionSwarmMap.has(clientId)) {
@@ -49,7 +49,7 @@ export class SessionValidationService {
    * @param {AgentName} agentName - The name of the agent.
    */
   public addAgentUsage = (sessionId: SessionId, agentName: AgentName): void => {
-    this.loggerService.log("sessionValidationService addAgentUsage", {
+    this.loggerService.info("sessionValidationService addAgentUsage", {
       sessionId,
       agentName,
     });
@@ -72,7 +72,7 @@ export class SessionValidationService {
     sessionId: SessionId,
     agentName: AgentName
   ): void => {
-    this.loggerService.log("sessionValidationService addHistoryUsage", {
+    this.loggerService.info("sessionValidationService addHistoryUsage", {
       sessionId,
       agentName,
     });
@@ -95,7 +95,7 @@ export class SessionValidationService {
     sessionId: SessionId,
     storageName: StorageName
   ): void => {
-    this.loggerService.log("sessionValidationService addStorageUsage", {
+    this.loggerService.info("sessionValidationService addStorageUsage", {
       sessionId,
       storageName,
     });
@@ -115,7 +115,7 @@ export class SessionValidationService {
    * @param {StateName} stateName - The name of the state.
    */
   public addStateUsage = (sessionId: SessionId, stateName: StateName): void => {
-    this.loggerService.log("sessionValidationService addStateUsage", {
+    this.loggerService.info("sessionValidationService addStateUsage", {
       sessionId,
       stateName,
     });
@@ -139,7 +139,7 @@ export class SessionValidationService {
     sessionId: SessionId,
     agentName: AgentName
   ): void => {
-    this.loggerService.log("sessionValidationService removeAgentUsage", {
+    this.loggerService.info("sessionValidationService removeAgentUsage", {
       sessionId,
       agentName,
     });
@@ -167,7 +167,7 @@ export class SessionValidationService {
     sessionId: SessionId,
     agentName: AgentName
   ): void => {
-    this.loggerService.log("sessionValidationService removeHistoryUsage", {
+    this.loggerService.info("sessionValidationService removeHistoryUsage", {
       sessionId,
       agentName,
     });
@@ -195,7 +195,7 @@ export class SessionValidationService {
     sessionId: SessionId,
     storageName: StorageName
   ): void => {
-    this.loggerService.log("sessionValidationService removeStorageUsage", {
+    this.loggerService.info("sessionValidationService removeStorageUsage", {
       sessionId,
       storageName,
     });
@@ -223,7 +223,7 @@ export class SessionValidationService {
     sessionId: SessionId,
     stateName: StateName
   ): void => {
-    this.loggerService.log("sessionValidationService removeStateUsage", {
+    this.loggerService.info("sessionValidationService removeStateUsage", {
       sessionId,
       stateName,
     });
@@ -248,7 +248,7 @@ export class SessionValidationService {
    * @throws Will throw an error if the session does not exist.
    */
   public getSessionMode = (clientId: SessionId) => {
-    this.loggerService.log("sessionValidationService getSessionMode", {
+    this.loggerService.info("sessionValidationService getSessionMode", {
       clientId,
     });
     if (!this._sessionModeMap.has(clientId)) {
@@ -264,7 +264,7 @@ export class SessionValidationService {
    * @returns {boolean}
    */
   public hasSession = (clientId: SessionId) => {
-    this.loggerService.log("sessionValidationService hasSession");
+    this.loggerService.info("sessionValidationService hasSession");
     return this._sessionSwarmMap.has(clientId);
   };
 
@@ -273,7 +273,7 @@ export class SessionValidationService {
    * @returns {SessionId[]} The list of session IDs.
    */
   public getSessionList = () => {
-    this.loggerService.log("sessionValidationService getSessionList");
+    this.loggerService.info("sessionValidationService getSessionList");
     return [...this._sessionSwarmMap.keys()];
   };
 
@@ -283,7 +283,7 @@ export class SessionValidationService {
    * @returns {AgentName[]} The list of agent names.
    */
   public getSessionAgentList = (clientId: string) => {
-    this.loggerService.log("sessionValidationService getSessionAgentList", {
+    this.loggerService.info("sessionValidationService getSessionAgentList", {
       clientId,
     });
     return this._agentSwarmMap.get(clientId) ?? [];
@@ -295,7 +295,7 @@ export class SessionValidationService {
    * @returns {AgentName[]} The list of agent names.
    */
   public getSessionHistoryList = (clientId: string) => {
-    this.loggerService.log("sessionValidationService getSessionHistoryList", {
+    this.loggerService.info("sessionValidationService getSessionHistoryList", {
       clientId,
     });
     return this._agentSwarmMap.get(clientId) ?? [];
@@ -308,7 +308,7 @@ export class SessionValidationService {
    * @throws Will throw an error if the session does not exist.
    */
   public getSwarm = (clientId: SessionId) => {
-    this.loggerService.log("sessionValidationService getSwarm", {
+    this.loggerService.info("sessionValidationService getSwarm", {
       clientId,
     });
     const session = this._sessionSwarmMap.get(clientId);
@@ -325,7 +325,7 @@ export class SessionValidationService {
    * @throws Will throw an error if the session does not exist.
    */
   public validate = (clientId: SessionId, source: string) => {
-    this.loggerService.log("sessionValidationService validate", { clientId });
+    this.loggerService.info("sessionValidationService validate", { clientId });
     if (!this._sessionSwarmMap.has(clientId)) {
       throw new Error(
         `agent-swarm session clientId=${clientId} not exist source=${source}`
@@ -339,7 +339,7 @@ export class SessionValidationService {
    * @param {SessionId} clientId - The ID of the client.
    */
   public removeSession = (clientId: SessionId) => {
-    this.loggerService.log("sessionValidationService addSession", {
+    this.loggerService.info("sessionValidationService addSession", {
       clientId,
     });
     this._sessionSwarmMap.delete(clientId);

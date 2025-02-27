@@ -32,7 +32,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
    * @returns {Promise<void>}
    */
   public cancelOutput = async (methodName: string, clientId: string, swarmName: SwarmName) => {
-    this.loggerService.log("swarmPublicService cancelOutput", {
+    this.loggerService.info("swarmPublicService cancelOutput", {
       clientId,
       swarmName,
     });
@@ -58,7 +58,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
    * @returns {Promise<void>}
    */
   public waitForOutput = async (methodName: string, clientId: string, swarmName: SwarmName) => {
-    this.loggerService.log("swarmPublicService waitForOutput", {
+    this.loggerService.info("swarmPublicService waitForOutput", {
       clientId,
       methodName,
       swarmName,
@@ -85,7 +85,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
    * @returns {Promise<string>}
    */
   public getAgentName = async (methodName: string, clientId: string, swarmName: SwarmName) => {
-    this.loggerService.log("swarmPublicService getAgentName", {
+    this.loggerService.info("swarmPublicService getAgentName", {
       clientId,
       swarmName,
       methodName,
@@ -112,7 +112,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
    * @returns {Promise<IAgent>}
    */
   public getAgent = async (methodName: string, clientId: string, swarmName: SwarmName) => {
-    this.loggerService.log("swarmPublicService getAgent", {
+    this.loggerService.info("swarmPublicService getAgent", {
       clientId,
       swarmName,
     });
@@ -146,7 +146,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
     agentName: AgentName,
     agent: IAgent
   ) => {
-    this.loggerService.log("swarmPublicService setAgentRef", {
+    this.loggerService.info("swarmPublicService setAgentRef", {
       methodName,
       agentName,
       agent,
@@ -181,7 +181,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.log("swarmPublicService setAgentName", {
+    this.loggerService.info("swarmPublicService setAgentName", {
       methodName,
       agentName,
       clientId,
@@ -209,7 +209,7 @@ export class SwarmPublicService implements TSwarmConnectionService {
    * @returns {Promise<void>}
    */
   public dispose = async (methodName: string, clientId: string, swarmName: SwarmName) => {
-    this.loggerService.log("swarmPublicService dispose", {
+    this.loggerService.info("swarmPublicService dispose", {
       methodName,
       clientId,
       swarmName,

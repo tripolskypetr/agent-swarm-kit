@@ -19,7 +19,7 @@ export class SwarmSchemaService {
      * @param {ISwarmSchema} value - The schema of the swarm.
      */
     public register = (key: SwarmName, value: ISwarmSchema) => {
-        this.loggerService.log(`swarmSchemaService register`, { key });
+        this.loggerService.info(`swarmSchemaService register`, { key });
         this.registry = this.registry.register(key, value);
     };
 
@@ -29,7 +29,7 @@ export class SwarmSchemaService {
      * @returns {ISwarmSchema} The schema of the swarm.
      */
     public get = (key: SwarmName): ISwarmSchema => {
-        this.loggerService.log(`swarmSchemaService get`, { key });
+        this.loggerService.info(`swarmSchemaService get`, { key });
         return this.registry.get(key);
     };
 

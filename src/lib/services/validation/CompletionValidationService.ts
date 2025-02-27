@@ -18,7 +18,7 @@ export class CompletionValidationService {
    * @throws Will throw an error if the completion name already exists.
    */
   public addCompletion = (completionName: CompletionName) => {
-    this.loggerService.log("completionValidationService addCompletion", {
+    this.loggerService.info("completionValidationService addCompletion", {
       completionName,
     });
     if (this._completionSet.has(completionName)) {
@@ -36,7 +36,7 @@ export class CompletionValidationService {
   public validate = memoize(
     ([completionName]) => completionName,
     (completionName: CompletionName, source: string) => {
-      this.loggerService.log("completionValidationService validate", {
+      this.loggerService.info("completionValidationService validate", {
         completionName,
         source,
       });

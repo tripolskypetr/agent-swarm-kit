@@ -26,7 +26,7 @@ export class StorageValidationService {
    * @throws {Error} If the storage already exists.
    */
   public addStorage = (storageName: StorageName, storageSchema: IStorageSchema) => {
-    this.loggerService.log("storageValidationService addStorage", {
+    this.loggerService.info("storageValidationService addStorage", {
       storageName,
       storageSchema,
     });
@@ -45,7 +45,7 @@ export class StorageValidationService {
   public validate = memoize(
     ([storageName]) => storageName,
     (storageName: StorageName, source: string) => {
-      this.loggerService.log("storageValidationService validate", {
+      this.loggerService.info("storageValidationService validate", {
         storageName,
         source,
       });

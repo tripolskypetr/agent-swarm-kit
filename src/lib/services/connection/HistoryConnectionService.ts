@@ -53,7 +53,7 @@ export class HistoryConnectionService implements IHistory {
    * @returns {Promise<void>} A promise that resolves when the message is pushed.
    */
   public push = async (message: IModelMessage) => {
-    this.loggerService.log(`historyConnectionService push`, {
+    this.loggerService.info(`historyConnectionService push`, {
       message,
     });
     return await this.getHistory(
@@ -68,7 +68,7 @@ export class HistoryConnectionService implements IHistory {
    * @returns {Promise<any[]>} A promise that resolves to an array for the agent.
    */
   public toArrayForAgent = async (prompt: string) => {
-    this.loggerService.log(`historyConnectionService toArrayForAgent`, {
+    this.loggerService.info(`historyConnectionService toArrayForAgent`, {
       prompt,
     });
     return await this.getHistory(
@@ -82,7 +82,7 @@ export class HistoryConnectionService implements IHistory {
    * @returns {Promise<any[]>} A promise that resolves to a raw array.
    */
   public toArrayForRaw = async () => {
-    this.loggerService.log(`historyConnectionService toArrayForRaw`);
+    this.loggerService.info(`historyConnectionService toArrayForRaw`);
     return await this.getHistory(
       this.methodContextService.context.clientId,
       this.methodContextService.context.agentName
@@ -94,7 +94,7 @@ export class HistoryConnectionService implements IHistory {
    * @returns {Promise<void>} A promise that resolves when the service is disposed.
    */
   public dispose = async () => {
-    this.loggerService.log(`historyConnectionService dispose`);
+    this.loggerService.info(`historyConnectionService dispose`);
     const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.agentName}`;
     if (!this.getHistory.has(key)) {
       return;

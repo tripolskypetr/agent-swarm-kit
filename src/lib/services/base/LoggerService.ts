@@ -35,6 +35,13 @@ export class LoggerService implements ILogger {
     debug(...args: any[]) {
       void 0;
     },
+    /**
+     * Logs info messages.
+     * @param {...any} args - The info messages to log.
+     */
+    info(...args: any[]) {
+      void 0;
+    },
   };
 
   /**
@@ -66,6 +73,21 @@ export class LoggerService implements ILogger {
       ? this.executionContextService.context
       : null;
     this._logger.debug(...args, { methodContext, executionContext });
+  };
+
+  
+  /**
+   * Logs info messages using the current logger.
+   * @param {...any} args - The info messages to log.
+   */
+  public info = (...args: any[]) => {
+    const methodContext = MethodContextService.hasContext()
+      ? this.methodContextService.context
+      : null;
+    const executionContext = ExecutionContextService.hasContext()
+      ? this.executionContextService.context
+      : null;
+    this._logger.info(...args, { methodContext, executionContext });
   };
 
   /**

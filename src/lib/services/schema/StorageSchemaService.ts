@@ -18,7 +18,7 @@ export class StorageSchemaService {
      * @param {IStorageSchema} value - The schema to register.
      */
     public register = (key: StorageName, value: IStorageSchema) => {
-        this.loggerService.log(`storageSchemaService register`, { key });
+        this.loggerService.info(`storageSchemaService register`, { key });
         this.registry = this.registry.register(key, value);
     };
 
@@ -28,7 +28,7 @@ export class StorageSchemaService {
      * @returns {IStorageSchema} The retrieved schema.
      */
     public get = (key: StorageName): IStorageSchema => {
-        this.loggerService.log(`storageSchemaService get`, { key });
+        this.loggerService.info(`storageSchemaService get`, { key });
         return this.registry.get(key);
     };
 

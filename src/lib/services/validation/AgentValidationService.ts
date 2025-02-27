@@ -67,7 +67,7 @@ export class AgentValidationService {
    * @throws {Error} If the agent already exists.
    */
   public addAgent = (agentName: AgentName, agentSchema: IAgentSchema) => {
-    this.loggerService.log("agentValidationService addAgent", {
+    this.loggerService.info("agentValidationService addAgent", {
       agentName,
       agentSchema,
     });
@@ -83,7 +83,7 @@ export class AgentValidationService {
   public hasStorage = memoize(
     ([agentName, storageName]) => `${agentName}-${storageName}`,
     (agentName: AgentName, storageName: StorageName) => {
-      this.loggerService.log("agentValidationService hasStorage", {
+      this.loggerService.info("agentValidationService hasStorage", {
         agentName,
         storageName,
       });
@@ -103,7 +103,7 @@ export class AgentValidationService {
   public hasState = memoize(
     ([agentName, stateName]) => `${agentName}-${stateName}`,
     (agentName: AgentName, stateName: StateName) => {
-      this.loggerService.log("agentValidationService hasState", {
+      this.loggerService.info("agentValidationService hasState", {
         agentName,
         stateName,
       });
@@ -126,7 +126,7 @@ export class AgentValidationService {
   public validate = memoize(
     ([agentName]) => agentName,
     (agentName: AgentName, source: string) => {
-      this.loggerService.log("agentValidationService validate", {
+      this.loggerService.info("agentValidationService validate", {
         agentName,
         source,
       });

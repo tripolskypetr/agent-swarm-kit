@@ -24,7 +24,7 @@ export class SwarmValidationService {
    * @throws Will throw an error if the swarm already exists.
    */
   public addSwarm = (swarmName: SwarmName, swarmSchema: ISwarmSchema) => {
-    this.loggerService.log("swarmValidationService addSwarm", {
+    this.loggerService.info("swarmValidationService addSwarm", {
       swarmName,
       swarmSchema,
     });
@@ -41,7 +41,7 @@ export class SwarmValidationService {
    * @throws Will throw an error if the swarm is not found.
    */
   public getAgentList = (swarmName: SwarmName) => {
-    this.loggerService.log("swarmValidationService getAgentList", {
+    this.loggerService.info("swarmValidationService getAgentList", {
       swarmName,
     });
     const swarm = this._swarmMap.get(swarmName);
@@ -60,7 +60,7 @@ export class SwarmValidationService {
   public validate = memoize(
     ([swarmName]) => swarmName,
     (swarmName: SwarmName, source: string) => {
-      this.loggerService.log("swarmValidationService validate", {
+      this.loggerService.info("swarmValidationService validate", {
         swarmName,
         source,
       });

@@ -18,7 +18,7 @@ export class StateSchemaService {
      * @param {IStateSchema} value - The schema to register.
      */
     public register = (key: StateName, value: IStateSchema) => {
-        this.loggerService.log(`stateSchemaService register`, { key });
+        this.loggerService.info(`stateSchemaService register`, { key });
         this.registry = this.registry.register(key, value);
     };
 
@@ -28,7 +28,7 @@ export class StateSchemaService {
      * @returns {IStateSchema} The retrieved schema.
      */
     public get = (key: StateName): IStateSchema => {
-        this.loggerService.log(`stateSchemaService get`, { key });
+        this.loggerService.info(`stateSchemaService get`, { key });
         return this.registry.get(key);
     };
 

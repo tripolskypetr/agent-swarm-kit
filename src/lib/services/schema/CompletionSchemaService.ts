@@ -18,7 +18,7 @@ export class CompletionSchemaService {
      * @param {ICompletionSchema} value - The schema to register.
      */
     public register = (key: CompletionName, value: ICompletionSchema) => {
-        this.loggerService.log(`completionSchemaService register`, { key });
+        this.loggerService.info(`completionSchemaService register`, { key });
         this.registry = this.registry.register(key, value);
     };
 
@@ -28,7 +28,7 @@ export class CompletionSchemaService {
      * @returns {ICompletionSchema} The retrieved schema.
      */
     public get = (key: CompletionName): ICompletionSchema => {
-        this.loggerService.log(`completionSchemaService get`, { key });
+        this.loggerService.info(`completionSchemaService get`, { key });
         return this.registry.get(key);
     };
 

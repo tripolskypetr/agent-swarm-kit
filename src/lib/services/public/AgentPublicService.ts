@@ -32,7 +32,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * @returns {Promise<unknown>} The agent reference.
    */
   public createAgentRef = async (methodName: string, clientId: string, agentName: AgentName) => {
-    this.loggerService.log("agentPublicService createAgentRef", {
+    this.loggerService.info("agentPublicService createAgentRef", {
       methodName,
       clientId,
       agentName,
@@ -66,7 +66,7 @@ export class AgentPublicService implements TAgentConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.log("agentPublicService execute", {
+    this.loggerService.info("agentPublicService execute", {
       methodName,
       input,
       clientId,
@@ -95,7 +95,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * @returns {Promise<unknown>} The output result.
    */
   public waitForOutput = async (methodName: string, clientId: string, agentName: AgentName) => {
-    this.loggerService.log("agentPublicService waitForOutput", {
+    this.loggerService.info("agentPublicService waitForOutput", {
       methodName,
       clientId,
       agentName,
@@ -130,7 +130,7 @@ export class AgentPublicService implements TAgentConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.log("agentPublicService commitToolOutput", {
+    this.loggerService.info("agentPublicService commitToolOutput", {
       methodName,
       content,
       clientId,
@@ -165,7 +165,7 @@ export class AgentPublicService implements TAgentConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.log("agentPublicService commitSystemMessage", {
+    this.loggerService.info("agentPublicService commitSystemMessage", {
       methodName,
       message,
       clientId,
@@ -199,7 +199,7 @@ export class AgentPublicService implements TAgentConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.log("agentPublicService commitUserMessage", {
+    this.loggerService.info("agentPublicService commitUserMessage", {
       methodName,
       message,
       clientId,
@@ -231,7 +231,7 @@ export class AgentPublicService implements TAgentConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.log("agentPublicService commitFlush", {
+    this.loggerService.info("agentPublicService commitFlush", {
       methodName,
       clientId,
       agentName,
@@ -262,7 +262,7 @@ export class AgentPublicService implements TAgentConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.log("agentPublicService commitAgentChange", {
+    this.loggerService.info("agentPublicService commitAgentChange", {
       methodName,
       clientId,
       agentName,
@@ -289,7 +289,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * @returns {Promise<unknown>} The dispose result.
    */
   public dispose = async (methodName: string, clientId: string, agentName: AgentName) => {
-    this.loggerService.log("agentPublicService dispose", {
+    this.loggerService.info("agentPublicService dispose", {
       methodName,
       clientId,
       agentName,

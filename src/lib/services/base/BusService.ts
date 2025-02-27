@@ -31,7 +31,7 @@ export class BusService implements IBus {
     source: EventSource,
     fn: (event: T) => void
   ) => {
-    this.loggerService.log(`busService subscribe`, {
+    this.loggerService.info(`busService subscribe`, {
       clientId,
       source,
     });
@@ -56,7 +56,7 @@ export class BusService implements IBus {
     filterFn: (event: T) => boolean,
     fn: (event: T) => void
   ) => {
-    this.loggerService.log(`busService once`, {
+    this.loggerService.info(`busService once`, {
       clientId,
       source,
     });
@@ -94,7 +94,7 @@ export class BusService implements IBus {
    * @param {string} clientId - The client ID.
    */
   public dispose = (clientId: string) => {
-    this.loggerService.log(`busService dispose`, {
+    this.loggerService.info(`busService dispose`, {
       clientId,
     });
     for (const source of this._eventSourceSet) {

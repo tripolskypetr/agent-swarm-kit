@@ -19,7 +19,7 @@ export class AgentSchemaService {
      * @param {IAgentSchema} value - The schema of the agent.
      */
     public register = (key: AgentName, value: IAgentSchema) => {
-        this.loggerService.log(`agentSchemaService register`, { key });
+        this.loggerService.info(`agentSchemaService register`, { key });
         this.registry = this.registry.register(key, value);
     };
 
@@ -29,7 +29,7 @@ export class AgentSchemaService {
      * @returns {IAgentSchema} The schema of the agent.
      */
     public get = (key: AgentName): IAgentSchema => {
-        this.loggerService.log(`agentSchemaService get`, { key });
+        this.loggerService.info(`agentSchemaService get`, { key });
         return this.registry.get(key);
     };
 

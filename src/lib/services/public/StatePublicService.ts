@@ -38,7 +38,7 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
     clientId: string,
     stateName: StateName,
   ): Promise<T> => {
-    this.loggerService.log(`statePublicService setState`, {
+    this.loggerService.info(`statePublicService setState`, {
       methodName,
       clientId,
       stateName,
@@ -69,7 +69,7 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
     clientId: string,
     stateName: StateName,
   ): Promise<T> => {
-    this.loggerService.log(`statePublicService getState`, {
+    this.loggerService.info(`statePublicService getState`, {
       clientId,
       stateName,
     });
@@ -95,7 +95,7 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
    * @returns {Promise<void>} - A promise that resolves when the state is disposed.
    */
   public dispose = async (methodName: string, clientId: string, stateName: StateName) => {
-    this.loggerService.log("statePublicService dispose", {
+    this.loggerService.info("statePublicService dispose", {
       methodName,
       clientId,
       stateName,

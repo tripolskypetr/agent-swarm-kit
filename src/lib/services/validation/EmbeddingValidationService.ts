@@ -19,7 +19,7 @@ export class EmbeddingValidationService {
    * @throws Will throw an error if the embedding already exists.
    */
   public addEmbedding = (embeddingName: EmbeddingName, embeddingSchema: IEmbeddingSchema) => {
-    this.loggerService.log("embeddingValidationService addEmbedding", {
+    this.loggerService.info("embeddingValidationService addEmbedding", {
       embeddingName,
       embeddingSchema,
     });
@@ -38,7 +38,7 @@ export class EmbeddingValidationService {
   public validate = memoize(
     ([embeddingName]) => embeddingName,
     (embeddingName: EmbeddingName, source: string) => {
-      this.loggerService.log("embeddingValidationService validate", {
+      this.loggerService.info("embeddingValidationService validate", {
         embeddingName,
         source,
       });

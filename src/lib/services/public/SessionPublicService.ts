@@ -45,7 +45,7 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.log("sessionPublicService emit", {
+    this.loggerService.info("sessionPublicService emit", {
       content,
       clientId,
       methodName,
@@ -80,7 +80,7 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.log("sessionPublicService execute", {
+    this.loggerService.info("sessionPublicService execute", {
       content,
       mode,
       clientId,
@@ -114,7 +114,7 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ): ReceiveMessageFn => {
-    this.loggerService.log("sessionPublicService connect", {
+    this.loggerService.info("sessionPublicService connect", {
       methodName,
       clientId,
       swarmName,
@@ -126,12 +126,21 @@ export class SessionPublicService implements TSessionConnectionService {
     );
     return async (incoming: IIncomingMessage) => {
       const executionId = randomString();
-      return ExecutionContextService.runInContext(async () => {
-        return await send(incoming);
-      }, {
-        clientId,
-        executionId,
-      })
+      return ExecutionContextService.runInContext(
+        async () => {
+          this.loggerService.log("sessionPublicService connect execute", {
+            content: incoming,
+            methodName,
+            clientId,
+            executionId,
+          });
+          return await send(incoming);
+        },
+        {
+          clientId,
+          executionId,
+        }
+      );
     };
   };
 
@@ -150,7 +159,7 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.log("sessionPublicService commitToolOutput", {
+    this.loggerService.info("sessionPublicService commitToolOutput", {
       methodName,
       toolId,
       content,
@@ -188,7 +197,7 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.log("sessionPublicService commitSystemMessage", {
+    this.loggerService.info("sessionPublicService commitSystemMessage", {
       methodName,
       message,
       clientId,
@@ -222,7 +231,7 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.log("sessionPublicService commitUserMessage", {
+    this.loggerService.info("sessionPublicService commitUserMessage", {
       methodName,
       message,
       clientId,
@@ -254,7 +263,7 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.log("sessionPublicService commitFlush", {
+    this.loggerService.info("sessionPublicService commitFlush", {
       clientId,
       swarmName,
     });
@@ -284,7 +293,7 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.log("sessionPublicService dispose", {
+    this.loggerService.info("sessionPublicService dispose", {
       methodName,
       clientId,
       swarmName,

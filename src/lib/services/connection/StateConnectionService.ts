@@ -117,7 +117,7 @@ export class StateConnectionService<T extends IStateData = IStateData>
   public setState = async (
     dispatchFn: (prevState: T) => Promise<T>
   ): Promise<T> => {
-    this.loggerService.log(`stateConnectionService setState`);
+    this.loggerService.info(`stateConnectionService setState`);
     const state = this.getStateRef(
       this.methodContextService.context.clientId,
       this.methodContextService.context.stateName
@@ -131,7 +131,7 @@ export class StateConnectionService<T extends IStateData = IStateData>
    * @returns {Promise<T>} The current state.
    */
   public getState = async (): Promise<T> => {
-    this.loggerService.log(`stateConnectionService getState`);
+    this.loggerService.info(`stateConnectionService getState`);
     const state = this.getStateRef(
       this.methodContextService.context.clientId,
       this.methodContextService.context.stateName
@@ -145,7 +145,7 @@ export class StateConnectionService<T extends IStateData = IStateData>
    * @returns {Promise<void>}
    */
   public dispose = async (): Promise<void> => {
-    this.loggerService.log(`stateConnectionService dispose`);
+    this.loggerService.info(`stateConnectionService dispose`);
     const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.stateName}`;
     if (!this.getStateRef.has(key)) {
       return;

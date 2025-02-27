@@ -19,7 +19,7 @@ export class EmbeddingSchemaService {
      * @param {IAgentTool} value - The embedding to register.
      */
     public register = (key: EmbeddingName, value: IEmbeddingSchema) => {
-        this.loggerService.log('embeddingSchemaService register');
+        this.loggerService.info('embeddingSchemaService register');
         this.registry = this.registry.register(key, value);
     };
 
@@ -29,7 +29,7 @@ export class EmbeddingSchemaService {
      * @returns {IAgentTool} The embedding associated with the given key.
      */
     public get = (key: EmbeddingName): IEmbeddingSchema => {
-        this.loggerService.log('embeddingSchemaService get', { key });
+        this.loggerService.info('embeddingSchemaService get', { key });
         return this.registry.get(key);
     };
 

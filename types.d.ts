@@ -69,6 +69,11 @@ interface ILogger {
      * @param {...any[]} args - The debug message or messages to log.
      */
     debug(...args: any[]): void;
+    /**
+     * Logs a info message.
+     * @param {...any[]} args - The debug message or messages to log.
+     */
+    info(...args: any[]): void;
 }
 
 /**
@@ -1476,6 +1481,11 @@ declare class LoggerService implements ILogger {
      * @param {...any} args - The debug messages to log.
      */
     debug: (...args: any[]) => void;
+    /**
+     * Logs info messages using the current logger.
+     * @param {...any} args - The info messages to log.
+     */
+    info: (...args: any[]) => void;
     /**
      * Sets a new logger.
      * @param {ILogger} logger - The new logger to set.

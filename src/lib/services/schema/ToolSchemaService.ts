@@ -19,7 +19,7 @@ export class ToolSchemaService {
      * @param {IAgentTool} value - The tool to register.
      */
     public register = (key: ToolName, value: IAgentTool) => {
-        this.loggerService.log('toolSchemaService register');
+        this.loggerService.info('toolSchemaService register');
         this.registry = this.registry.register(key, value);
     };
 
@@ -29,7 +29,7 @@ export class ToolSchemaService {
      * @returns {IAgentTool} The tool associated with the given key.
      */
     public get = (key: ToolName): IAgentTool => {
-        this.loggerService.log('toolSchemaService get', { key });
+        this.loggerService.info('toolSchemaService get', { key });
         return this.registry.get(key);
     };
 

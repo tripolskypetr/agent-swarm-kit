@@ -39,7 +39,7 @@ export class HistoryPublicService implements THistoryConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.log("historyPublicService push", {
+    this.loggerService.info("historyPublicService push", {
       methodName,
       message,
       clientId,
@@ -73,7 +73,7 @@ export class HistoryPublicService implements THistoryConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.log("historyPublicService toArrayForAgent", {
+    this.loggerService.info("historyPublicService toArrayForAgent", {
       prompt,
       clientId,
       agentName,
@@ -100,7 +100,7 @@ export class HistoryPublicService implements THistoryConnectionService {
    * @returns {Promise<any[]>} A promise that resolves to a raw array of history items.
    */
   public toArrayForRaw = async (methodName: string, clientId: string, agentName: AgentName) => {
-    this.loggerService.log("historyPublicService toArrayForRaw", {
+    this.loggerService.info("historyPublicService toArrayForRaw", {
       methodName,
       clientId,
       agentName,
@@ -127,7 +127,7 @@ export class HistoryPublicService implements THistoryConnectionService {
    * @returns {Promise<void>} A promise that resolves when the operation is complete.
    */
   public dispose = async (methodName: string, clientId: string, agentName: AgentName) => {
-    this.loggerService.log("historyPublicService dispose", {
+    this.loggerService.info("historyPublicService dispose", {
       clientId,
       agentName,
     });

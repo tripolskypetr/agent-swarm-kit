@@ -20,7 +20,7 @@ export class ToolValidationService {
    * @throws Will throw an error if the tool already exists.
    */
   public addTool = (toolName: ToolName, toolSchema: IAgentTool) => {
-    this.loggerService.log("toolValidationService addTool", {
+    this.loggerService.info("toolValidationService addTool", {
       toolName,
       toolSchema,
     });
@@ -39,7 +39,7 @@ export class ToolValidationService {
   public validate = memoize(
     ([toolName]) => toolName,
     (toolName: ToolName, source: string) => {
-      this.loggerService.log("toolValidationService validate", {
+      this.loggerService.info("toolValidationService validate", {
         toolName,
         source,
       });
