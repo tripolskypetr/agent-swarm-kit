@@ -8,7 +8,7 @@ import * as moduleData from "../build/index.mjs";
 
 const UML_STEP = '\t';
 const UML_BULLET = "•";
-const MAX_NESTING = 3;
+const MAX_NESTING = 4;
 
 const toUML = async () => {
 
@@ -31,7 +31,7 @@ const toUML = async () => {
             }
         }
     };
-    process(swarm, Object.keys(swarm))
+    process(swarm, Object.keys(swarm).filter((key) => key.includes("Public")))
 
     const result = ['@startyaml', ...lines, '@endyaml'].join('\n');
 
