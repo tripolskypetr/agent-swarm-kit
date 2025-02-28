@@ -4,6 +4,8 @@ import { disposeConnection } from "./disposeConnection";
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
+const METHOD_NAME = "function makeAutoDispose";
+
 const DEFAULT_TIMEOUT = 15 * 60;
 
 /**
@@ -37,7 +39,7 @@ export const makeAutoDispose = (
   }: Partial<IMakeDisposeParams> = {}
 ) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function makeAutoDispose", {
+    swarm.loggerService.log(METHOD_NAME, {
       clientId,
       swarmName,
     });

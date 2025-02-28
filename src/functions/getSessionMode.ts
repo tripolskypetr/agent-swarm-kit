@@ -1,6 +1,8 @@
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
+const METHOD_NAME = "function getSessionMode";
+
 /**
  * Return the session mode (`"session" | "makeConnection" | "complete"`) for clientId
  *
@@ -8,10 +10,10 @@ import { GLOBAL_CONFIG } from "../config/params";
  */
 export const getSessionMode = async (clientId: string) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function getSessionMode", {
+    swarm.loggerService.log(METHOD_NAME, {
       clientId,
     });
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-  swarm.swarmValidationService.validate(swarmName, "getSessionMode");
+  swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   return swarm.sessionValidationService.getSessionMode(clientId);
 };

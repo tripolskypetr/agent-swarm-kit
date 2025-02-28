@@ -3,6 +3,8 @@ import History from "../classes/History";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
 
+const METHOD_NAME = "function disposeConnection";
+
 /**
  * Disposes the session for a given client with all related swarms and agents.
  *
@@ -13,14 +15,14 @@ import swarm from "../lib";
 export const disposeConnection = async (
   clientId: string,
   swarmName: SwarmName,
-  methodName = "function disposeConnection"
+  methodName = METHOD_NAME
 ) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function disposeConnection", {
+    swarm.loggerService.log(METHOD_NAME, {
       clientId,
       swarmName,
     });
-  swarm.swarmValidationService.validate(swarmName, "disposeConnection");
+  swarm.swarmValidationService.validate(swarmName, methodName);
   swarm.sessionValidationService.removeSession(clientId);
   swarm.busService.dispose(clientId);
   await swarm.sessionPublicService.dispose(methodName, clientId, swarmName);

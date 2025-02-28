@@ -1,6 +1,8 @@
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
+const METHOD_NAME = "function getRawHistory";
+
 /**
  * Retrieves the raw history as it is for a given client ID without any modifications.
  *
@@ -9,15 +11,15 @@ import swarm from "../lib";
  */
 export const getRawHistory = async (
   clientId: string,
-  methodName = "function getRawHistory"
+  methodName = METHOD_NAME,
 ) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function getRawHistory", {
+    swarm.loggerService.log(METHOD_NAME, {
       clientId,
     });
-  swarm.sessionValidationService.validate(clientId, "getRawHistory");
+  swarm.sessionValidationService.validate(clientId, methodName);
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-  swarm.swarmValidationService.validate(swarmName, "getRawHistory");
+  swarm.swarmValidationService.validate(swarmName, methodName);
   const agentName = await swarm.swarmPublicService.getAgentName(
     methodName,
     clientId,

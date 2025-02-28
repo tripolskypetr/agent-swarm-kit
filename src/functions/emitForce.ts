@@ -1,6 +1,8 @@
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
+const METHOD_NAME = "function emitForce";
+
 /**
  * Emits a string constant as the model output without executing incoming message and checking active agent
  * Works only for `makeConnection`
@@ -12,9 +14,8 @@ import swarm from "../lib";
  * @returns {Promise<void>} A promise that resolves when the content is emitted.
  */
 export const emitForce = async (content: string, clientId: string) => {
-  const methodName = "function emitForce";
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function emitForce", {
+    swarm.loggerService.log(METHOD_NAME, {
       content,
       clientId,
     });
@@ -25,12 +26,12 @@ export const emitForce = async (content: string, clientId: string) => {
       `agent-swarm-kit emitForce session is not makeConnection clientId=${clientId}`
     );
   }
-  swarm.sessionValidationService.validate(clientId, "emitForce");
+  swarm.sessionValidationService.validate(clientId, METHOD_NAME);
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-  swarm.swarmValidationService.validate(swarmName, "emitForce");
+  swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   return await swarm.sessionPublicService.emit(
     content,
-    methodName,
+    METHOD_NAME,
     clientId,
     swarmName
   );

@@ -2,6 +2,8 @@ import { IStorageData, IStorageSchema } from "../interfaces/Storage.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
+const METHOD_NAME = "function addStorage";
+
 /**
  * Adds a new storage to the storage registry. The swarm takes only those storages which was registered
  *
@@ -12,7 +14,7 @@ export const addStorage = <T extends IStorageData = IStorageData>(
   storageSchema: IStorageSchema<T>
 ) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function addStorage", {
+    swarm.loggerService.log(METHOD_NAME, {
       storageSchema,
     });
   swarm.storageValidationService.addStorage(

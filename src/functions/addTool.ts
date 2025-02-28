@@ -2,6 +2,8 @@ import { IAgentTool } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
+const METHOD_NAME = "function addTool";
+
 /**
  * Adds a new tool for agents in a swarm. Tool should be registered in `addAgent`
  * declaration
@@ -11,7 +13,7 @@ import { GLOBAL_CONFIG } from "../config/params";
  */
 export const addTool = (toolSchema: IAgentTool) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function addTool", {
+    swarm.loggerService.log(METHOD_NAME, {
       toolSchema,
     });
   swarm.toolValidationService.addTool(toolSchema.toolName, toolSchema);

@@ -1,6 +1,8 @@
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
+const METHOD_NAME = "function commitToolOutputForce";
+
 /**
  * Commits the tool output to the active agent in a swarm session without checking active agent
  *
@@ -13,20 +15,19 @@ export const commitToolOutputForce = async (
   content: string,
   clientId: string
 ) => {
-  const methodName = "function commitToolOutputForce";
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function commitToolOutputForce", {
+    swarm.loggerService.log(METHOD_NAME, {
       toolId,
       content,
       clientId,
     });
-  swarm.sessionValidationService.validate(clientId, "commitToolOutputForce");
+  swarm.sessionValidationService.validate(clientId, METHOD_NAME);
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-  swarm.swarmValidationService.validate(swarmName, "commitToolOutputForce");
+  swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   await swarm.sessionPublicService.commitToolOutput(
     toolId,
     content,
-    methodName,
+    METHOD_NAME,
     clientId,
     swarmName
   );

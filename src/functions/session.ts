@@ -10,6 +10,8 @@ type TComplete = (content: string) => Promise<string>;
 
 const SCHEDULED_DELAY = 1_000;
 
+const METHOD_NAME = "function session";
+
 /**
  * Creates a session for the given client and swarm.
  *
@@ -20,15 +22,14 @@ const SCHEDULED_DELAY = 1_000;
  * @returns {Function} dispose - A function to dispose of the session.
  */
 const session = (clientId: string, swarmName: SwarmName) => {
-  const methodName = "function session";
   const executionId = randomString();
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function session", {
+    swarm.loggerService.log(METHOD_NAME, {
       clientId,
       swarmName,
       executionId,
     });
-  swarm.swarmValidationService.validate(swarmName, "session");
+  swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   swarm.sessionValidationService.addSession(clientId, swarmName, "session");
   return {
     /**
@@ -38,13 +39,13 @@ const session = (clientId: string, swarmName: SwarmName) => {
      * @returns {Promise<string>} A promise that resolves with the result of the session execution.
      */
     complete: queued(async (content: string) => {
-      swarm.sessionValidationService.validate(clientId, "session");
+      swarm.sessionValidationService.validate(clientId, METHOD_NAME);
       return ExecutionContextService.runInContext(
         async () => {
           return await swarm.sessionPublicService.execute(
             content,
             "user",
-            methodName,
+            METHOD_NAME,
             clientId,
             swarmName
           );
@@ -62,7 +63,7 @@ const session = (clientId: string, swarmName: SwarmName) => {
      * @returns {Promise<void>} A promise that resolves when the session is disposed.
      */
     dispose: async () => {
-      return await disposeConnection(clientId, swarmName, methodName);
+      return await disposeConnection(clientId, swarmName, METHOD_NAME);
     },
   };
 };

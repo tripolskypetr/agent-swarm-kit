@@ -4,11 +4,13 @@ import swarm, { ExecutionContextService } from "../lib";
 import { disposeConnection } from "./disposeConnection";
 import { GLOBAL_CONFIG } from "../config/params";
 
+const METHOD_NAME = "function complete";
+
 /**
  * Type definition for the complete run function.
  * @typedef {function(string): Promise<string>} TCompleteRun
  */
-type TCompleteRun = (methodName: string, content: string) => Promise<string>;
+type TCompleteRun = (METHOD_NAME: string, content: string) => Promise<string>;
 
 const COMPLETE_TTL = 15 * 60 * 1_000;
 const COMPLETE_GC = 60 * 1_000;
@@ -21,8 +23,8 @@ const COMPLETE_GC = 60 * 1_000;
  */
 const createComplete = ttl(
   (clientId: string, swarmName: SwarmName) =>
-    queued(async (methodName: string, content: string) => {
-      swarm.swarmValidationService.validate(swarmName, "complete");
+    queued(async (METHOD_NAME: string, content: string) => {
+      swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
       swarm.sessionValidationService.addSession(
         clientId,
         swarmName,
@@ -31,11 +33,11 @@ const createComplete = ttl(
       const result = await swarm.sessionPublicService.execute(
         content,
         "user",
-        methodName,
+        METHOD_NAME,
         clientId,
         swarmName
       );
-      await disposeConnection(clientId, swarmName, methodName);
+      await disposeConnection(clientId, swarmName, METHOD_NAME);
       return result;
     }) as TCompleteRun,
   {
@@ -66,10 +68,9 @@ export const complete = async (
   clientId: string,
   swarmName: SwarmName
 ) => {
-  const methodName = "function complete";
   const executionId = randomString();
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function complete", {
+    swarm.loggerService.log(METHOD_NAME, {
       content,
       clientId,
       executionId,
@@ -79,7 +80,7 @@ export const complete = async (
   createGc();
   return ExecutionContextService.runInContext(
     async () => {
-      return await run(methodName, content);
+      return await run(METHOD_NAME, content);
     },
     {
       clientId,

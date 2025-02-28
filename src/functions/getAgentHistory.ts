@@ -2,6 +2,8 @@ import { GLOBAL_CONFIG } from "../config/params";
 import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 
+const METHOD_NAME = "function getAgentHistory";
+
 /**
  * Retrieves the history prepared for a specific agent with resque algorithm tweaks
  *
@@ -13,17 +15,16 @@ export const getAgentHistory = async (
   clientId: string,
   agentName: AgentName
 ) => {
-  const methodName = "function getAgentHistory";
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function getAgentHistory", {
+    swarm.loggerService.log(METHOD_NAME, {
       clientId,
       agentName,
     });
-  swarm.agentValidationService.validate(agentName, "getAgentHistory");
+  swarm.agentValidationService.validate(agentName, METHOD_NAME);
   const { prompt } = swarm.agentSchemaService.get(agentName);
   const history = await swarm.historyPublicService.toArrayForAgent(
     prompt,
-    methodName,
+    METHOD_NAME,
     clientId,
     agentName
   );

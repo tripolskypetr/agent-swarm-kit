@@ -2,6 +2,8 @@ import { ICompletionSchema } from "../interfaces/Completion.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
+const METHOD_NAME = "function addCompletion";
+
 /**
  * Adds a completion engine for agents. Agents could use different models and
  * framewords for completion like: mock, gpt4all, ollama, openai
@@ -11,7 +13,7 @@ import { GLOBAL_CONFIG } from "../config/params";
  */
 export const addCompletion = (completionSchema: ICompletionSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function addCompletion", {
+    swarm.loggerService.log(METHOD_NAME, {
       completionSchema,
     });
   swarm.completionValidationService.addCompletion(

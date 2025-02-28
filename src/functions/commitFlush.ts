@@ -1,6 +1,8 @@
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
+const METHOD_NAME = "function commitFlush";
+
 /**
  * Commits flush of agent history
  *
@@ -9,18 +11,17 @@ import swarm from "../lib";
  * @returns {Promise<void>} - A promise that resolves when the message is committed.
  */
 export const commitFlush = async (clientId: string, agentName: string) => {
-  const methodName = "function commitFlush";
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function commitFlush", {
+    swarm.loggerService.log(METHOD_NAME, {
       clientId,
       agentName,
     });
-  swarm.agentValidationService.validate(agentName, "commitFlush");
-  swarm.sessionValidationService.validate(clientId, "commitFlush");
+  swarm.agentValidationService.validate(agentName, METHOD_NAME);
+  swarm.sessionValidationService.validate(clientId, METHOD_NAME);
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-  swarm.swarmValidationService.validate(swarmName, "commitFlush");
+  swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   const currentAgentName = await swarm.swarmPublicService.getAgentName(
-    methodName,
+    METHOD_NAME,
     clientId,
     swarmName
   );
@@ -36,5 +37,5 @@ export const commitFlush = async (clientId: string, agentName: string) => {
       );
     return;
   }
-  await swarm.sessionPublicService.commitFlush(methodName, clientId, swarmName);
+  await swarm.sessionPublicService.commitFlush(METHOD_NAME, clientId, swarmName);
 };

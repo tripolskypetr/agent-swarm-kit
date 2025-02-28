@@ -1,6 +1,8 @@
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
+const METHOD_NAME = "function cancelOutput";
+
 /**
  * Cancel the await of output by emit of empty string
  *
@@ -9,18 +11,17 @@ import { GLOBAL_CONFIG } from "../config/params";
  * @returns {Promise<void>} - A promise that resolves when the output is canceled
  */
 export const cancelOutput = async (clientId: string, agentName: string) => {
-  const methodName = "function cancelOutput";
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function cancelOutput", {
+    swarm.loggerService.log(METHOD_NAME, {
       clientId,
       agentName,
     });
-  swarm.agentValidationService.validate(agentName, "cancelOutput");
-  swarm.sessionValidationService.validate(clientId, "cancelOutput");
+  swarm.agentValidationService.validate(agentName, METHOD_NAME);
+  swarm.sessionValidationService.validate(clientId, METHOD_NAME);
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-  swarm.swarmValidationService.validate(swarmName, "cancelOutput");
+  swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   const currentAgentName = await swarm.swarmPublicService.getAgentName(
-    methodName,
+    METHOD_NAME,
     clientId,
     swarmName
   );
@@ -36,5 +37,5 @@ export const cancelOutput = async (clientId: string, agentName: string) => {
       );
     return;
   }
-  await swarm.swarmPublicService.cancelOutput(methodName, clientId, swarmName);
+  await swarm.swarmPublicService.cancelOutput(METHOD_NAME, clientId, swarmName);
 };

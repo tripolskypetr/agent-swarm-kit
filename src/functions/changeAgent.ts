@@ -3,6 +3,8 @@ import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
+const METHOD_NAME = "function changeAgent";
+
 /**
  * Time-to-live for the change agent function in milliseconds.
  * @constant {number}
@@ -26,8 +28,8 @@ type TChangeAgentRun = (methodName: string, agentName: string) => Promise<void>;
 const createChangeAgent = ttl(
   (clientId: string) =>
     queued(async (methodName: string, agentName: AgentName) => {
-      swarm.sessionValidationService.validate(clientId, "changeAgent");
-      swarm.agentValidationService.validate(agentName, "changeAgent");
+      swarm.sessionValidationService.validate(clientId, METHOD_NAME);
+      swarm.agentValidationService.validate(agentName, METHOD_NAME);
       const swarmName = swarm.sessionValidationService.getSwarm(clientId);
       await Promise.all(
         swarm.swarmValidationService
@@ -90,13 +92,12 @@ const createGc = singleshot(async () => {
  * @returns {Promise<void>} - A promise that resolves when the agent is changed.
  */
 export const changeAgent = async (agentName: AgentName, clientId: string) => {
-  const methodName = "function changeAgent";
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function changeAgent", {
+    swarm.loggerService.log(METHOD_NAME, {
       agentName,
       clientId,
     });
   const run = await createChangeAgent(clientId);
   createGc();
-  return await run(methodName, agentName);
+  return await run(METHOD_NAME, agentName);
 };

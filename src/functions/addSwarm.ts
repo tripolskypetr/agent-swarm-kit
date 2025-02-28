@@ -2,6 +2,8 @@ import { ISwarmSchema } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
+const METHOD_NAME = "function addSwarm";
+
 /**
  * Adds a new swarm to the system. The swarm is a root for starting client session
  *
@@ -10,7 +12,7 @@ import { GLOBAL_CONFIG } from "../config/params";
  */
 export const addSwarm = (swarmSchema: ISwarmSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function addSwarm", {
+    swarm.loggerService.log(METHOD_NAME, {
       swarmSchema,
     });
   swarm.swarmValidationService.addSwarm(swarmSchema.swarmName, swarmSchema);

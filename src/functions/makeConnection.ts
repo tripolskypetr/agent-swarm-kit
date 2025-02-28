@@ -10,6 +10,8 @@ type SendMessageFn = (outgoing: string) => Promise<void>;
 
 const SCHEDULED_DELAY = 1_000;
 
+const METHOD_NAME = "function makeConnection";
+
 /**
  * A connection factory for a client to a swarm and returns a function to send messages.
  *
@@ -23,13 +25,12 @@ const makeConnection = (
   clientId: string,
   swarmName: SwarmName
 ): SendMessageFn => {
-  const methodName = "function makeConnection";
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function makeConnection", {
+    swarm.loggerService.log(METHOD_NAME, {
       clientId,
       swarmName,
     });
-  swarm.swarmValidationService.validate(swarmName, "makeConnection");
+  swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   swarm.sessionValidationService.addSession(
     clientId,
     swarmName,
@@ -37,16 +38,16 @@ const makeConnection = (
   );
   const send = swarm.sessionPublicService.connect(
     connector,
-    methodName,
+    METHOD_NAME,
     clientId,
     swarmName
   );
   return queued(async (outgoing) => {
-    swarm.sessionValidationService.validate(clientId, "makeConnection");
+    swarm.sessionValidationService.validate(clientId, METHOD_NAME);
     return await send({
       data: outgoing,
       agentName: await swarm.swarmPublicService.getAgentName(
-        methodName,
+        METHOD_NAME,
         clientId,
         swarmName
       ),

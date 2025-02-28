@@ -1,6 +1,8 @@
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
+const METHOD_NAME = "function commitSystemMessage";
+
 /**
  * Commits a user message to the active agent history in as swarm without answer.
  *
@@ -14,19 +16,18 @@ export const commitUserMessage = async (
   clientId: string,
   agentName: string
 ) => {
-  const methodName = "function commitSystemMessage";
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function commitSystemMessage", {
+    swarm.loggerService.log(METHOD_NAME, {
       content,
       clientId,
       agentName,
     });
-  swarm.agentValidationService.validate(agentName, "commitUserMessage");
-  swarm.sessionValidationService.validate(clientId, "commitUserMessage");
+  swarm.agentValidationService.validate(agentName, METHOD_NAME);
+  swarm.sessionValidationService.validate(clientId, METHOD_NAME);
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-  swarm.swarmValidationService.validate(swarmName, "commitUserMessage");
+  swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   const currentAgentName = await swarm.swarmPublicService.getAgentName(
-    methodName,
+    METHOD_NAME,
     clientId,
     swarmName
   );
@@ -44,7 +45,7 @@ export const commitUserMessage = async (
   }
   await swarm.sessionPublicService.commitUserMessage(
     content,
-    methodName,
+    METHOD_NAME,
     clientId,
     swarmName
   );

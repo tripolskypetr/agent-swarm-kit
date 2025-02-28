@@ -2,6 +2,8 @@ import { EventSource, ICustomEvent } from "../model/Event.model";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
+const METHOD_NAME = "function listenEvent";
+
 const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
   "agent-bus",
   "history-bus",
@@ -25,7 +27,7 @@ export const event = <T extends unknown = any>(
   payload: T
 ) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function listenEvent", {
+    swarm.loggerService.log(METHOD_NAME, {
       clientId,
     });
   if (DISALLOWED_EVENT_SOURCE_LIST.has(topicName)) {

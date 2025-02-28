@@ -2,6 +2,8 @@ import { GLOBAL_CONFIG } from "../config/params";
 import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 
+const METHOD_NAME = "function emit";
+
 /**
  * Emits a string constant as the model output without executing incoming message
  * Works only for `makeConnection`
@@ -17,9 +19,8 @@ export const emit = async (
   clientId: string,
   agentName: AgentName
 ) => {
-  const methodName = "function emit";
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log("function emit", {
+    swarm.loggerService.log(METHOD_NAME, {
       content,
       clientId,
       agentName,
@@ -31,12 +32,12 @@ export const emit = async (
       `agent-swarm-kit emit session is not makeConnection clientId=${clientId}`
     );
   }
-  swarm.agentValidationService.validate(agentName, "emit");
-  swarm.sessionValidationService.validate(clientId, "emit");
+  swarm.agentValidationService.validate(agentName, METHOD_NAME);
+  swarm.sessionValidationService.validate(clientId, METHOD_NAME);
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-  swarm.swarmValidationService.validate(swarmName, "emit");
+  swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   const currentAgentName = await swarm.swarmPublicService.getAgentName(
-    methodName,
+    METHOD_NAME,
     clientId,
     swarmName
   );
@@ -54,7 +55,7 @@ export const emit = async (
   }
   return await swarm.sessionPublicService.emit(
     content,
-    methodName,
+    METHOD_NAME,
     clientId,
     swarmName
   );
