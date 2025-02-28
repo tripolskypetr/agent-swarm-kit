@@ -9,6 +9,7 @@ import {
 } from "../interfaces/Session.interface";
 import { ISession } from "../interfaces/Session.interface";
 import { IBusEvent } from "../model/Event.model";
+import { GLOBAL_CONFIG } from "../config/params";
 
 /**
  * ClientSession class implements the ISession interface.
@@ -21,12 +22,13 @@ export class ClientSession implements ISession {
    * @param {ISessionParams} params - The session parameters.
    */
   constructor(readonly params: ISessionParams) {
-    this.params.logger.debug(
-      `ClientSession clientId=${this.params.clientId} CTOR`,
-      {
-        params,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} CTOR`,
+        {
+          params,
+        }
+      );
     this.params.onInit && this.params.onInit(params.clientId, params.swarmName);
   }
 
@@ -36,12 +38,13 @@ export class ClientSession implements ISession {
    * @returns {Promise<void>}
    */
   emit = async (message: string) => {
-    this.params.logger.debug(
-      `ClientSession clientId=${this.params.clientId} emit`,
-      {
-        message,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} emit`,
+        {
+          message,
+        }
+      );
     this.params.onEmit &&
       this.params.onEmit(this.params.clientId, this.params.swarmName, message);
     await this._emitSubject.next(message);
@@ -49,7 +52,7 @@ export class ClientSession implements ISession {
       type: "emit",
       source: "session-bus",
       input: {
-        message
+        message,
       },
       output: {},
       context: {
@@ -66,13 +69,14 @@ export class ClientSession implements ISession {
    * @returns {Promise<string>} - The output of the execution.
    */
   execute = async (message: string, mode: ExecutionMode) => {
-    this.params.logger.debug(
-      `ClientSession clientId=${this.params.clientId} execute`,
-      {
-        message,
-        mode,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} execute`,
+        {
+          message,
+          mode,
+        }
+      );
     this.params.onExecute &&
       this.params.onExecute(
         this.params.clientId,
@@ -109,13 +113,14 @@ export class ClientSession implements ISession {
    * @returns {Promise<void>}
    */
   commitToolOutput = async (toolId: string, content: string) => {
-    this.params.logger.debug(
-      `ClientSession clientId=${this.params.clientId} commitToolOutput`,
-      {
-        content,
-        toolId,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} commitToolOutput`,
+        {
+          content,
+          toolId,
+        }
+      );
     const agent = await this.params.swarm.getAgent();
     const result = await agent.commitToolOutput(toolId, content);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
@@ -140,12 +145,13 @@ export class ClientSession implements ISession {
    * @returns {Promise<void>}
    */
   commitUserMessage = async (message: string) => {
-    this.params.logger.debug(
-      `ClientSession clientId=${this.params.clientId} commitUserMessage`,
-      {
-        message,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} commitUserMessage`,
+        {
+          message,
+        }
+      );
     const agent = await this.params.swarm.getAgent();
     const result = await agent.commitUserMessage(message);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
@@ -168,9 +174,10 @@ export class ClientSession implements ISession {
    * @returns {Promise<void>}
    */
   commitFlush = async () => {
-    this.params.logger.debug(
-      `ClientSession clientId=${this.params.clientId} commitFlush`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} commitFlush`
+      );
     const agent = await this.params.swarm.getAgent();
     const result = await agent.commitFlush();
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
@@ -192,19 +199,20 @@ export class ClientSession implements ISession {
    * @returns {Promise<void>}
    */
   commitSystemMessage = async (message: string) => {
-    this.params.logger.debug(
-      `ClientSession clientId=${this.params.clientId} commitSystemMessage`,
-      {
-        message,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} commitSystemMessage`,
+        {
+          message,
+        }
+      );
     const agent = await this.params.swarm.getAgent();
     const result = await agent.commitSystemMessage(message);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-system-message",
       source: "session-bus",
       input: {
-        message
+        message,
       },
       output: {},
       context: {
@@ -212,7 +220,7 @@ export class ClientSession implements ISession {
       },
       clientId: this.params.clientId,
     });
-    return result
+    return result;
   };
 
   /**
@@ -221,9 +229,10 @@ export class ClientSession implements ISession {
    * @returns {ReceiveMessageFn} - The function to receive messages.
    */
   connect = (connector: SendMessageFn): ReceiveMessageFn => {
-    this.params.logger.debug(
-      `ClientSession clientId=${this.params.clientId} connect`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} connect`
+      );
     this.params.onConnect &&
       this.params.onConnect(this.params.clientId, this.params.swarmName);
     this._emitSubject.subscribe(
@@ -245,9 +254,10 @@ export class ClientSession implements ISession {
       clientId: this.params.clientId,
     });
     return async (incoming: IIncomingMessage) => {
-      this.params.logger.debug(
-        `ClientSession clientId=${this.params.clientId} connect call`
-      );
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientSession clientId=${this.params.clientId} connect call`
+        );
       const data = await this.execute(incoming.data, "user");
       if (!data) {
         return;
@@ -265,9 +275,10 @@ export class ClientSession implements ISession {
    * @returns {Promise<void>}
    */
   dispose = async (): Promise<void> => {
-    this.params.logger.debug(
-      `ClientSession clientId=${this.params.clientId} dispose`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} dispose`
+      );
     this.params.onDispose &&
       this.params.onDispose(this.params.clientId, this.params.swarmName);
   };

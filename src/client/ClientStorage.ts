@@ -21,14 +21,18 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @param {IStorageParams<T>} params - The storage parameters.
    */
   constructor(readonly params: IStorageParams<T>) {
-    this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} CTOR`,
-      {
-        params,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} CTOR`,
+        {
+          params,
+        }
+      );
     if (this.params.callbacks?.onInit) {
-      this.params.callbacks.onInit(this.params.clientId, this.params.storageName);
+      this.params.callbacks.onInit(
+        this.params.clientId,
+        this.params.storageName
+      );
     }
   }
 
@@ -40,12 +44,13 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   _createEmbedding = memoize(
     ([{ id }]) => id,
     async (item: T) => {
-      this.params.logger.debug(
-        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} _createEmbedding`,
-        {
-          id: item.id,
-        }
-      );
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} _createEmbedding`,
+          {
+            id: item.id,
+          }
+        );
       const index = await this.params.createIndex(item);
       const embeddings = await this.params.createEmbedding(index);
       if (this.params.onCreate) {
@@ -65,9 +70,10 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @returns {Promise<void>}
    */
   waitForInit = singleshot(async () => {
-    this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} waitForInit`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} waitForInit`
+      );
     if (!this.params.getData) {
       return;
     }
@@ -98,13 +104,14 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     total: number,
     score = GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY
   ): Promise<T[]> => {
-    this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} take`,
-      {
-        search,
-        total,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} take`,
+        {
+          search,
+          total,
+        }
+      );
     const indexed = new SortedArray<T>();
     const searchEmbeddings = await this.params.createEmbedding(search);
     if (this.params.onCreate) {
@@ -142,12 +149,13 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         )
       )
     );
-    this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} take indexed`,
-      {
-        indexed: indexed.getEntries(),
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} take indexed`,
+        {
+          indexed: indexed.getEntries(),
+        }
+      );
     if (this.params.callbacks?.onSearch) {
       this.params.callbacks?.onSearch(
         search,
@@ -181,12 +189,13 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @returns {Promise<void>}
    */
   upsert = async (item: T) => {
-    this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} upsert`,
-      {
-        item,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} upsert`,
+        {
+          item,
+        }
+      );
     this._itemMap.set(item.id, item);
     this._createEmbedding.clear(item.id);
     await this._createEmbedding(item);
@@ -217,12 +226,13 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @returns {Promise<void>}
    */
   remove = async (itemId: IStorageData["id"]) => {
-    this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} remove`,
-      {
-        id: itemId,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} remove`,
+        {
+          id: itemId,
+        }
+      );
     this._itemMap.delete(itemId);
     this._createEmbedding.clear(itemId);
     if (this.params.callbacks?.onUpdate) {
@@ -251,9 +261,10 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @returns {Promise<void>}
    */
   clear = async () => {
-    this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} clear`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} clear`
+      );
     this._itemMap.clear();
     this._createEmbedding.clear();
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
@@ -274,12 +285,13 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @returns {Promise<T | null>} - The item or null if not found.
    */
   get = async (itemId: IStorageData["id"]): Promise<T | null> => {
-    this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} get`,
-      {
-        id: itemId,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} get`,
+        {
+          id: itemId,
+        }
+      );
     const result = this._itemMap.get(itemId) ?? null;
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "get",
@@ -304,9 +316,10 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @returns {Promise<T[]>} - The list of items.
    */
   list = async (filter?: (item: T) => boolean) => {
-    this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} list`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} list`
+      );
     if (!filter) {
       return [...this._itemMap.values()];
     }
@@ -319,8 +332,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "list",
       source: "storage-bus",
-      input: {
-      },
+      input: {},
       output: {
         result,
       },
@@ -337,9 +349,10 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @returns {Promise<void>}
    */
   public dispose = async () => {
-    this.params.logger.debug(
-      `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} dispose`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} dispose`
+      );
     if (this.params.callbacks?.onDispose) {
       this.params.callbacks.onDispose(
         this.params.clientId,

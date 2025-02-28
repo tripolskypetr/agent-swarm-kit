@@ -5,6 +5,7 @@ import {
   IStateParams,
 } from "../interfaces/State.interface";
 import { IBusEvent } from "../model/Event.model";
+import { GLOBAL_CONFIG } from "../config/params";
 
 type DispatchFn<State extends IStateData = IStateData> = (
   prevState: State
@@ -32,7 +33,7 @@ export class ClientState<State extends IStateData = IStateData>
           payload,
           `agent-swarm ClientState write action undefined payload`
         );
-        return this._state = await payload(this._state);
+        return (this._state = await payload(this._state));
       }
       throw new Error("agent-swarm ClientState unknown action");
     }
@@ -43,12 +44,13 @@ export class ClientState<State extends IStateData = IStateData>
    * @param {IStateParams<State>} params - The state parameters.
    */
   constructor(readonly params: IStateParams<State>) {
-    this.params.logger.debug(
-      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} CTOR`,
-      {
-        params,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} CTOR`,
+        {
+          params,
+        }
+      );
     if (this.params.callbacks?.onInit) {
       this.params.callbacks.onInit(this.params.clientId, this.params.stateName);
     }
@@ -59,17 +61,19 @@ export class ClientState<State extends IStateData = IStateData>
    * @returns {Promise<void>}
    */
   public waitForInit = singleshot(async () => {
-    this.params.logger.debug(
-      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} waitForInit`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} waitForInit`
+      );
     this._state = await this.params.getState(
       this.params.clientId,
       this.params.stateName
     );
-    this.params.logger.debug(
-      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} waitForInit output`,
-      { initialState: this._state }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} waitForInit output`,
+        { initialState: this._state }
+      );
     if (this.params.callbacks?.onLoad) {
       this.params.callbacks.onLoad(
         this._state,
@@ -85,26 +89,25 @@ export class ClientState<State extends IStateData = IStateData>
    * @returns {Promise<State>}
    */
   public setState = async (dispatchFn: DispatchFn<State>) => {
-    this.params.logger.debug(
-      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} setState`
-    );
-    await this.dispatch(
-      "write",
-      async (currentState: State) => {
-        for (const middleware of this.params.middlewares) {
-          currentState = await middleware(
-            currentState,
-            this.params.clientId,
-            this.params.stateName
-          );
-        }
-        return await dispatchFn(currentState);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} setState`
+      );
+    await this.dispatch("write", async (currentState: State) => {
+      for (const middleware of this.params.middlewares) {
+        currentState = await middleware(
+          currentState,
+          this.params.clientId,
+          this.params.stateName
+        );
       }
-    );
-    this.params.logger.debug(
-      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} setState output`,
-      { pendingState: this._state }
-    );
+      return await dispatchFn(currentState);
+    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} setState output`,
+        { pendingState: this._state }
+      );
     this.params.setState &&
       this.params.setState(
         this._state,
@@ -138,9 +141,10 @@ export class ClientState<State extends IStateData = IStateData>
    * @returns {Promise<State>}
    */
   public getState = async () => {
-    this.params.logger.debug(
-      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} getState`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} getState`
+      );
     await this.dispatch("read");
     if (this.params.callbacks?.onRead) {
       this.params.callbacks.onRead(
@@ -169,9 +173,10 @@ export class ClientState<State extends IStateData = IStateData>
    * @returns {Promise<void>}
    */
   public dispose = async () => {
-    this.params.logger.debug(
-      `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} dispose`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} dispose`
+      );
     if (this.params.callbacks?.onDispose) {
       this.params.callbacks.onDispose(
         this.params.clientId,

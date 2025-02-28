@@ -3122,7 +3122,7 @@ declare const makeConnection: {
      * @param {Partial<IMakeConnectionConfig>} [config] - The configuration for scheduling.
      * @returns {SendMessageFn} - A function to send scheduled messages to the swarm.
      */
-    scheduled(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName, { delay, }?: Partial<IMakeConnectionConfig>): (content: string) => Promise<void>;
+    scheduled(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName, { delay }?: Partial<IMakeConnectionConfig>): (content: string) => Promise<void>;
 };
 /**
  * Configuration for scheduling messages.
@@ -3460,7 +3460,7 @@ interface IMakeDisposeParams {
  * @param {Partial<IMakeDisposeParams>} [params={}] - Optional parameters for auto-dispose.
  * @returns {Object} An object with tick and stop methods to control the auto-dispose.
  */
-declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeoutSeconds, onDestroy }?: Partial<IMakeDisposeParams>) => {
+declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeoutSeconds, onDestroy, }?: Partial<IMakeDisposeParams>) => {
     /**
      * Signals that the client is active, resetting the auto-dispose timer.
      */
@@ -3611,6 +3611,9 @@ declare const GLOBAL_CONFIG: {
     CC_AGENT_DISALLOWED_SYMBOLS: string[];
     CC_STORAGE_SEARCH_SIMILARITY: number;
     CC_STORAGE_SEARCH_POOL: number;
+    CC_LOGGER_ENABLE_INFO: boolean;
+    CC_LOGGER_ENABLE_DEBUG: boolean;
+    CC_LOGGER_ENABLE_LOG: boolean;
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 

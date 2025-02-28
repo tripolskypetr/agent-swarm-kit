@@ -18,12 +18,13 @@ export class ClientHistory implements IHistory {
    * @param {IHistoryParams} params - The parameters for the history.
    */
   constructor(readonly params: IHistoryParams) {
-    this.params.logger.debug(
-      `ClientHistory agentName=${this.params.agentName} clientId=${this.params.clientId} CTOR`,
-      {
-        params,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientHistory agentName=${this.params.agentName} clientId=${this.params.clientId} CTOR`,
+        {
+          params,
+        }
+      );
     this._filterCondition = GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER(
       this.params.agentName
     );
@@ -35,10 +36,11 @@ export class ClientHistory implements IHistory {
    * @returns {Promise<void>}
    */
   push = async (message: IModelMessage): Promise<void> => {
-    this.params.logger.debug(
-      `ClientHistory agentName=${this.params.agentName} push`,
-      { message }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientHistory agentName=${this.params.agentName} push`,
+        { message }
+      );
     await this.params.items.push(
       message,
       this.params.clientId,
@@ -48,7 +50,7 @@ export class ClientHistory implements IHistory {
       type: "push",
       source: "history-bus",
       input: {
-        message
+        message,
       },
       output: {},
       context: {
@@ -63,9 +65,10 @@ export class ClientHistory implements IHistory {
    * @returns {Promise<IModelMessage[]>} - The array of raw messages.
    */
   toArrayForRaw = async (): Promise<IModelMessage[]> => {
-    this.params.logger.debug(
-      `ClientHistory agentName=${this.params.agentName} toArrayForRaw`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientHistory agentName=${this.params.agentName} toArrayForRaw`
+      );
     const result: IModelMessage[] = [];
     for await (const item of this.params.items.iterate(
       this.params.clientId,
@@ -86,9 +89,10 @@ export class ClientHistory implements IHistory {
     prompt: string,
     system?: string[]
   ): Promise<IModelMessage[]> => {
-    this.params.logger.debug(
-      `ClientHistory agentName=${this.params.agentName} toArrayForAgent`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientHistory agentName=${this.params.agentName} toArrayForAgent`
+      );
     const commonMessagesRaw: IModelMessage[] = [];
     const systemMessagesRaw: IModelMessage[] = [];
     for await (const content of this.params.items.iterate(
@@ -182,9 +186,10 @@ export class ClientHistory implements IHistory {
    * @returns {Promise<void>}
    */
   dispose = async (): Promise<void> => {
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} dispose`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} dispose`
+      );
     await this.params.items.dispose(
       this.params.clientId,
       this.params.agentName

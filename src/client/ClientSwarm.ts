@@ -10,7 +10,6 @@ import { AgentName, IAgent } from "../interfaces/Agent.interface";
 import ISwarm, { ISwarmParams } from "../interfaces/Swarm.interface";
 import { IBusEvent } from "../model/Event.model";
 
-const AGENT_REF_CHANGED = Symbol("agent-ref-changed");
 const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
 
 /**
@@ -37,12 +36,13 @@ export class ClientSwarm implements ISwarm {
    * @param {ISwarmParams} params - The parameters for the swarm.
    */
   constructor(readonly params: ISwarmParams) {
-    this.params.logger.debug(
-      `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} CTOR`,
-      {
-        params,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} CTOR`,
+        {
+          params,
+        }
+      );
   }
 
   /**
@@ -50,9 +50,10 @@ export class ClientSwarm implements ISwarm {
    * @returns {Promise<string>} - The output from the active agent.
    */
   cancelOutput = async () => {
-    this.params.logger.debug(
-      `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} cancelOutput`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} cancelOutput`
+      );
     await this._cancelOutputSubject.next({
       agentName: await this.getAgentName(),
       output: "",
@@ -74,9 +75,10 @@ export class ClientSwarm implements ISwarm {
    * @returns {Promise<string>} - The output from the active agent.
    */
   waitForOutput = queued(async (): Promise<string> => {
-    this.params.logger.debug(
-      `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} waitForOutput`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} waitForOutput`
+      );
 
     const [awaiter, { resolve }] = createAwaiter<{
       agentName: AgentName;
@@ -114,6 +116,7 @@ export class ClientSwarm implements ISwarm {
     const expectAgent = await this.getAgentName();
 
     agentName !== expectAgent &&
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} waitForAgent agent miss`,
         { agentName, expectAgent }
@@ -140,9 +143,10 @@ export class ClientSwarm implements ISwarm {
    * @returns {Promise<AgentName>} - The name of the active agent.
    */
   getAgentName = async (): Promise<AgentName> => {
-    this.params.logger.debug(
-      `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgentName`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgentName`
+      );
     if (this._activeAgent === AGENT_NEED_FETCH) {
       this._activeAgent = await GLOBAL_CONFIG.CC_SWARM_DEFAULT_AGENT(
         this.params.clientId,
@@ -170,9 +174,10 @@ export class ClientSwarm implements ISwarm {
    * @returns {Promise<IAgent>} - The active agent.
    */
   getAgent = async () => {
-    this.params.logger.debug(
-      `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgent`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgent`
+      );
     const agent = await this.getAgentName();
     const result = this.params.agentMap[agent];
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
@@ -197,9 +202,10 @@ export class ClientSwarm implements ISwarm {
    * @throws {Error} - If the agent is not in the swarm.
    */
   setAgentRef = async (agentName: AgentName, agent: IAgent) => {
-    this.params.logger.debug(
-      `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setAgentRef agentName=${agentName}`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setAgentRef agentName=${agentName}`
+      );
     if (!this.params.agentMap[agentName]) {
       throw new Error(`agent-swarm agent ${agentName} not in the swarm`);
     }
@@ -225,9 +231,10 @@ export class ClientSwarm implements ISwarm {
    * @param {AgentName} agentName - The name of the agent to set as active.
    */
   setAgentName = async (agentName: AgentName) => {
-    this.params.logger.debug(
-      `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setAgentName agentName=${agentName}`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setAgentName agentName=${agentName}`
+      );
     this._activeAgent = agentName;
     await this.params.onAgentChanged(
       this.params.clientId,

@@ -38,12 +38,13 @@ export class ClientAgent implements IAgent {
    * @param {IAgentParams} params - The parameters for the agent.
    */
   constructor(readonly params: IAgentParams) {
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} CTOR`,
-      {
-        params,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} CTOR`,
+        {
+          params,
+        }
+      );
     this.params.onInit && this.params.onInit(params.clientId, params.agentName);
   }
 
@@ -62,10 +63,11 @@ export class ClientAgent implements IAgent {
       this.params.clientId,
       this.params.agentName
     );
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _emitOuput`,
-      { mode, result, rawResult }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _emitOuput`,
+        { mode, result, rawResult }
+      );
     let validation: string | null = null;
     if ((validation = await this.params.validate(result))) {
       const rawResult = await this._resurrectModel(mode, validation);
@@ -134,9 +136,10 @@ export class ClientAgent implements IAgent {
     mode: ExecutionMode,
     reason?: string
   ): Promise<string> => {
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel`
+      );
     this.params.onResurrect &&
       this.params.onResurrect(
         this.params.clientId,
@@ -171,9 +174,10 @@ export class ClientAgent implements IAgent {
     );
     let validation: string | null = null;
     if ((validation = await this.params.validate(result))) {
-      this.params.logger.debug(
-        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel validation error: ${validation}`
-      );
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel validation error: ${validation}`
+        );
       const content = getPlaceholder();
       await this.params.history.push({
         agentName: this.params.agentName,
@@ -195,9 +199,10 @@ export class ClientAgent implements IAgent {
    * @returns {Promise<string>}
    */
   waitForOutput = async (): Promise<string> => {
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} waitForOutput`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} waitForOutput`
+      );
     return await this._outputSubject.toPromise();
   };
 
@@ -206,9 +211,10 @@ export class ClientAgent implements IAgent {
    * @returns {Promise<IModelMessage>}
    */
   getCompletion = async (mode: ExecutionMode): Promise<IModelMessage> => {
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} getCompletion`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} getCompletion`
+      );
     const messages = await this.params.history.toArrayForAgent(
       this.params.prompt,
       this.params.system
@@ -234,10 +240,11 @@ export class ClientAgent implements IAgent {
    * @returns {Promise<void>}
    */
   commitUserMessage = async (message: string): Promise<void> => {
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitUserMessage`,
-      { message }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitUserMessage`,
+        { message }
+      );
     this.params.onUserMessage &&
       this.params.onUserMessage(
         this.params.clientId,
@@ -269,9 +276,10 @@ export class ClientAgent implements IAgent {
    * @returns {Promise<void>}
    */
   commitFlush = async (): Promise<void> => {
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitFlush`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitFlush`
+      );
     this.params.onFlush &&
       this.params.onFlush(this.params.clientId, this.params.agentName);
     await this.params.history.push({
@@ -297,9 +305,10 @@ export class ClientAgent implements IAgent {
    * @returns {Promise<void>}
    */
   commitAgentChange = async (): Promise<void> => {
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitAgentChange`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitAgentChange`
+      );
     await this._agentChangeSubject.next(AGENT_CHANGE_SYMBOL);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-agent-change",
@@ -319,10 +328,11 @@ export class ClientAgent implements IAgent {
    * @returns {Promise<void>}
    */
   commitSystemMessage = async (message: string): Promise<void> => {
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitSystemMessage`,
-      { message }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitSystemMessage`,
+        { message }
+      );
     this.params.onSystemMessage &&
       this.params.onSystemMessage(
         this.params.clientId,
@@ -355,10 +365,11 @@ export class ClientAgent implements IAgent {
    * @returns {Promise<void>}
    */
   commitToolOutput = async (toolId: string, content: string): Promise<void> => {
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitToolOutput`,
-      { content, toolId }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitToolOutput`,
+        { content, toolId }
+      );
     this.params.onToolOutput &&
       this.params.onToolOutput(
         toolId,
@@ -396,10 +407,11 @@ export class ClientAgent implements IAgent {
    */
   execute = queued(
     async (incoming: string, mode: ExecutionMode): Promise<void> => {
-      this.params.logger.debug(
-        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute begin`,
-        { incoming, mode }
-      );
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute begin`,
+          { incoming, mode }
+        );
       this.params.onExecute &&
         this.params.onExecute(
           this.params.clientId,
@@ -420,9 +432,10 @@ export class ClientAgent implements IAgent {
         this.params.agentName
       );
       if (message.tool_calls) {
-        this.params.logger.debug(
-          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} tool call begin`
-        );
+        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+          this.params.logger.debug(
+            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} tool call begin`
+          );
         const toolCalls: IToolCall[] = message.tool_calls.map((call) => ({
           function: call.function,
           id: call.id ?? randomString(),
@@ -438,17 +451,19 @@ export class ClientAgent implements IAgent {
             (t) => t.function.name === tool.function.name
           );
           if (!targetFn) {
-            this.params.logger.debug(
-              `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool function not found`,
-              this.params.tools
-            );
+            GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+              this.params.logger.debug(
+                `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool function not found`,
+                this.params.tools
+              );
             const result = await this._resurrectModel(
               mode,
               `No target function for ${tool.function.name}`
             );
-            this.params.logger.debug(
-              `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
-            );
+            GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+              this.params.logger.debug(
+                `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
+              );
             await this._emitOuput(mode, result);
             return;
           }
@@ -468,18 +483,20 @@ export class ClientAgent implements IAgent {
               })
             )
           ) {
-            this.params.logger.debug(
-              `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool validation not passed`
-            );
+            GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+              this.params.logger.debug(
+                `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool validation not passed`
+              );
             const result = await this._resurrectModel(
               mode,
               `Function validation failed: name=${
                 tool.function.name
               } arguments=${JSON.stringify(tool.function.arguments)}`
             );
-            this.params.logger.debug(
-              `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
-            );
+            GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+              this.params.logger.debug(
+                `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
+              );
             await this._emitOuput(mode, result);
             return;
           }
@@ -535,22 +552,25 @@ export class ClientAgent implements IAgent {
                 );
               this._toolErrorSubject.next();
             });
-          this.params.logger.debug(
-            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool call executing`
-          );
+          GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+            this.params.logger.debug(
+              `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool call executing`
+            );
           const status = await Promise.race([
             this._agentChangeSubject.toPromise(),
             this._toolCommitSubject.toPromise(),
             this._toolErrorSubject.toPromise(),
             this._outputSubject.toPromise(),
           ]);
-          this.params.logger.debug(
-            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool call end`
-          );
-          if (status === AGENT_CHANGE_SYMBOL) {
+          GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
             this.params.logger.debug(
-              `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the agent changed`
+              `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} tool call end`
             );
+          if (status === AGENT_CHANGE_SYMBOL) {
+            GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+              this.params.logger.debug(
+                `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the agent changed`
+              );
             this.params.callbacks?.onAfterToolCalls &&
               this.params.callbacks.onAfterToolCalls(
                 this.params.clientId,
@@ -569,9 +589,10 @@ export class ClientAgent implements IAgent {
         return;
       }
       if (!message.tool_calls) {
-        this.params.logger.debug(
-          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute no tool calls detected`
-        );
+        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+          this.params.logger.debug(
+            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute no tool calls detected`
+          );
       }
       const result = await this.params.transform(
         message.content,
@@ -584,10 +605,11 @@ export class ClientAgent implements IAgent {
       });
       let validation: string | null = null;
       if ((validation = await this.params.validate(result))) {
-        this.params.logger.debug(
-          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute invalid tool call detected: ${validation}`,
-          { result }
-        );
+        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+          this.params.logger.debug(
+            `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute invalid tool call detected: ${validation}`,
+            { result }
+          );
         const result1 = await this._resurrectModel(
           mode,
           `Invalid model output: ${result}`
@@ -595,9 +617,10 @@ export class ClientAgent implements IAgent {
         await this._emitOuput(mode, result1);
         return;
       }
-      this.params.logger.debug(
-        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
-      );
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
+        );
       await this._emitOuput(mode, result);
     }
   ) as IAgent["execute"];
@@ -607,9 +630,10 @@ export class ClientAgent implements IAgent {
    * @returns {Promise<void>}
    */
   dispose = async (): Promise<void> => {
-    this.params.logger.debug(
-      `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} dispose`
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} dispose`
+      );
     this.params.onDispose &&
       this.params.onDispose(this.params.clientId, this.params.agentName);
   };
