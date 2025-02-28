@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-719.547 -903.895 1219.547 1491.65">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+  <rect x="-271.25" y="-836.45" width="300" height="100" rx="5" fill="#e6f7ff" stroke="#1890ff" stroke-width="2"/>
+  <text x="-121.25" y="-812.45" font-family="Arial" font-size="18" text-anchor="middle" style="white-space: pre; font-size: 18px;">Core Services</text>
+  <line x1="-271.25" y1="-801.45" x2="28.752" y2="-801.45" stroke="#1890ff" stroke-width="1"/>
+  <text x="295.59" y="-585.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;" transform="matrix(1, 0, 0, 1, -416.838318, -193.99559)">methodContextService, <tspan x="295.5899963378906" dy="1em">​</tspan>executionContextService, <tspan x="295.5899963378906" dy="1em">​</tspan>loggerService</text>
+  <rect x="-571.25" y="-656.45" width="200" height="120" rx="5" fill="#f9f0ff" stroke="#722ed1" stroke-width="2"/>
+  <text x="-471.25" y="-626.45" font-family="Arial" font-size="16" text-anchor="middle" style="white-space: pre; font-size: 16px;">Validation Services</text>
+  <line x1="-571.25" y1="-611.45" x2="-371.25" y2="-611.45" stroke="#722ed1" stroke-width="1"/>
+  <text x="-471.25" y="-591.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">sessionValidationService</text>
+  <text x="-471.25" y="-571.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">agentValidationService</text>
+  <text x="-471.25" y="-551.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">toolValidationService</text>
+  <rect x="128.752" y="-656.45" width="200" height="160" rx="5" fill="#fff7e6" stroke="#fa8c16" stroke-width="2"/>
+  <text x="228.752" y="-626.45" font-family="Arial" font-size="16" text-anchor="middle" style="white-space: pre; font-size: 16px;">Schema Services</text>
+  <line x1="128.752" y1="-611.45" x2="328.752" y2="-611.45" stroke="#fa8c16" stroke-width="1"/>
+  <text x="228.752" y="-591.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">agentSchemaService</text>
+  <text x="228.752" y="-571.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">toolSchemaService</text>
+  <text x="228.752" y="-551.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">swarmSchemaService</text>
+  <text x="228.752" y="-531.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">storageSchemaService</text>
+  <text x="228.752" y="-511.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">stateSchemaService</text>
+  <rect x="-271.25" y="-456.45" width="300" height="140" rx="5" fill="#f6ffed" stroke="#52c41a" stroke-width="2"/>
+  <text x="-121.25" y="-426.45" font-family="Arial" font-size="16" text-anchor="middle" style="white-space: pre; font-size: 16px;">Connection Services</text>
+  <line x1="-271.25" y1="-411.45" x2="28.752" y2="-411.45" stroke="#52c41a" stroke-width="1"/>
+  <text x="-121.25" y="-391.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">agentConnectionService</text>
+  <text x="-121.25" y="-371.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">historyConnectionService</text>
+  <text x="-121.25" y="-351.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">swarmConnectionService</text>
+  <text x="-121.25" y="-331.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">sessionConnectionService</text>
+  <rect x="-271.25" y="-256.44" width="300" height="140" rx="5" fill="#e6fffb" stroke="#13c2c2" stroke-width="2"/>
+  <text x="-121.25" y="-226.44" font-family="Arial" font-size="16" text-anchor="middle" style="white-space: pre; font-size: 16px;">Public Services</text>
+  <line x1="-271.25" y1="-211.44" x2="28.752" y2="-211.44" stroke="#13c2c2" stroke-width="1"/>
+  <text x="-121.25" y="-191.44" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">agentPublicService</text>
+  <text x="-121.25" y="-171.44" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">historyPublicService</text>
+  <text x="-121.25" y="-151.44" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">sessionPublicService</text>
+  <text x="-121.25" y="-131.44" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">swarmPublicService</text>
+  <rect x="-271.25" y="-656.45" width="300" height="80" rx="5" fill="#fff1f0" stroke="#f5222d" stroke-width="2"/>
+  <text x="-121.25" y="-622.45" font-family="Arial" font-size="16" text-anchor="middle" style="white-space: pre; font-size: 16px;">Bus Service</text>
+  <line x1="-271.25" y1="-601.45" x2="28.752" y2="-601.45" stroke="#f5222d" stroke-width="1"/>
+  <text x="-121.25" y="-581.45" font-family="Arial" font-size="12" text-anchor="middle" style="white-space: pre; font-size: 12px;">busService</text>
+  <line x1="-121.25" y1="-736.45" x2="-121.25" y2="-656.45" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="-221.25" y1="-736.45" x2="-471.25" y2="-656.45" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="-21.248" y1="-736.45" x2="228.752" y2="-656.45" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="-121.25" y1="-576.45" x2="-121.25" y2="-456.45" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="-271.25" y1="-616.45" x2="-371.25" y2="-616.45" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="-121.25" y1="-316.45" x2="-121.25" y2="-256.44" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="178.752" y1="-496.45" x2="28.752" y2="-406.45" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="-421.25" y1="-536.45" x2="-271.25" y2="-406.45" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <rect x="-571.25" y="-56.443" width="900" height="236.044" rx="5" fill="#ffffff" stroke="#d9d9d9" stroke-width="2" style=""/>
+  <text x="-121.25" y="-26.443" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" style="white-space: pre; font-size: 18px;">Service Types Legend</text>
+  <rect x="-521.25" y="-6.443" width="20" height="20" fill="#e6f7ff" stroke="#1890ff" stroke-width="1"/>
+  <text x="-491.25" y="8.557" font-family="Arial" font-size="14" text-anchor="start" style="white-space: pre; font-size: 14px;">Core Services - Foundational services used by all other components</text>
+  <rect x="-521.25" y="23.557" width="20" height="20" fill="#f9f0ff" stroke="#722ed1" stroke-width="1"/>
+  <text x="-491.25" y="38.557" font-family="Arial" font-size="14" text-anchor="start" style="white-space: pre; font-size: 14px;">Validation Services - Verify and validate operation inputs</text>
+  <rect x="-521.25" y="53.557" width="20" height="20" fill="#fff7e6" stroke="#fa8c16" stroke-width="1"/>
+  <text x="-491.25" y="68.557" font-family="Arial" font-size="14" text-anchor="start" style="white-space: pre; font-size: 14px;">Schema Services - Define data structures and schemas</text>
+  <rect x="-521.25" y="83.557" width="20" height="20" fill="#f6ffed" stroke="#52c41a" stroke-width="1"/>
+  <text x="-491.25" y="98.557" font-family="Arial" font-size="14" text-anchor="start" style="white-space: pre; font-size: 14px;">Connection Services - Handle connections between system components</text>
+  <rect x="-521.25" y="113.557" width="20" height="20" fill="#e6fffb" stroke="#13c2c2" stroke-width="1"/>
+  <text x="-491.25" y="128.557" font-family="Arial" font-size="14" text-anchor="start" style="white-space: pre; font-size: 14px;">Public Services - External-facing interfaces for the system</text>
+  <rect x="-521.25" y="141.557" width="20" height="20" fill="#fff1f0" stroke="#f5222d" stroke-width="1"/>
+  <text x="-490.74" y="157.192" font-family="Arial" font-size="14" text-anchor="start" style="white-space: pre; font-size: 14px;">Bus Service - Communication backbone between services</text>
+  <rect x="-571.25" y="193.557" width="900" height="150" rx="5" fill="#ffffff" stroke="#d9d9d9" stroke-width="2"/>
+  <text x="-121.25" y="223.557" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" style="white-space: pre; font-size: 18px;">Key Dependency Patterns</text>
+  <text x="-121.25" y="253.557" font-family="Arial" font-size="14" text-anchor="middle" style="white-space: pre; font-size: 14px;">1. All services depend on core services (loggerService, methodContextService, executionContextService)</text>
+  <text x="-121.25" y="283.557" font-family="Arial" font-size="14" text-anchor="middle" style="white-space: pre; font-size: 14px;">2. Connection services depend on validation services and schema services</text>
+  <text x="-121.25" y="313.557" font-family="Arial" font-size="14" text-anchor="middle" style="white-space: pre; font-size: 14px;">3. Public services depend on connection services, providing API endpoints</text>
+  <rect x="-571.25" y="393.557" width="900" height="100" rx="5" fill="#ffffff" stroke="#d9d9d9" stroke-width="2"/>
+  <text x="-121.25" y="423.557" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" style="white-space: pre; font-size: 18px;">Service Summary</text>
+  <text x="-121.25" y="453.557" font-family="Arial" font-size="14" text-anchor="middle" style="white-space: pre; font-size: 14px;">Total Services: 30+ distinct service types organized in a layered architecture</text>
+  <text x="-121.25" y="483.557" font-family="Arial" font-size="14" text-anchor="middle" style="white-space: pre; font-size: 14px;">Dependencies follow a clear pattern from Core → Schema/Validation → Connection → Public</text>
+  <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 28px;" x="80.54" y="13.688"> </text>
+</svg>
