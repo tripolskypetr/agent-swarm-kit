@@ -8,7 +8,7 @@ import * as moduleData from "../build/index.mjs";
 
 const UML_STEP = '\t';
 const UML_BULLET = "•";
-const MAX_NESTING = 4;
+const MAX_NESTING = 8;
 
 const toUML = async () => {
 
