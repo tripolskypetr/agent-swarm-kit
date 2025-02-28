@@ -1,0 +1,581 @@
+@startyaml
+busService:
+	• busService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	sessionValidationService:
+		• sessionValidationService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+loggerService:
+	• loggerService: ""
+	methodContextService: ""
+	executionContextService: ""
+methodContextService: ""
+executionContextService: ""
+agentConnectionService:
+	• agentConnectionService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	busService:
+		• busService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+	methodContextService: ""
+	sessionValidationService:
+		• sessionValidationService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+	historyConnectionService:
+		• historyConnectionService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		busService:
+			• busService: ""
+			loggerService: ""
+			sessionValidationService: ""
+		methodContextService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+	storageConnectionService:
+		• storageConnectionService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		busService:
+			• busService: ""
+			loggerService: ""
+			sessionValidationService: ""
+		methodContextService: ""
+		storageSchemaService:
+			• storageSchemaService: ""
+			loggerService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+		embeddingSchemaService:
+			• embeddingSchemaService: ""
+			loggerService: ""
+	agentSchemaService:
+		• agentSchemaService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+	toolSchemaService:
+		• toolSchemaService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+	completionSchemaService:
+		• completionSchemaService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+historyConnectionService:
+	• historyConnectionService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	busService:
+		• busService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+	methodContextService: ""
+	sessionValidationService:
+		• sessionValidationService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+swarmConnectionService:
+	• swarmConnectionService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	busService:
+		• busService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+	methodContextService: ""
+	agentConnectionService:
+		• agentConnectionService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		busService:
+			• busService: ""
+			loggerService: ""
+			sessionValidationService: ""
+		methodContextService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+		historyConnectionService:
+			• historyConnectionService: ""
+			loggerService: ""
+			busService: ""
+			methodContextService: ""
+			sessionValidationService: ""
+		storageConnectionService:
+			• storageConnectionService: ""
+			loggerService: ""
+			busService: ""
+			methodContextService: ""
+			storageSchemaService: ""
+			sessionValidationService: ""
+			embeddingSchemaService: ""
+		agentSchemaService:
+			• agentSchemaService: ""
+			loggerService: ""
+		toolSchemaService:
+			• toolSchemaService: ""
+			loggerService: ""
+		completionSchemaService:
+			• completionSchemaService: ""
+			loggerService: ""
+	swarmSchemaService:
+		• swarmSchemaService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+sessionConnectionService:
+	• sessionConnectionService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	busService:
+		• busService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+	methodContextService: ""
+	swarmConnectionService:
+		• swarmConnectionService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		busService:
+			• busService: ""
+			loggerService: ""
+			sessionValidationService: ""
+		methodContextService: ""
+		agentConnectionService:
+			• agentConnectionService: ""
+			loggerService: ""
+			busService: ""
+			methodContextService: ""
+			sessionValidationService: ""
+			historyConnectionService: ""
+			storageConnectionService: ""
+			agentSchemaService: ""
+			toolSchemaService: ""
+			completionSchemaService: ""
+		swarmSchemaService:
+			• swarmSchemaService: ""
+			loggerService: ""
+	swarmSchemaService:
+		• swarmSchemaService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+storageConnectionService:
+	• storageConnectionService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	busService:
+		• busService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+	methodContextService: ""
+	storageSchemaService:
+		• storageSchemaService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+	sessionValidationService:
+		• sessionValidationService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+	embeddingSchemaService:
+		• embeddingSchemaService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+stateConnectionService:
+	• stateConnectionService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	busService:
+		• busService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+	methodContextService: ""
+	stateSchemaService:
+		• stateSchemaService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+	sessionValidationService:
+		• sessionValidationService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+agentSchemaService:
+	• agentSchemaService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+toolSchemaService:
+	• toolSchemaService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+swarmSchemaService:
+	• swarmSchemaService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+completionSchemaService:
+	• completionSchemaService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+embeddingSchemaService:
+	• embeddingSchemaService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+storageSchemaService:
+	• storageSchemaService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+stateSchemaService:
+	• stateSchemaService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+agentPublicService:
+	• agentPublicService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	agentConnectionService:
+		• agentConnectionService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		busService:
+			• busService: ""
+			loggerService: ""
+			sessionValidationService: ""
+		methodContextService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+		historyConnectionService:
+			• historyConnectionService: ""
+			loggerService: ""
+			busService: ""
+			methodContextService: ""
+			sessionValidationService: ""
+		storageConnectionService:
+			• storageConnectionService: ""
+			loggerService: ""
+			busService: ""
+			methodContextService: ""
+			storageSchemaService: ""
+			sessionValidationService: ""
+			embeddingSchemaService: ""
+		agentSchemaService:
+			• agentSchemaService: ""
+			loggerService: ""
+		toolSchemaService:
+			• toolSchemaService: ""
+			loggerService: ""
+		completionSchemaService:
+			• completionSchemaService: ""
+			loggerService: ""
+historyPublicService:
+	• historyPublicService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	historyConnectionService:
+		• historyConnectionService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		busService:
+			• busService: ""
+			loggerService: ""
+			sessionValidationService: ""
+		methodContextService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+sessionPublicService:
+	• sessionPublicService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	sessionConnectionService:
+		• sessionConnectionService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		busService:
+			• busService: ""
+			loggerService: ""
+			sessionValidationService: ""
+		methodContextService: ""
+		swarmConnectionService:
+			• swarmConnectionService: ""
+			loggerService: ""
+			busService: ""
+			methodContextService: ""
+			agentConnectionService: ""
+			swarmSchemaService: ""
+		swarmSchemaService:
+			• swarmSchemaService: ""
+			loggerService: ""
+swarmPublicService:
+	• swarmPublicService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	swarmConnectionService:
+		• swarmConnectionService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		busService:
+			• busService: ""
+			loggerService: ""
+			sessionValidationService: ""
+		methodContextService: ""
+		agentConnectionService:
+			• agentConnectionService: ""
+			loggerService: ""
+			busService: ""
+			methodContextService: ""
+			sessionValidationService: ""
+			historyConnectionService: ""
+			storageConnectionService: ""
+			agentSchemaService: ""
+			toolSchemaService: ""
+			completionSchemaService: ""
+		swarmSchemaService:
+			• swarmSchemaService: ""
+			loggerService: ""
+storagePublicService:
+	• storagePublicService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	storageConnectionService:
+		• storageConnectionService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		busService:
+			• busService: ""
+			loggerService: ""
+			sessionValidationService: ""
+		methodContextService: ""
+		storageSchemaService:
+			• storageSchemaService: ""
+			loggerService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+		embeddingSchemaService:
+			• embeddingSchemaService: ""
+			loggerService: ""
+statePublicService:
+	• statePublicService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	stateConnectionService:
+		• stateConnectionService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		busService:
+			• busService: ""
+			loggerService: ""
+			sessionValidationService: ""
+		methodContextService: ""
+		stateSchemaService:
+			• stateSchemaService: ""
+			loggerService: ""
+		sessionValidationService:
+			• sessionValidationService: ""
+			loggerService: ""
+agentValidationService:
+	• agentValidationService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	toolValidationService:
+		• toolValidationService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+	completionValidationService:
+		• completionValidationService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+	storageValidationService:
+		• storageValidationService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		embeddingValidationService:
+			• embeddingValidationService: ""
+			loggerService: ""
+toolValidationService:
+	• toolValidationService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+sessionValidationService:
+	• sessionValidationService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+swarmValidationService:
+	• swarmValidationService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	agentValidationService:
+		• agentValidationService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+		toolValidationService:
+			• toolValidationService: ""
+			loggerService: ""
+		completionValidationService:
+			• completionValidationService: ""
+			loggerService: ""
+		storageValidationService:
+			• storageValidationService: ""
+			loggerService: ""
+			embeddingValidationService: ""
+completionValidationService:
+	• completionValidationService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+storageValidationService:
+	• storageValidationService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+	embeddingValidationService:
+		• embeddingValidationService: ""
+		loggerService:
+			• loggerService: ""
+			methodContextService: ""
+			executionContextService: ""
+embeddingValidationService:
+	• embeddingValidationService: ""
+	loggerService:
+		• loggerService: ""
+		methodContextService: ""
+		executionContextService: ""
+@endyaml

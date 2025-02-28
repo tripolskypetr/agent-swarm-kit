@@ -42,6 +42,7 @@
     "benchmark": "npm run build && node ./benchmark/index.mjs",
     "build:docs": "rimraf docs && mkdir docs && node ./scripts/dts-docs.cjs ./types.d.ts ./docs",
     "docs:gpt": "npm run build && node ./scripts/gpt-docs.mjs",
+    "docs:uml": "npm run build && node ./scripts/uml.mjs",
     "repl": "dotenv -e .env -- npm run build && node -e \"import('./scripts/repl.mjs')\" --interactive"
   },
   "main": "build/index.cjs",
@@ -72,7 +73,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "di-kit": "^1.0.12",
+    "di-kit": "^1.0.14",
     "di-scoped": "^1.0.12",
     "functools-kit": "^1.0.74",
     "lodash-es": "4.17.21",
