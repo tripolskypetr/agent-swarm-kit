@@ -11,6 +11,14 @@ type TStorage = {
   [key in keyof IStorage]: unknown;
 };
 
+
+const METHOD_NAME_TAKE = "StorageUtils.take";
+const METHOD_NAME_UPSERT = "StorageUtils.upsert";
+const METHOD_NAME_REMOVE = "StorageUtils.remove";
+const METHOD_NAME_GET = "StorageUtils.get";
+const METHOD_NAME_LIST = "StorageUtils.list";
+const METHOD_NAME_CLEAR = "StorageUtils.clear";
+
 export class StorageUtils implements TStorage {
   /**
    * Takes items from the storage.
@@ -30,9 +38,8 @@ export class StorageUtils implements TStorage {
     storageName: StorageName;
     score?: number;
   }): Promise<T[]> => {
-    const methodName = "StorageUtils take";
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("StorageUtils take", {
+      swarm.loggerService.log(METHOD_NAME_TAKE, {
         search: payload.search,
         total: payload.total,
         clientId: payload.clientId,
@@ -41,7 +48,7 @@ export class StorageUtils implements TStorage {
       });
     swarm.storageValidationService.validate(
       payload.storageName,
-      "StorageUtils"
+      METHOD_NAME_TAKE
     );
     if (
       !swarm.agentValidationService.hasStorage(
@@ -56,7 +63,7 @@ export class StorageUtils implements TStorage {
     return (await swarm.storagePublicService.take(
       payload.search,
       payload.total,
-      methodName,
+      METHOD_NAME_TAKE,
       payload.clientId,
       payload.storageName,
       payload.score
@@ -78,16 +85,15 @@ export class StorageUtils implements TStorage {
     agentName: AgentName;
     storageName: StorageName;
   }): Promise<void> => {
-    const methodName = "StorageUtils upsert";
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("StorageUtils upsert", {
+      swarm.loggerService.log(METHOD_NAME_UPSERT, {
         item: payload.item,
         clientId: payload.clientId,
         storageName: payload.storageName,
       });
     swarm.storageValidationService.validate(
       payload.storageName,
-      "StorageUtils"
+      METHOD_NAME_UPSERT
     );
     if (
       !swarm.agentValidationService.hasStorage(
@@ -101,7 +107,7 @@ export class StorageUtils implements TStorage {
     }
     return await swarm.storagePublicService.upsert(
       payload.item,
-      methodName,
+      METHOD_NAME_UPSERT,
       payload.clientId,
       payload.storageName
     );
@@ -121,16 +127,15 @@ export class StorageUtils implements TStorage {
     agentName: AgentName;
     storageName: StorageName;
   }): Promise<void> => {
-    const methodName = "StorageUtils remove";
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("StorageUtils remove", {
+      swarm.loggerService.log(METHOD_NAME_REMOVE, {
         itemId: payload.itemId,
         clientId: payload.clientId,
         storageName: payload.storageName,
       });
     swarm.storageValidationService.validate(
       payload.storageName,
-      "StorageUtils"
+      METHOD_NAME_REMOVE
     );
     if (
       !swarm.agentValidationService.hasStorage(
@@ -144,7 +149,7 @@ export class StorageUtils implements TStorage {
     }
     return await swarm.storagePublicService.remove(
       payload.itemId,
-      methodName,
+      METHOD_NAME_REMOVE,
       payload.clientId,
       payload.storageName
     );
@@ -165,16 +170,15 @@ export class StorageUtils implements TStorage {
     agentName: AgentName;
     storageName: StorageName;
   }): Promise<T | null> => {
-    const methodName = "StorageUtils get";
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("StorageUtils get", {
+      swarm.loggerService.log(METHOD_NAME_GET, {
         itemId: payload.itemId,
         clientId: payload.clientId,
         storageName: payload.storageName,
       });
     swarm.storageValidationService.validate(
       payload.storageName,
-      "StorageUtils"
+      METHOD_NAME_GET
     );
     if (
       !swarm.agentValidationService.hasStorage(
@@ -188,7 +192,7 @@ export class StorageUtils implements TStorage {
     }
     return (await swarm.storagePublicService.get(
       payload.itemId,
-      methodName,
+      METHOD_NAME_GET,
       payload.clientId,
       payload.storageName
     )) as T | null;
@@ -209,15 +213,14 @@ export class StorageUtils implements TStorage {
     storageName: StorageName;
     filter?: (item: T) => boolean;
   }): Promise<T[]> => {
-    const methodName = "StorageUtils list";
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("StorageUtils list", {
+      swarm.loggerService.log(METHOD_NAME_LIST, {
         clientId: payload.clientId,
         storageName: payload.storageName,
       });
     swarm.storageValidationService.validate(
       payload.storageName,
-      "StorageUtils"
+      METHOD_NAME_LIST
     );
     if (
       !swarm.agentValidationService.hasStorage(
@@ -230,7 +233,7 @@ export class StorageUtils implements TStorage {
       );
     }
     return (await swarm.storagePublicService.list(
-      methodName,
+      METHOD_NAME_LIST,
       payload.clientId,
       payload.storageName,
       payload.filter
@@ -249,15 +252,14 @@ export class StorageUtils implements TStorage {
     agentName: AgentName;
     storageName: StorageName;
   }): Promise<void> => {
-    const methodName = "StorageUtils clear";
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("StorageUtils clear", {
+      swarm.loggerService.log(METHOD_NAME_CLEAR, {
         clientId: payload.clientId,
         storageName: payload.storageName,
       });
     swarm.storageValidationService.validate(
       payload.storageName,
-      "StorageUtils"
+      METHOD_NAME_CLEAR
     );
     if (
       !swarm.agentValidationService.hasStorage(
@@ -270,7 +272,7 @@ export class StorageUtils implements TStorage {
       );
     }
     return await swarm.storagePublicService.clear(
-      methodName,
+      METHOD_NAME_CLEAR,
       payload.clientId,
       payload.storageName
     );

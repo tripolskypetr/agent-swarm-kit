@@ -2,6 +2,8 @@ import { ILogger } from "../interfaces/Logger.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
+const METHOD_NAME_USE_LOGGER = "HistoryInstance.useLogger";
+
 class LoggerUtils {
   /**
    * Sets the provided logger to the logger service.
@@ -9,7 +11,7 @@ class LoggerUtils {
    */
   public useLogger = (logger: ILogger) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("HistoryInstance useLogger");
+      swarm.loggerService.log(METHOD_NAME_USE_LOGGER);
     swarm.loggerService.setLogger(logger);
   };
 }

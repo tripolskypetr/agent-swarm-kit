@@ -194,6 +194,19 @@ export type THistoryInstanceCtor = new (
   ...args: unknown[]
 ) => IHistoryInstance;
 
+const INSTANCE_METHOD_NAME_WAIT_FOR_INIT = "HistoryInstance.waitForInit";
+const INSTANCE_METHOD_NAME_CTOR = "HistoryInstance.CTOR";
+const INSTANCE_METHOD_NAME_ITERATE_CONDITION = "HistoryInstance.iterate condition";
+const INSTANCE_METHOD_NAME_ITERATE = "HistoryInstance.iterate";
+const INSTANCE_METHOD_NAME_PUSH = "HistoryInstance.push";
+const INSTANCE_METHOD_NAME_DISPOSE = "HistoryInstance.dispose";
+
+const METHOD_NAME_USE_HISTORY_ADAPTER = "HistoryUtils.useHistoryAdapter";
+const METHOD_NAME_USE_HISTORY_CALLBACKS = "HistoryUtils.useHistoryCallbacks";
+const METHOD_NAME_ITERATE = "HistoryUtils.iterate";
+const METHOD_NAME_PUSH = "HistoryUtils.push";
+const METHOD_NAME_DISPOSE = "HistoryUtils.dispose";
+
 /**
  * Class representing a History Instance
  */
@@ -206,7 +219,7 @@ export class HistoryInstance implements IHistoryInstance {
    */
   public waitForInit = singleshot(async (agentName: AgentName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("HistoryInstance waitForInit", {
+      swarm.loggerService.log(INSTANCE_METHOD_NAME_WAIT_FOR_INIT, {
         clientId: this.clientId,
         agentName,
       });
@@ -225,7 +238,7 @@ export class HistoryInstance implements IHistoryInstance {
     readonly callbacks: Partial<IHistoryInstanceCallbacks>
   ) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("HistoryInstance CTOR", {
+      swarm.loggerService.log(INSTANCE_METHOD_NAME_CTOR, {
         clientId: this.clientId,
       });
     if (callbacks.onInit) {
@@ -239,7 +252,7 @@ export class HistoryInstance implements IHistoryInstance {
         agentName: AgentName
       ): AsyncIterableIterator<IModelMessage> {
         GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-          swarm.loggerService.log("HistoryInstance iterate condition", {
+          swarm.loggerService.log(INSTANCE_METHOD_NAME_ITERATE_CONDITION, {
             clientId: this.clientId,
             agentName,
           });
@@ -286,7 +299,7 @@ export class HistoryInstance implements IHistoryInstance {
     agentName: AgentName
   ): AsyncIterableIterator<IModelMessage> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("HistoryInstance iterate", {
+      swarm.loggerService.log(INSTANCE_METHOD_NAME_ITERATE, {
         clientId: this.clientId,
         agentName,
       });
@@ -318,7 +331,7 @@ export class HistoryInstance implements IHistoryInstance {
    */
   public push = async (value: IModelMessage, agentName: AgentName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("HistoryInstance push", {
+      swarm.loggerService.log(INSTANCE_METHOD_NAME_PUSH, {
         clientId: this.clientId,
         agentName,
       });
@@ -337,7 +350,7 @@ export class HistoryInstance implements IHistoryInstance {
    */
   public dispose = async (agentName: AgentName | null) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("HistoryInstance dispose", {
+      swarm.loggerService.log(INSTANCE_METHOD_NAME_DISPOSE, {
         clientId: this.clientId,
         agentName,
       });
@@ -368,7 +381,7 @@ class HistoryUtils implements IHistoryAdapter, IHistoryControl {
    */
   public useHistoryAdapter = (Ctor: THistoryInstanceCtor) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("HistoryUtils useHistoryAdapter");
+      swarm.loggerService.log(METHOD_NAME_USE_HISTORY_ADAPTER);
     this.HistoryFactory = Ctor;
   };
 
@@ -380,7 +393,7 @@ class HistoryUtils implements IHistoryAdapter, IHistoryControl {
     Callbacks: Partial<IHistoryInstanceCallbacks>
   ) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("HistoryUtils useHistoryCallbacks");
+      swarm.loggerService.log(METHOD_NAME_USE_HISTORY_CALLBACKS);
     Object.assign(this.HistoryCallbacks, Callbacks);
   };
 
@@ -395,7 +408,7 @@ class HistoryUtils implements IHistoryAdapter, IHistoryControl {
     agentName: AgentName
   ): AsyncIterableIterator<IModelMessage> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("HistoryUtils iterate", {
+      swarm.loggerService.log(METHOD_NAME_ITERATE, {
         clientId,
         agentName,
       });
@@ -420,7 +433,7 @@ class HistoryUtils implements IHistoryAdapter, IHistoryControl {
     agentName: AgentName
   ) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("HistoryUtils push", {
+      swarm.loggerService.log(METHOD_NAME_PUSH, {
         clientId,
         agentName,
         value,
@@ -439,7 +452,7 @@ class HistoryUtils implements IHistoryAdapter, IHistoryControl {
    */
   public dispose = async (clientId: string, agentName: AgentName | null) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("HistoryUtils dispose", {
+      swarm.loggerService.log(METHOD_NAME_DISPOSE, {
         clientId,
         agentName,
       });

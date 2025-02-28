@@ -7,6 +7,9 @@ type TState = {
   [key in keyof IState]: unknown;
 };
 
+const METHOD_NAME_GET = "StateUtils.getState";
+const METHOD_NAME_SET = "StateUtils.setState";
+
 /**
  * Utility class for managing state in the agent swarm.
  * @implements {TState}
@@ -27,9 +30,8 @@ export class StateUtils implements TState {
     agentName: AgentName;
     stateName: StateName;
   }): Promise<T> => {
-    const methodName = "StateUtils getState";
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("StateUtils getState", {
+      swarm.loggerService.log(METHOD_NAME_GET, {
         clientId: payload.clientId,
         stateName: payload.stateName,
       });
@@ -44,7 +46,7 @@ export class StateUtils implements TState {
       );
     }
     return await swarm.statePublicService.getState(
-      methodName,
+      METHOD_NAME_GET,
       payload.clientId,
       payload.stateName
     );
@@ -69,9 +71,8 @@ export class StateUtils implements TState {
       stateName: StateName;
     }
   ): Promise<void> => {
-    const methodName = "StateUtils setState";
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("StateUtils setState", {
+      swarm.loggerService.log(METHOD_NAME_SET, {
         clientId: payload.clientId,
         stateName: payload.stateName,
       });
@@ -88,14 +89,14 @@ export class StateUtils implements TState {
     if (typeof dispatchFn === "function") {
       return await swarm.statePublicService.setState(
         dispatchFn as (prevState: T) => Promise<T>,
-        methodName,
+        METHOD_NAME_SET,
         payload.clientId,
         payload.stateName
       );
     }
     return await swarm.statePublicService.setState(
       async () => dispatchFn as T,
-      methodName,
+      METHOD_NAME_SET,
       payload.clientId,
       payload.stateName
     );

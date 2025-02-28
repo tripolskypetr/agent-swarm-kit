@@ -4,6 +4,8 @@ import swarm from "../lib";
 
 const LIST_SEPARATOR = Array.from({ length: 80 }, () => "-");
 
+const METHOD_NAME_SERIALIZE = "SchemaUtils.serialize";
+
 /**
  * Utility class for schema-related operations.
  */
@@ -17,7 +19,7 @@ export class SchemaUtils {
    */
   public serialize = <T extends object = any>(data: T[] | T): string => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log("SchemaUtils serialize", {
+      swarm.loggerService.log(METHOD_NAME_SERIALIZE, {
         data,
       });
     if (Array.isArray(data)) {
