@@ -218,8 +218,8 @@ export class HistoryInstance implements IHistoryInstance {
    * @param agentName - The agent name.
    */
   public waitForInit = singleshot(async (agentName: AgentName) => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(INSTANCE_METHOD_NAME_WAIT_FOR_INIT, {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(INSTANCE_METHOD_NAME_WAIT_FOR_INIT, {
         clientId: this.clientId,
         agentName,
       });
@@ -237,8 +237,8 @@ export class HistoryInstance implements IHistoryInstance {
     readonly clientId: string,
     readonly callbacks: Partial<IHistoryInstanceCallbacks>
   ) {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(INSTANCE_METHOD_NAME_CTOR, {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(INSTANCE_METHOD_NAME_CTOR, {
         clientId: this.clientId,
       });
     if (callbacks.onInit) {
@@ -251,8 +251,8 @@ export class HistoryInstance implements IHistoryInstance {
       this.iterate = async function* (
         agentName: AgentName
       ): AsyncIterableIterator<IModelMessage> {
-        GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-          swarm.loggerService.log(INSTANCE_METHOD_NAME_ITERATE_CONDITION, {
+        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+          swarm.loggerService.debug(INSTANCE_METHOD_NAME_ITERATE_CONDITION, {
             clientId: this.clientId,
             agentName,
           });
@@ -298,8 +298,8 @@ export class HistoryInstance implements IHistoryInstance {
   public async *iterate(
     agentName: AgentName
   ): AsyncIterableIterator<IModelMessage> {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(INSTANCE_METHOD_NAME_ITERATE, {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(INSTANCE_METHOD_NAME_ITERATE, {
         clientId: this.clientId,
         agentName,
       });
@@ -330,8 +330,8 @@ export class HistoryInstance implements IHistoryInstance {
    * @returns A promise that resolves when the message is pushed.
    */
   public push = async (value: IModelMessage, agentName: AgentName) => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(INSTANCE_METHOD_NAME_PUSH, {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(INSTANCE_METHOD_NAME_PUSH, {
         clientId: this.clientId,
         agentName,
       });
@@ -349,8 +349,8 @@ export class HistoryInstance implements IHistoryInstance {
    * @returns A promise that resolves when the history is disposed.
    */
   public dispose = async (agentName: AgentName | null) => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(INSTANCE_METHOD_NAME_DISPOSE, {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(INSTANCE_METHOD_NAME_DISPOSE, {
         clientId: this.clientId,
         agentName,
       });
