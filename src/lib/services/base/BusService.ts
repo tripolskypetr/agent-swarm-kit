@@ -79,10 +79,11 @@ export class BusService implements IBus {
    * @returns {Promise<void>} A promise that resolves when the event has been emitted.
    */
   public emit = async <T extends IBaseEvent>(clientId: string, event: T) => {
-    this.loggerService.debug(`busService emit`, {
-      clientId,
-      event,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`busService emit`, {
+        clientId,
+        event,
+      });
     if (!this.sessionValidationService.hasSession(clientId)) {
       return;
     }

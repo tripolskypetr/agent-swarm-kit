@@ -132,12 +132,13 @@ export class SessionPublicService implements TSessionConnectionService {
       const executionId = randomString();
       return ExecutionContextService.runInContext(
         async () => {
-          this.loggerService.log("sessionPublicService connect execute", {
-            content: incoming,
-            methodName,
-            clientId,
-            executionId,
-          });
+          GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+            this.loggerService.log("sessionPublicService connect execute", {
+              content: incoming,
+              methodName,
+              clientId,
+              executionId,
+            });
           return await send(incoming);
         },
         {
