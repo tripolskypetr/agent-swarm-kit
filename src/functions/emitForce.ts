@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
-const METHOD_NAME = "function emitForce";
+const METHOD_NAME = "function.emitForce";
 
 /**
  * Emits a string constant as the model output without executing incoming message and checking active agent

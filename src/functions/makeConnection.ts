@@ -10,7 +10,7 @@ type SendMessageFn = (outgoing: string) => Promise<void>;
 
 const SCHEDULED_DELAY = 1_000;
 
-const METHOD_NAME = "function makeConnection";
+const METHOD_NAME = "function.makeConnection";
 
 /**
  * A connection factory for a client to a swarm and returns a function to send messages.

@@ -2,7 +2,7 @@ import { IAgentTool } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
-const METHOD_NAME = "function addTool";
+const METHOD_NAME = "function.addTool";
 
 /**
  * Adds a new tool for agents in a swarm. Tool should be registered in `addAgent`

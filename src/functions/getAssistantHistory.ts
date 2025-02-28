@@ -2,7 +2,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 import { getRawHistory } from "./getRawHistory";
 
-const METHOD_NAME = "function getAssistantHistory";
+const METHOD_NAME = "function.getAssistantHistory";
 
 /**
  * Retrieves the assistant's history for a given client.

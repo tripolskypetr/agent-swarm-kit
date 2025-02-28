@@ -4,7 +4,7 @@ import { disposeConnection } from "./disposeConnection";
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
-const METHOD_NAME = "function makeAutoDispose";
+const METHOD_NAME = "function.makeAutoDispose";
 
 const DEFAULT_TIMEOUT = 15 * 60;
 

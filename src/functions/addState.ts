@@ -2,7 +2,7 @@ import { IStateSchema } from "../interfaces/State.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
-const METHOD_NAME = "function addState";
+const METHOD_NAME = "function.addState";
 
 /**
  * Adds a new state to the state registry. The swarm takes only those states which was registered

@@ -2,7 +2,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 
-const METHOD_NAME = "function commitToolOutput";
+const METHOD_NAME = "function.commitToolOutput";
 
 /**
  * Commits the tool output to the active agent in a swarm session

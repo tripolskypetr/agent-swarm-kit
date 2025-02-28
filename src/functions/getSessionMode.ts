@@ -1,7 +1,7 @@
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
-const METHOD_NAME = "function getSessionMode";
+const METHOD_NAME = "function.getSessionMode";
 
 /**
  * Return the session mode (`"session" | "makeConnection" | "complete"`) for clientId

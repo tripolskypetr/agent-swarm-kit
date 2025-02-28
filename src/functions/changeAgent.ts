@@ -3,7 +3,7 @@ import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
-const METHOD_NAME = "function changeAgent";
+const METHOD_NAME = "function.changeAgent";
 
 /**
  * Time-to-live for the change agent function in milliseconds.

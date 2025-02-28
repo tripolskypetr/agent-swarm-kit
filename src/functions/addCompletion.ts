@@ -2,7 +2,7 @@ import { ICompletionSchema } from "../interfaces/Completion.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
-const METHOD_NAME = "function addCompletion";
+const METHOD_NAME = "function.addCompletion";
 
 /**
  * Adds a completion engine for agents. Agents could use different models and

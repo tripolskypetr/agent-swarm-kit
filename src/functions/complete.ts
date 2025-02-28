@@ -4,7 +4,7 @@ import swarm, { ExecutionContextService } from "../lib";
 import { disposeConnection } from "./disposeConnection";
 import { GLOBAL_CONFIG } from "../config/params";
 
-const METHOD_NAME = "function complete";
+const METHOD_NAME = "function.complete";
 
 /**
  * Type definition for the complete run function.

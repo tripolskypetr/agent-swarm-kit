@@ -2,7 +2,7 @@ import { ISwarmSchema } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
-const METHOD_NAME = "function addSwarm";
+const METHOD_NAME = "function.addSwarm";
 
 /**
  * Adds a new swarm to the system. The swarm is a root for starting client session

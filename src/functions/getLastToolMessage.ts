@@ -2,7 +2,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 import { getRawHistory } from "./getRawHistory";
 
-const METHOD_NAME = "function getLastToolMessage";
+const METHOD_NAME = "function.getLastToolMessage";
 
 /**
  * Retrieves the last message sent by the tool from the client's message history.

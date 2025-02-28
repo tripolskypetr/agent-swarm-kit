@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
-const METHOD_NAME = "function cancelOutputForce";
+const METHOD_NAME = "function.cancelOutputForce";
 
 /**
  * Cancel the await of output by emit of empty string without checking active agent

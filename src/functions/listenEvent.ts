@@ -2,7 +2,7 @@ import { EventSource, ICustomEvent } from "../model/Event.model";
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
-const METHOD_NAME = "function listenEvent";
+const METHOD_NAME = "function.listenEvent";
 
 const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
   "agent-bus",

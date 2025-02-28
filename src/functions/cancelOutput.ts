@@ -1,7 +1,7 @@
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
-const METHOD_NAME = "function cancelOutput";
+const METHOD_NAME = "function.cancelOutput";
 
 /**
  * Cancel the await of output by emit of empty string

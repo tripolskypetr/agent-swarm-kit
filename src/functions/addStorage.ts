@@ -2,7 +2,7 @@ import { IStorageData, IStorageSchema } from "../interfaces/Storage.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
-const METHOD_NAME = "function addStorage";
+const METHOD_NAME = "function.addStorage";
 
 /**
  * Adds a new storage to the storage registry. The swarm takes only those storages which was registered
