@@ -1,4 +1,4 @@
-import { randomString } from "functools-kit";
+import { GLOBAL_CONFIG } from "../config/params";
 import History from "../classes/History";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
@@ -15,10 +15,11 @@ export const disposeConnection = async (
   swarmName: SwarmName,
   methodName = "function disposeConnection"
 ) => {
-  swarm.loggerService.log("function disposeConnection", {
-    clientId,
-    swarmName,
-  });
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function disposeConnection", {
+      clientId,
+      swarmName,
+    });
   swarm.swarmValidationService.validate(swarmName, "disposeConnection");
   swarm.sessionValidationService.removeSession(clientId);
   swarm.busService.dispose(clientId);
@@ -29,7 +30,11 @@ export const disposeConnection = async (
       .getAgentList(swarmName)
       .map(async (agentName) => {
         await swarm.agentPublicService.dispose(methodName, clientId, agentName);
-        await swarm.historyPublicService.dispose(methodName, clientId, agentName);
+        await swarm.historyPublicService.dispose(
+          methodName,
+          clientId,
+          agentName
+        );
       })
   );
   await Promise.all(
@@ -40,7 +45,11 @@ export const disposeConnection = async (
       )
       .filter((storageName) => !!storageName)
       .map(async (storageName) => {
-        await swarm.storagePublicService.dispose(methodName, clientId, storageName);
+        await swarm.storagePublicService.dispose(
+          methodName,
+          clientId,
+          storageName
+        );
       })
   );
   await Promise.all(

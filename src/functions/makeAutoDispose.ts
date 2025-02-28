@@ -1,6 +1,7 @@
 import { Source } from "functools-kit";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import { disposeConnection } from "./disposeConnection";
+import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
 const DEFAULT_TIMEOUT = 15 * 60;
@@ -30,8 +31,17 @@ export interface IMakeDisposeParams {
 export const makeAutoDispose = (
   clientId: string,
   swarmName: SwarmName,
-  { timeoutSeconds = DEFAULT_TIMEOUT, onDestroy }: Partial<IMakeDisposeParams> = {}
+  {
+    timeoutSeconds = DEFAULT_TIMEOUT,
+    onDestroy,
+  }: Partial<IMakeDisposeParams> = {}
 ) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function makeAutoDispose", {
+      clientId,
+      swarmName,
+    });
+
   let isOk = true;
 
   const unSource = Source.fromInterval(1_000)

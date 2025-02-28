@@ -5,7 +5,7 @@ import {
   StorageName,
 } from "../interfaces/Storage.interface";
 import { AgentName } from "../interfaces/Agent.interface";
-import { randomString } from "functools-kit";
+import { GLOBAL_CONFIG } from "../config/params";
 
 type TStorage = {
   [key in keyof IStorage]: unknown;
@@ -30,14 +30,15 @@ export class StorageUtils implements TStorage {
     storageName: StorageName;
     score?: number;
   }): Promise<T[]> => {
-    const methodName = "StorageUtils take"
-    swarm.loggerService.log("StorageUtils take", {
-      search: payload.search,
-      total: payload.total,
-      clientId: payload.clientId,
-      storageName: payload.storageName,
-      score: payload.score,
-    });
+    const methodName = "StorageUtils take";
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log("StorageUtils take", {
+        search: payload.search,
+        total: payload.total,
+        clientId: payload.clientId,
+        storageName: payload.storageName,
+        score: payload.score,
+      });
     swarm.storageValidationService.validate(
       payload.storageName,
       "StorageUtils"
@@ -78,11 +79,12 @@ export class StorageUtils implements TStorage {
     storageName: StorageName;
   }): Promise<void> => {
     const methodName = "StorageUtils upsert";
-    swarm.loggerService.log("StorageUtils upsert", {
-      item: payload.item,
-      clientId: payload.clientId,
-      storageName: payload.storageName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log("StorageUtils upsert", {
+        item: payload.item,
+        clientId: payload.clientId,
+        storageName: payload.storageName,
+      });
     swarm.storageValidationService.validate(
       payload.storageName,
       "StorageUtils"
@@ -120,11 +122,12 @@ export class StorageUtils implements TStorage {
     storageName: StorageName;
   }): Promise<void> => {
     const methodName = "StorageUtils remove";
-    swarm.loggerService.log("StorageUtils remove", {
-      itemId: payload.itemId,
-      clientId: payload.clientId,
-      storageName: payload.storageName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log("StorageUtils remove", {
+        itemId: payload.itemId,
+        clientId: payload.clientId,
+        storageName: payload.storageName,
+      });
     swarm.storageValidationService.validate(
       payload.storageName,
       "StorageUtils"
@@ -163,11 +166,12 @@ export class StorageUtils implements TStorage {
     storageName: StorageName;
   }): Promise<T | null> => {
     const methodName = "StorageUtils get";
-    swarm.loggerService.log("StorageUtils get", {
-      itemId: payload.itemId,
-      clientId: payload.clientId,
-      storageName: payload.storageName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log("StorageUtils get", {
+        itemId: payload.itemId,
+        clientId: payload.clientId,
+        storageName: payload.storageName,
+      });
     swarm.storageValidationService.validate(
       payload.storageName,
       "StorageUtils"
@@ -206,10 +210,11 @@ export class StorageUtils implements TStorage {
     filter?: (item: T) => boolean;
   }): Promise<T[]> => {
     const methodName = "StorageUtils list";
-    swarm.loggerService.log("StorageUtils list", {
-      clientId: payload.clientId,
-      storageName: payload.storageName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log("StorageUtils list", {
+        clientId: payload.clientId,
+        storageName: payload.storageName,
+      });
     swarm.storageValidationService.validate(
       payload.storageName,
       "StorageUtils"
@@ -245,10 +250,11 @@ export class StorageUtils implements TStorage {
     storageName: StorageName;
   }): Promise<void> => {
     const methodName = "StorageUtils clear";
-    swarm.loggerService.log("StorageUtils clear", {
-      clientId: payload.clientId,
-      storageName: payload.storageName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log("StorageUtils clear", {
+        clientId: payload.clientId,
+        storageName: payload.storageName,
+      });
     swarm.storageValidationService.validate(
       payload.storageName,
       "StorageUtils"

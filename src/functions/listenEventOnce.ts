@@ -1,4 +1,5 @@
 import { EventSource, ICustomEvent } from "../model/Event.model";
+import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
 const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
@@ -34,9 +35,10 @@ export const listenEventOnce = <T extends unknown = any>(
   filterFn: (event: T) => boolean,
   fn: (data: T) => void
 ) => {
-  swarm.loggerService.log("function listenEventOnce", {
-    clientId,
-  });
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function listenEventOnce", {
+      clientId,
+    });
   if (DISALLOWED_EVENT_SOURCE_LIST.has(topicName)) {
     throw new Error(
       `agent-swarm listenEventOnce topic is reserved topicName=${topicName}`

@@ -1,6 +1,7 @@
-import { queued, randomString, singleshot, ttl } from "functools-kit";
+import { queued, singleshot, ttl } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
+import { GLOBAL_CONFIG } from "../config/params";
 
 /**
  * Time-to-live for the change agent function in milliseconds.
@@ -41,13 +42,21 @@ const createChangeAgent = ttl(
       );
       {
         await swarm.agentPublicService.dispose(methodName, clientId, agentName);
-        await swarm.historyPublicService.dispose(methodName, clientId, agentName);
+        await swarm.historyPublicService.dispose(
+          methodName,
+          clientId,
+          agentName
+        );
         await swarm.swarmPublicService.setAgentRef(
           methodName,
           clientId,
           swarmName,
           agentName,
-          await swarm.agentPublicService.createAgentRef(methodName, clientId, agentName)
+          await swarm.agentPublicService.createAgentRef(
+            methodName,
+            clientId,
+            agentName
+          )
         );
       }
       await swarm.swarmPublicService.setAgentName(
@@ -82,10 +91,11 @@ const createGc = singleshot(async () => {
  */
 export const changeAgent = async (agentName: AgentName, clientId: string) => {
   const methodName = "function changeAgent";
-  swarm.loggerService.log("function changeAgent", {
-    agentName,
-    clientId,
-  });
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function changeAgent", {
+      agentName,
+      clientId,
+    });
   const run = await createChangeAgent(clientId);
   createGc();
   return await run(methodName, agentName);

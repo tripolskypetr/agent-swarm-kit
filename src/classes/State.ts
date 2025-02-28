@@ -1,7 +1,7 @@
 import swarm from "../lib";
 import { IState, IStateData, StateName } from "../interfaces/State.interface";
 import { AgentName } from "../interfaces/Agent.interface";
-import { randomString } from "functools-kit";
+import { GLOBAL_CONFIG } from "../config/params";
 
 type TState = {
   [key in keyof IState]: unknown;
@@ -28,10 +28,11 @@ export class StateUtils implements TState {
     stateName: StateName;
   }): Promise<T> => {
     const methodName = "StateUtils getState";
-    swarm.loggerService.log("StateUtils getState", {
-      clientId: payload.clientId,
-      stateName: payload.stateName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log("StateUtils getState", {
+        clientId: payload.clientId,
+        stateName: payload.stateName,
+      });
     if (
       !swarm.agentValidationService.hasState(
         payload.agentName,
@@ -69,10 +70,11 @@ export class StateUtils implements TState {
     }
   ): Promise<void> => {
     const methodName = "StateUtils setState";
-    swarm.loggerService.log("StateUtils setState", {
-      clientId: payload.clientId,
-      stateName: payload.stateName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log("StateUtils setState", {
+        clientId: payload.clientId,
+        stateName: payload.stateName,
+      });
     if (
       !swarm.agentValidationService.hasState(
         payload.agentName,

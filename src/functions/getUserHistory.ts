@@ -1,4 +1,4 @@
-import { randomString } from "functools-kit";
+import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 import { getRawHistory } from "./getRawHistory";
 
@@ -9,10 +9,11 @@ import { getRawHistory } from "./getRawHistory";
  * @returns {Promise<Array>} A promise that resolves to an array of history objects filtered by user role.
  */
 export const getUserHistory = async (clientId: string) => {
-  const methodName = "function getUserHistory"
-  swarm.loggerService.log("function getUserHistory", {
-    clientId,
-  });
+  const methodName = "function getUserHistory";
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function getUserHistory", {
+      clientId,
+    });
   const history = await getRawHistory(clientId, methodName);
   return history.filter(({ role, mode }) => role === "user" && mode === "user");
 };

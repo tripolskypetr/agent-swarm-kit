@@ -1,5 +1,6 @@
 import { randomString } from "functools-kit";
 import swarm, { ExecutionContextService } from "../lib";
+import { GLOBAL_CONFIG } from "../config/params";
 
 /**
  * Send the message to the active agent in the swarm content like it income from client side
@@ -14,11 +15,12 @@ import swarm, { ExecutionContextService } from "../lib";
 export const executeForce = async (content: string, clientId: string) => {
   const methodName = "function executeForce";
   const executionId = randomString();
-  swarm.loggerService.log("function executeForce", {
-    content,
-    clientId,
-    executionId,
-  });
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function executeForce", {
+      content,
+      clientId,
+      executionId,
+    });
   swarm.sessionValidationService.validate(clientId, "executeForce");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, "executeForce");

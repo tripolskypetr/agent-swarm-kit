@@ -1,4 +1,5 @@
-import { queued, randomString, schedule } from "functools-kit";
+import { queued, schedule } from "functools-kit";
+import { GLOBAL_CONFIG } from "../config/params";
 import { ReceiveMessageFn } from "../interfaces/Session.interface";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
@@ -22,13 +23,18 @@ const makeConnection = (
   clientId: string,
   swarmName: SwarmName
 ): SendMessageFn => {
-  const methodName = "function makeConnection"
-  swarm.loggerService.log("function makeConnection", {
+  const methodName = "function makeConnection";
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function makeConnection", {
+      clientId,
+      swarmName,
+    });
+  swarm.swarmValidationService.validate(swarmName, "makeConnection");
+  swarm.sessionValidationService.addSession(
     clientId,
     swarmName,
-  });
-  swarm.swarmValidationService.validate(swarmName, "makeConnection");
-  swarm.sessionValidationService.addSession(clientId, swarmName, "makeConnection");
+    "makeConnection"
+  );
   const send = swarm.sessionPublicService.connect(
     connector,
     methodName,
@@ -68,9 +74,12 @@ export interface IMakeConnectionConfig {
  * @param {Partial<IMakeConnectionConfig>} [config] - The configuration for scheduling.
  * @returns {SendMessageFn} - A function to send scheduled messages to the swarm.
  */
-makeConnection.scheduled = (connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName, {
-  delay = SCHEDULED_DELAY,
-}: Partial<IMakeConnectionConfig> = {}) => {
+makeConnection.scheduled = (
+  connector: ReceiveMessageFn,
+  clientId: string,
+  swarmName: SwarmName,
+  { delay = SCHEDULED_DELAY }: Partial<IMakeConnectionConfig> = {}
+) => {
   const send = makeConnection(connector, clientId, swarmName);
 
   /**
@@ -121,4 +130,4 @@ makeConnection.scheduled = (connector: ReceiveMessageFn, clientId: string, swarm
   };
 };
 
-export { makeConnection }
+export { makeConnection };

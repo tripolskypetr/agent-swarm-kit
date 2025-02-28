@@ -1,4 +1,4 @@
-import { randomString } from "functools-kit";
+import { GLOBAL_CONFIG } from "../config/params";
 import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 
@@ -17,12 +17,13 @@ export const emit = async (
   clientId: string,
   agentName: AgentName
 ) => {
-  const methodName = "function emit"
-  swarm.loggerService.log("function emit", {
-    content,
-    clientId,
-    agentName,
-  });
+  const methodName = "function emit";
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function emit", {
+      content,
+      clientId,
+      agentName,
+    });
   if (
     swarm.sessionValidationService.getSessionMode(clientId) !== "makeConnection"
   ) {
@@ -40,11 +41,15 @@ export const emit = async (
     swarmName
   );
   if (currentAgentName !== agentName) {
-    swarm.loggerService.log('function "emit" skipped due to the agent change', {
-      currentAgentName,
-      agentName,
-      clientId,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        'function "emit" skipped due to the agent change',
+        {
+          currentAgentName,
+          agentName,
+          clientId,
+        }
+      );
     return;
   }
   return await swarm.sessionPublicService.emit(

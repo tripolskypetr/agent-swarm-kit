@@ -1,21 +1,30 @@
-import { randomString } from "functools-kit";
+import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
 /**
  * Commits a user message to the active agent history in as swarm without answer and checking active agent
- * 
+ *
  * @param {string} content - The content of the message.
  * @param {string} clientId - The ID of the client.
  * @returns {Promise<void>} - A promise that resolves when the message is committed.
  */
-export const commitUserMessageForce = async (content: string, clientId: string) => {
-    const methodName = 'function commitSystemMessage';
-    swarm.loggerService.log('function commitSystemMessage', {
-        content,
-        clientId,
+export const commitUserMessageForce = async (
+  content: string,
+  clientId: string
+) => {
+  const methodName = "function commitSystemMessage";
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function commitSystemMessage", {
+      content,
+      clientId,
     });
-    swarm.sessionValidationService.validate(clientId, "commitUserMessageForce");
-    const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-    swarm.swarmValidationService.validate(swarmName, "commitUserMessageForce");
-    await swarm.sessionPublicService.commitUserMessage(content, methodName, clientId, swarmName);
-}
+  swarm.sessionValidationService.validate(clientId, "commitUserMessageForce");
+  const swarmName = swarm.sessionValidationService.getSwarm(clientId);
+  swarm.swarmValidationService.validate(swarmName, "commitUserMessageForce");
+  await swarm.sessionPublicService.commitUserMessage(
+    content,
+    methodName,
+    clientId,
+    swarmName
+  );
+};

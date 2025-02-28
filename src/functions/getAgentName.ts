@@ -1,4 +1,4 @@
-import { randomString } from "functools-kit";
+import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
 /**
@@ -9,10 +9,11 @@ import swarm from "../lib";
  * @throws Will throw an error if the client ID is invalid or if the swarm validation fails.
  */
 export const getAgentName = async (clientId: string) => {
-  const methodName = "function getAgentName"
-  swarm.loggerService.log("function getAgentName", {
-    clientId,
-  });
+  const methodName = "function getAgentName";
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function getAgentName", {
+      clientId,
+    });
   swarm.sessionValidationService.validate(clientId, "getAgentName");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, "getAgentName");

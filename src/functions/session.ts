@@ -1,4 +1,5 @@
 import { queued, randomString, schedule } from "functools-kit";
+import { GLOBAL_CONFIG } from "../config/params";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm, { ExecutionContextService } from "../lib";
 import { disposeConnection } from "./disposeConnection";
@@ -21,11 +22,12 @@ const SCHEDULED_DELAY = 1_000;
 const session = (clientId: string, swarmName: SwarmName) => {
   const methodName = "function session";
   const executionId = randomString();
-  swarm.loggerService.log("function session", {
-    clientId,
-    swarmName,
-    executionId,
-  });
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function session", {
+      clientId,
+      swarmName,
+      executionId,
+    });
   swarm.swarmValidationService.validate(swarmName, "session");
   swarm.sessionValidationService.addSession(clientId, swarmName, "session");
   return {

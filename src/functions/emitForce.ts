@@ -1,5 +1,4 @@
-import { randomString } from "functools-kit";
-import { AgentName } from "../interfaces/Agent.interface";
+import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
 /**
@@ -12,20 +11,27 @@ import swarm from "../lib";
  * @throws Will throw an error if the session mode is not "makeConnection".
  * @returns {Promise<void>} A promise that resolves when the content is emitted.
  */
-export const emitForce = async (
-  content: string,
-  clientId: string,
-) => {
-  const methodName = "function emitForce"
-  swarm.loggerService.log("function emitForce", {
-    content,
-    clientId,
-  });
-  if (swarm.sessionValidationService.getSessionMode(clientId) !== "makeConnection") {
-    throw new Error(`agent-swarm-kit emitForce session is not makeConnection clientId=${clientId}`);
+export const emitForce = async (content: string, clientId: string) => {
+  const methodName = "function emitForce";
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function emitForce", {
+      content,
+      clientId,
+    });
+  if (
+    swarm.sessionValidationService.getSessionMode(clientId) !== "makeConnection"
+  ) {
+    throw new Error(
+      `agent-swarm-kit emitForce session is not makeConnection clientId=${clientId}`
+    );
   }
   swarm.sessionValidationService.validate(clientId, "emitForce");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, "emitForce");
-  return await swarm.sessionPublicService.emit(content, methodName, clientId, swarmName);
+  return await swarm.sessionPublicService.emit(
+    content,
+    methodName,
+    clientId,
+    swarmName
+  );
 };

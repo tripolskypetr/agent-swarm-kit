@@ -2,6 +2,7 @@ import { queued, randomString, singleshot, ttl } from "functools-kit";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm, { ExecutionContextService } from "../lib";
 import { disposeConnection } from "./disposeConnection";
+import { GLOBAL_CONFIG } from "../config/params";
 
 /**
  * Type definition for the complete run function.
@@ -22,7 +23,11 @@ const createComplete = ttl(
   (clientId: string, swarmName: SwarmName) =>
     queued(async (methodName: string, content: string) => {
       swarm.swarmValidationService.validate(swarmName, "complete");
-      swarm.sessionValidationService.addSession(clientId, swarmName, "complete");
+      swarm.sessionValidationService.addSession(
+        clientId,
+        swarmName,
+        "complete"
+      );
       const result = await swarm.sessionPublicService.execute(
         content,
         "user",
@@ -50,7 +55,7 @@ const createGc = singleshot(async () => {
 /**
  * The complete function will create a swarm, execute single command and dispose it
  * Best for developer needs like troubleshooting tool execution
- * 
+ *
  * @param {string} content - The content to process.
  * @param {string} clientId - The client ID.
  * @param {SwarmName} swarmName - The swarm name.
@@ -63,18 +68,22 @@ export const complete = async (
 ) => {
   const methodName = "function complete";
   const executionId = randomString();
-  swarm.loggerService.log("function complete", {
-    content,
-    clientId,
-    executionId,
-    swarmName,
-  });
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function complete", {
+      content,
+      clientId,
+      executionId,
+      swarmName,
+    });
   const run = await createComplete(clientId, swarmName);
   createGc();
-  return ExecutionContextService.runInContext(async () => {
-    return await run(methodName, content);
-  }, {
-    clientId,
-    executionId,
-  });
+  return ExecutionContextService.runInContext(
+    async () => {
+      return await run(methodName, content);
+    },
+    {
+      clientId,
+      executionId,
+    }
+  );
 };

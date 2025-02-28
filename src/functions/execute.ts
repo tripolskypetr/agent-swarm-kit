@@ -1,5 +1,6 @@
 import { randomString } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
+import { GLOBAL_CONFIG } from "../config/params";
 import swarm, { ExecutionContextService } from "../lib";
 
 /**
@@ -18,13 +19,14 @@ export const execute = async (
 ) => {
   const methodName = "function execute";
   const executionId = randomString();
-  swarm.loggerService.log("function execute", {
-    content,
-    clientId,
-    agentName,
-    methodName,
-    executionId,
-  });
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log("function execute", {
+      content,
+      clientId,
+      agentName,
+      methodName,
+      executionId,
+    });
   swarm.agentValidationService.validate(agentName, "execute");
   swarm.sessionValidationService.validate(clientId, "execute");
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
@@ -35,14 +37,15 @@ export const execute = async (
     swarmName
   );
   if (currentAgentName !== agentName) {
-    swarm.loggerService.log(
-      'function "execute" skipped due to the agent change',
-      {
-        currentAgentName,
-        agentName,
-        clientId,
-      }
-    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        'function "execute" skipped due to the agent change',
+        {
+          currentAgentName,
+          agentName,
+          clientId,
+        }
+      );
     return;
   }
   return ExecutionContextService.runInContext(
