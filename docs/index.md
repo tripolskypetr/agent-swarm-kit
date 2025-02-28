@@ -41,6 +41,7 @@
 - [StorageUtils](classes/StorageUtils.md)
 - [StateUtils](classes/StateUtils.md)
 - [LoggerUtils](classes/LoggerUtils.md)
+- [SchemaUtils](classes/SchemaUtils.md)
 
 ## Enums
 

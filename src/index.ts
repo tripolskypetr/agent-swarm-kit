@@ -98,6 +98,7 @@ export {
 
 export { State } from './classes/State';
 export { Logger } from './classes/Logger';
+export { Schema } from './classes/Schema';
 
 export { ExecutionContextService } from './lib/services/context/ExecutionContextService';
 export { MethodContextService } from './lib/services/context/MethodContextService';

@@ -5,6 +5,7 @@ import { SwarmName } from "../interfaces/Swarm.interface";
 import validateDefault from "../validation/validateDefault";
 import removeXmlTags from "../utils/removeXmlTags";
 import { HistoryAdapter, IHistoryAdapter } from "../classes/History";
+import nameToTitle from "src/utils/nameToTitle";
 
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
@@ -83,6 +84,8 @@ const CC_LOGGER_ENABLE_INFO = false;
 const CC_LOGGER_ENABLE_DEBUG = true;
 const CC_LOGGER_ENABLE_LOG = true;
 
+const CC_NAME_TO_TITLE = nameToTitle;
+
 export const GLOBAL_CONFIG = {
   CC_TOOL_CALL_EXCEPTION_PROMPT,
   CC_EMPTY_OUTPUT_PLACEHOLDERS,
@@ -102,6 +105,7 @@ export const GLOBAL_CONFIG = {
   CC_LOGGER_ENABLE_INFO,
   CC_LOGGER_ENABLE_DEBUG,
   CC_LOGGER_ENABLE_LOG,
+  CC_NAME_TO_TITLE,
 };
 
 export const setConfig = (config: Partial<typeof GLOBAL_CONFIG>) => {
