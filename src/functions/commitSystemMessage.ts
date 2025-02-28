@@ -2,7 +2,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
 /**
- * Commits a system message to the active agent in as swarm.
+ * Commits a system message to the active agent in the swarm.
  *
  * @param {string} content - The content of the system message.
  * @param {string} clientId - The ID of the client.

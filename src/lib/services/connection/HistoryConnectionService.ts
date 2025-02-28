@@ -3,13 +3,11 @@ import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import IHistory from "../../../interfaces/History.interface";
 import { IModelMessage } from "../../../model/ModelMessage.model";
-import { IPubsubArray, memoize } from "functools-kit";
+import { memoize } from "functools-kit";
 import ClientHistory from "../../../client/ClientHistory";
 import { TMethodContextService } from "../context/MethodContextService";
 import SessionValidationService from "../validation/SessionValidationService";
-import { AgentName } from "../../../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
-import { IHistoryAdapter } from "../../../classes/History";
 import BusService from "../base/BusService";
 
 /**
@@ -53,9 +51,10 @@ export class HistoryConnectionService implements IHistory {
    * @returns {Promise<void>} A promise that resolves when the message is pushed.
    */
   public push = async (message: IModelMessage) => {
-    this.loggerService.info(`historyConnectionService push`, {
-      message,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`historyConnectionService push`, {
+        message,
+      });
     return await this.getHistory(
       this.methodContextService.context.clientId,
       this.methodContextService.context.agentName
@@ -68,9 +67,10 @@ export class HistoryConnectionService implements IHistory {
    * @returns {Promise<any[]>} A promise that resolves to an array for the agent.
    */
   public toArrayForAgent = async (prompt: string) => {
-    this.loggerService.info(`historyConnectionService toArrayForAgent`, {
-      prompt,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`historyConnectionService toArrayForAgent`, {
+        prompt,
+      });
     return await this.getHistory(
       this.methodContextService.context.clientId,
       this.methodContextService.context.agentName
@@ -82,7 +82,8 @@ export class HistoryConnectionService implements IHistory {
    * @returns {Promise<any[]>} A promise that resolves to a raw array.
    */
   public toArrayForRaw = async () => {
-    this.loggerService.info(`historyConnectionService toArrayForRaw`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`historyConnectionService toArrayForRaw`);
     return await this.getHistory(
       this.methodContextService.context.clientId,
       this.methodContextService.context.agentName
@@ -94,7 +95,8 @@ export class HistoryConnectionService implements IHistory {
    * @returns {Promise<void>} A promise that resolves when the service is disposed.
    */
   public dispose = async () => {
-    this.loggerService.info(`historyConnectionService dispose`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`historyConnectionService dispose`);
     const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.agentName}`;
     if (!this.getHistory.has(key)) {
       return;

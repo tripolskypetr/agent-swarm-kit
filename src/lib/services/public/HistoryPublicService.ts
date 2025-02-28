@@ -5,6 +5,7 @@ import TYPES from "../../core/types";
 import MethodContextService from "../context/MethodContextService";
 import { IModelMessage } from "../../../model/ModelMessage.model";
 import { AgentName } from "../../../interfaces/Agent.interface";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 interface IHistoryConnectionService extends HistoryConnectionService {}
 
@@ -39,12 +40,13 @@ export class HistoryPublicService implements THistoryConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.info("historyPublicService push", {
-      methodName,
-      message,
-      clientId,
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("historyPublicService push", {
+        methodName,
+        message,
+        clientId,
+        agentName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.historyConnectionService.push(message);
@@ -73,11 +75,12 @@ export class HistoryPublicService implements THistoryConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.info("historyPublicService toArrayForAgent", {
-      prompt,
-      clientId,
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("historyPublicService toArrayForAgent", {
+        prompt,
+        clientId,
+        agentName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.historyConnectionService.toArrayForAgent(prompt);
@@ -99,12 +102,17 @@ export class HistoryPublicService implements THistoryConnectionService {
    * @param {AgentName} agentName - The agent name.
    * @returns {Promise<any[]>} A promise that resolves to a raw array of history items.
    */
-  public toArrayForRaw = async (methodName: string, clientId: string, agentName: AgentName) => {
-    this.loggerService.info("historyPublicService toArrayForRaw", {
-      methodName,
-      clientId,
-      agentName,
-    });
+  public toArrayForRaw = async (
+    methodName: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("historyPublicService toArrayForRaw", {
+        methodName,
+        clientId,
+        agentName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.historyConnectionService.toArrayForRaw();
@@ -126,11 +134,16 @@ export class HistoryPublicService implements THistoryConnectionService {
    * @param {AgentName} agentName - The agent name.
    * @returns {Promise<void>} A promise that resolves when the operation is complete.
    */
-  public dispose = async (methodName: string, clientId: string, agentName: AgentName) => {
-    this.loggerService.info("historyPublicService dispose", {
-      clientId,
-      agentName,
-    });
+  public dispose = async (
+    methodName: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("historyPublicService dispose", {
+        clientId,
+        agentName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.historyConnectionService.dispose();

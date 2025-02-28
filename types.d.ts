@@ -3262,7 +3262,7 @@ declare const getSessionMode: (clientId: string) => Promise<SessionMode>;
 declare const commitToolOutput: (toolId: string, content: string, clientId: string, agentName: AgentName) => Promise<void>;
 
 /**
- * Commits a system message to the active agent in as swarm.
+ * Commits a system message to the active agent in the swarm.
  *
  * @param {string} content - The content of the system message.
  * @param {string} clientId - The ID of the client.

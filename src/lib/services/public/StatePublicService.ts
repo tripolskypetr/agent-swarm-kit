@@ -3,10 +3,8 @@ import { StateConnectionService } from "../connection/StateConnectionService";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import MethodContextService from "../context/MethodContextService";
-import {
-  IStateData,
-  StateName,
-} from "../../../interfaces/State.interface";
+import { IStateData, StateName } from "../../../interfaces/State.interface";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 interface IStateConnectionService extends StateConnectionService {}
 
@@ -19,7 +17,9 @@ type TStateConnectionService = {
   [key in Exclude<keyof IStateConnectionService, InternalKeys>]: unknown;
 };
 
-export class StatePublicService<T extends IStateData = IStateData> implements TStateConnectionService {
+export class StatePublicService<T extends IStateData = IStateData>
+  implements TStateConnectionService
+{
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly stateConnectionService = inject<StateConnectionService>(
     TYPES.stateConnectionService
@@ -36,13 +36,14 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
     dispatchFn: (prevState: T) => Promise<T>,
     methodName: string,
     clientId: string,
-    stateName: StateName,
+    stateName: StateName
   ): Promise<T> => {
-    this.loggerService.info(`statePublicService setState`, {
-      methodName,
-      clientId,
-      stateName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`statePublicService setState`, {
+        methodName,
+        clientId,
+        stateName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.stateConnectionService.setState(dispatchFn);
@@ -67,12 +68,13 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
   public getState = async (
     methodName: string,
     clientId: string,
-    stateName: StateName,
+    stateName: StateName
   ): Promise<T> => {
-    this.loggerService.info(`statePublicService getState`, {
-      clientId,
-      stateName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`statePublicService getState`, {
+        clientId,
+        stateName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.stateConnectionService.getState();
@@ -94,12 +96,17 @@ export class StatePublicService<T extends IStateData = IStateData> implements TS
    * @param {StateName} stateName - The name of the state.
    * @returns {Promise<void>} - A promise that resolves when the state is disposed.
    */
-  public dispose = async (methodName: string, clientId: string, stateName: StateName) => {
-    this.loggerService.info("statePublicService dispose", {
-      methodName,
-      clientId,
-      stateName,
-    });
+  public dispose = async (
+    methodName: string,
+    clientId: string,
+    stateName: StateName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("statePublicService dispose", {
+        methodName,
+        clientId,
+        stateName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.stateConnectionService.dispose();

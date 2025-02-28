@@ -5,6 +5,7 @@ import { memoize, queued } from "functools-kit";
 import { TMethodContextService } from "../context/MethodContextService";
 import ClientState from "../../../client/ClientState";
 import StateSchemaService from "../schema/StateSchemaService";
+import { GLOBAL_CONFIG } from "../../../config/params";
 import {
   IState,
   IStateData,
@@ -117,7 +118,8 @@ export class StateConnectionService<T extends IStateData = IStateData>
   public setState = async (
     dispatchFn: (prevState: T) => Promise<T>
   ): Promise<T> => {
-    this.loggerService.info(`stateConnectionService setState`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`stateConnectionService setState`);
     const state = this.getStateRef(
       this.methodContextService.context.clientId,
       this.methodContextService.context.stateName
@@ -131,7 +133,8 @@ export class StateConnectionService<T extends IStateData = IStateData>
    * @returns {Promise<T>} The current state.
    */
   public getState = async (): Promise<T> => {
-    this.loggerService.info(`stateConnectionService getState`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`stateConnectionService getState`);
     const state = this.getStateRef(
       this.methodContextService.context.clientId,
       this.methodContextService.context.stateName
@@ -145,12 +148,15 @@ export class StateConnectionService<T extends IStateData = IStateData>
    * @returns {Promise<void>}
    */
   public dispose = async (): Promise<void> => {
-    this.loggerService.info(`stateConnectionService dispose`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`stateConnectionService dispose`);
     const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.stateName}`;
     if (!this.getStateRef.has(key)) {
       return;
     }
-    if (!this.getSharedStateRef.has(this.methodContextService.context.stateName)) {
+    if (
+      !this.getSharedStateRef.has(this.methodContextService.context.stateName)
+    ) {
       const state = this.getStateRef(
         this.methodContextService.context.clientId,
         this.methodContextService.context.stateName

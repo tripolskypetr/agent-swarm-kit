@@ -5,6 +5,7 @@ import { memoize } from "functools-kit";
 import { TMethodContextService } from "../context/MethodContextService";
 import ClientStorage from "../../../client/ClientStorage";
 import StorageSchemaService from "../schema/StorageSchemaService";
+import { GLOBAL_CONFIG } from "../../../config/params";
 import {
   IStorage,
   IStorageData,
@@ -133,11 +134,12 @@ export class StorageConnectionService implements IStorage {
     total: number,
     score?: number
   ): Promise<IStorageData[]> => {
-    this.loggerService.info(`storageConnectionService take`, {
-      search,
-      total,
-      score,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storageConnectionService take`, {
+        search,
+        total,
+        score,
+      });
     const storage = this.getStorage(
       this.methodContextService.context.clientId,
       this.methodContextService.context.storageName
@@ -152,9 +154,10 @@ export class StorageConnectionService implements IStorage {
    * @returns {Promise<void>}
    */
   public upsert = async (item: IStorageData): Promise<void> => {
-    this.loggerService.info(`storageConnectionService upsert`, {
-      item,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storageConnectionService upsert`, {
+        item,
+      });
     const storage = this.getStorage(
       this.methodContextService.context.clientId,
       this.methodContextService.context.storageName
@@ -169,9 +172,10 @@ export class StorageConnectionService implements IStorage {
    * @returns {Promise<void>}
    */
   public remove = async (itemId: IStorageData["id"]): Promise<void> => {
-    this.loggerService.info(`storageConnectionService remove`, {
-      itemId,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storageConnectionService remove`, {
+        itemId,
+      });
     const storage = this.getStorage(
       this.methodContextService.context.clientId,
       this.methodContextService.context.storageName
@@ -188,9 +192,10 @@ export class StorageConnectionService implements IStorage {
   public get = async (
     itemId: IStorageData["id"]
   ): Promise<IStorageData | null> => {
-    this.loggerService.info(`storageConnectionService get`, {
-      itemId,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storageConnectionService get`, {
+        itemId,
+      });
     const storage = this.getStorage(
       this.methodContextService.context.clientId,
       this.methodContextService.context.storageName
@@ -207,7 +212,8 @@ export class StorageConnectionService implements IStorage {
   public list = async (
     filter?: (item: IStorageData) => boolean
   ): Promise<IStorageData[]> => {
-    this.loggerService.info(`storageConnectionService list`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storageConnectionService list`);
     const storage = this.getStorage(
       this.methodContextService.context.clientId,
       this.methodContextService.context.storageName
@@ -221,7 +227,8 @@ export class StorageConnectionService implements IStorage {
    * @returns {Promise<void>}
    */
   public clear = async (): Promise<void> => {
-    this.loggerService.info(`storageConnectionService clear`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storageConnectionService clear`);
     const storage = this.getStorage(
       this.methodContextService.context.clientId,
       this.methodContextService.context.storageName
@@ -235,12 +242,15 @@ export class StorageConnectionService implements IStorage {
    * @returns {Promise<void>}
    */
   public dispose = async () => {
-    this.loggerService.info(`storageConnectionService dispose`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storageConnectionService dispose`);
     const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.storageName}`;
     if (!this.getStorage.has(key)) {
       return;
     }
-    if (!this.getSharedStorage.has(this.methodContextService.context.storageName)) {
+    if (
+      !this.getSharedStorage.has(this.methodContextService.context.storageName)
+    ) {
       const storage = this.getSharedStorage(
         this.methodContextService.context.clientId,
         this.methodContextService.context.storageName

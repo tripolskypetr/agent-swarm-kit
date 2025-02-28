@@ -1,9 +1,9 @@
 import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import { CompletionName } from "../../../interfaces/Completion.interface";
 import { IAgentTool, ToolName } from "../../../interfaces/Agent.interface";
 import { memoize } from "functools-kit";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * Service for validating tools within the agent-swarm.
@@ -20,10 +20,11 @@ export class ToolValidationService {
    * @throws Will throw an error if the tool already exists.
    */
   public addTool = (toolName: ToolName, toolSchema: IAgentTool) => {
-    this.loggerService.info("toolValidationService addTool", {
-      toolName,
-      toolSchema,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("toolValidationService addTool", {
+        toolName,
+        toolSchema,
+      });
     if (this._toolMap.has(toolName)) {
       throw new Error(`agent-swarm tool ${toolName} already exist`);
     }
@@ -39,12 +40,15 @@ export class ToolValidationService {
   public validate = memoize(
     ([toolName]) => toolName,
     (toolName: ToolName, source: string) => {
-      this.loggerService.info("toolValidationService validate", {
-        toolName,
-        source,
-      });
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("toolValidationService validate", {
+          toolName,
+          source,
+        });
       if (!this._toolMap.has(toolName)) {
-        throw new Error(`agent-swarm tool ${toolName} not found source=${source}`);
+        throw new Error(
+          `agent-swarm tool ${toolName} not found source=${source}`
+        );
       }
       return {} as unknown as void;
     }

@@ -12,6 +12,7 @@ import { memoize } from "functools-kit";
 import StorageValidationService from "./StorageValidationService";
 import { StorageName } from "../../../interfaces/Storage.interface";
 import { StateName } from "../../../interfaces/State.interface";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * Service for validating agents within the agent swarm.
@@ -67,10 +68,11 @@ export class AgentValidationService {
    * @throws {Error} If the agent already exists.
    */
   public addAgent = (agentName: AgentName, agentSchema: IAgentSchema) => {
-    this.loggerService.info("agentValidationService addAgent", {
-      agentName,
-      agentSchema,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentValidationService addAgent", {
+        agentName,
+        agentSchema,
+      });
     if (this._agentMap.has(agentName)) {
       throw new Error(`agent-swarm agent ${agentName} already exist`);
     }
@@ -83,10 +85,11 @@ export class AgentValidationService {
   public hasStorage = memoize(
     ([agentName, storageName]) => `${agentName}-${storageName}`,
     (agentName: AgentName, storageName: StorageName) => {
-      this.loggerService.info("agentValidationService hasStorage", {
-        agentName,
-        storageName,
-      });
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("agentValidationService hasStorage", {
+          agentName,
+          storageName,
+        });
       if (!this._agentMap.has(agentName)) {
         throw new Error(
           `agent-swarm agent ${agentName} not exist (hasStorage)`
@@ -103,14 +106,13 @@ export class AgentValidationService {
   public hasState = memoize(
     ([agentName, stateName]) => `${agentName}-${stateName}`,
     (agentName: AgentName, stateName: StateName) => {
-      this.loggerService.info("agentValidationService hasState", {
-        agentName,
-        stateName,
-      });
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("agentValidationService hasState", {
+          agentName,
+          stateName,
+        });
       if (!this._agentMap.has(agentName)) {
-        throw new Error(
-          `agent-swarm agent ${agentName} not exist (hasState)`
-        );
+        throw new Error(`agent-swarm agent ${agentName} not exist (hasState)`);
       }
       const { states = [] } = this._agentMap.get(agentName);
       return states.includes(stateName);
@@ -126,10 +128,11 @@ export class AgentValidationService {
   public validate = memoize(
     ([agentName]) => agentName,
     (agentName: AgentName, source: string) => {
-      this.loggerService.info("agentValidationService validate", {
-        agentName,
-        source,
-      });
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("agentValidationService validate", {
+          agentName,
+          source,
+        });
       const agent = this._agentMap.get(agentName);
       if (!agent) {
         throw new Error(

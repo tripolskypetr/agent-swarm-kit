@@ -12,6 +12,7 @@ import {
 import ExecutionContextService from "../context/ExecutionContextService";
 import { randomString } from "functools-kit";
 import { IIncomingMessage } from "../../../model/EmitMessage.model";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 interface ISessionConnectionService extends SessionConnectionService {}
 
@@ -45,12 +46,13 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.info("sessionPublicService emit", {
-      content,
-      clientId,
-      methodName,
-      swarmName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService emit", {
+        content,
+        clientId,
+        methodName,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.emit(content);
@@ -80,12 +82,13 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.info("sessionPublicService execute", {
-      content,
-      mode,
-      clientId,
-      swarmName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService execute", {
+        content,
+        mode,
+        clientId,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.execute(content, mode);
@@ -114,11 +117,12 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ): ReceiveMessageFn => {
-    this.loggerService.info("sessionPublicService connect", {
-      methodName,
-      clientId,
-      swarmName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService connect", {
+        methodName,
+        clientId,
+        swarmName,
+      });
     const send = this.sessionConnectionService.connect(
       connector,
       clientId,
@@ -159,13 +163,14 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.info("sessionPublicService commitToolOutput", {
-      methodName,
-      toolId,
-      content,
-      clientId,
-      swarmName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService commitToolOutput", {
+        methodName,
+        toolId,
+        content,
+        clientId,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitToolOutput(
@@ -197,12 +202,13 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.info("sessionPublicService commitSystemMessage", {
-      methodName,
-      message,
-      clientId,
-      swarmName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService commitSystemMessage", {
+        methodName,
+        message,
+        clientId,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitSystemMessage(message);
@@ -231,12 +237,13 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.info("sessionPublicService commitUserMessage", {
-      methodName,
-      message,
-      clientId,
-      swarmName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService commitUserMessage", {
+        methodName,
+        message,
+        clientId,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitUserMessage(message);
@@ -263,10 +270,11 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.info("sessionPublicService commitFlush", {
-      clientId,
-      swarmName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService commitFlush", {
+        clientId,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitFlush();
@@ -293,11 +301,12 @@ export class SessionPublicService implements TSessionConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.info("sessionPublicService dispose", {
-      methodName,
-      clientId,
-      swarmName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService dispose", {
+        methodName,
+        clientId,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.dispose();

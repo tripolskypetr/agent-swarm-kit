@@ -7,6 +7,7 @@ import {
 } from "../../../interfaces/Storage.interface";
 import { memoize } from "functools-kit";
 import EmbeddingValidationService from "./EmbeddingValidationService";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * Service for validating storages within the storage swarm.
@@ -25,11 +26,15 @@ export class StorageValidationService {
    * @param {IStorageSchema} storageSchema - The schema of the storage.
    * @throws {Error} If the storage already exists.
    */
-  public addStorage = (storageName: StorageName, storageSchema: IStorageSchema) => {
-    this.loggerService.info("storageValidationService addStorage", {
-      storageName,
-      storageSchema,
-    });
+  public addStorage = (
+    storageName: StorageName,
+    storageSchema: IStorageSchema
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("storageValidationService addStorage", {
+        storageName,
+        storageSchema,
+      });
     if (this._storageMap.has(storageName)) {
       throw new Error(`storage-swarm storage ${storageName} already exist`);
     }
@@ -45,13 +50,16 @@ export class StorageValidationService {
   public validate = memoize(
     ([storageName]) => storageName,
     (storageName: StorageName, source: string) => {
-      this.loggerService.info("storageValidationService validate", {
-        storageName,
-        source,
-      });
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("storageValidationService validate", {
+          storageName,
+          source,
+        });
       const storage = this._storageMap.get(storageName);
       if (!storage) {
-        throw new Error(`storage-swarm storage ${storageName} not found source=${source}`);
+        throw new Error(
+          `storage-swarm storage ${storageName} not found source=${source}`
+        );
       }
       this.embeddingValidationService.validate(storage.embedding, source);
       return {} as unknown as void;

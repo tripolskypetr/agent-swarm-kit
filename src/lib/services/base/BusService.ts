@@ -5,10 +5,13 @@ import TYPES from "../../../lib/core/types";
 import { IBus } from "../../../interfaces/Bus.interface";
 import IBaseEvent, { EventSource } from "../../../model/Event.model";
 import SessionValidationService from "../validation/SessionValidationService";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 export class BusService implements IBus {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
-  private readonly sessionValidationService = inject<SessionValidationService>(TYPES.sessionValidationService);
+  private readonly sessionValidationService = inject<SessionValidationService>(
+    TYPES.sessionValidationService
+  );
 
   private _eventSourceSet = new Set<EventSource>();
   private _eventWildcardMap = new Map<EventSource, boolean>();
@@ -31,10 +34,11 @@ export class BusService implements IBus {
     source: EventSource,
     fn: (event: T) => void
   ) => {
-    this.loggerService.info(`busService subscribe`, {
-      clientId,
-      source,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`busService subscribe`, {
+        clientId,
+        source,
+      });
     if (clientId === "*") {
       this._eventWildcardMap.set(source, true);
     }
@@ -56,10 +60,11 @@ export class BusService implements IBus {
     filterFn: (event: T) => boolean,
     fn: (event: T) => void
   ) => {
-    this.loggerService.info(`busService once`, {
-      clientId,
-      source,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`busService once`, {
+        clientId,
+        source,
+      });
     if (clientId === "*") {
       this._eventWildcardMap.set(source, true);
     }
@@ -94,9 +99,10 @@ export class BusService implements IBus {
    * @param {string} clientId - The client ID.
    */
   public dispose = (clientId: string) => {
-    this.loggerService.info(`busService dispose`, {
-      clientId,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`busService dispose`, {
+        clientId,
+      });
     for (const source of this._eventSourceSet) {
       const key = `${clientId}-${source}`;
       if (this.getEventSubject.has(key)) {

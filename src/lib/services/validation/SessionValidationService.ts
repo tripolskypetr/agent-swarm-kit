@@ -6,6 +6,7 @@ import { SwarmName } from "../../../interfaces/Swarm.interface";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { StorageName } from "../../../interfaces/Storage.interface";
 import { StateName } from "../../../interfaces/State.interface";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * Service for validating and managing sessions.
@@ -33,9 +34,10 @@ export class SessionValidationService {
     swarmName: SwarmName,
     sessionMode: SessionMode
   ) => {
-    this.loggerService.info("sessionValidationService addSession", {
-      clientId,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService addSession", {
+        clientId,
+      });
     if (this._sessionSwarmMap.has(clientId)) {
       throw new Error(`agent-swarm session clientId=${clientId} already exist`);
     }
@@ -49,10 +51,11 @@ export class SessionValidationService {
    * @param {AgentName} agentName - The name of the agent.
    */
   public addAgentUsage = (sessionId: SessionId, agentName: AgentName): void => {
-    this.loggerService.info("sessionValidationService addAgentUsage", {
-      sessionId,
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService addAgentUsage", {
+        sessionId,
+        agentName,
+      });
     if (this._agentSwarmMap.has(sessionId)) {
       const agents = this._agentSwarmMap.get(sessionId)!;
       if (!agents.includes(agentName)) {
@@ -72,10 +75,11 @@ export class SessionValidationService {
     sessionId: SessionId,
     agentName: AgentName
   ): void => {
-    this.loggerService.info("sessionValidationService addHistoryUsage", {
-      sessionId,
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService addHistoryUsage", {
+        sessionId,
+        agentName,
+      });
     if (this._historySwarmMap.has(sessionId)) {
       const agents = this._historySwarmMap.get(sessionId)!;
       if (!agents.includes(agentName)) {
@@ -95,10 +99,11 @@ export class SessionValidationService {
     sessionId: SessionId,
     storageName: StorageName
   ): void => {
-    this.loggerService.info("sessionValidationService addStorageUsage", {
-      sessionId,
-      storageName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService addStorageUsage", {
+        sessionId,
+        storageName,
+      });
     if (this._storageSwarmMap.has(sessionId)) {
       const storages = this._storageSwarmMap.get(sessionId)!;
       if (!storages.includes(storageName)) {
@@ -115,10 +120,11 @@ export class SessionValidationService {
    * @param {StateName} stateName - The name of the state.
    */
   public addStateUsage = (sessionId: SessionId, stateName: StateName): void => {
-    this.loggerService.info("sessionValidationService addStateUsage", {
-      sessionId,
-      stateName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService addStateUsage", {
+        sessionId,
+        stateName,
+      });
     if (this._stateSwarmMap.has(sessionId)) {
       const states = this._stateSwarmMap.get(sessionId)!;
       if (!states.includes(stateName)) {
@@ -139,10 +145,11 @@ export class SessionValidationService {
     sessionId: SessionId,
     agentName: AgentName
   ): void => {
-    this.loggerService.info("sessionValidationService removeAgentUsage", {
-      sessionId,
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService removeAgentUsage", {
+        sessionId,
+        agentName,
+      });
     if (this._agentSwarmMap.has(sessionId)) {
       const agents = this._agentSwarmMap.get(sessionId)!;
       const agentIndex = agents.indexOf(agentName);
@@ -167,10 +174,11 @@ export class SessionValidationService {
     sessionId: SessionId,
     agentName: AgentName
   ): void => {
-    this.loggerService.info("sessionValidationService removeHistoryUsage", {
-      sessionId,
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService removeHistoryUsage", {
+        sessionId,
+        agentName,
+      });
     if (this._historySwarmMap.has(sessionId)) {
       const agents = this._historySwarmMap.get(sessionId)!;
       const agentIndex = agents.indexOf(agentName);
@@ -195,10 +203,11 @@ export class SessionValidationService {
     sessionId: SessionId,
     storageName: StorageName
   ): void => {
-    this.loggerService.info("sessionValidationService removeStorageUsage", {
-      sessionId,
-      storageName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService removeStorageUsage", {
+        sessionId,
+        storageName,
+      });
     if (this._storageSwarmMap.has(sessionId)) {
       const agents = this._storageSwarmMap.get(sessionId)!;
       const agentIndex = agents.indexOf(storageName);
@@ -223,10 +232,11 @@ export class SessionValidationService {
     sessionId: SessionId,
     stateName: StateName
   ): void => {
-    this.loggerService.info("sessionValidationService removeStateUsage", {
-      sessionId,
-      stateName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService removeStateUsage", {
+        sessionId,
+        stateName,
+      });
     if (this._stateSwarmMap.has(sessionId)) {
       const agents = this._stateSwarmMap.get(sessionId)!;
       const agentIndex = agents.indexOf(stateName);
@@ -248,9 +258,10 @@ export class SessionValidationService {
    * @throws Will throw an error if the session does not exist.
    */
   public getSessionMode = (clientId: SessionId) => {
-    this.loggerService.info("sessionValidationService getSessionMode", {
-      clientId,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService getSessionMode", {
+        clientId,
+      });
     if (!this._sessionModeMap.has(clientId)) {
       throw new Error(
         `agent-swarm session getSessionMode clientId=${clientId} session not exist`
@@ -264,7 +275,8 @@ export class SessionValidationService {
    * @returns {boolean}
    */
   public hasSession = (clientId: SessionId) => {
-    this.loggerService.info("sessionValidationService hasSession");
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService hasSession");
     return this._sessionSwarmMap.has(clientId);
   };
 
@@ -273,7 +285,8 @@ export class SessionValidationService {
    * @returns {SessionId[]} The list of session IDs.
    */
   public getSessionList = () => {
-    this.loggerService.info("sessionValidationService getSessionList");
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService getSessionList");
     return [...this._sessionSwarmMap.keys()];
   };
 
@@ -283,9 +296,10 @@ export class SessionValidationService {
    * @returns {AgentName[]} The list of agent names.
    */
   public getSessionAgentList = (clientId: string) => {
-    this.loggerService.info("sessionValidationService getSessionAgentList", {
-      clientId,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService getSessionAgentList", {
+        clientId,
+      });
     return this._agentSwarmMap.get(clientId) ?? [];
   };
 
@@ -295,9 +309,13 @@ export class SessionValidationService {
    * @returns {AgentName[]} The list of agent names.
    */
   public getSessionHistoryList = (clientId: string) => {
-    this.loggerService.info("sessionValidationService getSessionHistoryList", {
-      clientId,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(
+        "sessionValidationService getSessionHistoryList",
+        {
+          clientId,
+        }
+      );
     return this._agentSwarmMap.get(clientId) ?? [];
   };
 
@@ -308,9 +326,10 @@ export class SessionValidationService {
    * @throws Will throw an error if the session does not exist.
    */
   public getSwarm = (clientId: SessionId) => {
-    this.loggerService.info("sessionValidationService getSwarm", {
-      clientId,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService getSwarm", {
+        clientId,
+      });
     const session = this._sessionSwarmMap.get(clientId);
     if (session === undefined) {
       throw new Error(`agent-swarm session clientId=${clientId} not found`);
@@ -325,7 +344,10 @@ export class SessionValidationService {
    * @throws Will throw an error if the session does not exist.
    */
   public validate = (clientId: SessionId, source: string) => {
-    this.loggerService.info("sessionValidationService validate", { clientId });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService validate", {
+        clientId,
+      });
     if (!this._sessionSwarmMap.has(clientId)) {
       throw new Error(
         `agent-swarm session clientId=${clientId} not exist source=${source}`
@@ -339,9 +361,10 @@ export class SessionValidationService {
    * @param {SessionId} clientId - The ID of the client.
    */
   public removeSession = (clientId: SessionId) => {
-    this.loggerService.info("sessionValidationService addSession", {
-      clientId,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService addSession", {
+        clientId,
+      });
     this._sessionSwarmMap.delete(clientId);
     this._sessionModeMap.delete(clientId);
   };

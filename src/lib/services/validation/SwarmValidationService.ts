@@ -4,6 +4,7 @@ import TYPES from "../../core/types";
 import { SwarmName, ISwarmSchema } from "../../../interfaces/Swarm.interface";
 import AgentValidationService from "./AgentValidationService";
 import { memoize } from "functools-kit";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * Service for validating swarms and their agents.
@@ -24,10 +25,11 @@ export class SwarmValidationService {
    * @throws Will throw an error if the swarm already exists.
    */
   public addSwarm = (swarmName: SwarmName, swarmSchema: ISwarmSchema) => {
-    this.loggerService.info("swarmValidationService addSwarm", {
-      swarmName,
-      swarmSchema,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmValidationService addSwarm", {
+        swarmName,
+        swarmSchema,
+      });
     if (this._swarmMap.has(swarmName)) {
       throw new Error(`swarm-swarm swarm ${swarmName} already exist`);
     }
@@ -41,9 +43,10 @@ export class SwarmValidationService {
    * @throws Will throw an error if the swarm is not found.
    */
   public getAgentList = (swarmName: SwarmName) => {
-    this.loggerService.info("swarmValidationService getAgentList", {
-      swarmName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmValidationService getAgentList", {
+        swarmName,
+      });
     const swarm = this._swarmMap.get(swarmName);
     if (!swarm) {
       throw new Error(`agent-swarm swarm ${swarmName} not found`);
@@ -60,10 +63,11 @@ export class SwarmValidationService {
   public validate = memoize(
     ([swarmName]) => swarmName,
     (swarmName: SwarmName, source: string) => {
-      this.loggerService.info("swarmValidationService validate", {
-        swarmName,
-        source,
-      });
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("swarmValidationService validate", {
+          swarmName,
+          source,
+        });
       const swarm = this._swarmMap.get(swarmName);
       if (!swarm) {
         throw new Error(`agent-swarm swarm ${swarmName} not found`);

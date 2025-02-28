@@ -7,6 +7,7 @@ import {
   IStorageData,
   StorageName,
 } from "../../../interfaces/Storage.interface";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 interface IStorageConnectionService extends StorageConnectionService {}
 
@@ -40,16 +41,17 @@ export class StoragePublicService implements TStorageConnectionService {
     methodName: string,
     clientId: string,
     storageName: StorageName,
-    score?: number,
+    score?: number
   ): Promise<IStorageData[]> => {
-    this.loggerService.info(`storagePublicService take`, {
-      methodName,
-      search,
-      total,
-      clientId,
-      storageName,
-      score,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storagePublicService take`, {
+        methodName,
+        search,
+        total,
+        clientId,
+        storageName,
+        score,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.take(search, total, score);
@@ -76,11 +78,12 @@ export class StoragePublicService implements TStorageConnectionService {
     clientId: string,
     storageName: StorageName
   ): Promise<void> => {
-    this.loggerService.info(`storagePublicService upsert`, {
-      item,
-      clientId,
-      storageName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storagePublicService upsert`, {
+        item,
+        clientId,
+        storageName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.upsert(item);
@@ -107,11 +110,12 @@ export class StoragePublicService implements TStorageConnectionService {
     clientId: string,
     storageName: StorageName
   ): Promise<void> => {
-    this.loggerService.info(`storagePublicService remove`, {
-      itemId,
-      clientId,
-      storageName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storagePublicService remove`, {
+        itemId,
+        clientId,
+        storageName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.remove(itemId);
@@ -138,12 +142,13 @@ export class StoragePublicService implements TStorageConnectionService {
     clientId: string,
     storageName: StorageName
   ): Promise<IStorageData | null> => {
-    this.loggerService.info(`storagePublicService get`, {
-      methodName,
-      itemId,
-      clientId,
-      storageName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storagePublicService get`, {
+        methodName,
+        itemId,
+        clientId,
+        storageName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.get(itemId);
@@ -170,11 +175,12 @@ export class StoragePublicService implements TStorageConnectionService {
     storageName: StorageName,
     filter?: (item: IStorageData) => boolean
   ): Promise<IStorageData[]> => {
-    this.loggerService.info(`storagePublicService list`, {
-      methodName,
-      clientId,
-      storageName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storagePublicService list`, {
+        methodName,
+        clientId,
+        storageName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.list(filter);
@@ -199,11 +205,12 @@ export class StoragePublicService implements TStorageConnectionService {
     clientId: string,
     storageName: StorageName
   ): Promise<void> => {
-    this.loggerService.info(`storagePublicService clear`, {
-      methodName,
-      clientId,
-      storageName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storagePublicService clear`, {
+        methodName,
+        clientId,
+        storageName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.clear();
@@ -225,11 +232,16 @@ export class StoragePublicService implements TStorageConnectionService {
    * @param {StorageName} storageName - The storage name.
    * @returns {Promise<void>}
    */
-  public dispose = async (methodName: string, clientId: string, storageName: StorageName) => {
-    this.loggerService.info("storagePublicService dispose", {
-      clientId,
-      storageName,
-    });
+  public dispose = async (
+    methodName: string,
+    clientId: string,
+    storageName: StorageName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("storagePublicService dispose", {
+        clientId,
+        storageName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.storageConnectionService.dispose();

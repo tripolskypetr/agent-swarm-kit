@@ -80,7 +80,7 @@ const CC_STORAGE_SEARCH_SIMILARITY = 0.65;
 const CC_STORAGE_SEARCH_POOL = 5;
 
 const CC_LOGGER_ENABLE_INFO = false;
-const CC_LOGGER_ENABLE_DEBUG = false;
+const CC_LOGGER_ENABLE_DEBUG = true;
 const CC_LOGGER_ENABLE_LOG = true;
 
 export const GLOBAL_CONFIG = {

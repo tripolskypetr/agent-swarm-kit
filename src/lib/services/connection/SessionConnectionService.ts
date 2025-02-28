@@ -5,6 +5,7 @@ import TYPES from "../../core/types";
 import { memoize } from "functools-kit";
 import ClientSession from "../../../client/ClientSession";
 import SwarmConnectionService from "./SwarmConnectionService";
+import { GLOBAL_CONFIG } from "../../../config/params";
 import {
   ExecutionMode,
   ISession,
@@ -61,9 +62,10 @@ export class SessionConnectionService implements ISession {
    * @returns {Promise<void>} A promise that resolves when the message is emitted.
    */
   public emit = async (content: string) => {
-    this.loggerService.info(`sessionConnectionService emit`, {
-      content,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sessionConnectionService emit`, {
+        content,
+      });
     return await this.getSession(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
@@ -79,10 +81,11 @@ export class SessionConnectionService implements ISession {
     content: string,
     mode: ExecutionMode
   ): Promise<string> => {
-    this.loggerService.info(`sessionConnectionService execute`, {
-      content,
-      mode,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sessionConnectionService execute`, {
+        content,
+        mode,
+      });
     return await this.getSession(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
@@ -94,12 +97,14 @@ export class SessionConnectionService implements ISession {
    * @param {SendMessageFn} connector - The function to send messages.
    * @returns {ReceiveMessageFn} The function to receive messages.
    */
-  public connect = (connector: SendMessageFn, clientId: string, swarmName: SwarmName): ReceiveMessageFn => {
-    this.loggerService.info(`sessionConnectionService connect`);
-    return this.getSession(
-      clientId,
-      swarmName,
-    ).connect(connector);
+  public connect = (
+    connector: SendMessageFn,
+    clientId: string,
+    swarmName: SwarmName
+  ): ReceiveMessageFn => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sessionConnectionService connect`);
+    return this.getSession(clientId, swarmName).connect(connector);
   };
 
   /**
@@ -112,10 +117,11 @@ export class SessionConnectionService implements ISession {
     toolId: string,
     content: string
   ): Promise<void> => {
-    this.loggerService.info(`sessionConnectionService commitToolOutput`, {
-      content,
-      toolId,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sessionConnectionService commitToolOutput`, {
+        content,
+        toolId,
+      });
     return await this.getSession(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
@@ -128,9 +134,10 @@ export class SessionConnectionService implements ISession {
    * @returns {Promise<void>} A promise that resolves when the message is committed.
    */
   public commitSystemMessage = async (message: string): Promise<void> => {
-    this.loggerService.info(`sessionConnectionService commitSystemMessage`, {
-      message,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sessionConnectionService commitSystemMessage`, {
+        message,
+      });
     return await this.getSession(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
@@ -143,9 +150,10 @@ export class SessionConnectionService implements ISession {
    * @returns {Promise<void>} A promise that resolves when the message is committed.
    */
   public commitUserMessage = async (message: string): Promise<void> => {
-    this.loggerService.info(`sessionConnectionService commitUserMessage`, {
-      message,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sessionConnectionService commitUserMessage`, {
+        message,
+      });
     return await this.getSession(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
@@ -158,7 +166,8 @@ export class SessionConnectionService implements ISession {
    * @returns {Promise<void>} A promise that resolves when the message is committed.
    */
   public commitFlush = async (): Promise<void> => {
-    this.loggerService.info(`sessionConnectionService commitFlush`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sessionConnectionService commitFlush`);
     return await this.getSession(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
@@ -170,7 +179,8 @@ export class SessionConnectionService implements ISession {
    * @returns {Promise<void>} A promise that resolves when the service is disposed.
    */
   public dispose = async () => {
-    this.loggerService.info(`sessionConnectionService dispose`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sessionConnectionService dispose`);
     const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.swarmName}`;
     if (!this.getSession.has(key)) {
       return;

@@ -1,8 +1,12 @@
 import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import { IEmbeddingSchema, EmbeddingName } from "../../../interfaces/Embedding.interface";
+import {
+  IEmbeddingSchema,
+  EmbeddingName,
+} from "../../../interfaces/Embedding.interface";
 import { memoize } from "functools-kit";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * Service for validating embeddings within the agent-swarm.
@@ -18,11 +22,15 @@ export class EmbeddingValidationService {
    * @param {IAgentEmbedding} embeddingSchema - The schema of the embedding to add.
    * @throws Will throw an error if the embedding already exists.
    */
-  public addEmbedding = (embeddingName: EmbeddingName, embeddingSchema: IEmbeddingSchema) => {
-    this.loggerService.info("embeddingValidationService addEmbedding", {
-      embeddingName,
-      embeddingSchema,
-    });
+  public addEmbedding = (
+    embeddingName: EmbeddingName,
+    embeddingSchema: IEmbeddingSchema
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("embeddingValidationService addEmbedding", {
+        embeddingName,
+        embeddingSchema,
+      });
     if (this._embeddingMap.has(embeddingName)) {
       throw new Error(`agent-swarm embedding ${embeddingName} already exist`);
     }
@@ -38,12 +46,15 @@ export class EmbeddingValidationService {
   public validate = memoize(
     ([embeddingName]) => embeddingName,
     (embeddingName: EmbeddingName, source: string) => {
-      this.loggerService.info("embeddingValidationService validate", {
-        embeddingName,
-        source,
-      });
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("embeddingValidationService validate", {
+          embeddingName,
+          source,
+        });
       if (!this._embeddingMap.has(embeddingName)) {
-        throw new Error(`agent-swarm embedding ${embeddingName} not found source=${source}`);
+        throw new Error(
+          `agent-swarm embedding ${embeddingName} not found source=${source}`
+        );
       }
       return {} as unknown as void;
     }

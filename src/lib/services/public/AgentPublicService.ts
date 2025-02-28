@@ -5,6 +5,7 @@ import TYPES from "../../core/types";
 import MethodContextService from "../context/MethodContextService";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { ExecutionMode } from "../../../interfaces/Session.interface";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 interface IAgentConnectionService extends AgentConnectionService {}
 
@@ -31,12 +32,17 @@ export class AgentPublicService implements TAgentConnectionService {
    * @param {AgentName} agentName - The name of the agent.
    * @returns {Promise<unknown>} The agent reference.
    */
-  public createAgentRef = async (methodName: string, clientId: string, agentName: AgentName) => {
-    this.loggerService.info("agentPublicService createAgentRef", {
-      methodName,
-      clientId,
-      agentName,
-    });
+  public createAgentRef = async (
+    methodName: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService createAgentRef", {
+        methodName,
+        clientId,
+        agentName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.getAgent(clientId, agentName);
@@ -66,13 +72,14 @@ export class AgentPublicService implements TAgentConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.info("agentPublicService execute", {
-      methodName,
-      input,
-      clientId,
-      agentName,
-      mode,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService execute", {
+        methodName,
+        input,
+        clientId,
+        agentName,
+        mode,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.execute(input, mode);
@@ -94,12 +101,17 @@ export class AgentPublicService implements TAgentConnectionService {
    * @param {AgentName} agentName - The name of the agent.
    * @returns {Promise<unknown>} The output result.
    */
-  public waitForOutput = async (methodName: string, clientId: string, agentName: AgentName) => {
-    this.loggerService.info("agentPublicService waitForOutput", {
-      methodName,
-      clientId,
-      agentName,
-    });
+  public waitForOutput = async (
+    methodName: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService waitForOutput", {
+        methodName,
+        clientId,
+        agentName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.waitForOutput();
@@ -130,16 +142,20 @@ export class AgentPublicService implements TAgentConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.info("agentPublicService commitToolOutput", {
-      methodName,
-      content,
-      clientId,
-      toolId,
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService commitToolOutput", {
+        methodName,
+        content,
+        clientId,
+        toolId,
+        agentName,
+      });
     return await MethodContextService.runInContext(
       async () => {
-        return await this.agentConnectionService.commitToolOutput(toolId, content);
+        return await this.agentConnectionService.commitToolOutput(
+          toolId,
+          content
+        );
       },
       {
         methodName,
@@ -165,12 +181,13 @@ export class AgentPublicService implements TAgentConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.info("agentPublicService commitSystemMessage", {
-      methodName,
-      message,
-      clientId,
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService commitSystemMessage", {
+        methodName,
+        message,
+        clientId,
+        agentName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitSystemMessage(message);
@@ -199,12 +216,13 @@ export class AgentPublicService implements TAgentConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.info("agentPublicService commitUserMessage", {
-      methodName,
-      message,
-      clientId,
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService commitUserMessage", {
+        methodName,
+        message,
+        clientId,
+        agentName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitUserMessage(message);
@@ -231,11 +249,12 @@ export class AgentPublicService implements TAgentConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.info("agentPublicService commitFlush", {
-      methodName,
-      clientId,
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService commitFlush", {
+        methodName,
+        clientId,
+        agentName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitFlush();
@@ -262,11 +281,12 @@ export class AgentPublicService implements TAgentConnectionService {
     clientId: string,
     agentName: AgentName
   ) => {
-    this.loggerService.info("agentPublicService commitAgentChange", {
-      methodName,
-      clientId,
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService commitAgentChange", {
+        methodName,
+        clientId,
+        agentName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.commitAgentChange();
@@ -288,12 +308,17 @@ export class AgentPublicService implements TAgentConnectionService {
    * @param {AgentName} agentName - The name of the agent.
    * @returns {Promise<unknown>} The dispose result.
    */
-  public dispose = async (methodName: string, clientId: string, agentName: AgentName) => {
-    this.loggerService.info("agentPublicService dispose", {
-      methodName,
-      clientId,
-      agentName,
-    });
+  public dispose = async (
+    methodName: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService dispose", {
+        methodName,
+        clientId,
+        agentName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.agentConnectionService.dispose();

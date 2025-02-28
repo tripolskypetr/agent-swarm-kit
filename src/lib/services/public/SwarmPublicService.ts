@@ -5,6 +5,7 @@ import TYPES from "../../core/types";
 import MethodContextService from "../context/MethodContextService";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
 import { AgentName, IAgent } from "../../../interfaces/Agent.interface";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 interface ISwarmConnectionService extends SwarmConnectionService {}
 
@@ -31,11 +32,16 @@ export class SwarmPublicService implements TSwarmConnectionService {
    * @param {SwarmName} swarmName - The swarm name.
    * @returns {Promise<void>}
    */
-  public cancelOutput = async (methodName: string, clientId: string, swarmName: SwarmName) => {
-    this.loggerService.info("swarmPublicService cancelOutput", {
-      clientId,
-      swarmName,
-    });
+  public cancelOutput = async (
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmPublicService cancelOutput", {
+        clientId,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.cancelOutput();
@@ -57,12 +63,17 @@ export class SwarmPublicService implements TSwarmConnectionService {
    * @param {SwarmName} swarmName - The swarm name.
    * @returns {Promise<void>}
    */
-  public waitForOutput = async (methodName: string, clientId: string, swarmName: SwarmName) => {
-    this.loggerService.info("swarmPublicService waitForOutput", {
-      clientId,
-      methodName,
-      swarmName,
-    });
+  public waitForOutput = async (
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmPublicService waitForOutput", {
+        clientId,
+        methodName,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.waitForOutput();
@@ -84,12 +95,17 @@ export class SwarmPublicService implements TSwarmConnectionService {
    * @param {SwarmName} swarmName - The swarm name.
    * @returns {Promise<string>}
    */
-  public getAgentName = async (methodName: string, clientId: string, swarmName: SwarmName) => {
-    this.loggerService.info("swarmPublicService getAgentName", {
-      clientId,
-      swarmName,
-      methodName,
-    });
+  public getAgentName = async (
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmPublicService getAgentName", {
+        clientId,
+        swarmName,
+        methodName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.getAgentName();
@@ -111,11 +127,16 @@ export class SwarmPublicService implements TSwarmConnectionService {
    * @param {SwarmName} swarmName - The swarm name.
    * @returns {Promise<IAgent>}
    */
-  public getAgent = async (methodName: string, clientId: string, swarmName: SwarmName) => {
-    this.loggerService.info("swarmPublicService getAgent", {
-      clientId,
-      swarmName,
-    });
+  public getAgent = async (
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmPublicService getAgent", {
+        clientId,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.getAgent();
@@ -146,13 +167,14 @@ export class SwarmPublicService implements TSwarmConnectionService {
     agentName: AgentName,
     agent: IAgent
   ) => {
-    this.loggerService.info("swarmPublicService setAgentRef", {
-      methodName,
-      agentName,
-      agent,
-      clientId,
-      swarmName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmPublicService setAgentRef", {
+        methodName,
+        agentName,
+        agent,
+        clientId,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.setAgentRef(agentName, agent);
@@ -181,12 +203,13 @@ export class SwarmPublicService implements TSwarmConnectionService {
     clientId: string,
     swarmName: SwarmName
   ) => {
-    this.loggerService.info("swarmPublicService setAgentName", {
-      methodName,
-      agentName,
-      clientId,
-      swarmName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmPublicService setAgentName", {
+        methodName,
+        agentName,
+        clientId,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.setAgentName(agentName);
@@ -208,12 +231,17 @@ export class SwarmPublicService implements TSwarmConnectionService {
    * @param {SwarmName} swarmName - The swarm name.
    * @returns {Promise<void>}
    */
-  public dispose = async (methodName: string, clientId: string, swarmName: SwarmName) => {
-    this.loggerService.info("swarmPublicService dispose", {
-      methodName,
-      clientId,
-      swarmName,
-    });
+  public dispose = async (
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmPublicService dispose", {
+        methodName,
+        clientId,
+        swarmName,
+      });
     return await MethodContextService.runInContext(
       async () => {
         return await this.swarmConnectionService.dispose();

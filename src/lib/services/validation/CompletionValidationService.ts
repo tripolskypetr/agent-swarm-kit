@@ -3,6 +3,7 @@ import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import { CompletionName } from "../../../interfaces/Completion.interface";
 import { memoize } from "functools-kit";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * Service for validating completion names.
@@ -18,9 +19,10 @@ export class CompletionValidationService {
    * @throws Will throw an error if the completion name already exists.
    */
   public addCompletion = (completionName: CompletionName) => {
-    this.loggerService.info("completionValidationService addCompletion", {
-      completionName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("completionValidationService addCompletion", {
+        completionName,
+      });
     if (this._completionSet.has(completionName)) {
       throw new Error(`agent-swarm completion ${completionName} already exist`);
     }
@@ -36,12 +38,15 @@ export class CompletionValidationService {
   public validate = memoize(
     ([completionName]) => completionName,
     (completionName: CompletionName, source: string) => {
-      this.loggerService.info("completionValidationService validate", {
-        completionName,
-        source,
-      });
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("completionValidationService validate", {
+          completionName,
+          source,
+        });
       if (!this._completionSet.has(completionName)) {
-        throw new Error(`agent-swarm completion ${completionName} not found source=${source}`);
+        throw new Error(
+          `agent-swarm completion ${completionName} not found source=${source}`
+        );
       }
       return {} as unknown as void;
     }

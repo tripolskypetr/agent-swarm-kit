@@ -75,7 +75,8 @@ export class SwarmConnectionService implements ISwarm {
    * @returns {Promise<void>}
    */
   public cancelOutput = async () => {
-    this.loggerService.info(`swarmConnectionService cancelOutput`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`swarmConnectionService cancelOutput`);
     return await this.getSwarm(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
@@ -87,7 +88,8 @@ export class SwarmConnectionService implements ISwarm {
    * @returns {Promise<any>} The output from the swarm.
    */
   public waitForOutput = async () => {
-    this.loggerService.info(`swarmConnectionService waitForOutput`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`swarmConnectionService waitForOutput`);
     return await this.getSwarm(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
@@ -99,7 +101,8 @@ export class SwarmConnectionService implements ISwarm {
    * @returns {Promise<string>} The agent name.
    */
   public getAgentName = async () => {
-    this.loggerService.info(`swarmConnectionService getAgentName`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`swarmConnectionService getAgentName`);
     return await this.getSwarm(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
@@ -111,7 +114,8 @@ export class SwarmConnectionService implements ISwarm {
    * @returns {Promise<IAgent>} The agent instance.
    */
   public getAgent = async () => {
-    this.loggerService.info(`swarmConnectionService getAgent`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`swarmConnectionService getAgent`);
     return await this.getSwarm(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
@@ -125,9 +129,10 @@ export class SwarmConnectionService implements ISwarm {
    * @returns {Promise<void>}
    */
   public setAgentRef = async (agentName: AgentName, agent: IAgent) => {
-    this.loggerService.info(`swarmConnectionService setAgentRef`, {
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`swarmConnectionService setAgentRef`, {
+        agentName,
+      });
     return await this.getSwarm(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
@@ -140,9 +145,10 @@ export class SwarmConnectionService implements ISwarm {
    * @returns {Promise<void>}
    */
   public setAgentName = async (agentName: AgentName) => {
-    this.loggerService.info(`swarmConnectionService setAgentName`, {
-      agentName,
-    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`swarmConnectionService setAgentName`, {
+        agentName,
+      });
     return await this.getSwarm(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
@@ -154,7 +160,8 @@ export class SwarmConnectionService implements ISwarm {
    * @returns {Promise<void>}
    */
   public dispose = async () => {
-    this.loggerService.info(`swarmConnectionService dispose`);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`swarmConnectionService dispose`);
     const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.swarmName}`;
     if (!this.getSwarm.has(key)) {
       return;
