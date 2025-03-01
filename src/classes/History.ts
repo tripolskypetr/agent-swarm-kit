@@ -194,9 +194,12 @@ export type THistoryInstanceCtor = new (
   ...args: unknown[]
 ) => IHistoryInstance;
 
+const HISTORY_INSTANCE_WAIT_FOR_INIT = Symbol("wait-for-init");
+
 const INSTANCE_METHOD_NAME_WAIT_FOR_INIT = "HistoryInstance.waitForInit";
 const INSTANCE_METHOD_NAME_CTOR = "HistoryInstance.CTOR";
-const INSTANCE_METHOD_NAME_ITERATE_CONDITION = "HistoryInstance.iterate condition";
+const INSTANCE_METHOD_NAME_ITERATE_CONDITION =
+  "HistoryInstance.iterate condition";
 const INSTANCE_METHOD_NAME_ITERATE = "HistoryInstance.iterate";
 const INSTANCE_METHOD_NAME_PUSH = "HistoryInstance.push";
 const INSTANCE_METHOD_NAME_DISPOSE = "HistoryInstance.dispose";
@@ -214,19 +217,29 @@ export class HistoryInstance implements IHistoryInstance {
   private _array: IModelMessage[] = [];
 
   /**
+   * Makes the singleshot for initialization
+   * @param agentName - The agent name.
+   */
+  private [HISTORY_INSTANCE_WAIT_FOR_INIT] = singleshot(
+    async (agentName: AgentName) => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        swarm.loggerService.debug(INSTANCE_METHOD_NAME_WAIT_FOR_INIT, {
+          clientId: this.clientId,
+          agentName,
+        });
+      if (this.callbacks.getData) {
+        this._array = await this.callbacks.getData(this.clientId, agentName);
+      }
+    }
+  );
+
+  /**
    * Wait for the history to initialize.
    * @param agentName - The agent name.
    */
-  public waitForInit = singleshot(async (agentName: AgentName) => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(INSTANCE_METHOD_NAME_WAIT_FOR_INIT, {
-        clientId: this.clientId,
-        agentName,
-      });
-    if (this.callbacks.getData) {
-      this._array = await this.callbacks.getData(this.clientId, agentName);
-    }
-  });
+  public async waitForInit(agentName: AgentName): Promise<void> {
+    return await this[HISTORY_INSTANCE_WAIT_FOR_INIT](agentName);
+  };
 
   /**
    * Create a HistoryInstance.
@@ -329,7 +342,7 @@ export class HistoryInstance implements IHistoryInstance {
    * @param agentName - The agent name.
    * @returns A promise that resolves when the message is pushed.
    */
-  public push = async (value: IModelMessage, agentName: AgentName) => {
+  public push(value: IModelMessage, agentName: AgentName) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(INSTANCE_METHOD_NAME_PUSH, {
         clientId: this.clientId,
@@ -348,7 +361,7 @@ export class HistoryInstance implements IHistoryInstance {
    * @param agentName - The agent name or null.
    * @returns A promise that resolves when the history is disposed.
    */
-  public dispose = async (agentName: AgentName | null) => {
+  public dispose(agentName: AgentName | null) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(INSTANCE_METHOD_NAME_DISPOSE, {
         clientId: this.clientId,
@@ -456,9 +469,11 @@ class HistoryUtils implements IHistoryAdapter, IHistoryControl {
         clientId,
         agentName,
       });
-    const isInitial = this.getHistory.has(clientId);
+    if (!this.getHistory.has(clientId)) {
+      return;
+    }
     const history = await this.getHistory(clientId);
-    await history.waitForInit(agentName, isInitial);
+    await history.waitForInit(agentName, false);
     await history.dispose(agentName);
     if (agentName === null) {
       this.getHistory.clear(clientId);

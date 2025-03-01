@@ -2,6 +2,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 import History from "../classes/History";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
+import LoggerAdapter from "../classes/Logger";
 
 const METHOD_NAME = "function.disposeConnection";
 
@@ -23,8 +24,6 @@ export const disposeConnection = async (
       swarmName,
     });
   swarm.swarmValidationService.validate(swarmName, methodName);
-  swarm.sessionValidationService.removeSession(clientId);
-  swarm.busService.dispose(clientId);
   await swarm.sessionPublicService.dispose(methodName, clientId, swarmName);
   await swarm.swarmPublicService.dispose(methodName, clientId, swarmName);
   await Promise.all(
@@ -66,4 +65,7 @@ export const disposeConnection = async (
       })
   );
   await History.dispose(clientId, null);
+  await LoggerAdapter.dispose(clientId);
+  swarm.sessionValidationService.removeSession(clientId);
+  swarm.busService.dispose(clientId);
 };

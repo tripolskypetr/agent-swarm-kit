@@ -7,6 +7,28 @@ import TYPES from "../../../lib/core/types";
 import ExecutionContextService, {
   TExecutionContextService,
 } from "../context/ExecutionContextService";
+import LoggerAdapter from "../../../classes/Logger";
+
+const NOOP_LOGGER: ILogger = {
+  /**
+   * Logs normal level messages.
+   */
+  log() {
+    void 0;
+  },
+  /**
+   * Logs debug level messages.
+   */
+  debug() {
+    void 0;
+  },
+  /**
+   * Logs info level messages.
+   */
+  info() {
+    void 0;
+  },
+};
 
 /**
  * LoggerService class that implements the ILogger interface.
@@ -20,42 +42,22 @@ export class LoggerService implements ILogger {
     TYPES.executionContextService
   );
 
-  private _logger: ILogger = {
-    /**
-     * Logs messages.
-     * @param {...any} args - The messages to log.
-     */
-    log(...args: any[]) {
-      void 0;
-    },
-    /**
-     * Logs debug messages.
-     * @param {...any} args - The debug messages to log.
-     */
-    debug(...args: any[]) {
-      void 0;
-    },
-    /**
-     * Logs info messages.
-     * @param {...any} args - The info messages to log.
-     */
-    info(...args: any[]) {
-      void 0;
-    },
-  };
+  private _logger: ILogger = NOOP_LOGGER;
 
   /**
    * Logs messages using the current logger.
    * @param {...any} args - The messages to log.
    */
-  public log = (...args: any[]) => {
+  public log = (topic: string, ...args: any[]) => {
     const methodContext = MethodContextService.hasContext()
       ? this.methodContextService.context
       : null;
     const executionContext = ExecutionContextService.hasContext()
       ? this.executionContextService.context
       : null;
-    this._logger.log(...args, {
+    const clientId = methodContext?.clientId ?? executionContext?.clientId;
+    clientId && LoggerAdapter.log(clientId, topic, ...args);
+    this._logger.log(topic, ...args, {
       methodContext,
       executionContext,
     });
@@ -65,29 +67,32 @@ export class LoggerService implements ILogger {
    * Logs debug messages using the current logger.
    * @param {...any} args - The debug messages to log.
    */
-  public debug = (...args: any[]) => {
+  public debug = (topic: string, ...args: any[]) => {
     const methodContext = MethodContextService.hasContext()
       ? this.methodContextService.context
       : null;
     const executionContext = ExecutionContextService.hasContext()
       ? this.executionContextService.context
       : null;
-    this._logger.debug(...args, { methodContext, executionContext });
+    const clientId = methodContext?.clientId ?? executionContext?.clientId;
+    clientId && LoggerAdapter.debug(clientId, topic, ...args);
+    this._logger.debug(topic, ...args, { methodContext, executionContext });
   };
 
-  
   /**
    * Logs info messages using the current logger.
    * @param {...any} args - The info messages to log.
    */
-  public info = (...args: any[]) => {
+  public info = (topic: string, ...args: any[]) => {
     const methodContext = MethodContextService.hasContext()
       ? this.methodContextService.context
       : null;
     const executionContext = ExecutionContextService.hasContext()
       ? this.executionContextService.context
       : null;
-    this._logger.info(...args, { methodContext, executionContext });
+    const clientId = methodContext?.clientId ?? executionContext?.clientId;
+    clientId && LoggerAdapter.info(clientId, topic, ...args);
+    this._logger.info(topic, ...args, { methodContext, executionContext });
   };
 
   /**

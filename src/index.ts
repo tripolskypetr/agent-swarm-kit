@@ -96,8 +96,16 @@ export {
   IHistoryInstanceCallbacks,
 } from "./classes/History";
 
+export {
+  Logger,
+  LoggerAdapter,
+  LoggerInstance,
+  ILoggerAdapter,
+  ILoggerInstance,
+  ILoggerInstanceCallbacks,
+} from './classes/Logger';
+
 export { State } from './classes/State';
-export { Logger } from './classes/Logger';
 export { Schema } from './classes/Schema';
 
 export { ExecutionContextService } from './lib/services/context/ExecutionContextService';
