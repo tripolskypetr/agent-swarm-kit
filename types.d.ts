@@ -1476,7 +1476,11 @@ declare const MethodContextService: (new () => {
 declare class LoggerService implements ILogger {
     private readonly methodContextService;
     private readonly executionContextService;
-    private _logger;
+    private _commonLogger;
+    /**
+     * Creates the client logs adapter using factory
+     */
+    private getLoggerAdapter;
     /**
      * Logs messages using the current logger.
      * @param {...any} args - The messages to log.
@@ -3601,125 +3605,6 @@ declare const listenStorageEventOnce: (clientId: string, filterFn: (event: IBusE
  */
 declare const listenSwarmEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
-declare const GLOBAL_CONFIG: {
-    CC_TOOL_CALL_EXCEPTION_PROMPT: string;
-    CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
-    CC_KEEP_MESSAGES: number;
-    CC_GET_AGENT_HISTORY_ADAPTER: (clientId: string, agentName: AgentName) => IHistoryAdapter;
-    CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
-    CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
-    CC_AGENT_DEFAULT_VALIDATION: (output: string) => Promise<string | null>;
-    CC_AGENT_HISTORY_FILTER: (agentName: AgentName) => (message: IModelMessage) => boolean;
-    CC_AGENT_OUTPUT_TRANSFORM: (input: string) => string;
-    CC_AGENT_OUTPUT_MAP: (message: IModelMessage) => IModelMessage | Promise<IModelMessage>;
-    CC_AGENT_SYSTEM_PROMPT: string[];
-    CC_AGENT_DISALLOWED_TAGS: string[];
-    CC_AGENT_DISALLOWED_SYMBOLS: string[];
-    CC_STORAGE_SEARCH_SIMILARITY: number;
-    CC_STORAGE_SEARCH_POOL: number;
-    CC_LOGGER_ENABLE_INFO: boolean;
-    CC_LOGGER_ENABLE_DEBUG: boolean;
-    CC_LOGGER_ENABLE_LOG: boolean;
-    CC_NAME_TO_TITLE: (name: string) => string;
-};
-declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
-
-type TStorage = {
-    [key in keyof IStorage]: unknown;
-};
-declare class StorageUtils implements TStorage {
-    /**
-     * Takes items from the storage.
-     * @param {string} search - The search query.
-     * @param {number} total - The total number of items to take.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
-     * @template T
-     */
-    take: <T extends IStorageData = IStorageData>(payload: {
-        search: string;
-        total: number;
-        clientId: string;
-        agentName: AgentName;
-        storageName: StorageName;
-        score?: number;
-    }) => Promise<T[]>;
-    /**
-     * Upserts an item in the storage.
-     * @param {T} item - The item to upsert.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
-     * @template T
-     */
-    upsert: <T extends IStorageData = IStorageData>(payload: {
-        item: T;
-        clientId: string;
-        agentName: AgentName;
-        storageName: StorageName;
-    }) => Promise<void>;
-    /**
-     * Removes an item from the storage.
-     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
-     */
-    remove: (payload: {
-        itemId: IStorageData["id"];
-        clientId: string;
-        agentName: AgentName;
-        storageName: StorageName;
-    }) => Promise<void>;
-    /**
-     * Gets an item from the storage.
-     * @param {IStorageData["id"]} itemId - The ID of the item to get.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
-     * @template T
-     */
-    get: <T extends IStorageData = IStorageData>(payload: {
-        itemId: IStorageData["id"];
-        clientId: string;
-        agentName: AgentName;
-        storageName: StorageName;
-    }) => Promise<T | null>;
-    /**
-     * Lists items from the storage.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @param {StorageName} storageName - The storage name.
-     * @param {(item: T) => boolean} [filter] - Optional filter function.
-     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
-     * @template T
-     */
-    list: <T extends IStorageData = IStorageData>(payload: {
-        clientId: string;
-        agentName: AgentName;
-        storageName: StorageName;
-        filter?: (item: T) => boolean;
-    }) => Promise<T[]>;
-    /**
-     * Clears the storage.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
-     */
-    clear: (payload: {
-        clientId: string;
-        agentName: AgentName;
-        storageName: StorageName;
-    }) => Promise<void>;
-}
-declare const Storage: StorageUtils;
-
 declare const LOGGER_INSTANCE_WAIT_FOR_INIT: unique symbol;
 /**
  * @interface ILoggerInstanceCallbacks
@@ -3876,6 +3761,126 @@ declare const LoggerAdapter: LoggerUtils;
  * @description Logger control interface.
  */
 declare const Logger: ILoggerControl;
+
+declare const GLOBAL_CONFIG: {
+    CC_TOOL_CALL_EXCEPTION_PROMPT: string;
+    CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
+    CC_KEEP_MESSAGES: number;
+    CC_GET_AGENT_HISTORY_ADAPTER: (clientId: string, agentName: AgentName) => IHistoryAdapter;
+    CC_GET_CLIENT_LOGGER_ADAPTER: () => ILoggerAdapter;
+    CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
+    CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
+    CC_AGENT_DEFAULT_VALIDATION: (output: string) => Promise<string | null>;
+    CC_AGENT_HISTORY_FILTER: (agentName: AgentName) => (message: IModelMessage) => boolean;
+    CC_AGENT_OUTPUT_TRANSFORM: (input: string) => string;
+    CC_AGENT_OUTPUT_MAP: (message: IModelMessage) => IModelMessage | Promise<IModelMessage>;
+    CC_AGENT_SYSTEM_PROMPT: string[];
+    CC_AGENT_DISALLOWED_TAGS: string[];
+    CC_AGENT_DISALLOWED_SYMBOLS: string[];
+    CC_STORAGE_SEARCH_SIMILARITY: number;
+    CC_STORAGE_SEARCH_POOL: number;
+    CC_LOGGER_ENABLE_INFO: boolean;
+    CC_LOGGER_ENABLE_DEBUG: boolean;
+    CC_LOGGER_ENABLE_LOG: boolean;
+    CC_NAME_TO_TITLE: (name: string) => string;
+};
+declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
+
+type TStorage = {
+    [key in keyof IStorage]: unknown;
+};
+declare class StorageUtils implements TStorage {
+    /**
+     * Takes items from the storage.
+     * @param {string} search - The search query.
+     * @param {number} total - The total number of items to take.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
+     * @template T
+     */
+    take: <T extends IStorageData = IStorageData>(payload: {
+        search: string;
+        total: number;
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+        score?: number;
+    }) => Promise<T[]>;
+    /**
+     * Upserts an item in the storage.
+     * @param {T} item - The item to upsert.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     * @template T
+     */
+    upsert: <T extends IStorageData = IStorageData>(payload: {
+        item: T;
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+    }) => Promise<void>;
+    /**
+     * Removes an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     */
+    remove: (payload: {
+        itemId: IStorageData["id"];
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+    }) => Promise<void>;
+    /**
+     * Gets an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to get.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
+     * @template T
+     */
+    get: <T extends IStorageData = IStorageData>(payload: {
+        itemId: IStorageData["id"];
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+    }) => Promise<T | null>;
+    /**
+     * Lists items from the storage.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @param {(item: T) => boolean} [filter] - Optional filter function.
+     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
+     * @template T
+     */
+    list: <T extends IStorageData = IStorageData>(payload: {
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+        filter?: (item: T) => boolean;
+    }) => Promise<T[]>;
+    /**
+     * Clears the storage.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     */
+    clear: (payload: {
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+    }) => Promise<void>;
+}
+declare const Storage: StorageUtils;
 
 type TState = {
     [key in keyof IState]: unknown;

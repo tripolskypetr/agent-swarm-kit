@@ -7,7 +7,8 @@ import TYPES from "../../../lib/core/types";
 import ExecutionContextService, {
   TExecutionContextService,
 } from "../context/ExecutionContextService";
-import LoggerAdapter from "../../../classes/Logger";
+import { singleshot } from "functools-kit";
+import { GLOBAL_CONFIG } from "../../../config/params";
 
 const NOOP_LOGGER: ILogger = {
   /**
@@ -42,7 +43,14 @@ export class LoggerService implements ILogger {
     TYPES.executionContextService
   );
 
-  private _logger: ILogger = NOOP_LOGGER;
+  private _commonLogger: ILogger = NOOP_LOGGER;
+
+  /**
+   * Creates the client logs adapter using factory
+   */
+  private getLoggerAdapter = singleshot(
+    GLOBAL_CONFIG.CC_GET_CLIENT_LOGGER_ADAPTER
+  );
 
   /**
    * Logs messages using the current logger.
@@ -56,11 +64,12 @@ export class LoggerService implements ILogger {
       ? this.executionContextService.context
       : null;
     const clientId = methodContext?.clientId ?? executionContext?.clientId;
-    clientId && LoggerAdapter.log(clientId, topic, ...args);
-    this._logger.log(topic, ...args, {
+    const context = {
       methodContext,
       executionContext,
-    });
+    };
+    clientId && this.getLoggerAdapter().log(clientId, topic, ...args, context);
+    this._commonLogger.log(topic, ...args, context);
   };
 
   /**
@@ -75,8 +84,13 @@ export class LoggerService implements ILogger {
       ? this.executionContextService.context
       : null;
     const clientId = methodContext?.clientId ?? executionContext?.clientId;
-    clientId && LoggerAdapter.debug(clientId, topic, ...args);
-    this._logger.debug(topic, ...args, { methodContext, executionContext });
+    const context = {
+      methodContext,
+      executionContext,
+    };
+    clientId &&
+      this.getLoggerAdapter().debug(clientId, topic, ...args, context);
+    this._commonLogger.debug(topic, ...args, context);
   };
 
   /**
@@ -91,8 +105,12 @@ export class LoggerService implements ILogger {
       ? this.executionContextService.context
       : null;
     const clientId = methodContext?.clientId ?? executionContext?.clientId;
-    clientId && LoggerAdapter.info(clientId, topic, ...args);
-    this._logger.info(topic, ...args, { methodContext, executionContext });
+    const context = {
+      methodContext,
+      executionContext,
+    };
+    clientId && this.getLoggerAdapter().info(clientId, topic, ...args, context);
+    this._commonLogger.info(topic, ...args, context);
   };
 
   /**
@@ -100,7 +118,7 @@ export class LoggerService implements ILogger {
    * @param {ILogger} logger - The new logger to set.
    */
   public setLogger = (logger: ILogger) => {
-    this._logger = logger;
+    this._commonLogger = logger;
   };
 }
 

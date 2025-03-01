@@ -6,6 +6,7 @@ import validateDefault from "../validation/validateDefault";
 import removeXmlTags from "../utils/removeXmlTags";
 import { HistoryAdapter, IHistoryAdapter } from "../classes/History";
 import nameToTitle from "src/utils/nameToTitle";
+import LoggerAdapter, { ILoggerAdapter } from "../classes/Logger";
 
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
@@ -71,6 +72,8 @@ const CC_GET_AGENT_HISTORY_ADAPTER: (
   agentName: AgentName
 ) => IHistoryAdapter = () => HistoryAdapter;
 
+const CC_GET_CLIENT_LOGGER_ADAPTER: () => ILoggerAdapter = () => LoggerAdapter;
+
 const CC_AGENT_OUTPUT_MAP = (
   message: IModelMessage
 ): IModelMessage | Promise<IModelMessage> => message;
@@ -91,6 +94,7 @@ export const GLOBAL_CONFIG = {
   CC_EMPTY_OUTPUT_PLACEHOLDERS,
   CC_KEEP_MESSAGES,
   CC_GET_AGENT_HISTORY_ADAPTER,
+  CC_GET_CLIENT_LOGGER_ADAPTER,
   CC_SWARM_AGENT_CHANGED,
   CC_SWARM_DEFAULT_AGENT,
   CC_AGENT_DEFAULT_VALIDATION,
