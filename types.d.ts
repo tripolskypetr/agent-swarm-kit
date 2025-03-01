@@ -63,17 +63,17 @@ interface ILogger {
      * Logs a message.
      * @param {...any[]} args - The message or messages to log.
      */
-    log(...args: any[]): void;
+    log(topic: string, ...args: any[]): void;
     /**
      * Logs a debug message.
      * @param {...any[]} args - The debug message or messages to log.
      */
-    debug(...args: any[]): void;
+    debug(topic: string, ...args: any[]): void;
     /**
      * Logs a info message.
      * @param {...any[]} args - The debug message or messages to log.
      */
-    info(...args: any[]): void;
+    info(topic: string, ...args: any[]): void;
 }
 
 /**
@@ -548,7 +548,7 @@ interface ISwarmCallbacks extends ISwarmSessionCallbacks {
 interface ISwarmParams extends Omit<ISwarmSchema, keyof {
     agentList: never;
     onAgentChanged: never;
-}>, ISwarmCallbacks {
+}> {
     /** Client identifier */
     clientId: string;
     /** Logger instance */
@@ -563,6 +563,10 @@ interface ISwarmParams extends Omit<ISwarmSchema, keyof {
  * @interface
  */
 interface ISwarmSchema {
+    /** Fetch the active agent on init */
+    getActiveAgent?: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName> | AgentName;
+    /** Update the active agent after navigation */
+    setActiveAgent?: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void> | void;
     /** Default agent name */
     defaultAgent: AgentName;
     /** Name of the swarm */
@@ -971,6 +975,7 @@ interface IHistoryInstance {
  * Type for History Instance Constructor
  */
 type THistoryInstanceCtor = new (clientId: string, ...args: unknown[]) => IHistoryInstance;
+declare const HISTORY_INSTANCE_WAIT_FOR_INIT: unique symbol;
 /**
  * Class representing a History Instance
  */
@@ -979,10 +984,15 @@ declare class HistoryInstance implements IHistoryInstance {
     readonly callbacks: Partial<IHistoryInstanceCallbacks>;
     private _array;
     /**
+     * Makes the singleshot for initialization
+     * @param agentName - The agent name.
+     */
+    private [HISTORY_INSTANCE_WAIT_FOR_INIT];
+    /**
      * Wait for the history to initialize.
      * @param agentName - The agent name.
      */
-    waitForInit: ((agentName: AgentName) => Promise<void>) & functools_kit.ISingleshotClearable;
+    waitForInit(agentName: AgentName): Promise<void>;
     /**
      * Create a HistoryInstance.
      * @param clientId - The client ID.
@@ -1001,13 +1011,13 @@ declare class HistoryInstance implements IHistoryInstance {
      * @param agentName - The agent name.
      * @returns A promise that resolves when the message is pushed.
      */
-    push: (value: IModelMessage, agentName: AgentName) => Promise<void>;
+    push(value: IModelMessage, agentName: AgentName): Promise<void>;
     /**
      * Dispose of the history for a given agent.
      * @param agentName - The agent name or null.
      * @returns A promise that resolves when the history is disposed.
      */
-    dispose: (agentName: AgentName | null) => Promise<void>;
+    dispose(agentName: AgentName | null): Promise<void>;
 }
 /**
  * Class representing History Utilities
@@ -1470,22 +1480,26 @@ declare const MethodContextService: (new () => {
 declare class LoggerService implements ILogger {
     private readonly methodContextService;
     private readonly executionContextService;
-    private _logger;
+    private _commonLogger;
+    /**
+     * Creates the client logs adapter using factory
+     */
+    private getLoggerAdapter;
     /**
      * Logs messages using the current logger.
      * @param {...any} args - The messages to log.
      */
-    log: (...args: any[]) => void;
+    log: (topic: string, ...args: any[]) => void;
     /**
      * Logs debug messages using the current logger.
      * @param {...any} args - The debug messages to log.
      */
-    debug: (...args: any[]) => void;
+    debug: (topic: string, ...args: any[]) => void;
     /**
      * Logs info messages using the current logger.
      * @param {...any} args - The info messages to log.
      */
-    info: (...args: any[]) => void;
+    info: (topic: string, ...args: any[]) => void;
     /**
      * Sets a new logger.
      * @param {ILogger} logger - The new logger to set.
@@ -3595,11 +3609,169 @@ declare const listenStorageEventOnce: (clientId: string, filterFn: (event: IBusE
  */
 declare const listenSwarmEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
+declare const LOGGER_INSTANCE_WAIT_FOR_INIT: unique symbol;
+/**
+ * @interface ILoggerInstanceCallbacks
+ * @description Callbacks for logger instance events.
+ */
+interface ILoggerInstanceCallbacks {
+    onInit(clientId: string): void;
+    onDispose(clientId: string): void;
+    onLog(clientId: string, topic: string, ...args: any[]): void;
+    onDebug(clientId: string, topic: string, ...args: any[]): void;
+    onInfo(clientId: string, topic: string, ...args: any[]): void;
+}
+/**
+ * @interface ILoggerInstance
+ * @extends ILogger
+ * @description Interface for logger instances.
+ */
+interface ILoggerInstance extends ILogger {
+    waitForInit(initial: boolean): Promise<void> | void;
+    dispose(): Promise<void> | void;
+}
+/**
+ * @interface ILoggerAdapter
+ * @description Interface for logger adapter.
+ */
+interface ILoggerAdapter {
+    log(clientId: string, topic: string, ...args: any[]): Promise<void>;
+    debug(clientId: string, topic: string, ...args: any[]): Promise<void>;
+    info(clientId: string, topic: string, ...args: any[]): Promise<void>;
+    dispose(clientId: string): Promise<void>;
+}
+/**
+ * @interface ILoggerControl
+ * @description Interface for logger control.
+ */
+interface ILoggerControl {
+    useCommonAdapter(logger: ILogger): void;
+    useClientCallbacks(Callbacks: Partial<ILoggerInstanceCallbacks>): void;
+    useClientAdapter(Ctor: TLoggerInstanceCtor): void;
+}
+type TLoggerInstanceCtor = new (clientId: string, ...args: unknown[]) => ILoggerInstance;
+/**
+ * @class LoggerInstance
+ * @implements ILoggerInstance
+ * @description Logger instance class.
+ */
+declare class LoggerInstance implements ILoggerInstance {
+    readonly clientId: string;
+    readonly callbacks: Partial<ILoggerInstanceCallbacks>;
+    constructor(clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>);
+    private [LOGGER_INSTANCE_WAIT_FOR_INIT];
+    /**
+     * @method waitForInit
+     * @description Waits for initialization.
+     * @returns {Promise<void>}
+     */
+    waitForInit(): Promise<void>;
+    /**
+     * @method log
+     * @description Logs a message.
+     * @param {string} topic - The topic of the log.
+     * @param {...any[]} args - The log arguments.
+     */
+    log(topic: string, ...args: any[]): void;
+    /**
+     * @method debug
+     * @description Logs a debug message.
+     * @param {string} topic - The topic of the debug log.
+     * @param {...any[]} args - The debug log arguments.
+     */
+    debug(topic: string, ...args: any[]): void;
+    /**
+     * @method info
+     * @description Logs an info message.
+     * @param {string} topic - The topic of the info log.
+     * @param {...any[]} args - The info log arguments.
+     */
+    info(topic: string, ...args: any[]): void;
+    /**
+     * @method dispose
+     * @description Disposes the logger instance.
+     */
+    dispose(): void;
+}
+/**
+ * @class LoggerUtils
+ * @implements ILoggerAdapter, ILoggerControl
+ * @description Utility class for logger.
+ */
+declare class LoggerUtils implements ILoggerAdapter, ILoggerControl {
+    private LoggerFactory;
+    private LoggerCallbacks;
+    private getLogger;
+    /**
+     * @method useCommonAdapter
+     * @description Sets the common logger adapter.
+     * @param {ILogger} logger - The logger instance.
+     */
+    useCommonAdapter: (logger: ILogger) => void;
+    /**
+     * @method useClientCallbacks
+     * @description Sets the client-specific callbacks.
+     * @param {Partial<ILoggerInstanceCallbacks>} Callbacks - The callbacks.
+     */
+    useClientCallbacks: (Callbacks: Partial<ILoggerInstanceCallbacks>) => void;
+    /**
+     * @method useClientAdapter
+     * @description Sets the client-specific logger adapter.
+     * @param {TLoggerInstanceCtor} Ctor - The logger instance constructor.
+     */
+    useClientAdapter: (Ctor: TLoggerInstanceCtor) => void;
+    /**
+     * @method log
+     * @description Logs a message.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The topic of the log.
+     * @param {...any[]} args - The log arguments.
+     * @returns {Promise<void>}
+     */
+    log: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
+    /**
+     * @method debug
+     * @description Logs a debug message.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The topic of the debug log.
+     * @param {...any[]} args - The debug log arguments.
+     * @returns {Promise<void>}
+     */
+    debug: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
+    /**
+     * @method info
+     * @description Logs an info message.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The topic of the info log.
+     * @param {...any[]} args - The info log arguments.
+     * @returns {Promise<void>}
+     */
+    info: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
+    /**
+     * @method dispose
+     * @description Disposes the logger instance.
+     * @param {string} clientId - The client ID.
+     * @returns {Promise<void>}
+     */
+    dispose: (clientId: string) => Promise<void>;
+}
+/**
+ * @constant LoggerAdapter
+ * @description Singleton instance of LoggerUtils.
+ */
+declare const LoggerAdapter: LoggerUtils;
+/**
+ * @constant Logger
+ * @description Logger control interface.
+ */
+declare const Logger: ILoggerControl;
+
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
     CC_KEEP_MESSAGES: number;
     CC_GET_AGENT_HISTORY_ADAPTER: (clientId: string, agentName: AgentName) => IHistoryAdapter;
+    CC_GET_CLIENT_LOGGER_ADAPTER: () => ILoggerAdapter;
     CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
     CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
     CC_AGENT_DEFAULT_VALIDATION: (output: string) => Promise<string | null>;
@@ -3760,19 +3932,6 @@ declare class StateUtils implements TState {
  */
 declare const State: StateUtils;
 
-declare class LoggerUtils {
-    /**
-     * Sets the provided logger to the logger service.
-     * @param {ILogger} logger - The logger instance to be used.
-     */
-    useLogger: (logger: ILogger) => void;
-}
-/**
- * Instance of LoggerUtils to be used for logging.
- * @type {LoggerUtils}
- */
-declare const Logger: LoggerUtils;
-
 /**
  * Utility class for schema-related operations.
  */
@@ -3791,4 +3950,4 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
-export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };

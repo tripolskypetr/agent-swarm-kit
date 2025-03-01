@@ -30,31 +30,23 @@ callbacks: Partial<IHistoryInstanceCallbacks>
 _array: any
 ```
 
+### __@HISTORY_INSTANCE_WAIT_FOR_INIT@399
+
+```ts
+__@HISTORY_INSTANCE_WAIT_FOR_INIT@399: any
+```
+
+Makes the singleshot for initialization
+
+## Methods
+
 ### waitForInit
 
 ```ts
-waitForInit: ((agentName: string) => Promise<void>) & ISingleshotClearable
+waitForInit(agentName: AgentName): Promise<void>;
 ```
 
 Wait for the history to initialize.
-
-### push
-
-```ts
-push: (value: IModelMessage, agentName: string) => Promise<void>
-```
-
-Push a new message to the history for a given agent.
-
-### dispose
-
-```ts
-dispose: (agentName: string) => Promise<void>
-```
-
-Dispose of the history for a given agent.
-
-## Methods
 
 ### iterate
 
@@ -63,3 +55,19 @@ iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
 ```
 
 Iterate over the history messages for a given agent.
+
+### push
+
+```ts
+push(value: IModelMessage, agentName: AgentName): Promise<void>;
+```
+
+Push a new message to the history for a given agent.
+
+### dispose
+
+```ts
+dispose(agentName: AgentName | null): Promise<void>;
+```
+
+Dispose of the history for a given agent.

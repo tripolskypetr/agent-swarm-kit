@@ -148,7 +148,7 @@ export class ClientSwarm implements ISwarm {
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgentName`
       );
     if (this._activeAgent === AGENT_NEED_FETCH) {
-      this._activeAgent = await GLOBAL_CONFIG.CC_SWARM_DEFAULT_AGENT(
+      this._activeAgent = await this.params.getActiveAgent(
         this.params.clientId,
         this.params.swarmName,
         this.params.defaultAgent
@@ -236,11 +236,18 @@ export class ClientSwarm implements ISwarm {
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setAgentName agentName=${agentName}`
       );
     this._activeAgent = agentName;
-    await this.params.onAgentChanged(
+    await this.params.setActiveAgent(
       this.params.clientId,
       agentName,
       this.params.swarmName
     );
+    if (this.params.callbacks?.onAgentChanged) {
+      this.params.callbacks.onAgentChanged(
+        this.params.clientId,
+        agentName,
+        this.params.swarmName
+      );
+    }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "set-agent-name",
       source: "swarm-bus",

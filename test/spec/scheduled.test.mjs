@@ -76,14 +76,15 @@ test("Will schedule messages for makeConnection", async ({ pass, fail }) => {
   const userHistory = await getUserHistory(CLIENT_ID);
 
   for (const testCase of TEST_CASE) {
+    
     if (!userHistory.some(({ content }) => content === testCase)) {
         fail(`Missing ${testCase} in user messages`);
     }
   }
 
-  for (const testCase of ["foo", "bad"]) {
+  for (const testCase of ["bar", "bad"]) {
     if (!historyList.includes(testCase)) {
-        fail(`Missing ${testCase} in assistant messages`);
+        fail(`Missing ${testCase} in assistant messages ${historyList}`);
     }
   }
 

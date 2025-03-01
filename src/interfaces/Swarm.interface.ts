@@ -64,13 +64,12 @@ export interface ISwarmCallbacks extends ISwarmSessionCallbacks {
  */
 export interface ISwarmParams
   extends Omit<
-      ISwarmSchema,
-      keyof {
-        agentList: never;
-        onAgentChanged: never;
-      }
-    >,
-    ISwarmCallbacks {
+    ISwarmSchema,
+    keyof {
+      agentList: never;
+      onAgentChanged: never;
+    }
+  > {
   /** Client identifier */
   clientId: string;
   /** Logger instance */
@@ -86,6 +85,18 @@ export interface ISwarmParams
  * @interface
  */
 export interface ISwarmSchema {
+  /** Fetch the active agent on init */
+  getActiveAgent?: (
+    clientId: string,
+    swarmName: SwarmName,
+    defaultAgent: AgentName
+  ) => Promise<AgentName> | AgentName;
+  /** Update the active agent after navigation */
+  setActiveAgent?: (
+    clientId: string,
+    agentName: AgentName,
+    swarmName: SwarmName
+  ) => Promise<void> | void;
   /** Default agent name */
   defaultAgent: AgentName;
   /** Name of the swarm */
@@ -101,7 +112,6 @@ export interface ISwarmSchema {
  * @interface
  */
 export interface ISwarm {
-
   /**
    * Will return empty string in waitForOutput
    * @returns {Promise<void>}

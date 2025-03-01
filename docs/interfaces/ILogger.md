@@ -7,7 +7,7 @@ ILogger interface for logging messages.
 ### log
 
 ```ts
-log: (...args: any[]) => void
+log: (topic: string, ...args: any[]) => void
 ```
 
 Logs a message.
@@ -15,7 +15,7 @@ Logs a message.
 ### debug
 
 ```ts
-debug: (...args: any[]) => void
+debug: (topic: string, ...args: any[]) => void
 ```
 
 Logs a debug message.
@@ -23,7 +23,7 @@ Logs a debug message.
 ### info
 
 ```ts
-info: (...args: any[]) => void
+info: (topic: string, ...args: any[]) => void
 ```
 
 Logs a info message.
