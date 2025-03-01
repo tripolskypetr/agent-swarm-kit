@@ -3721,6 +3721,10 @@ declare class StorageUtils implements TStorage {
 declare const Storage: StorageUtils;
 
 declare const LOGGER_INSTANCE_WAIT_FOR_INIT: unique symbol;
+/**
+ * @interface ILoggerInstanceCallbacks
+ * @description Callbacks for logger instance events.
+ */
 interface ILoggerInstanceCallbacks {
     onInit(clientId: string): void;
     onDispose(clientId: string): void;
@@ -3728,46 +3732,149 @@ interface ILoggerInstanceCallbacks {
     onDebug(clientId: string, topic: string, ...args: any[]): void;
     onInfo(clientId: string, topic: string, ...args: any[]): void;
 }
+/**
+ * @interface ILoggerInstance
+ * @extends ILogger
+ * @description Interface for logger instances.
+ */
 interface ILoggerInstance extends ILogger {
     waitForInit(initial: boolean): Promise<void> | void;
     dispose(): Promise<void> | void;
 }
+/**
+ * @interface ILoggerAdapter
+ * @description Interface for logger adapter.
+ */
 interface ILoggerAdapter {
     log(clientId: string, topic: string, ...args: any[]): Promise<void>;
     debug(clientId: string, topic: string, ...args: any[]): Promise<void>;
     info(clientId: string, topic: string, ...args: any[]): Promise<void>;
     dispose(clientId: string): Promise<void>;
 }
+/**
+ * @interface ILoggerControl
+ * @description Interface for logger control.
+ */
 interface ILoggerControl {
     useCommonAdapter(logger: ILogger): void;
     useClientCallbacks(Callbacks: Partial<ILoggerInstanceCallbacks>): void;
     useClientAdapter(Ctor: TLoggerInstanceCtor): void;
 }
 type TLoggerInstanceCtor = new (clientId: string, ...args: unknown[]) => ILoggerInstance;
+/**
+ * @class LoggerInstance
+ * @implements ILoggerInstance
+ * @description Logger instance class.
+ */
 declare class LoggerInstance implements ILoggerInstance {
-    readonly clientId: any;
+    readonly clientId: string;
     readonly callbacks: Partial<ILoggerInstanceCallbacks>;
-    constructor(clientId: any, callbacks: Partial<ILoggerInstanceCallbacks>);
+    constructor(clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>);
     private [LOGGER_INSTANCE_WAIT_FOR_INIT];
+    /**
+     * @method waitForInit
+     * @description Waits for initialization.
+     * @returns {Promise<void>}
+     */
     waitForInit(): Promise<void>;
+    /**
+     * @method log
+     * @description Logs a message.
+     * @param {string} topic - The topic of the log.
+     * @param {...any[]} args - The log arguments.
+     */
     log(topic: string, ...args: any[]): void;
+    /**
+     * @method debug
+     * @description Logs a debug message.
+     * @param {string} topic - The topic of the debug log.
+     * @param {...any[]} args - The debug log arguments.
+     */
     debug(topic: string, ...args: any[]): void;
+    /**
+     * @method info
+     * @description Logs an info message.
+     * @param {string} topic - The topic of the info log.
+     * @param {...any[]} args - The info log arguments.
+     */
     info(topic: string, ...args: any[]): void;
+    /**
+     * @method dispose
+     * @description Disposes the logger instance.
+     */
     dispose(): void;
 }
+/**
+ * @class LoggerUtils
+ * @implements ILoggerAdapter, ILoggerControl
+ * @description Utility class for logger.
+ */
 declare class LoggerUtils implements ILoggerAdapter, ILoggerControl {
     private LoggerFactory;
     private LoggerCallbacks;
     private getLogger;
+    /**
+     * @method useCommonAdapter
+     * @description Sets the common logger adapter.
+     * @param {ILogger} logger - The logger instance.
+     */
     useCommonAdapter: (logger: ILogger) => void;
+    /**
+     * @method useClientCallbacks
+     * @description Sets the client-specific callbacks.
+     * @param {Partial<ILoggerInstanceCallbacks>} Callbacks - The callbacks.
+     */
     useClientCallbacks: (Callbacks: Partial<ILoggerInstanceCallbacks>) => void;
+    /**
+     * @method useClientAdapter
+     * @description Sets the client-specific logger adapter.
+     * @param {TLoggerInstanceCtor} Ctor - The logger instance constructor.
+     */
     useClientAdapter: (Ctor: TLoggerInstanceCtor) => void;
+    /**
+     * @method log
+     * @description Logs a message.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The topic of the log.
+     * @param {...any[]} args - The log arguments.
+     * @returns {Promise<void>}
+     */
     log: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
+    /**
+     * @method debug
+     * @description Logs a debug message.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The topic of the debug log.
+     * @param {...any[]} args - The debug log arguments.
+     * @returns {Promise<void>}
+     */
     debug: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
+    /**
+     * @method info
+     * @description Logs an info message.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The topic of the info log.
+     * @param {...any[]} args - The info log arguments.
+     * @returns {Promise<void>}
+     */
     info: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
+    /**
+     * @method dispose
+     * @description Disposes the logger instance.
+     * @param {string} clientId - The client ID.
+     * @returns {Promise<void>}
+     */
     dispose: (clientId: string) => Promise<void>;
 }
+/**
+ * @constant LoggerAdapter
+ * @description Singleton instance of LoggerUtils.
+ */
 declare const LoggerAdapter: LoggerUtils;
+/**
+ * @constant Logger
+ * @description Logger control interface.
+ */
 declare const Logger: ILoggerControl;
 
 type TState = {

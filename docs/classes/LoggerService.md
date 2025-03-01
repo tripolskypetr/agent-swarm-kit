@@ -34,7 +34,7 @@ _logger: any
 ### log
 
 ```ts
-log: (...args: any[]) => void
+log: (topic: string, ...args: any[]) => void
 ```
 
 Logs messages using the current logger.
@@ -42,7 +42,7 @@ Logs messages using the current logger.
 ### debug
 
 ```ts
-debug: (...args: any[]) => void
+debug: (topic: string, ...args: any[]) => void
 ```
 
 Logs debug messages using the current logger.
@@ -50,7 +50,7 @@ Logs debug messages using the current logger.
 ### info
 
 ```ts
-info: (...args: any[]) => void
+info: (topic: string, ...args: any[]) => void
 ```
 
 Logs info messages using the current logger.

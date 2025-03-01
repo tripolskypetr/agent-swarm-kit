@@ -1,5 +1,7 @@
 # LoggerUtils
 
+Implements `ILoggerAdapter`, `ILoggerControl`
+
 ## Constructor
 
 ```ts
@@ -8,10 +10,62 @@ constructor();
 
 ## Properties
 
-### useLogger
+### LoggerFactory
 
 ```ts
-useLogger: (logger: ILogger) => void
+LoggerFactory: any
 ```
 
-Sets the provided logger to the logger service.
+### LoggerCallbacks
+
+```ts
+LoggerCallbacks: any
+```
+
+### getLogger
+
+```ts
+getLogger: any
+```
+
+### useCommonAdapter
+
+```ts
+useCommonAdapter: (logger: ILogger) => void
+```
+
+### useClientCallbacks
+
+```ts
+useClientCallbacks: (Callbacks: Partial<ILoggerInstanceCallbacks>) => void
+```
+
+### useClientAdapter
+
+```ts
+useClientAdapter: (Ctor: TLoggerInstanceCtor) => void
+```
+
+### log
+
+```ts
+log: (clientId: string, topic: string, ...args: any[]) => Promise<void>
+```
+
+### debug
+
+```ts
+debug: (clientId: string, topic: string, ...args: any[]) => Promise<void>
+```
+
+### info
+
+```ts
+info: (clientId: string, topic: string, ...args: any[]) => Promise<void>
+```
+
+### dispose
+
+```ts
+dispose: (clientId: string) => Promise<void>
+```

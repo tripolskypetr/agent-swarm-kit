@@ -39,8 +39,9 @@
 - [StateSchemaService](classes/StateSchemaService.md)
 - [BusService](classes/BusService.md)
 - [StorageUtils](classes/StorageUtils.md)
-- [StateUtils](classes/StateUtils.md)
+- [LoggerInstance](classes/LoggerInstance.md)
 - [LoggerUtils](classes/LoggerUtils.md)
+- [StateUtils](classes/StateUtils.md)
 - [SchemaUtils](classes/SchemaUtils.md)
 
 ## Enums
@@ -110,6 +111,10 @@
 - [IMakeConnectionConfig](interfaces/IMakeConnectionConfig.md)
 - [ISessionConfig](interfaces/ISessionConfig.md)
 - [IMakeDisposeParams](interfaces/IMakeDisposeParams.md)
+- [ILoggerInstanceCallbacks](interfaces/ILoggerInstanceCallbacks.md)
+- [ILoggerInstance](interfaces/ILoggerInstance.md)
+- [ILoggerAdapter](interfaces/ILoggerAdapter.md)
+- [ILoggerControl](interfaces/ILoggerControl.md)
 
 ## Types
 
@@ -147,4 +152,5 @@
 - [SendMessageFn](types/SendMessageFn.md)
 - [TComplete](types/TComplete.md)
 - [TStorage](types/TStorage.md)
+- [TLoggerInstanceCtor](types/TLoggerInstanceCtor.md)
 - [TState](types/TState.md)
