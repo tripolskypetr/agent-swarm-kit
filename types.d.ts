@@ -548,7 +548,7 @@ interface ISwarmCallbacks extends ISwarmSessionCallbacks {
 interface ISwarmParams extends Omit<ISwarmSchema, keyof {
     agentList: never;
     onAgentChanged: never;
-}>, ISwarmCallbacks {
+}> {
     /** Client identifier */
     clientId: string;
     /** Logger instance */
@@ -563,6 +563,10 @@ interface ISwarmParams extends Omit<ISwarmSchema, keyof {
  * @interface
  */
 interface ISwarmSchema {
+    /** Fetch the active agent on init */
+    getActiveAgent?: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName> | AgentName;
+    /** Update the active agent after navigation */
+    setActiveAgent?: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void> | void;
     /** Default agent name */
     defaultAgent: AgentName;
     /** Name of the swarm */

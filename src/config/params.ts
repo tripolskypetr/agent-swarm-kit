@@ -1,4 +1,3 @@
-import { sleep } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
 import { SwarmName } from "../interfaces/Swarm.interface";
@@ -33,14 +32,13 @@ const CC_SWARM_AGENT_CHANGED: (
   clientId: string,
   agentName: AgentName,
   swarmName: SwarmName
-) => Promise<void> = async () => await sleep(100);
+) => Promise<void> = async () => Promise.resolve();
 
 const CC_SWARM_DEFAULT_AGENT: (
   clientId: string,
   swarmName: SwarmName,
   defaultAgent: AgentName
 ) => Promise<AgentName> = async ({}, {}, defaultAgent) => {
-  await sleep(100);
   return defaultAgent;
 };
 
