@@ -1,9 +1,9 @@
 import { ILogger } from "../interfaces/Logger.interface";
-import swarm from "../lib";
+import swarm, { MethodContextService } from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 import { memoize, singleshot } from "functools-kit";
 
-const LOGGER_INSTANCE_WAIT_FOR_INIT = Symbol('wait-for-init');
+const LOGGER_INSTANCE_WAIT_FOR_INIT = Symbol("wait-for-init");
 
 /**
  * @interface ILoggerInstanceCallbacks
@@ -46,6 +46,9 @@ interface ILoggerControl {
   useCommonAdapter(logger: ILogger): void;
   useClientCallbacks(Callbacks: Partial<ILoggerInstanceCallbacks>): void;
   useClientAdapter(Ctor: TLoggerInstanceCtor): void;
+  logClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
+  infoClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
+  debugClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
 }
 
 type TLoggerInstanceCtor = new (
@@ -62,7 +65,7 @@ export class LoggerInstance implements ILoggerInstance {
   constructor(
     readonly clientId: string,
     readonly callbacks: Partial<ILoggerInstanceCallbacks>
-  ) { }
+  ) {}
 
   private [LOGGER_INSTANCE_WAIT_FOR_INIT] = singleshot(async () => {
     if (this.callbacks.onInit) {
@@ -86,10 +89,12 @@ export class LoggerInstance implements ILoggerInstance {
    * @param {...any[]} args - The log arguments.
    */
   public log(topic: string, ...args: any[]) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
+      console.log(`[clientId=${this.clientId}]`, topic, ...args);
     if (this.callbacks.onLog) {
       this.callbacks.onLog(this.clientId, topic, ...args);
     }
-  };
+  }
 
   /**
    * @method debug
@@ -98,10 +103,12 @@ export class LoggerInstance implements ILoggerInstance {
    * @param {...any[]} args - The debug log arguments.
    */
   public debug(topic: string, ...args: any[]) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
+      console.debug(`[clientId=${this.clientId}]`, topic, ...args);
     if (this.callbacks.onDebug) {
       this.callbacks.onDebug(this.clientId, topic, ...args);
     }
-  };
+  }
 
   /**
    * @method info
@@ -110,10 +117,12 @@ export class LoggerInstance implements ILoggerInstance {
    * @param {...any[]} args - The info log arguments.
    */
   public info(topic: string, ...args: any[]) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
+      console.info(`[clientId=${this.clientId}]`, topic, ...args);
     if (this.callbacks.onInfo) {
       this.callbacks.onInfo(this.clientId, topic, ...args);
     }
-  };
+  }
 
   /**
    * @method dispose
@@ -123,7 +132,7 @@ export class LoggerInstance implements ILoggerInstance {
     if (this.callbacks.onDispose) {
       this.callbacks.onDispose(this.clientId);
     }
-  };
+  }
 }
 
 /**
@@ -154,7 +163,9 @@ class LoggerUtils implements ILoggerAdapter, ILoggerControl {
    * @description Sets the client-specific callbacks.
    * @param {Partial<ILoggerInstanceCallbacks>} Callbacks - The callbacks.
    */
-  public useClientCallbacks = (Callbacks: Partial<ILoggerInstanceCallbacks>) => {
+  public useClientCallbacks = (
+    Callbacks: Partial<ILoggerInstanceCallbacks>
+  ) => {
     Object.assign(this.LoggerCallbacks, Callbacks);
   };
 
@@ -165,6 +176,108 @@ class LoggerUtils implements ILoggerAdapter, ILoggerControl {
    */
   public useClientAdapter = (Ctor: TLoggerInstanceCtor) => {
     this.LoggerFactory = Ctor;
+  };
+
+  /**
+   * @method logClient
+   * @description Logs a message for a specific client.
+   * @param {string} clientId - The client ID.
+   * @param {string} topic - The topic of the log.
+   * @param {...any[]} args - The log arguments.
+   * @returns {Promise<void>}
+   */
+  public logClient = async (
+    clientId: string,
+    topic: string,
+    ...args: any[]
+  ) => {
+    if (!GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG) {
+      return;
+    }
+    if (!swarm.sessionValidationService.hasSession(clientId)) {
+      return;
+    }
+    await MethodContextService.runInContext(
+      async () => {
+        await swarm.loggerService.log(topic, ...args);
+      },
+      {
+        clientId,
+        agentName: "",
+        methodName: "LoggerUtils.logClient",
+        stateName: "",
+        storageName: "",
+        swarmName: "",
+      }
+    );
+  };
+
+  /**
+   * @method infoClient
+   * @description Logs an info message for a specific client.
+   * @param {string} clientId - The client ID.
+   * @param {string} topic - The topic of the info log.
+   * @param {...any[]} args - The info log arguments.
+   * @returns {Promise<void>}
+   */
+  public infoClient = async (
+    clientId: string,
+    topic: string,
+    ...args: any[]
+  ) => {
+    if (!GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) {
+      return;
+    }
+    if (!swarm.sessionValidationService.hasSession(clientId)) {
+      return;
+    }
+    await MethodContextService.runInContext(
+      async () => {
+        await swarm.loggerService.info(topic, ...args);
+      },
+      {
+        clientId,
+        agentName: "",
+        methodName: "LoggerUtils.infoClient",
+        stateName: "",
+        storageName: "",
+        swarmName: "",
+      }
+    );
+  };
+
+  /**
+   * @method debugClient
+   * @description Logs a debug message for a specific client.
+   * @param {string} clientId - The client ID.
+   * @param {string} topic - The topic of the debug log.
+   * @param {...any[]} args - The debug log arguments.
+   * @returns {Promise<void>}
+   */
+  public debugClient = async (
+    clientId: string,
+    topic: string,
+    ...args: any[]
+  ) => {
+    if (!GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG) {
+      return;
+    }
+    if (!swarm.sessionValidationService.hasSession(clientId)) {
+      return;
+    }
+    await MethodContextService.runInContext(
+      async () => {
+        await swarm.loggerService.debug(topic, ...args);
+      },
+      {
+        clientId,
+        agentName: "",
+        methodName: "LoggerUtils.debugClient",
+        stateName: "",
+        storageName: "",
+        swarmName: "",
+      }
+    );
   };
 
   /**

@@ -3648,6 +3648,9 @@ interface ILoggerControl {
     useCommonAdapter(logger: ILogger): void;
     useClientCallbacks(Callbacks: Partial<ILoggerInstanceCallbacks>): void;
     useClientAdapter(Ctor: TLoggerInstanceCtor): void;
+    logClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
+    infoClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
+    debugClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
 }
 type TLoggerInstanceCtor = new (clientId: string, ...args: unknown[]) => ILoggerInstance;
 /**
@@ -3721,6 +3724,33 @@ declare class LoggerUtils implements ILoggerAdapter, ILoggerControl {
      */
     useClientAdapter: (Ctor: TLoggerInstanceCtor) => void;
     /**
+     * @method logClient
+     * @description Logs a message for a specific client.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The topic of the log.
+     * @param {...any[]} args - The log arguments.
+     * @returns {Promise<void>}
+     */
+    logClient: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
+    /**
+     * @method infoClient
+     * @description Logs an info message for a specific client.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The topic of the info log.
+     * @param {...any[]} args - The info log arguments.
+     * @returns {Promise<void>}
+     */
+    infoClient: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
+    /**
+     * @method debugClient
+     * @description Logs a debug message for a specific client.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The topic of the debug log.
+     * @param {...any[]} args - The debug log arguments.
+     * @returns {Promise<void>}
+     */
+    debugClient: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
+    /**
      * @method log
      * @description Logs a message.
      * @param {string} clientId - The client ID.
@@ -3786,6 +3816,7 @@ declare const GLOBAL_CONFIG: {
     CC_LOGGER_ENABLE_INFO: boolean;
     CC_LOGGER_ENABLE_DEBUG: boolean;
     CC_LOGGER_ENABLE_LOG: boolean;
+    CC_LOGGER_ENABLE_CONSOLE: boolean;
     CC_NAME_TO_TITLE: (name: string) => string;
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
