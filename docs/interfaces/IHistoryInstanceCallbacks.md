@@ -4,6 +4,14 @@ Interface for History Adapter Callbacks
 
 ## Properties
 
+### getSystemPrompt
+
+```ts
+getSystemPrompt: (clientId: string, agentName: string) => string[] | Promise<string[]>
+```
+
+Callback for compute of dynamic system prompt
+
 ### filterCondition
 
 ```ts

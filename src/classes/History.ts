@@ -8,6 +8,18 @@ import { GLOBAL_CONFIG } from "../config/params";
  * Interface for History Adapter Callbacks
  */
 export interface IHistoryInstanceCallbacks {
+
+  /**
+   * Callback for compute of dynamic system prompt
+   * @param clientId - The client ID.
+   * @param agentName - The agent name.
+   * @returns An array of additional system prompt messages
+   */
+  getSystemPrompt?: (
+    clientId: string,
+    agentName: AgentName
+  ) => Promise<string[]> | string[];
+
   /**
    * Filter condition for history messages.
    * @param message - The model message.
@@ -239,7 +251,7 @@ export class HistoryInstance implements IHistoryInstance {
    */
   public async waitForInit(agentName: AgentName): Promise<void> {
     return await this[HISTORY_INSTANCE_WAIT_FOR_INIT](agentName);
-  };
+  }
 
   /**
    * Create a HistoryInstance.
@@ -284,6 +296,16 @@ export class HistoryInstance implements IHistoryInstance {
               yield item;
             }
           }
+          if (this.callbacks.getSystemPrompt) {
+            for (const content of await this.callbacks.getSystemPrompt(this.clientId, agentName)) {
+              yield {
+                role: "system",
+                content,
+                agentName,
+                mode: "tool"
+              }
+            }
+          }
           this.callbacks.onReadEnd &&
             this.callbacks.onReadEnd(this.clientId, agentName);
           return;
@@ -295,6 +317,16 @@ export class HistoryInstance implements IHistoryInstance {
             await this.callbacks.filterCondition(item, this.clientId, agentName)
           ) {
             yield item;
+          }
+        }
+        if (this.callbacks.getSystemPrompt) {
+          for (const content of await this.callbacks.getSystemPrompt(this.clientId, agentName)) {
+            yield {
+              role: "system",
+              content,
+              agentName,
+              mode: "tool"
+            }
           }
         }
         this.callbacks.onReadEnd &&
@@ -332,6 +364,16 @@ export class HistoryInstance implements IHistoryInstance {
     for (const item of this._array) {
       yield item;
     }
+    if (this.callbacks.getSystemPrompt) {
+      for (const content of await this.callbacks.getSystemPrompt(this.clientId, agentName)) {
+        yield {
+          role: "system",
+          content,
+          agentName,
+          mode: "tool"
+        }
+      }
+    }
     this.callbacks.onReadEnd &&
       this.callbacks.onReadEnd(this.clientId, agentName);
   }
@@ -354,7 +396,7 @@ export class HistoryInstance implements IHistoryInstance {
     this.callbacks.onChange &&
       this.callbacks.onChange(this._array, this.clientId, agentName);
     return Promise.resolve();
-  };
+  }
 
   /**
    * Dispose of the history for a given agent.
@@ -372,7 +414,7 @@ export class HistoryInstance implements IHistoryInstance {
       this._array = [];
     }
     return Promise.resolve();
-  };
+  }
 }
 
 /**

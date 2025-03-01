@@ -835,6 +835,13 @@ interface IModelMessage {
  */
 interface IHistoryInstanceCallbacks {
     /**
+     * Callback for compute of dynamic system prompt
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     * @returns An array of additional system prompt messages
+     */
+    getSystemPrompt?: (clientId: string, agentName: AgentName) => Promise<string[]> | string[];
+    /**
      * Filter condition for history messages.
      * @param message - The model message.
      * @param clientId - The client ID.
