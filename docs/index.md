@@ -38,9 +38,9 @@
 - [StatePublicService](classes/StatePublicService.md)
 - [StateSchemaService](classes/StateSchemaService.md)
 - [BusService](classes/BusService.md)
-- [StorageUtils](classes/StorageUtils.md)
 - [LoggerInstance](classes/LoggerInstance.md)
 - [LoggerUtils](classes/LoggerUtils.md)
+- [StorageUtils](classes/StorageUtils.md)
 - [StateUtils](classes/StateUtils.md)
 - [SchemaUtils](classes/SchemaUtils.md)
 
@@ -151,6 +151,6 @@
 - [TStateConnectionService](types/TStateConnectionService.md)
 - [SendMessageFn](types/SendMessageFn.md)
 - [TComplete](types/TComplete.md)
-- [TStorage](types/TStorage.md)
 - [TLoggerInstanceCtor](types/TLoggerInstanceCtor.md)
+- [TStorage](types/TStorage.md)
 - [TState](types/TState.md)

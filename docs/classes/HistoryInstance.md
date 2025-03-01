@@ -30,10 +30,10 @@ callbacks: Partial<IHistoryInstanceCallbacks>
 _array: any
 ```
 
-### __@HISTORY_INSTANCE_WAIT_FOR_INIT@399
+### __@HISTORY_INSTANCE_WAIT_FOR_INIT@409
 
 ```ts
-__@HISTORY_INSTANCE_WAIT_FOR_INIT@399: any
+__@HISTORY_INSTANCE_WAIT_FOR_INIT@409: any
 ```
 
 Makes the singleshot for initialization

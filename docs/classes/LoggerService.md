@@ -25,11 +25,19 @@ methodContextService: any
 executionContextService: any
 ```
 
-### _logger
+### _commonLogger
 
 ```ts
-_logger: any
+_commonLogger: any
 ```
+
+### getLoggerAdapter
+
+```ts
+getLoggerAdapter: any
+```
+
+Creates the client logs adapter using factory
 
 ### log
 
