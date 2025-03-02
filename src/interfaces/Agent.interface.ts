@@ -266,6 +266,8 @@ export interface IAgentSchema {
   storages?: StorageName[];
   /** The names of the states used by the agent. */
   states?: StateName[];
+  /** The list of dependencies for changeAgent */
+  dependsOn?: AgentName[];
   /**
    * Validates the output.
    * @param output - The output to validate.

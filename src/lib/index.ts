@@ -35,6 +35,8 @@ import BusService from "./services/base/BusService";
 import ExecutionContextService, {
   TExecutionContextService,
 } from "./services/context/ExecutionContextService";
+import AgentMetaService from "./services/meta/AgentMetaService";
+import SwarmMetaService from "./services/meta/SwarmMetaService";
 
 const baseServices = {
   busService: inject<BusService>(TYPES.busService),
@@ -102,6 +104,11 @@ const publicServices = {
   statePublicService: inject<StatePublicService>(TYPES.statePublicService),
 };
 
+const metaServices = {
+  agentMetaService: inject<AgentMetaService>(TYPES.agentMetaService),
+  swarmMetaService: inject<SwarmMetaService>(TYPES.swarmMetaService),
+};
+
 const validationServices = {
   agentValidationService: inject<AgentValidationService>(
     TYPES.agentValidationService
@@ -132,6 +139,7 @@ export const swarm = {
   ...connectionServices,
   ...schemaServices,
   ...publicServices,
+  ...metaServices,
   ...validationServices,
 };
 

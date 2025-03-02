@@ -1,5 +1,8 @@
 export * from "./lib";
 
+export * from './functions/dumpAgent';
+export * from './functions/dumpSwarm';
+
 export * from "./functions/addAgent";
 export * from "./functions/addCompletion";
 export * from "./functions/addSwarm";

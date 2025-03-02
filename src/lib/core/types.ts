@@ -27,6 +27,11 @@ const schemaServices = {
     stateSchemaService: Symbol('stateSchemaService'),
 };
 
+const metaServices = {
+    agentMetaService: Symbol('agentMetaService'),
+    swarmMetaService: Symbol('swarmMetaService'),
+};
+
 const publicServices = {
     agentPublicService: Symbol('agentPublicService'),
     historyPublicService: Symbol('historyPublicService'),
@@ -53,6 +58,7 @@ export const TYPES = {
     ...connectionServices,
     ...publicServices,
     ...validationServices,
+    ...metaServices,
 }
 
 export default TYPES;

@@ -1394,6 +1394,8 @@ interface IAgentSchema {
     storages?: StorageName[];
     /** The names of the states used by the agent. */
     states?: StateName[];
+    /** The list of dependencies for changeAgent */
+    dependsOn?: AgentName[];
     /**
      * Validates the output.
      * @param output - The output to validate.
@@ -2343,6 +2345,7 @@ declare class AgentValidationService {
     private readonly completionValidationService;
     private readonly storageValidationService;
     private _agentMap;
+    private _agentDepsMap;
     /**
      * Retrieves the storages used by the agent
      * @param {agentName} agentName - The name of the swarm.
@@ -2368,6 +2371,10 @@ declare class AgentValidationService {
      * Check if agent got registered storage
      */
     hasStorage: ((agentName: AgentName, storageName: StorageName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
+    /**
+     * Check if agent got registered dependency
+     */
+    hasDependency: ((targetAgentName: AgentName, depAgentName: StorageName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
      * Check if agent got registered state
      */
@@ -3028,6 +3035,62 @@ declare class BusService implements IBus {
     dispose: (clientId: string) => void;
 }
 
+/**
+ * Interface representing a meta node.
+ */
+interface IMetaNode {
+    name: string;
+    child?: IMetaNode[];
+}
+/**
+ * Service class for managing agent meta nodes and converting them to UML format.
+ */
+declare class AgentMetaService {
+    private readonly loggerService;
+    private readonly agentSchemaService;
+    private serialize;
+    /**
+     * Creates a meta node for the given agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {IMetaNode} The created meta node.
+     */
+    makeAgentNode: (agentName: AgentName, seen?: Set<string>) => IMetaNode;
+    /**
+     * Creates a meta node for the given agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {IMetaNode} The created meta node.
+     */
+    makeAgentNodeCommon: (agentName: AgentName, seen?: Set<string>) => IMetaNode;
+    /**
+     * Converts the meta nodes of the given agent to UML format.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {string} The UML representation of the agent's meta nodes.
+     */
+    toUML: (agentName: AgentName) => string;
+}
+
+/**
+ * Service for handling swarm metadata.
+ */
+declare class SwarmMetaService {
+    private readonly loggerService;
+    private readonly swarmSchemaService;
+    private readonly agentMetaService;
+    private serialize;
+    /**
+     * Creates a swarm node with the given swarm name.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {IMetaNode} The metadata node of the swarm.
+     */
+    makeSwarmNode: (swarmName: SwarmName) => IMetaNode;
+    /**
+     * Converts the swarm metadata to UML format.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {string} The UML representation of the swarm.
+     */
+    toUML: (swarmName: SwarmName) => string;
+}
+
 declare const swarm: {
     agentValidationService: AgentValidationService;
     toolValidationService: ToolValidationService;
@@ -3036,6 +3099,8 @@ declare const swarm: {
     completionValidationService: CompletionValidationService;
     storageValidationService: StorageValidationService;
     embeddingValidationService: EmbeddingValidationService;
+    agentMetaService: AgentMetaService;
+    swarmMetaService: SwarmMetaService;
     agentPublicService: AgentPublicService;
     historyPublicService: HistoryPublicService;
     sessionPublicService: SessionPublicService;
@@ -3064,6 +3129,22 @@ declare const swarm: {
     busService: BusService;
     loggerService: LoggerService;
 };
+
+/**
+ * Dumps the agent information into PlantUML format.
+ *
+ * @param {SwarmName} swarmName - The name of the swarm to be dumped.
+ * @returns {string} The UML representation of the swarm.
+ */
+declare const dumpAgent: (agentName: AgentName) => string;
+
+/**
+ * Dumps the swarm information into PlantUML format.
+ *
+ * @param {SwarmName} swarmName - The name of the swarm to be dumped.
+ * @returns {string} The UML representation of the swarm.
+ */
+declare const dumpSwarm: (swarmName: SwarmName) => string;
 
 /**
  * Adds a new agent to the agent registry. The swarm takes only those agents which was registered
@@ -3988,4 +4069,4 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
-export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };

@@ -30,6 +30,8 @@ import StateConnectionService from "../services/connection/StateConnectionServic
 import StatePublicService from "../services/public/StatePublicService";
 import BusService from "../services/base/BusService";
 import ExecutionContextService from "../services/context/ExecutionContextService";
+import SwarmMetaService from "../services/meta/SwarmMetaService";
+import AgentMetaService from "../services/meta/AgentMetaService";
 
 {
     provide(TYPES.busService, () => new BusService());
@@ -67,6 +69,11 @@ import ExecutionContextService from "../services/context/ExecutionContextService
     provide(TYPES.swarmPublicService, () => new SwarmPublicService());
     provide(TYPES.storagePublicService, () => new StoragePublicService());
     provide(TYPES.statePublicService, () => new StatePublicService());
+}
+
+{
+    provide(TYPES.swarmMetaService, () => new SwarmMetaService());
+    provide(TYPES.agentMetaService, () => new AgentMetaService());
 }
 
 {
