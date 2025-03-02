@@ -60,7 +60,10 @@ export class AgentMetaService {
    * @param {AgentName} agentName - The name of the agent.
    * @returns {IMetaNode} The created meta node.
    */
-  public makeAgentNode = (agentName: AgentName, seen = new Set<AgentName>()): IMetaNode => {
+  public makeAgentNode = (
+    agentName: AgentName,
+    seen = new Set<AgentName>()
+  ): IMetaNode => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("agentMetaService makeAgentNode", {
         agentName,
@@ -121,33 +124,36 @@ export class AgentMetaService {
     };
   };
 
-  
   /**
    * Creates a meta node for the given agent.
    * @param {AgentName} agentName - The name of the agent.
    * @returns {IMetaNode} The created meta node.
    */
-  public makeAgentNodeCommon = (agentName: AgentName, seen = new Set<AgentName>()): IMetaNode => {
+  public makeAgentNodeCommon = (
+    agentName: AgentName,
+    seen = new Set<AgentName>()
+  ): IMetaNode => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("agentMetaService makeAgentNodeCommon", {
         agentName,
       });
-    const { dependsOn } =
-      this.agentSchemaService.get(agentName);
+    const { dependsOn } = this.agentSchemaService.get(agentName);
     if (seen.has(agentName)) {
       return {
         name: agentName,
-      }
+      };
     } else if (dependsOn) {
       const childSeen = new Set(seen).add(agentName);
       return {
         name: agentName,
-        child: dependsOn.map((name) => this.makeAgentNodeCommon(name, childSeen)),
-      }
+        child: dependsOn.map((name) =>
+          this.makeAgentNodeCommon(name, childSeen)
+        ),
+      };
     } else {
       return {
         name: agentName,
-      }
+      };
     }
   };
 
@@ -156,12 +162,16 @@ export class AgentMetaService {
    * @param {AgentName} agentName - The name of the agent.
    * @returns {string} The UML representation of the agent's meta nodes.
    */
-  public toUML = (agentName: AgentName) => {
+  public toUML = (agentName: AgentName, withSubtree = false) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("agentMetaService toUML", {
         agentName,
       });
-    const rootNode = this.makeAgentNode(agentName);
+    const subtree = new Set<AgentName>();
+    if (!withSubtree) {
+      subtree.add(agentName);
+    }
+    const rootNode = this.makeAgentNode(agentName, subtree);
     return this.serialize([rootNode]);
   };
 }

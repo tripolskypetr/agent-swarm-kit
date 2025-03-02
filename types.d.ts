@@ -3066,7 +3066,7 @@ declare class AgentMetaService {
      * @param {AgentName} agentName - The name of the agent.
      * @returns {string} The UML representation of the agent's meta nodes.
      */
-    toUML: (agentName: AgentName) => string;
+    toUML: (agentName: AgentName, withSubtree?: boolean) => string;
 }
 
 /**
@@ -3131,12 +3131,18 @@ declare const swarm: {
 };
 
 /**
+ * The config for UML generation
+ */
+interface IConfig {
+    withSubtree: boolean;
+}
+/**
  * Dumps the agent information into PlantUML format.
  *
  * @param {SwarmName} swarmName - The name of the swarm to be dumped.
  * @returns {string} The UML representation of the swarm.
  */
-declare const dumpAgent: (agentName: AgentName) => string;
+declare const dumpAgent: (agentName: AgentName, { withSubtree }?: Partial<IConfig>) => string;
 
 /**
  * Dumps the swarm information into PlantUML format.
