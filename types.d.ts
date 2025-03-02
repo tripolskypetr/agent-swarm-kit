@@ -3054,7 +3054,13 @@ declare class AgentMetaService {
      * @param {AgentName} agentName - The name of the agent.
      * @returns {IMetaNode} The created meta node.
      */
-    makeAgentNode: (agentName: AgentName) => IMetaNode;
+    makeAgentNode: (agentName: AgentName, seen?: Set<string>) => IMetaNode;
+    /**
+     * Creates a meta node for the given agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {IMetaNode} The created meta node.
+     */
+    makeAgentNodeCommon: (agentName: AgentName, seen?: Set<string>) => IMetaNode;
     /**
      * Converts the meta nodes of the given agent to UML format.
      * @param {AgentName} agentName - The name of the agent.

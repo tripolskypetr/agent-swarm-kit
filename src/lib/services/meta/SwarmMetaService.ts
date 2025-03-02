@@ -35,10 +35,10 @@ export class SwarmMetaService {
       this.loggerService.info("swarmMetaService makeSwarmNode", {
         swarmName,
       });
-    const { agentList } = this.swarmSchemaService.get(swarmName);
+    const { defaultAgent } = this.swarmSchemaService.get(swarmName);
     return {
       name: swarmName,
-      child: agentList.map((dep) => this.agentMetaService.makeAgentNode(dep)),
+      child: [this.agentMetaService.makeAgentNodeCommon(defaultAgent)],
     };
   };
 
