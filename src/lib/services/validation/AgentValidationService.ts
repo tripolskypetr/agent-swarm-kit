@@ -118,7 +118,7 @@ export class AgentValidationService {
       if (this._agentDepsMap.has(targetAgentName)) {
         return this._agentDepsMap.get(targetAgentName).includes(depAgentName);
       }
-      return true;
+      return false;
     }
   );
 
