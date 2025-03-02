@@ -40,6 +40,12 @@ storageValidationService: any
 _agentMap: any
 ```
 
+### _agentDepsMap
+
+```ts
+_agentDepsMap: any
+```
+
 ### getStorageList
 
 ```ts
@@ -71,6 +77,14 @@ hasStorage: ((agentName: string, storageName: string) => boolean) & IClearableMe
 ```
 
 Check if agent got registered storage
+
+### hasDependency
+
+```ts
+hasDependency: ((targetAgentName: string, depAgentName: string) => boolean) & IClearableMemoize<string> & IControlMemoize<string, boolean>
+```
+
+Check if agent got registered dependency
 
 ### hasState
 

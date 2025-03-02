@@ -60,6 +60,14 @@ states: string[]
 
 The names of the states used by the agent.
 
+### dependsOn
+
+```ts
+dependsOn: string[]
+```
+
+The list of dependencies for changeAgent
+
 ### validate
 
 ```ts
