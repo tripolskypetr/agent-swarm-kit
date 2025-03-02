@@ -30,6 +30,7 @@ export class AgentValidationService {
   );
 
   private _agentMap = new Map<AgentName, IAgentSchema>();
+  private _agentDepsMap = new Map<AgentName, AgentName[]>();
 
   /**
    * Retrieves the storages used by the agent
@@ -77,6 +78,9 @@ export class AgentValidationService {
       throw new Error(`agent-swarm agent ${agentName} already exist`);
     }
     this._agentMap.set(agentName, agentSchema);
+    if (agentSchema.dependsOn) {
+      this._agentDepsMap.set(agentName, agentSchema.dependsOn);
+    }
   };
 
   /**
@@ -97,6 +101,24 @@ export class AgentValidationService {
       }
       const { storages = [] } = this._agentMap.get(agentName);
       return storages.includes(storageName);
+    }
+  );
+
+  /**
+   * Check if agent got registered dependency
+   */
+  public hasDependency = memoize(
+    ([targetAgentName, depAgentName]) => `${targetAgentName}-${depAgentName}`,
+    (targetAgentName: AgentName, depAgentName: StorageName) => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("agentValidationService hasDependency", {
+          targetAgentName,
+          depAgentName,
+        });
+      if (this._agentDepsMap.has(targetAgentName)) {
+        return this._agentDepsMap.get(targetAgentName).includes(depAgentName);
+      }
+      return true;
     }
   );
 

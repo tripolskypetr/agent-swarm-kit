@@ -2,6 +2,7 @@ import { queued, singleshot, ttl } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
+import { SwarmName } from "src/interfaces/Swarm.interface";
 
 const METHOD_NAME = "function.changeAgent";
 
@@ -17,7 +18,7 @@ const CHANGE_AGENT_TTL = 15 * 60 * 1_000;
  */
 const CHANGE_AGENT_GC = 60 * 1_000;
 
-type TChangeAgentRun = (methodName: string, agentName: string) => Promise<void>;
+type TChangeAgentRun = (methodName: string, agentName: string, swarmName: SwarmName) => Promise<void>;
 
 /**
  * Creates a change agent function with TTL and queuing.
@@ -27,10 +28,7 @@ type TChangeAgentRun = (methodName: string, agentName: string) => Promise<void>;
  */
 const createChangeAgent = ttl(
   (clientId: string) =>
-    queued(async (methodName: string, agentName: AgentName) => {
-      swarm.sessionValidationService.validate(clientId, METHOD_NAME);
-      swarm.agentValidationService.validate(agentName, METHOD_NAME);
-      const swarmName = swarm.sessionValidationService.getSwarm(clientId);
+    queued(async (methodName: string, agentName: AgentName, swarmName: SwarmName) => {
       await Promise.all(
         swarm.swarmValidationService
           .getAgentList(swarmName)
@@ -97,7 +95,22 @@ export const changeAgent = async (agentName: AgentName, clientId: string) => {
       agentName,
       clientId,
     });
+  const swarmName = swarm.sessionValidationService.getSwarm(clientId);
+  {
+    swarm.sessionValidationService.validate(clientId, METHOD_NAME);
+    swarm.agentValidationService.validate(agentName, METHOD_NAME);
+    const activeAgent = await swarm.swarmPublicService.getAgentName(
+      METHOD_NAME,
+      clientId,
+      swarmName
+    );
+    if (!swarm.agentValidationService.hasDependency(activeAgent, agentName)) {
+      console.error(
+        `agent-swarm missing dependency detected for activeAgent=${activeAgent} dependencyAgent=${agentName}`
+      );
+    }
+  }
   const run = await createChangeAgent(clientId);
   createGc();
-  return await run(METHOD_NAME, agentName);
+  return await run(METHOD_NAME, agentName, swarmName);
 };
