@@ -3342,7 +3342,7 @@ interface IMakeConnectionConfig {
 declare const changeToAgent: (agentName: AgentName, clientId: string) => Promise<void>;
 
 /**
- * Navigates back to previous agent or default agent
+ * Navigates back to the previous or default agent
  * @async
  * @function
  * @param {string} clientId - The client ID.
@@ -3351,7 +3351,7 @@ declare const changeToAgent: (agentName: AgentName, clientId: string) => Promise
 declare const changeToPrevAgent: (clientId: string) => Promise<void>;
 
 /**
- * Navigates back to default agent
+ * Navigates back to the default agent
  * @async
  * @function
  * @param {string} clientId - The client ID.

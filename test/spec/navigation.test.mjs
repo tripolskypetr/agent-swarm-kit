@@ -10,8 +10,10 @@ import {
   execute,
   getRawHistory,
   session,
-  swarm,
+  changeToDefaultAgent,
   commitToolOutput,
+  getAgentName,
+  changeToPrevAgent,
 } from "../../build/index.mjs";
 import { createAwaiter, randomString, sleep, Subject } from "functools-kit";
 
@@ -183,6 +185,45 @@ const beforeAll = () => {
     defaultAgent: TRIAGE_AGENT,
   });
 };
+
+test("Will navigate back to default agent on request", async ({ pass, fail }) => {
+  beforeAll();
+  const { complete } = session(CLIENT_ID, "test-swarm")
+  await complete(
+    NAVIGATE_TO_SALES_REQUEST,
+    CLIENT_ID,
+    "test-swarm"
+  );
+  await changeToDefaultAgent(CLIENT_ID);
+  const agentName = await getAgentName(CLIENT_ID);
+  if (agentName === "triage_agent") {
+    pass();
+    return;
+  }
+  fail(result);
+});
+
+test("Will navigate back to prev agent on request", async ({ pass, fail }) => {
+  beforeAll();
+  const { complete } = session(CLIENT_ID, "test-swarm")
+  await complete(
+    NAVIGATE_TO_SALES_REQUEST,
+    CLIENT_ID,
+    "test-swarm"
+  );
+  await complete(
+    NAVIGATE_TO_REFUND_REQUEST,
+    CLIENT_ID,
+    "test-swarm"
+  );
+  await changeToPrevAgent(CLIENT_ID);
+  const agentName = await getAgentName(CLIENT_ID);
+  if (agentName === SALES_AGENT) {
+    pass();
+    return;
+  }
+  fail(result);
+});
 
 test("Will navigate to sales agent on request", async ({ pass, fail }) => {
   beforeAll();
