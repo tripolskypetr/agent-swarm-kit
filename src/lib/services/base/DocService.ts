@@ -179,7 +179,7 @@ export class DocService {
       }
 
       {
-        const umlSchema = this.agentMetaService.toUML(agentSchema.agentName);
+        const umlSchema = this.agentMetaService.toUML(agentSchema.agentName, true);
         const umlName = `agent_schema_${agentSchema.agentName}.svg`;
         const umlSvg = await GLOBAL_CONFIG.CC_FN_PLANTUML(umlSchema);
         if (umlSvg) {
