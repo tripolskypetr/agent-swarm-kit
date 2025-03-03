@@ -211,7 +211,7 @@ const HISTORY_INSTANCE_WAIT_FOR_INIT = Symbol("wait-for-init");
 const INSTANCE_METHOD_NAME_WAIT_FOR_INIT = "HistoryInstance.waitForInit";
 const INSTANCE_METHOD_NAME_CTOR = "HistoryInstance.CTOR";
 const INSTANCE_METHOD_NAME_ITERATE_CONDITION =
-  "HistoryInstance.iterate condition";
+  "HistoryInstance.iterate_condition";
 const INSTANCE_METHOD_NAME_ITERATE = "HistoryInstance.iterate";
 const INSTANCE_METHOD_NAME_PUSH = "HistoryInstance.push";
 const INSTANCE_METHOD_NAME_DISPOSE = "HistoryInstance.dispose";
