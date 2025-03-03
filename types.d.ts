@@ -145,6 +145,8 @@ interface IStorageData {
  * @template T - Type of the storage data.
  */
 interface IStorageSchema<T extends IStorageData = IStorageData> {
+    /** The description for documentation */
+    docDescription?: string;
     /**
      * All agents will share the same ClientStorage instance
      */
@@ -340,6 +342,8 @@ interface IStateCallbacks<T extends IStateData = IStateData> {
  * @template T - The type of the state data.
  */
 interface IStateSchema<T extends IStateData = IStateData> {
+    /** The description for documentation */
+    docDescription?: string;
     /**
      * The agents can share the state
      */
@@ -563,6 +567,8 @@ interface ISwarmParams extends Omit<ISwarmSchema, keyof {
  * @interface
  */
 interface ISwarmSchema {
+    /** The description for documentation */
+    docDescription?: string;
     /** Fetch the active agent on init */
     getActiveAgent?: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName> | AgentName;
     /** Update the active agent after navigation */
@@ -1240,6 +1246,8 @@ interface IAgentToolCallbacks<T = Record<string, unknown>> {
  * @template T - The type of the parameters for the tool.
  */
 interface IAgentTool<T = Record<string, unknown>> extends ITool {
+    /** The description for documentation */
+    docNote?: string;
     /** The name of the tool. */
     toolName: ToolName;
     /**
@@ -1380,6 +1388,8 @@ interface IAgentSchemaCallbacks {
  * Interface representing the schema for an agent.
  */
 interface IAgentSchema {
+    /** The description for documentation */
+    docDescription?: string;
     /** The name of the agent. */
     agentName: AgentName;
     /** The name of the completion. */
@@ -2346,6 +2356,7 @@ declare class AgentValidationService {
     private readonly storageValidationService;
     private _agentMap;
     private _agentDepsMap;
+    getAgentList: () => string[];
     /**
      * Retrieves the storages used by the agent
      * @param {agentName} agentName - The name of the swarm.
@@ -2552,6 +2563,11 @@ declare class SwarmValidationService {
      * @throws Will throw an error if the swarm is not found.
      */
     getAgentList: (swarmName: SwarmName) => string[];
+    /**
+     * Retrieves the list of swarms
+     * @returns {string[]} The list of swarm names
+     */
+    getSwarmList: () => string[];
     /**
      * Validates a swarm and its agents.
      * @param {SwarmName} swarmName - The name of the swarm.
@@ -3091,6 +3107,43 @@ declare class SwarmMetaService {
     toUML: (swarmName: SwarmName) => string;
 }
 
+/**
+ * Service for generating documentation for swarms and agents.
+ * @class
+ */
+declare class DocService {
+    private readonly loggerService;
+    private readonly swarmValidationService;
+    private readonly agentValidationService;
+    private readonly swarmSchemaService;
+    private readonly agentSchemaService;
+    private readonly toolSchemaService;
+    private readonly storageSchemaService;
+    private readonly stateSchemaService;
+    private readonly agentMetaService;
+    private readonly swarmMetaService;
+    /**
+     * Writes documentation for a swarm schema.
+     * @param {ISwarmSchema} swarmSchema - The swarm schema to document.
+     * @param {string} dirName - The directory to write the documentation to.
+     * @returns {Promise<void>}
+     */
+    private writeSwarmDoc;
+    /**
+     * Writes documentation for an agent schema.
+     * @param {IAgentSchema} agentSchema - The agent schema to document.
+     * @param {string} dirName - The directory to write the documentation to.
+     * @returns {Promise<void>}
+     */
+    private writeAgentDoc;
+    /**
+     * Dumps the documentation for all swarms and agents.
+     * @param {string} [dirName=join(process.cwd(), "docs/chat")] - The directory to write the documentation to.
+     * @returns {Promise<void>}
+     */
+    dumpDocs: (dirName?: string) => Promise<void>;
+}
+
 declare const swarm: {
     agentValidationService: AgentValidationService;
     toolValidationService: ToolValidationService;
@@ -3126,9 +3179,19 @@ declare const swarm: {
     executionContextService: {
         readonly context: IExecutionContext;
     };
+    docService: DocService;
     busService: BusService;
     loggerService: LoggerService;
 };
+
+/**
+ * Dumps the documentation for the agents and swarms.
+ *
+ * @param {string} [dirName="./docs/chat"] - The directory where the documentation will be dumped.
+ * @param {function} [PlantUML] - An optional function to process PlantUML diagrams.
+ * @returns {Promise<void>} - A promise that resolves when the documentation has been dumped.
+ */
+declare const dumpDocs: (dirName?: string, PlantUML?: (uml: string) => Promise<string>) => Promise<void>;
 
 /**
  * The config for UML generation
@@ -3912,6 +3975,7 @@ declare const GLOBAL_CONFIG: {
     CC_LOGGER_ENABLE_LOG: boolean;
     CC_LOGGER_ENABLE_CONSOLE: boolean;
     CC_NAME_TO_TITLE: (name: string) => string;
+    CC_FN_PLANTUML: (uml: string) => Promise<string>;
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
@@ -4075,4 +4139,4 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
-export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };

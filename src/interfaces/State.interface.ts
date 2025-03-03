@@ -64,6 +64,10 @@ export interface IStateCallbacks<T extends IStateData = IStateData> {
  * @template T - The type of the state data.
  */
 export interface IStateSchema<T extends IStateData = IStateData> {
+
+  /** The description for documentation */
+  docDescription?: string;
+
   /**
    * The agents can share the state
    */

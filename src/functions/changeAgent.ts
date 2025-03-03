@@ -2,7 +2,7 @@ import { queued, singleshot, ttl } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
-import { SwarmName } from "src/interfaces/Swarm.interface";
+import { SwarmName } from "../interfaces/Swarm.interface";
 
 const METHOD_NAME = "function.changeAgent";
 

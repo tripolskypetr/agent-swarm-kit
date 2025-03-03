@@ -4,6 +4,14 @@ Interface representing the schema of the storage.
 
 ## Properties
 
+### docDescription
+
+```ts
+docDescription: string
+```
+
+The description for documentation
+
 ### shared
 
 ```ts

@@ -21,6 +21,10 @@ export interface IStorageData {
  * @template T - Type of the storage data.
  */
 export interface IStorageSchema<T extends IStorageData = IStorageData> {
+
+  /** The description for documentation */
+  docDescription?: string;
+
   /**
    * All agents will share the same ClientStorage instance
    */

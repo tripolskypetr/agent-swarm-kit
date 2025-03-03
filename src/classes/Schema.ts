@@ -1,4 +1,4 @@
-import { GLOBAL_CONFIG } from "src/config/params";
+import { GLOBAL_CONFIG } from "../config/params";
 import objectFlat from "../utils/objectFlat";
 import swarm from "../lib";
 

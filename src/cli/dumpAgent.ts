@@ -2,7 +2,7 @@ import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
-const METHOD_NAME = "function.dumpAgent";
+const METHOD_NAME = "cli.dumpAgent";
 
 /**
  * The config for UML generation

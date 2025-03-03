@@ -46,6 +46,12 @@ _agentMap: any
 _agentDepsMap: any
 ```
 
+### getAgentList
+
+```ts
+getAgentList: () => string[]
+```
+
 ### getStorageList
 
 ```ts

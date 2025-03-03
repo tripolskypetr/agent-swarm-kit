@@ -44,6 +44,14 @@ getAgentList: (swarmName: string) => string[]
 
 Retrieves the list of agents for a given swarm.
 
+### getSwarmList
+
+```ts
+getSwarmList: () => string[]
+```
+
+Retrieves the list of swarms
+
 ### validate
 
 ```ts

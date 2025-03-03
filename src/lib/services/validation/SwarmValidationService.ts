@@ -55,6 +55,16 @@ export class SwarmValidationService {
   };
 
   /**
+   * Retrieves the list of swarms
+   * @returns {string[]} The list of swarm names
+   */
+  public getSwarmList = () => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmValidationService getSwarmList");
+    return [...this._swarmMap.keys()];
+  };
+
+  /**
    * Validates a swarm and its agents.
    * @param {SwarmName} swarmName - The name of the swarm.
    * @param {string} source - The source of the validation request.

@@ -4,6 +4,14 @@ Schema for state management.
 
 ## Properties
 
+### docDescription
+
+```ts
+docDescription: string
+```
+
+The description for documentation
+
 ### shared
 
 ```ts

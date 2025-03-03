@@ -4,7 +4,7 @@ import { SwarmName } from "../interfaces/Swarm.interface";
 import validateDefault from "../validation/validateDefault";
 import removeXmlTags from "../utils/removeXmlTags";
 import { HistoryAdapter, IHistoryAdapter } from "../classes/History";
-import nameToTitle from "src/utils/nameToTitle";
+import nameToTitle from "../utils/nameToTitle";
 import LoggerAdapter, { ILoggerAdapter } from "../classes/Logger";
 
 /**
@@ -88,6 +88,8 @@ const CC_LOGGER_ENABLE_CONSOLE = false;
 
 const CC_NAME_TO_TITLE = nameToTitle;
 
+const CC_FN_PLANTUML: (uml: string) => Promise<string> = () => Promise.resolve("");
+
 export const GLOBAL_CONFIG = {
   CC_TOOL_CALL_EXCEPTION_PROMPT,
   CC_EMPTY_OUTPUT_PLACEHOLDERS,
@@ -110,6 +112,7 @@ export const GLOBAL_CONFIG = {
   CC_LOGGER_ENABLE_LOG,
   CC_LOGGER_ENABLE_CONSOLE,
   CC_NAME_TO_TITLE,
+  CC_FN_PLANTUML,
 };
 
 export const setConfig = (config: Partial<typeof GLOBAL_CONFIG>) => {

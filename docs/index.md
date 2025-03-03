@@ -40,6 +40,7 @@
 - [BusService](classes/BusService.md)
 - [AgentMetaService](classes/AgentMetaService.md)
 - [SwarmMetaService](classes/SwarmMetaService.md)
+- [DocService](classes/DocService.md)
 - [LoggerInstance](classes/LoggerInstance.md)
 - [LoggerUtils](classes/LoggerUtils.md)
 - [StorageUtils](classes/StorageUtils.md)

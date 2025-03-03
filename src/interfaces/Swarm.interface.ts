@@ -85,6 +85,8 @@ export interface ISwarmParams
  * @interface
  */
 export interface ISwarmSchema {
+  /** The description for documentation */
+  docDescription?: string;
   /** Fetch the active agent on init */
   getActiveAgent?: (
     clientId: string,

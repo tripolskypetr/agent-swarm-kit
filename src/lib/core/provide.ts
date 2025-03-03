@@ -32,8 +32,10 @@ import BusService from "../services/base/BusService";
 import ExecutionContextService from "../services/context/ExecutionContextService";
 import SwarmMetaService from "../services/meta/SwarmMetaService";
 import AgentMetaService from "../services/meta/AgentMetaService";
+import DocService from "../services/base/DocService";
 
 {
+    provide(TYPES.docService, () => new DocService());
     provide(TYPES.busService, () => new BusService());
     provide(TYPES.loggerService, () => new LoggerService());
 }
