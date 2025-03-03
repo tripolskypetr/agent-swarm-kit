@@ -45,6 +45,8 @@ export class SwarmConnectionService implements ISwarm {
         callbacks,
         getActiveAgent = GLOBAL_CONFIG.CC_SWARM_DEFAULT_AGENT,
         setActiveAgent = GLOBAL_CONFIG.CC_SWARM_AGENT_CHANGED,
+        getNavigationStack = GLOBAL_CONFIG.CC_SWARM_DEFAULT_STACK,
+        setNavigationStack = GLOBAL_CONFIG.CC_SWARM_STACK_CHANGED,
       } = this.swarmSchemaService.get(swarmName);
       const agentMap: Record<AgentName, IAgent> = {};
       for (const agentName of agentList) {
@@ -62,10 +64,25 @@ export class SwarmConnectionService implements ISwarm {
         bus: this.busService,
         getActiveAgent,
         setActiveAgent,
+        getNavigationStack,
+        setNavigationStack,
         callbacks,
       });
     }
   );
+
+  /**
+   * Pop the navigation stack or return default agent
+   * @returns {Promise<string>} - The pending agent for navigation
+   */
+  public navigationPop = async () => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`swarmConnectionService navigationPop`);
+    return await this.getSwarm(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
+    ).navigationPop();
+  };
 
   /**
    * Cancel the await of output by emit of empty string

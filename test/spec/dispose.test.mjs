@@ -5,7 +5,7 @@ import {
   addCompletion,
   addSwarm,
   addTool,
-  changeAgent,
+  changeToAgent,
   complete,
   disposeConnection,
   execute,
@@ -30,7 +30,7 @@ test("Will dispose connections for session function", async ({
   const NAVIGATE_TOOL = addTool({
     toolName: "navigate-tool",
     call: async ({ toolId, clientId, agentName, params: { to }}) => {
-      await changeAgent(to, clientId);
+      await changeToAgent(to, clientId);
       await execute("Navigation complete", clientId, to);
     },
     validate: async () => true,
@@ -148,7 +148,7 @@ test("Will dispose connections for makeConnection function", async ({
   const NAVIGATE_TOOL = addTool({
     toolName: "navigate-tool",
     call: async ({ toolId, clientId, agentName, params: { to }}) => {
-      await changeAgent(to, clientId);
+      await changeToAgent(to, clientId);
       await execute("Navigation complete", clientId, to);
     },
     validate: async () => true,
@@ -265,7 +265,7 @@ test("Will dispose connections for complete function", async ({
   const NAVIGATE_TOOL = addTool({
     toolName: "navigate-tool",
     call: async ({ toolId, clientId, agentName, params: { to } }) => {
-      await changeAgent(to, clientId);
+      await changeToAgent(to, clientId);
       await execute("Navigation complete", clientId, to);
     },
     validate: async () => true,

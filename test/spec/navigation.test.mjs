@@ -5,13 +5,15 @@ import {
   addCompletion,
   addSwarm,
   addTool,
-  changeAgent,
+  changeToAgent,
   complete,
   execute,
   getRawHistory,
   session,
-  swarm,
+  changeToDefaultAgent,
   commitToolOutput,
+  getAgentName,
+  changeToPrevAgent,
 } from "../../build/index.mjs";
 import { createAwaiter, randomString, sleep, Subject } from "functools-kit";
 
@@ -60,7 +62,7 @@ const beforeAll = () => {
   addTool({
     toolName: STUCK_ATTEMPT_TOOL,
     call: async ({ toolId, clientId }) => {
-      await changeAgent(TRIAGE_AGENT, clientId);
+      await changeToAgent(TRIAGE_AGENT, clientId);
       await execute(NAVIGATE_TO_SALES_REQUEST, clientId, TRIAGE_AGENT);
     },
     validate: async () => true,
@@ -78,7 +80,7 @@ const beforeAll = () => {
   addTool({
     toolName: NAVIGATE_TO_SALES_TOOL,
     call: async ({ toolId, clientId }) => {
-      await changeAgent(SALES_AGENT, clientId);
+      await changeToAgent(SALES_AGENT, clientId);
       await execute("Say hello to the user", clientId, SALES_AGENT);
     },
     validate: async () => true,
@@ -96,7 +98,7 @@ const beforeAll = () => {
   addTool({
     toolName: NAVIGATE_TO_REFUND_TOOL,
     call: async ({ toolId, clientId }) => {
-      await changeAgent(REFUND_AGENT, clientId);
+      await changeToAgent(REFUND_AGENT, clientId);
       await execute("Say hello to the user", clientId, REFUND_AGENT);
     },
     validate: async () => true,
@@ -183,6 +185,45 @@ const beforeAll = () => {
     defaultAgent: TRIAGE_AGENT,
   });
 };
+
+test("Will navigate back to default agent on request", async ({ pass, fail }) => {
+  beforeAll();
+  const { complete } = session(CLIENT_ID, "test-swarm")
+  await complete(
+    NAVIGATE_TO_SALES_REQUEST,
+    CLIENT_ID,
+    "test-swarm"
+  );
+  await changeToDefaultAgent(CLIENT_ID);
+  const agentName = await getAgentName(CLIENT_ID);
+  if (agentName === "triage_agent") {
+    pass();
+    return;
+  }
+  fail(result);
+});
+
+test("Will navigate back to prev agent on request", async ({ pass, fail }) => {
+  beforeAll();
+  const { complete } = session(CLIENT_ID, "test-swarm")
+  await complete(
+    NAVIGATE_TO_SALES_REQUEST,
+    CLIENT_ID,
+    "test-swarm"
+  );
+  await complete(
+    NAVIGATE_TO_REFUND_REQUEST,
+    CLIENT_ID,
+    "test-swarm"
+  );
+  await changeToPrevAgent(CLIENT_ID);
+  const agentName = await getAgentName(CLIENT_ID);
+  if (agentName === SALES_AGENT) {
+    pass();
+    return;
+  }
+  fail(result);
+});
 
 test("Will navigate to sales agent on request", async ({ pass, fail }) => {
   beforeAll();

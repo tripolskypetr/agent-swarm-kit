@@ -32,7 +32,7 @@ const CC_SWARM_AGENT_CHANGED: (
   clientId: string,
   agentName: AgentName,
   swarmName: SwarmName
-) => Promise<void> = async () => Promise.resolve();
+) => Promise<void> = () => Promise.resolve();
 
 const CC_SWARM_DEFAULT_AGENT: (
   clientId: string,
@@ -40,6 +40,19 @@ const CC_SWARM_DEFAULT_AGENT: (
   defaultAgent: AgentName
 ) => Promise<AgentName> = async ({}, {}, defaultAgent) => {
   return defaultAgent;
+};
+
+const CC_SWARM_STACK_CHANGED: (
+  clientId: string,
+  navigationStack: AgentName[],
+  swarmName: SwarmName
+) => Promise<void> = () => Promise.resolve();
+
+const CC_SWARM_DEFAULT_STACK: (
+  clientId: string,
+  swarmName: SwarmName,
+) => Promise<AgentName[]> = async () => {
+  return [];
 };
 
 const CC_AGENT_DEFAULT_VALIDATION = validateDefault;
@@ -98,6 +111,8 @@ export const GLOBAL_CONFIG = {
   CC_GET_CLIENT_LOGGER_ADAPTER,
   CC_SWARM_AGENT_CHANGED,
   CC_SWARM_DEFAULT_AGENT,
+  CC_SWARM_DEFAULT_STACK,
+  CC_SWARM_STACK_CHANGED,
   CC_AGENT_DEFAULT_VALIDATION,
   CC_AGENT_HISTORY_FILTER,
   CC_AGENT_OUTPUT_TRANSFORM,

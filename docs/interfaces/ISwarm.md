@@ -4,6 +4,14 @@ Interface for a swarm.
 
 ## Methods
 
+### navigationPop
+
+```ts
+navigationPop: () => Promise<string>
+```
+
+Pop the navigation stack or return default agent
+
 ### cancelOutput
 
 ```ts

@@ -1,6 +1,6 @@
 import { test } from "worker-testbed";
 
-import { addAgent, addCompletion, addSwarm, changeAgent, complete, session, swarm } from '../../build/index.mjs'
+import { addAgent, addCompletion, addSwarm, changeToAgent, complete, session, swarm } from '../../build/index.mjs'
 import { randomString, sleep } from "functools-kit";
 
 const CLIENT_ID = randomString();
@@ -102,7 +102,7 @@ test("Will use different completion on multiple agents", async ({ pass, fail }) 
     }
 
 
-    await changeAgent(BAR_AGENT, CLIENT_ID);
+    await changeToAgent(BAR_AGENT, CLIENT_ID);
 
     {
         const result = await complete("test");

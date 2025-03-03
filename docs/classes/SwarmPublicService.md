@@ -24,6 +24,14 @@ loggerService: any
 swarmConnectionService: any
 ```
 
+### navigationPop
+
+```ts
+navigationPop: (methodName: string, clientId: string, swarmName: string) => Promise<string>
+```
+
+Pop the navigation stack or return default agent
+
 ### cancelOutput
 
 ```ts

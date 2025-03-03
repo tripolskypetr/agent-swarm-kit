@@ -4,7 +4,7 @@ import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 import { SwarmName } from "../interfaces/Swarm.interface";
 
-const METHOD_NAME = "function.changeAgent";
+const METHOD_NAME = "function.changeToAgent";
 
 /**
  * Time-to-live for the change agent function in milliseconds.
@@ -18,15 +18,15 @@ const CHANGE_AGENT_TTL = 15 * 60 * 1_000;
  */
 const CHANGE_AGENT_GC = 60 * 1_000;
 
-type TChangeAgentRun = (methodName: string, agentName: string, swarmName: SwarmName) => Promise<void>;
+type TChangeToAgentRun = (methodName: string, agentName: string, swarmName: SwarmName) => Promise<void>;
 
 /**
  * Creates a change agent function with TTL and queuing.
  * @function
  * @param {string} clientId - The client ID.
- * @returns {TChangeAgentRun} - The change agent function.
+ * @returns {TChangeToAgentRun} - The change agent function.
  */
-const createChangeAgent = ttl(
+const createChangeToAgent = ttl(
   (clientId: string) =>
     queued(async (methodName: string, agentName: AgentName, swarmName: SwarmName) => {
       await Promise.all(
@@ -41,6 +41,7 @@ const createChangeAgent = ttl(
           })
       );
       {
+        const agentName = await swarm.swarmPublicService.getAgentName(METHOD_NAME, clientId, swarmName);
         await swarm.agentPublicService.dispose(methodName, clientId, agentName);
         await swarm.historyPublicService.dispose(
           methodName,
@@ -65,7 +66,7 @@ const createChangeAgent = ttl(
         clientId,
         swarmName
       );
-    }) as TChangeAgentRun,
+    }) as TChangeToAgentRun,
   {
     key: ([clientId]) => `${clientId}`,
     timeout: CHANGE_AGENT_TTL,
@@ -78,7 +79,7 @@ const createChangeAgent = ttl(
  * @returns {Promise<void>} - A promise that resolves when the garbage collector is created.
  */
 const createGc = singleshot(async () => {
-  setInterval(createChangeAgent.gc, CHANGE_AGENT_GC);
+  setInterval(createChangeToAgent.gc, CHANGE_AGENT_GC);
 });
 
 /**
@@ -89,7 +90,7 @@ const createGc = singleshot(async () => {
  * @param {string} clientId - The client ID.
  * @returns {Promise<void>} - A promise that resolves when the agent is changed.
  */
-export const changeAgent = async (agentName: AgentName, clientId: string) => {
+export const changeToAgent = async (agentName: AgentName, clientId: string) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       agentName,
@@ -110,7 +111,7 @@ export const changeAgent = async (agentName: AgentName, clientId: string) => {
       );
     }
   }
-  const run = await createChangeAgent(clientId);
+  const run = await createChangeToAgent(clientId);
   createGc();
   return await run(METHOD_NAME, agentName, swarmName);
 };

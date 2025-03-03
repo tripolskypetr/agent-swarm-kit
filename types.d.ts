@@ -569,6 +569,10 @@ interface ISwarmParams extends Omit<ISwarmSchema, keyof {
 interface ISwarmSchema {
     /** The description for documentation */
     docDescription?: string;
+    /** Get the current navigation stack after init */
+    getNavigationStack?: (clientId: string, swarmName: SwarmName) => Promise<AgentName[]> | AgentName[];
+    /** Upload the current navigation stack after change */
+    setNavigationStack?: (clientId: string, navigationStack: AgentName[], swarmName: SwarmName) => Promise<void>;
     /** Fetch the active agent on init */
     getActiveAgent?: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName> | AgentName;
     /** Update the active agent after navigation */
@@ -587,6 +591,11 @@ interface ISwarmSchema {
  * @interface
  */
 interface ISwarm {
+    /**
+     * Pop the navigation stack or return default agent
+     * @returns {Promise<string>} - The pending agent for navigation
+     */
+    navigationPop(): Promise<AgentName>;
     /**
      * Will return empty string in waitForOutput
      * @returns {Promise<void>}
@@ -1404,7 +1413,7 @@ interface IAgentSchema {
     storages?: StorageName[];
     /** The names of the states used by the agent. */
     states?: StateName[];
-    /** The list of dependencies for changeAgent */
+    /** The list of dependencies for changeToAgent */
     dependsOn?: AgentName[];
     /**
      * Validates the output.
@@ -1803,6 +1812,7 @@ declare class ClientSwarm implements ISwarm {
     readonly params: ISwarmParams;
     private _agentChangedSubject;
     private _activeAgent;
+    private _navigationStack;
     private _cancelOutputSubject;
     get _agentList(): [string, IAgent][];
     /**
@@ -1810,6 +1820,11 @@ declare class ClientSwarm implements ISwarm {
      * @param {ISwarmParams} params - The parameters for the swarm.
      */
     constructor(params: ISwarmParams);
+    /**
+     * Pop the navigation stack or return default agent
+     * @returns {Promise<string>} - The pending agent for navigation
+     */
+    navigationPop: () => Promise<string>;
     /**
      * Cancel the await of output by emit of empty string
      * @returns {Promise<string>} - The output from the active agent.
@@ -1861,6 +1876,11 @@ declare class SwarmConnectionService implements ISwarm {
      * @returns {ClientSwarm} The client swarm instance.
      */
     getSwarm: ((clientId: string, swarmName: string) => ClientSwarm) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientSwarm>;
+    /**
+     * Pop the navigation stack or return default agent
+     * @returns {Promise<string>} - The pending agent for navigation
+     */
+    navigationPop: () => Promise<string>;
     /**
      * Cancel the await of output by emit of empty string
      * @returns {Promise<void>}
@@ -2293,6 +2313,11 @@ type TSwarmConnectionService = {
 declare class SwarmPublicService implements TSwarmConnectionService {
     private readonly loggerService;
     private readonly swarmConnectionService;
+    /**
+     * Pop the navigation stack or return default agent
+     * @returns {Promise<string>} - The pending agent for navigation
+     */
+    navigationPop: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Cancel the await of output by emit of empty string
      * @param {string} clientId - The client ID.
@@ -3314,7 +3339,25 @@ interface IMakeConnectionConfig {
  * @param {string} clientId - The client ID.
  * @returns {Promise<void>} - A promise that resolves when the agent is changed.
  */
-declare const changeAgent: (agentName: AgentName, clientId: string) => Promise<void>;
+declare const changeToAgent: (agentName: AgentName, clientId: string) => Promise<void>;
+
+/**
+ * Navigates back to the previous or default agent
+ * @async
+ * @function
+ * @param {string} clientId - The client ID.
+ * @returns {Promise<void>} - A promise that resolves when the agent is changed.
+ */
+declare const changeToPrevAgent: (clientId: string) => Promise<void>;
+
+/**
+ * Navigates back to the default agent
+ * @async
+ * @function
+ * @param {string} clientId - The client ID.
+ * @returns {Promise<void>} - A promise that resolves when the agent is changed.
+ */
+declare const changeToDefaultAgent: (clientId: string) => Promise<void>;
 
 /**
  * The complete function will create a swarm, execute single command and dispose it
@@ -3962,6 +4005,8 @@ declare const GLOBAL_CONFIG: {
     CC_GET_CLIENT_LOGGER_ADAPTER: () => ILoggerAdapter;
     CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
     CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
+    CC_SWARM_DEFAULT_STACK: (clientId: string, swarmName: SwarmName) => Promise<AgentName[]>;
+    CC_SWARM_STACK_CHANGED: (clientId: string, navigationStack: AgentName[], swarmName: SwarmName) => Promise<void>;
     CC_AGENT_DEFAULT_VALIDATION: (output: string) => Promise<string | null>;
     CC_AGENT_HISTORY_FILTER: (agentName: AgentName) => (message: IModelMessage) => boolean;
     CC_AGENT_OUTPUT_TRANSFORM: (input: string) => string;
@@ -4140,4 +4185,4 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
-export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };

@@ -50,6 +50,14 @@ getSwarm: ((clientId: string, swarmName: string) => ClientSwarm) & IClearableMem
 
 Retrieves a swarm instance based on client ID and swarm name.
 
+### navigationPop
+
+```ts
+navigationPop: () => Promise<string>
+```
+
+Pop the navigation stack or return default agent
+
 ### cancelOutput
 
 ```ts
