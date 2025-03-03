@@ -87,6 +87,17 @@ export interface ISwarmParams
 export interface ISwarmSchema {
   /** The description for documentation */
   docDescription?: string;
+  /** Get the current navigation stack after init */
+  getNavigationStack?: (
+    clientId: string,
+    swarmName: SwarmName
+  ) => Promise<AgentName[]> | AgentName[];
+  /** Upload the current navigation stack after change */
+  setNavigationStack?: (
+    clientId: string,
+    navigationStack: AgentName[],
+    swarmName: SwarmName
+  ) => Promise<void>;
   /** Fetch the active agent on init */
   getActiveAgent?: (
     clientId: string,
@@ -114,6 +125,12 @@ export interface ISwarmSchema {
  * @interface
  */
 export interface ISwarm {
+  /**
+   * Pop the navigation stack or return default agent
+   * @returns {Promise<string>} - The pending agent for navigation
+   */
+  navigationPop(): Promise<AgentName>;
+
   /**
    * Will return empty string in waitForOutput
    * @returns {Promise<void>}

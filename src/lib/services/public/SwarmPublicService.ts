@@ -27,6 +27,35 @@ export class SwarmPublicService implements TSwarmConnectionService {
   );
 
   /**
+   * Pop the navigation stack or return default agent
+   * @returns {Promise<string>} - The pending agent for navigation
+   */
+  public navigationPop = async (
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmPublicService navigationPop", {
+        clientId,
+        swarmName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.swarmConnectionService.navigationPop();
+      },
+      {
+        methodName,
+        clientId,
+        swarmName,
+        agentName: "",
+        storageName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
    * Cancel the await of output by emit of empty string
    * @param {string} clientId - The client ID.
    * @param {SwarmName} swarmName - The swarm name.

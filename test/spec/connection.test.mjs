@@ -5,7 +5,7 @@ import {
   addCompletion,
   addSwarm,
   addTool,
-  changeAgent,
+  changeToAgent,
   complete,
   execute,
   getRawHistory,
@@ -74,7 +74,7 @@ test("Will orchestrate swarms for each connection", async ({ pass, fail }) => {
   const NAVIGATE_TOOL = addTool({
     toolName: "navigate-tool",
     call: async ({ toolId, clientId, agentName, params: { to } }) => {
-      await changeAgent(to, clientId);
+      await changeToAgent(to, clientId);
       await execute("Navigation complete", clientId, to);
     },
     validate: async () => true,

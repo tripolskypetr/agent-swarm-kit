@@ -4,7 +4,7 @@ import {
   addAgent,
   addCompletion,
   addSwarm,
-  changeAgent,
+  changeToAgent,
   execute,
   getRawHistory,
   commitSystemMessage,
@@ -63,7 +63,7 @@ test("Will ignote execute due to the obsolete agent", async ({
     }
   }
 
-  await changeAgent(TEST2_AGENT, CLIENT_ID);
+  await changeToAgent(TEST2_AGENT, CLIENT_ID);
   await execute("bar", CLIENT_ID, TEST2_AGENT);
 
   {

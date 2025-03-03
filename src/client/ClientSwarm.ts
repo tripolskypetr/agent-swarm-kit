@@ -11,6 +11,7 @@ import ISwarm, { ISwarmParams } from "../interfaces/Swarm.interface";
 import { IBusEvent } from "../model/Event.model";
 
 const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
+const STACK_NEED_FETCH = Symbol("stack-need-fetch");
 
 /**
  * ClientSwarm class implements the ISwarm interface and manages agents within a swarm.
@@ -21,6 +22,8 @@ export class ClientSwarm implements ISwarm {
   >();
 
   private _activeAgent: AgentName | typeof AGENT_NEED_FETCH = AGENT_NEED_FETCH;
+  private _navigationStack: AgentName[] | typeof STACK_NEED_FETCH =
+    STACK_NEED_FETCH;
 
   private _cancelOutputSubject = new Subject<{
     agentName: string;
@@ -44,6 +47,30 @@ export class ClientSwarm implements ISwarm {
         }
       );
   }
+
+  /**
+   * Pop the navigation stack or return default agent
+   * @returns {Promise<string>} - The pending agent for navigation
+   */
+  navigationPop = async () => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} navigationPop`
+      );
+    if (this._navigationStack === STACK_NEED_FETCH) {
+      this._navigationStack = await this.params.getNavigationStack(
+        this.params.clientId,
+        this.params.swarmName
+      );
+    }
+    const prevAgent = this._navigationStack.pop();
+    await this.params.setNavigationStack(
+      this.params.clientId,
+      this._navigationStack,
+      this.params.swarmName
+    );
+    return prevAgent ? prevAgent : this.params.defaultAgent;
+  };
 
   /**
    * Cancel the await of output by emit of empty string
@@ -248,6 +275,18 @@ export class ClientSwarm implements ISwarm {
         this.params.swarmName
       );
     }
+    if (this._navigationStack === STACK_NEED_FETCH) {
+      this._navigationStack = await this.params.getNavigationStack(
+        this.params.clientId,
+        this.params.swarmName
+      );
+    }
+    this._navigationStack.push(agentName);
+    await this.params.setNavigationStack(
+      this.params.clientId,
+      this._navigationStack,
+      this.params.swarmName
+    );
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "set-agent-name",
       source: "swarm-bus",
