@@ -77,6 +77,8 @@ export interface IAgentToolCallbacks<T = Record<string, unknown>> {
  * @template T - The type of the parameters for the tool.
  */
 export interface IAgentTool<T = Record<string, unknown>> extends ITool {
+  /** The description for documentation */
+  docNote?: string;
   /** The name of the tool. */
   toolName: ToolName;
   /**
@@ -252,6 +254,8 @@ export interface IAgentSchemaCallbacks {
  * Interface representing the schema for an agent.
  */
 export interface IAgentSchema {
+  /** The description for documentation */
+  docDescription?: string;
   /** The name of the agent. */
   agentName: AgentName;
   /** The name of the completion. */

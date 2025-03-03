@@ -37,8 +37,10 @@ import ExecutionContextService, {
 } from "./services/context/ExecutionContextService";
 import AgentMetaService from "./services/meta/AgentMetaService";
 import SwarmMetaService from "./services/meta/SwarmMetaService";
+import DocService from "./services/base/DocService";
 
 const baseServices = {
+  docService: inject<DocService>(TYPES.docService),
   busService: inject<BusService>(TYPES.busService),
   loggerService: inject<LoggerService>(TYPES.loggerService),
 };

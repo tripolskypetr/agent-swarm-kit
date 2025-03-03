@@ -2,7 +2,7 @@ import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 import { SwarmName } from "../interfaces/Swarm.interface";
 
-const METHOD_NAME = "function.dumpSwarm";
+const METHOD_NAME = "cli.dumpSwarm";
 
 /**
  * Dumps the swarm information into PlantUML format.

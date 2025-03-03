@@ -32,6 +32,12 @@ export class AgentValidationService {
   private _agentMap = new Map<AgentName, IAgentSchema>();
   private _agentDepsMap = new Map<AgentName, AgentName[]>();
 
+  public getAgentList = () => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentValidationService getAgentList");
+    return [...this._agentMap.keys()];
+  };
+
   /**
    * Retrieves the storages used by the agent
    * @param {agentName} agentName - The name of the swarm.
@@ -39,6 +45,10 @@ export class AgentValidationService {
    * @throws Will throw an error if the swarm is not found.
    */
   public getStorageList = (agentName: string) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentValidationService getStorageList", {
+        agentName,
+      });
     if (!this._agentMap.has(agentName)) {
       throw new Error(
         `agent-swarm agent ${agentName} not exist (getStorageList)`
@@ -54,6 +64,10 @@ export class AgentValidationService {
    * @throws Will throw an error if the swarm is not found.
    */
   public getStateList = (agentName: string) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentValidationService getStateList", {
+        agentName,
+      });
     if (!this._agentMap.has(agentName)) {
       throw new Error(
         `agent-swarm agent ${agentName} not exist (getStateList)`

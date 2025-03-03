@@ -225,7 +225,7 @@ export class ClientAgent implements IAgent {
       messages,
       mode,
       tools: this.params.tools?.map((t) =>
-        omit(t, "toolName", "call", "validate", "callbacks")
+        omit(t, "toolName", "docNote", "call", "validate", "callbacks")
       ),
     };
     const output = await this.params.completion.getCompletion(args);
