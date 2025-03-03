@@ -24,16 +24,16 @@ params: IAgentParams
 _agentChangeSubject: Subject<unique symbol>
 ```
 
+### _toolErrorSubject
+
+```ts
+_toolErrorSubject: Subject<unique symbol>
+```
+
 ### _toolCommitSubject
 
 ```ts
 _toolCommitSubject: Subject<void>
-```
-
-### _toolErrorSubject
-
-```ts
-_toolErrorSubject: Subject<void>
 ```
 
 ### _outputSubject

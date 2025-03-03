@@ -100,7 +100,7 @@ const createGc = singleshot(async () => {
 });
 
 /**
- * Navigates back to default agent
+ * Navigates back to the default agent
  * @async
  * @function
  * @param {string} clientId - The client ID.

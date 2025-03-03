@@ -12,6 +12,22 @@ docDescription: string
 
 The description for documentation
 
+### getNavigationStack
+
+```ts
+getNavigationStack: (clientId: string, swarmName: string) => string[] | Promise<string[]>
+```
+
+Get the current navigation stack after init
+
+### setNavigationStack
+
+```ts
+setNavigationStack: (clientId: string, navigationStack: string[], swarmName: string) => Promise<void>
+```
+
+Upload the current navigation stack after change
+
 ### getActiveAgent
 
 ```ts

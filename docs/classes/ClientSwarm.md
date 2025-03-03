@@ -30,11 +30,25 @@ _agentChangedSubject: any
 _activeAgent: any
 ```
 
+### _navigationStack
+
+```ts
+_navigationStack: any
+```
+
 ### _cancelOutputSubject
 
 ```ts
 _cancelOutputSubject: any
 ```
+
+### navigationPop
+
+```ts
+navigationPop: () => Promise<string>
+```
+
+Pop the navigation stack or return default agent
 
 ### cancelOutput
 

@@ -74,7 +74,7 @@ The names of the states used by the agent.
 dependsOn: string[]
 ```
 
-The list of dependencies for changeAgent
+The list of dependencies for changeToAgent
 
 ### validate
 
