@@ -15,6 +15,7 @@ import { IToolCall } from "../model/Tool.model";
 import { IBusEvent } from "../model/Event.model";
 
 const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
+const TOOL_ERROR_SYMBOL = Symbol("tool-error");
 
 const getPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[
@@ -29,8 +30,9 @@ const getPlaceholder = () =>
  */
 export class ClientAgent implements IAgent {
   readonly _agentChangeSubject = new Subject<typeof AGENT_CHANGE_SYMBOL>();
+  readonly _toolErrorSubject = new Subject<typeof TOOL_ERROR_SYMBOL>();
+
   readonly _toolCommitSubject = new Subject<void>();
-  readonly _toolErrorSubject = new Subject<void>();
   readonly _outputSubject = new Subject<string>();
 
   /**
@@ -550,7 +552,7 @@ export class ClientAgent implements IAgent {
                   tool.function.arguments,
                   error
                 );
-              this._toolErrorSubject.next();
+              this._toolErrorSubject.next(TOOL_ERROR_SYMBOL);
             });
           GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
             this.params.logger.debug(
@@ -577,6 +579,24 @@ export class ClientAgent implements IAgent {
                 this.params.agentName,
                 toolCalls
               );
+            return;
+          }
+          if (status === TOOL_ERROR_SYMBOL) {
+            GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+              this.params.logger.debug(
+                `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the call error`
+              );
+            const result = await this._resurrectModel(
+              mode,
+              `Function call failed with error: name=${
+                tool.function.name
+              } arguments=${JSON.stringify(tool.function.arguments)}`
+            );
+            GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+              this.params.logger.debug(
+                `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} execute end result=${result}`
+              );
+            await this._emitOuput(mode, result);
             return;
           }
         }

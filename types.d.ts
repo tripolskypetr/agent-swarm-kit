@@ -1527,6 +1527,7 @@ declare class LoggerService implements ILogger {
 }
 
 declare const AGENT_CHANGE_SYMBOL: unique symbol;
+declare const TOOL_ERROR_SYMBOL: unique symbol;
 /**
  * Represents a client agent that interacts with the system.
  * @implements {IAgent}
@@ -1534,8 +1535,8 @@ declare const AGENT_CHANGE_SYMBOL: unique symbol;
 declare class ClientAgent implements IAgent {
     readonly params: IAgentParams;
     readonly _agentChangeSubject: Subject<typeof AGENT_CHANGE_SYMBOL>;
+    readonly _toolErrorSubject: Subject<typeof TOOL_ERROR_SYMBOL>;
     readonly _toolCommitSubject: Subject<void>;
-    readonly _toolErrorSubject: Subject<void>;
     readonly _outputSubject: Subject<string>;
     /**
      * Creates an instance of ClientAgent.
