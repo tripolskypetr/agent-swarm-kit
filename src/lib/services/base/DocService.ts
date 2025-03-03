@@ -264,7 +264,8 @@ export class DocService {
           if (fn.parameters?.properties) {
             result.push("");
             result.push("#### Parameters for model");
-            Object.entries(fn.parameters.properties).forEach(
+            const entries = Object.entries(fn.parameters.properties);
+            entries.forEach(
               ([key, { type, description, enum: e }], idx) => {
                 result.push("");
                 result.push(`> **${idx + 1}. ${key}**`);
@@ -290,6 +291,11 @@ export class DocService {
                 }
               }
             );
+            if (!entries.length) {
+                result.push("");
+                result.push(`*Empty parameters*`);
+                result.push("");
+            }
           }
 
           if (callbacks) {
