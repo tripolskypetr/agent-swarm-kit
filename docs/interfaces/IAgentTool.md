@@ -4,6 +4,14 @@ Interface representing a tool used by an agent.
 
 ## Properties
 
+### docNote
+
+```ts
+docNote: string
+```
+
+The description for documentation
+
 ### toolName
 
 ```ts

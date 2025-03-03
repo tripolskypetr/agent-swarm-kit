@@ -4,6 +4,14 @@ Schema for defining a swarm.
 
 ## Properties
 
+### docDescription
+
+```ts
+docDescription: string
+```
+
+The description for documentation
+
 ### getActiveAgent
 
 ```ts

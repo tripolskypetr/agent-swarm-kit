@@ -21,6 +21,10 @@ const THREAD_POOL_SIZE = 5;
 
 const SUBDIR_LIST = ["agent", "image"];
 
+/**
+ * Service for generating documentation for swarms and agents.
+ * @class
+ */
 export class DocService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
@@ -53,6 +57,12 @@ export class DocService {
     TYPES.swarmMetaService
   );
 
+  /**
+   * Writes documentation for a swarm schema.
+   * @param {ISwarmSchema} swarmSchema - The swarm schema to document.
+   * @param {string} dirName - The directory to write the documentation to.
+   * @returns {Promise<void>}
+   */
   private writeSwarmDoc = execpool(
     async (swarmSchema: ISwarmSchema, dirName: string) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -140,6 +150,12 @@ export class DocService {
     }
   );
 
+  /**
+   * Writes documentation for an agent schema.
+   * @param {IAgentSchema} agentSchema - The agent schema to document.
+   * @param {string} dirName - The directory to write the documentation to.
+   * @returns {Promise<void>}
+   */
   private writeAgentDoc = execpool(
     async (agentSchema: IAgentSchema, dirName: string) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -387,6 +403,11 @@ export class DocService {
     }
   );
 
+  /**
+   * Dumps the documentation for all swarms and agents.
+   * @param {string} [dirName=join(process.cwd(), "docs/chat")] - The directory to write the documentation to.
+   * @returns {Promise<void>}
+   */
   public dumpDocs = async (dirName = join(process.cwd(), "docs/chat")) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("docService dumpDocs", {

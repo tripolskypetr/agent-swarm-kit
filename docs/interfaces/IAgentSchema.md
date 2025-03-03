@@ -4,6 +4,14 @@ Interface representing the schema for an agent.
 
 ## Properties
 
+### docDescription
+
+```ts
+docDescription: string
+```
+
+The description for documentation
+
 ### agentName
 
 ```ts

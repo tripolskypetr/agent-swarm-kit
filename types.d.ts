@@ -3107,6 +3107,10 @@ declare class SwarmMetaService {
     toUML: (swarmName: SwarmName) => string;
 }
 
+/**
+ * Service for generating documentation for swarms and agents.
+ * @class
+ */
 declare class DocService {
     private readonly loggerService;
     private readonly swarmValidationService;
@@ -3118,8 +3122,25 @@ declare class DocService {
     private readonly stateSchemaService;
     private readonly agentMetaService;
     private readonly swarmMetaService;
+    /**
+     * Writes documentation for a swarm schema.
+     * @param {ISwarmSchema} swarmSchema - The swarm schema to document.
+     * @param {string} dirName - The directory to write the documentation to.
+     * @returns {Promise<void>}
+     */
     private writeSwarmDoc;
+    /**
+     * Writes documentation for an agent schema.
+     * @param {IAgentSchema} agentSchema - The agent schema to document.
+     * @param {string} dirName - The directory to write the documentation to.
+     * @returns {Promise<void>}
+     */
     private writeAgentDoc;
+    /**
+     * Dumps the documentation for all swarms and agents.
+     * @param {string} [dirName=join(process.cwd(), "docs/chat")] - The directory to write the documentation to.
+     * @returns {Promise<void>}
+     */
     dumpDocs: (dirName?: string) => Promise<void>;
 }
 
@@ -3163,7 +3184,14 @@ declare const swarm: {
     loggerService: LoggerService;
 };
 
-declare const dumpDocs: (dirName?: string) => Promise<void>;
+/**
+ * Dumps the documentation for the agents and swarms.
+ *
+ * @param {string} [dirName="./docs/chat"] - The directory where the documentation will be dumped.
+ * @param {function} [PlantUML] - An optional function to process PlantUML diagrams.
+ * @returns {Promise<void>} - A promise that resolves when the documentation has been dumped.
+ */
+declare const dumpDocs: (dirName?: string, PlantUML?: (uml: string) => Promise<string>) => Promise<void>;
 
 /**
  * The config for UML generation
