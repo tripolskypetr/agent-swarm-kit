@@ -294,7 +294,6 @@ export class DocService {
             if (!entries.length) {
                 result.push("");
                 result.push(`*Empty parameters*`);
-                result.push("");
             }
           }
 
