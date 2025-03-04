@@ -1,4 +1,4 @@
-import { ToolRegistry } from "functools-kit";
+import { isObject, ToolRegistry } from "functools-kit";
 import { IAgentTool, ToolName } from "../../../interfaces/Agent.interface";
 import LoggerService from "../base/LoggerService";
 import { inject } from "../../core/di";
@@ -15,6 +15,37 @@ export class ToolSchemaService {
     "toolSchemaService"
   );
 
+    /**
+     * Validation for state schema
+     */
+    private validateShallow = (toolSchema: IAgentTool) => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info(`toolSchemaService validateShallow`, {
+          toolSchema,
+        });
+      if (typeof toolSchema.toolName !== "string") {
+        throw new Error(
+          `agent-swarm tool schema validation failed: missing toolName`
+        );
+      }
+      if (typeof toolSchema.call !== "function") {
+        throw new Error(
+          `agent-swarm tool schema validation failed: missing call for toolName=${toolSchema.toolName}`
+        );
+      }
+      if (typeof toolSchema.validate !== "function") {
+        throw new Error(
+          `agent-swarm tool schema validation failed: missing validate for toolName=${toolSchema.toolName}`
+        );
+      }
+      if (!isObject(toolSchema.function)) {
+        throw new Error(
+          `agent-swarm tool schema validation failed: missing function for toolName=${toolSchema.toolName}`
+        );
+      }
+    };
+  
+
   /**
    * Registers a tool with the given key and value.
    * @param {ToolName} key - The name of the tool.
@@ -23,6 +54,7 @@ export class ToolSchemaService {
   public register = (key: ToolName, value: IAgentTool) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("toolSchemaService register");
+    this.validateShallow(value);
     this.registry = this.registry.register(key, value);
   };
 

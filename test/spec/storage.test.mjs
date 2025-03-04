@@ -33,6 +33,7 @@ test("Will keep separate storages for different connections", async ({
   });
 
   const TEST_STORAGE = addStorage({
+    storageName: "test_storage",
     embedding: TEST_EMBEDDING,
     createIndex: ({ foo }) => foo,
   });
@@ -106,6 +107,7 @@ test("Will raise an exception if storage is not declared in agent", async ({
   });
 
   const TEST_STORAGE = addStorage({
+    storageName: "test_storage",
     embedding: TEST_EMBEDDING,
     createIndex: ({ foo }) => foo,
   });

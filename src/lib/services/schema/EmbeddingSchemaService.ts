@@ -19,6 +19,31 @@ export class EmbeddingSchemaService {
   );
 
   /**
+   * Validation for embedding schema
+   */
+  private validateShallow = (embeddingSchema: IEmbeddingSchema) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`embeddingSchemaService validateShallow`, {
+        embeddingSchema,
+      });
+    if (typeof embeddingSchema.embeddingName !== "string") {
+      throw new Error(
+        `agent-swarm embedding schema validation failed: missing embeddingName`
+      );
+    }
+    if (typeof embeddingSchema.calculateSimilarity !== "function") {
+      throw new Error(
+        `agent-swarm embedding schema validation failed: missing calculateSimilarity for embeddingName=${embeddingSchema.embeddingName}`
+      );
+    }
+    if (typeof embeddingSchema.createEmbedding !== "function") {
+      throw new Error(
+        `agent-swarm embedding schema validation failed: missing createEmbedding for embeddingName=${embeddingSchema.embeddingName}`
+      );
+    }
+  };
+
+  /**
    * Registers a embedding with the given key and value.
    * @param {EmbeddingName} key - The name of the embedding.
    * @param {IAgentTool} value - The embedding to register.
@@ -26,6 +51,7 @@ export class EmbeddingSchemaService {
   public register = (key: EmbeddingName, value: IEmbeddingSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("embeddingSchemaService register");
+    this.validateShallow(value);
     this.registry = this.registry.register(key, value);
   };
 

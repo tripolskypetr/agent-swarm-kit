@@ -16,6 +16,26 @@ export class StateSchemaService {
   );
 
   /**
+   * Validation for state schema
+   */
+  private validateShallow = (stateSchema: IStateSchema) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`stateSchemaService validateShallow`, {
+        stateSchema,
+      });
+    if (typeof stateSchema.stateName !== "string") {
+      throw new Error(
+        `agent-swarm state schema validation failed: missing stateName`
+      );
+    }
+    if (typeof stateSchema.getState !== "function") {
+      throw new Error(
+        `agent-swarm state schema validation failed: missing getState for stateName=${stateSchema.stateName}`
+      );
+    }
+  };
+
+  /**
    * Registers a new state schema.
    * @param {StateName} key - The key for the schema.
    * @param {IStateSchema} value - The schema to register.
@@ -23,6 +43,7 @@ export class StateSchemaService {
   public register = (key: StateName, value: IStateSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`stateSchemaService register`, { key });
+    this.validateShallow(value);
     this.registry = this.registry.register(key, value);
   };
 

@@ -1772,6 +1772,10 @@ declare class AgentSchemaService {
     readonly loggerService: LoggerService;
     private registry;
     /**
+     * Validation for agent schema
+     */
+    private validateShallow;
+    /**
      * Registers a new agent schema.
      * @param {AgentName} key - The name of the agent.
      * @param {IAgentSchema} value - The schema of the agent.
@@ -1791,6 +1795,10 @@ declare class AgentSchemaService {
 declare class ToolSchemaService {
     private readonly loggerService;
     private registry;
+    /**
+     * Validation for state schema
+     */
+    private validateShallow;
     /**
      * Registers a tool with the given key and value.
      * @param {ToolName} key - The name of the tool.
@@ -1928,6 +1936,10 @@ declare class SwarmSchemaService {
     readonly loggerService: LoggerService;
     private registry;
     /**
+     * Validation for swarm schema
+     */
+    private validateShallow;
+    /**
      * Registers a new swarm schema.
      * @param {SwarmName} key - The name of the swarm.
      * @param {ISwarmSchema} value - The schema of the swarm.
@@ -1947,6 +1959,10 @@ declare class SwarmSchemaService {
 declare class CompletionSchemaService {
     readonly loggerService: LoggerService;
     private registry;
+    /**
+     * Validation for completion schemaschema
+     */
+    private validateShallow;
     /**
      * Registers a new completion schema.
      * @param {CompletionName} key - The key for the schema.
@@ -2631,6 +2647,10 @@ declare class EmbeddingSchemaService {
     private readonly loggerService;
     private registry;
     /**
+     * Validation for embedding schema
+     */
+    private validateShallow;
+    /**
      * Registers a embedding with the given key and value.
      * @param {EmbeddingName} key - The name of the embedding.
      * @param {IAgentTool} value - The embedding to register.
@@ -2650,6 +2670,10 @@ declare class EmbeddingSchemaService {
 declare class StorageSchemaService {
     readonly loggerService: LoggerService;
     private registry;
+    /**
+     * Validation for storage schema
+     */
+    private validateShallow;
     /**
      * Registers a new storage schema.
      * @param {StorageName} key - The key for the schema.
@@ -3027,6 +3051,10 @@ declare class StatePublicService<T extends IStateData = IStateData> implements T
 declare class StateSchemaService {
     readonly loggerService: LoggerService;
     private registry;
+    /**
+     * Validation for state schema
+     */
+    private validateShallow;
     /**
      * Registers a new state schema.
      * @param {StateName} key - The key for the schema.

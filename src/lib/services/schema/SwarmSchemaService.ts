@@ -16,6 +16,36 @@ export class SwarmSchemaService {
   );
 
   /**
+   * Validation for swarm schema
+   */
+  private validateShallow = (swarmSchema: ISwarmSchema) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`swarmSchemaService validateShallow`, {
+        swarmSchema,
+      });
+    if (typeof swarmSchema.swarmName !== "string") {
+      throw new Error(
+        `agent-swarm swarm schema validation failed: missing swarmName`
+      );
+    }
+    if (typeof swarmSchema.defaultAgent !== "string") {
+      throw new Error(
+        `agent-swarm swarm schema validation failed: missing defaultAgent for swarmName=${swarmSchema.swarmName}`
+      );
+    }
+    if (!Array.isArray(swarmSchema.agentList)) {
+      throw new Error(
+        `agent-swarm swarm schema validation failed: missing agentList for swarmName=${swarmSchema.swarmName} value=${swarmSchema.agentList}`
+      );
+    }
+    if (swarmSchema.agentList.some((value) => typeof value !== "string")) {
+      throw new Error(
+        `agent-swarm swarm schema validation failed: missing agentList for swarmName=${swarmSchema.swarmName} value=[${swarmSchema.agentList}]`
+      );
+    }
+  };
+
+  /**
    * Registers a new swarm schema.
    * @param {SwarmName} key - The name of the swarm.
    * @param {ISwarmSchema} value - The schema of the swarm.
@@ -23,6 +53,7 @@ export class SwarmSchemaService {
   public register = (key: SwarmName, value: ISwarmSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`swarmSchemaService register`, { key });
+    this.validateShallow(value);
     this.registry = this.registry.register(key, value);
   };
 

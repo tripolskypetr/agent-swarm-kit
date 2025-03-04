@@ -19,6 +19,22 @@ export class CompletionSchemaService {
   >("completionSchemaService");
 
   /**
+   * Validation for completion schemaschema
+   */
+  private validateShallow = (completionSchema: ICompletionSchema) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`completionSchemaService validateShallow`, {
+        completionSchema,
+      });
+    if (typeof completionSchema.completionName !== "string") {
+      throw new Error(`agent-swarm completion schema validation failed: missing completionName`);
+    }
+    if (typeof completionSchema.getCompletion !== "function") {
+      throw new Error(`agent-swarm completion schema validation failed: missing getCompletion for completionName=${completionSchema.completionName}`);
+    }
+  };
+
+  /**
    * Registers a new completion schema.
    * @param {CompletionName} key - The key for the schema.
    * @param {ICompletionSchema} value - The schema to register.
@@ -26,6 +42,7 @@ export class CompletionSchemaService {
   public register = (key: CompletionName, value: ICompletionSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`completionSchemaService register`, { key });
+    this.validateShallow(value);
     this.registry = this.registry.register(key, value);
   };
 
