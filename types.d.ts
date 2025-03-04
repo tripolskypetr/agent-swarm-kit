@@ -3327,6 +3327,177 @@ declare const addEmbedding: (embeddingSchema: IEmbeddingSchema) => string;
  */
 declare const addStorage: <T extends IStorageData = IStorageData>(storageSchema: IStorageSchema<T>) => string;
 
+/**
+ * Commits the tool output to the active agent in a swarm session
+ *
+ * @param {string} content - The content to be committed.
+ * @param {string} clientId - The client ID associated with the session.
+ * @param {AgentName} agentName - The name of the agent committing the output.
+ * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ */
+declare const commitToolOutput: (toolId: string, content: string, clientId: string, agentName: AgentName) => Promise<void>;
+
+/**
+ * Commits a system message to the active agent in the swarm.
+ *
+ * @param {string} content - The content of the system message.
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitSystemMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
+
+/**
+ * Commits flush of agent history
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitFlush: (clientId: string, agentName: string) => Promise<void>;
+
+/**
+ * Commits a user message to the active agent history in as swarm without answer.
+ *
+ * @param {string} content - The content of the message.
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitUserMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
+
+/**
+ * Commits the tool output to the active agent in a swarm session without checking active agent
+ *
+ * @param {string} content - The content to be committed.
+ * @param {string} clientId - The client ID associated with the session.
+ * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ */
+declare const commitToolOutputForce: (toolId: string, content: string, clientId: string) => Promise<void>;
+
+/**
+ * Commits a system message to the active agent in as swarm without checking active agent.
+ *
+ * @param {string} content - The content of the system message.
+ * @param {string} clientId - The ID of the client.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitSystemMessageForce: (content: string, clientId: string) => Promise<void>;
+
+/**
+ * Commits flush of agent history without active agent check
+ *
+ * @param {string} clientId - The ID of the client.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitFlushForce: (clientId: string) => Promise<void>;
+
+/**
+ * Commits a user message to the active agent history in as swarm without answer and checking active agent
+ *
+ * @param {string} content - The content of the message.
+ * @param {string} clientId - The ID of the client.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitUserMessageForce: (content: string, clientId: string) => Promise<void>;
+
+/**
+ * Cancel the await of output by emit of empty string
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the output is canceled
+ */
+declare const cancelOutput: (clientId: string, agentName: string) => Promise<void>;
+
+/**
+ * Cancel the await of output by emit of empty string without checking active agent
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the output is canceled
+ */
+declare const cancelOutputForce: (clientId: string) => Promise<void>;
+
+/**
+ * Emits a string constant as the model output without executing incoming message and checking active agent
+ * Works only for `makeConnection`
+ *
+ * @param {string} content - The content to be emitted.
+ * @param {string} clientId - The client ID of the session.
+ * @param {AgentName} agentName - The name of the agent to emit the content to.
+ * @throws Will throw an error if the session mode is not "makeConnection".
+ * @returns {Promise<void>} A promise that resolves when the content is emitted.
+ */
+declare const emitForce: (content: string, clientId: string) => Promise<void>;
+
+/**
+ * Send the message to the active agent in the swarm content like it income from client side
+ * Should be used to review tool output and initiate conversation from the model side to client
+ *
+ * Will execute even if the agent is inactive
+ *
+ * @param {string} content - The content to be executed.
+ * @param {string} clientId - The ID of the client requesting execution.
+ * @returns {Promise<void>} - A promise that resolves when the execution is complete.
+ */
+declare const executeForce: (content: string, clientId: string) => Promise<string>;
+
+/**
+ * Interface for the parameters of the makeAutoDispose function.
+ */
+interface IMakeDisposeParams {
+    /**
+     * Timeout in seconds before auto-dispose is triggered.
+     */
+    timeoutSeconds: number;
+    /**
+     * Callback when session is closed
+     */
+    onDestroy?: (clientId: string, swarmName: SwarmName) => void;
+}
+/**
+ * Creates an auto-dispose mechanism for a client in a swarm.
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {SwarmName} swarmName - The name of the swarm.
+ * @param {Partial<IMakeDisposeParams>} [params={}] - Optional parameters for auto-dispose.
+ * @returns {Object} An object with tick and stop methods to control the auto-dispose.
+ */
+declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeoutSeconds, onDestroy, }?: Partial<IMakeDisposeParams>) => {
+    /**
+     * Signals that the client is active, resetting the auto-dispose timer.
+     */
+    tick(): void;
+    /**
+     * Stops the auto-dispose mechanism.
+     */
+    destroy(): void;
+};
+
+/**
+ * Send the message to the active agent in the swarm content like it income from client side
+ * Should be used to review tool output and initiate conversation from the model side to client
+ *
+ * @param {string} content - The content to be executed.
+ * @param {string} clientId - The ID of the client requesting execution.
+ * @param {AgentName} agentName - The name of the agent executing the command.
+ * @returns {Promise<void>} - A promise that resolves when the execution is complete.
+ */
+declare const execute: (content: string, clientId: string, agentName: AgentName) => Promise<string>;
+
+/**
+ * Emits a string constant as the model output without executing incoming message
+ * Works only for `makeConnection`
+ *
+ * @param {string} content - The content to be emitted.
+ * @param {string} clientId - The client ID of the session.
+ * @param {AgentName} agentName - The name of the agent to emit the content to.
+ * @throws Will throw an error if the session mode is not "makeConnection".
+ * @returns {Promise<void>} A promise that resolves when the content is emitted.
+ */
+declare const emit: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
+
 type SendMessageFn = (outgoing: string) => Promise<void>;
 /**
  * A connection factory for a client to a swarm and returns a function to send messages.
@@ -3358,34 +3529,6 @@ declare const makeConnection: {
 interface IMakeConnectionConfig {
     delay?: number;
 }
-
-/**
- * Changes the agent for a given client session in swarm.
- * @async
- * @function
- * @param {AgentName} agentName - The name of the agent.
- * @param {string} clientId - The client ID.
- * @returns {Promise<void>} - A promise that resolves when the agent is changed.
- */
-declare const changeToAgent: (agentName: AgentName, clientId: string) => Promise<void>;
-
-/**
- * Navigates back to the previous or default agent
- * @async
- * @function
- * @param {string} clientId - The client ID.
- * @returns {Promise<void>} - A promise that resolves when the agent is changed.
- */
-declare const changeToPrevAgent: (clientId: string) => Promise<void>;
-
-/**
- * Navigates back to the default agent
- * @async
- * @function
- * @param {string} clientId - The client ID.
- * @returns {Promise<void>} - A promise that resolves when the agent is changed.
- */
-declare const changeToDefaultAgent: (clientId: string) => Promise<void>;
 
 /**
  * The complete function will create a swarm, execute single command and dispose it
@@ -3471,12 +3614,13 @@ interface ISessionConfig {
 declare const disposeConnection: (clientId: string, swarmName: SwarmName, methodName?: string) => Promise<void>;
 
 /**
- * Retrieves the raw history as it is for a given client ID without any modifications.
+ * Retrieves the agent name for a given client ID.
  *
- * @param {string} clientId - The ID of the client whose history is to be retrieved.
- * @returns {Promise<Array>} A promise that resolves to an array containing the raw history.
+ * @param {string} clientId - The ID of the client.
+ * @returns {Promise<string>} The name of the agent.
+ * @throws Will throw an error if the client ID is invalid or if the swarm validation fails.
  */
-declare const getRawHistory: (clientId: string, methodName?: string) => Promise<IModelMessage[]>;
+declare const getAgentName: (clientId: string) => Promise<string>;
 
 /**
  * Retrieves the history prepared for a specific agent with resque algorithm tweaks
@@ -3495,160 +3639,12 @@ declare const getAgentHistory: (clientId: string, agentName: AgentName) => Promi
 declare const getSessionMode: (clientId: string) => Promise<SessionMode>;
 
 /**
- * Commits the tool output to the active agent in a swarm session
- *
- * @param {string} content - The content to be committed.
- * @param {string} clientId - The client ID associated with the session.
- * @param {AgentName} agentName - The name of the agent committing the output.
- * @returns {Promise<void>} - A promise that resolves when the operation is complete.
- */
-declare const commitToolOutput: (toolId: string, content: string, clientId: string, agentName: AgentName) => Promise<void>;
-
-/**
- * Commits a system message to the active agent in the swarm.
- *
- * @param {string} content - The content of the system message.
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
- */
-declare const commitSystemMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
-
-/**
- * Commits flush of agent history
- *
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
- */
-declare const commitFlush: (clientId: string, agentName: string) => Promise<void>;
-
-/**
- * Commits a user message to the active agent history in as swarm without answer.
- *
- * @param {string} content - The content of the message.
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
- */
-declare const commitUserMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
-
-/**
- * Send the message to the active agent in the swarm content like it income from client side
- * Should be used to review tool output and initiate conversation from the model side to client
- *
- * @param {string} content - The content to be executed.
- * @param {string} clientId - The ID of the client requesting execution.
- * @param {AgentName} agentName - The name of the agent executing the command.
- * @returns {Promise<void>} - A promise that resolves when the execution is complete.
- */
-declare const execute: (content: string, clientId: string, agentName: AgentName) => Promise<string>;
-
-/**
- * Emits a string constant as the model output without executing incoming message
- * Works only for `makeConnection`
- *
- * @param {string} content - The content to be emitted.
- * @param {string} clientId - The client ID of the session.
- * @param {AgentName} agentName - The name of the agent to emit the content to.
- * @throws Will throw an error if the session mode is not "makeConnection".
- * @returns {Promise<void>} A promise that resolves when the content is emitted.
- */
-declare const emit: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
-
-/**
- * Commits the tool output to the active agent in a swarm session without checking active agent
- *
- * @param {string} content - The content to be committed.
- * @param {string} clientId - The client ID associated with the session.
- * @returns {Promise<void>} - A promise that resolves when the operation is complete.
- */
-declare const commitToolOutputForce: (toolId: string, content: string, clientId: string) => Promise<void>;
-
-/**
- * Commits a system message to the active agent in as swarm without checking active agent.
- *
- * @param {string} content - The content of the system message.
- * @param {string} clientId - The ID of the client.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
- */
-declare const commitSystemMessageForce: (content: string, clientId: string) => Promise<void>;
-
-/**
- * Commits flush of agent history without active agent check
- *
- * @param {string} clientId - The ID of the client.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
- */
-declare const commitFlushForce: (clientId: string) => Promise<void>;
-
-/**
- * Commits a user message to the active agent history in as swarm without answer and checking active agent
- *
- * @param {string} content - The content of the message.
- * @param {string} clientId - The ID of the client.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
- */
-declare const commitUserMessageForce: (content: string, clientId: string) => Promise<void>;
-
-/**
- * Emits a string constant as the model output without executing incoming message and checking active agent
- * Works only for `makeConnection`
- *
- * @param {string} content - The content to be emitted.
- * @param {string} clientId - The client ID of the session.
- * @param {AgentName} agentName - The name of the agent to emit the content to.
- * @throws Will throw an error if the session mode is not "makeConnection".
- * @returns {Promise<void>} A promise that resolves when the content is emitted.
- */
-declare const emitForce: (content: string, clientId: string) => Promise<void>;
-
-/**
- * Send the message to the active agent in the swarm content like it income from client side
- * Should be used to review tool output and initiate conversation from the model side to client
- *
- * Will execute even if the agent is inactive
- *
- * @param {string} content - The content to be executed.
- * @param {string} clientId - The ID of the client requesting execution.
- * @returns {Promise<void>} - A promise that resolves when the execution is complete.
- */
-declare const executeForce: (content: string, clientId: string) => Promise<string>;
-
-/**
- * Listens for an event on the swarm bus service and executes a callback function when the event is received.
- *
- * @template T - The type of the data payload.
- * @param {string} clientId - The ID of the client to listen for events from.
- * @param {(data: T) => void} fn - The callback function to execute when the event is received. The data payload is passed as an argument to this function.
- */
-declare const listenEvent: <T extends unknown = any>(clientId: string, topicName: string, fn: (data: T) => void) => () => void;
-
-/**
- * Listens for an event on the swarm bus service and executes a callback function when the event is received.
- *
- * @template T - The type of the data payload.
- * @param {string} clientId - The ID of the client to listen for events from.
- * @param {(data: T) => void} fn - The callback function to execute when the event is received. The data payload is passed as an argument to this function.
- */
-declare const listenEventOnce: <T extends unknown = any>(clientId: string, topicName: string, filterFn: (event: T) => boolean, fn: (data: T) => void) => () => void;
-
-/**
  * Retrieves the last message sent by the user from the client's message history.
  *
  * @param {string} clientId - The ID of the client whose message history is being retrieved.
  * @returns {Promise<string | null>} - The content of the last user message, or null if no user message is found.
  */
 declare const getLastUserMessage: (clientId: string) => Promise<string>;
-
-/**
- * Retrieves the agent name for a given client ID.
- *
- * @param {string} clientId - The ID of the client.
- * @returns {Promise<string>} The name of the agent.
- * @throws Will throw an error if the client ID is invalid or if the swarm validation fails.
- */
-declare const getAgentName: (clientId: string) => Promise<string>;
 
 /**
  * Retrieves the user history for a given client ID.
@@ -3683,36 +3679,12 @@ declare const getLastAssistantMessage: (clientId: string) => Promise<string>;
 declare const getLastSystemMessage: (clientId: string) => Promise<string>;
 
 /**
- * Interface for the parameters of the makeAutoDispose function.
- */
-interface IMakeDisposeParams {
-    /**
-     * Timeout in seconds before auto-dispose is triggered.
-     */
-    timeoutSeconds: number;
-    /**
-     * Callback when session is closed
-     */
-    onDestroy?: (clientId: string, swarmName: SwarmName) => void;
-}
-/**
- * Creates an auto-dispose mechanism for a client in a swarm.
+ * Retrieves the raw history as it is for a given client ID without any modifications.
  *
- * @param {string} clientId - The ID of the client.
- * @param {SwarmName} swarmName - The name of the swarm.
- * @param {Partial<IMakeDisposeParams>} [params={}] - Optional parameters for auto-dispose.
- * @returns {Object} An object with tick and stop methods to control the auto-dispose.
+ * @param {string} clientId - The ID of the client whose history is to be retrieved.
+ * @returns {Promise<Array>} A promise that resolves to an array containing the raw history.
  */
-declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeoutSeconds, onDestroy, }?: Partial<IMakeDisposeParams>) => {
-    /**
-     * Signals that the client is active, resetting the auto-dispose timer.
-     */
-    tick(): void;
-    /**
-     * Stops the auto-dispose mechanism.
-     */
-    destroy(): void;
-};
+declare const getRawHistory: (clientId: string, methodName?: string) => Promise<IModelMessage[]>;
 
 /**
  * Emits an event to the swarm bus service.
@@ -3725,22 +3697,50 @@ declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeou
 declare const event: <T extends unknown = any>(clientId: string, topicName: string, payload: T) => Promise<void>;
 
 /**
- * Cancel the await of output by emit of empty string
+ * Listens for an event on the swarm bus service and executes a callback function when the event is received.
  *
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the output is canceled
+ * @template T - The type of the data payload.
+ * @param {string} clientId - The ID of the client to listen for events from.
+ * @param {(data: T) => void} fn - The callback function to execute when the event is received. The data payload is passed as an argument to this function.
  */
-declare const cancelOutput: (clientId: string, agentName: string) => Promise<void>;
+declare const listenEvent: <T extends unknown = any>(clientId: string, topicName: string, fn: (data: T) => void) => () => void;
 
 /**
- * Cancel the await of output by emit of empty string without checking active agent
+ * Listens for an event on the swarm bus service and executes a callback function when the event is received.
  *
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the output is canceled
+ * @template T - The type of the data payload.
+ * @param {string} clientId - The ID of the client to listen for events from.
+ * @param {(data: T) => void} fn - The callback function to execute when the event is received. The data payload is passed as an argument to this function.
  */
-declare const cancelOutputForce: (clientId: string) => Promise<void>;
+declare const listenEventOnce: <T extends unknown = any>(clientId: string, topicName: string, filterFn: (event: T) => boolean, fn: (data: T) => void) => () => void;
+
+/**
+ * Changes the agent for a given client session in swarm.
+ * @async
+ * @function
+ * @param {AgentName} agentName - The name of the agent.
+ * @param {string} clientId - The client ID.
+ * @returns {Promise<void>} - A promise that resolves when the agent is changed.
+ */
+declare const changeToAgent: (agentName: AgentName, clientId: string) => Promise<void>;
+
+/**
+ * Navigates back to the previous or default agent
+ * @async
+ * @function
+ * @param {string} clientId - The client ID.
+ * @returns {Promise<void>} - A promise that resolves when the agent is changed.
+ */
+declare const changeToPrevAgent: (clientId: string) => Promise<void>;
+
+/**
+ * Navigates back to the default agent
+ * @async
+ * @function
+ * @param {string} clientId - The client ID.
+ * @returns {Promise<void>} - A promise that resolves when the agent is changed.
+ */
+declare const changeToDefaultAgent: (clientId: string) => Promise<void>;
 
 /**
  * Hook to subscribe to agent events for a specific client.

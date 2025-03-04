@@ -169,7 +169,7 @@ export class ClientSwarm implements ISwarm {
    * Gets the name of the active agent.
    * @returns {Promise<AgentName>} - The name of the active agent.
    */
-  getAgentName = async (): Promise<AgentName> => {
+  getAgentName = async (): Promise<AgentName> => {  
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgentName`
