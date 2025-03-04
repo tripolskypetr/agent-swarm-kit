@@ -4,7 +4,7 @@ import { SwarmName } from "../../interfaces/Swarm.interface";
 import swarm, { ExecutionContextService } from "../../lib";
 import { disposeConnection } from "./disposeConnection";
 import { commitUserMessage } from "../commit/commitUserMessage";
-import { getAgentName } from "../agent/getAgentName";
+import { getAgentName } from "../common/getAgentName";
 
 type TComplete = (content: string) => Promise<string>;
 

@@ -4,7 +4,7 @@ import { ReceiveMessageFn } from "../../interfaces/Session.interface";
 import { SwarmName } from "../../interfaces/Swarm.interface";
 import swarm from "../../lib";
 import { commitUserMessage } from "../commit/commitUserMessage";
-import { getAgentName } from "../agent/getAgentName";
+import { getAgentName } from "../common/getAgentName";
 
 type SendMessageFn = (outgoing: string) => Promise<void>;
 

@@ -33,9 +33,9 @@ export * from "./functions/target/complete";
 export * from "./functions/target/session";
 export * from "./functions/target/disposeConnection";
 
-export * from "./functions/agent/getAgentName";
-export * from "./functions/agent/getAgentHistory";
-export * from "./functions/agent/getSessionMode";
+export * from "./functions/common/getAgentName";
+export * from "./functions/common/getAgentHistory";
+export * from "./functions/common/getSessionMode";
 
 export * from "./functions/history/getLastUserMessage";
 export * from "./functions/history/getUserHistory";
