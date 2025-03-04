@@ -22,6 +22,14 @@ loggerService: LoggerService
 registry: any
 ```
 
+### validateShallow
+
+```ts
+validateShallow: any
+```
+
+Validation for completion schemaschema
+
 ### register
 
 ```ts

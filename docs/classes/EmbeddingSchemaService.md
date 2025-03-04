@@ -22,6 +22,14 @@ loggerService: any
 registry: any
 ```
 
+### validateShallow
+
+```ts
+validateShallow: any
+```
+
+Validation for embedding schema
+
 ### register
 
 ```ts
