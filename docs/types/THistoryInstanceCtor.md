@@ -1,7 +1,7 @@
 # THistoryInstanceCtor
 
 ```ts
-type THistoryInstanceCtor = new (clientId: string, ...args: unknown[]) => IHistoryInstance;
+type THistoryInstanceCtor = new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>) => IHistoryInstance;
 ```
 
 Type for History Instance Constructor

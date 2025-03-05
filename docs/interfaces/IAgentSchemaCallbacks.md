@@ -28,6 +28,14 @@ onSystemMessage: (clientId: string, agentName: string, message: string) => void
 
 Callback triggered when there is a system message.
 
+### onAssistantMessage
+
+```ts
+onAssistantMessage: (clientId: string, agentName: string, message: string) => void
+```
+
+Callback triggered when there is a committed assistant message.
+
 ### onUserMessage
 
 ```ts

@@ -2,8 +2,7 @@
 
 ```ts
 type InternalKeys$4 = keyof {
-    getHistory: never;
-    getItems: never;
+    getSwarm: never;
 };
 ```
 

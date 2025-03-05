@@ -1,7 +1,7 @@
 # TLoggerInstanceCtor
 
 ```ts
-type TLoggerInstanceCtor = new (clientId: string, ...args: unknown[]) => ILoggerInstance;
+type TLoggerInstanceCtor = new (clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>) => ILoggerInstance;
 ```
 
 

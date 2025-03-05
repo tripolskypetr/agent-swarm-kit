@@ -2,8 +2,8 @@
 
 ```ts
 type InternalKeys$1 = keyof {
-    getStorage: never;
-    getSharedStorage: never;
+    getStateRef: never;
+    getSharedStateRef: never;
 };
 ```
 

@@ -54,6 +54,14 @@ commitToolOutput: (toolId: string, content: string) => Promise<void>
 
 Commit tool output.
 
+### commitAssistantMessage
+
+```ts
+commitAssistantMessage: (message: string) => Promise<void>
+```
+
+Commit assistant message without answer
+
 ### commitSystemMessage
 
 ```ts

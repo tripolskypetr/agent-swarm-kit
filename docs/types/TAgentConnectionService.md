@@ -2,7 +2,7 @@
 
 ```ts
 type TAgentConnectionService = {
-    [key in Exclude<keyof IAgentConnectionService, InternalKeys$5>]: unknown;
+    [key in Exclude<keyof IAgentConnectionService, InternalKeys$7>]: unknown;
 };
 ```
 

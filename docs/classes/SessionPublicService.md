@@ -64,6 +64,14 @@ commitSystemMessage: (message: string, methodName: string, clientId: string, swa
 
 Commits a system message to the session.
 
+### commitAssistantMessage
+
+```ts
+commitAssistantMessage: (message: string, methodName: string, clientId: string, swarmName: string) => Promise<void>
+```
+
+Commits an assistant message to the session.
+
 ### commitUserMessage
 
 ```ts

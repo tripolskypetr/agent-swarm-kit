@@ -104,6 +104,14 @@ Commits tool output.
 commitSystemMessage: (message: string) => Promise<void>
 ```
 
+Commits an assistant message.
+
+### commitAssistantMessage
+
+```ts
+commitAssistantMessage: (message: string) => Promise<void>
+```
+
 Commits a system message.
 
 ### commitUserMessage

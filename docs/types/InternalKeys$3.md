@@ -2,7 +2,8 @@
 
 ```ts
 type InternalKeys$3 = keyof {
-    getSession: never;
+    getStorage: never;
+    getSharedStorage: never;
 };
 ```
 

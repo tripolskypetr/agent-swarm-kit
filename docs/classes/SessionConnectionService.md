@@ -90,6 +90,14 @@ commitSystemMessage: (message: string) => Promise<void>
 
 Commits a system message to the session.
 
+### commitAssistantMessage
+
+```ts
+commitAssistantMessage: (message: string) => Promise<void>
+```
+
+Commits an assistant message to the session.
+
 ### commitUserMessage
 
 ```ts

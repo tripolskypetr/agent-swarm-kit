@@ -64,6 +64,14 @@ commitSystemMessage: (message: string, methodName: string, clientId: string, age
 
 Commits a system message to the agent.
 
+### commitAssistantMessage
+
+```ts
+commitAssistantMessage: (message: string, methodName: string, clientId: string, agentName: string) => Promise<void>
+```
+
+Commits an assistant message to the agent history.
+
 ### commitUserMessage
 
 ```ts

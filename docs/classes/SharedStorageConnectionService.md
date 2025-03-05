@@ -1,4 +1,4 @@
-# StorageConnectionService
+# SharedStorageConnectionService
 
 Implements `IStorage`
 
@@ -36,34 +36,16 @@ methodContextService: any
 storageSchemaService: any
 ```
 
-### sessionValidationService
-
-```ts
-sessionValidationService: any
-```
-
 ### embeddingSchemaService
 
 ```ts
 embeddingSchemaService: any
 ```
 
-### sharedStorageConnectionService
-
-```ts
-sharedStorageConnectionService: any
-```
-
-### _sharedStorageSet
-
-```ts
-_sharedStorageSet: any
-```
-
 ### getStorage
 
 ```ts
-getStorage: ((clientId: string, storageName: string) => ClientStorage<IStorageData>) & IClearableMemoize<string> & IControlMemoize<string, ClientStorage<IStorageData>>
+getStorage: ((storageName: string) => ClientStorage<IStorageData>) & IClearableMemoize<string> & IControlMemoize<string, ClientStorage<IStorageData>>
 ```
 
 Retrieves a storage instance based on client ID and storage name.
@@ -115,11 +97,3 @@ clear: () => Promise<void>
 ```
 
 Clears all items from the storage.
-
-### dispose
-
-```ts
-dispose: () => Promise<void>
-```
-
-Disposes of the storage connection.

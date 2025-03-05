@@ -72,6 +72,14 @@ commitSystemMessage: (message: string) => Promise<void>
 
 Commits a system message.
 
+### commitAssistantMessage
+
+```ts
+commitAssistantMessage: (message: string) => Promise<void>
+```
+
+Commits an assistant message.
+
 ### connect
 
 ```ts

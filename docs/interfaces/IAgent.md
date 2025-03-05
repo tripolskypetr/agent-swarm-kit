@@ -46,6 +46,14 @@ commitUserMessage: (message: string) => Promise<void>
 
 Commits a user message without answer.
 
+### commitAssistantMessage
+
+```ts
+commitAssistantMessage: (message: string) => Promise<void>
+```
+
+Commits an assistant message without answer.
+
 ### commitFlush
 
 ```ts
