@@ -204,6 +204,43 @@ export class AgentPublicService implements TAgentConnectionService {
   };
 
   /**
+   * Commits an assistant message to the agent history.
+   * @param {string} message - The message to commit.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<unknown>} The commit result.
+   */
+  public commitAssistantMessage = async (
+    message: string,
+    methodName: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService commitAssistantMessage", {
+        methodName,
+        message,
+        clientId,
+        agentName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.agentConnectionService.commitAssistantMessage(
+          message
+        );
+      },
+      {
+        methodName,
+        clientId,
+        agentName,
+        swarmName: "",
+        storageName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
    * Commits user message to the agent without answer.
    * @param {string} message - The message to commit.
    * @param {string} clientId - The client ID.

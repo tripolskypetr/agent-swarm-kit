@@ -226,6 +226,43 @@ export class SessionPublicService implements TSessionConnectionService {
   };
 
   /**
+   * Commits an assistant message to the session.
+   * @param {string} message - The message to commit.
+   * @param {string} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<void>``}
+   */
+  public commitAssistantMessage = async (
+    message: string,
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService commitAssistantMessage", {
+        methodName,
+        message,
+        clientId,
+        swarmName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sessionConnectionService.commitAssistantMessage(
+          message
+        );
+      },
+      {
+        methodName,
+        clientId,
+        swarmName,
+        agentName: "",
+        storageName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
    * Commits user message to the agent without answer.
    * @param {string} message - The message to commit.
    * @param {string} clientId - The client ID.

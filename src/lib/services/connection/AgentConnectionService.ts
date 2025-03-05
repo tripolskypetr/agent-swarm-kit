@@ -145,8 +145,8 @@ export class AgentConnectionService implements IAgent {
   };
 
   /**
-   * Commits a system message.
-   * @param {string} message - The system message.
+   * Commits an assistant message.
+   * @param {string} message - The assistant message.
    * @returns {Promise<any>} The commit result.
    */
   public commitSystemMessage = async (message: string) => {
@@ -158,6 +158,22 @@ export class AgentConnectionService implements IAgent {
       this.methodContextService.context.clientId,
       this.methodContextService.context.agentName
     ).commitSystemMessage(message);
+  };
+
+  /**
+   * Commits a system message.
+   * @param {string} message - The system message.
+   * @returns {Promise<any>} The commit result.
+   */
+  public commitAssistantMessage = async (message: string) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`agentConnectionService commitAssistantMessage`, {
+        message,
+      });
+    return await this.getAgent(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
+    ).commitAssistantMessage(message);
   };
 
   /**

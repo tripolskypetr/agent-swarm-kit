@@ -145,6 +145,25 @@ export class SessionConnectionService implements ISession {
   };
 
   /**
+   * Commits an assistant message to the session.
+   * @param {string} message - The message to commit.
+   * @returns {Promise<void>} A promise that resolves when the message is committed.
+   */
+  public commitAssistantMessage = async (message: string): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(
+        `sessionConnectionService commitAssistantMessage`,
+        {
+          message,
+        }
+      );
+    return await this.getSession(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
+    ).commitAssistantMessage(message);
+  };
+
+  /**
    * Commits user message to the agent without answer.
    * @param {string} message - The message to commit.
    * @returns {Promise<void>} A promise that resolves when the message is committed.

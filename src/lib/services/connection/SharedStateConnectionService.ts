@@ -11,7 +11,6 @@ import {
   IStateData,
   StateName,
 } from "../../../interfaces/State.interface";
-import SessionValidationService from "../validation/SessionValidationService";
 import BusService from "../base/BusService";
 
 /**

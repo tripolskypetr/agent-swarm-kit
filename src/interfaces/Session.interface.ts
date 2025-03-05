@@ -80,6 +80,13 @@ export interface ISession {
   commitToolOutput(toolId: string, content: string): Promise<void>;
 
   /**
+   * Commit assistant message without answer
+   * @param {string} message - The message to commit.
+   * @returns {Promise<void>}
+   */
+  commitAssistantMessage(message: string): Promise<void>;
+
+  /**
    * Commit user message without answer
    * @param {string} message - The message to commit.
    * @returns {Promise<void>}

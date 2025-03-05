@@ -12,7 +12,6 @@ import {
   StorageName,
 } from "../../../interfaces/Storage.interface";
 import EmbeddingSchemaService from "../schema/EmbeddingSchemaService";
-import SessionValidationService from "../validation/SessionValidationService";
 import BusService from "../base/BusService";
 
 /**

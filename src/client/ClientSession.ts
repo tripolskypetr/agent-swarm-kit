@@ -224,6 +224,36 @@ export class ClientSession implements ISession {
   };
 
   /**
+   * Commits an assistant message.
+   * @param {string} message - The assistant message to commit.
+   * @returns {Promise<void>}
+   */
+  commitAssistantMessage = async (message: string) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} commitAssistantMessage`,
+        {
+          message,
+        }
+      );
+    const agent = await this.params.swarm.getAgent();
+    const result = await agent.commitAssistantMessage(message);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-assistant-message",
+      source: "session-bus",
+      input: {
+        message,
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      },
+      clientId: this.params.clientId,
+    });
+    return result;
+  };
+
+  /**
    * Connects the session to a connector function.
    * @param {SendMessageFn} connector - The connector function.
    * @returns {ReceiveMessageFn} - The function to receive messages.

@@ -20,6 +20,8 @@ export * from "./functions/commit/commitToolOutputForce";
 export * from "./functions/commit/commitSystemMessageForce";
 export * from "./functions/commit/commitFlushForce";
 export * from "./functions/commit/commitUserMessageForce";
+export * from "./functions/commit/commitAssistantMessage";
+export * from "./functions/commit/commitAssistantMessageForce";
 export * from './functions/commit/cancelOutput';
 export * from './functions/commit/cancelOutputForce';
 

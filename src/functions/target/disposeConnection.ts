@@ -23,6 +23,7 @@ export const disposeConnection = async (
       clientId,
       swarmName,
     });
+  swarm.sessionValidationService.validate(clientId, methodName);
   swarm.swarmValidationService.validate(swarmName, methodName);
   await swarm.sessionPublicService.dispose(methodName, clientId, swarmName);
   await swarm.swarmPublicService.dispose(methodName, clientId, swarmName);

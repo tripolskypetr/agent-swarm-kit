@@ -696,6 +696,12 @@ interface ISession {
      */
     commitToolOutput(toolId: string, content: string): Promise<void>;
     /**
+     * Commit assistant message without answer
+     * @param {string} message - The message to commit.
+     * @returns {Promise<void>}
+     */
+    commitAssistantMessage(message: string): Promise<void>;
+    /**
      * Commit user message without answer
      * @param {string} message - The message to commit.
      * @returns {Promise<void>}
@@ -1346,6 +1352,13 @@ interface IAgentSchemaCallbacks {
      */
     onSystemMessage?: (clientId: string, agentName: AgentName, message: string) => void;
     /**
+     * Callback triggered when there is a committed assistant message.
+     * @param clientId - The ID of the client.
+     * @param agentName - The name of the agent.
+     * @param message - The system message.
+     */
+    onAssistantMessage?: (clientId: string, agentName: AgentName, message: string) => void;
+    /**
      * Callback triggered when there is a user message.
      * @param clientId - The ID of the client.
      * @param agentName - The name of the agent.
@@ -1463,6 +1476,12 @@ interface IAgent {
      * @returns A promise that resolves when the message is committed.
      */
     commitUserMessage(message: string): Promise<void>;
+    /**
+     * Commits an assistant message without answer.
+     * @param message - The message to commit.
+     * @returns A promise that resolves when the message is committed.
+     */
+    commitAssistantMessage(message: string): Promise<void>;
     /**
      * Clears the history for the agent.
      * @returns A promise that resolves when the flush is committed.
@@ -1599,6 +1618,12 @@ declare class ClientAgent implements IAgent {
      */
     commitSystemMessage: (message: string) => Promise<void>;
     /**
+     * Commits an assistant message to the history without execute.
+     * @param {string} message - The system message to commit.
+     * @returns {Promise<void>}
+     */
+    commitAssistantMessage: (message: string) => Promise<void>;
+    /**
      * Commits the tool output to the history.
      * @param {string} content - The tool output content.
      * @returns {Promise<void>}
@@ -1657,11 +1682,17 @@ declare class AgentConnectionService implements IAgent {
      */
     commitToolOutput: (toolId: string, content: string) => Promise<void>;
     /**
+     * Commits an assistant message.
+     * @param {string} message - The assistant message.
+     * @returns {Promise<any>} The commit result.
+     */
+    commitSystemMessage: (message: string) => Promise<void>;
+    /**
      * Commits a system message.
      * @param {string} message - The system message.
      * @returns {Promise<any>} The commit result.
      */
-    commitSystemMessage: (message: string) => Promise<void>;
+    commitAssistantMessage: (message: string) => Promise<void>;
     /**
      * Commits a user message without answer.
      * @param {string} message - The message.
@@ -2026,6 +2057,12 @@ declare class ClientSession implements ISession {
      */
     commitSystemMessage: (message: string) => Promise<void>;
     /**
+     * Commits an assistant message.
+     * @param {string} message - The assistant message to commit.
+     * @returns {Promise<void>}
+     */
+    commitAssistantMessage: (message: string) => Promise<void>;
+    /**
      * Connects the session to a connector function.
      * @param {SendMessageFn} connector - The connector function.
      * @returns {ReceiveMessageFn} - The function to receive messages.
@@ -2086,6 +2123,12 @@ declare class SessionConnectionService implements ISession {
      * @returns {Promise<void>} A promise that resolves when the message is committed.
      */
     commitSystemMessage: (message: string) => Promise<void>;
+    /**
+     * Commits an assistant message to the session.
+     * @param {string} message - The message to commit.
+     * @returns {Promise<void>} A promise that resolves when the message is committed.
+     */
+    commitAssistantMessage: (message: string) => Promise<void>;
     /**
      * Commits user message to the agent without answer.
      * @param {string} message - The message to commit.
@@ -2158,6 +2201,14 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @returns {Promise<unknown>} The commit result.
      */
     commitSystemMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Commits an assistant message to the agent history.
+     * @param {string} message - The message to commit.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<unknown>} The commit result.
+     */
+    commitAssistantMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits user message to the agent without answer.
      * @param {string} message - The message to commit.
@@ -2291,6 +2342,14 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @returns {Promise<void>}
      */
     commitSystemMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Commits an assistant message to the session.
+     * @param {string} message - The message to commit.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>``}
+     */
+    commitAssistantMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits user message to the agent without answer.
      * @param {string} message - The message to commit.
@@ -3561,6 +3620,25 @@ declare const commitFlushForce: (clientId: string) => Promise<void>;
 declare const commitUserMessageForce: (content: string, clientId: string) => Promise<void>;
 
 /**
+ * Commits an assistant message to the active agent in the swarm.
+ *
+ * @param {string} content - The content of the assistant message.
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitAssistantMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
+
+/**
+ * Commits an assistant message to the active agent in as swarm without checking active agent.
+ *
+ * @param {string} content - The content of the assistant message.
+ * @param {string} clientId - The ID of the client.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitAssistantMessageForce: (content: string, clientId: string) => Promise<void>;
+
+/**
  * Cancel the await of output by emit of empty string
  *
  * @param {string} clientId - The ID of the client.
@@ -4498,4 +4576,4 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
-export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };

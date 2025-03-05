@@ -89,6 +89,12 @@ export class ClientAgent implements IAgent {
           this.params.agentName,
           result
         );
+      this.params.onAssistantMessage &&
+        this.params.onAssistantMessage(
+          this.params.clientId,
+          this.params.agentName,
+          result
+        );
       await this._outputSubject.next(result);
       await this.params.bus.emit<IBusEvent>(this.params.clientId, {
         type: "emit-output",
@@ -349,6 +355,43 @@ export class ClientAgent implements IAgent {
     });
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-system-message",
+      source: "agent-bus",
+      input: {
+        message,
+      },
+      output: {},
+      context: {
+        agentName: this.params.agentName,
+      },
+      clientId: this.params.clientId,
+    });
+  };
+
+  /**
+   * Commits an assistant message to the history without execute.
+   * @param {string} message - The system message to commit.
+   * @returns {Promise<void>}
+   */
+  commitAssistantMessage = async (message: string): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitAssistantMessage`,
+        { message }
+      );
+    this.params.onAssistantMessage &&
+      this.params.onAssistantMessage(
+        this.params.clientId,
+        this.params.agentName,
+        message
+      );
+    await this.params.history.push({
+      role: "assistant",
+      agentName: this.params.agentName,
+      mode: "tool",
+      content: message.trim(),
+    });
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-assistant-message",
       source: "agent-bus",
       input: {
         message,

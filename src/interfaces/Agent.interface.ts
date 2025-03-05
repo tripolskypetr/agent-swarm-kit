@@ -189,6 +189,17 @@ export interface IAgentSchemaCallbacks {
     message: string
   ) => void;
   /**
+   * Callback triggered when there is a committed assistant message.
+   * @param clientId - The ID of the client.
+   * @param agentName - The name of the agent.
+   * @param message - The system message.
+   */
+  onAssistantMessage?: (
+    clientId: string,
+    agentName: AgentName,
+    message: string
+  ) => void;
+  /**
    * Callback triggered when there is a user message.
    * @param clientId - The ID of the client.
    * @param agentName - The name of the agent.
@@ -329,6 +340,12 @@ export interface IAgent {
    * @returns A promise that resolves when the message is committed.
    */
   commitUserMessage(message: string): Promise<void>;
+  /**
+   * Commits an assistant message without answer.
+   * @param message - The message to commit.
+   * @returns A promise that resolves when the message is committed.
+   */
+  commitAssistantMessage(message: string): Promise<void>;
   /**
    * Clears the history for the agent.
    * @returns A promise that resolves when the flush is committed.
