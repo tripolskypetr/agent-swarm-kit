@@ -31,8 +31,9 @@ const getPlaceholder = () =>
  */
 export class ClientAgent implements IAgent {
   readonly _agentChangeSubject = new Subject<typeof AGENT_CHANGE_SYMBOL>();
-  readonly _toolStopSubject = new Subject<typeof TOOL_STOP_SYMBOL>();
+
   readonly _toolErrorSubject = new Subject<typeof TOOL_ERROR_SYMBOL>();
+  readonly _toolStopSubject = new Subject<typeof TOOL_STOP_SYMBOL>();
 
   readonly _toolCommitSubject = new Subject<void>();
   readonly _outputSubject = new Subject<string>();
