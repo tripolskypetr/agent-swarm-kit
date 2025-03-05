@@ -38,6 +38,10 @@ export class SessionValidationService {
       this.loggerService.info("sessionValidationService addSession", {
         clientId,
       });
+    if (!clientId) {
+      console.error(`agent-swarm session clientId=${clientId} already exist`);
+      return;
+    }
     if (this._sessionSwarmMap.has(clientId)) {
       throw new Error(`agent-swarm session clientId=${clientId} already exist`);
     }
@@ -348,6 +352,11 @@ export class SessionValidationService {
       this.loggerService.info("sessionValidationService validate", {
         clientId,
       });
+    if (!clientId) {
+      throw new Error(
+        `agent-swarm session clientId is missing source=${source}`
+      );
+    }
     if (!this._sessionSwarmMap.has(clientId)) {
       throw new Error(
         `agent-swarm session clientId=${clientId} not exist source=${source}`
@@ -362,7 +371,7 @@ export class SessionValidationService {
    */
   public removeSession = (clientId: SessionId) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info("sessionValidationService addSession", {
+      this.loggerService.info("sessionValidationService removeSession", {
         clientId,
       });
     this._sessionSwarmMap.delete(clientId);
