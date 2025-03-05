@@ -100,6 +100,12 @@ export interface ISession {
   commitFlush: () => Promise<void>;
 
   /**
+   * Prevent the next tool from being executed
+   * @returns {Promise<void>}
+   */
+  commitStopTools: () => Promise<void>;
+
+  /**
    * Commit a system message.
    * @param {string} message - The message to commit.
    * @returns {Promise<void>}

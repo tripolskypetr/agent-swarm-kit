@@ -24,6 +24,8 @@ export * from "./functions/commit/commitAssistantMessage";
 export * from "./functions/commit/commitAssistantMessageForce";
 export * from './functions/commit/cancelOutput';
 export * from './functions/commit/cancelOutputForce';
+export * from './functions/commit/commitStopTools';
+export * from './functions/commit/commitStopToolsForce';
 
 export * from "./functions/target/emitForce";
 export * from "./functions/target/executeForce";

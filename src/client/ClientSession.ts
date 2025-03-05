@@ -194,6 +194,30 @@ export class ClientSession implements ISession {
   };
 
   /**
+   * Commits stop of the nexttool execution
+   * @returns {Promise<void>}
+   */
+  commitStopTools = async () => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} commitStopTools`
+      );
+    const agent = await this.params.swarm.getAgent();
+    const result = await agent.commitStopTools();
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-stop-tools",
+      source: "session-bus",
+      input: {},
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      },
+      clientId: this.params.clientId,
+    });
+    return result;
+  };
+
+  /**
    * Commits a system message.
    * @param {string} message - The system message to commit.
    * @returns {Promise<void>}

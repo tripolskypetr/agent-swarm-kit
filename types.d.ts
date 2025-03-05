@@ -713,6 +713,11 @@ interface ISession {
      */
     commitFlush: () => Promise<void>;
     /**
+     * Prevent the next tool from being executed
+     * @returns {Promise<void>}
+     */
+    commitStopTools: () => Promise<void>;
+    /**
      * Commit a system message.
      * @param {string} message - The message to commit.
      * @returns {Promise<void>}
@@ -1488,10 +1493,20 @@ interface IAgent {
      */
     commitFlush(): Promise<void>;
     /**
+     * Prevent the next tool from being executed
+     * @returns A promise that resolves when the tool stop is committed.
+     */
+    commitStopTools(): Promise<void>;
+    /**
      * Unlock the queue on agent change. Stop the next tool execution
      * @returns A promise that resolves when the agent change is committed.
      */
     commitAgentChange(): Promise<void>;
+    /**
+     * Prevent the next tool from execution
+     * @returns A promise that resolves when the tool stop is committed.
+     */
+    commitStopTools(): Promise<void>;
 }
 /** Type representing the name of an agent. */
 type AgentName = string;
@@ -1556,6 +1571,7 @@ declare class LoggerService implements ILogger {
 
 declare const AGENT_CHANGE_SYMBOL: unique symbol;
 declare const TOOL_ERROR_SYMBOL: unique symbol;
+declare const TOOL_STOP_SYMBOL: unique symbol;
 /**
  * Represents a client agent that interacts with the system.
  * @implements {IAgent}
@@ -1563,6 +1579,7 @@ declare const TOOL_ERROR_SYMBOL: unique symbol;
 declare class ClientAgent implements IAgent {
     readonly params: IAgentParams;
     readonly _agentChangeSubject: Subject<typeof AGENT_CHANGE_SYMBOL>;
+    readonly _toolStopSubject: Subject<typeof TOOL_STOP_SYMBOL>;
     readonly _toolErrorSubject: Subject<typeof TOOL_ERROR_SYMBOL>;
     readonly _toolCommitSubject: Subject<void>;
     readonly _outputSubject: Subject<string>;
@@ -1611,6 +1628,11 @@ declare class ClientAgent implements IAgent {
      * @returns {Promise<void>}
      */
     commitAgentChange: () => Promise<void>;
+    /**
+     * Commits change of agent to prevent the next tool execution from being called.
+     * @returns {Promise<void>}
+     */
+    commitStopTools: () => Promise<void>;
     /**
      * Commits a system message to the history.
      * @param {string} message - The system message to commit.
@@ -1704,6 +1726,11 @@ declare class AgentConnectionService implements IAgent {
      * @returns {Promise<any>} The commit result.
      */
     commitAgentChange: () => Promise<void>;
+    /**
+     * Prevent the next tool from being executed
+     * @returns {Promise<any>} The commit result.
+     */
+    commitStopTools: () => Promise<void>;
     /**
      * Commits flush of agent history
      * @returns {Promise<any>} The commit result.
@@ -2051,6 +2078,11 @@ declare class ClientSession implements ISession {
      */
     commitFlush: () => Promise<void>;
     /**
+     * Commits stop of the nexttool execution
+     * @returns {Promise<void>}
+     */
+    commitStopTools: () => Promise<void>;
+    /**
      * Commits a system message.
      * @param {string} message - The system message to commit.
      * @returns {Promise<void>}
@@ -2142,6 +2174,12 @@ declare class SessionConnectionService implements ISession {
      */
     commitFlush: () => Promise<void>;
     /**
+     * Commits user message to the agent without answer.
+     * @param {string} message - The message to commit.
+     * @returns {Promise<void>} A promise that resolves when the message is committed.
+     */
+    commitStopTools: () => Promise<void>;
+    /**
      * Disposes of the session connection service.
      * @returns {Promise<void>} A promise that resolves when the service is disposed.
      */
@@ -2231,6 +2269,13 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @returns {Promise<unknown>} The commit result.
      */
     commitAgentChange: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Prevent the next tool from being executed
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<unknown>} The commit result.
+     */
+    commitStopTools: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Disposes of the agent.
      * @param {string} clientId - The client ID.
@@ -2365,6 +2410,13 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @returns {Promise<void>}
      */
     commitFlush: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Prevent the next tool from being executed
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
+    commitStopTools: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Disposes of the session.
      * @param {string} clientId - The client ID.
@@ -3662,6 +3714,23 @@ declare const cancelOutput: (clientId: string, agentName: string) => Promise<voi
 declare const cancelOutputForce: (clientId: string) => Promise<void>;
 
 /**
+ * Prevent the next tool from being executed
+ *
+ * @param {string} clientId - The ID of the client.
+ * @param {string} agentName - The name of the agent.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitStopTools: (clientId: string, agentName: string) => Promise<void>;
+
+/**
+ * Prevent the next tool from being executed without active agent check
+ *
+ * @param {string} clientId - The ID of the client.
+ * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ */
+declare const commitStopToolsForce: (clientId: string) => Promise<void>;
+
+/**
  * Emits a string constant as the model output without executing incoming message and checking active agent
  * Works only for `makeConnection`
  *
@@ -4581,4 +4650,4 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
-export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };

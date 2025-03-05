@@ -352,10 +352,20 @@ export interface IAgent {
    */
   commitFlush(): Promise<void>;
   /**
+   * Prevent the next tool from being executed
+   * @returns A promise that resolves when the tool stop is committed.
+   */
+  commitStopTools(): Promise<void>;
+  /**
    * Unlock the queue on agent change. Stop the next tool execution
    * @returns A promise that resolves when the agent change is committed.
    */
   commitAgentChange(): Promise<void>;
+  /**
+   * Prevent the next tool from execution
+   * @returns A promise that resolves when the tool stop is committed.
+   */
+  commitStopTools(): Promise<void>;
 }
 
 /** Type representing the name of an agent. */

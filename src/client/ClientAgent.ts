@@ -16,6 +16,7 @@ import { IBusEvent } from "../model/Event.model";
 
 const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
 const TOOL_ERROR_SYMBOL = Symbol("tool-error");
+const TOOL_STOP_SYMBOL = Symbol("tool-stop");
 
 const getPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[
@@ -30,6 +31,7 @@ const getPlaceholder = () =>
  */
 export class ClientAgent implements IAgent {
   readonly _agentChangeSubject = new Subject<typeof AGENT_CHANGE_SYMBOL>();
+  readonly _toolStopSubject = new Subject<typeof TOOL_STOP_SYMBOL>();
   readonly _toolErrorSubject = new Subject<typeof TOOL_ERROR_SYMBOL>();
 
   readonly _toolCommitSubject = new Subject<void>();
@@ -331,6 +333,28 @@ export class ClientAgent implements IAgent {
   };
 
   /**
+   * Commits change of agent to prevent the next tool execution from being called.
+   * @returns {Promise<void>}
+   */
+  commitStopTools = async (): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitStopTools`
+      );
+    await this._toolStopSubject.next(TOOL_STOP_SYMBOL);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-stop-tools",
+      source: "agent-bus",
+      input: {},
+      output: {},
+      context: {
+        agentName: this.params.agentName,
+      },
+      clientId: this.params.clientId,
+    });
+  };
+
+  /**
    * Commits a system message to the history.
    * @param {string} message - The system message to commit.
    * @returns {Promise<void>}
@@ -605,6 +629,7 @@ export class ClientAgent implements IAgent {
             this._agentChangeSubject.toPromise(),
             this._toolCommitSubject.toPromise(),
             this._toolErrorSubject.toPromise(),
+            this._toolStopSubject.toPromise(),
             this._outputSubject.toPromise(),
           ]);
           GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -615,6 +640,19 @@ export class ClientAgent implements IAgent {
             GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
               this.params.logger.debug(
                 `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the agent changed`
+              );
+            this.params.callbacks?.onAfterToolCalls &&
+              this.params.callbacks.onAfterToolCalls(
+                this.params.clientId,
+                this.params.agentName,
+                toolCalls
+              );
+            return;
+          }
+          if (status === TOOL_STOP_SYMBOL) {
+            GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+              this.params.logger.debug(
+                `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the commitStopTools call`
               );
             this.params.callbacks?.onAfterToolCalls &&
               this.params.callbacks.onAfterToolCalls(

@@ -340,6 +340,38 @@ export class AgentPublicService implements TAgentConnectionService {
   };
 
   /**
+   * Prevent the next tool from being executed
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<unknown>} The commit result.
+   */
+  public commitStopTools = async (
+    methodName: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService commitStopTools", {
+        methodName,
+        clientId,
+        agentName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.agentConnectionService.commitStopTools();
+      },
+      {
+        methodName,
+        clientId,
+        agentName,
+        swarmName: "",
+        storageName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
    * Disposes of the agent.
    * @param {string} clientId - The client ID.
    * @param {AgentName} agentName - The name of the agent.

@@ -329,6 +329,37 @@ export class SessionPublicService implements TSessionConnectionService {
   };
 
   /**
+   * Prevent the next tool from being executed
+   * @param {string} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<void>}
+   */
+  public commitStopTools = async (
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService commitStopTools", {
+        clientId,
+        swarmName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sessionConnectionService.commitStopTools();
+      },
+      {
+        methodName,
+        clientId,
+        swarmName,
+        agentName: "",
+        storageName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
    * Disposes of the session.
    * @param {string} clientId - The client ID.
    * @param {SwarmName} swarmName - The swarm name.

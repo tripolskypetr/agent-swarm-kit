@@ -206,6 +206,19 @@ export class AgentConnectionService implements IAgent {
   };
 
   /**
+   * Prevent the next tool from being executed
+   * @returns {Promise<any>} The commit result.
+   */
+  public commitStopTools = async () => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`agentConnectionService commitStopTools`);
+    return await this.getAgent(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
+    ).commitStopTools();
+  };
+
+  /**
    * Commits flush of agent history
    * @returns {Promise<any>} The commit result.
    */
