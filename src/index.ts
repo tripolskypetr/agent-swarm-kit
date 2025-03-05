@@ -97,8 +97,6 @@ export {
 
 export { setConfig } from "./config/params";
 
-export { Storage } from "./classes/Storage";
-
 export {
   History,
   HistoryAdapter,
@@ -118,6 +116,11 @@ export {
 } from './classes/Logger';
 
 export { State } from './classes/State';
+export { SharedState } from './classes/SharedState';
+
+export { Storage } from "./classes/Storage";
+export { SharedStorage } from "./classes/SharedStorage";
+
 export { Schema } from './classes/Schema';
 
 export { ExecutionContextService } from './lib/services/context/ExecutionContextService';

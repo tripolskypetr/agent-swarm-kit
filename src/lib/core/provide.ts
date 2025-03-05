@@ -33,6 +33,10 @@ import ExecutionContextService from "../services/context/ExecutionContextService
 import SwarmMetaService from "../services/meta/SwarmMetaService";
 import AgentMetaService from "../services/meta/AgentMetaService";
 import DocService from "../services/base/DocService";
+import SharedStateConnectionService from "../services/connection/SharedStateConnectionService";
+import SharedStorageConnectionService from "../services/connection/SharedStorageConnectionService";
+import SharedStatePublicService from "../services/public/SharedStatePublicService";
+import SharedStoragePublicService from "../services/public/SharedStoragePublicService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -51,7 +55,9 @@ import DocService from "../services/base/DocService";
     provide(TYPES.swarmConnectionService, () => new SwarmConnectionService());
     provide(TYPES.sessionConnectionService, () => new SessionConnectionService());
     provide(TYPES.storageConnectionService, () => new StorageConnectionService());
+    provide(TYPES.sharedStorageConnectionService, () => new SharedStorageConnectionService());
     provide(TYPES.stateConnectionService, () => new StateConnectionService());
+    provide(TYPES.sharedStateConnectionService, () => new SharedStateConnectionService());
 }
 
 {
@@ -70,7 +76,9 @@ import DocService from "../services/base/DocService";
     provide(TYPES.sessionPublicService, () => new SessionPublicService());
     provide(TYPES.swarmPublicService, () => new SwarmPublicService());
     provide(TYPES.storagePublicService, () => new StoragePublicService());
+    provide(TYPES.sharedStoragePublicService, () => new SharedStoragePublicService());
     provide(TYPES.statePublicService, () => new StatePublicService());
+    provide(TYPES.sharedStatePublicService, () => new SharedStatePublicService());
 }
 
 {

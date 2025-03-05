@@ -2107,11 +2107,11 @@ declare class SessionConnectionService implements ISession {
 
 interface IAgentConnectionService extends AgentConnectionService {
 }
-type InternalKeys$5 = keyof {
+type InternalKeys$7 = keyof {
     getAgent: never;
 };
 type TAgentConnectionService = {
-    [key in Exclude<keyof IAgentConnectionService, InternalKeys$5>]: unknown;
+    [key in Exclude<keyof IAgentConnectionService, InternalKeys$7>]: unknown;
 };
 /**
  * Service for managing public agent operations.
@@ -2191,12 +2191,12 @@ declare class AgentPublicService implements TAgentConnectionService {
 
 interface IHistoryConnectionService extends HistoryConnectionService {
 }
-type InternalKeys$4 = keyof {
+type InternalKeys$6 = keyof {
     getHistory: never;
     getItems: never;
 };
 type THistoryConnectionService = {
-    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$4>]: unknown;
+    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$6>]: unknown;
 };
 /**
  * Service for handling public history operations.
@@ -2238,11 +2238,11 @@ declare class HistoryPublicService implements THistoryConnectionService {
 
 interface ISessionConnectionService extends SessionConnectionService {
 }
-type InternalKeys$3 = keyof {
+type InternalKeys$5 = keyof {
     getSession: never;
 };
 type TSessionConnectionService = {
-    [key in Exclude<keyof ISessionConnectionService, InternalKeys$3>]: unknown;
+    [key in Exclude<keyof ISessionConnectionService, InternalKeys$5>]: unknown;
 };
 /**
  * Service for managing public session interactions.
@@ -2317,11 +2317,11 @@ declare class SessionPublicService implements TSessionConnectionService {
 
 interface ISwarmConnectionService extends SwarmConnectionService {
 }
-type InternalKeys$2 = keyof {
+type InternalKeys$4 = keyof {
     getSwarm: never;
 };
 type TSwarmConnectionService = {
-    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$2>]: unknown;
+    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$4>]: unknown;
 };
 /**
  * Service for managing public swarm interactions.
@@ -2766,13 +2766,8 @@ declare class StorageConnectionService implements IStorage {
     private readonly storageSchemaService;
     private readonly sessionValidationService;
     private readonly embeddingSchemaService;
-    /**
-     * Retrieves a shared storage instance based on storage name.
-     * @param {string} clientId - The client ID.
-     * @param {string} storageName - The storage name.
-     * @returns {ClientStorage} The client storage instance.
-     */
-    getSharedStorage: ((clientId: string, storageName: StorageName) => ClientStorage<IStorageData>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<IStorageData>>;
+    private readonly sharedStorageConnectionService;
+    private _sharedStorageSet;
     /**
      * Retrieves a storage instance based on client ID and storage name.
      * @param {string} clientId - The client ID.
@@ -2825,12 +2820,12 @@ declare class StorageConnectionService implements IStorage {
 
 interface IStorageConnectionService extends StorageConnectionService {
 }
-type InternalKeys$1 = keyof {
+type InternalKeys$3 = keyof {
     getStorage: never;
     getSharedStorage: never;
 };
 type TStorageConnectionService = {
-    [key in Exclude<keyof IStorageConnectionService, InternalKeys$1>]: unknown;
+    [key in Exclude<keyof IStorageConnectionService, InternalKeys$3>]: unknown;
 };
 /**
  * Service for managing public storage interactions.
@@ -2977,13 +2972,8 @@ declare class StateConnectionService<T extends IStateData = IStateData> implemen
     private readonly methodContextService;
     private readonly stateSchemaService;
     private readonly sessionValidationService;
-    /**
-     * Memoized function to get a shared state reference.
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The state name.
-     * @returns {ClientState} The client state.
-     */
-    getSharedStateRef: ((clientId: string, stateName: StateName) => ClientState<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientState<any>>;
+    private readonly sharedStateConnectionService;
+    private _sharedStateSet;
     /**
      * Memoized function to get a state reference.
      * @param {string} clientId - The client ID.
@@ -3011,12 +3001,12 @@ declare class StateConnectionService<T extends IStateData = IStateData> implemen
 
 interface IStateConnectionService extends StateConnectionService {
 }
-type InternalKeys = keyof {
+type InternalKeys$2 = keyof {
     getStateRef: never;
     getSharedStateRef: never;
 };
 type TStateConnectionService = {
-    [key in Exclude<keyof IStateConnectionService, InternalKeys>]: unknown;
+    [key in Exclude<keyof IStateConnectionService, InternalKeys$2>]: unknown;
 };
 declare class StatePublicService<T extends IStateData = IStateData> implements TStateConnectionService {
     private readonly loggerService;
@@ -3198,6 +3188,171 @@ declare class DocService {
     dumpDocs: (dirName?: string) => Promise<void>;
 }
 
+/**
+ * Service for managing storage connections.
+ * @implements {IStorage}
+ */
+declare class SharedStorageConnectionService implements IStorage {
+    private readonly loggerService;
+    private readonly busService;
+    private readonly methodContextService;
+    private readonly storageSchemaService;
+    private readonly embeddingSchemaService;
+    /**
+     * Retrieves a storage instance based on client ID and storage name.
+     * @param {string} clientId - The client ID.
+     * @param {string} storageName - The storage name.
+     * @returns {ClientStorage} The client storage instance.
+     */
+    getStorage: ((storageName: StorageName) => ClientStorage<IStorageData>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<IStorageData>>;
+    /**
+     * Retrieves a list of storage data based on a search query and total number of items.
+     * @param {string} search - The search query.
+     * @param {number} total - The total number of items to retrieve.
+     * @returns {Promise<IStorageData[]>} The list of storage data.
+     */
+    take: (search: string, total: number, score?: number) => Promise<IStorageData[]>;
+    /**
+     * Upserts an item in the storage.
+     * @param {IStorageData} item - The item to upsert.
+     * @returns {Promise<void>}
+     */
+    upsert: (item: IStorageData) => Promise<void>;
+    /**
+     * Removes an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
+     * @returns {Promise<void>}
+     */
+    remove: (itemId: IStorageData["id"]) => Promise<void>;
+    /**
+     * Retrieves an item from the storage by its ID.
+     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
+     * @returns {Promise<IStorageData>} The retrieved item.
+     */
+    get: (itemId: IStorageData["id"]) => Promise<IStorageData | null>;
+    /**
+     * Retrieves a list of items from the storage, optionally filtered by a predicate function.
+     * @param {function(IStorageData): boolean} [filter] - The optional filter function.
+     * @returns {Promise<IStorageData[]>} The list of items.
+     */
+    list: (filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
+    /**
+     * Clears all items from the storage.
+     * @returns {Promise<void>}
+     */
+    clear: () => Promise<void>;
+}
+
+/**
+ * Service for managing shared state connections.
+ * @template T - The type of state data.
+ * @implements {IState<T>}
+ */
+declare class SharedStateConnectionService<T extends IStateData = IStateData> implements IState<T> {
+    private readonly loggerService;
+    private readonly busService;
+    private readonly methodContextService;
+    private readonly stateSchemaService;
+    /**
+     * Memoized function to get a shared state reference.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The state name.
+     * @returns {ClientState} The client state.
+     */
+    getStateRef: ((stateName: StateName) => ClientState<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientState<any>>;
+    /**
+     * Sets the state.
+     * @param {function(T): Promise<T>} dispatchFn - The function to dispatch the new state.
+     * @returns {Promise<T>} The new state.
+     */
+    setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
+    /**
+     * Gets the state.
+     * @returns {Promise<T>} The current state.
+     */
+    getState: () => Promise<T>;
+}
+
+interface ISharedStateConnectionService extends SharedStateConnectionService {
+}
+type InternalKeys$1 = keyof {
+    getStateRef: never;
+    getSharedStateRef: never;
+};
+type TSharedStateConnectionService = {
+    [key in Exclude<keyof ISharedStateConnectionService, InternalKeys$1>]: unknown;
+};
+declare class SharedStatePublicService<T extends IStateData = IStateData> implements TSharedStateConnectionService {
+    private readonly loggerService;
+    private readonly sharedStateConnectionService;
+    /**
+     * Sets the state using the provided dispatch function.
+     * @param {function(T): Promise<T>} dispatchFn - The function to dispatch the state change.
+     * @param {StateName} stateName - The name of the state.
+     * @returns {Promise<T>} - The updated state.
+     */
+    setState: (dispatchFn: (prevState: T) => Promise<T>, methodName: string, stateName: StateName) => Promise<T>;
+    /**
+     * Gets the current state.
+     * @param {StateName} stateName - The name of the state.
+     * @returns {Promise<T>} - The current state.
+     */
+    getState: (methodName: string, stateName: StateName) => Promise<T>;
+}
+
+interface ISharedStorageConnectionService extends SharedStorageConnectionService {
+}
+type InternalKeys = keyof {
+    getStorage: never;
+    getSharedStorage: never;
+};
+type TSharedStorageConnectionService = {
+    [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys>]: unknown;
+};
+/**
+ * Service for managing public storage interactions.
+ */
+declare class SharedStoragePublicService implements TSharedStorageConnectionService {
+    private readonly loggerService;
+    private readonly sharedStorageConnectionService;
+    /**
+     * Retrieves a list of storage data based on a search query and total number of items.
+     * @param {string} search - The search query.
+     * @param {number} total - The total number of items to retrieve.
+     * @returns {Promise<IStorageData[]>} The list of storage data.
+     */
+    take: (search: string, total: number, methodName: string, storageName: StorageName, score?: number) => Promise<IStorageData[]>;
+    /**
+     * Upserts an item in the storage.
+     * @param {IStorageData} item - The item to upsert.
+     * @returns {Promise<void>}
+     */
+    upsert: (item: IStorageData, methodName: string, storageName: StorageName) => Promise<void>;
+    /**
+     * Removes an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
+     * @returns {Promise<void>}
+     */
+    remove: (itemId: IStorageData["id"], methodName: string, storageName: StorageName) => Promise<void>;
+    /**
+     * Retrieves an item from the storage by its ID.
+     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
+     * @returns {Promise<IStorageData>} The retrieved item.
+     */
+    get: (itemId: IStorageData["id"], methodName: string, storageName: StorageName) => Promise<IStorageData | null>;
+    /**
+     * Retrieves a list of items from the storage, optionally filtered by a predicate function.
+     * @param {function(IStorageData): boolean} [filter] - The optional filter function.
+     * @returns {Promise<IStorageData[]>} The list of items.
+     */
+    list: (methodName: string, storageName: StorageName, filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
+    /**
+     * Clears all items from the storage.
+     * @returns {Promise<void>}
+     */
+    clear: (methodName: string, storageName: StorageName) => Promise<void>;
+}
+
 declare const swarm: {
     agentValidationService: AgentValidationService;
     toolValidationService: ToolValidationService;
@@ -3213,7 +3368,9 @@ declare const swarm: {
     sessionPublicService: SessionPublicService;
     swarmPublicService: SwarmPublicService;
     storagePublicService: StoragePublicService;
+    sharedStoragePublicService: SharedStoragePublicService;
     statePublicService: StatePublicService<any>;
+    sharedStatePublicService: SharedStatePublicService<any>;
     agentSchemaService: AgentSchemaService;
     toolSchemaService: ToolSchemaService;
     swarmSchemaService: SwarmSchemaService;
@@ -3226,7 +3383,9 @@ declare const swarm: {
     swarmConnectionService: SwarmConnectionService;
     sessionConnectionService: SessionConnectionService;
     storageConnectionService: StorageConnectionService;
+    sharedStorageConnectionService: SharedStorageConnectionService;
     stateConnectionService: StateConnectionService<any>;
+    sharedStateConnectionService: SharedStateConnectionService<any>;
     methodContextService: {
         readonly context: IMethodContext;
     };
@@ -4053,6 +4212,94 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
+type TState = {
+    [key in keyof IState]: unknown;
+};
+/**
+ * Utility class for managing state in the agent swarm.
+ * @implements {TState}
+ */
+declare class StateUtils implements TState {
+    /**
+     * Retrieves the state for a given client and state name.
+     * @template T
+     * @param {Object} payload - The payload containing client and state information.
+     * @param {string} payload.clientId - The client ID.
+     * @param {AgentName} payload.agentName - The agent name.
+     * @param {StateName} payload.stateName - The state name.
+     * @returns {Promise<T>} The state data.
+     * @throws Will throw an error if the state is not registered in the agent.
+     */
+    getState: <T extends unknown = any>(payload: {
+        clientId: string;
+        agentName: AgentName;
+        stateName: StateName;
+    }) => Promise<T>;
+    /**
+     * Sets the state for a given client and state name.
+     * @template T
+     * @param {T | ((prevState: T) => Promise<T>)} dispatchFn - The new state or a function that returns the new state.
+     * @param {Object} payload - The payload containing client and state information.
+     * @param {string} payload.clientId - The client ID.
+     * @param {AgentName} payload.agentName - The agent name.
+     * @param {StateName} payload.stateName - The state name.
+     * @returns {Promise<void>}
+     * @throws Will throw an error if the state is not registered in the agent.
+     */
+    setState: <T extends unknown = any>(dispatchFn: T | ((prevState: T) => Promise<T>), payload: {
+        clientId: string;
+        agentName: AgentName;
+        stateName: StateName;
+    }) => Promise<void>;
+}
+/**
+ * Instance of StateUtils for managing state.
+ * @type {StateUtils}
+ */
+declare const State: StateUtils;
+
+type TSharedState = {
+    [key in keyof IState]: unknown;
+};
+/**
+ * Utility class for managing state in the agent swarm.
+ * @implements {TSharedState}
+ */
+declare class SharedStateUtils implements TSharedState {
+    /**
+     * Retrieves the state for a given client and state name.
+     * @template T
+     * @param {Object} payload - The payload containing client and state information.
+     * @param {AgentName} payload.agentName - The agent name.
+     * @param {StateName} payload.stateName - The state name.
+     * @returns {Promise<T>} The state data.
+     * @throws Will throw an error if the state is not registered in the agent.
+     */
+    getState: <T extends unknown = any>(payload: {
+        agentName: AgentName;
+        stateName: StateName;
+    }) => Promise<T>;
+    /**
+     * Sets the state for a given client and state name.
+     * @template T
+     * @param {T | ((prevSharedState: T) => Promise<T>)} dispatchFn - The new state or a function that returns the new state.
+     * @param {Object} payload - The payload containing client and state information.
+     * @param {AgentName} payload.agentName - The agent name.
+     * @param {StateName} payload.stateName - The state name.
+     * @returns {Promise<void>}
+     * @throws Will throw an error if the state is not registered in the agent.
+     */
+    setState: <T extends unknown = any>(dispatchFn: T | ((prevSharedState: T) => Promise<T>), payload: {
+        agentName: AgentName;
+        stateName: StateName;
+    }) => Promise<void>;
+}
+/**
+ * Instance of SharedStateUtils for managing state.
+ * @type {SharedStateUtils}
+ */
+declare const SharedState: SharedStateUtils;
+
 type TStorage = {
     [key in keyof IStorage]: unknown;
 };
@@ -4149,51 +4396,89 @@ declare class StorageUtils implements TStorage {
 }
 declare const Storage: StorageUtils;
 
-type TState = {
-    [key in keyof IState]: unknown;
+type TSharedStorage = {
+    [key in keyof IStorage]: unknown;
 };
-/**
- * Utility class for managing state in the agent swarm.
- * @implements {TState}
- */
-declare class StateUtils implements TState {
+declare class SharedStorageUtils implements TSharedStorage {
     /**
-     * Retrieves the state for a given client and state name.
+     * Takes items from the storage.
+     * @param {string} search - The search query.
+     * @param {number} total - The total number of items to take.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
      * @template T
-     * @param {Object} payload - The payload containing client and state information.
-     * @param {string} payload.clientId - The client ID.
-     * @param {AgentName} payload.agentName - The agent name.
-     * @param {StateName} payload.stateName - The state name.
-     * @returns {Promise<T>} The state data.
-     * @throws Will throw an error if the state is not registered in the agent.
      */
-    getState: <T extends unknown = any>(payload: {
-        clientId: string;
+    take: <T extends IStorageData = IStorageData>(payload: {
+        search: string;
+        total: number;
         agentName: AgentName;
-        stateName: StateName;
-    }) => Promise<T>;
+        storageName: StorageName;
+        score?: number;
+    }) => Promise<T[]>;
     /**
-     * Sets the state for a given client and state name.
+     * Upserts an item in the storage.
+     * @param {T} item - The item to upsert.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
      * @template T
-     * @param {T | ((prevState: T) => Promise<T>)} dispatchFn - The new state or a function that returns the new state.
-     * @param {Object} payload - The payload containing client and state information.
-     * @param {string} payload.clientId - The client ID.
-     * @param {AgentName} payload.agentName - The agent name.
-     * @param {StateName} payload.stateName - The state name.
-     * @returns {Promise<void>}
-     * @throws Will throw an error if the state is not registered in the agent.
      */
-    setState: <T extends unknown = any>(dispatchFn: T | ((prevState: T) => Promise<T>), payload: {
-        clientId: string;
+    upsert: <T extends IStorageData = IStorageData>(payload: {
+        item: T;
         agentName: AgentName;
-        stateName: StateName;
+        storageName: StorageName;
+    }) => Promise<void>;
+    /**
+     * Removes an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     */
+    remove: (payload: {
+        itemId: IStorageData["id"];
+        agentName: AgentName;
+        storageName: StorageName;
+    }) => Promise<void>;
+    /**
+     * Gets an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to get.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
+     * @template T
+     */
+    get: <T extends IStorageData = IStorageData>(payload: {
+        itemId: IStorageData["id"];
+        agentName: AgentName;
+        storageName: StorageName;
+    }) => Promise<T | null>;
+    /**
+     * Lists items from the storage.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @param {(item: T) => boolean} [filter] - Optional filter function.
+     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
+     * @template T
+     */
+    list: <T extends IStorageData = IStorageData>(payload: {
+        agentName: AgentName;
+        storageName: StorageName;
+        filter?: (item: T) => boolean;
+    }) => Promise<T[]>;
+    /**
+     * Clears the storage.
+     * @param {AgentName} agentName - The agent name.
+     * @param {StorageName} storageName - The storage name.
+     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     */
+    clear: (payload: {
+        agentName: AgentName;
+        storageName: StorageName;
     }) => Promise<void>;
 }
-/**
- * Instance of StateUtils for managing state.
- * @type {StateUtils}
- */
-declare const State: StateUtils;
+declare const SharedStorage: SharedStorageUtils;
 
 /**
  * Utility class for schema-related operations.
@@ -4213,4 +4498,4 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
-export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitFlush, commitFlushForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };

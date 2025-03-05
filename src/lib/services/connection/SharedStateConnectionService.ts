@@ -13,14 +13,13 @@ import {
 } from "../../../interfaces/State.interface";
 import SessionValidationService from "../validation/SessionValidationService";
 import BusService from "../base/BusService";
-import SharedStateConnectionService from "./SharedStateConnectionService";
 
 /**
- * Service for managing state connections.
+ * Service for managing shared state connections.
  * @template T - The type of state data.
  * @implements {IState<T>}
  */
-export class StateConnectionService<T extends IStateData = IStateData>
+export class SharedStateConnectionService<T extends IStateData = IStateData>
   implements IState<T>
 {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -33,38 +32,27 @@ export class StateConnectionService<T extends IStateData = IStateData>
     TYPES.stateSchemaService
   );
 
-  private readonly sessionValidationService = inject<SessionValidationService>(
-    TYPES.sessionValidationService
-  );
-
-  private readonly sharedStateConnectionService =
-    inject<SharedStateConnectionService>(TYPES.sharedStateConnectionService);
-
-  private _sharedStateSet = new Set<StateName>();
-
   /**
-   * Memoized function to get a state reference.
+   * Memoized function to get a shared state reference.
    * @param {string} clientId - The client ID.
    * @param {StateName} stateName - The state name.
    * @returns {ClientState} The client state.
    */
   public getStateRef = memoize(
-    ([clientId, stateName]) => `${clientId}-${stateName}`,
-    (clientId: string, stateName: StateName) => {
-      this.sessionValidationService.addStateUsage(clientId, stateName);
+    ([stateName]) => `${stateName}`,
+    (stateName: StateName) => {
       const {
         getState,
         setState,
         middlewares = [],
+        shared,
         callbacks,
-        shared = false,
       } = this.stateSchemaService.get(stateName);
-      if (shared) {
-        this._sharedStateSet.add(stateName);
-        return this.sharedStateConnectionService.getStateRef(stateName);
+      if (!shared) {
+        throw new Error(`agent-swarm state not shared stateName=${stateName}`);
       }
       return new ClientState({
-        clientId,
+        clientId: "*",
         stateName,
         logger: this.loggerService,
         bus: this.busService,
@@ -89,9 +77,8 @@ export class StateConnectionService<T extends IStateData = IStateData>
     dispatchFn: (prevState: T) => Promise<T>
   ): Promise<T> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`stateConnectionService setState`);
+      this.loggerService.info(`sharedStateConnectionService setState`);
     const state = this.getStateRef(
-      this.methodContextService.context.clientId,
       this.methodContextService.context.stateName
     );
     await state.waitForInit();
@@ -104,42 +91,13 @@ export class StateConnectionService<T extends IStateData = IStateData>
    */
   public getState = async (): Promise<T> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`stateConnectionService getState`);
+      this.loggerService.info(`sharedStateConnectionService getState`);
     const state = this.getStateRef(
-      this.methodContextService.context.clientId,
       this.methodContextService.context.stateName
     );
     await state.waitForInit();
     return await state.getState();
   };
-
-  /**
-   * Disposes the state connection.
-   * @returns {Promise<void>}
-   */
-  public dispose = async (): Promise<void> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`stateConnectionService dispose`);
-    const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.stateName}`;
-    if (!this.getStateRef.has(key)) {
-      return;
-    }
-    if (
-      !this._sharedStateSet.has(this.methodContextService.context.stateName)
-    ) {
-      const state = this.getStateRef(
-        this.methodContextService.context.clientId,
-        this.methodContextService.context.stateName
-      );
-      await state.waitForInit();
-      await state.dispose();
-    }
-    this.getStateRef.clear(key);
-    this.sessionValidationService.removeStateUsage(
-      this.methodContextService.context.clientId,
-      this.methodContextService.context.stateName
-    );
-  };
 }
 
-export default StateConnectionService;
+export default SharedStateConnectionService;

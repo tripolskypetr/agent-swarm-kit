@@ -38,6 +38,10 @@ import ExecutionContextService, {
 import AgentMetaService from "./services/meta/AgentMetaService";
 import SwarmMetaService from "./services/meta/SwarmMetaService";
 import DocService from "./services/base/DocService";
+import SharedStorageConnectionService from "./services/connection/SharedStorageConnectionService";
+import SharedStateConnectionService from "./services/connection/SharedStateConnectionService";
+import SharedStatePublicService from "./services/public/SharedStatePublicService";
+import SharedStoragePublicService from "./services/public/SharedStoragePublicService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -70,8 +74,14 @@ const connectionServices = {
   storageConnectionService: inject<StorageConnectionService>(
     TYPES.storageConnectionService
   ),
+  sharedStorageConnectionService: inject<SharedStorageConnectionService>(
+    TYPES.sharedStorageConnectionService
+  ),
   stateConnectionService: inject<StateConnectionService>(
     TYPES.stateConnectionService
+  ),
+  sharedStateConnectionService: inject<SharedStateConnectionService>(
+    TYPES.sharedStateConnectionService
   ),
 };
 
@@ -103,7 +113,11 @@ const publicServices = {
   storagePublicService: inject<StoragePublicService>(
     TYPES.storagePublicService
   ),
+  sharedStoragePublicService: inject<SharedStoragePublicService>(
+    TYPES.sharedStoragePublicService
+  ),
   statePublicService: inject<StatePublicService>(TYPES.statePublicService),
+  sharedStatePublicService: inject<SharedStatePublicService>(TYPES.sharedStatePublicService),
 };
 
 const metaServices = {

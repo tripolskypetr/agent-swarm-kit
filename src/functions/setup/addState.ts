@@ -17,8 +17,8 @@ export const addState = (stateSchema: IStateSchema) => {
     });
   swarm.stateSchemaService.register(stateSchema.stateName, stateSchema);
   if (stateSchema.shared) {
-    swarm.stateConnectionService
-      .getSharedStateRef("shared", stateSchema.stateName)
+    swarm.sharedStateConnectionService
+      .getStateRef(stateSchema.stateName)
       .waitForInit();
   }
   return stateSchema.stateName;

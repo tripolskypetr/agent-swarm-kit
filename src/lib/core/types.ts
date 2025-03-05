@@ -15,7 +15,9 @@ const connectionServices = {
     swarmConnectionService: Symbol('swarmConnectionService'),
     sessionConnectionService: Symbol('sessionConnectionService'),
     storageConnectionService: Symbol('storageConnectionService'),
+    sharedStorageConnectionService: Symbol('sharedStorageConnectionService'),
     stateConnectionService: Symbol('stateConnectionService'),
+    sharedStateConnectionService: Symbol('sharedStateConnectionService'),
 };
 
 const schemaServices = {
@@ -39,7 +41,9 @@ const publicServices = {
     sessionPublicService: Symbol('sessionPublicService'),
     swarmPublicService: Symbol('swarmPublicService'),
     storagePublicService: Symbol('storagePublicService'),
+    sharedStoragePublicService: Symbol('sharedStoragePublicService'),
     statePublicService: Symbol('statePublicService'),
+    sharedStatePublicService: Symbol('sharedStatePublicService'),
 };
 
 const validationServices = {
