@@ -94,6 +94,7 @@ export class ClientState<State extends IStateData = IStateData>
         `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} setState`
       );
     await this.dispatch("write", async (currentState: State) => {
+      currentState = await dispatchFn(currentState);
       for (const middleware of this.params.middlewares) {
         currentState = await middleware(
           currentState,
@@ -101,7 +102,7 @@ export class ClientState<State extends IStateData = IStateData>
           this.params.stateName
         );
       }
-      return await dispatchFn(currentState);
+      return currentState;
     });
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(

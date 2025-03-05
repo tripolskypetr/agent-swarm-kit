@@ -14,13 +14,12 @@ import {
 import EmbeddingSchemaService from "../schema/EmbeddingSchemaService";
 import SessionValidationService from "../validation/SessionValidationService";
 import BusService from "../base/BusService";
-import SharedStorageConnectionService from "./SharedStorageConnectionService";
 
 /**
  * Service for managing storage connections.
  * @implements {IStorage}
  */
-export class StorageConnectionService implements IStorage {
+export class SharedStorageConnectionService implements IStorage {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly busService = inject<BusService>(TYPES.busService);
   private readonly methodContextService = inject<TMethodContextService>(
@@ -31,20 +30,9 @@ export class StorageConnectionService implements IStorage {
     TYPES.storageSchemaService
   );
 
-  private readonly sessionValidationService = inject<SessionValidationService>(
-    TYPES.sessionValidationService
-  );
-
   private readonly embeddingSchemaService = inject<EmbeddingSchemaService>(
     TYPES.embeddingSchemaService
   );
-
-  private readonly sharedStorageConnectionService =
-    inject<SharedStorageConnectionService>(
-      TYPES.sharedStorageConnectionService
-    );
-
-  private _sharedStorageSet = new Set<StorageName>();
 
   /**
    * Retrieves a storage instance based on client ID and storage name.
@@ -53,9 +41,8 @@ export class StorageConnectionService implements IStorage {
    * @returns {ClientStorage} The client storage instance.
    */
   public getStorage = memoize(
-    ([clientId, storageName]) => `${clientId}-${storageName}`,
-    (clientId: string, storageName: StorageName) => {
-      this.sessionValidationService.addStorageUsage(clientId, storageName);
+    ([storageName]) => `${storageName}`,
+    (storageName: StorageName) => {
       const {
         createIndex,
         getData,
@@ -63,9 +50,8 @@ export class StorageConnectionService implements IStorage {
         shared = false,
         callbacks,
       } = this.storageSchemaService.get(storageName);
-      if (shared) {
-        this._sharedStorageSet.add(storageName);
-        return this.sharedStorageConnectionService.getStorage(storageName);
+      if (!shared) {
+        throw new Error(`agent-swarm storage not shared storageName=${storageName}`);
       }
       const {
         calculateSimilarity,
@@ -73,7 +59,7 @@ export class StorageConnectionService implements IStorage {
         callbacks: embedding,
       } = this.embeddingSchemaService.get(embeddingName);
       return new ClientStorage({
-        clientId,
+        clientId: "*",
         storageName,
         embedding: embeddingName,
         calculateSimilarity,
@@ -101,13 +87,12 @@ export class StorageConnectionService implements IStorage {
     score?: number
   ): Promise<IStorageData[]> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`storageConnectionService take`, {
+      this.loggerService.info(`sharedStorageConnectionService take`, {
         search,
         total,
         score,
       });
     const storage = this.getStorage(
-      this.methodContextService.context.clientId,
       this.methodContextService.context.storageName
     );
     await storage.waitForInit();
@@ -121,11 +106,10 @@ export class StorageConnectionService implements IStorage {
    */
   public upsert = async (item: IStorageData): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`storageConnectionService upsert`, {
+      this.loggerService.info(`sharedStorageConnectionService upsert`, {
         item,
       });
     const storage = this.getStorage(
-      this.methodContextService.context.clientId,
       this.methodContextService.context.storageName
     );
     await storage.waitForInit();
@@ -139,11 +123,10 @@ export class StorageConnectionService implements IStorage {
    */
   public remove = async (itemId: IStorageData["id"]): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`storageConnectionService remove`, {
+      this.loggerService.info(`sharedStorageConnectionService remove`, {
         itemId,
       });
     const storage = this.getStorage(
-      this.methodContextService.context.clientId,
       this.methodContextService.context.storageName
     );
     await storage.waitForInit();
@@ -159,11 +142,10 @@ export class StorageConnectionService implements IStorage {
     itemId: IStorageData["id"]
   ): Promise<IStorageData | null> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`storageConnectionService get`, {
+      this.loggerService.info(`sharedStorageConnectionService get`, {
         itemId,
       });
     const storage = this.getStorage(
-      this.methodContextService.context.clientId,
       this.methodContextService.context.storageName
     );
     await storage.waitForInit();
@@ -179,9 +161,8 @@ export class StorageConnectionService implements IStorage {
     filter?: (item: IStorageData) => boolean
   ): Promise<IStorageData[]> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`storageConnectionService list`);
+      this.loggerService.info(`sharedStorageConnectionService list`);
     const storage = this.getStorage(
-      this.methodContextService.context.clientId,
       this.methodContextService.context.storageName
     );
     await storage.waitForInit();
@@ -194,42 +175,13 @@ export class StorageConnectionService implements IStorage {
    */
   public clear = async (): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`storageConnectionService clear`);
+      this.loggerService.info(`sharedStorageConnectionService clear`);
     const storage = this.getStorage(
-      this.methodContextService.context.clientId,
       this.methodContextService.context.storageName
     );
     await storage.waitForInit();
     return await storage.clear();
   };
-
-  /**
-   * Disposes of the storage connection.
-   * @returns {Promise<void>}
-   */
-  public dispose = async () => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`storageConnectionService dispose`);
-    const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.storageName}`;
-    if (!this.getStorage.has(key)) {
-      return;
-    }
-    if (
-      !this._sharedStorageSet.has(this.methodContextService.context.storageName)
-    ) {
-      const storage = this.getStorage(
-        this.methodContextService.context.clientId,
-        this.methodContextService.context.storageName
-      );
-      await storage.waitForInit();
-      await storage.dispose();
-    }
-    this.getStorage.clear(key);
-    this.sessionValidationService.removeStorageUsage(
-      this.methodContextService.context.clientId,
-      this.methodContextService.context.storageName
-    );
-  };
 }
 
-export default StorageConnectionService;
+export default SharedStorageConnectionService;

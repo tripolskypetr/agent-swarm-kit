@@ -1,0 +1,218 @@
+import { inject } from "../../core/di";
+import { SharedStorageConnectionService } from "../connection/SharedStorageConnectionService";
+import LoggerService from "../base/LoggerService";
+import TYPES from "../../core/types";
+import MethodContextService from "../context/MethodContextService";
+import {
+  IStorageData,
+  StorageName,
+} from "../../../interfaces/Storage.interface";
+import { GLOBAL_CONFIG } from "../../../config/params";
+
+interface ISharedStorageConnectionService extends SharedStorageConnectionService {}
+
+type InternalKeys = keyof {
+  getStorage: never;
+  getSharedStorage: never;
+};
+
+type TSharedStorageConnectionService = {
+  [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys>]: unknown;
+};
+
+/**
+ * Service for managing public storage interactions.
+ */
+export class SharedStoragePublicService implements TSharedStorageConnectionService {
+  private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+  private readonly sharedStorageConnectionService = inject<SharedStorageConnectionService>(
+    TYPES.sharedStorageConnectionService
+  );
+
+  /**
+   * Retrieves a list of storage data based on a search query and total number of items.
+   * @param {string} search - The search query.
+   * @param {number} total - The total number of items to retrieve.
+   * @returns {Promise<IStorageData[]>} The list of storage data.
+   */
+  public take = async (
+    search: string,
+    total: number,
+    methodName: string,
+    storageName: StorageName,
+    score?: number
+  ): Promise<IStorageData[]> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sharedStoragePublicService take`, {
+        methodName,
+        search,
+        total,
+        storageName,
+        score,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sharedStorageConnectionService.take(search, total, score);
+      },
+      {
+        methodName,
+        clientId: "",
+        storageName,
+        agentName: "",
+        swarmName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
+   * Upserts an item in the storage.
+   * @param {IStorageData} item - The item to upsert.
+   * @returns {Promise<void>}
+   */
+  public upsert = async (
+    item: IStorageData,
+    methodName: string,
+    storageName: StorageName
+  ): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sharedStoragePublicService upsert`, {
+        item,
+        storageName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sharedStorageConnectionService.upsert(item);
+      },
+      {
+        methodName,
+        clientId: "",
+        storageName,
+        agentName: "",
+        swarmName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
+   * Removes an item from the storage.
+   * @param {IStorageData["id"]} itemId - The ID of the item to remove.
+   * @returns {Promise<void>}
+   */
+  public remove = async (
+    itemId: IStorageData["id"],
+    methodName: string,
+    storageName: StorageName
+  ): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sharedStoragePublicService remove`, {
+        itemId,
+        storageName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sharedStorageConnectionService.remove(itemId);
+      },
+      {
+        methodName,
+        clientId: "",
+        storageName,
+        agentName: "",
+        swarmName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
+   * Retrieves an item from the storage by its ID.
+   * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
+   * @returns {Promise<IStorageData>} The retrieved item.
+   */
+  public get = async (
+    itemId: IStorageData["id"],
+    methodName: string,
+    storageName: StorageName
+  ): Promise<IStorageData | null> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sharedStoragePublicService get`, {
+        methodName,
+        itemId,
+        storageName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sharedStorageConnectionService.get(itemId);
+      },
+      {
+        methodName,
+        clientId: "",
+        storageName,
+        agentName: "",
+        swarmName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
+   * Retrieves a list of items from the storage, optionally filtered by a predicate function.
+   * @param {function(IStorageData): boolean} [filter] - The optional filter function.
+   * @returns {Promise<IStorageData[]>} The list of items.
+   */
+  public list = async (
+    methodName: string,
+    storageName: StorageName,
+    filter?: (item: IStorageData) => boolean
+  ): Promise<IStorageData[]> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sharedStoragePublicService list`, {
+        methodName,
+        storageName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sharedStorageConnectionService.list(filter);
+      },
+      {
+        methodName,
+        clientId: "",
+        storageName,
+        agentName: "",
+        swarmName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
+   * Clears all items from the storage.
+   * @returns {Promise<void>}
+   */
+  public clear = async (
+    methodName: string,
+    storageName: StorageName
+  ): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sharedStoragePublicService clear`, {
+        methodName,
+        storageName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sharedStorageConnectionService.clear();
+      },
+      {
+        methodName,
+        clientId: "",
+        storageName,
+        agentName: "",
+        swarmName: "",
+        stateName: "",
+      }
+    );
+  };
+}
+
+export default SharedStoragePublicService;

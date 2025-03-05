@@ -23,8 +23,8 @@ export const addStorage = <T extends IStorageData = IStorageData>(
   );
   swarm.storageSchemaService.register(storageSchema.storageName, storageSchema);
   if (storageSchema.shared) {
-    swarm.storageConnectionService
-      .getSharedStorage("shared", storageSchema.storageName)
+    swarm.sharedStorageConnectionService
+      .getStorage(storageSchema.storageName)
       .waitForInit();
   }
   return storageSchema.storageName;

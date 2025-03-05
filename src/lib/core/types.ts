@@ -15,7 +15,9 @@ const connectionServices = {
     swarmConnectionService: Symbol('swarmConnectionService'),
     sessionConnectionService: Symbol('sessionConnectionService'),
     storageConnectionService: Symbol('storageConnectionService'),
+    sharedStorageConnectionService: Symbol('sharedStorageConnectionService'),
     stateConnectionService: Symbol('stateConnectionService'),
+    sharedStateConnectionService: Symbol('sharedStateConnectionService'),
 };
 
 const schemaServices = {

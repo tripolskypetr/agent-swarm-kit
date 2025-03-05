@@ -33,6 +33,8 @@ import ExecutionContextService from "../services/context/ExecutionContextService
 import SwarmMetaService from "../services/meta/SwarmMetaService";
 import AgentMetaService from "../services/meta/AgentMetaService";
 import DocService from "../services/base/DocService";
+import SharedStateConnectionService from "../services/connection/SharedStateConnectionService";
+import SharedStorageConnectionService from "../services/connection/SharedStorageConnectionService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -51,7 +53,9 @@ import DocService from "../services/base/DocService";
     provide(TYPES.swarmConnectionService, () => new SwarmConnectionService());
     provide(TYPES.sessionConnectionService, () => new SessionConnectionService());
     provide(TYPES.storageConnectionService, () => new StorageConnectionService());
+    provide(TYPES.sharedStorageConnectionService, () => new SharedStorageConnectionService());
     provide(TYPES.stateConnectionService, () => new StateConnectionService());
+    provide(TYPES.sharedStateConnectionService, () => new SharedStateConnectionService());
 }
 
 {

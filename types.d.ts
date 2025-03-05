@@ -2766,13 +2766,8 @@ declare class StorageConnectionService implements IStorage {
     private readonly storageSchemaService;
     private readonly sessionValidationService;
     private readonly embeddingSchemaService;
-    /**
-     * Retrieves a shared storage instance based on storage name.
-     * @param {string} clientId - The client ID.
-     * @param {string} storageName - The storage name.
-     * @returns {ClientStorage} The client storage instance.
-     */
-    getSharedStorage: ((clientId: string, storageName: StorageName) => ClientStorage<IStorageData>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<IStorageData>>;
+    private readonly sharedStorageConnectionService;
+    private _sharedStorageSet;
     /**
      * Retrieves a storage instance based on client ID and storage name.
      * @param {string} clientId - The client ID.
@@ -2977,13 +2972,8 @@ declare class StateConnectionService<T extends IStateData = IStateData> implemen
     private readonly methodContextService;
     private readonly stateSchemaService;
     private readonly sessionValidationService;
-    /**
-     * Memoized function to get a shared state reference.
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The state name.
-     * @returns {ClientState} The client state.
-     */
-    getSharedStateRef: ((clientId: string, stateName: StateName) => ClientState<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientState<any>>;
+    private readonly sharedStateConnectionService;
+    private _sharedStateSet;
     /**
      * Memoized function to get a state reference.
      * @param {string} clientId - The client ID.
@@ -3198,6 +3188,91 @@ declare class DocService {
     dumpDocs: (dirName?: string) => Promise<void>;
 }
 
+/**
+ * Service for managing storage connections.
+ * @implements {IStorage}
+ */
+declare class SharedStorageConnectionService implements IStorage {
+    private readonly loggerService;
+    private readonly busService;
+    private readonly methodContextService;
+    private readonly storageSchemaService;
+    private readonly embeddingSchemaService;
+    /**
+     * Retrieves a storage instance based on client ID and storage name.
+     * @param {string} clientId - The client ID.
+     * @param {string} storageName - The storage name.
+     * @returns {ClientStorage} The client storage instance.
+     */
+    getStorage: ((storageName: StorageName) => ClientStorage<IStorageData>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<IStorageData>>;
+    /**
+     * Retrieves a list of storage data based on a search query and total number of items.
+     * @param {string} search - The search query.
+     * @param {number} total - The total number of items to retrieve.
+     * @returns {Promise<IStorageData[]>} The list of storage data.
+     */
+    take: (search: string, total: number, score?: number) => Promise<IStorageData[]>;
+    /**
+     * Upserts an item in the storage.
+     * @param {IStorageData} item - The item to upsert.
+     * @returns {Promise<void>}
+     */
+    upsert: (item: IStorageData) => Promise<void>;
+    /**
+     * Removes an item from the storage.
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
+     * @returns {Promise<void>}
+     */
+    remove: (itemId: IStorageData["id"]) => Promise<void>;
+    /**
+     * Retrieves an item from the storage by its ID.
+     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
+     * @returns {Promise<IStorageData>} The retrieved item.
+     */
+    get: (itemId: IStorageData["id"]) => Promise<IStorageData | null>;
+    /**
+     * Retrieves a list of items from the storage, optionally filtered by a predicate function.
+     * @param {function(IStorageData): boolean} [filter] - The optional filter function.
+     * @returns {Promise<IStorageData[]>} The list of items.
+     */
+    list: (filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
+    /**
+     * Clears all items from the storage.
+     * @returns {Promise<void>}
+     */
+    clear: () => Promise<void>;
+}
+
+/**
+ * Service for managing shared state connections.
+ * @template T - The type of state data.
+ * @implements {IState<T>}
+ */
+declare class SharedStateConnectionService<T extends IStateData = IStateData> implements IState<T> {
+    private readonly loggerService;
+    private readonly busService;
+    private readonly methodContextService;
+    private readonly stateSchemaService;
+    /**
+     * Memoized function to get a shared state reference.
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The state name.
+     * @returns {ClientState} The client state.
+     */
+    getStateRef: ((stateName: StateName) => ClientState<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientState<any>>;
+    /**
+     * Sets the state.
+     * @param {function(T): Promise<T>} dispatchFn - The function to dispatch the new state.
+     * @returns {Promise<T>} The new state.
+     */
+    setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
+    /**
+     * Gets the state.
+     * @returns {Promise<T>} The current state.
+     */
+    getState: () => Promise<T>;
+}
+
 declare const swarm: {
     agentValidationService: AgentValidationService;
     toolValidationService: ToolValidationService;
@@ -3226,7 +3301,9 @@ declare const swarm: {
     swarmConnectionService: SwarmConnectionService;
     sessionConnectionService: SessionConnectionService;
     storageConnectionService: StorageConnectionService;
+    sharedStorageConnectionService: SharedStorageConnectionService;
     stateConnectionService: StateConnectionService<any>;
+    sharedStateConnectionService: SharedStateConnectionService<any>;
     methodContextService: {
         readonly context: IMethodContext;
     };
