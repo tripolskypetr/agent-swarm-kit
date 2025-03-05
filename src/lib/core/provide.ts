@@ -87,13 +87,6 @@ import SharedStoragePublicService from "../services/public/SharedStoragePublicSe
 }
 
 {
-    provide(TYPES.agentPublicService, () => new AgentPublicService());
-    provide(TYPES.historyPublicService, () => new HistoryPublicService());
-    provide(TYPES.sessionPublicService, () => new SessionPublicService());
-    provide(TYPES.swarmPublicService, () => new SwarmPublicService());
-}
-
-{
     provide(TYPES.agentValidationService, () => new AgentValidationService());
     provide(TYPES.completionValidationService, () => new CompletionValidationService());
     provide(TYPES.sessionValidationService, () => new SessionValidationService());
