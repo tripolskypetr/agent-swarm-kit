@@ -96,6 +96,14 @@ commitAgentChange: (methodName: string, clientId: string, agentName: string) => 
 
 Commits change of agent to prevent the next tool execution from being called.
 
+### commitStopTools
+
+```ts
+commitStopTools: (methodName: string, clientId: string, agentName: string) => Promise<void>
+```
+
+Prevent the next tool from being executed
+
 ### dispose
 
 ```ts

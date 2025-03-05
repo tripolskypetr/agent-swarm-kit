@@ -114,6 +114,14 @@ commitFlush: () => Promise<void>
 
 Commits user message to the agent without answer.
 
+### commitStopTools
+
+```ts
+commitStopTools: () => Promise<void>
+```
+
+Commits user message to the agent without answer.
+
 ### dispose
 
 ```ts

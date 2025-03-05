@@ -130,6 +130,14 @@ commitAgentChange: () => Promise<void>
 
 Commits agent change to prevent the next tool execution from being called.
 
+### commitStopTools
+
+```ts
+commitStopTools: () => Promise<void>
+```
+
+Prevent the next tool from being executed
+
 ### commitFlush
 
 ```ts

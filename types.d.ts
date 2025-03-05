@@ -1584,8 +1584,8 @@ declare const TOOL_STOP_SYMBOL: unique symbol;
 declare class ClientAgent implements IAgent {
     readonly params: IAgentParams;
     readonly _agentChangeSubject: Subject<typeof AGENT_CHANGE_SYMBOL>;
-    readonly _toolStopSubject: Subject<typeof TOOL_STOP_SYMBOL>;
     readonly _toolErrorSubject: Subject<typeof TOOL_ERROR_SYMBOL>;
+    readonly _toolStopSubject: Subject<typeof TOOL_STOP_SYMBOL>;
     readonly _toolCommitSubject: Subject<void>;
     readonly _outputSubject: Subject<string>;
     /**

@@ -27,3 +27,11 @@ setState: <T extends unknown = any>(dispatchFn: T | ((prevState: T) => Promise<T
 ```
 
 Sets the state for a given client and state name.
+
+### clearState
+
+```ts
+clearState: <T extends unknown = any>(payload: { clientId: string; agentName: string; stateName: string; }) => Promise<T>
+```
+
+Set the state to initial value

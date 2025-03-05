@@ -30,6 +30,14 @@ setState: (dispatchFn: (prevState: T) => Promise<T>, methodName: string, stateNa
 
 Sets the state using the provided dispatch function.
 
+### clearState
+
+```ts
+clearState: (methodName: string, stateName: string) => Promise<T>
+```
+
+Set the state to initial value
+
 ### getState
 
 ```ts

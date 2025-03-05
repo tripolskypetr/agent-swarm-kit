@@ -62,6 +62,15 @@ commitFlush: () => Promise<void>
 
 Clears the history for the agent.
 
+### commitStopTools
+
+```ts
+commitStopTools: { (): Promise<void>; (): Promise<void>; }
+```
+
+Prevent the next tool from being executed
+Prevent the next tool from execution
+
 ### commitAgentChange
 
 ```ts
@@ -69,3 +78,12 @@ commitAgentChange: () => Promise<void>
 ```
 
 Unlock the queue on agent change. Stop the next tool execution
+
+### commitStopTools
+
+```ts
+commitStopTools: { (): Promise<void>; (): Promise<void>; }
+```
+
+Prevent the next tool from being executed
+Prevent the next tool from execution

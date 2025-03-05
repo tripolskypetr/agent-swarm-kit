@@ -64,6 +64,14 @@ commitFlush: () => Promise<void>
 
 Commits flush of agent history
 
+### commitStopTools
+
+```ts
+commitStopTools: () => Promise<void>
+```
+
+Commits stop of the nexttool execution
+
 ### commitSystemMessage
 
 ```ts

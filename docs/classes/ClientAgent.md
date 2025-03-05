@@ -30,6 +30,12 @@ _agentChangeSubject: Subject<unique symbol>
 _toolErrorSubject: Subject<unique symbol>
 ```
 
+### _toolStopSubject
+
+```ts
+_toolStopSubject: Subject<unique symbol>
+```
+
 ### _toolCommitSubject
 
 ```ts
@@ -94,6 +100,14 @@ Commits flush of agent history
 
 ```ts
 commitAgentChange: () => Promise<void>
+```
+
+Commits change of agent to prevent the next tool execution from being called.
+
+### commitStopTools
+
+```ts
+commitStopTools: () => Promise<void>
 ```
 
 Commits change of agent to prevent the next tool execution from being called.

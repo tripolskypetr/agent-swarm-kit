@@ -88,6 +88,14 @@ commitFlush: (methodName: string, clientId: string, swarmName: string) => Promis
 
 Commits flush of agent history
 
+### commitStopTools
+
+```ts
+commitStopTools: (methodName: string, clientId: string, swarmName: string) => Promise<void>
+```
+
+Prevent the next tool from being executed
+
 ### dispose
 
 ```ts

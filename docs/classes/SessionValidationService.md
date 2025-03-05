@@ -175,7 +175,7 @@ Gets the swarm name for a session.
 ### validate
 
 ```ts
-validate: (clientId: string, source: string) => void
+validate: ((clientId: string, source: string) => void) & IClearableMemoize<string> & IControlMemoize<string, void>
 ```
 
 Validates if a session exists.
@@ -187,3 +187,11 @@ removeSession: (clientId: string) => void
 ```
 
 Removes a session.
+
+### dispose
+
+```ts
+dispose: (clientId: string) => void
+```
+
+Dispose a session validation cache.

@@ -46,6 +46,14 @@ setState: (dispatchFn: DispatchFn<State>) => Promise<State>
 
 Sets the state using the provided dispatch function.
 
+### clearState
+
+```ts
+clearState: () => Promise<State>
+```
+
+Sets the to initial value
+
 ### getState
 
 ```ts

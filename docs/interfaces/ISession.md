@@ -20,6 +20,14 @@ commitFlush: () => Promise<void>
 
 Commit flush of agent history
 
+### commitStopTools
+
+```ts
+commitStopTools: () => Promise<void>
+```
+
+Prevent the next tool from being executed
+
 ## Methods
 
 ### emit
