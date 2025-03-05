@@ -147,6 +147,12 @@ export interface IState<T extends IStateData = IStateData> {
    * @returns {Promise<T>} - The updated state.
    */
   setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
+
+  /**
+   * Set the state to initial value
+   * @returns {Promise<T>} - The initial state.
+   */
+  clearState: () => Promise<T>;
 }
 
 /**

@@ -408,6 +408,11 @@ interface IState<T extends IStateData = IStateData> {
      * @returns {Promise<T>} - The updated state.
      */
     setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
+    /**
+     * Set the state to initial value
+     * @returns {Promise<T>} - The initial state.
+     */
+    clearState: () => Promise<T>;
 }
 /**
  * The name of the state.
@@ -3066,6 +3071,11 @@ declare class ClientState<State extends IStateData = IStateData> implements ISta
      */
     setState: (dispatchFn: DispatchFn<State>) => Promise<State>;
     /**
+     * Sets the to initial value
+     * @returns {Promise<State>}
+     */
+    clearState: () => Promise<State>;
+    /**
      * Gets the current state.
      * @returns {Promise<State>}
      */
@@ -3104,6 +3114,11 @@ declare class StateConnectionService<T extends IStateData = IStateData> implemen
      */
     setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
     /**
+     * Set the state to initial value
+     * @returns {Promise<T>} The initial state.
+     */
+    clearState: () => Promise<T>;
+    /**
      * Gets the state.
      * @returns {Promise<T>} The current state.
      */
@@ -3135,6 +3150,13 @@ declare class StatePublicService<T extends IStateData = IStateData> implements T
      * @returns {Promise<T>} - The updated state.
      */
     setState: (dispatchFn: (prevState: T) => Promise<T>, methodName: string, clientId: string, stateName: StateName) => Promise<T>;
+    /**
+     * Set the state to initial value
+     * @param {string} clientId - The client ID.
+     * @param {StateName} stateName - The name of the state.
+     * @returns {Promise<T>} - The initial state.
+     */
+    clearState: (methodName: string, clientId: string, stateName: StateName) => Promise<T>;
     /**
      * Gets the current state.
      * @param {string} clientId - The client ID.
@@ -3383,6 +3405,11 @@ declare class SharedStateConnectionService<T extends IStateData = IStateData> im
      */
     setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
     /**
+     * Set the state to initial value
+     * @returns {Promise<T>} The new state.
+     */
+    clearState: () => Promise<T>;
+    /**
      * Gets the state.
      * @returns {Promise<T>} The current state.
      */
@@ -3408,6 +3435,12 @@ declare class SharedStatePublicService<T extends IStateData = IStateData> implem
      * @returns {Promise<T>} - The updated state.
      */
     setState: (dispatchFn: (prevState: T) => Promise<T>, methodName: string, stateName: StateName) => Promise<T>;
+    /**
+     * Set the state to initial value
+     * @param {StateName} stateName - The name of the state.
+     * @returns {Promise<T>} - The initial state.
+     */
+    clearState: (methodName: string, stateName: StateName) => Promise<T>;
     /**
      * Gets the current state.
      * @param {StateName} stateName - The name of the state.
@@ -4403,6 +4436,21 @@ declare class StateUtils implements TState {
         agentName: AgentName;
         stateName: StateName;
     }) => Promise<void>;
+    /**
+     * Set the state to initial value
+     * @template T
+     * @param {Object} payload - The payload containing client and state information.
+     * @param {string} payload.clientId - The client ID.
+     * @param {AgentName} payload.agentName - The agent name.
+     * @param {StateName} payload.stateName - The state name.
+     * @returns {Promise<void>}
+     * @throws Will throw an error if the state is not registered in the agent.
+     */
+    clearState: <T extends unknown = any>(payload: {
+        clientId: string;
+        agentName: AgentName;
+        stateName: StateName;
+    }) => Promise<T>;
 }
 /**
  * Instance of StateUtils for managing state.
@@ -4445,6 +4493,19 @@ declare class SharedStateUtils implements TSharedState {
         agentName: AgentName;
         stateName: StateName;
     }) => Promise<void>;
+    /**
+     * Set the state to initial value
+     * @template T
+     * @param {Object} payload - The payload containing client and state information.
+     * @param {AgentName} payload.agentName - The agent name.
+     * @param {StateName} payload.stateName - The state name.
+     * @returns {Promise<void>}
+     * @throws Will throw an error if the state is not registered in the agent.
+     */
+    clearState: <T extends unknown = any>(payload: {
+        agentName: AgentName;
+        stateName: StateName;
+    }) => Promise<T>;
 }
 /**
  * Instance of SharedStateUtils for managing state.

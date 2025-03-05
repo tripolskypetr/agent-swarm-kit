@@ -138,6 +138,54 @@ export class ClientState<State extends IStateData = IStateData>
   };
 
   /**
+   * Sets the to initial value
+   * @returns {Promise<State>}
+   */
+  public clearState = async () => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} clearState`
+      );
+    await this.dispatch("write", async () => {
+      return await this.params.getState(
+        this.params.clientId,
+        this.params.stateName
+      );
+    });
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} clearState output`,
+        { pendingState: this._state }
+      );
+    this.params.setState &&
+      this.params.setState(
+        this._state,
+        this.params.clientId,
+        this.params.stateName
+      );
+    if (this.params.callbacks?.onWrite) {
+      this.params.callbacks.onWrite(
+        this._state,
+        this.params.clientId,
+        this.params.stateName
+      );
+    }
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "clear-state",
+      source: "state-bus",
+      input: {},
+      output: {
+        state: this._state,
+      },
+      context: {
+        stateName: this.params.stateName,
+      },
+      clientId: this.params.clientId,
+    });
+    return this._state;
+  };
+
+  /**
    * Gets the current state.
    * @returns {Promise<State>}
    */

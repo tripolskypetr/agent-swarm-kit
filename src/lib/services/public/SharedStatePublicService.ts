@@ -21,9 +21,8 @@ export class SharedStatePublicService<T extends IStateData = IStateData>
   implements TSharedStateConnectionService
 {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
-  private readonly sharedStateConnectionService = inject<SharedStateConnectionService>(
-    TYPES.sharedStateConnectionService
-  );
+  private readonly sharedStateConnectionService =
+    inject<SharedStateConnectionService>(TYPES.sharedStateConnectionService);
 
   /**
    * Sets the state using the provided dispatch function.
@@ -44,6 +43,35 @@ export class SharedStatePublicService<T extends IStateData = IStateData>
     return await MethodContextService.runInContext(
       async () => {
         return await this.sharedStateConnectionService.setState(dispatchFn);
+      },
+      {
+        methodName,
+        clientId: "",
+        stateName,
+        agentName: "",
+        swarmName: "",
+        storageName: "",
+      }
+    );
+  };
+
+  /**
+   * Set the state to initial value
+   * @param {StateName} stateName - The name of the state.
+   * @returns {Promise<T>} - The initial state.
+   */
+  public clearState = async (
+    methodName: string,
+    stateName: StateName
+  ): Promise<T> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sharedStatePublicService clearState`, {
+        methodName,
+        stateName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sharedStateConnectionService.clearState();
       },
       {
         methodName,

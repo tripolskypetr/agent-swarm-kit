@@ -77,11 +77,21 @@ export class SharedStateConnectionService<T extends IStateData = IStateData>
   ): Promise<T> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sharedStateConnectionService setState`);
-    const state = this.getStateRef(
-      this.methodContextService.context.stateName
-    );
+    const state = this.getStateRef(this.methodContextService.context.stateName);
     await state.waitForInit();
     return await state.setState(dispatchFn);
+  };
+
+  /**
+   * Set the state to initial value
+   * @returns {Promise<T>} The new state.
+   */
+  public clearState = async (): Promise<T> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sharedStateConnectionService clearState`);
+    const state = this.getStateRef(this.methodContextService.context.stateName);
+    await state.waitForInit();
+    return await state.clearState();
   };
 
   /**
@@ -91,9 +101,7 @@ export class SharedStateConnectionService<T extends IStateData = IStateData>
   public getState = async (): Promise<T> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sharedStateConnectionService getState`);
-    const state = this.getStateRef(
-      this.methodContextService.context.stateName
-    );
+    const state = this.getStateRef(this.methodContextService.context.stateName);
     await state.waitForInit();
     return await state.getState();
   };

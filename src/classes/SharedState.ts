@@ -9,6 +9,7 @@ type TSharedState = {
 
 const METHOD_NAME_GET = "SharedStateUtils.getSharedState";
 const METHOD_NAME_SET = "SharedStateUtils.setSharedState";
+const METHOD_NAME_CLEAR = "SharedStateUtils.clearSharedState";
 
 /**
  * Utility class for managing state in the agent swarm.
@@ -89,6 +90,39 @@ export class SharedStateUtils implements TSharedState {
     return await swarm.sharedStatePublicService.setState(
       async () => dispatchFn as T,
       METHOD_NAME_SET,
+      payload.stateName
+    );
+  };
+
+  /**
+   * Set the state to initial value
+   * @template T
+   * @param {Object} payload - The payload containing client and state information.
+   * @param {AgentName} payload.agentName - The agent name.
+   * @param {StateName} payload.stateName - The state name.
+   * @returns {Promise<void>}
+   * @throws Will throw an error if the state is not registered in the agent.
+   */
+  public clearState = async <T extends IStateData = IStateData>(payload: {
+    agentName: AgentName;
+    stateName: StateName;
+  }): Promise<T> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME_SET, {
+        stateName: payload.stateName,
+      });
+    if (
+      !swarm.agentValidationService.hasState(
+        payload.agentName,
+        payload.stateName
+      )
+    ) {
+      throw new Error(
+        `agent-swarm SharedStateUtils ${payload.stateName} not registered in ${payload.agentName} (clearState)`
+      );
+    }
+    return await swarm.sharedStatePublicService.clearState(
+      METHOD_NAME_CLEAR,
       payload.stateName
     );
   };

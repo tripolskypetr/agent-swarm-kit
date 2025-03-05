@@ -60,6 +60,38 @@ export class StatePublicService<T extends IStateData = IStateData>
   };
 
   /**
+   * Set the state to initial value
+   * @param {string} clientId - The client ID.
+   * @param {StateName} stateName - The name of the state.
+   * @returns {Promise<T>} - The initial state.
+   */
+  public clearState = async (
+    methodName: string,
+    clientId: string,
+    stateName: StateName
+  ): Promise<T> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`statePublicService clearState`, {
+        methodName,
+        clientId,
+        stateName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.stateConnectionService.clearState();
+      },
+      {
+        methodName,
+        clientId,
+        stateName,
+        agentName: "",
+        swarmName: "",
+        storageName: "",
+      }
+    );
+  };
+
+  /**
    * Gets the current state.
    * @param {string} clientId - The client ID.
    * @param {StateName} stateName - The name of the state.
