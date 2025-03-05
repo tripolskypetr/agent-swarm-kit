@@ -996,7 +996,7 @@ interface IHistoryInstance {
 /**
  * Type for History Instance Constructor
  */
-type THistoryInstanceCtor = new (clientId: string, ...args: unknown[]) => IHistoryInstance;
+type THistoryInstanceCtor = new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>) => IHistoryInstance;
 declare const HISTORY_INSTANCE_WAIT_FOR_INIT: unique symbol;
 /**
  * Class representing a History Instance
@@ -3881,7 +3881,7 @@ interface ILoggerControl {
     infoClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
     debugClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
 }
-type TLoggerInstanceCtor = new (clientId: string, ...args: unknown[]) => ILoggerInstance;
+type TLoggerInstanceCtor = new (clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>) => ILoggerInstance;
 /**
  * @class LoggerInstance
  * @implements ILoggerInstance

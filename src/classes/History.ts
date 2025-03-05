@@ -203,7 +203,7 @@ export interface IHistoryInstance {
  */
 export type THistoryInstanceCtor = new (
   clientId: string,
-  ...args: unknown[]
+  callbacks: Partial<IHistoryInstanceCallbacks>
 ) => IHistoryInstance;
 
 const HISTORY_INSTANCE_WAIT_FOR_INIT = Symbol("wait-for-init");

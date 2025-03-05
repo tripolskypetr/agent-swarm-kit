@@ -53,7 +53,7 @@ interface ILoggerControl {
 
 type TLoggerInstanceCtor = new (
   clientId: string,
-  ...args: unknown[]
+  callbacks: Partial<ILoggerInstanceCallbacks>,
 ) => ILoggerInstance;
 
 /**
