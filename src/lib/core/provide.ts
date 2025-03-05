@@ -35,6 +35,8 @@ import AgentMetaService from "../services/meta/AgentMetaService";
 import DocService from "../services/base/DocService";
 import SharedStateConnectionService from "../services/connection/SharedStateConnectionService";
 import SharedStorageConnectionService from "../services/connection/SharedStorageConnectionService";
+import SharedStatePublicService from "../services/public/SharedStatePublicService";
+import SharedStoragePublicService from "../services/public/SharedStoragePublicService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -74,7 +76,9 @@ import SharedStorageConnectionService from "../services/connection/SharedStorage
     provide(TYPES.sessionPublicService, () => new SessionPublicService());
     provide(TYPES.swarmPublicService, () => new SwarmPublicService());
     provide(TYPES.storagePublicService, () => new StoragePublicService());
+    provide(TYPES.sharedStoragePublicService, () => new SharedStoragePublicService());
     provide(TYPES.statePublicService, () => new StatePublicService());
+    provide(TYPES.sharedStatePublicService, () => new SharedStatePublicService());
 }
 
 {

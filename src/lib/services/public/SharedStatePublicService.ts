@@ -17,7 +17,7 @@ type TSharedStateConnectionService = {
   [key in Exclude<keyof ISharedStateConnectionService, InternalKeys>]: unknown;
 };
 
-export class StatePublicService<T extends IStateData = IStateData>
+export class SharedStatePublicService<T extends IStateData = IStateData>
   implements TSharedStateConnectionService
 {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -85,4 +85,4 @@ export class StatePublicService<T extends IStateData = IStateData>
   };
 }
 
-export default StatePublicService;
+export default SharedStatePublicService;

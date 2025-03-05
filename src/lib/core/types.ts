@@ -41,7 +41,9 @@ const publicServices = {
     sessionPublicService: Symbol('sessionPublicService'),
     swarmPublicService: Symbol('swarmPublicService'),
     storagePublicService: Symbol('storagePublicService'),
+    sharedStoragePublicService: Symbol('sharedStoragePublicService'),
     statePublicService: Symbol('statePublicService'),
+    sharedStatePublicService: Symbol('sharedStatePublicService'),
 };
 
 const validationServices = {
