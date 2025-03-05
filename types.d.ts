@@ -2635,12 +2635,17 @@ declare class SessionValidationService {
      * @param {string} source - The source of the validation request.
      * @throws Will throw an error if the session does not exist.
      */
-    validate: (clientId: SessionId, source: string) => void;
+    validate: ((clientId: SessionId, source: string) => void) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, void>;
     /**
      * Removes a session.
      * @param {SessionId} clientId - The ID of the client.
      */
     removeSession: (clientId: SessionId) => void;
+    /**
+     * Dispose a session validation cache.
+     * @param {SessionId} clientId - The ID of the client.
+     */
+    dispose: (clientId: string) => void;
 }
 
 /**

@@ -69,4 +69,5 @@ export const disposeConnection = async (
   await LoggerAdapter.dispose(clientId);
   swarm.sessionValidationService.removeSession(clientId);
   swarm.busService.dispose(clientId);
+  swarm.sessionValidationService.dispose(clientId);
 };

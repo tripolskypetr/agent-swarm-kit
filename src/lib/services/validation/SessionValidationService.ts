@@ -7,6 +7,7 @@ import { AgentName } from "../../../interfaces/Agent.interface";
 import { StorageName } from "../../../interfaces/Storage.interface";
 import { StateName } from "../../../interfaces/State.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import { memoize } from "functools-kit";
 
 /**
  * Service for validating and managing sessions.
@@ -347,23 +348,26 @@ export class SessionValidationService {
    * @param {string} source - The source of the validation request.
    * @throws Will throw an error if the session does not exist.
    */
-  public validate = (clientId: SessionId, source: string) => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info("sessionValidationService validate", {
-        clientId,
-      });
-    if (!clientId) {
-      throw new Error(
-        `agent-swarm session clientId is missing source=${source}`
-      );
+  public validate = memoize(
+    ([clientId]) => `${clientId}`,
+    (clientId: SessionId, source: string) => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("sessionValidationService validate", {
+          clientId,
+        });
+      if (!clientId) {
+        throw new Error(
+          `agent-swarm session clientId is missing source=${source}`
+        );
+      }
+      if (!this._sessionSwarmMap.has(clientId)) {
+        throw new Error(
+          `agent-swarm session clientId=${clientId} not exist source=${source}`
+        );
+      }
+      return {} as unknown as void;
     }
-    if (!this._sessionSwarmMap.has(clientId)) {
-      throw new Error(
-        `agent-swarm session clientId=${clientId} not exist source=${source}`
-      );
-    }
-    return {} as unknown as void;
-  };
+  );
 
   /**
    * Removes a session.
@@ -376,6 +380,14 @@ export class SessionValidationService {
       });
     this._sessionSwarmMap.delete(clientId);
     this._sessionModeMap.delete(clientId);
+  };
+
+  /**
+   * Dispose a session validation cache.
+   * @param {SessionId} clientId - The ID of the client.
+   */
+  public dispose = (clientId: string) => {
+    this.validate.clear(clientId);
   };
 }
 

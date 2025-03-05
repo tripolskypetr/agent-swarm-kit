@@ -6,6 +6,8 @@ import {
   addAgent,
   addCompletion,
   Storage,
+  session,
+  addSwarm,
 } from "../../build/index.mjs";
 
 import { randomString } from "functools-kit";
@@ -45,8 +47,17 @@ test("Will keep separate storages for different connections", async ({
     storages: [TEST_STORAGE],
   });
 
+  const TEST_SWARM = addSwarm({
+    swarmName: "test_swarm",
+    agentList: [TEST_AGENT],
+    defaultAgent: TEST_AGENT,
+  })
+
   const CLIENT_ID1 = randomString();
   const CLIENT_ID2 = randomString();
+
+  session(CLIENT_ID1, TEST_SWARM)
+  session(CLIENT_ID2, TEST_SWARM)
 
   Storage.upsert({
     agentName: TEST_AGENT,

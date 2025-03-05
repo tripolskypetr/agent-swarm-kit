@@ -11,7 +11,6 @@ type TStorage = {
   [key in keyof IStorage]: unknown;
 };
 
-
 const METHOD_NAME_TAKE = "StorageUtils.take";
 const METHOD_NAME_UPSERT = "StorageUtils.upsert";
 const METHOD_NAME_REMOVE = "StorageUtils.remove";
@@ -46,6 +45,7 @@ export class StorageUtils implements TStorage {
         storageName: payload.storageName,
         score: payload.score,
       });
+    swarm.sessionValidationService.validate(payload.clientId, METHOD_NAME_TAKE);
     swarm.storageValidationService.validate(
       payload.storageName,
       METHOD_NAME_TAKE
@@ -91,6 +91,10 @@ export class StorageUtils implements TStorage {
         clientId: payload.clientId,
         storageName: payload.storageName,
       });
+    swarm.sessionValidationService.validate(
+      payload.clientId,
+      METHOD_NAME_UPSERT
+    );
     swarm.storageValidationService.validate(
       payload.storageName,
       METHOD_NAME_UPSERT
@@ -133,6 +137,10 @@ export class StorageUtils implements TStorage {
         clientId: payload.clientId,
         storageName: payload.storageName,
       });
+    swarm.sessionValidationService.validate(
+      payload.clientId,
+      METHOD_NAME_REMOVE
+    );
     swarm.storageValidationService.validate(
       payload.storageName,
       METHOD_NAME_REMOVE

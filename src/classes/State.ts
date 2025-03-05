@@ -35,6 +35,7 @@ export class StateUtils implements TState {
         clientId: payload.clientId,
         stateName: payload.stateName,
       });
+    swarm.sessionValidationService.validate(payload.clientId, METHOD_NAME_GET);
     if (
       !swarm.agentValidationService.hasState(
         payload.agentName,
@@ -76,6 +77,7 @@ export class StateUtils implements TState {
         clientId: payload.clientId,
         stateName: payload.stateName,
       });
+    swarm.sessionValidationService.validate(payload.clientId, METHOD_NAME_SET);
     if (
       !swarm.agentValidationService.hasState(
         payload.agentName,

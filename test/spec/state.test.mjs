@@ -5,6 +5,8 @@ import {
   addAgent,
   addCompletion,
   State,
+  addSwarm,
+  session,
 } from "../../build/index.mjs";
 
 import { randomString, sleep } from "functools-kit";
@@ -37,7 +39,15 @@ test("Will keep setState order for State", async ({
     states: [TEST_STATE],
   });
 
+  const TEST_SWARM = addSwarm({
+    swarmName: "test_swarm",
+    agentList: [TEST_AGENT],
+    defaultAgent: TEST_AGENT,
+  })
+
   const CLIENT_ID = randomString();
+
+  session(CLIENT_ID, TEST_SWARM)
 
   for (let i = 0; i !== 3; i++) {
     State.setState((prevState) => {
@@ -115,7 +125,15 @@ test("Will use setState middlewares", async ({
     states: [TEST_STATE],
   });
 
+  const TEST_SWARM = addSwarm({
+    swarmName: "test_swarm",
+    agentList: [TEST_AGENT],
+    defaultAgent: TEST_AGENT,
+  })
+
   const CLIENT_ID = randomString();
+
+  session(CLIENT_ID, TEST_SWARM)
 
   State.setState(dispatch, {
     clientId: CLIENT_ID,
@@ -165,8 +183,17 @@ test("Will keep separate states for different connections", async ({
     states: [TEST_STATE],
   });
 
+  const TEST_SWARM = addSwarm({
+    swarmName: "test_swarm",
+    agentList: [TEST_AGENT],
+    defaultAgent: TEST_AGENT,
+  })
+
   const CLIENT_ID1 = randomString();
   const CLIENT_ID2 = randomString();
+  
+  session(CLIENT_ID1, TEST_SWARM)
+  session(CLIENT_ID2, TEST_SWARM)
 
   State.setState(() => "bar", {
     agentName: TEST_AGENT,
@@ -275,7 +302,15 @@ test("Will keep state order even if not awaited", async ({
     states: [TEST_STATE],
   });
 
+  const TEST_SWARM = addSwarm({
+    swarmName: "test_swarm",
+    agentList: [TEST_AGENT],
+    defaultAgent: TEST_AGENT,
+  })
+
   const CLIENT_ID = randomString();
+
+  session(CLIENT_ID, TEST_SWARM)
 
   for (let i = 0; i !== TOTAL_TESTS; i++) {
     State.setState(async (prevState) => {
