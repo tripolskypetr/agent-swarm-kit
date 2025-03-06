@@ -4,7 +4,7 @@ import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { SwarmName } from "../../interfaces/Swarm.interface";
 
-const METHOD_NAME = "function.changeToPrevAgent";
+const METHOD_NAME = "function.navigate.changeToPrevAgent";
 
 /**
  * Time-to-live for the change agent function in milliseconds.

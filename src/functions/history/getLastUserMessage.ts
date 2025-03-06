@@ -2,7 +2,7 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 import { getRawHistory } from "./getRawHistory";
 
-const METHOD_NAME = "function.getLastUserMessage";
+const METHOD_NAME = "function.history.getLastUserMessage";
 
 /**
  * Retrieves the last message sent by the user from the client's message history.

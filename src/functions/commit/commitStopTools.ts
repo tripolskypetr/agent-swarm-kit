@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-const METHOD_NAME = "function.commitStopTools";
+const METHOD_NAME = "function.commit.commitStopTools";
 
 /**
  * Prevent the next tool from being executed

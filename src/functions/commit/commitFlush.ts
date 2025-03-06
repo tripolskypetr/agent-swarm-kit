@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-const METHOD_NAME = "function.commitFlush";
+const METHOD_NAME = "function.commit.commitFlush";
 
 /**
  * Commits flush of agent history

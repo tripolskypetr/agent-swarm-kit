@@ -2,7 +2,7 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import { AgentName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 
-const METHOD_NAME = "function.emit";
+const METHOD_NAME = "function.target.emit";
 
 /**
  * Emits a string constant as the model output without executing incoming message

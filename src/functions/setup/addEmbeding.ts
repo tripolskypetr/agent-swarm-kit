@@ -2,7 +2,7 @@ import { IEmbeddingSchema } from "../../interfaces/Embedding.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 
-const METHOD_NAME = "function.addEmbedding";
+const METHOD_NAME = "function.setup.addEmbedding";
 
 /**
  * Adds a new embedding to the embedding registry. The swarm takes only those embeddings which was registered

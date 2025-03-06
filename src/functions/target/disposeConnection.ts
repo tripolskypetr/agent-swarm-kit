@@ -4,7 +4,7 @@ import { SwarmName } from "../../interfaces/Swarm.interface";
 import swarm from "../../lib";
 import LoggerAdapter from "../../classes/Logger";
 
-const METHOD_NAME = "function.disposeConnection";
+const METHOD_NAME = "function.target.disposeConnection";
 
 /**
  * Disposes the session for a given client with all related swarms and agents.

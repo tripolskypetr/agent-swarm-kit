@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-const METHOD_NAME = "function.getRawHistory";
+const METHOD_NAME = "function.history.getRawHistory";
 
 /**
  * Retrieves the raw history as it is for a given client ID without any modifications.

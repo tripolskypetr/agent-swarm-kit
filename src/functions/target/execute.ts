@@ -3,7 +3,7 @@ import { AgentName } from "../../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm, { ExecutionContextService } from "../../lib";
 
-const METHOD_NAME = "function.execute";
+const METHOD_NAME = "function.target.execute";
 
 /**
  * Send the message to the active agent in the swarm content like it income from client side

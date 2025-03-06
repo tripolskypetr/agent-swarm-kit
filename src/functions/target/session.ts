@@ -10,7 +10,7 @@ type TComplete = (content: string) => Promise<string>;
 
 const SCHEDULED_DELAY = 1_000;
 
-const METHOD_NAME = "function.session";
+const METHOD_NAME = "function.target.session";
 
 /**
  * Creates a session for the given client and swarm.

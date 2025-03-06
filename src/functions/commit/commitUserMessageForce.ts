@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-const METHOD_NAME = "function.commitSystemMessage";
+const METHOD_NAME = "function.commit.commitSystemMessage";
 
 /**
  * Commits a user message to the active agent history in as swarm without answer and checking active agent

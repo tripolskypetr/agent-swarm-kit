@@ -2,7 +2,7 @@ import { IAgentSchema } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 
-const METHOD_NAME = "function.addAgent";
+const METHOD_NAME = "function.setup.addAgent";
 
 /**
  * Adds a new agent to the agent registry. The swarm takes only those agents which was registered

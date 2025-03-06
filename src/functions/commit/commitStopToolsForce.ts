@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-const METHOD_NAME = "function.commitStopToolsForce";
+const METHOD_NAME = "function.commit.commitStopToolsForce";
 
 /**
  * Prevent the next tool from being executed without active agent check

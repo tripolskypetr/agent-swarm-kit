@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-const METHOD_NAME = "function.commitAssistantMessage";
+const METHOD_NAME = "function.commit.commitAssistantMessage";
 
 /**
  * Commits an assistant message to the active agent in the swarm.

@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-const METHOD_NAME = "function.commitToolOutputForce";
+const METHOD_NAME = "function.commit.commitToolOutputForce";
 
 /**
  * Commits the tool output to the active agent in a swarm session without checking active agent

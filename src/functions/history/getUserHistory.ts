@@ -2,7 +2,7 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 import { getRawHistory } from "./getRawHistory";
 
-const METHOD_NAME = "function.getUserHistory";
+const METHOD_NAME = "function.history.getUserHistory";
 
 /**
  * Retrieves the user history for a given client ID.

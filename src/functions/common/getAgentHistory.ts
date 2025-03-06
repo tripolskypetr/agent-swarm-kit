@@ -2,7 +2,7 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import { AgentName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 
-const METHOD_NAME = "function.getAgentHistory";
+const METHOD_NAME = "function.common.getAgentHistory";
 
 /**
  * Retrieves the history prepared for a specific agent with resque algorithm tweaks

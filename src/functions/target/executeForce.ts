@@ -2,7 +2,7 @@ import { randomString } from "functools-kit";
 import swarm, { ExecutionContextService } from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 
-const METHOD_NAME = "function.executeForce";
+const METHOD_NAME = "function.target.executeForce";
 
 /**
  * Send the message to the active agent in the swarm content like it income from client side

@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-const METHOD_NAME = "function.commitSystemMessageForce";
+const METHOD_NAME = "function.commit.commitSystemMessageForce";
 
 /**
  * Commits a system message to the active agent in as swarm without checking active agent.

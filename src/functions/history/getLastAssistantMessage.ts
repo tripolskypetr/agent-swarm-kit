@@ -2,7 +2,7 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 import { getRawHistory } from "./getRawHistory";
 
-const METHOD_NAME = "function.getLastAssistantMessage";
+const METHOD_NAME = "function.history.getLastAssistantMessage";
 
 /**
  * Retrieves the last message sent by the assistant from the client's message history.
