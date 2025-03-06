@@ -20,6 +20,7 @@ export const getAgentHistory = async (
       clientId,
       agentName,
     });
+  swarm.sessionValidationService.validate(clientId, METHOD_NAME);
   swarm.agentValidationService.validate(agentName, METHOD_NAME);
   const { prompt } = swarm.agentSchemaService.get(agentName);
   const history = await swarm.historyPublicService.toArrayForAgent(

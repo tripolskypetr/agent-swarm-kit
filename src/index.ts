@@ -40,6 +40,7 @@ export * from "./functions/target/disposeConnection";
 export * from "./functions/common/getAgentName";
 export * from "./functions/common/getAgentHistory";
 export * from "./functions/common/getSessionMode";
+export * from "./functions/common/getSessionContext";
 
 export * from "./functions/history/getLastUserMessage";
 export * from "./functions/history/getUserHistory";

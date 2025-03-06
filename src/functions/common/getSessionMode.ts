@@ -13,6 +13,7 @@ export const getSessionMode = async (clientId: string) => {
     swarm.loggerService.log(METHOD_NAME, {
       clientId,
     });
+  swarm.sessionValidationService.validate(clientId, METHOD_NAME);
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   return swarm.sessionValidationService.getSessionMode(clientId);
