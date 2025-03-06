@@ -15,7 +15,7 @@ constructor();
 ### getState
 
 ```ts
-getState: <T extends unknown = any>(payload: { agentName: string; stateName: string; }) => Promise<T>
+getState: <T extends unknown = any>(stateName: string) => Promise<T>
 ```
 
 Retrieves the state for a given client and state name.
@@ -23,7 +23,7 @@ Retrieves the state for a given client and state name.
 ### setState
 
 ```ts
-setState: <T extends unknown = any>(dispatchFn: T | ((prevSharedState: T) => Promise<T>), payload: { agentName: string; stateName: string; }) => Promise<void>
+setState: <T extends unknown = any>(dispatchFn: T | ((prevSharedState: T) => Promise<T>), stateName: string) => Promise<void>
 ```
 
 Sets the state for a given client and state name.
@@ -31,7 +31,7 @@ Sets the state for a given client and state name.
 ### clearState
 
 ```ts
-clearState: <T extends unknown = any>(payload: { agentName: string; stateName: string; }) => Promise<T>
+clearState: <T extends unknown = any>(stateName: string) => Promise<T>
 ```
 
 Set the state to initial value

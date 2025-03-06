@@ -23,7 +23,6 @@ export class SharedStorageUtils implements TSharedStorage {
    * Takes items from the storage.
    * @param {string} search - The search query.
    * @param {number} total - The total number of items to take.
-   * @param {AgentName} agentName - The agent name.
    * @param {StorageName} storageName - The storage name.
    * @returns {Promise<T[]>} - A promise that resolves to an array of items.
    * @template T
@@ -31,7 +30,6 @@ export class SharedStorageUtils implements TSharedStorage {
   public take = async <T extends IStorageData = IStorageData>(payload: {
     search: string;
     total: number;
-    agentName: AgentName;
     storageName: StorageName;
     score?: number;
   }): Promise<T[]> => {
@@ -46,16 +44,6 @@ export class SharedStorageUtils implements TSharedStorage {
       payload.storageName,
       METHOD_NAME_TAKE
     );
-    if (
-      !swarm.agentValidationService.hasStorage(
-        payload.agentName,
-        payload.storageName
-      )
-    ) {
-      throw new Error(
-        `agent-swarm SharedStorageUtils ${payload.storageName} not registered in ${payload.agentName} (take)`
-      );
-    }
     return (await swarm.sharedStoragePublicService.take(
       payload.search,
       payload.total,
@@ -68,188 +56,111 @@ export class SharedStorageUtils implements TSharedStorage {
   /**
    * Upserts an item in the storage.
    * @param {T} item - The item to upsert.
-   * @param {AgentName} agentName - The agent name.
    * @param {StorageName} storageName - The storage name.
    * @returns {Promise<void>} - A promise that resolves when the operation is complete.
    * @template T
    */
-  public upsert = async <T extends IStorageData = IStorageData>(payload: {
-    item: T;
-    agentName: AgentName;
-    storageName: StorageName;
-  }): Promise<void> => {
+  public upsert = async <T extends IStorageData = IStorageData>(
+    item: T,
+    storageName: StorageName
+  ): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_UPSERT, {
-        item: payload.item,
-        storageName: payload.storageName,
+        item,
+        storageName,
       });
-    swarm.storageValidationService.validate(
-      payload.storageName,
-      METHOD_NAME_UPSERT
-    );
-    if (
-      !swarm.agentValidationService.hasStorage(
-        payload.agentName,
-        payload.storageName
-      )
-    ) {
-      throw new Error(
-        `agent-swarm SharedStorageUtils ${payload.storageName} not registered in ${payload.agentName} (upsert)`
-      );
-    }
+    swarm.storageValidationService.validate(storageName, METHOD_NAME_UPSERT);
     return await swarm.sharedStoragePublicService.upsert(
-      payload.item,
+      item,
       METHOD_NAME_UPSERT,
-      payload.storageName
+      storageName
     );
   };
 
   /**
    * Removes an item from the storage.
    * @param {IStorageData["id"]} itemId - The ID of the item to remove.
-   * @param {AgentName} agentName - The agent name.
    * @param {StorageName} storageName - The storage name.
    * @returns {Promise<void>} - A promise that resolves when the operation is complete.
    */
-  public remove = async (payload: {
-    itemId: IStorageData["id"];
-    agentName: AgentName;
-    storageName: StorageName;
-  }): Promise<void> => {
+  public remove = async (
+    itemId: IStorageData["id"],
+    storageName: StorageName
+  ): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_REMOVE, {
-        itemId: payload.itemId,
-        storageName: payload.storageName,
+        itemId,
+        storageName,
       });
-    swarm.storageValidationService.validate(
-      payload.storageName,
-      METHOD_NAME_REMOVE
-    );
-    if (
-      !swarm.agentValidationService.hasStorage(
-        payload.agentName,
-        payload.storageName
-      )
-    ) {
-      throw new Error(
-        `agent-swarm SharedStorageUtils ${payload.storageName} not registered in ${payload.agentName} (remove)`
-      );
-    }
+    swarm.storageValidationService.validate(storageName, METHOD_NAME_REMOVE);
     return await swarm.sharedStoragePublicService.remove(
-      payload.itemId,
+      itemId,
       METHOD_NAME_REMOVE,
-      payload.storageName
+      storageName
     );
   };
 
   /**
    * Gets an item from the storage.
    * @param {IStorageData["id"]} itemId - The ID of the item to get.
-   * @param {AgentName} agentName - The agent name.
    * @param {StorageName} storageName - The storage name.
    * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
    * @template T
    */
-  public get = async <T extends IStorageData = IStorageData>(payload: {
-    itemId: IStorageData["id"];
-    agentName: AgentName;
-    storageName: StorageName;
-  }): Promise<T | null> => {
+  public get = async <T extends IStorageData = IStorageData>(
+    itemId: IStorageData["id"],
+    storageName: StorageName
+  ): Promise<T | null> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_GET, {
-        itemId: payload.itemId,
-        storageName: payload.storageName,
+        itemId: itemId,
+        storageName: storageName,
       });
-    swarm.storageValidationService.validate(
-      payload.storageName,
-      METHOD_NAME_GET
-    );
-    if (
-      !swarm.agentValidationService.hasStorage(
-        payload.agentName,
-        payload.storageName
-      )
-    ) {
-      throw new Error(
-        `agent-swarm SharedStorageUtils ${payload.storageName} not registered in ${payload.agentName} (get)`
-      );
-    }
+    swarm.storageValidationService.validate(storageName, METHOD_NAME_GET);
     return (await swarm.sharedStoragePublicService.get(
-      payload.itemId,
+      itemId,
       METHOD_NAME_GET,
-      payload.storageName
+      storageName
     )) as T | null;
   };
 
   /**
    * Lists items from the storage.
-   * @param {AgentName} agentName - The agent name.
    * @param {StorageName} storageName - The storage name.
    * @param {(item: T) => boolean} [filter] - Optional filter function.
    * @returns {Promise<T[]>} - A promise that resolves to an array of items.
    * @template T
    */
-  public list = async <T extends IStorageData = IStorageData>(payload: {
-    agentName: AgentName;
-    storageName: StorageName;
-    filter?: (item: T) => boolean;
-  }): Promise<T[]> => {
+  public list = async <T extends IStorageData = IStorageData>(
+    storageName: StorageName,
+    filter?: (item: T) => boolean
+  ): Promise<T[]> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_LIST, {
-        storageName: payload.storageName,
+        storageName,
       });
-    swarm.storageValidationService.validate(
-      payload.storageName,
-      METHOD_NAME_LIST
-    );
-    if (
-      !swarm.agentValidationService.hasStorage(
-        payload.agentName,
-        payload.storageName
-      )
-    ) {
-      throw new Error(
-        `agent-swarm SharedStorageUtils ${payload.storageName} not registered in ${payload.agentName} (list)`
-      );
-    }
+    swarm.storageValidationService.validate(storageName, METHOD_NAME_LIST);
     return (await swarm.sharedStoragePublicService.list(
       METHOD_NAME_LIST,
-      payload.storageName,
-      payload.filter
+      storageName,
+      filter
     )) as T[];
   };
 
   /**
    * Clears the storage.
-   * @param {AgentName} agentName - The agent name.
    * @param {StorageName} storageName - The storage name.
    * @returns {Promise<void>} - A promise that resolves when the operation is complete.
    */
-  public clear = async (payload: {
-    agentName: AgentName;
-    storageName: StorageName;
-  }): Promise<void> => {
+  public clear = async (storageName: StorageName): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_CLEAR, {
-        storageName: payload.storageName,
+        storageName,
       });
-    swarm.storageValidationService.validate(
-      payload.storageName,
-      METHOD_NAME_CLEAR
-    );
-    if (
-      !swarm.agentValidationService.hasStorage(
-        payload.agentName,
-        payload.storageName
-      )
-    ) {
-      throw new Error(
-        `agent-swarm SharedStorageUtils ${payload.storageName} not registered in ${payload.agentName} (clear)`
-      );
-    }
+    swarm.storageValidationService.validate(storageName, METHOD_NAME_CLEAR);
     return await swarm.sharedStoragePublicService.clear(
       METHOD_NAME_CLEAR,
-      payload.storageName
+      storageName
     );
   };
 }

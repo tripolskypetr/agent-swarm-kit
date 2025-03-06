@@ -4470,42 +4470,28 @@ declare class SharedStateUtils implements TSharedState {
      * Retrieves the state for a given client and state name.
      * @template T
      * @param {Object} payload - The payload containing client and state information.
-     * @param {AgentName} payload.agentName - The agent name.
      * @param {StateName} payload.stateName - The state name.
      * @returns {Promise<T>} The state data.
      * @throws Will throw an error if the state is not registered in the agent.
      */
-    getState: <T extends unknown = any>(payload: {
-        agentName: AgentName;
-        stateName: StateName;
-    }) => Promise<T>;
+    getState: <T extends unknown = any>(stateName: StateName) => Promise<T>;
     /**
      * Sets the state for a given client and state name.
      * @template T
      * @param {T | ((prevSharedState: T) => Promise<T>)} dispatchFn - The new state or a function that returns the new state.
-     * @param {Object} payload - The payload containing client and state information.
-     * @param {AgentName} payload.agentName - The agent name.
-     * @param {StateName} payload.stateName - The state name.
+     * @param {StateName} stateName - The state name.
      * @returns {Promise<void>}
      * @throws Will throw an error if the state is not registered in the agent.
      */
-    setState: <T extends unknown = any>(dispatchFn: T | ((prevSharedState: T) => Promise<T>), payload: {
-        agentName: AgentName;
-        stateName: StateName;
-    }) => Promise<void>;
+    setState: <T extends unknown = any>(dispatchFn: T | ((prevSharedState: T) => Promise<T>), stateName: StateName) => Promise<void>;
     /**
      * Set the state to initial value
      * @template T
-     * @param {Object} payload - The payload containing client and state information.
-     * @param {AgentName} payload.agentName - The agent name.
      * @param {StateName} payload.stateName - The state name.
      * @returns {Promise<void>}
      * @throws Will throw an error if the state is not registered in the agent.
      */
-    clearState: <T extends unknown = any>(payload: {
-        agentName: AgentName;
-        stateName: StateName;
-    }) => Promise<T>;
+    clearState: <T extends unknown = any>(stateName: StateName) => Promise<T>;
 }
 /**
  * Instance of SharedStateUtils for managing state.
@@ -4617,7 +4603,6 @@ declare class SharedStorageUtils implements TSharedStorage {
      * Takes items from the storage.
      * @param {string} search - The search query.
      * @param {number} total - The total number of items to take.
-     * @param {AgentName} agentName - The agent name.
      * @param {StorageName} storageName - The storage name.
      * @returns {Promise<T[]>} - A promise that resolves to an array of items.
      * @template T
@@ -4625,71 +4610,46 @@ declare class SharedStorageUtils implements TSharedStorage {
     take: <T extends IStorageData = IStorageData>(payload: {
         search: string;
         total: number;
-        agentName: AgentName;
         storageName: StorageName;
         score?: number;
     }) => Promise<T[]>;
     /**
      * Upserts an item in the storage.
      * @param {T} item - The item to upsert.
-     * @param {AgentName} agentName - The agent name.
      * @param {StorageName} storageName - The storage name.
      * @returns {Promise<void>} - A promise that resolves when the operation is complete.
      * @template T
      */
-    upsert: <T extends IStorageData = IStorageData>(payload: {
-        item: T;
-        agentName: AgentName;
-        storageName: StorageName;
-    }) => Promise<void>;
+    upsert: <T extends IStorageData = IStorageData>(item: T, storageName: StorageName) => Promise<void>;
     /**
      * Removes an item from the storage.
      * @param {IStorageData["id"]} itemId - The ID of the item to remove.
-     * @param {AgentName} agentName - The agent name.
      * @param {StorageName} storageName - The storage name.
      * @returns {Promise<void>} - A promise that resolves when the operation is complete.
      */
-    remove: (payload: {
-        itemId: IStorageData["id"];
-        agentName: AgentName;
-        storageName: StorageName;
-    }) => Promise<void>;
+    remove: (itemId: IStorageData["id"], storageName: StorageName) => Promise<void>;
     /**
      * Gets an item from the storage.
      * @param {IStorageData["id"]} itemId - The ID of the item to get.
-     * @param {AgentName} agentName - The agent name.
      * @param {StorageName} storageName - The storage name.
      * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
      * @template T
      */
-    get: <T extends IStorageData = IStorageData>(payload: {
-        itemId: IStorageData["id"];
-        agentName: AgentName;
-        storageName: StorageName;
-    }) => Promise<T | null>;
+    get: <T extends IStorageData = IStorageData>(itemId: IStorageData["id"], storageName: StorageName) => Promise<T | null>;
     /**
      * Lists items from the storage.
-     * @param {AgentName} agentName - The agent name.
      * @param {StorageName} storageName - The storage name.
      * @param {(item: T) => boolean} [filter] - Optional filter function.
      * @returns {Promise<T[]>} - A promise that resolves to an array of items.
      * @template T
      */
-    list: <T extends IStorageData = IStorageData>(payload: {
-        agentName: AgentName;
-        storageName: StorageName;
-        filter?: (item: T) => boolean;
-    }) => Promise<T[]>;
+    list: <T extends IStorageData = IStorageData>(storageName: StorageName, filter?: (item: T) => boolean) => Promise<T[]>;
     /**
      * Clears the storage.
-     * @param {AgentName} agentName - The agent name.
      * @param {StorageName} storageName - The storage name.
      * @returns {Promise<void>} - A promise that resolves when the operation is complete.
      */
-    clear: (payload: {
-        agentName: AgentName;
-        storageName: StorageName;
-    }) => Promise<void>;
+    clear: (storageName: StorageName) => Promise<void>;
 }
 declare const SharedStorage: SharedStorageUtils;
 
