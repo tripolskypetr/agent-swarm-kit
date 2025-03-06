@@ -124,6 +124,7 @@
 - [IMakeDisposeParams](interfaces/IMakeDisposeParams.md)
 - [IMakeConnectionConfig](interfaces/IMakeConnectionConfig.md)
 - [ISessionConfig](interfaces/ISessionConfig.md)
+- [ISessionContext](interfaces/ISessionContext.md)
 - [ILoggerInstanceCallbacks](interfaces/ILoggerInstanceCallbacks.md)
 - [ILoggerInstance](interfaces/ILoggerInstance.md)
 - [ILoggerAdapter](interfaces/ILoggerAdapter.md)
