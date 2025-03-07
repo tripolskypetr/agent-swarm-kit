@@ -380,6 +380,7 @@ export class SessionValidationService {
       });
     this._sessionSwarmMap.delete(clientId);
     this._sessionModeMap.delete(clientId);
+    this.validate.clear(clientId);
   };
 
   /**
@@ -387,6 +388,10 @@ export class SessionValidationService {
    * @param {SessionId} clientId - The ID of the client.
    */
   public dispose = (clientId: string) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService dispose", {
+        clientId,
+      });
     this.validate.clear(clientId);
   };
 }
