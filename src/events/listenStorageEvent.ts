@@ -1,5 +1,6 @@
 import { IBusEvent } from "../model/Event.model";
 import swarm from "../lib";
+import { queued } from "functools-kit";
 
 const validateClientId = (clientId: string) => {
   if (clientId === "*") {
@@ -27,7 +28,7 @@ export const listenStorageEvent = (
   return swarm.busService.subscribe(
     clientId,
     "storage-bus",
-    fn
+    queued(async (e) => await fn(e))
   );
 };
 

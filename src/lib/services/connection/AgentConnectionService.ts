@@ -114,6 +114,22 @@ export class AgentConnectionService implements IAgent {
   };
 
   /**
+   * Run the completion stateless
+   * @param {string} input - The input command.
+   * @returns {Promise<any>} The execution result.
+   */
+  public run = async (input: string) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`agentConnectionService run`, {
+        input,
+      });
+    return await this.getAgent(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
+    ).run(input);
+  };
+
+  /**
    * Waits for the output from the agent.
    * @returns {Promise<any>} The output result.
    */

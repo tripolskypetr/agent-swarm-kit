@@ -1,6 +1,7 @@
 import { EventSource, ICustomEvent } from "../../model/Event.model";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
+import { queued } from "functools-kit";
 
 const METHOD_NAME = "function.event.listenEvent";
 
@@ -49,6 +50,6 @@ export const listenEvent = <T extends unknown = any>(
   return swarm.busService.subscribe<ICustomEvent<T>>(
     clientId,
     topicName,
-    ({ payload }) => fn(payload)
+    queued(async ({ payload }) => await fn(payload))
   );
 };

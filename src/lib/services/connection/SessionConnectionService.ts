@@ -93,6 +93,24 @@ export class SessionConnectionService implements ISession {
   };
 
   /**
+   * Run the completion stateless
+   * @param {string} content - The content to execute.
+   * @returns {Promise<string>} A promise that resolves with the execution result.
+   */
+  public run = async (
+    content: string
+  ): Promise<string> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sessionConnectionService run`, {
+        content,
+      });
+    return await this.getSession(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
+    ).run(content);
+  };
+
+  /**
    * Connects to the session using the provided connector.
    * @param {SendMessageFn} connector - The function to send messages.
    * @returns {ReceiveMessageFn} The function to receive messages.

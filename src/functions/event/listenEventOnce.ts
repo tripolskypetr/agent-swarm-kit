@@ -1,6 +1,7 @@
 import { EventSource, ICustomEvent } from "../../model/Event.model";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
+import { queued } from "functools-kit";
 
 const METHOD_NAME = "function.event.listenEventOnce";
 
@@ -51,6 +52,6 @@ export const listenEventOnce = <T extends unknown = any>(
     clientId,
     topicName,
     ({ payload }) => filterFn(payload),
-    ({ payload }) => fn(payload)
+    queued(async ({ payload }) => await fn(payload))
   );
 };

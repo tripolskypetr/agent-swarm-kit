@@ -96,6 +96,41 @@ export class AgentPublicService implements TAgentConnectionService {
   };
 
   /**
+   * Run the completion stateless
+   * @param {string} input - The input command.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<unknown>} The execution result.
+   */
+  public run = async (
+    input: string,
+    methodName: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService run", {
+        methodName,
+        input,
+        clientId,
+        agentName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.agentConnectionService.run(input);
+      },
+      {
+        methodName,
+        clientId,
+        agentName,
+        swarmName: "",
+        storageName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
    * Waits for the agent's output.
    * @param {string} clientId - The client ID.
    * @param {AgentName} agentName - The name of the agent.
