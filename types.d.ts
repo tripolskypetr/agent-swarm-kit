@@ -523,6 +523,13 @@ interface ISwarmSessionCallbacks {
      */
     onExecute?: (clientId: string, swarmName: SwarmName, content: string, mode: ExecutionMode) => void;
     /**
+     * Callback triggered when a stateless completion run executed
+     * @param clientId - The ID of the client.
+     * @param swarmName - The name of the swarm.
+     * @param content - The content to execute.
+     */
+    onRun?: (clientId: string, swarmName: SwarmName, content: string) => void;
+    /**
      * Callback triggered when a message is emitted.
      * @param clientId - The ID of the client.
      * @param swarmName - The name of the swarm.
@@ -680,6 +687,12 @@ interface ISession {
      * @returns {Promise<void>}
      */
     emit(message: string): Promise<void>;
+    /**
+     * Run the complete stateless without modifying chat history
+     * @param {string} content - The content to execute.
+     * @returns {Promise<string>}
+     */
+    run(content: string): Promise<string>;
     /**
      * Execute a command.
      * @param {string} content - The content to execute.
@@ -1339,6 +1352,14 @@ interface IAgentParams extends Omit<IAgentSchema, keyof {
  */
 interface IAgentSchemaCallbacks {
     /**
+     * Callback triggered when the agent run stateless.
+     * @param clientId - The ID of the client.
+     * @param agentName - The name of the agent.
+     * @param input - The input to execute.
+     * @param mode - The source of execution: tool or user.
+     */
+    onRun?: (clientId: string, agentName: AgentName, input: string) => void;
+    /**
      * Callback triggered when the agent executes.
      * @param clientId - The ID of the client.
      * @param agentName - The name of the agent.
@@ -1455,6 +1476,12 @@ interface IAgentSchema {
  * Interface representing an agent.
  */
 interface IAgent {
+    /**
+     * Run the complete stateless without write to the chat history
+     * @param input - The input to run.
+     * @returns A promise that resolves when the run is complete.
+     */
+    run: (input: string) => Promise<string>;
     /**
      * Executes the agent with the given input.
      * @param input - The input to execute.
@@ -1663,6 +1690,12 @@ declare class ClientAgent implements IAgent {
      */
     execute: IAgent["execute"];
     /**
+     * Run the completion stateless and return the output
+     * @param {string} incoming - The incoming message content.
+     * @returns {Promise<void>}
+     */
+    run: IAgent["run"];
+    /**
      * Should call on agent dispose
      * @returns {Promise<void>}
      */
@@ -1696,6 +1729,12 @@ declare class AgentConnectionService implements IAgent {
      * @returns {Promise<any>} The execution result.
      */
     execute: (input: string, mode: ExecutionMode) => Promise<void>;
+    /**
+     * Run the completion stateless
+     * @param {string} input - The input command.
+     * @returns {Promise<any>} The execution result.
+     */
+    run: (input: string) => Promise<string>;
     /**
      * Waits for the output from the agent.
      * @returns {Promise<any>} The output result.
@@ -2065,6 +2104,12 @@ declare class ClientSession implements ISession {
      */
     execute: (message: string, mode: ExecutionMode) => Promise<string>;
     /**
+     * Run the completion stateless
+     * @param {string} message - The message to run.
+     * @returns {Promise<string>} - The output of the execution.
+     */
+    run: (message: string) => Promise<string>;
+    /**
      * Commits tool output.
      * @param {string} toolId - The `tool_call_id` for openai history
      * @param {string} content - The content to commit.
@@ -2141,6 +2186,12 @@ declare class SessionConnectionService implements ISession {
      * @returns {Promise<string>} A promise that resolves with the execution result.
      */
     execute: (content: string, mode: ExecutionMode) => Promise<string>;
+    /**
+     * Run the completion stateless
+     * @param {string} content - The content to execute.
+     * @returns {Promise<string>} A promise that resolves with the execution result.
+     */
+    run: (content: string) => Promise<string>;
     /**
      * Connects to the session using the provided connector.
      * @param {SendMessageFn} connector - The function to send messages.
@@ -2220,6 +2271,14 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @returns {Promise<unknown>} The execution result.
      */
     execute: (input: string, mode: ExecutionMode, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Run the completion stateless
+     * @param {string} input - The input command.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<unknown>} The execution result.
+     */
+    run: (input: string, methodName: string, clientId: string, agentName: AgentName) => Promise<string>;
     /**
      * Waits for the agent's output.
      * @param {string} clientId - The client ID.
@@ -2367,6 +2426,14 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @returns {Promise<void>}
      */
     execute: (content: string, mode: ExecutionMode, methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
+    /**
+     * Run the completion stateless
+     * @param {string} content - The content to execute.
+     * @param {string} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
+    run: (content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Connects to the session.
      * @param {SendMessageFn} connector - The function to send messages.
@@ -3842,6 +3909,29 @@ declare const execute: (content: string, clientId: string, agentName: AgentName)
  */
 declare const emit: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
 
+/**
+ * Complete the message stateless without append to the chat history
+ * Use to prevent model from history overflow while handling storage output
+ *
+ * @param {string} content - The content to be runned.
+ * @param {string} clientId - The ID of the client requesting run.
+ * @param {AgentName} agentName - The name of the agent running the command.
+  * @returns {Promise<string>} - A promise that resolves the run result
+ */
+declare const run: (content: string, clientId: string, agentName: AgentName) => Promise<string>;
+
+/**
+ * Complete the message stateless without append to the chat history
+ * Use to prevent model from history overflow while handling storage output
+ *
+ * Will run even if the agent is inactive
+ *
+ * @param {string} content - The content to be runned.
+ * @param {string} clientId - The ID of the client requesting run.
+ * @returns {Promise<string>} - A promise that resolves the run result
+ */
+declare const runForce: (content: string, clientId: string) => Promise<string>;
+
 type SendMessageFn = (outgoing: string) => Promise<void>;
 /**
  * A connection factory for a client to a swarm and returns a function to send messages.
@@ -4692,4 +4782,4 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
-export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, session, setConfig, swarm };
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, run, runForce, session, setConfig, swarm };

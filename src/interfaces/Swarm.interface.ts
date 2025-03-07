@@ -25,6 +25,18 @@ export interface ISwarmSessionCallbacks {
   ) => void;
 
   /**
+   * Callback triggered when a stateless completion run executed
+   * @param clientId - The ID of the client.
+   * @param swarmName - The name of the swarm.
+   * @param content - The content to execute.
+   */
+  onRun?: (
+    clientId: string,
+    swarmName: SwarmName,
+    content: string,
+  ) => void;
+
+  /**
    * Callback triggered when a message is emitted.
    * @param clientId - The ID of the client.
    * @param swarmName - The name of the swarm.

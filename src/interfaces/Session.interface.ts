@@ -57,6 +57,13 @@ export interface ISession {
   emit(message: string): Promise<void>;
 
   /**
+   * Run the complete stateless without modifying chat history
+   * @param {string} content - The content to execute.
+   * @returns {Promise<string>}
+   */
+  run(content: string): Promise<string>;
+
+  /**
    * Execute a command.
    * @param {string} content - The content to execute.
    * @param {string} mode - The source of execution: tool or user

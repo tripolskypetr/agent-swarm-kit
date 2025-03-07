@@ -105,6 +105,40 @@ export class SessionPublicService implements TSessionConnectionService {
   };
 
   /**
+   * Run the completion stateless
+   * @param {string} content - The content to execute.
+   * @param {string} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<void>}
+   */
+  public run = async (
+    content: string,
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService run", {
+        content,
+        clientId,
+        swarmName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sessionConnectionService.run(content);
+      },
+      {
+        methodName,
+        clientId,
+        swarmName,
+        agentName: "",
+        storageName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
    * Connects to the session.
    * @param {SendMessageFn} connector - The function to send messages.
    * @param {string} clientId - The client ID.

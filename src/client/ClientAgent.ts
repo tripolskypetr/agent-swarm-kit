@@ -728,6 +728,89 @@ export class ClientAgent implements IAgent {
   ) as IAgent["execute"];
 
   /**
+   * Run the completion stateless and return the output
+   * @param {string} incoming - The incoming message content.
+   * @returns {Promise<void>}
+   */
+  run = queued(async (incoming: string): Promise<string> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} run begin`,
+        { incoming }
+      );
+    this.params.onRun &&
+      this.params.onRun(this.params.clientId, this.params.agentName, incoming);
+    const messages = await this.params.history.toArrayForAgent(
+      this.params.prompt,
+      this.params.system
+    );
+    messages.push({
+      agentName: this.params.agentName,
+      content: incoming,
+      mode: "user" as const,
+      role: "assistant",
+    });
+    const args = {
+      clientId: this.params.clientId,
+      agentName: this.params.agentName,
+      messages,
+      mode: "user" as const,
+      tools: this.params.tools?.map((t) =>
+        omit(t, "toolName", "docNote", "call", "validate", "callbacks")
+      ),
+    };
+    const rawMessage = await this.params.completion.getCompletion(args);
+    this.params.completion.callbacks?.onComplete &&
+      this.params.completion.callbacks?.onComplete(args, rawMessage);
+    const message = await this.params.map(
+      rawMessage,
+      this.params.clientId,
+      this.params.agentName
+    );
+    const result = await this.params.transform(
+      message.content,
+      this.params.clientId,
+      this.params.agentName
+    );
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "run",
+      source: "agent-bus",
+      input: {
+        message,
+      },
+      output: {
+        result,
+      },
+      context: {
+        agentName: this.params.agentName,
+      },
+      clientId: this.params.clientId,
+    });
+    if (message.tool_calls) {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} run should not call tools`,
+          { incoming, result }
+        );
+      return "";
+    }
+    let validation: string | null = null;
+    if ((validation = await this.params.validate(result))) {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} run validation not passed: ${validation}`,
+          { incoming, result }
+        );
+      return "";
+    }
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} run end result=${result}`
+      );
+    return result;
+  }) as IAgent["run"];
+
+  /**
    * Should call on agent dispose
    * @returns {Promise<void>}
    */

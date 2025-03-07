@@ -152,6 +152,14 @@ export interface IAgentParams
  */
 export interface IAgentSchemaCallbacks {
   /**
+   * Callback triggered when the agent run stateless.
+   * @param clientId - The ID of the client.
+   * @param agentName - The name of the agent.
+   * @param input - The input to execute.
+   * @param mode - The source of execution: tool or user.
+   */
+  onRun?: (clientId: string, agentName: AgentName, input: string) => void;
+  /**
    * Callback triggered when the agent executes.
    * @param clientId - The ID of the client.
    * @param agentName - The name of the agent.
@@ -309,6 +317,12 @@ export interface IAgentSchema {
  * Interface representing an agent.
  */
 export interface IAgent {
+  /**
+   * Run the complete stateless without write to the chat history
+   * @param input - The input to run.
+   * @returns A promise that resolves when the run is complete.
+   */
+  run: (input: string) => Promise<string>;
   /**
    * Executes the agent with the given input.
    * @param input - The input to execute.

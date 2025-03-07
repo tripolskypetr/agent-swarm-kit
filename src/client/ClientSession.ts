@@ -107,6 +107,44 @@ export class ClientSession implements ISession {
   };
 
   /**
+   * Run the completion stateless
+   * @param {string} message - The message to run.
+   * @returns {Promise<string>} - The output of the execution.
+   */
+  run = async (message: string) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} run`,
+        {
+          message,
+        }
+      );
+    this.params.onRun &&
+      this.params.onRun(
+        this.params.clientId,
+        this.params.swarmName,
+        message,
+      );
+    const agent = await this.params.swarm.getAgent();
+    const output = await agent.run(message);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "run",
+      source: "session-bus",
+      input: {
+        message,
+      },
+      output: {
+        result: output,
+      },
+      context: {
+        swarmName: this.params.swarmName,
+      },
+      clientId: this.params.clientId,
+    });
+    return output;
+  };
+
+  /**
    * Commits tool output.
    * @param {string} toolId - The `tool_call_id` for openai history
    * @param {string} content - The content to commit.
