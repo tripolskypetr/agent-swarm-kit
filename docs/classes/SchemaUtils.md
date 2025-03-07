@@ -10,6 +10,22 @@ constructor();
 
 ## Properties
 
+### writeSessionMemory
+
+```ts
+writeSessionMemory: <T extends object = object>(clientId: string, value: T) => T
+```
+
+Writes a value to the session memory for a given client.
+
+### readSessionMemory
+
+```ts
+readSessionMemory: <T extends object = object>(clientId: string) => T
+```
+
+Reads a value from the session memory for a given client.
+
 ### serialize
 
 ```ts

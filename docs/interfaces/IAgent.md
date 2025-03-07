@@ -4,6 +4,14 @@ Interface representing an agent.
 
 ## Properties
 
+### run
+
+```ts
+run: (input: string) => Promise<string>
+```
+
+Run the complete stateless without write to the chat history
+
 ### execute
 
 ```ts

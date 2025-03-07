@@ -18,6 +18,14 @@ onExecute: (clientId: string, swarmName: string, content: string, mode: Executio
 
 Callback triggered when a command is executed.
 
+### onRun
+
+```ts
+onRun: (clientId: string, swarmName: string, content: string) => void
+```
+
+Callback triggered when a stateless completion run executed
+
 ### onEmit
 
 ```ts

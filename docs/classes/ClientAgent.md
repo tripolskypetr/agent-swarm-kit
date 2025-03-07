@@ -144,6 +144,14 @@ execute: (input: string, mode: ExecutionMode) => Promise<void>
 
 Executes the incoming message and processes tool calls if any.
 
+### run
+
+```ts
+run: (input: string) => Promise<string>
+```
+
+Run the completion stateless and return the output
+
 ### dispose
 
 ```ts

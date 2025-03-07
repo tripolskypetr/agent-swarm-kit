@@ -66,6 +66,14 @@ execute: (content: string, mode: ExecutionMode) => Promise<string>
 
 Executes a command in the session.
 
+### run
+
+```ts
+run: (content: string) => Promise<string>
+```
+
+Run the completion stateless
+
 ### connect
 
 ```ts

@@ -40,6 +40,14 @@ execute: (content: string, mode: ExecutionMode, methodName: string, clientId: st
 
 Executes a command in the session.
 
+### run
+
+```ts
+run: (content: string, methodName: string, clientId: string, swarmName: string) => Promise<string>
+```
+
+Run the completion stateless
+
 ### connect
 
 ```ts

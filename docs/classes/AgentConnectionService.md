@@ -82,6 +82,14 @@ execute: (input: string, mode: ExecutionMode) => Promise<void>
 
 Executes an input command.
 
+### run
+
+```ts
+run: (input: string) => Promise<string>
+```
+
+Run the completion stateless
+
 ### waitForOutput
 
 ```ts

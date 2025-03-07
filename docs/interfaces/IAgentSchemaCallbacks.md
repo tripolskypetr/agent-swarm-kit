@@ -4,6 +4,14 @@ Interface representing the lifecycle callbacks of an agent
 
 ## Properties
 
+### onRun
+
+```ts
+onRun: (clientId: string, agentName: string, input: string) => void
+```
+
+Callback triggered when the agent run stateless.
+
 ### onExecute
 
 ```ts

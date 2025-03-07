@@ -45,6 +45,7 @@
 - [SharedStateConnectionService](classes/SharedStateConnectionService.md)
 - [SharedStatePublicService](classes/SharedStatePublicService.md)
 - [SharedStoragePublicService](classes/SharedStoragePublicService.md)
+- [MemorySchemaService](classes/MemorySchemaService.md)
 - [LoggerInstance](classes/LoggerInstance.md)
 - [LoggerUtils](classes/LoggerUtils.md)
 - [StateUtils](classes/StateUtils.md)

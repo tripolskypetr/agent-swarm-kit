@@ -40,6 +40,14 @@ execute: (message: string, mode: ExecutionMode) => Promise<string>
 
 Executes a message and optionally emits the output.
 
+### run
+
+```ts
+run: (message: string) => Promise<string>
+```
+
+Run the completion stateless
+
 ### commitToolOutput
 
 ```ts

@@ -40,6 +40,14 @@ execute: (input: string, mode: ExecutionMode, methodName: string, clientId: stri
 
 Executes a command on the agent.
 
+### run
+
+```ts
+run: (input: string, methodName: string, clientId: string, agentName: string) => Promise<string>
+```
+
+Run the completion stateless
+
 ### waitForOutput
 
 ```ts

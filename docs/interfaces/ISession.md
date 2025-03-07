@@ -38,6 +38,14 @@ emit: (message: string) => Promise<void>
 
 Emit a message.
 
+### run
+
+```ts
+run: (content: string) => Promise<string>
+```
+
+Run the complete stateless without modifying chat history
+
 ### execute
 
 ```ts
