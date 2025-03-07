@@ -46,7 +46,7 @@ export const execute = async (
           clientId,
         }
       );
-    return;
+    return "";
   }
   return ExecutionContextService.runInContext(
     async () => {

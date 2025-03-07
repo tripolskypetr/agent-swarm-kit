@@ -2,7 +2,7 @@ import { randomString } from "functools-kit";
 import swarm, { ExecutionContextService } from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 
-const METHOD_NAME = "function.target.runForce";
+const METHOD_NAME = "function.target.runStatelessForce";
 
 /**
  * Complete the message stateless without append to the chat history
@@ -14,7 +14,7 @@ const METHOD_NAME = "function.target.runForce";
  * @param {string} clientId - The ID of the client requesting run.
  * @returns {Promise<string>} - A promise that resolves the run result
  */
-export const runForce = async (content: string, clientId: string) => {
+export const runStatelessForce = async (content: string, clientId: string) => {
   const executionId = randomString();
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

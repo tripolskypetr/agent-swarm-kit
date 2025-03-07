@@ -3,7 +3,7 @@ import { AgentName } from "../../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm, { ExecutionContextService } from "../../lib";
 
-const METHOD_NAME = "function.target.run";
+const METHOD_NAME = "function.target.runStateless";
 
 /**
  * Complete the message stateless without append to the chat history
@@ -14,7 +14,7 @@ const METHOD_NAME = "function.target.run";
  * @param {AgentName} agentName - The name of the agent running the command.
   * @returns {Promise<string>} - A promise that resolves the run result
  */
-export const run = async (
+export const runStateless = async (
   content: string,
   clientId: string,
   agentName: AgentName
@@ -39,14 +39,14 @@ export const run = async (
   if (currentAgentName !== agentName) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(
-        'function "run" skipped due to the agent change',
+        'function "runStateless" skipped due to the agent change',
         {
           currentAgentName,
           agentName,
           clientId,
         }
       );
-    return;
+    return "";
   }
   return ExecutionContextService.runInContext(
     async () => {
