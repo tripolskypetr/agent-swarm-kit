@@ -3569,6 +3569,36 @@ declare class SharedStoragePublicService implements TSharedStorageConnectionServ
     clear: (methodName: string, storageName: StorageName) => Promise<void>;
 }
 
+/**
+ * Service to manage memory schema for different sessions.
+ */
+declare class MemorySchemaService {
+    private readonly loggerService;
+    private memoryMap;
+    /**
+     * Writes a value to the memory map for a given client ID.
+     *
+     * @template T - The type of the value to be written.
+     * @param {string} clientId - The ID of the client.
+     * @param {T} value - The value to be written.
+     */
+    writeValue: <T extends object = object>(clientId: string, value: T) => T;
+    /**
+     * Reads a value from the memory map for a given client ID.
+     *
+     * @template T - The type of the value to be read.
+     * @param {string} clientId - The ID of the client.
+     * @returns {T} - The value associated with the client ID.
+     */
+    readValue: <T extends object = object>(clientId: string) => T;
+    /**
+     * Disposes the memory map entry for a given client ID.
+     *
+     * @param {string} clientId - The ID of the client.
+     */
+    dispose: (clientId: string) => void;
+}
+
 declare const swarm: {
     agentValidationService: AgentValidationService;
     toolValidationService: ToolValidationService;
@@ -3594,6 +3624,7 @@ declare const swarm: {
     embeddingSchemaService: EmbeddingSchemaService;
     storageSchemaService: StorageSchemaService;
     stateSchemaService: StateSchemaService;
+    memorySchemaService: MemorySchemaService;
     agentConnectionService: AgentConnectionService;
     historyConnectionService: HistoryConnectionService;
     swarmConnectionService: SwarmConnectionService;
@@ -4768,6 +4799,23 @@ declare const SharedStorage: SharedStorageUtils;
  * Utility class for schema-related operations.
  */
 declare class SchemaUtils {
+    /**
+     * Writes a value to the session memory for a given client.
+     *
+     * @template T - The type of the value to write.
+     * @param {string} clientId - The ID of the client.
+     * @param {T} value - The value to write to the session memory.
+     * @returns {T} The actual value from the session memory.
+     */
+    writeSessionMemory: <T extends object = object>(clientId: string, value: T) => T;
+    /**
+     * Reads a value from the session memory for a given client.
+     *
+     * @template T - The type of the value to read.
+     * @param {string} clientId - The ID of the client.
+     * @returns {T} The value read from the session memory.
+     */
+    readSessionMemory: <T extends object = object>(clientId: string) => T;
     /**
      * Serializes an object or an array of objects into a formatted string.
      *

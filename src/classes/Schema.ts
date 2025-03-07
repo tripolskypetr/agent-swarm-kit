@@ -5,11 +5,52 @@ import swarm from "../lib";
 const LIST_SEPARATOR = Array.from({ length: 80 }, () => "-");
 
 const METHOD_NAME_SERIALIZE = "SchemaUtils.serialize";
+const METHOD_NAME_WRITE = "SchemaUtils.write";
+const METHOD_NAME_READ = "SchemaUtils.read";
 
 /**
  * Utility class for schema-related operations.
  */
 export class SchemaUtils {
+  /**
+   * Writes a value to the session memory for a given client.
+   *
+   * @template T - The type of the value to write.
+   * @param {string} clientId - The ID of the client.
+   * @param {T} value - The value to write to the session memory.
+   * @returns {T} The actual value from the session memory.
+   */
+  public writeSessionMemory = <T extends object = object>(
+    clientId: string,
+    value: T
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME_WRITE, {
+        clientId,
+        value,
+      });
+    swarm.sessionValidationService.validate(clientId, METHOD_NAME_WRITE);
+    return swarm.memorySchemaService.writeValue(clientId, value);
+  };
+
+  /**
+   * Reads a value from the session memory for a given client.
+   *
+   * @template T - The type of the value to read.
+   * @param {string} clientId - The ID of the client.
+   * @returns {T} The value read from the session memory.
+   */
+  public readSessionMemory = <T extends object = object>(
+    clientId: string
+  ): T => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME_READ, {
+        clientId,
+      });
+    swarm.sessionValidationService.validate(clientId, METHOD_NAME_READ);
+    return swarm.memorySchemaService.readValue(clientId);
+  };
+
   /**
    * Serializes an object or an array of objects into a formatted string.
    *

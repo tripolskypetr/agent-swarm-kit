@@ -42,6 +42,7 @@ import SharedStorageConnectionService from "./services/connection/SharedStorageC
 import SharedStateConnectionService from "./services/connection/SharedStateConnectionService";
 import SharedStatePublicService from "./services/public/SharedStatePublicService";
 import SharedStoragePublicService from "./services/public/SharedStoragePublicService";
+import MemorySchemaService from "./services/schema/MemorySchemaService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -99,6 +100,7 @@ const schemaServices = {
     TYPES.storageSchemaService
   ),
   stateSchemaService: inject<StateSchemaService>(TYPES.stateSchemaService),
+  memorySchemaService: inject<MemorySchemaService>(TYPES.memorySchemaService),
 };
 
 const publicServices = {

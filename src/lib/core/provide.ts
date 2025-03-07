@@ -37,6 +37,7 @@ import SharedStateConnectionService from "../services/connection/SharedStateConn
 import SharedStorageConnectionService from "../services/connection/SharedStorageConnectionService";
 import SharedStatePublicService from "../services/public/SharedStatePublicService";
 import SharedStoragePublicService from "../services/public/SharedStoragePublicService";
+import MemorySchemaService from "../services/schema/MemorySchemaService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -68,6 +69,7 @@ import SharedStoragePublicService from "../services/public/SharedStoragePublicSe
     provide(TYPES.embeddingSchemaService, () => new EmbeddingSchemaService());
     provide(TYPES.storageSchemaService, () => new StorageSchemaService());
     provide(TYPES.stateSchemaService, () => new StateSchemaService());
+    provide(TYPES.memorySchemaService, () => new MemorySchemaService());
 }
 
 {

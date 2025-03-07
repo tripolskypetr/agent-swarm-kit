@@ -70,4 +70,5 @@ export const disposeConnection = async (
   swarm.sessionValidationService.removeSession(clientId);
   swarm.busService.dispose(clientId);
   swarm.sessionValidationService.dispose(clientId);
+  swarm.memorySchemaService.dispose(clientId);
 };

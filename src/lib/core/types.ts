@@ -28,6 +28,7 @@ const schemaServices = {
     embeddingSchemaService: Symbol('embeddingSchemaService'),
     storageSchemaService: Symbol('storageSchemaService'),
     stateSchemaService: Symbol('stateSchemaService'),
+    memorySchemaService: Symbol('memorySchemaService'),
 };
 
 const metaServices = {
