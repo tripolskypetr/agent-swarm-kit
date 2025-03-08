@@ -14,6 +14,7 @@ import { randomString } from "functools-kit";
 import { IIncomingMessage } from "../../../model/EmitMessage.model";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import PerfService from "../base/PerfService";
+import BusService from "../base/BusService";
 
 interface ISessionConnectionService extends SessionConnectionService {}
 
@@ -34,6 +35,7 @@ export class SessionPublicService implements TSessionConnectionService {
   private readonly sessionConnectionService = inject<SessionConnectionService>(
     TYPES.sessionConnectionService
   );
+  private readonly busService = inject<BusService>(TYPES.busService);
 
   /**
    * Emits a message to the session.
@@ -178,8 +180,10 @@ export class SessionPublicService implements TSessionConnectionService {
           let isFinished = false;
           this.perfService.startExecution(executionId, clientId, incoming.data.length);
           try {
+            this.busService.commitExecutionBegin(clientId, { swarmName });
             const result = await send(incoming);
             isFinished = this.perfService.endExecution(executionId, clientId, result.length);
+            this.busService.commitExecutionEnd(clientId, { swarmName });
             return result;
           } finally {
             if (!isFinished) {

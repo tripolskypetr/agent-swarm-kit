@@ -12,7 +12,7 @@ const METHOD_NAME = "function.target.runStateless";
  * @param {string} content - The content to be runned.
  * @param {string} clientId - The ID of the client requesting run.
  * @param {AgentName} agentName - The name of the agent running the command.
-  * @returns {Promise<string>} - A promise that resolves the run result
+ * @returns {Promise<string>} - A promise that resolves the run result
  */
 export const runStateless = async (
   content: string,
@@ -53,13 +53,25 @@ export const runStateless = async (
       let isFinished = false;
       swarm.perfService.startExecution(executionId, clientId, content.length);
       try {
+        swarm.busService.commitExecutionBegin(clientId, {
+          agentName,
+          swarmName,
+        });
         const result = await swarm.sessionPublicService.run(
           content,
           METHOD_NAME,
           clientId,
           swarmName
         );
-        isFinished = swarm.perfService.endExecution(executionId, clientId, result.length);
+        isFinished = swarm.perfService.endExecution(
+          executionId,
+          clientId,
+          result.length
+        );
+        swarm.busService.commitExecutionEnd(clientId, {
+          agentName,
+          swarmName,
+        });
         return result;
       } finally {
         if (!isFinished) {

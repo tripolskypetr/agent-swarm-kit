@@ -53,6 +53,10 @@ export const execute = async (
       let isFinished = false;
       swarm.perfService.startExecution(executionId, clientId, content.length);
       try {
+        swarm.busService.commitExecutionBegin(clientId, {
+          agentName,
+          swarmName,
+        });
         const result = await swarm.sessionPublicService.execute(
           content,
           "tool",
@@ -60,7 +64,12 @@ export const execute = async (
           clientId,
           swarmName
         );
-        isFinished = swarm.perfService.endExecution(executionId, clientId, result.length);
+        isFinished = swarm.perfService.endExecution(
+          executionId,
+          clientId,
+          result.length
+        );
+        swarm.busService.commitExecutionEnd(clientId, { agentName, swarmName });
         return result;
       } finally {
         if (!isFinished) {

@@ -11,6 +11,7 @@ const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
   "state-bus",
   "storage-bus",
   "swarm-bus",
+  "execution-bus"
 ]);
 
 /**

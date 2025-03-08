@@ -30,13 +30,19 @@ export const runStatelessForce = async (content: string, clientId: string) => {
       let isFinished = false;
       swarm.perfService.startExecution(executionId, clientId, content.length);
       try {
+        swarm.busService.commitExecutionBegin(clientId, { swarmName });
         const result = await swarm.sessionPublicService.run(
           content,
           METHOD_NAME,
           clientId,
           swarmName
         );
-        isFinished = swarm.perfService.endExecution(executionId, clientId, result.length);
+        isFinished = swarm.perfService.endExecution(
+          executionId,
+          clientId,
+          result.length
+        );
+        swarm.busService.commitExecutionEnd(clientId, { swarmName });
         return result;
       } finally {
         if (!isFinished) {

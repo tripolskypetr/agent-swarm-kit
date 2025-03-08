@@ -4,6 +4,11 @@ import TYPES from "../../core/types";
 import SessionValidationService from "../validation/SessionValidationService";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import msToTime from "../../../utils/msToTime";
+import IPerformanceRecord, {
+  IClientPerfomanceRecord,
+} from "../../../model/Performance.model";
+import { getMomentStamp, getTimeStamp } from "get-moment-stamp";
+import MemorySchemaService from "../schema/MemorySchemaService";
 
 /**
  * Performance Service to track and log execution times, input lengths, and output lengths
@@ -13,6 +18,9 @@ export class PerfService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   private readonly sessionValidationService = inject<SessionValidationService>(
     TYPES.sessionValidationService
+  );
+  private readonly memorySchemaService = inject<MemorySchemaService>(
+    TYPES.memorySchemaService
   );
 
   private executionScheduleMap: Map<string, Map<string, number[]>> = new Map();
@@ -60,7 +68,9 @@ export class PerfService {
    */
   public getActiveSessionExecutionAverageTime = (clientId: string): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info("perfService getActiveSessionExecutionAverageTime");
+      this.loggerService.info(
+        "perfService getActiveSessionExecutionAverageTime"
+      );
     if (!this.executionCountMap.has(clientId)) {
       return 0;
     }
@@ -265,7 +275,8 @@ export class PerfService {
     if (!clientMap.has(executionId)) {
       return false;
     }
-    const startTime = clientMap.get(executionId)!.pop()!;
+    const clientStack = clientMap.get(executionId)!;
+    const startTime = clientStack.pop()!;
     if (!startTime) {
       return false;
     }
@@ -281,16 +292,19 @@ export class PerfService {
       clientId,
       this.executionTimeMap.get(clientId)! + responseTime
     );
+    if (!clientStack.length) {
+        clientMap.delete(executionId);
+    }
     return true;
   };
 
   /**
-   * Convert performance measures to record for serialization
+   * Convert performance measures of the client for serialization
    * @param {string} clientId - The client ID.
    */
-  public toRecord = (clientId: string) => {
+  public toClientRecord = async (clientId: string): Promise<IClientPerfomanceRecord> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`perfService toRecord`, { clientId });
+      this.loggerService.info(`perfService toClientRecord`, { clientId });
     const executionCount = this.executionCountMap.get(clientId) || 0;
     const executionInputTotal = this.executionInputLenMap.get(clientId) || 0;
     const executionOutputTotal = this.executionOutputLenMap.get(clientId) || 0;
@@ -306,6 +320,7 @@ export class PerfService {
       : 0;
     return {
       clientId,
+      sessionMemory: this.memorySchemaService.readValue(clientId),
       executionCount,
       executionInputTotal,
       executionOutputTotal,
@@ -313,6 +328,29 @@ export class PerfService {
       executionOutputAverage,
       executionTimeTotal: msToTime(executionTimeTotal),
       executionTimeAverage: msToTime(executionTimeAverage),
+    };
+  };
+
+  /**
+   * Convert performance measures of all clients for serialization.
+   * @returns {Promise<IPerformanceRecord>} An object containing performance measures of all clients,
+   *                   total execution count, total response time, and average response time.
+   */
+  public toRecord = async (): Promise<IPerformanceRecord> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`perfService toRecord`);
+    const totalExecutionCount = this.getTotalExecutionCount();
+    const totalResponseTime = this.getTotalResponseTime();
+    const averageResponseTime = this.getAverageResponseTime();
+    return {
+      processId: GLOBAL_CONFIG.CC_PROCESS_UUID,
+      clients: await Promise.all(this.getActiveSessions().map(this.toClientRecord)),
+      totalExecutionCount,
+      totalResponseTime: msToTime(totalResponseTime),
+      averageResponseTime: msToTime(averageResponseTime),
+      momentStamp: getMomentStamp(),
+      timeStamp: getTimeStamp(),
+      date: new Date().toUTCString(),
     };
   };
 

@@ -43,8 +43,15 @@ const session = (clientId: string, swarmName: SwarmName) => {
       return ExecutionContextService.runInContext(
         async () => {
           let isFinished = false;
-          swarm.perfService.startExecution(executionId, clientId, content.length);
+          swarm.perfService.startExecution(
+            executionId,
+            clientId,
+            content.length
+          );
           try {
+            swarm.busService.commitExecutionBegin(clientId, {
+              swarmName,
+            });
             const result = await swarm.sessionPublicService.execute(
               content,
               "user",
@@ -52,7 +59,12 @@ const session = (clientId: string, swarmName: SwarmName) => {
               clientId,
               swarmName
             );
-            isFinished = swarm.perfService.endExecution(executionId, clientId, result.length);
+            isFinished = swarm.perfService.endExecution(
+              executionId,
+              clientId,
+              result.length
+            );
+            swarm.busService.commitExecutionEnd(clientId, { swarmName });
             return result;
           } finally {
             if (!isFinished) {

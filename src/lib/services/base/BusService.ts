@@ -3,7 +3,11 @@ import { inject } from "../../../lib/core/di";
 import LoggerService from "./LoggerService";
 import TYPES from "../../../lib/core/types";
 import { IBus } from "../../../interfaces/Bus.interface";
-import IBaseEvent, { EventSource } from "../../../model/Event.model";
+import IBaseEvent, {
+  EventSource,
+  IBusEvent,
+  IBusEventContext,
+} from "../../../model/Event.model";
 import SessionValidationService from "../validation/SessionValidationService";
 import { GLOBAL_CONFIG } from "../../../config/params";
 
@@ -93,6 +97,48 @@ export class BusService implements IBus {
     if (this._eventWildcardMap.has(event.source)) {
       await this.getEventSubject("*", event.source).next(event);
     }
+  };
+
+  /**
+   * Alias to emit the execution begin event
+   */
+  public commitExecutionBegin = async (
+    clientId: string,
+    context: Partial<IBusEventContext>
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`busService commitExecutionBegin`, {
+        clientId,
+      });
+    await this.emit<IBusEvent>(clientId, {
+      type: "commit-execution-begin",
+      clientId,
+      context,
+      input: {},
+      output: {},
+      source: "execution-bus",
+    });
+  };
+
+  /**
+   * Alias to emit the execution end event
+   */
+  public commitExecutionEnd = async (
+    clientId: string,
+    context: Partial<IBusEventContext>
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`busService commitExecutionEnd`, {
+        clientId,
+      });
+    await this.emit<IBusEvent>(clientId, {
+      type: "commit-execution-end",
+      clientId,
+      context,
+      input: {},
+      output: {},
+      source: "execution-bus",
+    });
   };
 
   /**

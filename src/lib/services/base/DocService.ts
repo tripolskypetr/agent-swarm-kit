@@ -17,6 +17,7 @@ import ToolSchemaService from "../schema/ToolSchemaService";
 import StorageSchemaService from "../schema/StorageSchemaService";
 import StateSchemaService from "../schema/StateSchemaService";
 import PerfService from "./PerfService";
+import { getMomentStamp, getTimeStamp } from "get-moment-stamp";
 
 const THREAD_POOL_SIZE = 5;
 
@@ -181,7 +182,10 @@ export class DocService {
       }
 
       {
-        const umlSchema = this.agentMetaService.toUML(agentSchema.agentName, true);
+        const umlSchema = this.agentMetaService.toUML(
+          agentSchema.agentName,
+          true
+        );
         const umlName = `agent_schema_${agentSchema.agentName}.svg`;
         const umlSvg = await GLOBAL_CONFIG.CC_FN_PLANTUML(umlSchema);
         if (umlSvg) {
@@ -267,35 +271,33 @@ export class DocService {
             result.push("");
             result.push("#### Parameters for model");
             const entries = Object.entries(fn.parameters.properties);
-            entries.forEach(
-              ([key, { type, description, enum: e }], idx) => {
+            entries.forEach(([key, { type, description, enum: e }], idx) => {
+              result.push("");
+              result.push(`> **${idx + 1}. ${key}**`);
+              {
                 result.push("");
-                result.push(`> **${idx + 1}. ${key}**`);
-                {
-                  result.push("");
-                  result.push(`*Type:* \`${type}\``);
-                }
-                {
-                  result.push("");
-                  result.push(`*Description:* \`${description}\``);
-                }
-                if (e) {
-                  result.push("");
-                  result.push(`*Enum:* \`${e.join(", ")}\``);
-                }
-                {
-                  result.push("");
-                  result.push(
-                    `*Required:* [${
-                      fn.parameters.required.includes(key) ? "x" : " "
-                    }]`
-                  );
-                }
+                result.push(`*Type:* \`${type}\``);
               }
-            );
-            if (!entries.length) {
+              {
                 result.push("");
-                result.push(`*Empty parameters*`);
+                result.push(`*Description:* \`${description}\``);
+              }
+              if (e) {
+                result.push("");
+                result.push(`*Enum:* \`${e.join(", ")}\``);
+              }
+              {
+                result.push("");
+                result.push(
+                  `*Required:* [${
+                    fn.parameters.required.includes(key) ? "x" : " "
+                  }]`
+                );
+              }
+            });
+            if (!entries.length) {
+              result.push("");
+              result.push(`*Empty parameters*`);
             }
           }
 
@@ -444,8 +446,42 @@ export class DocService {
     );
   };
 
-  public dumpPerfomance = async (dirName = join(process.cwd(), "docs/meta")) => {
-    
+  /**
+   * Dumps the performance data to a file.
+   * @param {string} [dirName=join(process.cwd(), "docs/meta")] - The directory to write the performance data to.
+   * @returns {Promise<void>}
+   */
+  public dumpPerfomance = async (
+    dirName = join(process.cwd(), "docs/meta")
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("docService dumpPerfomance", {
+        dirName,
+      });
+    writeFileSync(
+      JSON.stringify(await this.perfService.toRecord()),
+      join(dirName, `${getMomentStamp()}.${getTimeStamp()}.json`)
+    );
+  };
+
+  /**
+   * Dumps the client performance data to a file.
+   * @param {string} clientId - The session id to dump the data
+   * @param {string} [dirName=join(process.cwd(), "docs/meta")] - The directory to write the performance data to.
+   * @returns {Promise<void>}
+   */
+  public dumpClientPerfomance = async (
+    clientId: string,
+    dirName = join(process.cwd(), "docs/client")
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("docService dumpPerfomance", {
+        dirName,
+      });
+    writeFileSync(
+      JSON.stringify(await this.perfService.toClientRecord(clientId)),
+      join(dirName, `${clientId}.${getMomentStamp()}.json`)
+    );
   };
 }
 
