@@ -3984,6 +3984,17 @@ declare const makeConnection: {
      * @returns {SendMessageFn} - A function to send scheduled messages to the swarm.
      */
     scheduled(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName, { delay }?: Partial<IMakeConnectionConfig>): (content: string) => Promise<void>;
+    /**
+     * A rate-limited connection factory for a client to a swarm and returns a function to send messages.
+     *
+     * @param {ReceiveMessageFn} connector - The function to receive messages.
+     * @param {string} clientId - The unique identifier of the client.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {Partial<IMakeConnectionConfig>} [config] - The configuration for rate limiting.
+     * @param {number} [config.delay=RATE_DELAY] - The delay in milliseconds for rate limiting messages.
+     * @returns {SendMessageFn} - A function to send rate-limited messages to the swarm.
+     */
+    rate(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName, { delay }?: Partial<IMakeConnectionConfig>): (content: string) => Promise<void>;
 };
 /**
  * Configuration for scheduling messages.

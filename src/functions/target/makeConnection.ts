@@ -1,4 +1,4 @@
-import { queued, schedule } from "functools-kit";
+import { queued, rate, schedule } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { ReceiveMessageFn } from "../../interfaces/Session.interface";
 import { SwarmName } from "../../interfaces/Swarm.interface";
@@ -9,6 +9,7 @@ import { getAgentName } from "../common/getAgentName";
 type SendMessageFn = (outgoing: string) => Promise<void>;
 
 const SCHEDULED_DELAY = 1_000;
+const RATE_DELAY = 10_000;
 
 const METHOD_NAME = "function.target.makeConnection";
 
@@ -128,6 +129,63 @@ makeConnection.scheduled = (
    */
   return async (content: string) => {
     return await wrappedSend(content);
+  };
+};
+
+/**
+ * A rate-limited connection factory for a client to a swarm and returns a function to send messages.
+ *
+ * @param {ReceiveMessageFn} connector - The function to receive messages.
+ * @param {string} clientId - The unique identifier of the client.
+ * @param {SwarmName} swarmName - The name of the swarm.
+ * @param {Partial<IMakeConnectionConfig>} [config] - The configuration for rate limiting.
+ * @param {number} [config.delay=RATE_DELAY] - The delay in milliseconds for rate limiting messages.
+ * @returns {SendMessageFn} - A function to send rate-limited messages to the swarm.
+ */
+makeConnection.rate = (
+  connector: ReceiveMessageFn,
+  clientId: string,
+  swarmName: SwarmName,
+  { delay = RATE_DELAY }: Partial<IMakeConnectionConfig> = {}
+) => {
+  const send = makeConnection(connector, clientId, swarmName);
+
+  /**
+   * A wrapped send function that rate limits the message sending.
+   *
+   * @param {string} content - The message content to be sent.
+   * @returns {Promise<void>} - A promise that resolves when the message is sent.
+   */
+  const wrappedSend: typeof send = rate(
+    async (content: string) => {
+      if (!swarm.sessionValidationService.hasSession(clientId)) {
+        return;
+      }
+      return await send(content);
+    },
+    {
+      key: () => clientId,
+      rateName: `makeConnection.rate clientId=${clientId}`,
+      delay,
+    }
+  );
+
+  /**
+   * A function to send rate-limited messages.
+   *
+   * @param {string} content - The message content to be sent.
+   * @returns {Promise<void>} - A promise that resolves when the message is sent.
+   */
+  return async (content: string) => {
+    try {
+      return await wrappedSend(content);
+    } catch (error) {
+      if (error?.type === "rate-error") {
+        console.warn(`agent-swarm rate limit reached for clientId=${clientId}`);
+        return;
+      }
+      throw error;
+    }
   };
 };
 
