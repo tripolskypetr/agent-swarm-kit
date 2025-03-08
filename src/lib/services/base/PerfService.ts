@@ -40,9 +40,9 @@ export class PerfService {
   };
 
   /**
-   * Gets the number of session total execution time for a given client.
+   * Gets the total execution time for a given client's sessions.
    * @param {string} clientId - The client ID.
-   * @returns {number} The number of active session executions.
+   * @returns {number} The total execution time in milliseconds.
    */
   public getActiveSessionExecutionTotalTime = (clientId: string): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -54,13 +54,13 @@ export class PerfService {
   };
 
   /**
-   * Gets the number of session average execution time for a given client.
+   * Gets the average execution time for a given client's sessions.
    * @param {string} clientId - The client ID.
-   * @returns {number} The number of active session executions.
+   * @returns {number} The average execution time in milliseconds.
    */
   public getActiveSessionExecutionAverageTime = (clientId: string): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info("perfService getActiveSessionExecutionTotalTime");
+      this.loggerService.info("perfService getActiveSessionExecutionAverageTime");
     if (!this.executionCountMap.has(clientId)) {
       return 0;
     }
@@ -239,7 +239,7 @@ export class PerfService {
    * @param {string} executionId - The execution ID.
    * @param {string} clientId - The client ID.
    * @param {number} outputLen - The output length.
-   * @returns {boolean} True if the execution ended successfully, false otherwise.
+   * @returns {boolean} True if the execution ended successfully (all required data was found), false otherwise.
    */
   public endExecution = (
     executionId: string,
@@ -285,8 +285,8 @@ export class PerfService {
   };
 
   /**
-   * Convert perfomance measures to record for serialization
-   * @param {string} agentName - The name of the agent.
+   * Convert performance measures to record for serialization
+   * @param {string} clientId - The client ID.
    */
   public toRecord = (clientId: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
