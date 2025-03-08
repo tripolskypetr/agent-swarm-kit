@@ -21,13 +21,13 @@ params: IStateParams<State>
 ### _state
 
 ```ts
-_state: any
+_state: State
 ```
 
 ### dispatch
 
 ```ts
-dispatch: any
+dispatch: (action: string, payload?: DispatchFn<State>) => Promise<State>
 ```
 
 ### waitForInit
@@ -38,10 +38,12 @@ waitForInit: (() => Promise<void>) & ISingleshotClearable
 
 Waits for the state to initialize.
 
+## Methods
+
 ### setState
 
 ```ts
-setState: (dispatchFn: DispatchFn<State>) => Promise<State>
+setState(dispatchFn: DispatchFn<State>): Promise<State>;
 ```
 
 Sets the state using the provided dispatch function.
@@ -49,7 +51,7 @@ Sets the state using the provided dispatch function.
 ### clearState
 
 ```ts
-clearState: () => Promise<State>
+clearState(): Promise<State>;
 ```
 
 Sets the to initial value
@@ -57,7 +59,7 @@ Sets the to initial value
 ### getState
 
 ```ts
-getState: () => Promise<State>
+getState(): Promise<State>;
 ```
 
 Gets the current state.
@@ -65,7 +67,7 @@ Gets the current state.
 ### dispose
 
 ```ts
-dispose: () => Promise<void>
+dispose(): void;
 ```
 
 Disposes of the state.

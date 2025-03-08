@@ -21,7 +21,7 @@ params: IStorageParams<T>
 ### _itemMap
 
 ```ts
-_itemMap: any
+_itemMap: Map<string | number, T>
 ```
 
 ### _createEmbedding
@@ -40,10 +40,12 @@ waitForInit: (() => Promise<void>) & ISingleshotClearable
 
 Waits for the initialization of the storage.
 
+## Methods
+
 ### take
 
 ```ts
-take: (search: string, total: number, score?: number) => Promise<T[]>
+take(search: string, total: number, score?: number): Promise<T[]>;
 ```
 
 Takes a specified number of items based on the search criteria.
@@ -51,7 +53,7 @@ Takes a specified number of items based on the search criteria.
 ### upsert
 
 ```ts
-upsert: (item: T) => Promise<void>
+upsert(item: T): Promise<void>;
 ```
 
 Upserts an item into the storage.
@@ -59,7 +61,7 @@ Upserts an item into the storage.
 ### remove
 
 ```ts
-remove: (itemId: StorageId) => Promise<void>
+remove(itemId: IStorageData["id"]): Promise<void>;
 ```
 
 Removes an item from the storage.
@@ -67,7 +69,7 @@ Removes an item from the storage.
 ### clear
 
 ```ts
-clear: () => Promise<void>
+clear(): Promise<void>;
 ```
 
 Clears all items from the storage.
@@ -75,7 +77,7 @@ Clears all items from the storage.
 ### get
 
 ```ts
-get: (itemId: StorageId) => Promise<T>
+get(itemId: IStorageData["id"]): Promise<T | null>;
 ```
 
 Gets an item by its ID.
@@ -83,7 +85,7 @@ Gets an item by its ID.
 ### list
 
 ```ts
-list: (filter?: (item: T) => boolean) => Promise<T[]>
+list(filter?: (item: T) => boolean): Promise<T[]>;
 ```
 
 Lists all items in the storage, optionally filtered by a predicate.
@@ -91,7 +93,7 @@ Lists all items in the storage, optionally filtered by a predicate.
 ### dispose
 
 ```ts
-dispose: () => Promise<void>
+dispose(): Promise<void>;
 ```
 
 Disposes of the state.

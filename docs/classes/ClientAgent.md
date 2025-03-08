@@ -48,94 +48,6 @@ _toolCommitSubject: Subject<void>
 _outputSubject: Subject<string>
 ```
 
-### _emitOuput
-
-```ts
-_emitOuput: (mode: ExecutionMode, rawResult: string) => Promise<void>
-```
-
-Emits the output result after validation.
-
-### _resurrectModel
-
-```ts
-_resurrectModel: (mode: ExecutionMode, reason?: string) => Promise<string>
-```
-
-Resurrects the model based on the given reason.
-
-### waitForOutput
-
-```ts
-waitForOutput: () => Promise<string>
-```
-
-Waits for the output to be available.
-
-### getCompletion
-
-```ts
-getCompletion: (mode: ExecutionMode) => Promise<IModelMessage>
-```
-
-Gets the completion message from the model.
-
-### commitUserMessage
-
-```ts
-commitUserMessage: (message: string) => Promise<void>
-```
-
-Commits a user message to the history without answer.
-
-### commitFlush
-
-```ts
-commitFlush: () => Promise<void>
-```
-
-Commits flush of agent history
-
-### commitAgentChange
-
-```ts
-commitAgentChange: () => Promise<void>
-```
-
-Commits change of agent to prevent the next tool execution from being called.
-
-### commitStopTools
-
-```ts
-commitStopTools: () => Promise<void>
-```
-
-Commits change of agent to prevent the next tool execution from being called.
-
-### commitSystemMessage
-
-```ts
-commitSystemMessage: (message: string) => Promise<void>
-```
-
-Commits a system message to the history.
-
-### commitAssistantMessage
-
-```ts
-commitAssistantMessage: (message: string) => Promise<void>
-```
-
-Commits an assistant message to the history without execute.
-
-### commitToolOutput
-
-```ts
-commitToolOutput: (toolId: string, content: string) => Promise<void>
-```
-
-Commits the tool output to the history.
-
 ### execute
 
 ```ts
@@ -152,10 +64,100 @@ run: (input: string) => Promise<string>
 
 Run the completion stateless and return the output
 
+## Methods
+
+### _emitOuput
+
+```ts
+_emitOuput(mode: ExecutionMode, rawResult: string): Promise<void>;
+```
+
+Emits the output result after validation.
+
+### _resurrectModel
+
+```ts
+_resurrectModel(mode: ExecutionMode, reason?: string): Promise<string>;
+```
+
+Resurrects the model based on the given reason.
+
+### waitForOutput
+
+```ts
+waitForOutput(): Promise<string>;
+```
+
+Waits for the output to be available.
+
+### getCompletion
+
+```ts
+getCompletion(mode: ExecutionMode): Promise<IModelMessage>;
+```
+
+Gets the completion message from the model.
+
+### commitUserMessage
+
+```ts
+commitUserMessage(message: string): Promise<void>;
+```
+
+Commits a user message to the history without answer.
+
+### commitFlush
+
+```ts
+commitFlush(): Promise<void>;
+```
+
+Commits flush of agent history
+
+### commitAgentChange
+
+```ts
+commitAgentChange(): Promise<void>;
+```
+
+Commits change of agent to prevent the next tool execution from being called.
+
+### commitStopTools
+
+```ts
+commitStopTools(): Promise<void>;
+```
+
+Commits change of agent to prevent the next tool execution from being called.
+
+### commitSystemMessage
+
+```ts
+commitSystemMessage(message: string): Promise<void>;
+```
+
+Commits a system message to the history.
+
+### commitAssistantMessage
+
+```ts
+commitAssistantMessage(message: string): Promise<void>;
+```
+
+Commits an assistant message to the history without execute.
+
+### commitToolOutput
+
+```ts
+commitToolOutput(toolId: string, content: string): Promise<void>;
+```
+
+Commits the tool output to the history.
+
 ### dispose
 
 ```ts
-dispose: () => Promise<void>
+dispose(): Promise<void>;
 ```
 
 Should call on agent dispose

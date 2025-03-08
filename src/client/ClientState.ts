@@ -13,6 +13,47 @@ type DispatchFn<State extends IStateData = IStateData> = (
 
 type Action = "read" | "write";
 
+const DISPATCH_FN = async <State extends IStateData = IStateData>(
+  action: Action,
+  self: ClientState,
+  payload?: DispatchFn<State>
+) => {
+  if (action === "read") {
+    return self._state;
+  }
+  if (action === "write") {
+    console.assert(
+      payload,
+      `agent-swarm ClientState write action undefined payload`
+    );
+    return (self._state = await payload(self._state));
+  }
+  throw new Error("agent-swarm ClientState unknown action");
+};
+
+const WAIT_FOR_INIT_FN = async (self: ClientState) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    self.params.logger.debug(
+      `ClientState stateName=${self.params.stateName} clientId=${self.params.clientId} shared=${self.params.shared} waitForInit`
+    );
+  self._state = await self.params.getState(
+    self.params.clientId,
+    self.params.stateName
+  );
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    self.params.logger.debug(
+      `ClientState stateName=${self.params.stateName} clientId=${self.params.clientId} shared=${self.params.shared} waitForInit output`,
+      { initialState: self._state }
+    );
+  if (self.params.callbacks?.onLoad) {
+    self.params.callbacks.onLoad(
+      self._state,
+      self.params.clientId,
+      self.params.stateName
+    );
+  }
+};
+
 /**
  * Class representing the client state.
  * @template State - The type of the state data.
@@ -21,22 +62,11 @@ type Action = "read" | "write";
 export class ClientState<State extends IStateData = IStateData>
   implements IState<State>
 {
-  private _state: State = null as State;
+  _state: State = null as State;
 
-  private dispatch = queued(
-    async (action: Action, payload?: DispatchFn<State>) => {
-      if (action === "read") {
-        return this._state;
-      }
-      if (action === "write") {
-        console.assert(
-          payload,
-          `agent-swarm ClientState write action undefined payload`
-        );
-        return (this._state = await payload(this._state));
-      }
-      throw new Error("agent-swarm ClientState unknown action");
-    }
+  dispatch = queued(
+    async (action: Action, payload) =>
+      await DISPATCH_FN<State>(action, this, payload)
   ) as (action: string, payload?: DispatchFn<State>) => Promise<State>;
 
   /**
@@ -60,35 +90,14 @@ export class ClientState<State extends IStateData = IStateData>
    * Waits for the state to initialize.
    * @returns {Promise<void>}
    */
-  public waitForInit = singleshot(async () => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      this.params.logger.debug(
-        `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} waitForInit`
-      );
-    this._state = await this.params.getState(
-      this.params.clientId,
-      this.params.stateName
-    );
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      this.params.logger.debug(
-        `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} waitForInit output`,
-        { initialState: this._state }
-      );
-    if (this.params.callbacks?.onLoad) {
-      this.params.callbacks.onLoad(
-        this._state,
-        this.params.clientId,
-        this.params.stateName
-      );
-    }
-  });
+  waitForInit = singleshot(async () => await WAIT_FOR_INIT_FN(this));
 
   /**
    * Sets the state using the provided dispatch function.
    * @param {DispatchFn<State>} dispatchFn - The dispatch function.
    * @returns {Promise<State>}
    */
-  public setState = async (dispatchFn: DispatchFn<State>) => {
+  async setState(dispatchFn: DispatchFn<State>) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} setState`
@@ -135,13 +144,13 @@ export class ClientState<State extends IStateData = IStateData>
       clientId: this.params.clientId,
     });
     return this._state;
-  };
+  }
 
   /**
    * Sets the to initial value
    * @returns {Promise<State>}
    */
-  public clearState = async () => {
+  async clearState() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} clearState`
@@ -183,13 +192,13 @@ export class ClientState<State extends IStateData = IStateData>
       clientId: this.params.clientId,
     });
     return this._state;
-  };
+  }
 
   /**
    * Gets the current state.
    * @returns {Promise<State>}
    */
-  public getState = async () => {
+  async getState() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} getState`
@@ -215,13 +224,13 @@ export class ClientState<State extends IStateData = IStateData>
       clientId: this.params.clientId,
     });
     return this._state;
-  };
+  }
 
   /**
    * Disposes of the state.
    * @returns {Promise<void>}
    */
-  public dispose = async () => {
+  dispose() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} dispose`
@@ -232,7 +241,7 @@ export class ClientState<State extends IStateData = IStateData>
         this.params.stateName
       );
     }
-  };
+  }
 }
 
 export default ClientState;

@@ -27,7 +27,7 @@ callbacks: Partial<IHistoryInstanceCallbacks>
 ### _array
 
 ```ts
-_array: any
+_array: IModelMessage[]
 ```
 
 ### __@HISTORY_INSTANCE_WAIT_FOR_INIT@441

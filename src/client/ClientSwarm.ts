@@ -13,19 +13,80 @@ import { IBusEvent } from "../model/Event.model";
 const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
 const STACK_NEED_FETCH = Symbol("stack-need-fetch");
 
+const WAIT_FOR_OUTPUT_FN = async (self: ClientSwarm): Promise<string> => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    self.params.logger.debug(
+      `ClientSwarm swarmName=${self.params.swarmName} clientId=${self.params.clientId} waitForOutput`
+    );
+
+  const [awaiter, { resolve }] = createAwaiter<{
+    agentName: AgentName;
+    output: string;
+  }>();
+
+  const getOutput = cancelable(
+    async () =>
+      await Promise.race(
+        self._agentList
+          .map(async ([agentName, agent]) => ({
+            agentName,
+            output: await agent.waitForOutput(),
+          }))
+          .concat(self._cancelOutputSubject.toPromise())
+      )
+  );
+
+  const handleOutput = () => {
+    getOutput.cancel();
+    getOutput().then((value) => {
+      if (value === CANCELED_PROMISE_SYMBOL) {
+        return;
+      }
+      resolve(value);
+    });
+  };
+
+  const un = self._agentChangedSubject.subscribe(handleOutput);
+  handleOutput();
+
+  const { agentName, output } = await awaiter;
+  un();
+
+  const expectAgent = await self.getAgentName();
+
+  agentName !== expectAgent &&
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    self.params.logger.debug(
+      `ClientSwarm swarmName=${self.params.swarmName} clientId=${self.params.clientId} waitForAgent agent miss`,
+      { agentName, expectAgent }
+    );
+
+  await self.params.bus.emit<IBusEvent>(self.params.clientId, {
+    type: "wait-for-output",
+    source: "swarm-bus",
+    input: {},
+    output: {
+      result: output,
+    },
+    context: {
+      swarmName: self.params.swarmName,
+    },
+    clientId: self.params.clientId,
+  });
+
+  return output;
+};
+
 /**
  * ClientSwarm class implements the ISwarm interface and manages agents within a swarm.
  */
 export class ClientSwarm implements ISwarm {
-  private _agentChangedSubject = new Subject<
-    [agentName: AgentName, agent: IAgent]
-  >();
+  _agentChangedSubject = new Subject<[agentName: AgentName, agent: IAgent]>();
 
-  private _activeAgent: AgentName | typeof AGENT_NEED_FETCH = AGENT_NEED_FETCH;
-  private _navigationStack: AgentName[] | typeof STACK_NEED_FETCH =
-    STACK_NEED_FETCH;
+  _activeAgent: AgentName | typeof AGENT_NEED_FETCH = AGENT_NEED_FETCH;
+  _navigationStack: AgentName[] | typeof STACK_NEED_FETCH = STACK_NEED_FETCH;
 
-  private _cancelOutputSubject = new Subject<{
+  _cancelOutputSubject = new Subject<{
     agentName: string;
     output: string;
   }>();
@@ -52,7 +113,7 @@ export class ClientSwarm implements ISwarm {
    * Pop the navigation stack or return default agent
    * @returns {Promise<string>} - The pending agent for navigation
    */
-  navigationPop = async () => {
+  async navigationPop() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} navigationPop`
@@ -70,13 +131,13 @@ export class ClientSwarm implements ISwarm {
       this.params.swarmName
     );
     return prevAgent ? prevAgent : this.params.defaultAgent;
-  };
+  }
 
   /**
    * Cancel the await of output by emit of empty string
    * @returns {Promise<string>} - The output from the active agent.
    */
-  cancelOutput = async () => {
+  async cancelOutput() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} cancelOutput`
@@ -95,81 +156,21 @@ export class ClientSwarm implements ISwarm {
       },
       clientId: this.params.clientId,
     });
-  };
+  }
 
   /**
    * Waits for output from the active agent.
    * @returns {Promise<string>} - The output from the active agent.
    */
-  waitForOutput = queued(async (): Promise<string> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      this.params.logger.debug(
-        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} waitForOutput`
-      );
-
-    const [awaiter, { resolve }] = createAwaiter<{
-      agentName: AgentName;
-      output: string;
-    }>();
-
-    const getOutput = cancelable(
-      async () =>
-        await Promise.race(
-          this._agentList
-            .map(async ([agentName, agent]) => ({
-              agentName,
-              output: await agent.waitForOutput(),
-            }))
-            .concat(this._cancelOutputSubject.toPromise())
-        )
-    );
-
-    const handleOutput = () => {
-      getOutput.cancel();
-      getOutput().then((value) => {
-        if (value === CANCELED_PROMISE_SYMBOL) {
-          return;
-        }
-        resolve(value);
-      });
-    };
-
-    const un = this._agentChangedSubject.subscribe(handleOutput);
-    handleOutput();
-
-    const { agentName, output } = await awaiter;
-    un();
-
-    const expectAgent = await this.getAgentName();
-
-    agentName !== expectAgent &&
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      this.params.logger.debug(
-        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} waitForAgent agent miss`,
-        { agentName, expectAgent }
-      );
-
-    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
-      type: "wait-for-output",
-      source: "swarm-bus",
-      input: {},
-      output: {
-        result: output,
-      },
-      context: {
-        swarmName: this.params.swarmName,
-      },
-      clientId: this.params.clientId,
-    });
-
-    return output;
-  }) as () => Promise<string>;
+  waitForOutput = queued(
+    async () => await WAIT_FOR_OUTPUT_FN(this)
+  ) as () => Promise<string>;
 
   /**
    * Gets the name of the active agent.
    * @returns {Promise<AgentName>} - The name of the active agent.
    */
-  getAgentName = async (): Promise<AgentName> => {  
+  async getAgentName(): Promise<AgentName> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgentName`
@@ -194,13 +195,13 @@ export class ClientSwarm implements ISwarm {
       clientId: this.params.clientId,
     });
     return this._activeAgent;
-  };
+  }
 
   /**
    * Gets the active agent.
    * @returns {Promise<IAgent>} - The active agent.
    */
-  getAgent = async () => {
+  async getAgent() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgent`
@@ -220,7 +221,7 @@ export class ClientSwarm implements ISwarm {
       clientId: this.params.clientId,
     });
     return result;
-  };
+  }
 
   /**
    * Sets the reference of an agent in the swarm.
@@ -228,7 +229,7 @@ export class ClientSwarm implements ISwarm {
    * @param {IAgent} agent - The agent instance.
    * @throws {Error} - If the agent is not in the swarm.
    */
-  setAgentRef = async (agentName: AgentName, agent: IAgent) => {
+  async setAgentRef(agentName: AgentName, agent: IAgent) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setAgentRef agentName=${agentName}`
@@ -251,13 +252,13 @@ export class ClientSwarm implements ISwarm {
       clientId: this.params.clientId,
     });
     await this._agentChangedSubject.next([agentName, agent]);
-  };
+  }
 
   /**
    * Sets the active agent by name.
    * @param {AgentName} agentName - The name of the agent to set as active.
    */
-  setAgentName = async (agentName: AgentName) => {
+  async setAgentName(agentName: AgentName) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setAgentName agentName=${agentName}`
@@ -299,7 +300,7 @@ export class ClientSwarm implements ISwarm {
       },
       clientId: this.params.clientId,
     });
-  };
+  }
 }
 
 export default ClientSwarm;
