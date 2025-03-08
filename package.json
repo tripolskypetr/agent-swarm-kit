@@ -60,10 +60,10 @@
     "@types/lodash-es": "4.17.12",
     "@types/node": "22.9.0",
     "@types/xml2js": "0.4.14",
-    "rimraf": "6.0.1",
-    "rollup": "3.29.5",
     "glob": "11.0.1",
     "gpt4all": "4.0.0",
+    "rimraf": "6.0.1",
+    "rollup": "3.29.5",
     "rollup-plugin-dts": "6.1.1",
     "rollup-plugin-peer-deps-external": "2.2.4",
     "tslib": "2.7.0",
@@ -76,6 +76,7 @@
     "di-kit": "^1.0.14",
     "di-scoped": "^1.0.12",
     "functools-kit": "^1.0.74",
+    "get-moment-stamp": "^1.1.1",
     "lodash-es": "4.17.21",
     "xml2js": "0.6.2"
   }

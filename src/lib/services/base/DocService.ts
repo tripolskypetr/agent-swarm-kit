@@ -16,6 +16,7 @@ import { IAgentSchema } from "../../../interfaces/Agent.interface";
 import ToolSchemaService from "../schema/ToolSchemaService";
 import StorageSchemaService from "../schema/StorageSchemaService";
 import StateSchemaService from "../schema/StateSchemaService";
+import PerfService from "./PerfService";
 
 const THREAD_POOL_SIZE = 5;
 
@@ -28,6 +29,7 @@ const SUBDIR_LIST = ["agent", "image"];
 export class DocService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
+  private readonly perfService = inject<PerfService>(TYPES.perfService);
   private readonly swarmValidationService = inject<SwarmValidationService>(
     TYPES.swarmValidationService
   );
@@ -440,6 +442,10 @@ export class DocService {
         await this.writeAgentDoc(agentSchema, dirName);
       })
     );
+  };
+
+  public dumpPerfomance = async (dirName = join(process.cwd(), "docs/meta")) => {
+    
   };
 }
 

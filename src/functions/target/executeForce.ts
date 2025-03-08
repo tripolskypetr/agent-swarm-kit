@@ -27,13 +27,23 @@ export const executeForce = async (content: string, clientId: string) => {
   swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   return ExecutionContextService.runInContext(
     async () => {
-      return await swarm.sessionPublicService.execute(
-        content,
-        "tool",
-        METHOD_NAME,
-        clientId,
-        swarmName
-      );
+      let isFinished = false;
+      swarm.perfService.startExecution(executionId, clientId, content.length);
+      try {
+        const result = await swarm.sessionPublicService.execute(
+          content,
+          "tool",
+          METHOD_NAME,
+          clientId,
+          swarmName
+        );
+        isFinished = swarm.perfService.endExecution(executionId, clientId, result.length);
+        return result;
+      } finally {
+        if (!isFinished) {
+          swarm.perfService.endExecution(executionId, clientId, 0);
+        }
+      }
     },
     {
       clientId,

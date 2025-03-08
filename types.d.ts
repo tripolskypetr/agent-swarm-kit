@@ -668,14 +668,14 @@ interface ISessionSchema {
  * @param {IOutgoingMessage} outgoing - The outgoing message.
  * @returns {Promise<void> | void}
  */
-type SendMessageFn$1 = (outgoing: IOutgoingMessage) => Promise<void> | void;
+type SendMessageFn$1<T = void> = (outgoing: IOutgoingMessage) => Promise<T>;
 /**
  * Function type for receiving messages.
  * @typedef {function} ReceiveMessageFn
  * @param {IIncomingMessage} incoming - The incoming message.
  * @returns {Promise<void> | void}
  */
-type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
+type ReceiveMessageFn<T = void> = (incoming: IIncomingMessage) => Promise<T>;
 /**
  * Interface for a session.
  * @interface
@@ -705,7 +705,7 @@ interface ISession {
      * @param {SendMessageFn} connector - The function to send messages.
      * @returns {ReceiveMessageFn}
      */
-    connect(connector: SendMessageFn$1, ...args: unknown[]): ReceiveMessageFn;
+    connect(connector: SendMessageFn$1, ...args: unknown[]): ReceiveMessageFn<string>;
     /**
      * Commit tool output.
      * @param {string} toolId - The `tool_call_id` for openai history
@@ -2147,9 +2147,9 @@ declare class ClientSession implements ISession {
     /**
      * Connects the session to a connector function.
      * @param {SendMessageFn} connector - The connector function.
-     * @returns {ReceiveMessageFn} - The function to receive messages.
+     * @returns {ReceiveMessageFn<string>} - The function to receive messages.
      */
-    connect: (connector: SendMessageFn$1) => ReceiveMessageFn;
+    connect: (connector: SendMessageFn$1) => ReceiveMessageFn<string>;
     /**
      * Should call on session dispose
      * @returns {Promise<void>}
@@ -2197,7 +2197,7 @@ declare class SessionConnectionService implements ISession {
      * @param {SendMessageFn} connector - The function to send messages.
      * @returns {ReceiveMessageFn} The function to receive messages.
      */
-    connect: (connector: SendMessageFn$1, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
+    connect: (connector: SendMessageFn$1, clientId: string, swarmName: SwarmName) => ReceiveMessageFn<string>;
     /**
      * Commits tool output to the session.
      * @param {string} toolId - The `tool_call_id` for openai history
@@ -2409,6 +2409,7 @@ type TSessionConnectionService = {
  */
 declare class SessionPublicService implements TSessionConnectionService {
     private readonly loggerService;
+    private readonly perfService;
     private readonly sessionConnectionService;
     /**
      * Emits a message to the session.
@@ -2441,7 +2442,7 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {ReceiveMessageFn}
      */
-    connect: (connector: SendMessageFn$1, methodName: string, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
+    connect: (connector: SendMessageFn$1, methodName: string, clientId: string, swarmName: SwarmName) => ReceiveMessageFn<string>;
     /**
      * Commits tool output to the session.
      * @param {string} toolId - The `tool_call_id` for openai history
@@ -3599,6 +3600,91 @@ declare class MemorySchemaService {
     dispose: (clientId: string) => void;
 }
 
+/**
+ * Performance Service to track and log execution times, input lengths, and output lengths
+ * for different client sessions.
+ */
+declare class PerfService {
+    private readonly loggerService;
+    private readonly sessionValidationService;
+    private executionTimeMap;
+    private executionInputMap;
+    private executionOutputMap;
+    private executionTimes;
+    private totalResponseTime;
+    private requestCount;
+    /**
+     * Gets the number of active session executions for a given client.
+     * @param {string} clientId - The client ID.
+     * @returns {number} The number of active session executions.
+     */
+    getActiveSessionExecutions: (clientId: string) => number;
+    /**
+     * Gets the average input length for active sessions of a given client.
+     * @param {string} clientId - The client ID.
+     * @returns {number} The average input length.
+     */
+    getActiveSessionAverageInputLength: (clientId: string) => number;
+    /**
+     * Gets the average output length for active sessions of a given client.
+     * @param {string} clientId - The client ID.
+     * @returns {number} The average output length.
+     */
+    getActiveSessionAverageOutputLength: (clientId: string) => number;
+    /**
+     * Gets the total input length for active sessions of a given client.
+     * @param {string} clientId - The client ID.
+     * @returns {number} The total input length.
+     */
+    getActiveSessionTotalInputLength: (clientId: string) => number;
+    /**
+     * Gets the total output length for active sessions of a given client.
+     * @param {string} clientId - The client ID.
+     * @returns {number} The total output length.
+     */
+    getActiveSessionTotalOutputLength: (clientId: string) => number;
+    /**
+     * Gets the list of active sessions.
+     * @returns {string[]} The list of active sessions.
+     */
+    getActiveSessions: () => string[];
+    /**
+     * Gets the average response time for all requests.
+     * @returns {number} The average response time.
+     */
+    getAverageResponseTime: () => number;
+    /**
+     * Gets the total number of executions.
+     * @returns {number} The total number of executions.
+     */
+    getTotalExecutionCount: () => number;
+    /**
+     * Gets the total response time for all requests.
+     * @returns {number} The total response time.
+     */
+    getTotalResponseTime: () => number;
+    /**
+     * Starts an execution for a given client.
+     * @param {string} executionId - The execution ID.
+     * @param {string} clientId - The client ID.
+     * @param {number} inputLen - The input length.
+     */
+    startExecution: (executionId: string, clientId: string, inputLen: number) => void;
+    /**
+     * Ends an execution for a given client.
+     * @param {string} executionId - The execution ID.
+     * @param {string} clientId - The client ID.
+     * @param {number} outputLen - The output length.
+     * @returns {boolean} True if the execution ended successfully, false otherwise.
+     */
+    endExecution: (executionId: string, clientId: string, outputLen: number) => boolean;
+    /**
+     * Disposes of all data related to a given client.
+     * @param {string} clientId - The client ID.
+     */
+    dispose: (clientId: string) => void;
+}
+
 declare const swarm: {
     agentValidationService: AgentValidationService;
     toolValidationService: ToolValidationService;
@@ -3641,6 +3727,7 @@ declare const swarm: {
     };
     docService: DocService;
     busService: BusService;
+    perfService: PerfService;
     loggerService: LoggerService;
 };
 

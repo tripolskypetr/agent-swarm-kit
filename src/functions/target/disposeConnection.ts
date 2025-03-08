@@ -67,8 +67,11 @@ export const disposeConnection = async (
   );
   await History.dispose(clientId, null);
   await LoggerAdapter.dispose(clientId);
+  {
+    swarm.busService.dispose(clientId);
+    swarm.sessionValidationService.dispose(clientId);
+    swarm.memorySchemaService.dispose(clientId);
+    swarm.perfService.dispose(clientId);
+  }
   swarm.sessionValidationService.removeSession(clientId);
-  swarm.busService.dispose(clientId);
-  swarm.sessionValidationService.dispose(clientId);
-  swarm.memorySchemaService.dispose(clientId);
 };

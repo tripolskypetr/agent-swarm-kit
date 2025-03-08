@@ -38,10 +38,12 @@ import SharedStorageConnectionService from "../services/connection/SharedStorage
 import SharedStatePublicService from "../services/public/SharedStatePublicService";
 import SharedStoragePublicService from "../services/public/SharedStoragePublicService";
 import MemorySchemaService from "../services/schema/MemorySchemaService";
+import PerfService from "../services/base/PerfService";
 
 {
     provide(TYPES.docService, () => new DocService());
     provide(TYPES.busService, () => new BusService());
+    provide(TYPES.perfService, () => new PerfService());
     provide(TYPES.loggerService, () => new LoggerService());
 }
 
