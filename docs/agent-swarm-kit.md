@@ -1,4 +1,109 @@
-# agent-swarm-kit
+# Agent Swarm Kit - System Overview
+
+## Core Architecture
+
+The Agent Swarm Kit is a sophisticated framework designed for orchestrating multi-agent AI systems. It enables the creation and management of cooperative agent networks that can solve complex problems together. The system follows a modular architecture with clear separation of concerns, making it highly extensible and customizable.
+
+## Key Components
+
+### Agents
+Agents are the fundamental building blocks of the system. Each agent represents an autonomous entity that can:
+- Execute commands and process inputs
+- Utilize specialized tools to perform tasks
+- Maintain conversation history
+- Commit messages and tool outputs
+- Wait for and process outputs
+
+The `AgentConnectionService` provides the core implementation, while `AgentValidationService` ensures agents are properly configured before use.
+
+### Swarms
+Swarms coordinate multiple agents working together. The swarm mechanism:
+- Manages agent references within a group
+- Facilitates communication between agents
+- Controls agent activation and switching
+- Provides a unified interface for interacting with multiple agents
+
+The implementation is primarily through `SwarmConnectionService` and `ClientSwarm` classes.
+
+### Session Management
+Sessions handle user interactions with the agent system:
+- Track active connections
+- Enable message emission and command execution
+- Support user message commitments and tool outputs
+- Manage history flushing operations
+
+The `SessionConnectionService` and `ClientSession` classes implement this functionality.
+
+### Storage System
+The storage system provides persistence capabilities:
+- Supports item retrieval based on search criteria
+- Handles upsert, remove, and clear operations
+- Manages embedding-based searches for semantic retrieval
+- Provides list operations with optional filtering
+
+Implementation is through `StorageConnectionService` and `ClientStorage` classes.
+
+### State Management
+State management tracks the system's conditions:
+- Maintains state objects across the system
+- Supports state updates through dispatch functions
+- Provides retrieval capabilities for current states
+- Handles state disposal when no longer needed
+
+The `StateConnectionService` and `ClientState` classes provide this functionality.
+
+### History Tracking
+History utilities track conversations and interactions:
+- Record message exchanges between agents and users
+- Support iteration over historical messages
+- Convert history to various array formats for different consumers
+- Manage the lifecycle of history instances
+
+Implemented through `HistoryConnectionService` and `ClientHistory` classes.
+
+## Service Layer Architecture
+
+The system employs a consistent pattern of service layers for each component:
+
+1. **Validation Services** - Ensure components exist and are correctly configured
+2. **Schema Services** - Manage the structure and rules for each component
+3. **Connection Services** - Handle the actual connections and operations
+4. **Public Services** - Provide simplified interfaces for external consumers
+
+This layered approach ensures separation of concerns and makes the system more maintainable.
+
+## Benefits and Applications
+
+The Agent Swarm Kit enables developers to:
+- Create collaborative AI systems where agents specialize in different tasks
+- Build systems with persistent memory through the storage mechanisms
+- Develop conversational applications with rich history tracking
+- Implement complex workflows where agents pass tasks between each other
+- Maintain system state across multiple interactions
+
+## Implementation Considerations
+
+When implementing applications using this framework:
+- Component schema definitions are crucial for proper validation
+- Services follow dependency injection patterns for better testability
+- Connection services are typically memoized for performance
+- The system supports both synchronous and asynchronous operations
+- Proper disposal of resources is important to prevent memory leaks
+
+This modular and extensible architecture makes the Agent Swarm Kit suitable for a wide range of multi-agent applications, from conversational systems to complex problem-solving networks.
+
+## Extensibility Points
+
+The framework provides several key extensibility points:
+
+ - Custom Agents: Implement specialized agents for specific tasks
+ - Custom Tools: Create new tools to extend agent capabilities
+ - Custom Storage Adapters: Integrate with different storage backends
+ - Custom Embedding Providers: Use different embedding models for semantic search
+ - Custom Completion Providers: Integrate with different language models
+ - Custom History Adapters: Implement alternative history storage mechanisms
+
+These extensibility points allow the framework to adapt to a wide range of use cases and integration requirements.
 
 ## ToolValidationService
 
@@ -440,3 +545,59 @@ The emit method allows you to send an event for a specific client. It takes in t
 The commitExecutionBegin and commitExecutionEnd methods are aliases for emitting the corresponding events. They take in a clientId and an optional context object.
 
 The dispose method allows you to clean up event subscriptions for a specific client. It takes in the clientId and stops receiving events for that client.
+
+## AgentValidationService
+
+The `AgentValidationService` is a service used for validating agents within an agent swarm. It has a constructor that initializes the service with dependencies such as `loggerService`, `toolValidationService`, `completionValidationService`, and `storageValidationService`. The service also has properties like `_agentMap`, `_agentDepsMap` for internal use.
+
+The service provides methods to get the list of agents, storages used by an agent, and states used by an agent. It also allows adding a new agent to the validation service.
+
+Additionally, it provides memoized functions to check if an agent has a registered storage, dependency or state.
+
+To validate an agent, you can use the `validate` method by providing the agent name and source.
+
+## AgentSchemaService
+
+The `AgentSchemaService` is a service used for managing agent schemas. It has a constructor, properties such as `loggerService`, `registry`, and `validateShallow` for logging, registry management and validation of agent schema respectively. The `register` function is used to register a new agent schema by providing the key and value of the schema. The `get` function is used to retrieve an agent schema by its name.
+
+## AgentPublicService
+
+The `AgentPublicService` is a Typescript class that provides methods for managing public agent operations. It implements the `TAgentConnectionService` interface. The class has a constructor, several properties and methods.
+
+The `loggerService` property is an instance of a logger service, which can be used to log messages. The `agentConnectionService` property is an instance of the `TAgentConnectionService` interface, which provides methods for connecting to agents.
+
+The `createAgentRef` method creates a reference to an agent by specifying the method name, client ID and agent name. It returns a `ClientAgent` object that represents the agent.
+
+The `execute` method executes a command on the agent by specifying the input, execution mode (synchronous or asynchronous), method name, client ID and agent name. It returns a Promise that resolves when the command is executed.
+
+The `run` method runs the completion stateless by specifying the input, method name, client ID and agent name. It returns a Promise that resolves with the output of the command.
+
+The `waitForOutput` method waits for the agent's output by specifying the method name, client ID and agent name. It returns a Promise that resolves with the output of the agent.
+
+The `commitToolOutput` method commits tool output to the agent by specifying the tool ID, content, method name, client ID and agent name. It returns a Promise that resolves when the output is committed.
+
+The `commitSystemMessage` method commits a system message to the agent by specifying the message, method name, client ID and agent name. It returns a Promise that resolves when the message is committed.
+
+The `commitAssistantMessage` method commits an assistant message to the agent history by specifying the message, method name, client ID and agent name. It returns a Promise that resolves when the message is committed.
+
+The `commitUserMessage` method commits user message to the agent without answer by specifying the message, method name, client ID and agent name. It returns a Promise that resolves when the message is committed.
+
+The `commitFlush` method commits flush of agent history by specifying the method name, client ID and agent name. It returns a Promise that resolves when the flush is committed.
+
+The `commitAgentChange` method commits change of agent to prevent the next tool execution from being called by specifying the method name, client ID and agent name. It returns a Promise that resolves when the change is committed.
+
+The `commitStopTools` method prevents the next tool from being executed by specifying the method name, client ID and agent name. It returns a Promise that resolves when the prevention is committed.
+
+The `dispose` method disposes of the agent by specifying the
+
+## AgentMetaService
+
+The `AgentMetaService` is a class that provides methods for managing agent meta nodes and converting them to UML format. It has a constructor, properties such as `loggerService`, `agentSchemaService` and `serialize`, as well as methods like `makeAgentNode` and `toUML`. 
+
+The `makeAgentNode` method creates a meta node for the given agent, while `makeAgentNodeCommon` does the same but with an optional `seen` parameter. The `toUML` method converts the meta nodes of a specific agent to UML format, with an optional `withSubtree` parameter.
+
+## AgentConnectionService
+
+The `AgentConnectionService` is a TypeScript class that manages agent connections and provides methods for executing commands, waiting for output, and committing messages. It implements the `IAgent` interface and has several properties for services such as `loggerService`, `busService`, and others.
+
+The class provides a `getAgent` method to retrieve an agent instance, and methods like `execute`, `run`, `waitForOutput`, and more for executing commands, waiting for output from the agent, and committing different types of messages. The `dispose` method is used to dispose of the agent connection.
