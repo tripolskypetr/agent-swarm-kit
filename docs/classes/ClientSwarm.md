@@ -21,42 +21,26 @@ params: ISwarmParams
 ### _agentChangedSubject
 
 ```ts
-_agentChangedSubject: any
+_agentChangedSubject: Subject<[agentName: string, agent: IAgent]>
 ```
 
 ### _activeAgent
 
 ```ts
-_activeAgent: any
+_activeAgent: string | unique symbol
 ```
 
 ### _navigationStack
 
 ```ts
-_navigationStack: any
+_navigationStack: string[] | unique symbol
 ```
 
 ### _cancelOutputSubject
 
 ```ts
-_cancelOutputSubject: any
+_cancelOutputSubject: Subject<{ agentName: string; output: string; }>
 ```
-
-### navigationPop
-
-```ts
-navigationPop: () => Promise<string>
-```
-
-Pop the navigation stack or return default agent
-
-### cancelOutput
-
-```ts
-cancelOutput: () => Promise<void>
-```
-
-Cancel the await of output by emit of empty string
 
 ### waitForOutput
 
@@ -66,10 +50,28 @@ waitForOutput: () => Promise<string>
 
 Waits for output from the active agent.
 
+## Methods
+
+### navigationPop
+
+```ts
+navigationPop(): Promise<string>;
+```
+
+Pop the navigation stack or return default agent
+
+### cancelOutput
+
+```ts
+cancelOutput(): Promise<void>;
+```
+
+Cancel the await of output by emit of empty string
+
 ### getAgentName
 
 ```ts
-getAgentName: () => Promise<string>
+getAgentName(): Promise<AgentName>;
 ```
 
 Gets the name of the active agent.
@@ -77,7 +79,7 @@ Gets the name of the active agent.
 ### getAgent
 
 ```ts
-getAgent: () => Promise<IAgent>
+getAgent(): Promise<IAgent>;
 ```
 
 Gets the active agent.
@@ -85,7 +87,7 @@ Gets the active agent.
 ### setAgentRef
 
 ```ts
-setAgentRef: (agentName: string, agent: IAgent) => Promise<void>
+setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
 ```
 
 Sets the reference of an agent in the swarm.
@@ -93,7 +95,7 @@ Sets the reference of an agent in the swarm.
 ### setAgentName
 
 ```ts
-setAgentName: (agentName: string) => Promise<void>
+setAgentName(agentName: AgentName): Promise<void>;
 ```
 
 Sets the active agent by name.
