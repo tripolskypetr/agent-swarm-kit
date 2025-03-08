@@ -4,6 +4,7 @@ import {
   errorData,
   getErrorMessage,
   singleshot,
+  Source,
   trycatch,
 } from "functools-kit";
 
@@ -15,7 +16,7 @@ const METHOD_NAME_INTERVAL = "cli.dumpPerfomance.interval";
  * The internal HOF for handling the performance dump
  */
 const dumpPerfomanceInternal = trycatch(
-  async (dirName = "./docs/meta") => {
+  async (dirName = "./logs/meta") => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_INTERNAL);
     return await swarm.docService.dumpPerfomance(dirName);
@@ -38,10 +39,10 @@ const dumpPerfomanceInternal = trycatch(
  * Dumps the performance data using the swarm's document service.
  * Logs the method name if logging is enabled in the global configuration.
  *
- * @param {string} [dirName="./docs/meta"] - The directory name where the performance data will be dumped.
+ * @param {string} [dirName="./logs/meta"] - The directory name where the performance data will be dumped.
  * @returns {Promise<void>} A promise that resolves when the performance data has been dumped.
  */
-const dumpPerfomance = async (dirName = "./docs/meta") => {
+const dumpPerfomance = async (dirName = "./logs/meta") => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
   await dumpPerfomanceInternal(dirName);
 };
@@ -50,16 +51,14 @@ const dumpPerfomance = async (dirName = "./docs/meta") => {
  * Runs the dumpPerfomance function at specified intervals.
  * Logs the method name if logging is enabled in the global configuration.
  *
- * @param {string} [dirName="./docs/meta"] - The directory name where the performance data will be dumped.
+ * @param {string} [dirName="./logs/meta"] - The directory name where the performance data will be dumped.
  * @param {number} [interval=30000] - The interval in milliseconds at which to run the dumpPerfomance function.
  */
-dumpPerfomance.runInterval = singleshot(
-  (dirName = "./docs/meta", interval = 30_000) => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_INTERVAL);
-    setInterval(() => dumpPerfomance(dirName), interval);
-  }
-);
+dumpPerfomance.runInterval = (dirName = "./logs/meta", interval = 30_000) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME_INTERVAL);
+  return Source.fromInterval(interval).connect(() => dumpPerfomance(dirName));
+};
 
 export { dumpPerfomance };
 

@@ -452,7 +452,7 @@ export class DocService {
    * @returns {Promise<void>}
    */
   public dumpPerfomance = async (
-    dirName = join(process.cwd(), "docs/meta")
+    dirName = join(process.cwd(), "logs/meta")
   ) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("docService dumpPerfomance", {
@@ -472,7 +472,7 @@ export class DocService {
    */
   public dumpClientPerfomance = async (
     clientId: string,
-    dirName = join(process.cwd(), "docs/client")
+    dirName = join(process.cwd(), "logs/client")
   ) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("docService dumpPerfomance", {

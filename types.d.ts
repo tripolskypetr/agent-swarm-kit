@@ -3907,7 +3907,7 @@ declare const dumpSwarm: (swarmName: SwarmName) => string;
  * Dumps the performance data using the swarm's document service.
  * Logs the method name if logging is enabled in the global configuration.
  *
- * @param {string} [dirName="./docs/meta"] - The directory name where the performance data will be dumped.
+ * @param {string} [dirName="./logs/meta"] - The directory name where the performance data will be dumped.
  * @returns {Promise<void>} A promise that resolves when the performance data has been dumped.
  */
 declare const dumpPerfomance: {
@@ -3916,10 +3916,10 @@ declare const dumpPerfomance: {
      * Runs the dumpPerfomance function at specified intervals.
      * Logs the method name if logging is enabled in the global configuration.
      *
-     * @param {string} [dirName="./docs/meta"] - The directory name where the performance data will be dumped.
+     * @param {string} [dirName="./logs/meta"] - The directory name where the performance data will be dumped.
      * @param {number} [interval=30000] - The interval in milliseconds at which to run the dumpPerfomance function.
      */
-    runInterval: ((dirName?: any, interval?: any) => void) & functools_kit.ISingleshotClearable;
+    runInterval(dirName?: string, interval?: number): () => void;
 };
 
 /**
@@ -3927,7 +3927,7 @@ declare const dumpPerfomance: {
  * Logs the method name if logging is enabled in the global configuration.
  *
  * @param {string} clientId - The client ID for which the performance data is being dumped.
- * @param {string} [dirName="./docs/client"] - The directory name where the performance data will be dumped.
+ * @param {string} [dirName="./logs/client"] - The directory name where the performance data will be dumped.
  * @returns {Promise<void>} A promise that resolves when the performance data has been dumped.
  */
 declare const dumpClientPerformance: {
@@ -3936,7 +3936,7 @@ declare const dumpClientPerformance: {
      * Sets up a listener to dump performance data after execution.
      * Logs the method name if logging is enabled in the global configuration.
      *
-     * @param {string} [dirName="./docs/client"] - The directory name where the performance data will be dumped.
+     * @param {string} [dirName="./logs/client"] - The directory name where the performance data will be dumped.
      * @returns {Promise<void>} A promise that resolves when the listener has been set up.
      */
     runAfterExecute(dirName?: string): Promise<() => void>;
@@ -4555,7 +4555,7 @@ declare const listenStorageEvent: (clientId: string, fn: (event: IBusEvent) => v
 declare const listenSwarmEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to agent events for a specific client.
+ * Hook to subscribe to execution events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to events for.
  * @param {function} fn - The callback function to handle the event.
@@ -4611,7 +4611,7 @@ declare const listenStorageEventOnce: (clientId: string, filterFn: (event: IBusE
 declare const listenSwarmEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to agent events for a specific client.
+ * Hook to subscribe to execution events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to events for.
  * @param {function} fn - The callback function to handle the event.

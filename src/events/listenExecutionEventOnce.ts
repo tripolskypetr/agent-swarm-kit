@@ -12,7 +12,7 @@ const validateClientId = (clientId: string) => {
 };
 
 /**
- * Hook to subscribe to agent events for a specific client.
+ * Hook to subscribe to execution events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to events for.
  * @param {function} fn - The callback function to handle the event.
