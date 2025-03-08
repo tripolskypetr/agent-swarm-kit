@@ -13,6 +13,7 @@ import SwarmValidationService from "../validation/SwarmValidationService";
 import AgentValidationService from "../validation/AgentValidationService";
 import StatePublicService from "../public/StatePublicService";
 import StateConnectionService from "../connection/StateConnectionService";
+import { StateName } from "../../../interfaces/State.interface";
 
 const METHOD_NAME_COMPUTE_STATE = "perfService.computeClientState";
 
@@ -63,32 +64,39 @@ export class PerfService {
       });
     const swarmName = this.sessionValidationService.getSwarm(clientId);
     const result: Record<string, unknown> = {};
-    await Promise.all(
-      this.swarmValidationService
-        .getAgentList(swarmName)
-        .flatMap((agentName) =>
-          this.agentValidationService.getStateList(agentName)
-        )
-        .filter((stateName) => !!stateName)
-        .map(async (stateName) => {
-          if (!this.sessionValidationService.hasSession(clientId)) {
-            return;
-          }
-          if (
-            !this.stateConnectionService.getStateRef.has(
-              `${clientId}-${stateName}`
-            )
-          ) {
-            return;
-          }
-          const stateValue = await this.statePublicService.getState(
-            METHOD_NAME_COMPUTE_STATE,
-            clientId,
-            stateName
-          );
-          Object.assign(result, { [stateName]: stateValue });
-        })
-    );
+    {
+      const stateFetchSet = new Set<StateName>();
+      await Promise.all(
+        this.swarmValidationService
+          .getAgentList(swarmName)
+          .flatMap((agentName) =>
+            this.agentValidationService.getStateList(agentName)
+          )
+          .filter((stateName) => !!stateName)
+          .map(async (stateName) => {
+            if (stateFetchSet.has(stateName)) {
+              return;
+            }
+            stateFetchSet.add(stateName);
+            if (!this.sessionValidationService.hasSession(clientId)) {
+              return;
+            }
+            if (
+              !this.stateConnectionService.getStateRef.has(
+                `${clientId}-${stateName}`
+              )
+            ) {
+              return;
+            }
+            const stateValue = await this.statePublicService.getState(
+              METHOD_NAME_COMPUTE_STATE,
+              clientId,
+              stateName
+            );
+            Object.assign(result, { [stateName]: stateValue });
+          })
+      );
+    }
     return result;
   };
 
