@@ -7,6 +7,29 @@ import {
 import { GLOBAL_CONFIG } from "../config/params";
 import { IBusEvent } from "../model/Event.model";
 
+const WAIT_FOR_INIT_FN = async (self: ClientStorage) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    self.params.logger.debug(
+      `ClientStorage storageName=${self.params.storageName} clientId=${self.params.clientId} shared=${self.params.shared} waitForInit`
+    );
+  if (!self.params.getData) {
+    return;
+  }
+  const data = await self.params.getData(
+    self.params.clientId,
+    self.params.storageName
+  );
+  await Promise.all(
+    data.map(
+      execpool(self._createEmbedding, {
+        delay: 10,
+        maxExec: GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL,
+      })
+    )
+  );
+  self._itemMap = new Map(data.map((item) => [item.id, item]));
+};
+
 /**
  * ClientStorage class to manage storage operations.
  * @template T - The type of storage data.
@@ -14,7 +37,7 @@ import { IBusEvent } from "../model/Event.model";
 export class ClientStorage<T extends IStorageData = IStorageData>
   implements IStorage<T>
 {
-  private _itemMap = new Map<IStorageData["id"], T>();
+  _itemMap = new Map<IStorageData["id"], T>();
 
   /**
    * Creates an instance of ClientStorage.
@@ -69,28 +92,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * Waits for the initialization of the storage.
    * @returns {Promise<void>}
    */
-  waitForInit = singleshot(async () => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      this.params.logger.debug(
-        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} waitForInit`
-      );
-    if (!this.params.getData) {
-      return;
-    }
-    const data = await this.params.getData(
-      this.params.clientId,
-      this.params.storageName
-    );
-    await Promise.all(
-      data.map(
-        execpool(this._createEmbedding, {
-          delay: 10,
-          maxExec: GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL,
-        })
-      )
-    );
-    this._itemMap = new Map(data.map((item) => [item.id, item]));
-  });
+  waitForInit = singleshot(async () => await WAIT_FOR_INIT_FN(this));
 
   /**
    * Takes a specified number of items based on the search criteria.
@@ -99,11 +101,11 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @param {number} [score=GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY] - The similarity score.
    * @returns {Promise<T[]>} - The list of items.
    */
-  take = async (
+  async take(
     search: string,
     total: number,
     score = GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY
-  ): Promise<T[]> => {
+  ): Promise<T[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} take`,
@@ -181,14 +183,14 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       clientId: this.params.clientId,
     });
     return indexed.take(total, score);
-  };
+  }
 
   /**
    * Upserts an item into the storage.
    * @param {T} item - The item to upsert.
    * @returns {Promise<void>}
    */
-  upsert = async (item: T) => {
+  async upsert(item: T) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} upsert`,
@@ -218,14 +220,14 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       },
       clientId: this.params.clientId,
     });
-  };
+  }
 
   /**
    * Removes an item from the storage.
    * @param {IStorageData["id"]} itemId - The ID of the item to remove.
    * @returns {Promise<void>}
    */
-  remove = async (itemId: IStorageData["id"]) => {
+  async remove(itemId: IStorageData["id"]) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} remove`,
@@ -254,13 +256,13 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       },
       clientId: this.params.clientId,
     });
-  };
+  }
 
   /**
    * Clears all items from the storage.
    * @returns {Promise<void>}
    */
-  clear = async () => {
+  async clear() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} clear`
@@ -277,14 +279,14 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       },
       clientId: this.params.clientId,
     });
-  };
+  }
 
   /**
    * Gets an item by its ID.
    * @param {IStorageData["id"]} itemId - The ID of the item to get.
    * @returns {Promise<T | null>} - The item or null if not found.
    */
-  get = async (itemId: IStorageData["id"]): Promise<T | null> => {
+  async get(itemId: IStorageData["id"]): Promise<T | null> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} get`,
@@ -308,14 +310,14 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       clientId: this.params.clientId,
     });
     return result;
-  };
+  }
 
   /**
    * Lists all items in the storage, optionally filtered by a predicate.
    * @param {(item: T) => boolean} [filter] - The filter predicate.
    * @returns {Promise<T[]>} - The list of items.
    */
-  list = async (filter?: (item: T) => boolean) => {
+  async list(filter?: (item: T) => boolean) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} list`
@@ -342,13 +344,13 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       clientId: this.params.clientId,
     });
     return result;
-  };
+  }
 
   /**
    * Disposes of the state.
    * @returns {Promise<void>}
    */
-  public dispose = async () => {
+  async dispose() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} dispose`
@@ -359,7 +361,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         this.params.storageName
       );
     }
-  };
+  }
 }
 
 export default ClientStorage;

@@ -35,7 +35,7 @@ export class ClientHistory implements IHistory {
    * @param {IModelMessage} message - The message to push.
    * @returns {Promise<void>}
    */
-  push = async (message: IModelMessage): Promise<void> => {
+  async push(message: IModelMessage): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientHistory agentName=${this.params.agentName} push`,
@@ -64,7 +64,7 @@ export class ClientHistory implements IHistory {
    * Converts the history to an array of raw messages.
    * @returns {Promise<IModelMessage[]>} - The array of raw messages.
    */
-  toArrayForRaw = async (): Promise<IModelMessage[]> => {
+  async toArrayForRaw(): Promise<IModelMessage[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientHistory agentName=${this.params.agentName} toArrayForRaw`
@@ -85,10 +85,10 @@ export class ClientHistory implements IHistory {
    * @param {string} system - The tool calling protocol
    * @returns {Promise<IModelMessage[]>} - The array of messages for the agent.
    */
-  toArrayForAgent = async (
+  async toArrayForAgent(
     prompt: string,
     system?: string[]
-  ): Promise<IModelMessage[]> => {
+  ): Promise<IModelMessage[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientHistory agentName=${this.params.agentName} toArrayForAgent`
@@ -185,7 +185,7 @@ export class ClientHistory implements IHistory {
    * Should call on agent dispose
    * @returns {Promise<void>}
    */
-  dispose = async (): Promise<void> => {
+  async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} dispose`

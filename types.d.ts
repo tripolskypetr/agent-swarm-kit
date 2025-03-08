@@ -1033,7 +1033,7 @@ declare const HISTORY_INSTANCE_WAIT_FOR_INIT: unique symbol;
 declare class HistoryInstance implements IHistoryInstance {
     readonly clientId: string;
     readonly callbacks: Partial<IHistoryInstanceCallbacks>;
-    private _array;
+    _array: IModelMessage[];
     /**
      * Makes the singleshot for initialization
      * @param agentName - The agent name.
@@ -1626,63 +1626,63 @@ declare class ClientAgent implements IAgent {
      * @returns {Promise<void>}
      * @private
      */
-    _emitOuput: (mode: ExecutionMode, rawResult: string) => Promise<void>;
+    _emitOuput(mode: ExecutionMode, rawResult: string): Promise<void>;
     /**
      * Resurrects the model based on the given reason.
      * @param {string} [reason] - The reason for resurrecting the model.
      * @returns {Promise<string>}
      * @private
      */
-    _resurrectModel: (mode: ExecutionMode, reason?: string) => Promise<string>;
+    _resurrectModel(mode: ExecutionMode, reason?: string): Promise<string>;
     /**
      * Waits for the output to be available.
      * @returns {Promise<string>}
      */
-    waitForOutput: () => Promise<string>;
+    waitForOutput(): Promise<string>;
     /**
      * Gets the completion message from the model.
      * @returns {Promise<IModelMessage>}
      */
-    getCompletion: (mode: ExecutionMode) => Promise<IModelMessage>;
+    getCompletion(mode: ExecutionMode): Promise<IModelMessage>;
     /**
      * Commits a user message to the history without answer.
      * @param {string} message - The message to commit.
      * @returns {Promise<void>}
      */
-    commitUserMessage: (message: string) => Promise<void>;
+    commitUserMessage(message: string): Promise<void>;
     /**
      * Commits flush of agent history
      * @returns {Promise<void>}
      */
-    commitFlush: () => Promise<void>;
+    commitFlush(): Promise<void>;
     /**
      * Commits change of agent to prevent the next tool execution from being called.
      * @returns {Promise<void>}
      */
-    commitAgentChange: () => Promise<void>;
+    commitAgentChange(): Promise<void>;
     /**
      * Commits change of agent to prevent the next tool execution from being called.
      * @returns {Promise<void>}
      */
-    commitStopTools: () => Promise<void>;
+    commitStopTools(): Promise<void>;
     /**
      * Commits a system message to the history.
      * @param {string} message - The system message to commit.
      * @returns {Promise<void>}
      */
-    commitSystemMessage: (message: string) => Promise<void>;
+    commitSystemMessage(message: string): Promise<void>;
     /**
      * Commits an assistant message to the history without execute.
      * @param {string} message - The system message to commit.
      * @returns {Promise<void>}
      */
-    commitAssistantMessage: (message: string) => Promise<void>;
+    commitAssistantMessage(message: string): Promise<void>;
     /**
      * Commits the tool output to the history.
      * @param {string} content - The tool output content.
      * @returns {Promise<void>}
      */
-    commitToolOutput: (toolId: string, content: string) => Promise<void>;
+    commitToolOutput(toolId: string, content: string): Promise<void>;
     /**
      * Executes the incoming message and processes tool calls if any.
      * @param {string} incoming - The incoming message content.
@@ -1699,7 +1699,7 @@ declare class ClientAgent implements IAgent {
      * Should call on agent dispose
      * @returns {Promise<void>}
      */
-    dispose: () => Promise<void>;
+    dispose(): Promise<void>;
 }
 
 /**
@@ -1807,24 +1807,24 @@ declare class ClientHistory implements IHistory {
      * @param {IModelMessage} message - The message to push.
      * @returns {Promise<void>}
      */
-    push: (message: IModelMessage) => Promise<void>;
+    push(message: IModelMessage): Promise<void>;
     /**
      * Converts the history to an array of raw messages.
      * @returns {Promise<IModelMessage[]>} - The array of raw messages.
      */
-    toArrayForRaw: () => Promise<IModelMessage[]>;
+    toArrayForRaw(): Promise<IModelMessage[]>;
     /**
      * Converts the history to an array of messages for the agent.
      * @param {string} prompt - The prompt message.
      * @param {string} system - The tool calling protocol
      * @returns {Promise<IModelMessage[]>} - The array of messages for the agent.
      */
-    toArrayForAgent: (prompt: string, system?: string[]) => Promise<IModelMessage[]>;
+    toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
     /**
      * Should call on agent dispose
      * @returns {Promise<void>}
      */
-    dispose: () => Promise<void>;
+    dispose(): Promise<void>;
 }
 
 /**
@@ -1915,15 +1915,20 @@ declare class ToolSchemaService {
     get: (key: ToolName) => IAgentTool;
 }
 
+declare const AGENT_NEED_FETCH: unique symbol;
+declare const STACK_NEED_FETCH: unique symbol;
 /**
  * ClientSwarm class implements the ISwarm interface and manages agents within a swarm.
  */
 declare class ClientSwarm implements ISwarm {
     readonly params: ISwarmParams;
-    private _agentChangedSubject;
-    private _activeAgent;
-    private _navigationStack;
-    private _cancelOutputSubject;
+    _agentChangedSubject: Subject<[agentName: string, agent: IAgent]>;
+    _activeAgent: AgentName | typeof AGENT_NEED_FETCH;
+    _navigationStack: AgentName[] | typeof STACK_NEED_FETCH;
+    _cancelOutputSubject: Subject<{
+        agentName: string;
+        output: string;
+    }>;
     get _agentList(): [string, IAgent][];
     /**
      * Creates an instance of ClientSwarm.
@@ -1934,12 +1939,12 @@ declare class ClientSwarm implements ISwarm {
      * Pop the navigation stack or return default agent
      * @returns {Promise<string>} - The pending agent for navigation
      */
-    navigationPop: () => Promise<string>;
+    navigationPop(): Promise<string>;
     /**
      * Cancel the await of output by emit of empty string
      * @returns {Promise<string>} - The output from the active agent.
      */
-    cancelOutput: () => Promise<void>;
+    cancelOutput(): Promise<void>;
     /**
      * Waits for output from the active agent.
      * @returns {Promise<string>} - The output from the active agent.
@@ -1949,24 +1954,24 @@ declare class ClientSwarm implements ISwarm {
      * Gets the name of the active agent.
      * @returns {Promise<AgentName>} - The name of the active agent.
      */
-    getAgentName: () => Promise<AgentName>;
+    getAgentName(): Promise<AgentName>;
     /**
      * Gets the active agent.
      * @returns {Promise<IAgent>} - The active agent.
      */
-    getAgent: () => Promise<IAgent>;
+    getAgent(): Promise<IAgent>;
     /**
      * Sets the reference of an agent in the swarm.
      * @param {AgentName} agentName - The name of the agent.
      * @param {IAgent} agent - The agent instance.
      * @throws {Error} - If the agent is not in the swarm.
      */
-    setAgentRef: (agentName: AgentName, agent: IAgent) => Promise<void>;
+    setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
     /**
      * Sets the active agent by name.
      * @param {AgentName} agentName - The name of the agent to set as active.
      */
-    setAgentName: (agentName: AgentName) => Promise<void>;
+    setAgentName(agentName: AgentName): Promise<void>;
 }
 
 /**
@@ -2095,66 +2100,66 @@ declare class ClientSession implements ISession {
      * @param {string} message - The message to emit.
      * @returns {Promise<void>}
      */
-    emit: (message: string) => Promise<void>;
+    emit(message: string): Promise<void>;
     /**
      * Executes a message and optionally emits the output.
      * @param {string} message - The message to execute.
      * @param {boolean} [noEmit=false] - Whether to emit the output or not.
      * @returns {Promise<string>} - The output of the execution.
      */
-    execute: (message: string, mode: ExecutionMode) => Promise<string>;
+    execute(message: string, mode: ExecutionMode): Promise<string>;
     /**
      * Run the completion stateless
      * @param {string} message - The message to run.
      * @returns {Promise<string>} - The output of the execution.
      */
-    run: (message: string) => Promise<string>;
+    run(message: string): Promise<string>;
     /**
      * Commits tool output.
      * @param {string} toolId - The `tool_call_id` for openai history
      * @param {string} content - The content to commit.
      * @returns {Promise<void>}
      */
-    commitToolOutput: (toolId: string, content: string) => Promise<void>;
+    commitToolOutput(toolId: string, content: string): Promise<void>;
     /**
      * Commits user message without answer.
      * @param {string} message - The message to commit.
      * @returns {Promise<void>}
      */
-    commitUserMessage: (message: string) => Promise<void>;
+    commitUserMessage(message: string): Promise<void>;
     /**
      * Commits flush of agent history
      * @returns {Promise<void>}
      */
-    commitFlush: () => Promise<void>;
+    commitFlush(): Promise<void>;
     /**
      * Commits stop of the nexttool execution
      * @returns {Promise<void>}
      */
-    commitStopTools: () => Promise<void>;
+    commitStopTools(): Promise<void>;
     /**
      * Commits a system message.
      * @param {string} message - The system message to commit.
      * @returns {Promise<void>}
      */
-    commitSystemMessage: (message: string) => Promise<void>;
+    commitSystemMessage(message: string): Promise<void>;
     /**
      * Commits an assistant message.
      * @param {string} message - The assistant message to commit.
      * @returns {Promise<void>}
      */
-    commitAssistantMessage: (message: string) => Promise<void>;
+    commitAssistantMessage(message: string): Promise<void>;
     /**
      * Connects the session to a connector function.
      * @param {SendMessageFn} connector - The connector function.
      * @returns {ReceiveMessageFn<string>} - The function to receive messages.
      */
-    connect: (connector: SendMessageFn$1) => ReceiveMessageFn<string>;
+    connect(connector: SendMessageFn$1): ReceiveMessageFn<string>;
     /**
      * Should call on session dispose
      * @returns {Promise<void>}
      */
-    dispose: () => Promise<void>;
+    dispose(): Promise<void>;
 }
 
 /**
@@ -2884,7 +2889,7 @@ declare class StorageSchemaService {
  */
 declare class ClientStorage<T extends IStorageData = IStorageData> implements IStorage<T> {
     readonly params: IStorageParams<T>;
-    private _itemMap;
+    _itemMap: Map<string | number, T>;
     /**
      * Creates an instance of ClientStorage.
      * @param {IStorageParams<T>} params - The storage parameters.
@@ -2908,41 +2913,41 @@ declare class ClientStorage<T extends IStorageData = IStorageData> implements IS
      * @param {number} [score=GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY] - The similarity score.
      * @returns {Promise<T[]>} - The list of items.
      */
-    take: (search: string, total: number, score?: number) => Promise<T[]>;
+    take(search: string, total: number, score?: number): Promise<T[]>;
     /**
      * Upserts an item into the storage.
      * @param {T} item - The item to upsert.
      * @returns {Promise<void>}
      */
-    upsert: (item: T) => Promise<void>;
+    upsert(item: T): Promise<void>;
     /**
      * Removes an item from the storage.
      * @param {IStorageData["id"]} itemId - The ID of the item to remove.
      * @returns {Promise<void>}
      */
-    remove: (itemId: IStorageData["id"]) => Promise<void>;
+    remove(itemId: IStorageData["id"]): Promise<void>;
     /**
      * Clears all items from the storage.
      * @returns {Promise<void>}
      */
-    clear: () => Promise<void>;
+    clear(): Promise<void>;
     /**
      * Gets an item by its ID.
      * @param {IStorageData["id"]} itemId - The ID of the item to get.
      * @returns {Promise<T | null>} - The item or null if not found.
      */
-    get: (itemId: IStorageData["id"]) => Promise<T | null>;
+    get(itemId: IStorageData["id"]): Promise<T | null>;
     /**
      * Lists all items in the storage, optionally filtered by a predicate.
      * @param {(item: T) => boolean} [filter] - The filter predicate.
      * @returns {Promise<T[]>} - The list of items.
      */
-    list: (filter?: (item: T) => boolean) => Promise<T[]>;
+    list(filter?: (item: T) => boolean): Promise<T[]>;
     /**
      * Disposes of the state.
      * @returns {Promise<void>}
      */
-    dispose: () => Promise<void>;
+    dispose(): Promise<void>;
 }
 
 /**
@@ -3121,8 +3126,8 @@ type DispatchFn<State extends IStateData = IStateData> = (prevState: State) => P
  */
 declare class ClientState<State extends IStateData = IStateData> implements IState<State> {
     readonly params: IStateParams<State>;
-    private _state;
-    private dispatch;
+    _state: State;
+    dispatch: (action: string, payload?: DispatchFn<State>) => Promise<State>;
     /**
      * Creates an instance of ClientState.
      * @param {IStateParams<State>} params - The state parameters.
@@ -3138,22 +3143,22 @@ declare class ClientState<State extends IStateData = IStateData> implements ISta
      * @param {DispatchFn<State>} dispatchFn - The dispatch function.
      * @returns {Promise<State>}
      */
-    setState: (dispatchFn: DispatchFn<State>) => Promise<State>;
+    setState(dispatchFn: DispatchFn<State>): Promise<State>;
     /**
      * Sets the to initial value
      * @returns {Promise<State>}
      */
-    clearState: () => Promise<State>;
+    clearState(): Promise<State>;
     /**
      * Gets the current state.
      * @returns {Promise<State>}
      */
-    getState: () => Promise<State>;
+    getState(): Promise<State>;
     /**
      * Disposes of the state.
      * @returns {Promise<void>}
      */
-    dispose: () => Promise<void>;
+    dispose(): void;
 }
 
 /**

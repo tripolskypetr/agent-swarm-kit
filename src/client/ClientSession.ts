@@ -37,7 +37,7 @@ export class ClientSession implements ISession {
    * @param {string} message - The message to emit.
    * @returns {Promise<void>}
    */
-  emit = async (message: string) => {
+  async emit(message: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} emit`,
@@ -68,7 +68,7 @@ export class ClientSession implements ISession {
    * @param {boolean} [noEmit=false] - Whether to emit the output or not.
    * @returns {Promise<string>} - The output of the execution.
    */
-  execute = async (message: string, mode: ExecutionMode) => {
+  async execute(message: string, mode: ExecutionMode) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} execute`,
@@ -111,7 +111,7 @@ export class ClientSession implements ISession {
    * @param {string} message - The message to run.
    * @returns {Promise<string>} - The output of the execution.
    */
-  run = async (message: string) => {
+  async run(message: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} run`,
@@ -150,7 +150,7 @@ export class ClientSession implements ISession {
    * @param {string} content - The content to commit.
    * @returns {Promise<void>}
    */
-  commitToolOutput = async (toolId: string, content: string) => {
+  async commitToolOutput(toolId: string, content: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitToolOutput`,
@@ -182,7 +182,7 @@ export class ClientSession implements ISession {
    * @param {string} message - The message to commit.
    * @returns {Promise<void>}
    */
-  commitUserMessage = async (message: string) => {
+  async commitUserMessage(message: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitUserMessage`,
@@ -211,7 +211,7 @@ export class ClientSession implements ISession {
    * Commits flush of agent history
    * @returns {Promise<void>}
    */
-  commitFlush = async () => {
+  async commitFlush() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitFlush`
@@ -235,7 +235,7 @@ export class ClientSession implements ISession {
    * Commits stop of the nexttool execution
    * @returns {Promise<void>}
    */
-  commitStopTools = async () => {
+  async commitStopTools() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitStopTools`
@@ -260,7 +260,7 @@ export class ClientSession implements ISession {
    * @param {string} message - The system message to commit.
    * @returns {Promise<void>}
    */
-  commitSystemMessage = async (message: string) => {
+  async commitSystemMessage(message: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitSystemMessage`,
@@ -290,7 +290,7 @@ export class ClientSession implements ISession {
    * @param {string} message - The assistant message to commit.
    * @returns {Promise<void>}
    */
-  commitAssistantMessage = async (message: string) => {
+  async commitAssistantMessage(message: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitAssistantMessage`,
@@ -320,7 +320,7 @@ export class ClientSession implements ISession {
    * @param {SendMessageFn} connector - The connector function.
    * @returns {ReceiveMessageFn<string>} - The function to receive messages.
    */
-  connect = (connector: SendMessageFn): ReceiveMessageFn<string> => {
+  connect(connector: SendMessageFn): ReceiveMessageFn<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} connect`
@@ -367,7 +367,7 @@ export class ClientSession implements ISession {
    * Should call on session dispose
    * @returns {Promise<void>}
    */
-  dispose = async (): Promise<void> => {
+  async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} dispose`

@@ -5,6 +5,12 @@ import { memoize, singleshot } from "functools-kit";
 
 const LOGGER_INSTANCE_WAIT_FOR_INIT = Symbol("wait-for-init");
 
+const LOGGER_INSTANCE_WAIT_FOR_FN = async (self: LoggerInstance) => {
+  if (self.callbacks.onInit) {
+    self.callbacks.onInit(self.clientId);
+  }
+};
+
 /**
  * @interface ILoggerInstanceCallbacks
  * @description Callbacks for logger instance events.
@@ -53,7 +59,7 @@ interface ILoggerControl {
 
 type TLoggerInstanceCtor = new (
   clientId: string,
-  callbacks: Partial<ILoggerInstanceCallbacks>,
+  callbacks: Partial<ILoggerInstanceCallbacks>
 ) => ILoggerInstance;
 
 /**
@@ -67,11 +73,9 @@ export class LoggerInstance implements ILoggerInstance {
     readonly callbacks: Partial<ILoggerInstanceCallbacks>
   ) {}
 
-  private [LOGGER_INSTANCE_WAIT_FOR_INIT] = singleshot(async () => {
-    if (this.callbacks.onInit) {
-      this.callbacks.onInit(this.clientId);
-    }
-  });
+  private [LOGGER_INSTANCE_WAIT_FOR_INIT] = singleshot(
+    async () => await LOGGER_INSTANCE_WAIT_FOR_FN(this)
+  );
 
   /**
    * @method waitForInit
