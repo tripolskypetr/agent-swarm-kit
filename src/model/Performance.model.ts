@@ -58,6 +58,11 @@ export interface IClientPerfomanceRecord {
   sessionMemory: Record<string, unknown>;
 
   /**
+   * The state of client session
+   */
+  sessionState: Record<string, unknown>;
+
+  /**
    * Execution count.
    */
   executionCount: number;

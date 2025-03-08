@@ -9,6 +9,12 @@ import IPerformanceRecord, {
 } from "../../../model/Performance.model";
 import { getMomentStamp, getTimeStamp } from "get-moment-stamp";
 import MemorySchemaService from "../schema/MemorySchemaService";
+import SwarmValidationService from "../validation/SwarmValidationService";
+import AgentValidationService from "../validation/AgentValidationService";
+import StatePublicService from "../public/StatePublicService";
+import StateConnectionService from "../connection/StateConnectionService";
+
+const METHOD_NAME_COMPUTE_STATE = "perfService.computeClientState";
 
 /**
  * Performance Service to track and log execution times, input lengths, and output lengths
@@ -22,6 +28,18 @@ export class PerfService {
   private readonly memorySchemaService = inject<MemorySchemaService>(
     TYPES.memorySchemaService
   );
+  private readonly swarmValidationService = inject<SwarmValidationService>(
+    TYPES.swarmValidationService
+  );
+  private readonly agentValidationService = inject<AgentValidationService>(
+    TYPES.agentValidationService
+  );
+  private readonly statePublicService = inject<StatePublicService>(
+    TYPES.statePublicService
+  );
+  private readonly stateConnectionService = inject<StateConnectionService>(
+    TYPES.stateConnectionService
+  );
 
   private executionScheduleMap: Map<string, Map<string, number[]>> = new Map();
 
@@ -32,6 +50,47 @@ export class PerfService {
 
   private totalResponseTime: number = 0;
   private totalRequestCount = 0;
+
+  /**
+   * Computes the state of the client by aggregating the states of all agents in the client's swarm.
+   * @param {string} clientId - The client ID.
+   * @returns {Promise<Record<string, unknown>>} A promise that resolves to an object containing the aggregated state of the client.
+   */
+  private computeClientState = async (clientId: string) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`perfService computeClientState`, {
+        clientId,
+      });
+    const swarmName = this.sessionValidationService.getSwarm(clientId);
+    const result: Record<string, unknown> = {};
+    await Promise.all(
+      this.swarmValidationService
+        .getAgentList(swarmName)
+        .flatMap((agentName) =>
+          this.agentValidationService.getStateList(agentName)
+        )
+        .filter((stateName) => !!stateName)
+        .map(async (stateName) => {
+          if (!this.sessionValidationService.hasSession(clientId)) {
+            return;
+          }
+          if (
+            !this.stateConnectionService.getStateRef.has(
+              `${clientId}-${stateName}`
+            )
+          ) {
+            return;
+          }
+          const stateValue = await this.statePublicService.getState(
+            METHOD_NAME_COMPUTE_STATE,
+            clientId,
+            stateName
+          );
+          Object.assign(result, { [stateName]: stateValue });
+        })
+    );
+    return result;
+  };
 
   /**
    * Gets the number of active session executions for a given client.
@@ -293,7 +352,7 @@ export class PerfService {
       this.executionTimeMap.get(clientId)! + responseTime
     );
     if (!clientStack.length) {
-        clientMap.delete(executionId);
+      clientMap.delete(executionId);
     }
     return true;
   };
@@ -302,7 +361,9 @@ export class PerfService {
    * Convert performance measures of the client for serialization
    * @param {string} clientId - The client ID.
    */
-  public toClientRecord = async (clientId: string): Promise<IClientPerfomanceRecord> => {
+  public toClientRecord = async (
+    clientId: string
+  ): Promise<IClientPerfomanceRecord> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`perfService toClientRecord`, { clientId });
     const executionCount = this.executionCountMap.get(clientId) || 0;
@@ -321,6 +382,7 @@ export class PerfService {
     return {
       clientId,
       sessionMemory: this.memorySchemaService.readValue(clientId),
+      sessionState: await this.computeClientState(clientId),
       executionCount,
       executionInputTotal,
       executionOutputTotal,
@@ -344,7 +406,9 @@ export class PerfService {
     const averageResponseTime = this.getAverageResponseTime();
     return {
       processId: GLOBAL_CONFIG.CC_PROCESS_UUID,
-      clients: await Promise.all(this.getActiveSessions().map(this.toClientRecord)),
+      clients: await Promise.all(
+        this.getActiveSessions().map(this.toClientRecord)
+      ),
       totalExecutionCount,
       totalResponseTime: msToTime(totalResponseTime),
       averageResponseTime: msToTime(averageResponseTime),

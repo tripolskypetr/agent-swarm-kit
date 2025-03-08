@@ -3408,6 +3408,13 @@ declare class DocService {
      * @returns {Promise<void>}
      */
     dumpPerfomance: (dirName?: string) => Promise<void>;
+    /**
+     * Dumps the client performance data to a file.
+     * @param {string} clientId - The session id to dump the data
+     * @param {string} [dirName=join(process.cwd(), "docs/meta")] - The directory to write the performance data to.
+     * @returns {Promise<void>}
+     */
+    dumpClientPerfomance: (clientId: string, dirName?: string) => Promise<void>;
 }
 
 /**
@@ -3666,6 +3673,10 @@ interface IClientPerfomanceRecord {
      */
     sessionMemory: Record<string, unknown>;
     /**
+     * The state of client session
+     */
+    sessionState: Record<string, unknown>;
+    /**
      * Execution count.
      */
     executionCount: number;
@@ -3703,6 +3714,10 @@ declare class PerfService {
     private readonly loggerService;
     private readonly sessionValidationService;
     private readonly memorySchemaService;
+    private readonly swarmValidationService;
+    private readonly agentValidationService;
+    private readonly statePublicService;
+    private readonly stateConnectionService;
     private executionScheduleMap;
     private executionOutputLenMap;
     private executionInputLenMap;
@@ -3710,6 +3725,12 @@ declare class PerfService {
     private executionTimeMap;
     private totalResponseTime;
     private totalRequestCount;
+    /**
+     * Computes the state of the client by aggregating the states of all agents in the client's swarm.
+     * @param {string} clientId - The client ID.
+     * @returns {Promise<Record<string, unknown>>} A promise that resolves to an object containing the aggregated state of the client.
+     */
+    private computeClientState;
     /**
      * Gets the number of active session executions for a given client.
      * @param {string} clientId - The client ID.
@@ -3791,7 +3812,7 @@ declare class PerfService {
      * Convert performance measures of the client for serialization
      * @param {string} clientId - The client ID.
      */
-    toClientRecord: (clientId: string) => IClientPerfomanceRecord;
+    toClientRecord: (clientId: string) => Promise<IClientPerfomanceRecord>;
     /**
      * Convert performance measures of all clients for serialization.
      * @returns {Promise<IPerformanceRecord>} An object containing performance measures of all clients,
@@ -3899,6 +3920,26 @@ declare const dumpPerfomance: {
      * @param {number} [interval=30000] - The interval in milliseconds at which to run the dumpPerfomance function.
      */
     runInterval: ((dirName?: any, interval?: any) => void) & functools_kit.ISingleshotClearable;
+};
+
+/**
+ * Dumps the performance data using the swarm's document service.
+ * Logs the method name if logging is enabled in the global configuration.
+ *
+ * @param {string} clientId - The client ID for which the performance data is being dumped.
+ * @param {string} [dirName="./docs/client"] - The directory name where the performance data will be dumped.
+ * @returns {Promise<void>} A promise that resolves when the performance data has been dumped.
+ */
+declare const dumpClientPerformance: {
+    (clientId: string, dirName?: string): Promise<void>;
+    /**
+     * Sets up a listener to dump performance data after execution.
+     * Logs the method name if logging is enabled in the global configuration.
+     *
+     * @param {string} [dirName="./docs/client"] - The directory name where the performance data will be dumped.
+     * @returns {Promise<void>} A promise that resolves when the listener has been set up.
+     */
+    runAfterExecute(dirName?: string): Promise<() => void>;
 };
 
 /**
@@ -5084,4 +5125,4 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
-export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
