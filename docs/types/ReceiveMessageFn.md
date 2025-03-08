@@ -1,7 +1,7 @@
 # ReceiveMessageFn
 
 ```ts
-type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
+type ReceiveMessageFn<T = void> = (incoming: IIncomingMessage) => Promise<T>;
 ```
 
 Function type for receiving messages.

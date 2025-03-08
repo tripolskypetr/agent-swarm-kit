@@ -57,7 +57,7 @@ Execute a command.
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn$1, ...args: unknown[]) => ReceiveMessageFn
+connect: (connector: SendMessageFn$1<void>, ...args: unknown[]) => ReceiveMessageFn<string>
 ```
 
 Connect to a message sender.

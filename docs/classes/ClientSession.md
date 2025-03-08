@@ -99,7 +99,7 @@ Commits an assistant message.
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn$1) => ReceiveMessageFn
+connect: (connector: SendMessageFn$1<void>) => ReceiveMessageFn<string>
 ```
 
 Connects the session to a connector function.

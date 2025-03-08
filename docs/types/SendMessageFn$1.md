@@ -1,7 +1,7 @@
 # SendMessageFn$1
 
 ```ts
-type SendMessageFn$1 = (outgoing: IOutgoingMessage) => Promise<void> | void;
+type SendMessageFn$1<T = void> = (outgoing: IOutgoingMessage) => Promise<T>;
 ```
 
 Function type for sending messages.

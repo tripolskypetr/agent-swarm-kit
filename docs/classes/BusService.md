@@ -64,6 +64,22 @@ emit: <T extends IBaseEvent>(clientId: string, event: T) => Promise<void>
 
 Emits an event for a specific client.
 
+### commitExecutionBegin
+
+```ts
+commitExecutionBegin: (clientId: string, context: Partial<IBusEventContext>) => Promise<void>
+```
+
+Alias to emit the execution begin event
+
+### commitExecutionEnd
+
+```ts
+commitExecutionEnd: (clientId: string, context: Partial<IBusEventContext>) => Promise<void>
+```
+
+Alias to emit the execution end event
+
 ### dispose
 
 ```ts

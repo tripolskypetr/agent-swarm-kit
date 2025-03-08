@@ -18,10 +18,22 @@ constructor();
 loggerService: any
 ```
 
+### perfService
+
+```ts
+perfService: any
+```
+
 ### sessionConnectionService
 
 ```ts
 sessionConnectionService: any
+```
+
+### busService
+
+```ts
+busService: any
 ```
 
 ### emit
@@ -51,7 +63,7 @@ Run the completion stateless
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn$1, methodName: string, clientId: string, swarmName: string) => ReceiveMessageFn
+connect: (connector: SendMessageFn$1<void>, methodName: string, clientId: string, swarmName: string) => ReceiveMessageFn<string>
 ```
 
 Connects to the session.

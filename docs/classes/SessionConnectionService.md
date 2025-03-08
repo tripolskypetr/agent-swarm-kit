@@ -77,7 +77,7 @@ Run the completion stateless
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn$1, clientId: string, swarmName: string) => ReceiveMessageFn
+connect: (connector: SendMessageFn$1<void>, clientId: string, swarmName: string) => ReceiveMessageFn<string>
 ```
 
 Connects to the session using the provided connector.

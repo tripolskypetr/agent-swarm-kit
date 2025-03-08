@@ -16,6 +16,12 @@ constructor();
 loggerService: any
 ```
 
+### perfService
+
+```ts
+perfService: any
+```
+
 ### swarmValidationService
 
 ```ts
@@ -93,3 +99,19 @@ dumpDocs: (dirName?: string) => Promise<void>
 ```
 
 Dumps the documentation for all swarms and agents.
+
+### dumpPerfomance
+
+```ts
+dumpPerfomance: (dirName?: string) => Promise<void>
+```
+
+Dumps the performance data to a file.
+
+### dumpClientPerfomance
+
+```ts
+dumpClientPerfomance: (clientId: string, dirName?: string) => Promise<void>
+```
+
+Dumps the client performance data to a file.
