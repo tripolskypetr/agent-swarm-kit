@@ -3717,6 +3717,7 @@ declare class PerfService {
     private readonly swarmValidationService;
     private readonly agentValidationService;
     private readonly statePublicService;
+    private readonly swarmPublicService;
     private readonly stateConnectionService;
     private executionScheduleMap;
     private executionOutputLenMap;

@@ -22,7 +22,6 @@ export const msToTime = (s: number) => {
   }
   if (secs) {
     output += secs.length === 1 ? "0" + secs : secs;
-    output += ":";
   }
   if (output) {
     output += `.${ms.toFixed(0)}`;

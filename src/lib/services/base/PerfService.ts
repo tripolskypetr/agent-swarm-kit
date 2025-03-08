@@ -14,6 +14,7 @@ import AgentValidationService from "../validation/AgentValidationService";
 import StatePublicService from "../public/StatePublicService";
 import StateConnectionService from "../connection/StateConnectionService";
 import { StateName } from "../../../interfaces/State.interface";
+import SwarmPublicService from "../public/SwarmPublicService";
 
 const METHOD_NAME_COMPUTE_STATE = "perfService.computeClientState";
 
@@ -37,6 +38,9 @@ export class PerfService {
   );
   private readonly statePublicService = inject<StatePublicService>(
     TYPES.statePublicService
+  );
+  private readonly swarmPublicService = inject<SwarmPublicService>(
+    TYPES.swarmPublicService
   );
   private readonly stateConnectionService = inject<StateConnectionService>(
     TYPES.stateConnectionService
@@ -63,7 +67,17 @@ export class PerfService {
         clientId,
       });
     const swarmName = this.sessionValidationService.getSwarm(clientId);
-    const result: Record<string, unknown> = {};
+    const agentName = await this.swarmPublicService.getAgentName(
+      METHOD_NAME_COMPUTE_STATE,
+      clientId,
+      swarmName
+    );
+    const result: Record<string, unknown> = {
+      swarmStatus: {
+        swarmName,
+        agentName,
+      }
+    };
     {
       const stateFetchSet = new Set<StateName>();
       await Promise.all(
@@ -297,7 +311,7 @@ export class PerfService {
     if (!clientMap.has(executionId)) {
       clientMap.set(executionId, []);
     }
-    clientMap.get(executionId)!.push(startTime);
+    clientMap.get(executionId)!.unshift(startTime);
     if (!this.executionCountMap.has(clientId)) {
       this.executionCountMap.set(clientId, 0);
     }
@@ -394,8 +408,8 @@ export class PerfService {
       executionCount,
       executionInputTotal,
       executionOutputTotal,
-      executionInputAverage,
-      executionOutputAverage,
+      executionInputAverage: +executionInputAverage.toFixed(2),
+      executionOutputAverage: +executionOutputAverage.toFixed(2),
       executionTimeTotal: msToTime(executionTimeTotal),
       executionTimeAverage: msToTime(executionTimeAverage),
     };

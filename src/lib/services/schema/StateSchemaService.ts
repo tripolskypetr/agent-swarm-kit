@@ -33,6 +33,12 @@ export class StateSchemaService {
         `agent-swarm state schema validation failed: missing getState for stateName=${stateSchema.stateName}`
       );
     }
+    if (stateSchema.middlewares && !Array.isArray(stateSchema.middlewares)) {
+      throw new Error(`agent-swarm state schema validation failed: invalid middlewares for agentName=${stateSchema.stateName} middlewares=${stateSchema.middlewares}`);
+    }
+    if (stateSchema.middlewares?.some((value) => typeof value !== "function")) {
+      throw new Error(`agent-swarm state schema validation failed: invalid middlewares for agentName=${stateSchema.stateName} middlewares=[${stateSchema.middlewares}]`);
+    }
   };
 
   /**

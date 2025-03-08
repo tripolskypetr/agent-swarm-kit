@@ -10,8 +10,8 @@ import AgentMetaService from "../meta/AgentMetaService";
 import SwarmMetaService from "../meta/SwarmMetaService";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import { join } from "path";
-import { execpool } from "functools-kit";
-import { existsSync, mkdirSync, writeFileSync } from "fs";
+import { execpool, not, trycatch } from "functools-kit";
+import { writeFile, mkdir, access } from "fs/promises";
 import { IAgentSchema } from "../../../interfaces/Agent.interface";
 import ToolSchemaService from "../schema/ToolSchemaService";
 import StorageSchemaService from "../schema/StorageSchemaService";
@@ -22,6 +22,14 @@ import { getMomentStamp, getTimeStamp } from "get-moment-stamp";
 const THREAD_POOL_SIZE = 5;
 
 const SUBDIR_LIST = ["agent", "image"];
+
+const exists = trycatch(
+  async (filePath: string) => {
+    await access(filePath);
+    return true;
+  },
+  { defaultValue: false }
+);
 
 /**
  * Service for generating documentation for swarms and agents.
@@ -88,7 +96,7 @@ export class DocService {
         const umlName = `swarm_schema_${swarmSchema.swarmName}.svg`;
         const umlSvg = await GLOBAL_CONFIG.CC_FN_PLANTUML(umlSchema);
         if (umlSvg) {
-          writeFileSync(join(dirName, "image", umlName), umlSvg);
+          await writeFile(join(dirName, "image", umlName), umlSvg);
           result.push(`![schema](./image/${umlName})`);
           result.push("");
         }
@@ -143,7 +151,7 @@ export class DocService {
         result.push("");
       }
 
-      writeFileSync(
+      await writeFile(
         join(dirName, `./${swarmSchema.swarmName}.md`),
         result.join("\n")
       );
@@ -189,7 +197,7 @@ export class DocService {
         const umlName = `agent_schema_${agentSchema.agentName}.svg`;
         const umlSvg = await GLOBAL_CONFIG.CC_FN_PLANTUML(umlSchema);
         if (umlSvg) {
-          writeFileSync(join(dirName, "image", umlName), umlSvg);
+          await writeFile(join(dirName, "image", umlName), umlSvg);
           result.push(`![schema](../image/${umlName})`);
           result.push("");
         }
@@ -402,7 +410,7 @@ export class DocService {
         result.push("");
       }
 
-      writeFileSync(
+      await writeFile(
         join(dirName, `./agent/${agentSchema.agentName}.md`),
         result.join("\n")
       );
@@ -424,8 +432,8 @@ export class DocService {
       });
     for (const subDir of SUBDIR_LIST) {
       const path = join(dirName, subDir);
-      if (!existsSync(path)) {
-        mkdirSync(path, { recursive: true });
+      if (await not(exists(path))) {
+        await mkdir(path, { recursive: true });
       }
     }
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -458,9 +466,12 @@ export class DocService {
       this.loggerService.info("docService dumpPerfomance", {
         dirName,
       });
-    writeFileSync(
-      JSON.stringify(await this.perfService.toRecord()),
-      join(dirName, `${getMomentStamp()}.${getTimeStamp()}.json`)
+    if (await not(exists(dirName))) {
+      await mkdir(dirName, { recursive: true });
+    }
+    await writeFile(
+      join(dirName, `${getMomentStamp()}.${getTimeStamp()}.json`),
+      JSON.stringify(await this.perfService.toRecord())
     );
   };
 
@@ -478,9 +489,12 @@ export class DocService {
       this.loggerService.info("docService dumpPerfomance", {
         dirName,
       });
-    writeFileSync(
-      JSON.stringify(await this.perfService.toClientRecord(clientId)),
-      join(dirName, `${clientId}.${getMomentStamp()}.json`)
+    if (!await not(exists(dirName))) {
+      await mkdir(dirName, { recursive: true });
+    }
+    await writeFile(
+      join(dirName, `${clientId}.${getMomentStamp()}.json`),
+      JSON.stringify(await this.perfService.toClientRecord(clientId))
     );
   };
 }
