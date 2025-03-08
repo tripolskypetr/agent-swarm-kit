@@ -318,9 +318,9 @@ export class ClientSession implements ISession {
   /**
    * Connects the session to a connector function.
    * @param {SendMessageFn} connector - The connector function.
-   * @returns {ReceiveMessageFn} - The function to receive messages.
+   * @returns {ReceiveMessageFn<string>} - The function to receive messages.
    */
-  connect = (connector: SendMessageFn): ReceiveMessageFn => {
+  connect = (connector: SendMessageFn): ReceiveMessageFn<string> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} connect`
@@ -359,6 +359,7 @@ export class ClientSession implements ISession {
         agentName: await this.params.swarm.getAgentName(),
         clientId: incoming.clientId,
       });
+      return data;
     };
   };
 

@@ -38,6 +38,9 @@ export class SwarmSchemaService {
         `agent-swarm swarm schema validation failed: missing agentList for swarmName=${swarmSchema.swarmName} value=${swarmSchema.agentList}`
       );
     }
+    if (swarmSchema.agentList.length !== new Set(swarmSchema.agentList).size) {
+      throw new Error(`agent-swarm agent schema validation failed: found duplicate agentList for swarmName=${swarmSchema.swarmName} agentList=[${swarmSchema.agentList}]`);
+    }
     if (swarmSchema.agentList.some((value) => typeof value !== "string")) {
       throw new Error(
         `agent-swarm swarm schema validation failed: missing agentList for swarmName=${swarmSchema.swarmName} value=[${swarmSchema.agentList}]`

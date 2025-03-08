@@ -447,7 +447,7 @@ type EventSource = string;
 /**
  * Type representing the possible sources of an event for the internal bus.
  */
-type EventBusSource = "agent-bus" | "history-bus" | "session-bus" | "state-bus" | "storage-bus" | "swarm-bus";
+type EventBusSource = "agent-bus" | "history-bus" | "session-bus" | "state-bus" | "storage-bus" | "swarm-bus" | "execution-bus";
 /**
  * Interface representing the base structure of an event.
  */
@@ -668,14 +668,14 @@ interface ISessionSchema {
  * @param {IOutgoingMessage} outgoing - The outgoing message.
  * @returns {Promise<void> | void}
  */
-type SendMessageFn$1 = (outgoing: IOutgoingMessage) => Promise<void> | void;
+type SendMessageFn$1<T = void> = (outgoing: IOutgoingMessage) => Promise<T>;
 /**
  * Function type for receiving messages.
  * @typedef {function} ReceiveMessageFn
  * @param {IIncomingMessage} incoming - The incoming message.
  * @returns {Promise<void> | void}
  */
-type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
+type ReceiveMessageFn<T = void> = (incoming: IIncomingMessage) => Promise<T>;
 /**
  * Interface for a session.
  * @interface
@@ -705,7 +705,7 @@ interface ISession {
      * @param {SendMessageFn} connector - The function to send messages.
      * @returns {ReceiveMessageFn}
      */
-    connect(connector: SendMessageFn$1, ...args: unknown[]): ReceiveMessageFn;
+    connect(connector: SendMessageFn$1, ...args: unknown[]): ReceiveMessageFn<string>;
     /**
      * Commit tool output.
      * @param {string} toolId - The `tool_call_id` for openai history
@@ -2147,9 +2147,9 @@ declare class ClientSession implements ISession {
     /**
      * Connects the session to a connector function.
      * @param {SendMessageFn} connector - The connector function.
-     * @returns {ReceiveMessageFn} - The function to receive messages.
+     * @returns {ReceiveMessageFn<string>} - The function to receive messages.
      */
-    connect: (connector: SendMessageFn$1) => ReceiveMessageFn;
+    connect: (connector: SendMessageFn$1) => ReceiveMessageFn<string>;
     /**
      * Should call on session dispose
      * @returns {Promise<void>}
@@ -2197,7 +2197,7 @@ declare class SessionConnectionService implements ISession {
      * @param {SendMessageFn} connector - The function to send messages.
      * @returns {ReceiveMessageFn} The function to receive messages.
      */
-    connect: (connector: SendMessageFn$1, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
+    connect: (connector: SendMessageFn$1, clientId: string, swarmName: SwarmName) => ReceiveMessageFn<string>;
     /**
      * Commits tool output to the session.
      * @param {string} toolId - The `tool_call_id` for openai history
@@ -2409,7 +2409,9 @@ type TSessionConnectionService = {
  */
 declare class SessionPublicService implements TSessionConnectionService {
     private readonly loggerService;
+    private readonly perfService;
     private readonly sessionConnectionService;
+    private readonly busService;
     /**
      * Emits a message to the session.
      * @param {string} content - The content to emit.
@@ -2441,7 +2443,7 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @param {SwarmName} swarmName - The swarm name.
      * @returns {ReceiveMessageFn}
      */
-    connect: (connector: SendMessageFn$1, methodName: string, clientId: string, swarmName: SwarmName) => ReceiveMessageFn;
+    connect: (connector: SendMessageFn$1, methodName: string, clientId: string, swarmName: SwarmName) => ReceiveMessageFn<string>;
     /**
      * Commits tool output to the session.
      * @param {string} toolId - The `tool_call_id` for openai history
@@ -3294,6 +3296,14 @@ declare class BusService implements IBus {
      */
     emit: <T extends IBaseEvent>(clientId: string, event: T) => Promise<void>;
     /**
+     * Alias to emit the execution begin event
+     */
+    commitExecutionBegin: (clientId: string, context: Partial<IBusEventContext>) => Promise<void>;
+    /**
+     * Alias to emit the execution end event
+     */
+    commitExecutionEnd: (clientId: string, context: Partial<IBusEventContext>) => Promise<void>;
+    /**
      * Disposes of all event subscriptions for a specific client.
      * @param {string} clientId - The client ID.
      */
@@ -3362,6 +3372,7 @@ declare class SwarmMetaService {
  */
 declare class DocService {
     private readonly loggerService;
+    private readonly perfService;
     private readonly swarmValidationService;
     private readonly agentValidationService;
     private readonly swarmSchemaService;
@@ -3391,6 +3402,19 @@ declare class DocService {
      * @returns {Promise<void>}
      */
     dumpDocs: (dirName?: string) => Promise<void>;
+    /**
+     * Dumps the performance data to a file.
+     * @param {string} [dirName=join(process.cwd(), "docs/meta")] - The directory to write the performance data to.
+     * @returns {Promise<void>}
+     */
+    dumpPerfomance: (dirName?: string) => Promise<void>;
+    /**
+     * Dumps the client performance data to a file.
+     * @param {string} clientId - The session id to dump the data
+     * @param {string} [dirName=join(process.cwd(), "docs/meta")] - The directory to write the performance data to.
+     * @returns {Promise<void>}
+     */
+    dumpClientPerfomance: (clientId: string, dirName?: string) => Promise<void>;
 }
 
 /**
@@ -3599,6 +3623,209 @@ declare class MemorySchemaService {
     dispose: (clientId: string) => void;
 }
 
+/**
+ * Interface representing a performance record.
+ */
+interface IPerformanceRecord {
+    /**
+     * The ID of current process
+     */
+    processId: string;
+    /**
+     * Array of client performance records.
+     */
+    clients: IClientPerfomanceRecord[];
+    /**
+     * Total execution count.
+     */
+    totalExecutionCount: number;
+    /**
+     * Total response time as a string.
+     */
+    totalResponseTime: string;
+    /**
+     * Average response time as a string.
+     */
+    averageResponseTime: string;
+    /**
+     * Days since 01/01/1970 in London.
+     */
+    momentStamp: number;
+    /**
+     * Seconds since 00:00 of the momentStamp.
+     */
+    timeStamp: number;
+    /**
+     * Current date in UTC format
+     */
+    date: string;
+}
+/**
+ * Interface representing a client performance record.
+ */
+interface IClientPerfomanceRecord {
+    /**
+     * Client ID.
+     */
+    clientId: string;
+    /**
+     * The memory of client session
+     */
+    sessionMemory: Record<string, unknown>;
+    /**
+     * The state of client session
+     */
+    sessionState: Record<string, unknown>;
+    /**
+     * Execution count.
+     */
+    executionCount: number;
+    /**
+     * Total execution input.
+     */
+    executionInputTotal: number;
+    /**
+     * Total execution output.
+     */
+    executionOutputTotal: number;
+    /**
+     * Average execution input.
+     */
+    executionInputAverage: number;
+    /**
+     * Average execution output.
+     */
+    executionOutputAverage: number;
+    /**
+     * Total execution time as a string.
+     */
+    executionTimeTotal: string;
+    /**
+     * Average execution time as a string.
+     */
+    executionTimeAverage: string;
+}
+
+/**
+ * Performance Service to track and log execution times, input lengths, and output lengths
+ * for different client sessions.
+ */
+declare class PerfService {
+    private readonly loggerService;
+    private readonly sessionValidationService;
+    private readonly memorySchemaService;
+    private readonly swarmValidationService;
+    private readonly agentValidationService;
+    private readonly statePublicService;
+    private readonly stateConnectionService;
+    private executionScheduleMap;
+    private executionOutputLenMap;
+    private executionInputLenMap;
+    private executionCountMap;
+    private executionTimeMap;
+    private totalResponseTime;
+    private totalRequestCount;
+    /**
+     * Computes the state of the client by aggregating the states of all agents in the client's swarm.
+     * @param {string} clientId - The client ID.
+     * @returns {Promise<Record<string, unknown>>} A promise that resolves to an object containing the aggregated state of the client.
+     */
+    private computeClientState;
+    /**
+     * Gets the number of active session executions for a given client.
+     * @param {string} clientId - The client ID.
+     * @returns {number} The number of active session executions.
+     */
+    getActiveSessionExecutionCount: (clientId: string) => number;
+    /**
+     * Gets the total execution time for a given client's sessions.
+     * @param {string} clientId - The client ID.
+     * @returns {number} The total execution time in milliseconds.
+     */
+    getActiveSessionExecutionTotalTime: (clientId: string) => number;
+    /**
+     * Gets the average execution time for a given client's sessions.
+     * @param {string} clientId - The client ID.
+     * @returns {number} The average execution time in milliseconds.
+     */
+    getActiveSessionExecutionAverageTime: (clientId: string) => number;
+    /**
+     * Gets the average input length for active sessions of a given client.
+     * @param {string} clientId - The client ID.
+     * @returns {number} The average input length.
+     */
+    getActiveSessionAverageInputLength: (clientId: string) => number;
+    /**
+     * Gets the average output length for active sessions of a given client.
+     * @param {string} clientId - The client ID.
+     * @returns {number} The average output length.
+     */
+    getActiveSessionAverageOutputLength: (clientId: string) => number;
+    /**
+     * Gets the total input length for active sessions of a given client.
+     * @param {string} clientId - The client ID.
+     * @returns {number} The total input length.
+     */
+    getActiveSessionTotalInputLength: (clientId: string) => number;
+    /**
+     * Gets the total output length for active sessions of a given client.
+     * @param {string} clientId - The client ID.
+     * @returns {number} The total output length.
+     */
+    getActiveSessionTotalOutputLength: (clientId: string) => number;
+    /**
+     * Gets the list of active sessions.
+     * @returns {string[]} The list of active sessions.
+     */
+    getActiveSessions: () => string[];
+    /**
+     * Gets the average response time for all requests.
+     * @returns {number} The average response time.
+     */
+    getAverageResponseTime: () => number;
+    /**
+     * Gets the total number of executions.
+     * @returns {number} The total number of executions.
+     */
+    getTotalExecutionCount: () => number;
+    /**
+     * Gets the total response time for all requests.
+     * @returns {number} The total response time.
+     */
+    getTotalResponseTime: () => number;
+    /**
+     * Starts an execution for a given client.
+     * @param {string} executionId - The execution ID.
+     * @param {string} clientId - The client ID.
+     * @param {number} inputLen - The input length.
+     */
+    startExecution: (executionId: string, clientId: string, inputLen: number) => void;
+    /**
+     * Ends an execution for a given client.
+     * @param {string} executionId - The execution ID.
+     * @param {string} clientId - The client ID.
+     * @param {number} outputLen - The output length.
+     * @returns {boolean} True if the execution ended successfully (all required data was found), false otherwise.
+     */
+    endExecution: (executionId: string, clientId: string, outputLen: number) => boolean;
+    /**
+     * Convert performance measures of the client for serialization
+     * @param {string} clientId - The client ID.
+     */
+    toClientRecord: (clientId: string) => Promise<IClientPerfomanceRecord>;
+    /**
+     * Convert performance measures of all clients for serialization.
+     * @returns {Promise<IPerformanceRecord>} An object containing performance measures of all clients,
+     *                   total execution count, total response time, and average response time.
+     */
+    toRecord: () => Promise<IPerformanceRecord>;
+    /**
+     * Disposes of all data related to a given client.
+     * @param {string} clientId - The client ID.
+     */
+    dispose: (clientId: string) => void;
+}
+
 declare const swarm: {
     agentValidationService: AgentValidationService;
     toolValidationService: ToolValidationService;
@@ -3641,6 +3868,7 @@ declare const swarm: {
     };
     docService: DocService;
     busService: BusService;
+    perfService: PerfService;
     loggerService: LoggerService;
 };
 
@@ -3674,6 +3902,45 @@ declare const dumpAgent: (agentName: AgentName, { withSubtree }?: Partial<IConfi
  * @returns {string} The UML representation of the swarm.
  */
 declare const dumpSwarm: (swarmName: SwarmName) => string;
+
+/**
+ * Dumps the performance data using the swarm's document service.
+ * Logs the method name if logging is enabled in the global configuration.
+ *
+ * @param {string} [dirName="./logs/meta"] - The directory name where the performance data will be dumped.
+ * @returns {Promise<void>} A promise that resolves when the performance data has been dumped.
+ */
+declare const dumpPerfomance: {
+    (dirName?: string): Promise<void>;
+    /**
+     * Runs the dumpPerfomance function at specified intervals.
+     * Logs the method name if logging is enabled in the global configuration.
+     *
+     * @param {string} [dirName="./logs/meta"] - The directory name where the performance data will be dumped.
+     * @param {number} [interval=30000] - The interval in milliseconds at which to run the dumpPerfomance function.
+     */
+    runInterval(dirName?: string, interval?: number): () => void;
+};
+
+/**
+ * Dumps the performance data using the swarm's document service.
+ * Logs the method name if logging is enabled in the global configuration.
+ *
+ * @param {string} clientId - The client ID for which the performance data is being dumped.
+ * @param {string} [dirName="./logs/client"] - The directory name where the performance data will be dumped.
+ * @returns {Promise<void>} A promise that resolves when the performance data has been dumped.
+ */
+declare const dumpClientPerformance: {
+    (clientId: string, dirName?: string): Promise<void>;
+    /**
+     * Sets up a listener to dump performance data after execution.
+     * Logs the method name if logging is enabled in the global configuration.
+     *
+     * @param {string} [dirName="./logs/client"] - The directory name where the performance data will be dumped.
+     * @returns {Promise<void>} A promise that resolves when the listener has been set up.
+     */
+    runAfterExecute(dirName?: string): Promise<() => void>;
+};
 
 /**
  * Adds a new agent to the agent registry. The swarm takes only those agents which was registered
@@ -3947,7 +4214,7 @@ declare const emit: (content: string, clientId: string, agentName: AgentName) =>
  * @param {string} content - The content to be runned.
  * @param {string} clientId - The ID of the client requesting run.
  * @param {AgentName} agentName - The name of the agent running the command.
-  * @returns {Promise<string>} - A promise that resolves the run result
+ * @returns {Promise<string>} - A promise that resolves the run result
  */
 declare const runStateless: (content: string, clientId: string, agentName: AgentName) => Promise<string>;
 
@@ -4288,6 +4555,14 @@ declare const listenStorageEvent: (clientId: string, fn: (event: IBusEvent) => v
 declare const listenSwarmEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
+ * Hook to subscribe to execution events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to events for.
+ * @param {function} fn - The callback function to handle the event.
+ */
+declare const listenExecutionEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
+
+/**
  * Hook to subscribe to agent events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to events for.
@@ -4334,6 +4609,14 @@ declare const listenStorageEventOnce: (clientId: string, filterFn: (event: IBusE
  * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
  */
 declare const listenSwarmEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to execution events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to events for.
+ * @param {function} fn - The callback function to handle the event.
+ */
+declare const listenExecutionEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
 declare const LOGGER_INSTANCE_WAIT_FOR_INIT: unique symbol;
 /**
@@ -4547,6 +4830,7 @@ declare const GLOBAL_CONFIG: {
     CC_LOGGER_ENABLE_CONSOLE: boolean;
     CC_NAME_TO_TITLE: (name: string) => string;
     CC_FN_PLANTUML: (uml: string) => Promise<string>;
+    CC_PROCESS_UUID: string;
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
@@ -4841,4 +5125,4 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
-export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpDocs, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };

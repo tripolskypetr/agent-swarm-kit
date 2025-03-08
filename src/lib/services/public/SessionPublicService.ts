@@ -13,6 +13,8 @@ import ExecutionContextService from "../context/ExecutionContextService";
 import { randomString } from "functools-kit";
 import { IIncomingMessage } from "../../../model/EmitMessage.model";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import PerfService from "../base/PerfService";
+import BusService from "../base/BusService";
 
 interface ISessionConnectionService extends SessionConnectionService {}
 
@@ -29,9 +31,11 @@ type TSessionConnectionService = {
  */
 export class SessionPublicService implements TSessionConnectionService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+  private readonly perfService = inject<PerfService>(TYPES.perfService);
   private readonly sessionConnectionService = inject<SessionConnectionService>(
     TYPES.sessionConnectionService
   );
+  private readonly busService = inject<BusService>(TYPES.busService);
 
   /**
    * Emits a message to the session.
@@ -150,7 +154,7 @@ export class SessionPublicService implements TSessionConnectionService {
     methodName: string,
     clientId: string,
     swarmName: SwarmName
-  ): ReceiveMessageFn => {
+  ): ReceiveMessageFn<string> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("sessionPublicService connect", {
         methodName,
@@ -173,7 +177,19 @@ export class SessionPublicService implements TSessionConnectionService {
               clientId,
               executionId,
             });
-          return await send(incoming);
+          let isFinished = false;
+          this.perfService.startExecution(executionId, clientId, incoming.data.length);
+          try {
+            this.busService.commitExecutionBegin(clientId, { swarmName });
+            const result = await send(incoming);
+            isFinished = this.perfService.endExecution(executionId, clientId, result.length);
+            this.busService.commitExecutionEnd(clientId, { swarmName });
+            return result;
+          } finally {
+            if (!isFinished) {
+              this.perfService.endExecution(executionId, clientId, 0);
+            }
+          }
         },
         {
           clientId,

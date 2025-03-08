@@ -30,9 +30,9 @@ export interface ISessionSchema {}
  * @param {IOutgoingMessage} outgoing - The outgoing message.
  * @returns {Promise<void> | void}
  */
-export type SendMessageFn = (
+export type SendMessageFn<T = void> = (
   outgoing: IOutgoingMessage
-) => Promise<void> | void;
+) => Promise<T>;
 
 /**
  * Function type for receiving messages.
@@ -40,9 +40,9 @@ export type SendMessageFn = (
  * @param {IIncomingMessage} incoming - The incoming message.
  * @returns {Promise<void> | void}
  */
-export type ReceiveMessageFn = (
+export type ReceiveMessageFn<T = void> = (
   incoming: IIncomingMessage
-) => Promise<void> | void;
+) => Promise<T>;
 
 /**
  * Interface for a session.
@@ -76,7 +76,7 @@ export interface ISession {
    * @param {SendMessageFn} connector - The function to send messages.
    * @returns {ReceiveMessageFn}
    */
-  connect(connector: SendMessageFn, ...args: unknown[]): ReceiveMessageFn;
+  connect(connector: SendMessageFn, ...args: unknown[]): ReceiveMessageFn<string>;
 
   /**
    * Commit tool output.

@@ -3,6 +3,8 @@ export * from "./lib";
 export * from './cli/dumpDocs';
 export * from './cli/dumpAgent';
 export * from './cli/dumpSwarm';
+export * from './cli/dumpPerfomance';
+export * from './cli/dumpClientPerfomance';
 
 export * from "./functions/setup/addAgent";
 export * from "./functions/setup/addCompletion";
@@ -65,6 +67,7 @@ export * from './events/listenSessionEvent';
 export * from './events/listenStateEvent';
 export * from './events/listenStorageEvent';
 export * from './events/listenSwarmEvent';
+export * from './events/listenExecutionEvent';
 
 export * from './events/listenAgentEventOnce';
 export * from './events/listenHistoryEventOnce';
@@ -72,6 +75,7 @@ export * from './events/listenSessionEventOnce';
 export * from './events/listenStateEventOnce';
 export * from './events/listenStorageEventOnce';
 export * from './events/listenSwarmEventOnce';
+export * from './events/listenExecutionEventOnce';
 
 export { IAgentSchema } from "./interfaces/Agent.interface";
 export {

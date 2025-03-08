@@ -80,7 +80,23 @@ export const complete = async (
   createGc();
   return ExecutionContextService.runInContext(
     async () => {
-      return await run(METHOD_NAME, content);
+      let isFinished = false;
+      swarm.perfService.startExecution(executionId, clientId, content.length);
+      try {
+        swarm.busService.commitExecutionBegin(clientId, { swarmName });
+        const result = await run(METHOD_NAME, content);
+        isFinished = swarm.perfService.endExecution(
+          executionId,
+          clientId,
+          result.length
+        );
+        swarm.busService.commitExecutionEnd(clientId, { swarmName });
+        return result;
+      } finally {
+        if (!isFinished) {
+          swarm.perfService.endExecution(executionId, clientId, 0);
+        }
+      }
     },
     {
       clientId,

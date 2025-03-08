@@ -42,7 +42,8 @@ export type EventBusSource =
   | "session-bus"
   | "state-bus"
   | "storage-bus"
-  | "swarm-bus";
+  | "swarm-bus"
+  | "execution-bus";
 
 /**
  * Interface representing the base structure of an event.

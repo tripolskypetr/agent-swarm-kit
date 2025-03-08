@@ -50,13 +50,32 @@ export const execute = async (
   }
   return ExecutionContextService.runInContext(
     async () => {
-      return await swarm.sessionPublicService.execute(
-        content,
-        "tool",
-        METHOD_NAME,
-        clientId,
-        swarmName
-      );
+      let isFinished = false;
+      swarm.perfService.startExecution(executionId, clientId, content.length);
+      try {
+        swarm.busService.commitExecutionBegin(clientId, {
+          agentName,
+          swarmName,
+        });
+        const result = await swarm.sessionPublicService.execute(
+          content,
+          "tool",
+          METHOD_NAME,
+          clientId,
+          swarmName
+        );
+        isFinished = swarm.perfService.endExecution(
+          executionId,
+          clientId,
+          result.length
+        );
+        swarm.busService.commitExecutionEnd(clientId, { agentName, swarmName });
+        return result;
+      } finally {
+        if (!isFinished) {
+          swarm.perfService.endExecution(executionId, clientId, 0);
+        }
+      }
     },
     {
       clientId,

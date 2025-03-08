@@ -43,10 +43,12 @@ import SharedStateConnectionService from "./services/connection/SharedStateConne
 import SharedStatePublicService from "./services/public/SharedStatePublicService";
 import SharedStoragePublicService from "./services/public/SharedStoragePublicService";
 import MemorySchemaService from "./services/schema/MemorySchemaService";
+import PerfService from "./services/base/PerfService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
   busService: inject<BusService>(TYPES.busService),
+  perfService: inject<PerfService>(TYPES.perfService),
   loggerService: inject<LoggerService>(TYPES.loggerService),
 };
 

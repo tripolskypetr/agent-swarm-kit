@@ -119,7 +119,7 @@ export class SessionConnectionService implements ISession {
     connector: SendMessageFn,
     clientId: string,
     swarmName: SwarmName
-  ): ReceiveMessageFn => {
+  ): ReceiveMessageFn<string> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService connect`);
     return this.getSession(clientId, swarmName).connect(connector);

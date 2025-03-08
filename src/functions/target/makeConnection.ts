@@ -54,7 +54,7 @@ const makeConnection = (
       ),
       clientId,
     });
-  }) as SendMessageFn;
+  }) as unknown as SendMessageFn;
 };
 
 /**

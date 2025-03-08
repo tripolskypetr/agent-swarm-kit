@@ -6,6 +6,7 @@ import removeXmlTags from "../utils/removeXmlTags";
 import { HistoryAdapter, IHistoryAdapter } from "../classes/History";
 import nameToTitle from "../utils/nameToTitle";
 import LoggerAdapter, { ILoggerAdapter } from "../classes/Logger";
+import { randomString } from "functools-kit";
 
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
@@ -103,6 +104,8 @@ const CC_NAME_TO_TITLE = nameToTitle;
 
 const CC_FN_PLANTUML: (uml: string) => Promise<string> = () => Promise.resolve("");
 
+const CC_PROCESS_UUID = randomString();
+
 export const GLOBAL_CONFIG = {
   CC_TOOL_CALL_EXCEPTION_PROMPT,
   CC_EMPTY_OUTPUT_PLACEHOLDERS,
@@ -128,6 +131,7 @@ export const GLOBAL_CONFIG = {
   CC_LOGGER_ENABLE_CONSOLE,
   CC_NAME_TO_TITLE,
   CC_FN_PLANTUML,
+  CC_PROCESS_UUID,
 };
 
 export const setConfig = (config: Partial<typeof GLOBAL_CONFIG>) => {

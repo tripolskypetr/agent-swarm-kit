@@ -3,6 +3,9 @@ import History from "../../classes/History";
 import { SwarmName } from "../../interfaces/Swarm.interface";
 import swarm from "../../lib";
 import LoggerAdapter from "../../classes/Logger";
+import { AgentName } from "../../interfaces/Agent.interface";
+import { StorageName } from "../../interfaces/Storage.interface";
+import { StateName } from "../../interfaces/State.interface";
 
 const METHOD_NAME = "function.target.disposeConnection";
 
@@ -23,52 +26,89 @@ export const disposeConnection = async (
       clientId,
       swarmName,
     });
+
   swarm.sessionValidationService.validate(clientId, methodName);
   swarm.swarmValidationService.validate(swarmName, methodName);
   await swarm.sessionPublicService.dispose(methodName, clientId, swarmName);
   await swarm.swarmPublicService.dispose(methodName, clientId, swarmName);
-  await Promise.all(
-    swarm.swarmValidationService
-      .getAgentList(swarmName)
-      .map(async (agentName) => {
-        await swarm.agentPublicService.dispose(methodName, clientId, agentName);
-        await swarm.historyPublicService.dispose(
-          methodName,
-          clientId,
-          agentName
-        );
-      })
-  );
-  await Promise.all(
-    swarm.swarmValidationService
-      .getAgentList(swarmName)
-      .flatMap((agentName) =>
-        swarm.agentValidationService.getStorageList(agentName)
-      )
-      .filter((storageName) => !!storageName)
-      .map(async (storageName) => {
-        await swarm.storagePublicService.dispose(
-          methodName,
-          clientId,
-          storageName
-        );
-      })
-  );
-  await Promise.all(
-    swarm.swarmValidationService
-      .getAgentList(swarmName)
-      .flatMap((agentName) =>
-        swarm.agentValidationService.getStateList(agentName)
-      )
-      .filter((stateName) => !!stateName)
-      .map(async (stateName) => {
-        await swarm.statePublicService.dispose(methodName, clientId, stateName);
-      })
-  );
+
+  {
+    const agentDisposeSet = new Set<AgentName>();
+    await Promise.all(
+      swarm.swarmValidationService
+        .getAgentList(swarmName)
+        .map(async (agentName) => {
+          if (agentDisposeSet.has(agentName)) {
+            return;
+          }
+          agentDisposeSet.add(agentName);
+          await swarm.agentPublicService.dispose(
+            methodName,
+            clientId,
+            agentName
+          );
+          await swarm.historyPublicService.dispose(
+            methodName,
+            clientId,
+            agentName
+          );
+        })
+    );
+  }
+
+  {
+    const storageDisposeSet = new Set<StorageName>();
+    await Promise.all(
+      swarm.swarmValidationService
+        .getAgentList(swarmName)
+        .flatMap((agentName) =>
+          swarm.agentValidationService.getStorageList(agentName)
+        )
+        .filter((storageName) => !!storageName)
+        .map(async (storageName) => {
+          if (storageDisposeSet.has(storageName)) {
+            return;
+          }
+          storageDisposeSet.add(storageName);
+          await swarm.storagePublicService.dispose(
+            methodName,
+            clientId,
+            storageName
+          );
+        })
+    );
+  }
+
+  {
+    const stateDisposeSet = new Set<StateName>();
+    await Promise.all(
+      swarm.swarmValidationService
+        .getAgentList(swarmName)
+        .flatMap((agentName) =>
+          swarm.agentValidationService.getStateList(agentName)
+        )
+        .filter((stateName) => !!stateName)
+        .map(async (stateName) => {
+          if (stateDisposeSet.has(stateName)) {
+            return;
+          }
+          stateDisposeSet.add(stateName);
+          await swarm.statePublicService.dispose(
+            methodName,
+            clientId,
+            stateName
+          );
+        })
+    );
+  }
+
   await History.dispose(clientId, null);
   await LoggerAdapter.dispose(clientId);
+  {
+    swarm.busService.dispose(clientId);
+    swarm.sessionValidationService.dispose(clientId);
+    swarm.memorySchemaService.dispose(clientId);
+    swarm.perfService.dispose(clientId);
+  }
   swarm.sessionValidationService.removeSession(clientId);
-  swarm.busService.dispose(clientId);
-  swarm.sessionValidationService.dispose(clientId);
-  swarm.memorySchemaService.dispose(clientId);
 };
