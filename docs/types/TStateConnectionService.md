@@ -2,7 +2,7 @@
 
 ```ts
 type TStateConnectionService = {
-    [key in Exclude<keyof IStateConnectionService, InternalKeys$2>]: unknown;
+    [key in Exclude<keyof IStateConnectionService, InternalKeys$3>]: unknown;
 };
 ```
 

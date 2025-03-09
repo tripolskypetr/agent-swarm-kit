@@ -46,6 +46,12 @@ swarmSchemaService: any
 agentSchemaService: any
 ```
 
+### policySchemaService
+
+```ts
+policySchemaService: any
+```
+
 ### toolSchemaService
 
 ```ts

@@ -16,7 +16,7 @@ import SwarmSchemaService from "../schema/SwarmSchemaService";
 import BusService from "../base/BusService";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
 import PolicyConnectionService from "./PolicyConnectionService";
-import { MergePolicy, NoopPolicy } from "src/classes/Policy";
+import { MergePolicy, NoopPolicy } from "../../../classes/Policy";
 
 /**
  * Service for managing session connections.

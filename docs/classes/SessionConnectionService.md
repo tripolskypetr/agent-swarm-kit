@@ -36,6 +36,12 @@ methodContextService: any
 swarmConnectionService: any
 ```
 
+### policyConnectionService
+
+```ts
+policyConnectionService: any
+```
+
 ### swarmSchemaService
 
 ```ts

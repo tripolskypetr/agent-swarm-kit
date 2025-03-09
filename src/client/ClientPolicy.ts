@@ -1,4 +1,4 @@
-import { IBusEvent } from "src/model/Event.model";
+import { IBusEvent } from "../model/Event.model";
 import { GLOBAL_CONFIG } from "../config/params";
 import { IPolicy, IPolicyParams } from "../interfaces/Policy.interface";
 import { SessionId } from "../interfaces/Session.interface";
@@ -6,9 +6,17 @@ import { SwarmName } from "../interfaces/Swarm.interface";
 
 const BAN_NEED_FETCH = Symbol("ban-need-fetch");
 
+/**
+ * Class representing a client policy.
+ * @implements {IPolicy}
+ */
 export class ClientPolicy implements IPolicy {
   _banSet: Set<SessionId> | typeof BAN_NEED_FETCH = BAN_NEED_FETCH;
 
+  /**
+   * Creates an instance of ClientPolicy.
+   * @param {IPolicyParams} params - The policy parameters.
+   */
   constructor(readonly params: IPolicyParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -22,6 +30,12 @@ export class ClientPolicy implements IPolicy {
     }
   }
 
+  /**
+   * Gets the ban message for a client.
+   * @param {SessionId} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<string>} The ban message.
+   */
   async getBanMessage(
     clientId: SessionId,
     swarmName: SwarmName
@@ -50,6 +64,13 @@ export class ClientPolicy implements IPolicy {
     return this.params.banMessage;
   }
 
+  /**
+   * Validates the input from a client.
+   * @param {string} incoming - The incoming message.
+   * @param {SessionId} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<boolean>} Whether the input is valid.
+   */
   async validateInput(
     incoming: string,
     clientId: SessionId,
@@ -110,6 +131,13 @@ export class ClientPolicy implements IPolicy {
     return false;
   }
 
+  /**
+   * Validates the output to a client.
+   * @param {string} outgoing - The outgoing message.
+   * @param {SessionId} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<boolean>} Whether the output is valid.
+   */
   async validateOutput(
     outgoing: string,
     clientId: SessionId,
@@ -170,6 +198,12 @@ export class ClientPolicy implements IPolicy {
     return false;
   }
 
+  /**
+   * Bans a client.
+   * @param {SessionId} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<void>}
+   */
   async banClient(clientId: SessionId, swarmName: SwarmName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -215,6 +249,12 @@ export class ClientPolicy implements IPolicy {
     }
   }
 
+  /**
+   * Unbans a client.
+   * @param {SessionId} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<void>}
+   */
   async unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(

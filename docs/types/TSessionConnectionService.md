@@ -2,7 +2,7 @@
 
 ```ts
 type TSessionConnectionService = {
-    [key in Exclude<keyof ISessionConnectionService, InternalKeys$5>]: unknown;
+    [key in Exclude<keyof ISessionConnectionService, InternalKeys$6>]: unknown;
 };
 ```
 

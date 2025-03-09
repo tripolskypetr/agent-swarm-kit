@@ -1,9 +1,6 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
-import { PolicyName as PolicyName$1 } from 'src/interfaces/Policy.interface';
-import { SessionId as SessionId$1 } from 'src/interfaces/Session.interface';
-import { SwarmName as SwarmName$1 } from 'src/interfaces/Swarm.interface';
 
 /**
  * Interface representing the context.
@@ -423,6 +420,154 @@ interface IState<T extends IStateData = IStateData> {
 type StateName = string;
 
 /**
+ * Interface for policy callbacks.
+ */
+interface IPolicyCallbacks {
+    /**
+     * Called when the policy is initialized.
+     * @param policyName - The name of the policy.
+     */
+    onInit?: (policyName: PolicyName) => void;
+    /**
+     * Called to validate the input.
+     * @param incoming - The incoming message.
+     * @param clientId - The session ID of the client.
+     * @param swarmName - The name of the swarm.
+     * @param policyName - The name of the policy.
+     */
+    onValidateInput?: (incoming: string, clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
+    /**
+     * Called to validate the output.
+     * @param outgoing - The outgoing message.
+     * @param clientId - The session ID of the client.
+     * @param swarmName - The name of the swarm.
+     * @param policyName - The name of the policy.
+     */
+    onValidateOutput?: (outgoing: string, clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
+    /**
+     * Called when a client is banned.
+     * @param clientId - The session ID of the client.
+     * @param swarmName - The name of the swarm.
+     * @param policyName - The name of the policy.
+     */
+    onBanClient?: (clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
+    /**
+     * Called when a client is unbanned.
+     * @param clientId - The session ID of the client.
+     * @param swarmName - The name of the swarm.
+     * @param policyName - The name of the policy.
+     */
+    onUnbanClient?: (clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
+}
+/**
+ * Interface for a policy.
+ */
+interface IPolicy {
+    /**
+     * Gets the ban message for a client.
+     * @param clientId - The session ID of the client.
+     * @param swarmName - The name of the swarm.
+     * @returns A promise that resolves to the ban message.
+     */
+    getBanMessage(clientId: SessionId, swarmName: SwarmName): Promise<string>;
+    /**
+     * Validates the input.
+     * @param incoming - The incoming message.
+     * @param clientId - The session ID of the client.
+     * @param swarmName - The name of the swarm.
+     * @returns A promise that resolves to a boolean indicating whether the input is valid.
+     */
+    validateInput(incoming: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
+    /**
+     * Validates the output.
+     * @param outgoing - The outgoing message.
+     * @param clientId - The session ID of the client.
+     * @param swarmName - The name of the swarm.
+     * @returns A promise that resolves to a boolean indicating whether the output is valid.
+     */
+    validateOutput(outgoing: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
+    /**
+     * Bans a client.
+     * @param clientId - The session ID of the client.
+     * @param swarmName - The name of the swarm.
+     * @returns A promise that resolves when the client is banned.
+     */
+    banClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
+    /**
+     * Unbans a client.
+     * @param clientId - The session ID of the client.
+     * @param swarmName - The name of the swarm.
+     * @returns A promise that resolves when the client is unbanned.
+     */
+    unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
+}
+/**
+ * Interface for a policy schema.
+ */
+interface IPolicySchema {
+    /** The description for documentation */
+    docDescription?: string;
+    /** The name of the policy */
+    policyName: PolicyName;
+    /** The message to display when a client is banned */
+    banMessage?: string;
+    /**
+     * Gets the ban message for a client.
+     * @param clientId - The session ID of the client.
+     * @param policyName - The name of the policy.
+     * @param swarmName - The name of the swarm.
+     * @returns A promise that resolves to the ban message or null.
+     */
+    getBanMessage?: (clientId: SessionId, policyName: PolicyName, swarmName: SwarmName) => Promise<string | null> | string | null;
+    /**
+     * Gets the list of banned clients.
+     * @param policyName - The name of the policy.
+     * @param swarmName - The name of the swarm.
+     * @returns A promise that resolves to an array of session IDs.
+     */
+    getBannedClients: (policyName: PolicyName, swarmName: SwarmName) => SessionId[] | Promise<SessionId[]>;
+    /**
+     * Sets the list of banned clients.
+     * @param clientIds - An array of session IDs.
+     * @param policyName - The name of the policy.
+     * @param swarmName - The name of the swarm.
+     * @returns A promise that resolves when the clients are banned.
+     */
+    setBannedClients?: (clientIds: SessionId[], policyName: PolicyName, swarmName: SwarmName) => Promise<void> | void;
+    /**
+     * Validates the input.
+     * @param incoming - The incoming message.
+     * @param clientId - The session ID of the client.
+     * @param policyName - The name of the policy.
+     * @param swarmName - The name of the swarm.
+     * @returns A promise that resolves to a boolean indicating whether the input is valid.
+     */
+    validateInput?: (incoming: string, clientId: SessionId, policyName: PolicyName, swarmName: SwarmName) => Promise<boolean> | boolean;
+    /**
+     * Validates the output.
+     * @param outgoing - The outgoing message.
+     * @param clientId - The session ID of the client.
+     * @param policyName - The name of the policy.
+     * @param swarmName - The name of the swarm.
+     * @returns A promise that resolves to a boolean indicating whether the output is valid.
+     */
+    validateOutput?: (outgoing: string, clientId: SessionId, policyName: PolicyName, swarmName: SwarmName) => Promise<boolean> | boolean;
+    /** The callbacks for the policy */
+    callbacks?: IPolicyCallbacks;
+}
+/**
+ * Interface for policy parameters.
+ */
+interface IPolicyParams extends IPolicySchema, IPolicyCallbacks {
+    /** The logger instance. */
+    logger: ILogger;
+    /** The bus instance. */
+    bus: IBus;
+}
+/** Type alias for policy name */
+type PolicyName = string;
+
+/**
  * Interface representing the base context for an event.
  */
 interface IBusEventContext {
@@ -445,7 +590,7 @@ interface IBusEventContext {
     /**
      * The name of the policy
      */
-    policyName: PolicyName$1;
+    policyName: PolicyName;
 }
 /**
  * Type representing the possible sources of an event.
@@ -513,40 +658,6 @@ interface IBus {
      */
     emit<T extends IBaseEvent>(clientId: string, event: T): Promise<void>;
 }
-
-interface IPolicyCallbacks {
-    onInit?: (policyName: PolicyName) => void;
-    onValidateInput?: (incoming: string, clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
-    onValidateOutput?: (outgoing: string, clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
-    onBanClient?: (clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
-    onUnbanClient?: (clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
-}
-interface IPolicy {
-    getBanMessage(clientId: SessionId, swarmName: SwarmName): Promise<string>;
-    validateInput(incoming: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
-    validateOutput(outgoing: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
-    banClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
-    unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
-}
-interface IPolicySchema {
-    /** The description for documentation */
-    docDescription?: string;
-    policyName: PolicyName;
-    banMessage?: string;
-    getBanMessage?: (clientId: SessionId, policyName: PolicyName, swarmName: SwarmName) => Promise<string | null> | string | null;
-    getBannedClients: (policyName: PolicyName, swarmName: SwarmName) => SessionId[] | Promise<SessionId[]>;
-    setBannedClients?: (clientIds: SessionId[], policyName: PolicyName, swarmName: SwarmName) => Promise<void> | void;
-    validateInput?: (incoming: string, clientId: SessionId, policyName: PolicyName, swarmName: SwarmName) => Promise<boolean> | boolean;
-    validateOutput?: (outgoing: string, clientId: SessionId, policyName: PolicyName, swarmName: SwarmName) => Promise<boolean> | boolean;
-    callbacks?: IPolicyCallbacks;
-}
-interface IPolicyParams extends IPolicySchema, IPolicyCallbacks {
-    /** The logger instance. */
-    logger: ILogger;
-    /** The bus instance. */
-    bus: IBus;
-}
-type PolicyName = string;
 
 interface ISwarmSessionCallbacks {
     /**
@@ -3927,14 +4038,54 @@ declare class PolicyValidationService {
 }
 
 declare const BAN_NEED_FETCH: unique symbol;
+/**
+ * Class representing a client policy.
+ * @implements {IPolicy}
+ */
 declare class ClientPolicy implements IPolicy {
     readonly params: IPolicyParams;
     _banSet: Set<SessionId> | typeof BAN_NEED_FETCH;
+    /**
+     * Creates an instance of ClientPolicy.
+     * @param {IPolicyParams} params - The policy parameters.
+     */
     constructor(params: IPolicyParams);
+    /**
+     * Gets the ban message for a client.
+     * @param {SessionId} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<string>} The ban message.
+     */
     getBanMessage(clientId: SessionId, swarmName: SwarmName): Promise<string>;
+    /**
+     * Validates the input from a client.
+     * @param {string} incoming - The incoming message.
+     * @param {SessionId} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<boolean>} Whether the input is valid.
+     */
     validateInput(incoming: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
+    /**
+     * Validates the output to a client.
+     * @param {string} outgoing - The outgoing message.
+     * @param {SessionId} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<boolean>} Whether the output is valid.
+     */
     validateOutput(outgoing: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
+    /**
+     * Bans a client.
+     * @param {SessionId} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
     banClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
+    /**
+     * Unbans a client.
+     * @param {SessionId} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<void>}
+     */
     unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
 }
 
@@ -3947,12 +4098,49 @@ declare class PolicyConnectionService implements IPolicy {
     private readonly busService;
     private readonly methodContextService;
     private readonly policySchemaService;
+    /**
+     * Retrieves a policy based on the policy name.
+     * @param {PolicyName} policyName - The name of the policy.
+     * @returns {ClientPolicy} The client policy.
+     */
     getPolicy: ((policyName: PolicyName) => ClientPolicy) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientPolicy>;
-    getBanMessage: (clientId: SessionId$1, swarmName: SwarmName$1) => Promise<string>;
-    validateInput: (incoming: string, clientId: SessionId$1, swarmName: SwarmName$1) => Promise<boolean>;
-    validateOutput: (outgoing: string, clientId: SessionId$1, swarmName: SwarmName$1) => Promise<boolean>;
-    banClient: (clientId: SessionId$1, swarmName: SwarmName$1) => Promise<void>;
-    unbanClient: (clientId: SessionId$1, swarmName: SwarmName$1) => Promise<void>;
+    /**
+     * Retrieves the ban message for a client in a swarm.
+     * @param {SessionId} clientId - The ID of the client.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {Promise<string>} The ban message.
+     */
+    getBanMessage: (clientId: SessionId, swarmName: SwarmName) => Promise<string>;
+    /**
+     * Validates the input for a client in a swarm.
+     * @param {string} incoming - The incoming input.
+     * @param {SessionId} clientId - The ID of the client.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {Promise<boolean>} Whether the input is valid.
+     */
+    validateInput: (incoming: string, clientId: SessionId, swarmName: SwarmName) => Promise<boolean>;
+    /**
+     * Validates the output for a client in a swarm.
+     * @param {string} outgoing - The outgoing output.
+     * @param {SessionId} clientId - The ID of the client.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {Promise<boolean>} Whether the output is valid.
+     */
+    validateOutput: (outgoing: string, clientId: SessionId, swarmName: SwarmName) => Promise<boolean>;
+    /**
+     * Bans a client from a swarm.
+     * @param {SessionId} clientId - The ID of the client.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {Promise<void>}
+     */
+    banClient: (clientId: SessionId, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Unbans a client from a swarm.
+     * @param {SessionId} clientId - The ID of the client.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {Promise<void>}
+     */
+    unbanClient: (clientId: SessionId, swarmName: SwarmName) => Promise<void>;
 }
 
 interface IPolicyConnectionService extends PolicyConnectionService {
@@ -3969,11 +4157,53 @@ type TPolicyConnectionService = {
 declare class PolicyPublicService implements TPolicyConnectionService {
     private readonly loggerService;
     private readonly policyConnectionService;
-    getBanMessage: (swarmName: SwarmName$1, methodName: string, clientId: string, policyName: PolicyName$1) => Promise<string>;
-    validateInput: (incoming: string, swarmName: SwarmName$1, methodName: string, clientId: string, policyName: PolicyName$1) => Promise<boolean>;
-    validateOutput: (outgoing: string, swarmName: SwarmName$1, methodName: string, clientId: string, policyName: PolicyName$1) => Promise<boolean>;
-    banClient: (swarmName: SwarmName$1, methodName: string, clientId: string, policyName: PolicyName$1) => Promise<void>;
-    unbanClient: (swarmName: SwarmName$1, methodName: string, clientId: string, policyName: PolicyName$1) => Promise<void>;
+    /**
+     * Retrieves the ban message for a client in a specific swarm.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {string} methodName - The name of the method.
+     * @param {string} clientId - The ID of the client.
+     * @param {PolicyName} policyName - The name of the policy.
+     * @returns {Promise<string>} The ban message.
+     */
+    getBanMessage: (swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<string>;
+    /**
+     * Validates the input for a specific policy.
+     * @param {string} incoming - The incoming data to validate.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {string} methodName - The name of the method.
+     * @param {string} clientId - The ID of the client.
+     * @param {PolicyName} policyName - The name of the policy.
+     * @returns {Promise<boolean>} The result of the validation.
+     */
+    validateInput: (incoming: string, swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<boolean>;
+    /**
+     * Validates the output for a specific policy.
+     * @param {string} outgoing - The outgoing data to validate.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {string} methodName - The name of the method.
+     * @param {string} clientId - The ID of the client.
+     * @param {PolicyName} policyName - The name of the policy.
+     * @returns {Promise<boolean>} The result of the validation.
+     */
+    validateOutput: (outgoing: string, swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<boolean>;
+    /**
+     * Bans a client from a specific swarm.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {string} methodName - The name of the method.
+     * @param {string} clientId - The ID of the client.
+     * @param {PolicyName} policyName - The name of the policy.
+     * @returns {Promise<void>}
+     */
+    banClient: (swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<void>;
+    /**
+     * Unbans a client from a specific swarm.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {string} methodName - The name of the method.
+     * @param {string} clientId - The ID of the client.
+     * @param {PolicyName} policyName - The name of the policy.
+     * @returns {Promise<void>}
+     */
+    unbanClient: (swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<void>;
 }
 
 declare const swarm: {
@@ -5014,18 +5244,41 @@ declare const GLOBAL_CONFIG: {
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
+/**
+ * PolicyUtils class provides utility methods for banning and unbanning clients.
+ */
 declare class PolicyUtils {
+    /**
+     * Bans a client.
+     * @param {Object} payload - The payload containing clientId, swarmName, and policyName.
+     * @param {string} payload.clientId - The client ID.
+     * @param {SwarmName} payload.swarmName - The name of the swarm.
+     * @param {PolicyName} payload.policyName - The name of the policy.
+     * @returns {Promise<void>}
+     */
     banClient: (payload: {
         clientId: string;
-        swarmName: SwarmName$1;
-        policyName: PolicyName$1;
+        swarmName: SwarmName;
+        policyName: PolicyName;
     }) => Promise<void>;
+    /**
+     * Unbans a client.
+     * @param {Object} payload - The payload containing clientId, swarmName, and policyName.
+     * @param {string} payload.clientId - The client ID.
+     * @param {SwarmName} payload.swarmName - The name of the swarm.
+     * @param {PolicyName} payload.policyName - The name of the policy.
+     * @returns {Promise<void>}
+     */
     unbanClient: (payload: {
         clientId: string;
-        swarmName: SwarmName$1;
-        policyName: PolicyName$1;
+        swarmName: SwarmName;
+        policyName: PolicyName;
     }) => Promise<void>;
 }
+/**
+ * An instance of PolicyUtils.
+ * @type {PolicyUtils}
+ */
 declare const Policy: PolicyUtils;
 
 type TState = {

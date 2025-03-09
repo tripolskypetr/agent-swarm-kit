@@ -1,47 +1,79 @@
 import { not } from "functools-kit";
-import { GLOBAL_CONFIG } from "src/config/params";
-import IPolicy, { PolicyName } from "src/interfaces/Policy.interface";
-import { SessionId } from "src/interfaces/Session.interface";
-import { SwarmName } from "src/interfaces/Swarm.interface";
-import swarm from "src/lib";
+import { GLOBAL_CONFIG } from "../config/params";
+import IPolicy, { PolicyName } from "../interfaces/Policy.interface";
+import { SessionId } from "../interfaces/Session.interface";
+import { SwarmName } from "../interfaces/Swarm.interface";
+import swarm from "../lib";
 
 const METHOD_NAME_BAN_CLIENT = "PolicyUtils.banClient";
 const METHOD_NAME_UNBAN_CLIENT = "PolicyUtils.unbanClient";
 
+/**
+ * NoopPolicy class implements the IPolicy interface with no-op methods.
+ */
 export class NoopPolicy implements IPolicy {
+  /**
+   * Constructs a NoopPolicy instance.
+   * @param {string} swarmName - The name of the swarm.
+   */
   constructor(readonly swarmName: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(`NoopPolicy CTOR swarmName=${swarmName}`);
   }
-  getBanMessage() {
+
+  /**
+   * Gets the ban message.
+   * @returns {Promise<string>} The ban message.
+   */
+  getBanMessage(): Promise<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
         `NoopPolicy getBanMessage swarmName=${this.swarmName}`
       );
     return Promise.resolve(GLOBAL_CONFIG.CC_BANHAMMER_PLACEHOLDER);
   }
-  validateInput() {
+
+  /**
+   * Validates the input.
+   * @returns {Promise<boolean>} True if the input is valid, otherwise false.
+   */
+  validateInput(): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
         `NoopPolicy validateInput swarmName=${this.swarmName}`
       );
     return Promise.resolve(true);
   }
-  validateOutput() {
+
+  /**
+   * Validates the output.
+   * @returns {Promise<boolean>} True if the output is valid, otherwise false.
+   */
+  validateOutput(): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
         `NoopPolicy validateOutput swarmName=${this.swarmName}`
       );
     return Promise.resolve(true);
   }
-  banClient() {
+
+  /**
+   * Bans a client.
+   * @returns {Promise<void>}
+   */
+  banClient(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
         `NoopPolicy banClient swarmName=${this.swarmName}`
       );
     return Promise.resolve();
   }
-  unbanClient() {
+
+  /**
+   * Unbans a client.
+   * @returns {Promise<void>}
+   */
+  unbanClient(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
         `NoopPolicy unbanClient swarmName=${this.swarmName}`
@@ -50,9 +82,17 @@ export class NoopPolicy implements IPolicy {
   }
 }
 
+/**
+ * MergePolicy class implements the IPolicy interface and merges multiple policies.
+ */
 export class MergePolicy implements IPolicy {
   private _targetPolicy: IPolicy | null = null;
 
+  /**
+   * Constructs a MergePolicy instance.
+   * @param {IPolicy[]} policies - The policies to merge.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   */
   constructor(
     private readonly policies: IPolicy[],
     private readonly swarmName: SwarmName
@@ -63,6 +103,12 @@ export class MergePolicy implements IPolicy {
       });
   }
 
+  /**
+   * Gets the ban message.
+   * @param {SessionId} clientId - The client ID.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {Promise<string>} The ban message.
+   */
   async getBanMessage(
     clientId: SessionId,
     swarmName: SwarmName
@@ -82,6 +128,13 @@ export class MergePolicy implements IPolicy {
     return GLOBAL_CONFIG.CC_BANHAMMER_PLACEHOLDER;
   }
 
+  /**
+   * Validates the input.
+   * @param {string} incoming - The incoming data.
+   * @param {SessionId} clientId - The client ID.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {Promise<boolean>} True if the input is valid, otherwise false.
+   */
   async validateInput(
     incoming: string,
     clientId: SessionId,
@@ -104,6 +157,13 @@ export class MergePolicy implements IPolicy {
     return true;
   }
 
+  /**
+   * Validates the output.
+   * @param {string} outgoing - The outgoing data.
+   * @param {SessionId} clientId - The client ID.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {Promise<boolean>} True if the output is valid, otherwise false.
+   */
   async validateOutput(
     outgoing: string,
     clientId: SessionId,
@@ -126,6 +186,12 @@ export class MergePolicy implements IPolicy {
     return true;
   }
 
+  /**
+   * Bans a client.
+   * @param {SessionId} clientId - The client ID.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {Promise<void>}
+   */
   async banClient(clientId: SessionId, swarmName: SwarmName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -144,6 +210,12 @@ export class MergePolicy implements IPolicy {
     }
   }
 
+  /**
+   * Unbans a client.
+   * @param {SessionId} clientId - The client ID.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {Promise<void>}
+   */
   async unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -162,12 +234,24 @@ export class MergePolicy implements IPolicy {
     }
   }
 }
+
+/**
+ * PolicyUtils class provides utility methods for banning and unbanning clients.
+ */
 export class PolicyUtils {
+  /**
+   * Bans a client.
+   * @param {Object} payload - The payload containing clientId, swarmName, and policyName.
+   * @param {string} payload.clientId - The client ID.
+   * @param {SwarmName} payload.swarmName - The name of the swarm.
+   * @param {PolicyName} payload.policyName - The name of the policy.
+   * @returns {Promise<void>}
+   */
   public banClient = async (payload: {
     clientId: string;
     swarmName: SwarmName;
     policyName: PolicyName;
-  }) => {
+  }): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_BAN_CLIENT, payload);
     swarm.sessionValidationService.validate(
@@ -190,11 +274,19 @@ export class PolicyUtils {
     );
   };
 
+  /**
+   * Unbans a client.
+   * @param {Object} payload - The payload containing clientId, swarmName, and policyName.
+   * @param {string} payload.clientId - The client ID.
+   * @param {SwarmName} payload.swarmName - The name of the swarm.
+   * @param {PolicyName} payload.policyName - The name of the policy.
+   * @returns {Promise<void>}
+   */
   public unbanClient = async (payload: {
     clientId: string;
     swarmName: SwarmName;
     policyName: PolicyName;
-  }) => {
+  }): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_UNBAN_CLIENT, payload);
     swarm.sessionValidationService.validate(
@@ -218,6 +310,10 @@ export class PolicyUtils {
   };
 }
 
+/**
+ * An instance of PolicyUtils.
+ * @type {PolicyUtils}
+ */
 export const Policy = new PolicyUtils();
 
 export default Policy;

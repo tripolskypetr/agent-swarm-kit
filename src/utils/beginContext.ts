@@ -1,4 +1,4 @@
-import { ExecutionContextService, MethodContextService } from "src/lib";
+import { ExecutionContextService, MethodContextService } from "../lib";
 
 /**
  * A higher-order function that ensures execution outside of existing method and execution contexts.

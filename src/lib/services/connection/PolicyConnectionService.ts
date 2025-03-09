@@ -2,16 +2,14 @@ import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import IPolicy, { PolicyName } from "../../../interfaces/Policy.interface";
-import { IModelMessage } from "../../../model/ModelMessage.model";
 import { memoize } from "functools-kit";
 import ClientPolicy from "../../../client/ClientPolicy";
 import { TMethodContextService } from "../context/MethodContextService";
-import SessionValidationService from "../validation/SessionValidationService";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import BusService from "../base/BusService";
 import PolicySchemaService from "../schema/PolicySchemaService";
-import { SessionId } from "src/interfaces/Session.interface";
-import { SwarmName } from "src/interfaces/Swarm.interface";
+import { SessionId } from "../../../interfaces/Session.interface";
+import { SwarmName } from "../../../interfaces/Swarm.interface";
 
 /**
  * Service for managing policy connections.
@@ -27,6 +25,11 @@ export class PolicyConnectionService implements IPolicy {
     TYPES.policySchemaService
   );
 
+  /**
+   * Retrieves a policy based on the policy name.
+   * @param {PolicyName} policyName - The name of the policy.
+   * @returns {ClientPolicy} The client policy.
+   */
   public getPolicy = memoize(
     ([policyName]) => `${policyName}`,
     (policyName: PolicyName) => {
@@ -40,6 +43,12 @@ export class PolicyConnectionService implements IPolicy {
     }
   );
 
+  /**
+   * Retrieves the ban message for a client in a swarm.
+   * @param {SessionId} clientId - The ID of the client.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {Promise<string>} The ban message.
+   */
   public getBanMessage = async (
     clientId: SessionId,
     swarmName: SwarmName
@@ -54,6 +63,13 @@ export class PolicyConnectionService implements IPolicy {
     ).getBanMessage(clientId, swarmName);
   };
 
+  /**
+   * Validates the input for a client in a swarm.
+   * @param {string} incoming - The incoming input.
+   * @param {SessionId} clientId - The ID of the client.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {Promise<boolean>} Whether the input is valid.
+   */
   public validateInput = async (
     incoming: string,
     clientId: SessionId,
@@ -70,6 +86,13 @@ export class PolicyConnectionService implements IPolicy {
     ).validateInput(incoming, clientId, swarmName);
   };
 
+  /**
+   * Validates the output for a client in a swarm.
+   * @param {string} outgoing - The outgoing output.
+   * @param {SessionId} clientId - The ID of the client.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {Promise<boolean>} Whether the output is valid.
+   */
   public validateOutput = async (
     outgoing: string,
     clientId: SessionId,
@@ -86,6 +109,12 @@ export class PolicyConnectionService implements IPolicy {
     ).validateOutput(outgoing, clientId, swarmName);
   };
 
+  /**
+   * Bans a client from a swarm.
+   * @param {SessionId} clientId - The ID of the client.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {Promise<void>}
+   */
   public banClient = async (
     clientId: SessionId,
     swarmName: SwarmName
@@ -100,6 +129,12 @@ export class PolicyConnectionService implements IPolicy {
     ).banClient(clientId, swarmName);
   };
 
+  /**
+   * Unbans a client from a swarm.
+   * @param {SessionId} clientId - The ID of the client.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {Promise<void>}
+   */
   public unbanClient = async (
     clientId: SessionId,
     swarmName: SwarmName

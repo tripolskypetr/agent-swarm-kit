@@ -4,8 +4,8 @@ import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import MethodContextService from "../context/MethodContextService";
 import { GLOBAL_CONFIG } from "../../../config/params";
-import { PolicyName } from "src/interfaces/Policy.interface";
-import { SwarmName } from "src/interfaces/Swarm.interface";
+import { PolicyName } from "../../../interfaces/Policy.interface";
+import { SwarmName } from "../../../interfaces/Swarm.interface";
 
 interface IPolicyConnectionService extends PolicyConnectionService {}
 
@@ -26,12 +26,20 @@ export class PolicyPublicService implements TPolicyConnectionService {
     TYPES.policyConnectionService
   );
 
+  /**
+   * Retrieves the ban message for a client in a specific swarm.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @param {string} methodName - The name of the method.
+   * @param {string} clientId - The ID of the client.
+   * @param {PolicyName} policyName - The name of the policy.
+   * @returns {Promise<string>} The ban message.
+   */
   public getBanMessage = async (
     swarmName: SwarmName,
     methodName: string,
     clientId: string,
     policyName: PolicyName
-  ) => {
+  ): Promise<string> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("policyPublicService getBanMessage", {
         methodName,
@@ -58,13 +66,22 @@ export class PolicyPublicService implements TPolicyConnectionService {
     );
   };
 
+  /**
+   * Validates the input for a specific policy.
+   * @param {string} incoming - The incoming data to validate.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @param {string} methodName - The name of the method.
+   * @param {string} clientId - The ID of the client.
+   * @param {PolicyName} policyName - The name of the policy.
+   * @returns {Promise<boolean>} The result of the validation.
+   */
   public validateInput = async (
     incoming: string,
     swarmName: SwarmName,
     methodName: string,
     clientId: string,
     policyName: PolicyName
-  ) => {
+  ): Promise<boolean> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("policyPublicService validateInput", {
         incoming,
@@ -93,13 +110,22 @@ export class PolicyPublicService implements TPolicyConnectionService {
     );
   };
 
+  /**
+   * Validates the output for a specific policy.
+   * @param {string} outgoing - The outgoing data to validate.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @param {string} methodName - The name of the method.
+   * @param {string} clientId - The ID of the client.
+   * @param {PolicyName} policyName - The name of the policy.
+   * @returns {Promise<boolean>} The result of the validation.
+   */
   public validateOutput = async (
     outgoing: string,
     swarmName: SwarmName,
     methodName: string,
     clientId: string,
     policyName: PolicyName
-  ) => {
+  ): Promise<boolean> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("policyPublicService validateOutput", {
         outgoing,
@@ -128,12 +154,20 @@ export class PolicyPublicService implements TPolicyConnectionService {
     );
   };
 
+  /**
+   * Bans a client from a specific swarm.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @param {string} methodName - The name of the method.
+   * @param {string} clientId - The ID of the client.
+   * @param {PolicyName} policyName - The name of the policy.
+   * @returns {Promise<void>}
+   */
   public banClient = async (
     swarmName: SwarmName,
     methodName: string,
     clientId: string,
     policyName: PolicyName
-  ) => {
+  ): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("policyPublicService banClient", {
         methodName,
@@ -160,12 +194,20 @@ export class PolicyPublicService implements TPolicyConnectionService {
     );
   };
 
+  /**
+   * Unbans a client from a specific swarm.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @param {string} methodName - The name of the method.
+   * @param {string} clientId - The ID of the client.
+   * @param {PolicyName} policyName - The name of the policy.
+   * @returns {Promise<void>}
+   */
   public unbanClient = async (
     swarmName: SwarmName,
     methodName: string,
     clientId: string,
     policyName: PolicyName
-  ) => {
+  ): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("policyPublicService unbanClient", {
         methodName,

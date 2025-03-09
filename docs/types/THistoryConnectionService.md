@@ -2,7 +2,7 @@
 
 ```ts
 type THistoryConnectionService = {
-    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$6>]: unknown;
+    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$7>]: unknown;
 };
 ```
 
