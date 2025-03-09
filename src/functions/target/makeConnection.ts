@@ -5,7 +5,7 @@ import { SwarmName } from "../../interfaces/Swarm.interface";
 import swarm from "../../lib";
 import { commitUserMessage } from "../commit/commitUserMessage";
 import { getAgentName } from "../common/getAgentName";
-import beginContext from "src/utils/beginContext";
+import beginContext from "../..//utils/beginContext";
 
 type SendMessageFn = (outgoing: string) => Promise<void>;
 

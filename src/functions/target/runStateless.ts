@@ -2,7 +2,7 @@ import { randomString } from "functools-kit";
 import { AgentName } from "../../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm, { ExecutionContextService } from "../../lib";
-import beginContext from "src/utils/beginContext";
+import beginContext from "../..//utils/beginContext";
 
 const METHOD_NAME = "function.target.runStateless";
 

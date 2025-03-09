@@ -3,7 +3,7 @@ import { SwarmName } from "../../interfaces/Swarm.interface";
 import swarm, { ExecutionContextService } from "../../lib";
 import { disposeConnection } from "./disposeConnection";
 import { GLOBAL_CONFIG } from "../../config/params";
-import beginContext from "src/utils/beginContext";
+import beginContext from "../..//utils/beginContext";
 
 const METHOD_NAME = "function.target.complete";
 

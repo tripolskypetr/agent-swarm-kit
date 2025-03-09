@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../config/params";
 import objectFlat from "../utils/objectFlat";
 import swarm from "../lib";
-import beginContext from "src/utils/beginContext";
+import beginContext from "../utils/beginContext";
 
 const LIST_SEPARATOR = Array.from({ length: 80 }, () => "-");
 

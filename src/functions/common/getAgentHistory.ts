@@ -1,4 +1,4 @@
-import beginContext from "src/utils/beginContext";
+import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { AgentName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";

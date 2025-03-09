@@ -4,7 +4,7 @@ import IPolicy, { PolicyName } from "../interfaces/Policy.interface";
 import { SessionId } from "../interfaces/Session.interface";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
-import beginContext from "src/utils/beginContext";
+import beginContext from "../utils/beginContext";
 
 const METHOD_NAME_BAN_CLIENT = "PolicyUtils.banClient";
 const METHOD_NAME_UNBAN_CLIENT = "PolicyUtils.unbanClient";

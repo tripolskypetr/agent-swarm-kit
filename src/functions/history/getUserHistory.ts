@@ -1,4 +1,4 @@
-import beginContext from "src/utils/beginContext";
+import beginContext from "../..//utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 import { getRawHistory } from "./getRawHistory";

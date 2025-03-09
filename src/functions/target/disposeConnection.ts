@@ -6,7 +6,7 @@ import LoggerAdapter from "../../classes/Logger";
 import { AgentName } from "../../interfaces/Agent.interface";
 import { StorageName } from "../../interfaces/Storage.interface";
 import { StateName } from "../../interfaces/State.interface";
-import beginContext from "src/utils/beginContext";
+import beginContext from "../..//utils/beginContext";
 
 const METHOD_NAME = "function.target.disposeConnection";
 

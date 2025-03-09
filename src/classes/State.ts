@@ -2,7 +2,7 @@ import swarm from "../lib";
 import { IState, IStateData, StateName } from "../interfaces/State.interface";
 import { AgentName } from "../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../config/params";
-import beginContext from "src/utils/beginContext";
+import beginContext from "../utils/beginContext";
 
 type TState = {
   [key in keyof IState]: unknown;

@@ -6,7 +6,7 @@ import {
 } from "../interfaces/Storage.interface";
 import { AgentName } from "../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../config/params";
-import beginContext from "src/utils/beginContext";
+import beginContext from "../utils/beginContext";
 
 type TSharedStorage = {
   [key in keyof IStorage]: unknown;

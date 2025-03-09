@@ -3,7 +3,7 @@ import { AgentName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { SwarmName } from "../../interfaces/Swarm.interface";
-import beginContext from "src/utils/beginContext";
+import beginContext from "../..//utils/beginContext";
 
 const METHOD_NAME = "function.navigate.changeToDefaultAgent";
 

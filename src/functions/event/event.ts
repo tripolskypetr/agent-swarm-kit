@@ -1,7 +1,7 @@
 import { EventSource, ICustomEvent } from "../../model/Event.model";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
-import beginContext from "src/utils/beginContext";
+import beginContext from "../..//utils/beginContext";
 
 const METHOD_NAME = "function.event.listenEvent";
 
