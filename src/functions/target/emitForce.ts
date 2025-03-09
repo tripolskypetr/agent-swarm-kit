@@ -1,3 +1,4 @@
+import beginContext from "../..//utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
@@ -13,26 +14,29 @@ const METHOD_NAME = "function.target.emitForce";
  * @throws Will throw an error if the session mode is not "makeConnection".
  * @returns {Promise<void>} A promise that resolves when the content is emitted.
  */
-export const emitForce = async (content: string, clientId: string) => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
+export const emitForce = beginContext(
+  async (content: string, clientId: string) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME, {
+        content,
+        clientId,
+      });
+    if (
+      swarm.sessionValidationService.getSessionMode(clientId) !==
+      "makeConnection"
+    ) {
+      throw new Error(
+        `agent-swarm-kit emitForce session is not makeConnection clientId=${clientId}`
+      );
+    }
+    swarm.sessionValidationService.validate(clientId, METHOD_NAME);
+    const swarmName = swarm.sessionValidationService.getSwarm(clientId);
+    swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
+    return await swarm.sessionPublicService.emit(
       content,
+      METHOD_NAME,
       clientId,
-    });
-  if (
-    swarm.sessionValidationService.getSessionMode(clientId) !== "makeConnection"
-  ) {
-    throw new Error(
-      `agent-swarm-kit emitForce session is not makeConnection clientId=${clientId}`
+      swarmName
     );
   }
-  swarm.sessionValidationService.validate(clientId, METHOD_NAME);
-  const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-  swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
-  return await swarm.sessionPublicService.emit(
-    content,
-    METHOD_NAME,
-    clientId,
-    swarmName
-  );
-};
+);

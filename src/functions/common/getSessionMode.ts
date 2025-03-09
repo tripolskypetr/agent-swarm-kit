@@ -1,5 +1,6 @@
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
+import beginContext from "../..//utils/beginContext";
 
 const METHOD_NAME = "function.common.getSessionMode";
 
@@ -8,7 +9,7 @@ const METHOD_NAME = "function.common.getSessionMode";
  *
  * @param {string} clientId - The client ID of the session.
  */
-export const getSessionMode = async (clientId: string) => {
+export const getSessionMode = beginContext(async (clientId: string) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       clientId,
@@ -17,4 +18,4 @@ export const getSessionMode = async (clientId: string) => {
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   return swarm.sessionValidationService.getSessionMode(clientId);
-};
+});

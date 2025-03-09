@@ -1,7 +1,7 @@
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
-import { errorData, getErrorMessage, trycatch } from "functools-kit";
 import listenExecutionEvent from "../events/listenExecutionEvent";
+import beginContext from "src/utils/beginContext";
 
 const METHOD_NAME = "cli.dumpClientPerformance";
 const METHOD_NAME_INTERNAL = "cli.dumpClientPerformance.internal";
@@ -14,23 +14,11 @@ const METHOD_NAME_EXECUTE = "cli.dumpClientPerformance.execute";
  * @param {string} [dirName="./logs/client"] - The directory name where the performance data will be dumped.
  * @returns {Promise<void>} A promise that resolves when the performance data has been dumped.
  */
-const dumpClientPerformanceInternal = trycatch(
+const dumpClientPerformanceInternal = beginContext(
   async (clientId: string, dirName = "./logs/client") => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_INTERNAL);
     return await swarm.docService.dumpClientPerfomance(clientId, dirName);
-  },
-  {
-    fallback: (error) => {
-      swarm.loggerService.log(
-        `agent-swarm dumpClientPerformanceInternal exception error=${getErrorMessage(
-          error
-        )}`,
-        {
-          errorData: errorData(error),
-        }
-      );
-    },
   }
 );
 
@@ -57,15 +45,17 @@ const dumpClientPerformance = async (
  * @param {string} [dirName="./logs/client"] - The directory name where the performance data will be dumped.
  * @returns {Promise<void>} A promise that resolves when the listener has been set up.
  */
-dumpClientPerformance.runAfterExecute = async (dirName = "./logs/client") => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME_EXECUTE);
-  return listenExecutionEvent("*", async ({ type, clientId }) => {
-    if (type === "commit-execution-end") {
-      await dumpClientPerformanceInternal(clientId, dirName);
-    }
-  });
-};
+dumpClientPerformance.runAfterExecute = beginContext(
+  async (dirName = "./logs/client") => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME_EXECUTE);
+    return listenExecutionEvent("*", async ({ type, clientId }) => {
+      if (type === "commit-execution-end") {
+        await dumpClientPerformanceInternal(clientId, dirName);
+      }
+    });
+  }
+);
 
 export { dumpClientPerformance };
 

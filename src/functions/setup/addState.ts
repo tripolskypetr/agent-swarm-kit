@@ -1,6 +1,7 @@
 import { IStateSchema } from "../../interfaces/State.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
+import beginContext from "../..//utils/beginContext";
 
 const METHOD_NAME = "function.setup.addState";
 
@@ -10,7 +11,7 @@ const METHOD_NAME = "function.setup.addState";
  * @param {IStateSchema} stateSchema - The schema of the state to be added.
  * @returns {string} The name of the added state.
  */
-export const addState = (stateSchema: IStateSchema) => {
+export const addState = beginContext((stateSchema: IStateSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       stateSchema,
@@ -22,4 +23,4 @@ export const addState = (stateSchema: IStateSchema) => {
       .waitForInit();
   }
   return stateSchema.stateName;
-};
+});

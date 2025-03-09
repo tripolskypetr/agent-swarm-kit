@@ -1,6 +1,7 @@
 import { IAgentSchema } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
+import beginContext from "../..//utils/beginContext";
 
 const METHOD_NAME = "function.setup.addAgent";
 
@@ -10,7 +11,7 @@ const METHOD_NAME = "function.setup.addAgent";
  * @param {IAgentSchema} agentSchema - The schema of the agent to be added.
  * @returns {string} The name of the added agent.
  */
-export const addAgent = (agentSchema: IAgentSchema) => {
+export const addAgent = beginContext((agentSchema: IAgentSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       agentSchema,
@@ -18,4 +19,4 @@ export const addAgent = (agentSchema: IAgentSchema) => {
   swarm.agentValidationService.addAgent(agentSchema.agentName, agentSchema);
   swarm.agentSchemaService.register(agentSchema.agentName, agentSchema);
   return agentSchema.agentName;
-};
+});

@@ -6,6 +6,7 @@ import {
 } from "../interfaces/Storage.interface";
 import { AgentName } from "../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../config/params";
+import beginContext from "../utils/beginContext";
 
 type TSharedStorage = {
   [key in keyof IStorage]: unknown;
@@ -27,31 +28,38 @@ export class SharedStorageUtils implements TSharedStorage {
    * @returns {Promise<T[]>} - A promise that resolves to an array of items.
    * @template T
    */
-  public take = async <T extends IStorageData = IStorageData>(payload: {
+  public take = beginContext(
+    async (payload: {
+      search: string;
+      total: number;
+      storageName: StorageName;
+      score?: number;
+    }) => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_TAKE, {
+          search: payload.search,
+          total: payload.total,
+          storageName: payload.storageName,
+          score: payload.score,
+        });
+      swarm.storageValidationService.validate(
+        payload.storageName,
+        METHOD_NAME_TAKE
+      );
+      return await swarm.sharedStoragePublicService.take(
+        payload.search,
+        payload.total,
+        METHOD_NAME_TAKE,
+        payload.storageName,
+        payload.score
+      );
+    }
+  ) as <T extends IStorageData = IStorageData>(payload: {
     search: string;
     total: number;
     storageName: StorageName;
     score?: number;
-  }): Promise<T[]> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_TAKE, {
-        search: payload.search,
-        total: payload.total,
-        storageName: payload.storageName,
-        score: payload.score,
-      });
-    swarm.storageValidationService.validate(
-      payload.storageName,
-      METHOD_NAME_TAKE
-    );
-    return (await swarm.sharedStoragePublicService.take(
-      payload.search,
-      payload.total,
-      METHOD_NAME_TAKE,
-      payload.storageName,
-      payload.score
-    )) as T[];
-  };
+  }) => Promise<T[]>;
 
   /**
    * Upserts an item in the storage.
@@ -60,22 +68,24 @@ export class SharedStorageUtils implements TSharedStorage {
    * @returns {Promise<void>} - A promise that resolves when the operation is complete.
    * @template T
    */
-  public upsert = async <T extends IStorageData = IStorageData>(
+  public upsert = beginContext(
+    async (item: IStorageData, storageName: StorageName): Promise<void> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_UPSERT, {
+          item,
+          storageName,
+        });
+      swarm.storageValidationService.validate(storageName, METHOD_NAME_UPSERT);
+      return await swarm.sharedStoragePublicService.upsert(
+        item,
+        METHOD_NAME_UPSERT,
+        storageName
+      );
+    }
+  ) as <T extends IStorageData = IStorageData>(
     item: T,
     storageName: StorageName
-  ): Promise<void> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_UPSERT, {
-        item,
-        storageName,
-      });
-    swarm.storageValidationService.validate(storageName, METHOD_NAME_UPSERT);
-    return await swarm.sharedStoragePublicService.upsert(
-      item,
-      METHOD_NAME_UPSERT,
-      storageName
-    );
-  };
+  ) => Promise<void>;
 
   /**
    * Removes an item from the storage.
@@ -83,22 +93,24 @@ export class SharedStorageUtils implements TSharedStorage {
    * @param {StorageName} storageName - The storage name.
    * @returns {Promise<void>} - A promise that resolves when the operation is complete.
    */
-  public remove = async (
-    itemId: IStorageData["id"],
-    storageName: StorageName
-  ): Promise<void> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_REMOVE, {
+  public remove = beginContext(
+    async (
+      itemId: IStorageData["id"],
+      storageName: StorageName
+    ): Promise<void> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_REMOVE, {
+          itemId,
+          storageName,
+        });
+      swarm.storageValidationService.validate(storageName, METHOD_NAME_REMOVE);
+      return await swarm.sharedStoragePublicService.remove(
         itemId,
-        storageName,
-      });
-    swarm.storageValidationService.validate(storageName, METHOD_NAME_REMOVE);
-    return await swarm.sharedStoragePublicService.remove(
-      itemId,
-      METHOD_NAME_REMOVE,
-      storageName
-    );
-  };
+        METHOD_NAME_REMOVE,
+        storageName
+      );
+    }
+  ) as (itemId: IStorageData["id"], storageName: StorageName) => Promise<void>;
 
   /**
    * Gets an item from the storage.
@@ -107,22 +119,27 @@ export class SharedStorageUtils implements TSharedStorage {
    * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
    * @template T
    */
-  public get = async <T extends IStorageData = IStorageData>(
+  public get = beginContext(
+    async (
+      itemId: IStorageData["id"],
+      storageName: StorageName
+    ): Promise<IStorageData | null> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_GET, {
+          itemId: itemId,
+          storageName: storageName,
+        });
+      swarm.storageValidationService.validate(storageName, METHOD_NAME_GET);
+      return await swarm.sharedStoragePublicService.get(
+        itemId,
+        METHOD_NAME_GET,
+        storageName
+      );
+    }
+  ) as <T extends IStorageData = IStorageData>(
     itemId: IStorageData["id"],
     storageName: StorageName
-  ): Promise<T | null> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_GET, {
-        itemId: itemId,
-        storageName: storageName,
-      });
-    swarm.storageValidationService.validate(storageName, METHOD_NAME_GET);
-    return (await swarm.sharedStoragePublicService.get(
-      itemId,
-      METHOD_NAME_GET,
-      storageName
-    )) as T | null;
-  };
+  ) => Promise<T | null>;
 
   /**
    * Lists items from the storage.
@@ -131,38 +148,45 @@ export class SharedStorageUtils implements TSharedStorage {
    * @returns {Promise<T[]>} - A promise that resolves to an array of items.
    * @template T
    */
-  public list = async <T extends IStorageData = IStorageData>(
+  public list = beginContext(
+    async (
+      storageName: StorageName,
+      filter?: (item: IStorageData) => boolean
+    ) => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_LIST, {
+          storageName,
+        });
+      swarm.storageValidationService.validate(storageName, METHOD_NAME_LIST);
+      return await swarm.sharedStoragePublicService.list(
+        METHOD_NAME_LIST,
+        storageName,
+        filter
+      );
+    }
+  ) as <T extends IStorageData = IStorageData>(
     storageName: StorageName,
     filter?: (item: T) => boolean
-  ): Promise<T[]> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_LIST, {
-        storageName,
-      });
-    swarm.storageValidationService.validate(storageName, METHOD_NAME_LIST);
-    return (await swarm.sharedStoragePublicService.list(
-      METHOD_NAME_LIST,
-      storageName,
-      filter
-    )) as T[];
-  };
+  ) => Promise<T[]>;
 
   /**
    * Clears the storage.
    * @param {StorageName} storageName - The storage name.
    * @returns {Promise<void>} - A promise that resolves when the operation is complete.
    */
-  public clear = async (storageName: StorageName): Promise<void> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_CLEAR, {
-        storageName,
-      });
-    swarm.storageValidationService.validate(storageName, METHOD_NAME_CLEAR);
-    return await swarm.sharedStoragePublicService.clear(
-      METHOD_NAME_CLEAR,
-      storageName
-    );
-  };
+  public clear = beginContext(
+    async (storageName: StorageName): Promise<void> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_CLEAR, {
+          storageName,
+        });
+      swarm.storageValidationService.validate(storageName, METHOD_NAME_CLEAR);
+      return await swarm.sharedStoragePublicService.clear(
+        METHOD_NAME_CLEAR,
+        storageName
+      );
+    }
+  );
 }
 
 export const SharedStorage = new SharedStorageUtils();

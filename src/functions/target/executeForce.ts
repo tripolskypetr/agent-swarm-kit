@@ -1,6 +1,7 @@
 import { randomString } from "functools-kit";
 import swarm, { ExecutionContextService } from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
+import beginContext from "../..//utils/beginContext";
 
 const METHOD_NAME = "function.target.executeForce";
 
@@ -14,46 +15,48 @@ const METHOD_NAME = "function.target.executeForce";
  * @param {string} clientId - The ID of the client requesting execution.
  * @returns {Promise<void>} - A promise that resolves when the execution is complete.
  */
-export const executeForce = async (content: string, clientId: string) => {
-  const executionId = randomString();
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      content,
-      clientId,
-      executionId,
-    });
-  swarm.sessionValidationService.validate(clientId, METHOD_NAME);
-  const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-  swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
-  return ExecutionContextService.runInContext(
-    async () => {
-      let isFinished = false;
-      swarm.perfService.startExecution(executionId, clientId, content.length);
-      try {
-        swarm.busService.commitExecutionBegin(clientId, { swarmName });
-        const result = await swarm.sessionPublicService.execute(
-          content,
-          "tool",
-          METHOD_NAME,
-          clientId,
-          swarmName
-        );
-        isFinished = swarm.perfService.endExecution(
-          executionId,
-          clientId,
-          result.length
-        );
-        swarm.busService.commitExecutionEnd(clientId, { swarmName });
-        return result;
-      } finally {
-        if (!isFinished) {
-          swarm.perfService.endExecution(executionId, clientId, 0);
+export const executeForce = beginContext(
+  async (content: string, clientId: string) => {
+    const executionId = randomString();
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME, {
+        content,
+        clientId,
+        executionId,
+      });
+    swarm.sessionValidationService.validate(clientId, METHOD_NAME);
+    const swarmName = swarm.sessionValidationService.getSwarm(clientId);
+    swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
+    return ExecutionContextService.runInContext(
+      async () => {
+        let isFinished = false;
+        swarm.perfService.startExecution(executionId, clientId, content.length);
+        try {
+          swarm.busService.commitExecutionBegin(clientId, { swarmName });
+          const result = await swarm.sessionPublicService.execute(
+            content,
+            "tool",
+            METHOD_NAME,
+            clientId,
+            swarmName
+          );
+          isFinished = swarm.perfService.endExecution(
+            executionId,
+            clientId,
+            result.length
+          );
+          swarm.busService.commitExecutionEnd(clientId, { swarmName });
+          return result;
+        } finally {
+          if (!isFinished) {
+            swarm.perfService.endExecution(executionId, clientId, 0);
+          }
         }
+      },
+      {
+        clientId,
+        executionId,
       }
-    },
-    {
-      clientId,
-      executionId,
-    }
-  );
-};
+    );
+  }
+);

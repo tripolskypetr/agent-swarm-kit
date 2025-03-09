@@ -1,3 +1,4 @@
+import beginContext from "../..//utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
@@ -10,7 +11,7 @@ const METHOD_NAME = "function.commit.cancelOutputForce";
  * @param {string} agentName - The name of the agent.
  * @returns {Promise<void>} - A promise that resolves when the output is canceled
  */
-export const cancelOutputForce = async (clientId: string) => {
+export const cancelOutputForce = beginContext(async (clientId: string) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       clientId,
@@ -19,4 +20,4 @@ export const cancelOutputForce = async (clientId: string) => {
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
   await swarm.swarmPublicService.cancelOutput(METHOD_NAME, clientId, swarmName);
-};
+});
