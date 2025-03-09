@@ -46,6 +46,19 @@ export class SwarmSchemaService {
         `agent-swarm swarm schema validation failed: missing agentList for swarmName=${swarmSchema.swarmName} value=[${swarmSchema.agentList}]`
       );
     }
+    if (swarmSchema.policies && !Array.isArray(swarmSchema.policies)) {
+      throw new Error(
+        `agent-swarm swarm schema validation failed: invalid policies for swarmName=${swarmSchema.swarmName} value=${swarmSchema.policies}`
+      );
+    }
+    if (swarmSchema.policies && swarmSchema.policies.length !== new Set(swarmSchema.policies).size) {
+      throw new Error(`agent-swarm agent schema validation failed: found duplicate policies for swarmName=${swarmSchema.swarmName} policies=[${swarmSchema.policies}]`);
+    }
+    if (swarmSchema.policies?.some((value) => typeof value !== "string")) {
+      throw new Error(
+        `agent-swarm swarm schema validation failed: missing policies for swarmName=${swarmSchema.swarmName} value=[${swarmSchema.policies}]`
+      );
+    }
   };
 
   /**

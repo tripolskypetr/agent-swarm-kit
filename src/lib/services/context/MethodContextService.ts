@@ -3,6 +3,7 @@ import { AgentName } from "../../../interfaces/Agent.interface";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
 import { StorageName } from "../../../interfaces/Storage.interface";
 import { StateName } from "../../../interfaces/State.interface";
+import { PolicyName } from "../../../interfaces/Policy.interface";
 
 /**
  * Interface representing the context.
@@ -14,6 +15,7 @@ export interface IMethodContext {
   swarmName: SwarmName;
   storageName: StorageName;
   stateName: StateName;
+  policyName: PolicyName;
 }
 
 /**

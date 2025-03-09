@@ -19,6 +19,7 @@ const connectionServices = {
     sharedStorageConnectionService: Symbol('sharedStorageConnectionService'),
     stateConnectionService: Symbol('stateConnectionService'),
     sharedStateConnectionService: Symbol('sharedStateConnectionService'),
+    policyConnectionService: Symbol('policyConnectionService'),
 };
 
 const schemaServices = {
@@ -30,6 +31,7 @@ const schemaServices = {
     storageSchemaService: Symbol('storageSchemaService'),
     stateSchemaService: Symbol('stateSchemaService'),
     memorySchemaService: Symbol('memorySchemaService'),
+    policySchemaService: Symbol('policySchemaService'),
 };
 
 const metaServices = {
@@ -46,6 +48,7 @@ const publicServices = {
     sharedStoragePublicService: Symbol('sharedStoragePublicService'),
     statePublicService: Symbol('statePublicService'),
     sharedStatePublicService: Symbol('sharedStatePublicService'),
+    policyPublicService: Symbol('policyPublicService'),
 };
 
 const validationServices = {
@@ -56,6 +59,7 @@ const validationServices = {
     completionValidationService: Symbol('completionValidationService'),
     embeddingValidationService: Symbol('embeddingValidationService'),
     storageValidationService: Symbol('storageValidationService'),
+    policyValidationService: Symbol('policyValidationService'),
 };
 
 export const TYPES = {

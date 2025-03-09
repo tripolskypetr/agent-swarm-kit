@@ -15,6 +15,8 @@ import {
 import SwarmSchemaService from "../schema/SwarmSchemaService";
 import BusService from "../base/BusService";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
+import PolicyConnectionService from "./PolicyConnectionService";
+import { MergePolicy, NoopPolicy } from "src/classes/Policy";
 
 /**
  * Service for managing session connections.
@@ -31,6 +33,10 @@ export class SessionConnectionService implements ISession {
     TYPES.swarmConnectionService
   );
 
+  private readonly policyConnectionService = inject<PolicyConnectionService>(
+    TYPES.policyConnectionService
+  );
+
   private readonly swarmSchemaService = inject<SwarmSchemaService>(
     TYPES.swarmSchemaService
   );
@@ -44,9 +50,15 @@ export class SessionConnectionService implements ISession {
   public getSession = memoize(
     ([clientId, swarmName]) => `${clientId}-${swarmName}`,
     (clientId: string, swarmName: string) => {
-      const { callbacks } = this.swarmSchemaService.get(swarmName);
+      const { callbacks, policies } = this.swarmSchemaService.get(swarmName);
       return new ClientSession({
         clientId,
+        policy: policies
+          ? new MergePolicy(
+              policies.map(this.policyConnectionService.getPolicy),
+              swarmName,
+            )
+          : new NoopPolicy(swarmName),
         logger: this.loggerService,
         bus: this.busService,
         swarm: this.swarmConnectionService.getSwarm(clientId, swarmName),
@@ -97,9 +109,7 @@ export class SessionConnectionService implements ISession {
    * @param {string} content - The content to execute.
    * @returns {Promise<string>} A promise that resolves with the execution result.
    */
-  public run = async (
-    content: string
-  ): Promise<string> => {
+  public run = async (content: string): Promise<string> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService run`, {
         content,

@@ -1,6 +1,7 @@
 import { AgentName, IAgent } from "../interfaces/Agent.interface";
 import { ILogger } from "../interfaces/Logger.interface";
 import { IBus } from "./Bus.interface";
+import { PolicyName } from "./Policy.interface";
 import { ExecutionMode } from "./Session.interface";
 
 export interface ISwarmSessionCallbacks {
@@ -99,6 +100,8 @@ export interface ISwarmParams
 export interface ISwarmSchema {
   /** The description for documentation */
   docDescription?: string;
+  /** The banhammer policies */
+  policies?: PolicyName[];
   /** Get the current navigation stack after init */
   getNavigationStack?: (
     clientId: string,

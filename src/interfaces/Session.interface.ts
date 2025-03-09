@@ -5,6 +5,7 @@ import ISwarm, {
   SwarmName,
 } from "../interfaces/Swarm.interface";
 import { IBus } from "./Bus.interface";
+import { IPolicy } from "./Policy.interface";
 
 /**
  * Parameters required to create a session.
@@ -13,6 +14,7 @@ import { IBus } from "./Bus.interface";
 export interface ISessionParams extends ISessionSchema, ISwarmSessionCallbacks {
   clientId: string;
   logger: ILogger;
+  policy: IPolicy;
   bus: IBus;
   swarm: ISwarm;
   swarmName: SwarmName;

@@ -106,6 +106,8 @@ const CC_FN_PLANTUML: (uml: string) => Promise<string> = () => Promise.resolve("
 
 const CC_PROCESS_UUID = randomString();
 
+const CC_BANHAMMER_PLACEHOLDER = "You have been banned! To continue conversation, please contact the administrator."
+
 export const GLOBAL_CONFIG = {
   CC_TOOL_CALL_EXCEPTION_PROMPT,
   CC_EMPTY_OUTPUT_PLACEHOLDERS,
@@ -132,6 +134,7 @@ export const GLOBAL_CONFIG = {
   CC_NAME_TO_TITLE,
   CC_FN_PLANTUML,
   CC_PROCESS_UUID,
+  CC_BANHAMMER_PLACEHOLDER,
 };
 
 export const setConfig = (config: Partial<typeof GLOBAL_CONFIG>) => {

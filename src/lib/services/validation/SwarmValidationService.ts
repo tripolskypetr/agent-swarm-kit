@@ -5,6 +5,7 @@ import { SwarmName, ISwarmSchema } from "../../../interfaces/Swarm.interface";
 import AgentValidationService from "./AgentValidationService";
 import { memoize } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import PolicyValidationService from "./PolicyValidationService";
 
 /**
  * Service for validating swarms and their agents.
@@ -14,6 +15,10 @@ export class SwarmValidationService {
 
   private readonly agentValidationService = inject<AgentValidationService>(
     TYPES.agentValidationService
+  );
+
+  private readonly policyValidationService = inject<PolicyValidationService>(
+    TYPES.policyValidationService
   );
 
   private _swarmMap = new Map<SwarmName, ISwarmSchema>();
@@ -89,6 +94,9 @@ export class SwarmValidationService {
       }
       swarm.agentList.forEach((agentName) =>
         this.agentValidationService.validate(agentName, source)
+      );
+      swarm.policies?.forEach((policyName) =>
+        this.policyValidationService.validate(policyName, source)
       );
       return {} as unknown as void;
     }

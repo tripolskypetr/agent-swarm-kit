@@ -18,6 +18,7 @@ import StorageSchemaService from "../schema/StorageSchemaService";
 import StateSchemaService from "../schema/StateSchemaService";
 import PerfService from "./PerfService";
 import { getMomentStamp, getTimeStamp } from "get-moment-stamp";
+import PolicySchemaService from "../schema/PolicySchemaService";
 
 const THREAD_POOL_SIZE = 5;
 
@@ -50,6 +51,9 @@ export class DocService {
   );
   private readonly agentSchemaService = inject<AgentSchemaService>(
     TYPES.agentSchemaService
+  );
+  private readonly policySchemaService = inject<PolicySchemaService>(
+    TYPES.policySchemaService
   );
   private readonly toolSchemaService = inject<ToolSchemaService>(
     TYPES.toolSchemaService
@@ -138,6 +142,31 @@ export class DocService {
             result.push(`\t${docDescription}`);
           }
           result.push("");
+        }
+      }
+
+      if (swarmSchema.policies) {
+        result.push(`## Banhammer policies`);
+        result.push("");
+        for (let i = 0; i !== swarmSchema.policies.length; i++) {
+          if (!swarmSchema.policies[i]) {
+            continue;
+          }
+          result.push(
+            `${i + 1}. ${swarmSchema.policies[i]}`
+          );
+          const { docDescription } = this.policySchemaService.get(
+            swarmSchema.policies[i]
+          );
+          if (docDescription) {
+            result.push("");
+            result.push(`\t${docDescription}`);
+          }
+          result.push("");
+        }
+        if (!swarmSchema.policies.length) {
+          result.push("");
+          result.push(`*Empty policies*`);
         }
       }
 

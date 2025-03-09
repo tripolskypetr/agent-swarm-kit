@@ -39,6 +39,10 @@ import SharedStatePublicService from "../services/public/SharedStatePublicServic
 import SharedStoragePublicService from "../services/public/SharedStoragePublicService";
 import MemorySchemaService from "../services/schema/MemorySchemaService";
 import PerfService from "../services/base/PerfService";
+import PolicySchemaService from "../services/schema/PolicySchemaService";
+import PolicyValidationService from "../services/validation/PolicyValidationService";
+import PolicyPublicService from "../services/public/PolicyPublicService";
+import PolicyConnectionService from "../services/connection/PolicyConnectionService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -61,6 +65,7 @@ import PerfService from "../services/base/PerfService";
     provide(TYPES.sharedStorageConnectionService, () => new SharedStorageConnectionService());
     provide(TYPES.stateConnectionService, () => new StateConnectionService());
     provide(TYPES.sharedStateConnectionService, () => new SharedStateConnectionService());
+    provide(TYPES.policyConnectionService, () => new PolicyConnectionService());
 }
 
 {
@@ -72,6 +77,7 @@ import PerfService from "../services/base/PerfService";
     provide(TYPES.storageSchemaService, () => new StorageSchemaService());
     provide(TYPES.stateSchemaService, () => new StateSchemaService());
     provide(TYPES.memorySchemaService, () => new MemorySchemaService());
+    provide(TYPES.policySchemaService, () => new PolicySchemaService());
 }
 
 {
@@ -83,6 +89,7 @@ import PerfService from "../services/base/PerfService";
     provide(TYPES.sharedStoragePublicService, () => new SharedStoragePublicService());
     provide(TYPES.statePublicService, () => new StatePublicService());
     provide(TYPES.sharedStatePublicService, () => new SharedStatePublicService());
+    provide(TYPES.policyPublicService, () => new PolicyPublicService());
 }
 
 {
@@ -98,4 +105,5 @@ import PerfService from "../services/base/PerfService";
     provide(TYPES.toolValidationService, () => new ToolValidationService());
     provide(TYPES.storageValidationService, () => new StorageValidationService());
     provide(TYPES.embeddingValidationService, () => new EmbeddingValidationService());
+    provide(TYPES.policyValidationService, () => new PolicyValidationService());
 }

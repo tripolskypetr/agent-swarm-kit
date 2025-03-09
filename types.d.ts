@@ -1,6 +1,9 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
+import { PolicyName as PolicyName$1 } from 'src/interfaces/Policy.interface';
+import { SessionId as SessionId$1 } from 'src/interfaces/Session.interface';
+import { SwarmName as SwarmName$1 } from 'src/interfaces/Swarm.interface';
 
 /**
  * Interface representing the context.
@@ -439,6 +442,10 @@ interface IBusEventContext {
      * The name of the state.
      */
     stateName: StateName;
+    /**
+     * The name of the policy
+     */
+    policyName: PolicyName$1;
 }
 /**
  * Type representing the possible sources of an event.
@@ -447,7 +454,7 @@ type EventSource = string;
 /**
  * Type representing the possible sources of an event for the internal bus.
  */
-type EventBusSource = "agent-bus" | "history-bus" | "session-bus" | "state-bus" | "storage-bus" | "swarm-bus" | "execution-bus";
+type EventBusSource = "agent-bus" | "history-bus" | "session-bus" | "state-bus" | "storage-bus" | "swarm-bus" | "execution-bus" | "policy-bus";
 /**
  * Interface representing the base structure of an event.
  */
@@ -506,6 +513,40 @@ interface IBus {
      */
     emit<T extends IBaseEvent>(clientId: string, event: T): Promise<void>;
 }
+
+interface IPolicyCallbacks {
+    onInit?: (policyName: PolicyName) => void;
+    onValidateInput?: (incoming: string, clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
+    onValidateOutput?: (outgoing: string, clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
+    onBanClient?: (clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
+    onUnbanClient?: (clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
+}
+interface IPolicy {
+    getBanMessage(clientId: SessionId, swarmName: SwarmName): Promise<string>;
+    validateInput(incoming: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
+    validateOutput(outgoing: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
+    banClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
+    unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
+}
+interface IPolicySchema {
+    /** The description for documentation */
+    docDescription?: string;
+    policyName: PolicyName;
+    banMessage?: string;
+    getBanMessage?: (clientId: SessionId, policyName: PolicyName, swarmName: SwarmName) => Promise<string | null> | string | null;
+    getBannedClients: (policyName: PolicyName, swarmName: SwarmName) => SessionId[] | Promise<SessionId[]>;
+    setBannedClients?: (clientIds: SessionId[], policyName: PolicyName, swarmName: SwarmName) => Promise<void> | void;
+    validateInput?: (incoming: string, clientId: SessionId, policyName: PolicyName, swarmName: SwarmName) => Promise<boolean> | boolean;
+    validateOutput?: (outgoing: string, clientId: SessionId, policyName: PolicyName, swarmName: SwarmName) => Promise<boolean> | boolean;
+    callbacks?: IPolicyCallbacks;
+}
+interface IPolicyParams extends IPolicySchema, IPolicyCallbacks {
+    /** The logger instance. */
+    logger: ILogger;
+    /** The bus instance. */
+    bus: IBus;
+}
+type PolicyName = string;
 
 interface ISwarmSessionCallbacks {
     /**
@@ -581,6 +622,8 @@ interface ISwarmParams extends Omit<ISwarmSchema, keyof {
 interface ISwarmSchema {
     /** The description for documentation */
     docDescription?: string;
+    /** The banhammer policies */
+    policies?: PolicyName[];
     /** Get the current navigation stack after init */
     getNavigationStack?: (clientId: string, swarmName: SwarmName) => Promise<AgentName[]> | AgentName[];
     /** Upload the current navigation stack after change */
@@ -652,6 +695,7 @@ type SwarmName = string;
 interface ISessionParams extends ISessionSchema, ISwarmSessionCallbacks {
     clientId: string;
     logger: ILogger;
+    policy: IPolicy;
     bus: IBus;
     swarm: ISwarm;
     swarmName: SwarmName;
@@ -1555,6 +1599,7 @@ interface IMethodContext {
     swarmName: SwarmName;
     storageName: StorageName;
     stateName: StateName;
+    policyName: PolicyName;
 }
 /**
  * Service providing method call context information.
@@ -2171,6 +2216,7 @@ declare class SessionConnectionService implements ISession {
     private readonly busService;
     private readonly methodContextService;
     private readonly swarmConnectionService;
+    private readonly policyConnectionService;
     private readonly swarmSchemaService;
     /**
      * Retrieves a memoized session based on clientId and swarmName.
@@ -2249,11 +2295,11 @@ declare class SessionConnectionService implements ISession {
 
 interface IAgentConnectionService extends AgentConnectionService {
 }
-type InternalKeys$7 = keyof {
+type InternalKeys$8 = keyof {
     getAgent: never;
 };
 type TAgentConnectionService = {
-    [key in Exclude<keyof IAgentConnectionService, InternalKeys$7>]: unknown;
+    [key in Exclude<keyof IAgentConnectionService, InternalKeys$8>]: unknown;
 };
 /**
  * Service for managing public agent operations.
@@ -2356,12 +2402,12 @@ declare class AgentPublicService implements TAgentConnectionService {
 
 interface IHistoryConnectionService extends HistoryConnectionService {
 }
-type InternalKeys$6 = keyof {
+type InternalKeys$7 = keyof {
     getHistory: never;
     getItems: never;
 };
 type THistoryConnectionService = {
-    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$6>]: unknown;
+    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$7>]: unknown;
 };
 /**
  * Service for handling public history operations.
@@ -2403,11 +2449,11 @@ declare class HistoryPublicService implements THistoryConnectionService {
 
 interface ISessionConnectionService extends SessionConnectionService {
 }
-type InternalKeys$5 = keyof {
+type InternalKeys$6 = keyof {
     getSession: never;
 };
 type TSessionConnectionService = {
-    [key in Exclude<keyof ISessionConnectionService, InternalKeys$5>]: unknown;
+    [key in Exclude<keyof ISessionConnectionService, InternalKeys$6>]: unknown;
 };
 /**
  * Service for managing public session interactions.
@@ -2507,11 +2553,11 @@ declare class SessionPublicService implements TSessionConnectionService {
 
 interface ISwarmConnectionService extends SwarmConnectionService {
 }
-type InternalKeys$4 = keyof {
+type InternalKeys$5 = keyof {
     getSwarm: never;
 };
 type TSwarmConnectionService = {
-    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$4>]: unknown;
+    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$5>]: unknown;
 };
 /**
  * Service for managing public swarm interactions.
@@ -2785,6 +2831,7 @@ declare class SessionValidationService {
 declare class SwarmValidationService {
     private readonly loggerService;
     private readonly agentValidationService;
+    private readonly policyValidationService;
     private _swarmMap;
     /**
      * Adds a new swarm to the swarm map.
@@ -3015,12 +3062,12 @@ declare class StorageConnectionService implements IStorage {
 
 interface IStorageConnectionService extends StorageConnectionService {
 }
-type InternalKeys$3 = keyof {
+type InternalKeys$4 = keyof {
     getStorage: never;
     getSharedStorage: never;
 };
 type TStorageConnectionService = {
-    [key in Exclude<keyof IStorageConnectionService, InternalKeys$3>]: unknown;
+    [key in Exclude<keyof IStorageConnectionService, InternalKeys$4>]: unknown;
 };
 /**
  * Service for managing public storage interactions.
@@ -3206,12 +3253,12 @@ declare class StateConnectionService<T extends IStateData = IStateData> implemen
 
 interface IStateConnectionService extends StateConnectionService {
 }
-type InternalKeys$2 = keyof {
+type InternalKeys$3 = keyof {
     getStateRef: never;
     getSharedStateRef: never;
 };
 type TStateConnectionService = {
-    [key in Exclude<keyof IStateConnectionService, InternalKeys$2>]: unknown;
+    [key in Exclude<keyof IStateConnectionService, InternalKeys$3>]: unknown;
 };
 declare class StatePublicService<T extends IStateData = IStateData> implements TStateConnectionService {
     private readonly loggerService;
@@ -3382,6 +3429,7 @@ declare class DocService {
     private readonly agentValidationService;
     private readonly swarmSchemaService;
     private readonly agentSchemaService;
+    private readonly policySchemaService;
     private readonly toolSchemaService;
     private readonly storageSchemaService;
     private readonly stateSchemaService;
@@ -3514,12 +3562,12 @@ declare class SharedStateConnectionService<T extends IStateData = IStateData> im
 
 interface ISharedStateConnectionService extends SharedStateConnectionService {
 }
-type InternalKeys$1 = keyof {
+type InternalKeys$2 = keyof {
     getStateRef: never;
     getSharedStateRef: never;
 };
 type TSharedStateConnectionService = {
-    [key in Exclude<keyof ISharedStateConnectionService, InternalKeys$1>]: unknown;
+    [key in Exclude<keyof ISharedStateConnectionService, InternalKeys$2>]: unknown;
 };
 declare class SharedStatePublicService<T extends IStateData = IStateData> implements TSharedStateConnectionService {
     private readonly loggerService;
@@ -3547,12 +3595,12 @@ declare class SharedStatePublicService<T extends IStateData = IStateData> implem
 
 interface ISharedStorageConnectionService extends SharedStorageConnectionService {
 }
-type InternalKeys = keyof {
+type InternalKeys$1 = keyof {
     getStorage: never;
     getSharedStorage: never;
 };
 type TSharedStorageConnectionService = {
-    [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys>]: unknown;
+    [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys$1>]: unknown;
 };
 /**
  * Service for managing public storage interactions.
@@ -3832,6 +3880,102 @@ declare class PerfService {
     dispose: (clientId: string) => void;
 }
 
+/**
+ * Service for managing policy schemas.
+ */
+declare class PolicySchemaService {
+    readonly loggerService: LoggerService;
+    private registry;
+    /**
+     * Validation for policy schema
+     */
+    private validateShallow;
+    /**
+     * Registers a new policy schema.
+     * @param {PolicyName} key - The name of the policy.
+     * @param {IPolicySchema} value - The schema of the policy.
+     */
+    register: (key: PolicyName, value: IPolicySchema) => void;
+    /**
+     * Retrieves an policy schema by name.
+     * @param {PolicyName} key - The name of the policy.
+     * @returns {IPolicySchema} The schema of the policy.
+     */
+    get: (key: PolicyName) => IPolicySchema;
+}
+
+/**
+ * Service for validating policys within the agent-swarm.
+ */
+declare class PolicyValidationService {
+    private readonly loggerService;
+    private _policyMap;
+    /**
+     * Adds a new policy to the validation service.
+     * @param {PolicyName} policyName - The name of the policy to add.
+     * @param {IPolicySchema} policySchema - The schema of the policy to add.
+     * @throws Will throw an error if the policy already exists.
+     */
+    addPolicy: (policyName: PolicyName, policySchema: IPolicySchema) => void;
+    /**
+     * Validates if a policy exists in the validation service.
+     * @param {PolicyName} policyName - The name of the policy to validate.
+     * @param {string} source - The source of the validation request.
+     * @throws Will throw an error if the policy is not found.
+     */
+    validate: (policyName: PolicyName, source: string) => void;
+}
+
+declare const BAN_NEED_FETCH: unique symbol;
+declare class ClientPolicy implements IPolicy {
+    readonly params: IPolicyParams;
+    _banSet: Set<SessionId> | typeof BAN_NEED_FETCH;
+    constructor(params: IPolicyParams);
+    getBanMessage(clientId: SessionId, swarmName: SwarmName): Promise<string>;
+    validateInput(incoming: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
+    validateOutput(outgoing: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
+    banClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
+    unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
+}
+
+/**
+ * Service for managing policy connections.
+ * @implements {IPolicy}
+ */
+declare class PolicyConnectionService implements IPolicy {
+    private readonly loggerService;
+    private readonly busService;
+    private readonly methodContextService;
+    private readonly policySchemaService;
+    getPolicy: ((policyName: PolicyName) => ClientPolicy) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientPolicy>;
+    getBanMessage: (clientId: SessionId$1, swarmName: SwarmName$1) => Promise<string>;
+    validateInput: (incoming: string, clientId: SessionId$1, swarmName: SwarmName$1) => Promise<boolean>;
+    validateOutput: (outgoing: string, clientId: SessionId$1, swarmName: SwarmName$1) => Promise<boolean>;
+    banClient: (clientId: SessionId$1, swarmName: SwarmName$1) => Promise<void>;
+    unbanClient: (clientId: SessionId$1, swarmName: SwarmName$1) => Promise<void>;
+}
+
+interface IPolicyConnectionService extends PolicyConnectionService {
+}
+type InternalKeys = keyof {
+    getPolicy: never;
+};
+type TPolicyConnectionService = {
+    [key in Exclude<keyof IPolicyConnectionService, InternalKeys>]: unknown;
+};
+/**
+ * Service for handling public policy operations.
+ */
+declare class PolicyPublicService implements TPolicyConnectionService {
+    private readonly loggerService;
+    private readonly policyConnectionService;
+    getBanMessage: (swarmName: SwarmName$1, methodName: string, clientId: string, policyName: PolicyName$1) => Promise<string>;
+    validateInput: (incoming: string, swarmName: SwarmName$1, methodName: string, clientId: string, policyName: PolicyName$1) => Promise<boolean>;
+    validateOutput: (outgoing: string, swarmName: SwarmName$1, methodName: string, clientId: string, policyName: PolicyName$1) => Promise<boolean>;
+    banClient: (swarmName: SwarmName$1, methodName: string, clientId: string, policyName: PolicyName$1) => Promise<void>;
+    unbanClient: (swarmName: SwarmName$1, methodName: string, clientId: string, policyName: PolicyName$1) => Promise<void>;
+}
+
 declare const swarm: {
     agentValidationService: AgentValidationService;
     toolValidationService: ToolValidationService;
@@ -3840,6 +3984,7 @@ declare const swarm: {
     completionValidationService: CompletionValidationService;
     storageValidationService: StorageValidationService;
     embeddingValidationService: EmbeddingValidationService;
+    policyValidationService: PolicyValidationService;
     agentMetaService: AgentMetaService;
     swarmMetaService: SwarmMetaService;
     agentPublicService: AgentPublicService;
@@ -3850,6 +3995,7 @@ declare const swarm: {
     sharedStoragePublicService: SharedStoragePublicService;
     statePublicService: StatePublicService<any>;
     sharedStatePublicService: SharedStatePublicService<any>;
+    policyPublicService: PolicyPublicService;
     agentSchemaService: AgentSchemaService;
     toolSchemaService: ToolSchemaService;
     swarmSchemaService: SwarmSchemaService;
@@ -3858,6 +4004,7 @@ declare const swarm: {
     storageSchemaService: StorageSchemaService;
     stateSchemaService: StateSchemaService;
     memorySchemaService: MemorySchemaService;
+    policySchemaService: PolicySchemaService;
     agentConnectionService: AgentConnectionService;
     historyConnectionService: HistoryConnectionService;
     swarmConnectionService: SwarmConnectionService;
@@ -3866,6 +4013,7 @@ declare const swarm: {
     sharedStorageConnectionService: SharedStorageConnectionService;
     stateConnectionService: StateConnectionService<any>;
     sharedStateConnectionService: SharedStateConnectionService<any>;
+    policyConnectionService: PolicyConnectionService;
     methodContextService: {
         readonly context: IMethodContext;
     };
@@ -4005,6 +4153,15 @@ declare const addEmbedding: (embeddingSchema: IEmbeddingSchema) => string;
  * @returns {string} The name of the added storage.
  */
 declare const addStorage: <T extends IStorageData = IStorageData>(storageSchema: IStorageSchema<T>) => string;
+
+/**
+ * Adds a new policy for agents in a swarm. Policy should be registered in `addPolicy`
+ * declaration
+ *
+ * @param {IPolicySchema} policySchema - The schema of the policy to be added.
+ * @returns {string} The name of the policy that was added.
+ */
+declare const addPolicy: (policySchema: IPolicySchema) => string;
 
 /**
  * Commits the tool output to the active agent in a swarm session
@@ -4569,6 +4726,14 @@ declare const listenSwarmEvent: (clientId: string, fn: (event: IBusEvent) => voi
 declare const listenExecutionEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
+ * Hook to subscribe to swarm events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to events for.
+ * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
+ */
+declare const listenPolicyEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
+
+/**
  * Hook to subscribe to agent events for a specific client.
  *
  * @param {string} clientId - The ID of the client to subscribe to events for.
@@ -4623,6 +4788,14 @@ declare const listenSwarmEventOnce: (clientId: string, filterFn: (event: IBusEve
  * @param {function} fn - The callback function to handle the event.
  */
 declare const listenExecutionEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
+
+/**
+ * Hook to subscribe to swarm events for a specific client.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to events for.
+ * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
+ */
+declare const listenPolicyEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
 declare const LOGGER_INSTANCE_WAIT_FOR_INIT: unique symbol;
 /**
@@ -4837,8 +5010,23 @@ declare const GLOBAL_CONFIG: {
     CC_NAME_TO_TITLE: (name: string) => string;
     CC_FN_PLANTUML: (uml: string) => Promise<string>;
     CC_PROCESS_UUID: string;
+    CC_BANHAMMER_PLACEHOLDER: string;
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
+
+declare class PolicyUtils {
+    banClient: (payload: {
+        clientId: string;
+        swarmName: SwarmName$1;
+        policyName: PolicyName$1;
+    }) => Promise<void>;
+    unbanClient: (payload: {
+        clientId: string;
+        swarmName: SwarmName$1;
+        policyName: PolicyName$1;
+    }) => Promise<void>;
+}
+declare const Policy: PolicyUtils;
 
 type TState = {
     [key in keyof IState]: unknown;
@@ -5131,4 +5319,23 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
-export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addState, addStorage, addSwarm, addTool, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
+/**
+ * A higher-order function that ensures execution outside of existing method and execution contexts.
+ *
+ * @template T - Generic type extending any function
+ * @param {T} run - The function to be executed outside of existing contexts
+ * @returns {(...args: Parameters<T>) => ReturnType<T>} A wrapped function that executes outside of any existing contexts
+ *
+ * @example
+ * const myFunction = (arg: string) => console.log(arg);
+ * const contextSafeFunction = beginContext(myFunction);
+ * contextSafeFunction('test'); // Executes myFunction outside of any existing contexts
+ *
+ * @remarks
+ * This utility function checks for both MethodContext and ExecutionContext.
+ * If either context exists, the provided function will be executed outside of those contexts.
+ * This is useful for ensuring clean execution environments for certain operations.
+ */
+declare const beginContext: <T extends (...args: any[]) => any>(run: T) => ((...args: Parameters<T>) => ReturnType<T>);
+
+export { type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
