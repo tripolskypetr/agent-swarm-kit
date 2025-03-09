@@ -12,6 +12,14 @@ docDescription: string
 
 The description for documentation
 
+### policies
+
+```ts
+policies: string[]
+```
+
+The banhammer policies
+
 ### getNavigationStack
 
 ```ts

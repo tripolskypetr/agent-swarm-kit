@@ -2,6 +2,7 @@ import { SwarmName } from "../interfaces/Swarm.interface";
 import { AgentName } from "../interfaces/Agent.interface";
 import { StorageName } from "../interfaces/Storage.interface";
 import { StateName } from "../interfaces/State.interface";
+import { PolicyName } from "../interfaces/Policy.interface";
 
 /**
  * Interface representing the base context for an event.
@@ -26,6 +27,11 @@ export interface IBusEventContext {
    * The name of the state.
    */
   stateName: StateName;
+
+  /**
+   * The name of the policy
+   */
+  policyName: PolicyName;
 }
 
 /**
@@ -43,7 +49,8 @@ export type EventBusSource =
   | "state-bus"
   | "storage-bus"
   | "swarm-bus"
-  | "execution-bus";
+  | "execution-bus"
+  | "policy-bus";
 
 /**
  * Interface representing the base structure of an event.

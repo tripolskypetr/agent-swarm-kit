@@ -208,6 +208,7 @@ class LoggerUtils implements ILoggerAdapter, ILoggerControl {
       {
         clientId,
         agentName: "",
+        policyName: "",
         methodName: "LoggerUtils.logClient",
         stateName: "",
         storageName: "",
@@ -242,6 +243,7 @@ class LoggerUtils implements ILoggerAdapter, ILoggerControl {
       {
         clientId,
         agentName: "",
+        policyName: "",
         methodName: "LoggerUtils.infoClient",
         stateName: "",
         storageName: "",
@@ -276,6 +278,7 @@ class LoggerUtils implements ILoggerAdapter, ILoggerControl {
       {
         clientId,
         agentName: "",
+        policyName: "",
         methodName: "LoggerUtils.debugClient",
         stateName: "",
         storageName: "",

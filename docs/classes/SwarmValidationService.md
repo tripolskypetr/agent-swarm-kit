@@ -22,6 +22,12 @@ loggerService: any
 agentValidationService: any
 ```
 
+### policyValidationService
+
+```ts
+policyValidationService: any
+```
+
 ### _swarmMap
 
 ```ts

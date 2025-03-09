@@ -35,3 +35,11 @@ stateName: string
 ```
 
 The name of the state.
+
+### policyName
+
+```ts
+policyName: string
+```
+
+The name of the policy

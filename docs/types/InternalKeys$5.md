@@ -2,7 +2,7 @@
 
 ```ts
 type InternalKeys$5 = keyof {
-    getSession: never;
+    getSwarm: never;
 };
 ```
 

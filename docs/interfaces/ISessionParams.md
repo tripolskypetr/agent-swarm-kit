@@ -16,6 +16,12 @@ clientId: string
 logger: ILogger
 ```
 
+### policy
+
+```ts
+policy: IPolicy
+```
+
 ### bus
 
 ```ts

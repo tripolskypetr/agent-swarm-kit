@@ -39,3 +39,9 @@ storageName: string
 ```ts
 stateName: string
 ```
+
+### policyName
+
+```ts
+policyName: string
+```

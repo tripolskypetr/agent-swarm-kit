@@ -44,6 +44,10 @@ import SharedStatePublicService from "./services/public/SharedStatePublicService
 import SharedStoragePublicService from "./services/public/SharedStoragePublicService";
 import MemorySchemaService from "./services/schema/MemorySchemaService";
 import PerfService from "./services/base/PerfService";
+import PolicySchemaService from "./services/schema/PolicySchemaService";
+import PolicyValidationService from "./services/validation/PolicyValidationService";
+import PolicyPublicService from "./services/public/PolicyPublicService";
+import PolicyConnectionService from "./services/connection/PolicyConnectionService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -86,6 +90,9 @@ const connectionServices = {
   sharedStateConnectionService: inject<SharedStateConnectionService>(
     TYPES.sharedStateConnectionService
   ),
+  policyConnectionService: inject<PolicyConnectionService>(
+    TYPES.policyConnectionService
+  ),
 };
 
 const schemaServices = {
@@ -103,6 +110,7 @@ const schemaServices = {
   ),
   stateSchemaService: inject<StateSchemaService>(TYPES.stateSchemaService),
   memorySchemaService: inject<MemorySchemaService>(TYPES.memorySchemaService),
+  policySchemaService: inject<PolicySchemaService>(TYPES.policySchemaService),
 };
 
 const publicServices = {
@@ -121,7 +129,10 @@ const publicServices = {
     TYPES.sharedStoragePublicService
   ),
   statePublicService: inject<StatePublicService>(TYPES.statePublicService),
-  sharedStatePublicService: inject<SharedStatePublicService>(TYPES.sharedStatePublicService),
+  sharedStatePublicService: inject<SharedStatePublicService>(
+    TYPES.sharedStatePublicService
+  ),
+  policyPublicService: inject<PolicyPublicService>(TYPES.policyPublicService),
 };
 
 const metaServices = {
@@ -150,6 +161,9 @@ const validationServices = {
   ),
   embeddingValidationService: inject<EmbeddingValidationService>(
     TYPES.embeddingValidationService
+  ),
+  policyValidationService: inject<PolicyValidationService>(
+    TYPES.policyValidationService
   ),
 };
 

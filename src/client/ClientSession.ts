@@ -1,4 +1,4 @@
-import { Subject } from "functools-kit";
+import { not, Subject } from "functools-kit";
 import { IIncomingMessage } from "../model/EmitMessage.model";
 
 import {
@@ -45,6 +45,30 @@ export class ClientSession implements ISession {
           message,
         }
       );
+    if (
+      await not(
+        this.params.policy.validateOutput(
+          message,
+          this.params.clientId,
+          this.params.swarmName
+        )
+      )
+    ) {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientSession clientId=${this.params.clientId} emit method canceled due to the banhammer of a client`,
+          {
+            message,
+          }
+        );
+      await this._emitSubject.next(
+        await this.params.policy.getBanMessage(
+          this.params.clientId,
+          this.params.swarmName
+        )
+      );
+      return;
+    }
     this.params.onEmit &&
       this.params.onEmit(this.params.clientId, this.params.swarmName, message);
     await this._emitSubject.next(message);
@@ -60,7 +84,7 @@ export class ClientSession implements ISession {
       },
       clientId: this.params.clientId,
     });
-  };
+  }
 
   /**
    * Executes a message and optionally emits the output.
@@ -77,6 +101,28 @@ export class ClientSession implements ISession {
           mode,
         }
       );
+    if (
+      await not(
+        this.params.policy.validateInput(
+          message,
+          this.params.clientId,
+          this.params.swarmName
+        )
+      )
+    ) {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientSession clientId=${this.params.clientId} execution canceled due to the banhammer of a client`,
+          {
+            message,
+            mode,
+          }
+        );
+      return await this.params.policy.getBanMessage(
+        this.params.clientId,
+        this.params.swarmName
+      );
+    }
     this.params.onExecute &&
       this.params.onExecute(
         this.params.clientId,
@@ -88,6 +134,28 @@ export class ClientSession implements ISession {
     const outputAwaiter = this.params.swarm.waitForOutput();
     agent.execute(message, mode);
     const output = await outputAwaiter;
+    if (
+      await not(
+        this.params.policy.validateOutput(
+          output,
+          this.params.clientId,
+          this.params.swarmName
+        )
+      )
+    ) {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientSession clientId=${this.params.clientId} execution output emit canceled due to the banhammer of a client`,
+          {
+            message,
+            mode,
+          }
+        );
+      return await this.params.policy.getBanMessage(
+        this.params.clientId,
+        this.params.swarmName
+      );
+    }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "execute",
       source: "session-bus",
@@ -104,7 +172,7 @@ export class ClientSession implements ISession {
       clientId: this.params.clientId,
     });
     return output;
-  };
+  }
 
   /**
    * Run the completion stateless
@@ -120,11 +188,7 @@ export class ClientSession implements ISession {
         }
       );
     this.params.onRun &&
-      this.params.onRun(
-        this.params.clientId,
-        this.params.swarmName,
-        message,
-      );
+      this.params.onRun(this.params.clientId, this.params.swarmName, message);
     const agent = await this.params.swarm.getAgent();
     const output = await agent.run(message);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
@@ -142,7 +206,7 @@ export class ClientSession implements ISession {
       clientId: this.params.clientId,
     });
     return output;
-  };
+  }
 
   /**
    * Commits tool output.
@@ -175,7 +239,7 @@ export class ClientSession implements ISession {
       clientId: this.params.clientId,
     });
     return result;
-  };
+  }
 
   /**
    * Commits user message without answer.
@@ -205,7 +269,7 @@ export class ClientSession implements ISession {
       clientId: this.params.clientId,
     });
     return result;
-  };
+  }
 
   /**
    * Commits flush of agent history
@@ -229,7 +293,7 @@ export class ClientSession implements ISession {
       clientId: this.params.clientId,
     });
     return result;
-  };
+  }
 
   /**
    * Commits stop of the nexttool execution
@@ -253,7 +317,7 @@ export class ClientSession implements ISession {
       clientId: this.params.clientId,
     });
     return result;
-  };
+  }
 
   /**
    * Commits a system message.
@@ -283,7 +347,7 @@ export class ClientSession implements ISession {
       clientId: this.params.clientId,
     });
     return result;
-  };
+  }
 
   /**
    * Commits an assistant message.
@@ -313,7 +377,7 @@ export class ClientSession implements ISession {
       clientId: this.params.clientId,
     });
     return result;
-  };
+  }
 
   /**
    * Connects the session to a connector function.
@@ -361,7 +425,7 @@ export class ClientSession implements ISession {
       });
       return data;
     };
-  };
+  }
 
   /**
    * Should call on session dispose
@@ -374,7 +438,7 @@ export class ClientSession implements ISession {
       );
     this.params.onDispose &&
       this.params.onDispose(this.params.clientId, this.params.swarmName);
-  };
+  }
 }
 
 export default ClientSession;
