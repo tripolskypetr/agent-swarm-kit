@@ -4,6 +4,7 @@ import IPolicy, { PolicyName } from "../interfaces/Policy.interface";
 import { SessionId } from "../interfaces/Session.interface";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import swarm from "../lib";
+import beginContext from "src/utils/beginContext";
 
 const METHOD_NAME_BAN_CLIENT = "PolicyUtils.banClient";
 const METHOD_NAME_UNBAN_CLIENT = "PolicyUtils.unbanClient";
@@ -247,7 +248,7 @@ export class PolicyUtils {
    * @param {PolicyName} payload.policyName - The name of the policy.
    * @returns {Promise<void>}
    */
-  public banClient = async (payload: {
+  public banClient = beginContext(async (payload: {
     clientId: string;
     swarmName: SwarmName;
     policyName: PolicyName;
@@ -272,7 +273,7 @@ export class PolicyUtils {
       payload.clientId,
       payload.policyName
     );
-  };
+  });
 
   /**
    * Unbans a client.
@@ -282,7 +283,7 @@ export class PolicyUtils {
    * @param {PolicyName} payload.policyName - The name of the policy.
    * @returns {Promise<void>}
    */
-  public unbanClient = async (payload: {
+  public unbanClient = beginContext(async (payload: {
     clientId: string;
     swarmName: SwarmName;
     policyName: PolicyName;
@@ -307,7 +308,7 @@ export class PolicyUtils {
       payload.clientId,
       payload.policyName
     );
-  };
+  });
 }
 
 /**

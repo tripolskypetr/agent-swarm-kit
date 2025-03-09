@@ -1,3 +1,4 @@
+import beginContext from "src/utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { AgentName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
@@ -11,7 +12,7 @@ const METHOD_NAME = "function.common.getAgentHistory";
  * @param {AgentName} agentName - The name of the agent.
  * @returns {Promise<Array>} - A promise that resolves to an array containing the agent's history.
  */
-export const getAgentHistory = async (
+export const getAgentHistory = beginContext(async (
   clientId: string,
   agentName: AgentName
 ) => {
@@ -30,4 +31,4 @@ export const getAgentHistory = async (
     agentName
   );
   return [...history];
-};
+});

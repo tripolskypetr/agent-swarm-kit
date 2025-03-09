@@ -3,6 +3,7 @@ import { SwarmName } from "../../interfaces/Swarm.interface";
 import { disposeConnection } from "./disposeConnection";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
+import beginContext from "src/utils/beginContext";
 
 const METHOD_NAME = "function.target.makeAutoDispose";
 
@@ -30,52 +31,54 @@ export interface IMakeDisposeParams {
  * @param {Partial<IMakeDisposeParams>} [params={}] - Optional parameters for auto-dispose.
  * @returns {Object} An object with tick and stop methods to control the auto-dispose.
  */
-export const makeAutoDispose = (
-  clientId: string,
-  swarmName: SwarmName,
-  {
-    timeoutSeconds = DEFAULT_TIMEOUT,
-    onDestroy,
-  }: Partial<IMakeDisposeParams> = {}
-) => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      clientId,
-      swarmName,
-    });
+export const makeAutoDispose = beginContext(
+  (
+    clientId: string,
+    swarmName: SwarmName,
+    {
+      timeoutSeconds = DEFAULT_TIMEOUT,
+      onDestroy,
+    }: Partial<IMakeDisposeParams> = {}
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME, {
+        clientId,
+        swarmName,
+      });
 
-  let isOk = true;
+    let isOk = true;
 
-  const unSource = Source.fromInterval(1_000)
-    .reduce((acm) => {
-      if (isOk) {
-        isOk = false;
-        return 0;
-      }
-      return acm + 1;
-    }, 0)
-    .filter((ticker) => ticker >= timeoutSeconds)
-    .once(async () => {
-      unSource();
-      if (swarm.sessionValidationService.hasSession(clientId)) {
-        await disposeConnection(clientId, swarmName);
-      }
-      onDestroy && onDestroy(clientId, swarmName);
-    });
+    const unSource = Source.fromInterval(1_000)
+      .reduce((acm) => {
+        if (isOk) {
+          isOk = false;
+          return 0;
+        }
+        return acm + 1;
+      }, 0)
+      .filter((ticker) => ticker >= timeoutSeconds)
+      .once(async () => {
+        unSource();
+        if (swarm.sessionValidationService.hasSession(clientId)) {
+          await disposeConnection(clientId, swarmName);
+        }
+        onDestroy && onDestroy(clientId, swarmName);
+      });
 
-  return {
-    /**
-     * Signals that the client is active, resetting the auto-dispose timer.
-     */
-    tick() {
-      isOk = true;
-    },
-    /**
-     * Stops the auto-dispose mechanism.
-     */
-    destroy() {
-      unSource();
-      onDestroy && onDestroy(clientId, swarmName);
-    },
-  };
-};
+    return {
+      /**
+       * Signals that the client is active, resetting the auto-dispose timer.
+       */
+      tick() {
+        isOk = true;
+      },
+      /**
+       * Stops the auto-dispose mechanism.
+       */
+      destroy() {
+        unSource();
+        onDestroy && onDestroy(clientId, swarmName);
+      },
+    };
+  }
+);

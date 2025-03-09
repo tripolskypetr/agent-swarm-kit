@@ -3,6 +3,7 @@ import { AgentName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { SwarmName } from "../../interfaces/Swarm.interface";
+import beginContext from "src/utils/beginContext";
 
 const METHOD_NAME = "function.navigate.changeToPrevAgent";
 
@@ -106,13 +107,17 @@ const createGc = singleshot(async () => {
  * @param {string} clientId - The client ID.
  * @returns {Promise<void>} - A promise that resolves when the agent is changed.
  */
-export const changeToPrevAgent = async (clientId: string) => {
+export const changeToPrevAgent = beginContext(async (clientId: string) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       clientId,
     });
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-  const agentName = await swarm.swarmPublicService.navigationPop(METHOD_NAME, clientId, swarmName);
+  const agentName = await swarm.swarmPublicService.navigationPop(
+    METHOD_NAME,
+    clientId,
+    swarmName
+  );
   {
     swarm.sessionValidationService.validate(clientId, METHOD_NAME);
     swarm.agentValidationService.validate(agentName, METHOD_NAME);
@@ -120,4 +125,4 @@ export const changeToPrevAgent = async (clientId: string) => {
   const run = await createChangeToPrevAgent(clientId);
   createGc();
   return await run(METHOD_NAME, agentName, swarmName);
-};
+});

@@ -1,6 +1,7 @@
 import { ICompletionSchema } from "../../interfaces/Completion.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
+import beginContext from "src/utils/beginContext";
 
 const METHOD_NAME = "function.setup.addCompletion";
 
@@ -11,17 +12,19 @@ const METHOD_NAME = "function.setup.addCompletion";
  * @param {ICompletionSchema} completionSchema - The completion schema to be added.
  * @returns {string} The name of the completion that was added.
  */
-export const addCompletion = (completionSchema: ICompletionSchema) => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      completionSchema,
-    });
-  swarm.completionValidationService.addCompletion(
-    completionSchema.completionName
-  );
-  swarm.completionSchemaService.register(
-    completionSchema.completionName,
-    completionSchema
-  );
-  return completionSchema.completionName;
-};
+export const addCompletion = beginContext(
+  (completionSchema: ICompletionSchema) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME, {
+        completionSchema,
+      });
+    swarm.completionValidationService.addCompletion(
+      completionSchema.completionName
+    );
+    swarm.completionSchemaService.register(
+      completionSchema.completionName,
+      completionSchema
+    );
+    return completionSchema.completionName;
+  }
+);

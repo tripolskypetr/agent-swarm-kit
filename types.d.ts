@@ -4263,7 +4263,7 @@ declare const swarm: {
  * @param {function} [PlantUML] - An optional function to process PlantUML diagrams.
  * @returns {Promise<void>} - A promise that resolves when the documentation has been dumped.
  */
-declare const dumpDocs: (dirName?: string, PlantUML?: (uml: string) => Promise<string>) => Promise<void>;
+declare const dumpDocs: (dirName?: any, PlantUML?: (uml: string) => Promise<string>) => Promise<void>;
 
 /**
  * The config for UML generation
@@ -4277,7 +4277,7 @@ interface IConfig {
  * @param {SwarmName} swarmName - The name of the swarm to be dumped.
  * @returns {string} The UML representation of the swarm.
  */
-declare const dumpAgent: (agentName: AgentName, { withSubtree }?: Partial<IConfig>) => string;
+declare const dumpAgent: (agentName: string, args_1?: Partial<IConfig>) => string;
 
 /**
  * Dumps the swarm information into PlantUML format.
@@ -4285,7 +4285,7 @@ declare const dumpAgent: (agentName: AgentName, { withSubtree }?: Partial<IConfi
  * @param {SwarmName} swarmName - The name of the swarm to be dumped.
  * @returns {string} The UML representation of the swarm.
  */
-declare const dumpSwarm: (swarmName: SwarmName) => string;
+declare const dumpSwarm: (swarmName: string) => string;
 
 /**
  * Dumps the performance data using the swarm's document service.
@@ -4303,7 +4303,7 @@ declare const dumpPerfomance: {
      * @param {string} [dirName="./logs/meta"] - The directory name where the performance data will be dumped.
      * @param {number} [interval=30000] - The interval in milliseconds at which to run the dumpPerfomance function.
      */
-    runInterval(dirName?: string, interval?: number): () => void;
+    runInterval: (dirName?: any, interval?: any) => () => void;
 };
 
 /**
@@ -4323,7 +4323,7 @@ declare const dumpClientPerformance: {
      * @param {string} [dirName="./logs/client"] - The directory name where the performance data will be dumped.
      * @returns {Promise<void>} A promise that resolves when the listener has been set up.
      */
-    runAfterExecute(dirName?: string): Promise<() => void>;
+    runAfterExecute: (dirName?: any) => Promise<() => void>;
 };
 
 /**
@@ -4358,7 +4358,7 @@ declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
  * @param {IAgentTool} toolSchema - The schema of the tool to be added.
  * @returns {string} The name of the tool that was added.
  */
-declare const addTool: (toolSchema: IAgentTool) => string;
+declare const addTool: (toolSchema: IAgentTool<Record<string, unknown>>) => string;
 
 /**
  * Adds a new state to the state registry. The swarm takes only those states which was registered
@@ -4366,7 +4366,7 @@ declare const addTool: (toolSchema: IAgentTool) => string;
  * @param {IStateSchema} stateSchema - The schema of the state to be added.
  * @returns {string} The name of the added state.
  */
-declare const addState: (stateSchema: IStateSchema) => string;
+declare const addState: (stateSchema: IStateSchema<any>) => string;
 
 /**
  * Adds a new embedding to the embedding registry. The swarm takes only those embeddings which was registered
@@ -4401,7 +4401,7 @@ declare const addPolicy: (policySchema: IPolicySchema) => string;
  * @param {AgentName} agentName - The name of the agent committing the output.
  * @returns {Promise<void>} - A promise that resolves when the operation is complete.
  */
-declare const commitToolOutput: (toolId: string, content: string, clientId: string, agentName: AgentName) => Promise<void>;
+declare const commitToolOutput: (toolId: string, content: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
  * Commits a system message to the active agent in the swarm.
@@ -4566,7 +4566,7 @@ interface IMakeDisposeParams {
  * @param {Partial<IMakeDisposeParams>} [params={}] - Optional parameters for auto-dispose.
  * @returns {Object} An object with tick and stop methods to control the auto-dispose.
  */
-declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeoutSeconds, onDestroy, }?: Partial<IMakeDisposeParams>) => {
+declare const makeAutoDispose: (clientId: string, swarmName: string, args_2?: Partial<IMakeDisposeParams>) => {
     /**
      * Signals that the client is active, resetting the auto-dispose timer.
      */
@@ -4586,7 +4586,7 @@ declare const makeAutoDispose: (clientId: string, swarmName: SwarmName, { timeou
  * @param {AgentName} agentName - The name of the agent executing the command.
  * @returns {Promise<void>} - A promise that resolves when the execution is complete.
  */
-declare const execute: (content: string, clientId: string, agentName: AgentName) => Promise<string>;
+declare const execute: (content: string, clientId: string, agentName: string) => Promise<string>;
 
 /**
  * Emits a string constant as the model output without executing incoming message
@@ -4598,7 +4598,7 @@ declare const execute: (content: string, clientId: string, agentName: AgentName)
  * @throws Will throw an error if the session mode is not "makeConnection".
  * @returns {Promise<void>} A promise that resolves when the content is emitted.
  */
-declare const emit: (content: string, clientId: string, agentName: AgentName) => Promise<void>;
+declare const emit: (content: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
  * Complete the message stateless without append to the chat history
@@ -4609,7 +4609,7 @@ declare const emit: (content: string, clientId: string, agentName: AgentName) =>
  * @param {AgentName} agentName - The name of the agent running the command.
  * @returns {Promise<string>} - A promise that resolves the run result
  */
-declare const runStateless: (content: string, clientId: string, agentName: AgentName) => Promise<string>;
+declare const runStateless: (content: string, clientId: string, agentName: string) => Promise<string>;
 
 /**
  * Complete the message stateless without append to the chat history
@@ -4643,7 +4643,7 @@ declare const makeConnection: {
      * @param {Partial<IMakeConnectionConfig>} [config] - The configuration for scheduling.
      * @returns {SendMessageFn} - A function to send scheduled messages to the swarm.
      */
-    scheduled(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName, { delay }?: Partial<IMakeConnectionConfig>): (content: string) => Promise<void>;
+    scheduled: (connector: ReceiveMessageFn, clientId: string, swarmName: string, args_3?: Partial<IMakeConnectionConfig>) => (content: string) => Promise<void>;
     /**
      * A rate-limited connection factory for a client to a swarm and returns a function to send messages.
      *
@@ -4654,7 +4654,7 @@ declare const makeConnection: {
      * @param {number} [config.delay=RATE_DELAY] - The delay in milliseconds for rate limiting messages.
      * @returns {SendMessageFn} - A function to send rate-limited messages to the swarm.
      */
-    rate(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName, { delay }?: Partial<IMakeConnectionConfig>): (content: string) => Promise<void>;
+    rate: (connector: ReceiveMessageFn, clientId: string, swarmName: string, args_3?: Partial<IMakeConnectionConfig>) => (content: string) => Promise<void | "">;
 };
 /**
  * Configuration for scheduling messages.
@@ -4675,7 +4675,7 @@ interface IMakeConnectionConfig {
  * @param {SwarmName} swarmName - The swarm name.
  * @returns {Promise<string>} The result of the complete function.
  */
-declare const complete: (content: string, clientId: string, swarmName: SwarmName) => Promise<string>;
+declare const complete: (content: string, clientId: string, swarmName: string) => Promise<string>;
 
 type TComplete = (content: string) => Promise<string>;
 /**
@@ -4729,6 +4729,29 @@ declare const session: {
          */
         dispose(): Promise<void>;
     };
+    /**
+     * A rate-limited connection factory for a client to a swarm and returns a function to send messages.
+     *
+     * @param {string} clientId - The unique identifier of the client.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {Partial<ISessionConfig>} [config] - The configuration for rate limiting.
+     * @param {number} [config.delay=SCHEDULED_DELAY] - The delay in milliseconds for rate limiting messages.
+     */
+    rate(clientId: string, swarmName: SwarmName, { delay }?: Partial<ISessionConfig>): {
+        /**
+         * Completes the scheduled session with the given content.
+         *
+         * @param {string} content - The content to complete the session with.
+         * @returns {Promise<string>} A promise that resolves with the result of the session execution.
+         */
+        complete(content: string): Promise<string>;
+        /**
+         * Disposes of the scheduled session.
+         *
+         * @returns {Promise<void>} A promise that resolves when the session is disposed.
+         */
+        dispose(): Promise<void>;
+    };
 };
 /**
  * Configuration options for a scheduled session.
@@ -4747,7 +4770,7 @@ interface ISessionConfig {
  * @param {SwarmName} swarmName - The name of the swarm.
  * @returns {Promise<void>} A promise that resolves when the connection is disposed.
  */
-declare const disposeConnection: (clientId: string, swarmName: SwarmName, methodName?: string) => Promise<void>;
+declare const disposeConnection: (clientId: string, swarmName: string, methodName?: any) => Promise<void>;
 
 /**
  * Retrieves the agent name for a given client ID.
@@ -4765,7 +4788,7 @@ declare const getAgentName: (clientId: string) => Promise<string>;
  * @param {AgentName} agentName - The name of the agent.
  * @returns {Promise<Array>} - A promise that resolves to an array containing the agent's history.
  */
-declare const getAgentHistory: (clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
+declare const getAgentHistory: (clientId: string, agentName: string) => Promise<IModelMessage[]>;
 
 /**
  * Return the session mode (`"session" | "makeConnection" | "complete"`) for clientId
@@ -4841,7 +4864,7 @@ declare const getLastSystemMessage: (clientId: string) => Promise<string>;
  * @param {string} clientId - The ID of the client whose history is to be retrieved.
  * @returns {Promise<Array>} A promise that resolves to an array containing the raw history.
  */
-declare const getRawHistory: (clientId: string, methodName?: string) => Promise<IModelMessage[]>;
+declare const getRawHistory: (clientId: string, methodName?: any) => Promise<IModelMessage[]>;
 
 /**
  * Emits an event to the swarm bus service.
@@ -4879,7 +4902,7 @@ declare const listenEventOnce: <T extends unknown = any>(clientId: string, topic
  * @param {string} clientId - The client ID.
  * @returns {Promise<void>} - A promise that resolves when the agent is changed.
  */
-declare const changeToAgent: (agentName: AgentName, clientId: string) => Promise<void>;
+declare const changeToAgent: (agentName: string, clientId: string) => Promise<void>;
 
 /**
  * Navigates back to the previous or default agent
@@ -5533,7 +5556,7 @@ declare class SharedStorageUtils implements TSharedStorage {
      * @param {StorageName} storageName - The storage name.
      * @returns {Promise<void>} - A promise that resolves when the operation is complete.
      */
-    clear: (storageName: StorageName) => Promise<void>;
+    clear: (storageName: string) => Promise<void>;
 }
 declare const SharedStorage: SharedStorageUtils;
 

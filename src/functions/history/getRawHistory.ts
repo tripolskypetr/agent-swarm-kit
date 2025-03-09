@@ -1,3 +1,4 @@
+import beginContext from "src/utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
@@ -9,7 +10,7 @@ const METHOD_NAME = "function.history.getRawHistory";
  * @param {string} clientId - The ID of the client whose history is to be retrieved.
  * @returns {Promise<Array>} A promise that resolves to an array containing the raw history.
  */
-export const getRawHistory = async (
+export const getRawHistory = beginContext(async (
   clientId: string,
   methodName = METHOD_NAME,
 ) => {
@@ -31,4 +32,4 @@ export const getRawHistory = async (
     agentName
   );
   return [...history];
-};
+});

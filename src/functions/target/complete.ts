@@ -3,6 +3,7 @@ import { SwarmName } from "../../interfaces/Swarm.interface";
 import swarm, { ExecutionContextService } from "../../lib";
 import { disposeConnection } from "./disposeConnection";
 import { GLOBAL_CONFIG } from "../../config/params";
+import beginContext from "src/utils/beginContext";
 
 const METHOD_NAME = "function.target.complete";
 
@@ -63,44 +64,42 @@ const createGc = singleshot(async () => {
  * @param {SwarmName} swarmName - The swarm name.
  * @returns {Promise<string>} The result of the complete function.
  */
-export const complete = async (
-  content: string,
-  clientId: string,
-  swarmName: SwarmName
-) => {
-  const executionId = randomString();
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      content,
-      clientId,
-      executionId,
-      swarmName,
-    });
-  const run = await createComplete(clientId, swarmName);
-  createGc();
-  return ExecutionContextService.runInContext(
-    async () => {
-      let isFinished = false;
-      swarm.perfService.startExecution(executionId, clientId, content.length);
-      try {
-        swarm.busService.commitExecutionBegin(clientId, { swarmName });
-        const result = await run(METHOD_NAME, content);
-        isFinished = swarm.perfService.endExecution(
-          executionId,
-          clientId,
-          result.length
-        );
-        swarm.busService.commitExecutionEnd(clientId, { swarmName });
-        return result;
-      } finally {
-        if (!isFinished) {
-          swarm.perfService.endExecution(executionId, clientId, 0);
+export const complete = beginContext(
+  async (content: string, clientId: string, swarmName: SwarmName) => {
+    const executionId = randomString();
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME, {
+        content,
+        clientId,
+        executionId,
+        swarmName,
+      });
+    const run = await createComplete(clientId, swarmName);
+    createGc();
+    return ExecutionContextService.runInContext(
+      async () => {
+        let isFinished = false;
+        swarm.perfService.startExecution(executionId, clientId, content.length);
+        try {
+          swarm.busService.commitExecutionBegin(clientId, { swarmName });
+          const result = await run(METHOD_NAME, content);
+          isFinished = swarm.perfService.endExecution(
+            executionId,
+            clientId,
+            result.length
+          );
+          swarm.busService.commitExecutionEnd(clientId, { swarmName });
+          return result;
+        } finally {
+          if (!isFinished) {
+            swarm.perfService.endExecution(executionId, clientId, 0);
+          }
         }
+      },
+      {
+        clientId,
+        executionId,
       }
-    },
-    {
-      clientId,
-      executionId,
-    }
-  );
-};
+    );
+  }
+);

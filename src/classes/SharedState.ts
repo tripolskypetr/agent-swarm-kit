@@ -2,6 +2,7 @@ import swarm from "../lib";
 import { IState, IStateData, StateName } from "../interfaces/State.interface";
 import { AgentName } from "../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../config/params";
+import beginContext from "src/utils/beginContext";
 
 type TSharedState = {
   [key in keyof IState]: unknown;
@@ -24,9 +25,7 @@ export class SharedStateUtils implements TSharedState {
    * @returns {Promise<T>} The state data.
    * @throws Will throw an error if the state is not registered in the agent.
    */
-  public getState = async <T extends IStateData = IStateData>(
-    stateName: StateName
-  ): Promise<T> => {
+  public getState = beginContext(async (stateName: StateName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_GET, {
         stateName,
@@ -35,7 +34,7 @@ export class SharedStateUtils implements TSharedState {
       METHOD_NAME_GET,
       stateName
     );
-  };
+  }) as <T extends unknown = any>(stateName: StateName) => Promise<T>;
 
   /**
    * Sets the state for a given client and state name.
@@ -45,27 +44,34 @@ export class SharedStateUtils implements TSharedState {
    * @returns {Promise<void>}
    * @throws Will throw an error if the state is not registered in the agent.
    */
-  public setState = async <T extends IStateData = IStateData>(
-    dispatchFn: T | ((prevSharedState: T) => Promise<T>),
-    stateName: StateName
-  ): Promise<void> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_SET, {
-        stateName,
-      });
-    if (typeof dispatchFn === "function") {
+  public setState = beginContext(
+    async (
+      dispatchFn:
+        | IStateData
+        | ((prevSharedState: IStateData) => Promise<IStateData>),
+      stateName: StateName
+    ) => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_SET, {
+          stateName,
+        });
+      if (typeof dispatchFn === "function") {
+        return await swarm.sharedStatePublicService.setState(
+          dispatchFn as (prevSharedState: IStateData) => Promise<IStateData>,
+          METHOD_NAME_SET,
+          stateName
+        );
+      }
       return await swarm.sharedStatePublicService.setState(
-        dispatchFn as (prevSharedState: T) => Promise<T>,
+        async () => dispatchFn,
         METHOD_NAME_SET,
         stateName
       );
     }
-    return await swarm.sharedStatePublicService.setState(
-      async () => dispatchFn as T,
-      METHOD_NAME_SET,
-      stateName
-    );
-  };
+  ) as <T extends unknown = any>(
+    dispatchFn: T | ((prevSharedState: T) => Promise<T>),
+    stateName: StateName
+  ) => Promise<void>;
 
   /**
    * Set the state to initial value
@@ -74,9 +80,7 @@ export class SharedStateUtils implements TSharedState {
    * @returns {Promise<void>}
    * @throws Will throw an error if the state is not registered in the agent.
    */
-  public clearState = async <T extends IStateData = IStateData>(
-    stateName: StateName
-  ): Promise<T> => {
+  public clearState = beginContext(async (stateName: StateName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_SET, {
         stateName,
@@ -85,7 +89,7 @@ export class SharedStateUtils implements TSharedState {
       METHOD_NAME_CLEAR,
       stateName
     );
-  };
+  }) as <T extends unknown = any>(stateName: StateName) => Promise<T>;
 }
 
 /**

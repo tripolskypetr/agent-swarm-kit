@@ -2,6 +2,7 @@ import { ILogger } from "../interfaces/Logger.interface";
 import swarm, { MethodContextService } from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 import { memoize, singleshot } from "functools-kit";
+import beginContext from "../utils/beginContext";
 
 const LOGGER_INSTANCE_WAIT_FOR_INIT = Symbol("wait-for-init");
 
@@ -190,32 +191,30 @@ class LoggerUtils implements ILoggerAdapter, ILoggerControl {
    * @param {...any[]} args - The log arguments.
    * @returns {Promise<void>}
    */
-  public logClient = async (
-    clientId: string,
-    topic: string,
-    ...args: any[]
-  ) => {
-    if (!GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG) {
-      return;
-    }
-    if (!swarm.sessionValidationService.hasSession(clientId)) {
-      return;
-    }
-    await MethodContextService.runInContext(
-      async () => {
-        await swarm.loggerService.log(topic, ...args);
-      },
-      {
-        clientId,
-        agentName: "",
-        policyName: "",
-        methodName: "LoggerUtils.logClient",
-        stateName: "",
-        storageName: "",
-        swarmName: "",
+  public logClient = beginContext(
+    async (clientId: string, topic: string, ...args: any[]) => {
+      if (!GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG) {
+        return;
       }
-    );
-  };
+      if (!swarm.sessionValidationService.hasSession(clientId)) {
+        return;
+      }
+      await MethodContextService.runInContext(
+        async () => {
+          await swarm.loggerService.log(topic, ...args);
+        },
+        {
+          clientId,
+          agentName: "",
+          policyName: "",
+          methodName: "LoggerUtils.logClient",
+          stateName: "",
+          storageName: "",
+          swarmName: "",
+        }
+      );
+    }
+  );
 
   /**
    * @method infoClient
@@ -225,32 +224,30 @@ class LoggerUtils implements ILoggerAdapter, ILoggerControl {
    * @param {...any[]} args - The info log arguments.
    * @returns {Promise<void>}
    */
-  public infoClient = async (
-    clientId: string,
-    topic: string,
-    ...args: any[]
-  ) => {
-    if (!GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) {
-      return;
-    }
-    if (!swarm.sessionValidationService.hasSession(clientId)) {
-      return;
-    }
-    await MethodContextService.runInContext(
-      async () => {
-        await swarm.loggerService.info(topic, ...args);
-      },
-      {
-        clientId,
-        agentName: "",
-        policyName: "",
-        methodName: "LoggerUtils.infoClient",
-        stateName: "",
-        storageName: "",
-        swarmName: "",
+  public infoClient = beginContext(
+    async (clientId: string, topic: string, ...args: any[]) => {
+      if (!GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) {
+        return;
       }
-    );
-  };
+      if (!swarm.sessionValidationService.hasSession(clientId)) {
+        return;
+      }
+      await MethodContextService.runInContext(
+        async () => {
+          await swarm.loggerService.info(topic, ...args);
+        },
+        {
+          clientId,
+          agentName: "",
+          policyName: "",
+          methodName: "LoggerUtils.infoClient",
+          stateName: "",
+          storageName: "",
+          swarmName: "",
+        }
+      );
+    }
+  );
 
   /**
    * @method debugClient
@@ -260,32 +257,30 @@ class LoggerUtils implements ILoggerAdapter, ILoggerControl {
    * @param {...any[]} args - The debug log arguments.
    * @returns {Promise<void>}
    */
-  public debugClient = async (
-    clientId: string,
-    topic: string,
-    ...args: any[]
-  ) => {
-    if (!GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG) {
-      return;
-    }
-    if (!swarm.sessionValidationService.hasSession(clientId)) {
-      return;
-    }
-    await MethodContextService.runInContext(
-      async () => {
-        await swarm.loggerService.debug(topic, ...args);
-      },
-      {
-        clientId,
-        agentName: "",
-        policyName: "",
-        methodName: "LoggerUtils.debugClient",
-        stateName: "",
-        storageName: "",
-        swarmName: "",
+  public debugClient = beginContext(
+    async (clientId: string, topic: string, ...args: any[]) => {
+      if (!GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG) {
+        return;
       }
-    );
-  };
+      if (!swarm.sessionValidationService.hasSession(clientId)) {
+        return;
+      }
+      await MethodContextService.runInContext(
+        async () => {
+          await swarm.loggerService.debug(topic, ...args);
+        },
+        {
+          clientId,
+          agentName: "",
+          policyName: "",
+          methodName: "LoggerUtils.debugClient",
+          stateName: "",
+          storageName: "",
+          swarmName: "",
+        }
+      );
+    }
+  );
 
   /**
    * @method log

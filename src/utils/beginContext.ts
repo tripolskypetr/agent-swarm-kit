@@ -1,3 +1,4 @@
+import { AsyncResource } from "async_hooks";
 import { ExecutionContextService, MethodContextService } from "../lib";
 
 /**
@@ -22,14 +23,13 @@ export const beginContext =
     run: T
   ): ((...args: Parameters<T>) => ReturnType<T>) =>
   (...args: Parameters<T>): ReturnType<T> => {
-    let fn = run;
     if (MethodContextService.hasContext()) {
-      fn = MethodContextService.runOutOfContext(fn);
+      return new AsyncResource("UNTRACKED").runInAsyncScope(() => run(...args));
     }
     if (ExecutionContextService.hasContext()) {
-      fn = ExecutionContextService.runOutOfContext(fn);
+      return new AsyncResource("UNTRACKED").runInAsyncScope(() => run(...args));
     }
-    return fn(...args);
+    return run(...args);
   };
 
 export default beginContext;

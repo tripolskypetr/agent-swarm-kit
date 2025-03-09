@@ -1,5 +1,6 @@
 import swarm from "../lib";
 import { GLOBAL_CONFIG, setConfig } from "../config/params";
+import beginContext from "src/utils/beginContext";
 
 const METHOD_NAME = "cli.dumpDocs";
 
@@ -10,7 +11,7 @@ const METHOD_NAME = "cli.dumpDocs";
  * @param {function} [PlantUML] - An optional function to process PlantUML diagrams.
  * @returns {Promise<void>} - A promise that resolves when the documentation has been dumped.
  */
-export const dumpDocs = (
+export const dumpDocs = beginContext((
   dirName = "./docs/chat",
   PlantUML?: (uml: string) => Promise<string>
 ) => {
@@ -45,4 +46,4 @@ export const dumpDocs = (
   });
 
   return swarm.docService.dumpDocs(dirName);
-};
+});

@@ -3,6 +3,7 @@ import { AgentName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { SwarmName } from "../../interfaces/Swarm.interface";
+import beginContext from "src/utils/beginContext";
 
 const METHOD_NAME = "function.navigate.changeToAgent";
 
@@ -18,7 +19,11 @@ const CHANGE_AGENT_TTL = 15 * 60 * 1_000;
  */
 const CHANGE_AGENT_GC = 60 * 1_000;
 
-type TChangeToAgentRun = (methodName: string, agentName: string, swarmName: SwarmName) => Promise<void>;
+type TChangeToAgentRun = (
+  methodName: string,
+  agentName: string,
+  swarmName: SwarmName
+) => Promise<void>;
 
 /**
  * Creates a change agent function with TTL and queuing.
@@ -28,45 +33,59 @@ type TChangeToAgentRun = (methodName: string, agentName: string, swarmName: Swar
  */
 const createChangeToAgent = ttl(
   (clientId: string) =>
-    queued(async (methodName: string, agentName: AgentName, swarmName: SwarmName) => {
-      await Promise.all(
-        swarm.swarmValidationService
-          .getAgentList(swarmName)
-          .map(async (agentName) => {
-            await swarm.agentPublicService.commitAgentChange(
-              methodName,
-              clientId,
-              agentName
-            );
-          })
-      );
-      {
-        const agentName = await swarm.swarmPublicService.getAgentName(METHOD_NAME, clientId, swarmName);
-        await swarm.agentPublicService.dispose(methodName, clientId, agentName);
-        await swarm.historyPublicService.dispose(
-          methodName,
-          clientId,
-          agentName
+    queued(
+      async (
+        methodName: string,
+        agentName: AgentName,
+        swarmName: SwarmName
+      ) => {
+        await Promise.all(
+          swarm.swarmValidationService
+            .getAgentList(swarmName)
+            .map(async (agentName) => {
+              await swarm.agentPublicService.commitAgentChange(
+                methodName,
+                clientId,
+                agentName
+              );
+            })
         );
-        await swarm.swarmPublicService.setAgentRef(
-          methodName,
-          clientId,
-          swarmName,
-          agentName,
-          await swarm.agentPublicService.createAgentRef(
+        {
+          const agentName = await swarm.swarmPublicService.getAgentName(
+            METHOD_NAME,
+            clientId,
+            swarmName
+          );
+          await swarm.agentPublicService.dispose(
             methodName,
             clientId,
             agentName
-          )
+          );
+          await swarm.historyPublicService.dispose(
+            methodName,
+            clientId,
+            agentName
+          );
+          await swarm.swarmPublicService.setAgentRef(
+            methodName,
+            clientId,
+            swarmName,
+            agentName,
+            await swarm.agentPublicService.createAgentRef(
+              methodName,
+              clientId,
+              agentName
+            )
+          );
+        }
+        await swarm.swarmPublicService.setAgentName(
+          agentName,
+          methodName,
+          clientId,
+          swarmName
         );
       }
-      await swarm.swarmPublicService.setAgentName(
-        agentName,
-        methodName,
-        clientId,
-        swarmName
-      );
-    }) as TChangeToAgentRun,
+    ) as TChangeToAgentRun,
   {
     key: ([clientId]) => `${clientId}`,
     timeout: CHANGE_AGENT_TTL,
@@ -90,28 +109,30 @@ const createGc = singleshot(async () => {
  * @param {string} clientId - The client ID.
  * @returns {Promise<void>} - A promise that resolves when the agent is changed.
  */
-export const changeToAgent = async (agentName: AgentName, clientId: string) => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      agentName,
-      clientId,
-    });
-  const swarmName = swarm.sessionValidationService.getSwarm(clientId);
-  {
-    swarm.sessionValidationService.validate(clientId, METHOD_NAME);
-    swarm.agentValidationService.validate(agentName, METHOD_NAME);
-    const activeAgent = await swarm.swarmPublicService.getAgentName(
-      METHOD_NAME,
-      clientId,
-      swarmName
-    );
-    if (!swarm.agentValidationService.hasDependency(activeAgent, agentName)) {
-      console.error(
-        `agent-swarm missing dependency detected for activeAgent=${activeAgent} dependencyAgent=${agentName}`
+export const changeToAgent = beginContext(
+  async (agentName: AgentName, clientId: string) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME, {
+        agentName,
+        clientId,
+      });
+    const swarmName = swarm.sessionValidationService.getSwarm(clientId);
+    {
+      swarm.sessionValidationService.validate(clientId, METHOD_NAME);
+      swarm.agentValidationService.validate(agentName, METHOD_NAME);
+      const activeAgent = await swarm.swarmPublicService.getAgentName(
+        METHOD_NAME,
+        clientId,
+        swarmName
       );
+      if (!swarm.agentValidationService.hasDependency(activeAgent, agentName)) {
+        console.error(
+          `agent-swarm missing dependency detected for activeAgent=${activeAgent} dependencyAgent=${agentName}`
+        );
+      }
     }
+    const run = await createChangeToAgent(clientId);
+    createGc();
+    return await run(METHOD_NAME, agentName, swarmName);
   }
-  const run = await createChangeToAgent(clientId);
-  createGc();
-  return await run(METHOD_NAME, agentName, swarmName);
-};
+);

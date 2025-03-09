@@ -74,7 +74,7 @@
   },
   "dependencies": {
     "di-kit": "^1.0.14",
-    "di-scoped": "^1.0.13",
+    "di-scoped": "^1.0.15",
     "functools-kit": "^1.0.74",
     "get-moment-stamp": "^1.1.1",
     "lodash-es": "4.17.21",

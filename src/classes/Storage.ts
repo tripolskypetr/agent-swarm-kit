@@ -6,6 +6,7 @@ import {
 } from "../interfaces/Storage.interface";
 import { AgentName } from "../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../config/params";
+import beginContext from "src/utils/beginContext";
 
 type TStorage = {
   [key in keyof IStorage]: unknown;
@@ -29,46 +30,58 @@ export class StorageUtils implements TStorage {
    * @returns {Promise<T[]>} - A promise that resolves to an array of items.
    * @template T
    */
-  public take = async <T extends IStorageData = IStorageData>(payload: {
+  public take = beginContext(
+    async (payload: {
+      search: string;
+      total: number;
+      clientId: string;
+      agentName: AgentName;
+      storageName: StorageName;
+      score?: number;
+    }): Promise<IStorageData[]> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_TAKE, {
+          search: payload.search,
+          total: payload.total,
+          clientId: payload.clientId,
+          storageName: payload.storageName,
+          score: payload.score,
+        });
+      swarm.sessionValidationService.validate(
+        payload.clientId,
+        METHOD_NAME_TAKE
+      );
+      swarm.storageValidationService.validate(
+        payload.storageName,
+        METHOD_NAME_TAKE
+      );
+      if (
+        !swarm.agentValidationService.hasStorage(
+          payload.agentName,
+          payload.storageName
+        )
+      ) {
+        throw new Error(
+          `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (take)`
+        );
+      }
+      return await swarm.storagePublicService.take(
+        payload.search,
+        payload.total,
+        METHOD_NAME_TAKE,
+        payload.clientId,
+        payload.storageName,
+        payload.score
+      );
+    }
+  ) as <T extends IStorageData = IStorageData>(payload: {
     search: string;
     total: number;
     clientId: string;
     agentName: AgentName;
     storageName: StorageName;
     score?: number;
-  }): Promise<T[]> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_TAKE, {
-        search: payload.search,
-        total: payload.total,
-        clientId: payload.clientId,
-        storageName: payload.storageName,
-        score: payload.score,
-      });
-    swarm.sessionValidationService.validate(payload.clientId, METHOD_NAME_TAKE);
-    swarm.storageValidationService.validate(
-      payload.storageName,
-      METHOD_NAME_TAKE
-    );
-    if (
-      !swarm.agentValidationService.hasStorage(
-        payload.agentName,
-        payload.storageName
-      )
-    ) {
-      throw new Error(
-        `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (take)`
-      );
-    }
-    return (await swarm.storagePublicService.take(
-      payload.search,
-      payload.total,
-      METHOD_NAME_TAKE,
-      payload.clientId,
-      payload.storageName,
-      payload.score
-    )) as T[];
-  };
+  }) => Promise<T[]>;
 
   /**
    * Upserts an item in the storage.
@@ -79,43 +92,50 @@ export class StorageUtils implements TStorage {
    * @returns {Promise<void>} - A promise that resolves when the operation is complete.
    * @template T
    */
-  public upsert = async <T extends IStorageData = IStorageData>(payload: {
+  public upsert = beginContext(
+    async (payload: {
+      item: IStorageData;
+      clientId: string;
+      agentName: AgentName;
+      storageName: StorageName;
+    }): Promise<void> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_UPSERT, {
+          item: payload.item,
+          clientId: payload.clientId,
+          storageName: payload.storageName,
+        });
+      swarm.sessionValidationService.validate(
+        payload.clientId,
+        METHOD_NAME_UPSERT
+      );
+      swarm.storageValidationService.validate(
+        payload.storageName,
+        METHOD_NAME_UPSERT
+      );
+      if (
+        !swarm.agentValidationService.hasStorage(
+          payload.agentName,
+          payload.storageName
+        )
+      ) {
+        throw new Error(
+          `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (upsert)`
+        );
+      }
+      return await swarm.storagePublicService.upsert(
+        payload.item,
+        METHOD_NAME_UPSERT,
+        payload.clientId,
+        payload.storageName
+      );
+    }
+  ) as <T extends IStorageData = IStorageData>(payload: {
     item: T;
     clientId: string;
     agentName: AgentName;
     storageName: StorageName;
-  }): Promise<void> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_UPSERT, {
-        item: payload.item,
-        clientId: payload.clientId,
-        storageName: payload.storageName,
-      });
-    swarm.sessionValidationService.validate(
-      payload.clientId,
-      METHOD_NAME_UPSERT
-    );
-    swarm.storageValidationService.validate(
-      payload.storageName,
-      METHOD_NAME_UPSERT
-    );
-    if (
-      !swarm.agentValidationService.hasStorage(
-        payload.agentName,
-        payload.storageName
-      )
-    ) {
-      throw new Error(
-        `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (upsert)`
-      );
-    }
-    return await swarm.storagePublicService.upsert(
-      payload.item,
-      METHOD_NAME_UPSERT,
-      payload.clientId,
-      payload.storageName
-    );
-  };
+  }) => Promise<void>;
 
   /**
    * Removes an item from the storage.
@@ -125,43 +145,45 @@ export class StorageUtils implements TStorage {
    * @param {StorageName} storageName - The storage name.
    * @returns {Promise<void>} - A promise that resolves when the operation is complete.
    */
-  public remove = async (payload: {
-    itemId: IStorageData["id"];
-    clientId: string;
-    agentName: AgentName;
-    storageName: StorageName;
-  }): Promise<void> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_REMOVE, {
-        itemId: payload.itemId,
-        clientId: payload.clientId,
-        storageName: payload.storageName,
-      });
-    swarm.sessionValidationService.validate(
-      payload.clientId,
-      METHOD_NAME_REMOVE
-    );
-    swarm.storageValidationService.validate(
-      payload.storageName,
-      METHOD_NAME_REMOVE
-    );
-    if (
-      !swarm.agentValidationService.hasStorage(
-        payload.agentName,
+  public remove = beginContext(
+    async (payload: {
+      itemId: IStorageData["id"];
+      clientId: string;
+      agentName: AgentName;
+      storageName: StorageName;
+    }): Promise<void> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_REMOVE, {
+          itemId: payload.itemId,
+          clientId: payload.clientId,
+          storageName: payload.storageName,
+        });
+      swarm.sessionValidationService.validate(
+        payload.clientId,
+        METHOD_NAME_REMOVE
+      );
+      swarm.storageValidationService.validate(
+        payload.storageName,
+        METHOD_NAME_REMOVE
+      );
+      if (
+        !swarm.agentValidationService.hasStorage(
+          payload.agentName,
+          payload.storageName
+        )
+      ) {
+        throw new Error(
+          `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (remove)`
+        );
+      }
+      return await swarm.storagePublicService.remove(
+        payload.itemId,
+        METHOD_NAME_REMOVE,
+        payload.clientId,
         payload.storageName
-      )
-    ) {
-      throw new Error(
-        `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (remove)`
       );
     }
-    return await swarm.storagePublicService.remove(
-      payload.itemId,
-      METHOD_NAME_REMOVE,
-      payload.clientId,
-      payload.storageName
-    );
-  };
+  );
 
   /**
    * Gets an item from the storage.
@@ -172,39 +194,46 @@ export class StorageUtils implements TStorage {
    * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
    * @template T
    */
-  public get = async <T extends IStorageData = IStorageData>(payload: {
+  public get = beginContext(
+    async (payload: {
+      itemId: IStorageData["id"];
+      clientId: string;
+      agentName: AgentName;
+      storageName: StorageName;
+    }) => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_GET, {
+          itemId: payload.itemId,
+          clientId: payload.clientId,
+          storageName: payload.storageName,
+        });
+      swarm.storageValidationService.validate(
+        payload.storageName,
+        METHOD_NAME_GET
+      );
+      if (
+        !swarm.agentValidationService.hasStorage(
+          payload.agentName,
+          payload.storageName
+        )
+      ) {
+        throw new Error(
+          `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (get)`
+        );
+      }
+      return await swarm.storagePublicService.get(
+        payload.itemId,
+        METHOD_NAME_GET,
+        payload.clientId,
+        payload.storageName
+      );
+    }
+  ) as <T extends IStorageData = IStorageData>(payload: {
     itemId: IStorageData["id"];
     clientId: string;
     agentName: AgentName;
     storageName: StorageName;
-  }): Promise<T | null> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_GET, {
-        itemId: payload.itemId,
-        clientId: payload.clientId,
-        storageName: payload.storageName,
-      });
-    swarm.storageValidationService.validate(
-      payload.storageName,
-      METHOD_NAME_GET
-    );
-    if (
-      !swarm.agentValidationService.hasStorage(
-        payload.agentName,
-        payload.storageName
-      )
-    ) {
-      throw new Error(
-        `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (get)`
-      );
-    }
-    return (await swarm.storagePublicService.get(
-      payload.itemId,
-      METHOD_NAME_GET,
-      payload.clientId,
-      payload.storageName
-    )) as T | null;
-  };
+  }) => Promise<T | null>;
 
   /**
    * Lists items from the storage.
@@ -215,38 +244,45 @@ export class StorageUtils implements TStorage {
    * @returns {Promise<T[]>} - A promise that resolves to an array of items.
    * @template T
    */
-  public list = async <T extends IStorageData = IStorageData>(payload: {
+  public list = beginContext(
+    async (payload: {
+      clientId: string;
+      agentName: AgentName;
+      storageName: StorageName;
+      filter?: (item: IStorageData) => boolean;
+    }) => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_LIST, {
+          clientId: payload.clientId,
+          storageName: payload.storageName,
+        });
+      swarm.storageValidationService.validate(
+        payload.storageName,
+        METHOD_NAME_LIST
+      );
+      if (
+        !swarm.agentValidationService.hasStorage(
+          payload.agentName,
+          payload.storageName
+        )
+      ) {
+        throw new Error(
+          `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (list)`
+        );
+      }
+      return await swarm.storagePublicService.list(
+        METHOD_NAME_LIST,
+        payload.clientId,
+        payload.storageName,
+        payload.filter
+      );
+    }
+  ) as <T extends IStorageData = IStorageData>(payload: {
     clientId: string;
     agentName: AgentName;
     storageName: StorageName;
     filter?: (item: T) => boolean;
-  }): Promise<T[]> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_LIST, {
-        clientId: payload.clientId,
-        storageName: payload.storageName,
-      });
-    swarm.storageValidationService.validate(
-      payload.storageName,
-      METHOD_NAME_LIST
-    );
-    if (
-      !swarm.agentValidationService.hasStorage(
-        payload.agentName,
-        payload.storageName
-      )
-    ) {
-      throw new Error(
-        `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (list)`
-      );
-    }
-    return (await swarm.storagePublicService.list(
-      METHOD_NAME_LIST,
-      payload.clientId,
-      payload.storageName,
-      payload.filter
-    )) as T[];
-  };
+  }) => Promise<T[]>;
 
   /**
    * Clears the storage.
@@ -255,36 +291,42 @@ export class StorageUtils implements TStorage {
    * @param {StorageName} storageName - The storage name.
    * @returns {Promise<void>} - A promise that resolves when the operation is complete.
    */
-  public clear = async (payload: {
+  public clear = beginContext(
+    async (payload: {
+      clientId: string;
+      agentName: AgentName;
+      storageName: StorageName;
+    }): Promise<void> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_CLEAR, {
+          clientId: payload.clientId,
+          storageName: payload.storageName,
+        });
+      swarm.storageValidationService.validate(
+        payload.storageName,
+        METHOD_NAME_CLEAR
+      );
+      if (
+        !swarm.agentValidationService.hasStorage(
+          payload.agentName,
+          payload.storageName
+        )
+      ) {
+        throw new Error(
+          `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (clear)`
+        );
+      }
+      return await swarm.storagePublicService.clear(
+        METHOD_NAME_CLEAR,
+        payload.clientId,
+        payload.storageName
+      );
+    }
+  ) as (payload: {
     clientId: string;
     agentName: AgentName;
     storageName: StorageName;
-  }): Promise<void> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_CLEAR, {
-        clientId: payload.clientId,
-        storageName: payload.storageName,
-      });
-    swarm.storageValidationService.validate(
-      payload.storageName,
-      METHOD_NAME_CLEAR
-    );
-    if (
-      !swarm.agentValidationService.hasStorage(
-        payload.agentName,
-        payload.storageName
-      )
-    ) {
-      throw new Error(
-        `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (clear)`
-      );
-    }
-    return await swarm.storagePublicService.clear(
-      METHOD_NAME_CLEAR,
-      payload.clientId,
-      payload.storageName
-    );
-  };
+  }) => Promise<void>;
 }
 
 export const Storage = new StorageUtils();

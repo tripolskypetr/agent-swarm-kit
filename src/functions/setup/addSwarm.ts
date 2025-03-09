@@ -1,6 +1,7 @@
 import { ISwarmSchema } from "../../interfaces/Swarm.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
+import beginContext from "src/utils/beginContext";
 
 const METHOD_NAME = "function.setup.addSwarm";
 
@@ -10,7 +11,7 @@ const METHOD_NAME = "function.setup.addSwarm";
  * @param {ISwarmSchema} swarmSchema - The schema of the swarm to be added.
  * @returns {string} The name of the added swarm.
  */
-export const addSwarm = (swarmSchema: ISwarmSchema) => {
+export const addSwarm = beginContext((swarmSchema: ISwarmSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       swarmSchema,
@@ -18,4 +19,4 @@ export const addSwarm = (swarmSchema: ISwarmSchema) => {
   swarm.swarmValidationService.addSwarm(swarmSchema.swarmName, swarmSchema);
   swarm.swarmSchemaService.register(swarmSchema.swarmName, swarmSchema);
   return swarmSchema.swarmName;
-};
+});

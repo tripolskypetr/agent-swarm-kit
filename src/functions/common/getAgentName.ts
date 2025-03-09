@@ -1,3 +1,4 @@
+import beginContext from "src/utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
@@ -10,7 +11,7 @@ const METHOD_NAME = "function.common.getAgentName";
  * @returns {Promise<string>} The name of the agent.
  * @throws Will throw an error if the client ID is invalid or if the swarm validation fails.
  */
-export const getAgentName = async (clientId: string) => {
+export const getAgentName = beginContext(async (clientId: string) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       clientId,
@@ -23,4 +24,4 @@ export const getAgentName = async (clientId: string) => {
     clientId,
     swarmName
   );
-};
+});
