@@ -23,11 +23,14 @@ export const beginContext =
     run: T
   ): ((...args: Parameters<T>) => ReturnType<T>) =>
   (...args: Parameters<T>): ReturnType<T> => {
-    if (MethodContextService.hasContext()) {
-      return new AsyncResource("UNTRACKED").runInAsyncScope(() => run(...args));
-    }
-    if (ExecutionContextService.hasContext()) {
-      return new AsyncResource("UNTRACKED").runInAsyncScope(() => run(...args));
+    if (
+      MethodContextService.hasContext() ||
+      ExecutionContextService.hasContext()
+    ) {
+      const resource = new AsyncResource("UNTRACKED");
+      const result = resource.runInAsyncScope(() => run(...args));
+      resource.emitDestroy();
+      return result;
     }
     return run(...args);
   };
