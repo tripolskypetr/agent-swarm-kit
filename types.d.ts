@@ -5640,7 +5640,10 @@ declare class SchemaUtils {
      * @param {T[] | T} data - The data to serialize.
      * @returns {string} The serialized string.
      */
-    serialize: <T extends object = any>(data: T[] | T) => string;
+    serialize: <T extends object = any>(data: T[] | T, map: {
+        mapKey: typeof GLOBAL_CONFIG.CC_NAME_TO_TITLE;
+        mapValue: (key: string, value: string) => string;
+    }) => string;
 }
 /**
  * An instance of the SchemaUtils class.

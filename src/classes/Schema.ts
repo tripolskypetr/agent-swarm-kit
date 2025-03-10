@@ -3,8 +3,6 @@ import objectFlat from "../utils/objectFlat";
 import swarm from "../lib";
 import beginContext from "../utils/beginContext";
 
-const LIST_SEPARATOR = Array.from({ length: 80 }, () => "-");
-
 const METHOD_NAME_SERIALIZE = "SchemaUtils.serialize";
 const METHOD_NAME_WRITE = "SchemaUtils.write";
 const METHOD_NAME_READ = "SchemaUtils.read";
@@ -56,23 +54,33 @@ export class SchemaUtils {
    * @param {T[] | T} data - The data to serialize.
    * @returns {string} The serialized string.
    */
-  public serialize = <T extends object = any>(data: T[] | T): string => {
+  public serialize = <T extends object = any>(
+    data: T[] | T,
+    map: {
+      mapKey: typeof GLOBAL_CONFIG.CC_NAME_TO_TITLE;
+      mapValue: (key: string, value: string) => string;
+    }
+  ): string => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_SERIALIZE, {
         data,
       });
+    const {
+      mapKey = GLOBAL_CONFIG.CC_NAME_TO_TITLE,
+      mapValue = (_, value) => value.slice(0, 50),
+    } = map;
     if (Array.isArray(data)) {
       return data
         .map((item: T) =>
           objectFlat(item)
-            .map(([key, value]) => [GLOBAL_CONFIG.CC_NAME_TO_TITLE(key), value])
+            .map(([key, value]) => [mapKey(key), mapValue(key, String(value))])
             .map(([key, value]) => `${key}: ${value}`)
             .join("\n")
         )
-        .join(`\n${LIST_SEPARATOR}\n`);
+        .join(`\n\n\n\n`);
     }
     return objectFlat(data)
-      .map(([key, value]) => [GLOBAL_CONFIG.CC_NAME_TO_TITLE(key), value])
+      .map(([key, value]) => [mapKey(key), mapValue(key, String(value))])
       .map(([key, value]) => `${key}: ${value}`)
       .join("\n");
   };
