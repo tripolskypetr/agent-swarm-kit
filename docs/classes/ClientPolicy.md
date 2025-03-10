@@ -26,6 +26,14 @@ _banSet: Set<string> | unique symbol
 
 ## Methods
 
+### hasBan
+
+```ts
+hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
+```
+
+Check if client is banned
+
 ### getBanMessage
 
 ```ts

@@ -15,6 +15,7 @@ import StatePublicService from "../public/StatePublicService";
 import StateConnectionService from "../connection/StateConnectionService";
 import { StateName } from "../../../interfaces/State.interface";
 import SwarmPublicService from "../public/SwarmPublicService";
+import PolicyPublicService from "../public/PolicyPublicService";
 
 const METHOD_NAME_COMPUTE_STATE = "perfService.computeClientState";
 
@@ -41,6 +42,9 @@ export class PerfService {
   );
   private readonly swarmPublicService = inject<SwarmPublicService>(
     TYPES.swarmPublicService
+  );
+  private readonly policyPublicService = inject<PolicyPublicService>(
+    TYPES.policyPublicService
   );
   private readonly stateConnectionService = inject<StateConnectionService>(
     TYPES.stateConnectionService
@@ -72,11 +76,30 @@ export class PerfService {
       clientId,
       swarmName
     );
+
+    const policyBans = await Promise.all(
+      this.swarmValidationService
+        .getPolicyList(swarmName)
+        .map(
+          async (policyName) =>
+            [
+              policyName,
+              await this.policyPublicService.hasBan(
+                swarmName,
+                METHOD_NAME_COMPUTE_STATE,
+                clientId,
+                policyName
+              ),
+            ] as const
+        )
+    );
+
     const result: Record<string, unknown> = {
       swarmStatus: {
         swarmName,
         agentName,
-      }
+      },
+      policyBans: Object.fromEntries(policyBans),
     };
     {
       const stateFetchSet = new Set<StateName>();

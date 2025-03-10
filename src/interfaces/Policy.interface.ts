@@ -70,6 +70,14 @@ export interface IPolicyCallbacks {
  * Interface for a policy.
  */
 export interface IPolicy {
+
+  /**
+   * Check if got banhammer flag
+   * @param clientId - The session ID of the client.
+   * @param swarmName - The name of the swarm.
+   */
+  hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
+
   /**
    * Gets the ban message for a client.
    * @param clientId - The session ID of the client.

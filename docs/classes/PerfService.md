@@ -53,6 +53,12 @@ statePublicService: any
 swarmPublicService: any
 ```
 
+### policyPublicService
+
+```ts
+policyPublicService: any
+```
+
 ### stateConnectionService
 
 ```ts

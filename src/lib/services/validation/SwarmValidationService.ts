@@ -60,6 +60,24 @@ export class SwarmValidationService {
   };
 
   /**
+   * Retrieves the list of ban policies for a given swarm.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {string[]} The list of policy names.
+   * @throws Will throw an error if the swarm is not found.
+   */
+  public getPolicyList = (swarmName: SwarmName) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmValidationService getAgentList", {
+        swarmName,
+      });
+    const swarm = this._swarmMap.get(swarmName);
+    if (!swarm) {
+      throw new Error(`agent-swarm swarm ${swarmName} not found`);
+    }
+    return swarm.policies ?? [];
+  };
+
+  /**
    * Retrieves the list of swarms
    * @returns {string[]} The list of swarm names
    */

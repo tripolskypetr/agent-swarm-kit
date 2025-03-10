@@ -25,3 +25,11 @@ unbanClient: (payload: { clientId: string; swarmName: string; policyName: string
 ```
 
 Unbans a client.
+
+### hasBan
+
+```ts
+hasBan: (payload: { clientId: string; swarmName: string; policyName: string; }) => Promise<boolean>
+```
+
+Check if client is banned

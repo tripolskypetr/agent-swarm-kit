@@ -464,6 +464,12 @@ interface IPolicyCallbacks {
  */
 interface IPolicy {
     /**
+     * Check if got banhammer flag
+     * @param clientId - The session ID of the client.
+     * @param swarmName - The name of the swarm.
+     */
+    hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
+    /**
      * Gets the ban message for a client.
      * @param clientId - The session ID of the client.
      * @param swarmName - The name of the swarm.
@@ -2959,6 +2965,13 @@ declare class SwarmValidationService {
      */
     getAgentList: (swarmName: SwarmName) => string[];
     /**
+     * Retrieves the list of ban policies for a given swarm.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {string[]} The list of policy names.
+     * @throws Will throw an error if the swarm is not found.
+     */
+    getPolicyList: (swarmName: SwarmName) => string[];
+    /**
      * Retrieves the list of swarms
      * @returns {string[]} The list of swarm names
      */
@@ -3882,6 +3895,7 @@ declare class PerfService {
     private readonly agentValidationService;
     private readonly statePublicService;
     private readonly swarmPublicService;
+    private readonly policyPublicService;
     private readonly stateConnectionService;
     private executionScheduleMap;
     private executionOutputLenMap;
@@ -4051,6 +4065,13 @@ declare class ClientPolicy implements IPolicy {
      */
     constructor(params: IPolicyParams);
     /**
+     * Check if client is banned
+     * @param {SessionId} clientId - The client ID.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<boolean>}
+     */
+    hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
+    /**
      * Gets the ban message for a client.
      * @param {SessionId} clientId - The client ID.
      * @param {SwarmName} swarmName - The swarm name.
@@ -4105,6 +4126,13 @@ declare class PolicyConnectionService implements IPolicy {
      */
     getPolicy: ((policyName: PolicyName) => ClientPolicy) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientPolicy>;
     /**
+     * Check if got ban flag
+     * @param {SessionId} clientId - The ID of the client.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {Promise<boolean>}
+     */
+    hasBan: (clientId: SessionId, swarmName: SwarmName) => Promise<boolean>;
+    /**
      * Retrieves the ban message for a client in a swarm.
      * @param {SessionId} clientId - The ID of the client.
      * @param {SwarmName} swarmName - The name of the swarm.
@@ -4157,6 +4185,15 @@ type TPolicyConnectionService = {
 declare class PolicyPublicService implements TPolicyConnectionService {
     private readonly loggerService;
     private readonly policyConnectionService;
+    /**
+     * Check if has ban message
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {string} methodName - The name of the method.
+     * @param {string} clientId - The ID of the client.
+     * @param {PolicyName} policyName - The name of the policy.
+     * @returns {Promise<boolean>}
+     */
+    hasBan: (swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<boolean>;
     /**
      * Retrieves the ban message for a client in a specific swarm.
      * @param {SwarmName} swarmName - The name of the swarm.
@@ -5297,6 +5334,19 @@ declare class PolicyUtils {
         swarmName: SwarmName;
         policyName: PolicyName;
     }) => Promise<void>;
+    /**
+     * Check if client is banned
+     * @param {Object} payload - The payload containing clientId, swarmName, and policyName.
+     * @param {string} payload.clientId - The client ID.
+     * @param {SwarmName} payload.swarmName - The name of the swarm.
+     * @param {PolicyName} payload.policyName - The name of the policy.
+     * @returns {Promise<boolean>}
+     */
+    hasBan: (payload: {
+        clientId: string;
+        swarmName: SwarmName;
+        policyName: PolicyName;
+    }) => Promise<boolean>;
 }
 /**
  * An instance of PolicyUtils.

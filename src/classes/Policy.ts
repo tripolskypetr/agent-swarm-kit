@@ -8,6 +8,7 @@ import beginContext from "../utils/beginContext";
 
 const METHOD_NAME_BAN_CLIENT = "PolicyUtils.banClient";
 const METHOD_NAME_UNBAN_CLIENT = "PolicyUtils.unbanClient";
+const METHOD_NAME_HAS_BAN = "PolicyUtils.hasBan";
 
 /**
  * NoopPolicy class implements the IPolicy interface with no-op methods.
@@ -20,6 +21,18 @@ export class NoopPolicy implements IPolicy {
   constructor(readonly swarmName: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(`NoopPolicy CTOR swarmName=${swarmName}`);
+  }
+
+  /**
+   * Check if has ban in any policy
+   * @returns {Promise<boolean>}
+   */
+  hasBan(): Promise<boolean> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(
+        `NoopPolicy hasBan swarmName=${this.swarmName}`
+      );
+    return Promise.resolve(false);
   }
 
   /**
@@ -102,6 +115,25 @@ export class MergePolicy implements IPolicy {
       swarm.loggerService.debug(`MergePolicy CTOR swarmName=${swarmName}`, {
         policies,
       });
+  }
+
+  /**
+   * Check if has ban in any policy
+   * @param {SessionId} clientId - The client ID.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {Promise<boolean>}
+   */
+  async hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(`MergePolicy hasBan swarmName=${swarmName}`, {
+        clientId,
+      });
+    for (const policy of this.policies) {
+      if (await policy.hasBan(clientId, swarmName)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -248,32 +280,34 @@ export class PolicyUtils {
    * @param {PolicyName} payload.policyName - The name of the policy.
    * @returns {Promise<void>}
    */
-  public banClient = beginContext(async (payload: {
-    clientId: string;
-    swarmName: SwarmName;
-    policyName: PolicyName;
-  }): Promise<void> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_BAN_CLIENT, payload);
-    swarm.sessionValidationService.validate(
-      payload.clientId,
-      METHOD_NAME_BAN_CLIENT
-    );
-    swarm.swarmValidationService.validate(
-      payload.swarmName,
-      METHOD_NAME_BAN_CLIENT
-    );
-    swarm.policyValidationService.validate(
-      payload.policyName,
-      METHOD_NAME_BAN_CLIENT
-    );
-    return await swarm.policyPublicService.banClient(
-      payload.swarmName,
-      METHOD_NAME_BAN_CLIENT,
-      payload.clientId,
-      payload.policyName
-    );
-  });
+  public banClient = beginContext(
+    async (payload: {
+      clientId: string;
+      swarmName: SwarmName;
+      policyName: PolicyName;
+    }): Promise<void> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_BAN_CLIENT, payload);
+      swarm.sessionValidationService.validate(
+        payload.clientId,
+        METHOD_NAME_BAN_CLIENT
+      );
+      swarm.swarmValidationService.validate(
+        payload.swarmName,
+        METHOD_NAME_BAN_CLIENT
+      );
+      swarm.policyValidationService.validate(
+        payload.policyName,
+        METHOD_NAME_BAN_CLIENT
+      );
+      return await swarm.policyPublicService.banClient(
+        payload.swarmName,
+        METHOD_NAME_BAN_CLIENT,
+        payload.clientId,
+        payload.policyName
+      );
+    }
+  );
 
   /**
    * Unbans a client.
@@ -283,32 +317,71 @@ export class PolicyUtils {
    * @param {PolicyName} payload.policyName - The name of the policy.
    * @returns {Promise<void>}
    */
-  public unbanClient = beginContext(async (payload: {
-    clientId: string;
-    swarmName: SwarmName;
-    policyName: PolicyName;
-  }): Promise<void> => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_UNBAN_CLIENT, payload);
-    swarm.sessionValidationService.validate(
-      payload.clientId,
-      METHOD_NAME_UNBAN_CLIENT
-    );
-    swarm.swarmValidationService.validate(
-      payload.swarmName,
-      METHOD_NAME_UNBAN_CLIENT
-    );
-    swarm.policyValidationService.validate(
-      payload.policyName,
-      METHOD_NAME_UNBAN_CLIENT
-    );
-    return await swarm.policyPublicService.unbanClient(
-      payload.swarmName,
-      METHOD_NAME_UNBAN_CLIENT,
-      payload.clientId,
-      payload.policyName
-    );
-  });
+  public unbanClient = beginContext(
+    async (payload: {
+      clientId: string;
+      swarmName: SwarmName;
+      policyName: PolicyName;
+    }): Promise<void> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_UNBAN_CLIENT, payload);
+      swarm.sessionValidationService.validate(
+        payload.clientId,
+        METHOD_NAME_UNBAN_CLIENT
+      );
+      swarm.swarmValidationService.validate(
+        payload.swarmName,
+        METHOD_NAME_UNBAN_CLIENT
+      );
+      swarm.policyValidationService.validate(
+        payload.policyName,
+        METHOD_NAME_UNBAN_CLIENT
+      );
+      return await swarm.policyPublicService.unbanClient(
+        payload.swarmName,
+        METHOD_NAME_UNBAN_CLIENT,
+        payload.clientId,
+        payload.policyName
+      );
+    }
+  );
+
+  /**
+   * Check if client is banned
+   * @param {Object} payload - The payload containing clientId, swarmName, and policyName.
+   * @param {string} payload.clientId - The client ID.
+   * @param {SwarmName} payload.swarmName - The name of the swarm.
+   * @param {PolicyName} payload.policyName - The name of the policy.
+   * @returns {Promise<boolean>}
+   */
+  public hasBan = beginContext(
+    async (payload: {
+      clientId: string;
+      swarmName: SwarmName;
+      policyName: PolicyName;
+    }): Promise<boolean> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_HAS_BAN, payload);
+      swarm.sessionValidationService.validate(
+        payload.clientId,
+        METHOD_NAME_HAS_BAN
+      );
+      swarm.swarmValidationService.validate(
+        payload.swarmName,
+        METHOD_NAME_HAS_BAN
+      );
+      swarm.policyValidationService.validate(
+        payload.policyName,
+        METHOD_NAME_HAS_BAN
+      );
+      return await swarm.policyPublicService.hasBan(
+        payload.swarmName,
+        METHOD_NAME_HAS_BAN,
+        payload.clientId,
+        payload.policyName
+      );
+    }
+  );
 }
 
 /**

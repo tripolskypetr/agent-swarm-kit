@@ -24,6 +24,14 @@ loggerService: any
 policyConnectionService: any
 ```
 
+### hasBan
+
+```ts
+hasBan: (swarmName: string, methodName: string, clientId: string, policyName: string) => Promise<boolean>
+```
+
+Check if has ban message
+
 ### getBanMessage
 
 ```ts

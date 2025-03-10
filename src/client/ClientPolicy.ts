@@ -31,6 +31,29 @@ export class ClientPolicy implements IPolicy {
   }
 
   /**
+   * Check if client is banned
+   * @param {SessionId} clientId - The client ID.
+   * @param {SwarmName} swarmName - The swarm name.
+   * @returns {Promise<boolean>}
+   */
+  async hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientPolicy policyName=${this.params.policyName} hasBan`,
+        {
+          clientId,
+          swarmName,
+        }
+      );
+    if (this._banSet === BAN_NEED_FETCH) {
+      this._banSet = new Set(
+        await this.params.getBannedClients(this.params.policyName, swarmName)
+      );
+    }
+    return this._banSet.has(clientId);
+  }
+
+  /**
    * Gets the ban message for a client.
    * @param {SessionId} clientId - The client ID.
    * @param {SwarmName} swarmName - The swarm name.

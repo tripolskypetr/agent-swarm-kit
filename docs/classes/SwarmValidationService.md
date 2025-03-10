@@ -50,6 +50,14 @@ getAgentList: (swarmName: string) => string[]
 
 Retrieves the list of agents for a given swarm.
 
+### getPolicyList
+
+```ts
+getPolicyList: (swarmName: string) => string[]
+```
+
+Retrieves the list of ban policies for a given swarm.
+
 ### getSwarmList
 
 ```ts

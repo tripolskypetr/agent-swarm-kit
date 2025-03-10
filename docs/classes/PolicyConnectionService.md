@@ -44,6 +44,14 @@ getPolicy: ((policyName: string) => ClientPolicy) & IClearableMemoize<string> & 
 
 Retrieves a policy based on the policy name.
 
+### hasBan
+
+```ts
+hasBan: (clientId: string, swarmName: string) => Promise<boolean>
+```
+
+Check if got ban flag
+
 ### getBanMessage
 
 ```ts

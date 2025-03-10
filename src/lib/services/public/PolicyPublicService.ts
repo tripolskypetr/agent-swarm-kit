@@ -27,6 +27,43 @@ export class PolicyPublicService implements TPolicyConnectionService {
   );
 
   /**
+   * Check if has ban message
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @param {string} methodName - The name of the method.
+   * @param {string} clientId - The ID of the client.
+   * @param {PolicyName} policyName - The name of the policy.
+   * @returns {Promise<boolean>}
+   */
+  public hasBan = async (
+    swarmName: SwarmName,
+    methodName: string,
+    clientId: string,
+    policyName: PolicyName
+  ): Promise<boolean> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("policyPublicService hasBan", {
+        methodName,
+        clientId,
+        swarmName,
+        policyName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.policyConnectionService.hasBan(clientId, swarmName);
+      },
+      {
+        methodName,
+        clientId,
+        agentName: "",
+        swarmName,
+        policyName,
+        storageName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
    * Retrieves the ban message for a client in a specific swarm.
    * @param {SwarmName} swarmName - The name of the swarm.
    * @param {string} methodName - The name of the method.

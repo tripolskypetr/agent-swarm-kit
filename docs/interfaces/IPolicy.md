@@ -4,6 +4,14 @@ Interface for a policy.
 
 ## Methods
 
+### hasBan
+
+```ts
+hasBan: (clientId: string, swarmName: string) => Promise<boolean>
+```
+
+Check if got banhammer flag
+
 ### getBanMessage
 
 ```ts

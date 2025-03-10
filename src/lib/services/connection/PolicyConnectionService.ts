@@ -44,6 +44,26 @@ export class PolicyConnectionService implements IPolicy {
   );
 
   /**
+   * Check if got ban flag
+   * @param {SessionId} clientId - The ID of the client.
+   * @param {SwarmName} swarmName - The name of the swarm.
+   * @returns {Promise<boolean>}
+   */
+  public hasBan = async (
+    clientId: SessionId,
+    swarmName: SwarmName
+  ): Promise<boolean> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`policyConnectionService hasBan`, {
+        clientId,
+        swarmName,
+      });
+    return await this.getPolicy(
+      this.methodContextService.context.policyName
+    ).hasBan(clientId, swarmName);
+  };
+
+  /**
    * Retrieves the ban message for a client in a swarm.
    * @param {SessionId} clientId - The ID of the client.
    * @param {SwarmName} swarmName - The name of the swarm.
