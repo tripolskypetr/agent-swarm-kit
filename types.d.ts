@@ -5655,7 +5655,9 @@ declare class AdapterUtils {
      * @param {string} [model="gpt-3.5-turbo"] - The model to use for completions.
      * @returns {Function} - A function that takes completion arguments and returns a response from OpenAI.
      */
-    fromOpenAI: (openai: any, model?: string) => ({ agentName, messages: rawMessages, mode, tools, clientId, }: ICompletionArgs$1) => Promise<{
+    fromOpenAI: (openai: any, model?: string, response_format?: {
+        type: string;
+    }) => ({ agentName, messages: rawMessages, mode, tools, clientId, }: ICompletionArgs$1) => Promise<{
         content: any;
         mode: ExecutionMode;
         agentName: string;

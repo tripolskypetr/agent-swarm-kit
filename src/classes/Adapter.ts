@@ -10,7 +10,7 @@ export class AdapterUtils {
    * @returns {Function} - A function that takes completion arguments and returns a response from OpenAI.
    */
   fromOpenAI =
-    (openai: any, model = "gpt-3.5-turbo") =>
+    (openai: any, model = "gpt-3.5-turbo", response_format?: { type: string }) =>
     /**
      * Handles the completion request to OpenAI.
      * 
@@ -60,7 +60,7 @@ export class AdapterUtils {
         model,
         messages: messages as any,
         tools: tools as any,
-        response_format: { type: "text" },
+        response_format,
       });
 
       return {

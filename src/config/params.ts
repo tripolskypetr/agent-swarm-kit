@@ -77,7 +77,7 @@ const CC_AGENT_HISTORY_FILTER =
 
 const CC_AGENT_OUTPUT_TRANSFORM = removeXmlTags;
 
-const CC_KEEP_MESSAGES = 5;
+const CC_KEEP_MESSAGES = 15;
 
 const CC_GET_AGENT_HISTORY_ADAPTER: (
   clientId: string,
