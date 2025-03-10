@@ -1,6 +1,7 @@
 {
     "entryPoints": ["./src/index.ts"],
-    "name": "react-declarative",
+    "projectDocuments": ["docs/agent-swarm-kit.md"],
+    "name": "agent-swarm-kit",
     "includeVersion": true,
     "logLevel": "Verbose",
     "out": "./docs/wwwroot",

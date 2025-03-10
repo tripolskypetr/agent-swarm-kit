@@ -91,6 +91,7 @@ export { IAgentTool } from "./interfaces/Agent.interface";
 export { IEmbeddingSchema } from "./interfaces/Embedding.interface";
 export { IStorageSchema } from "./interfaces/Storage.interface";
 export { IStateSchema } from "./interfaces/State.interface";
+export { IPolicySchema } from "./interfaces/Policy.interface";
 
 export { IModelMessage } from "./model/ModelMessage.model";
 export { IIncomingMessage, IOutgoingMessage } from "./model/EmitMessage.model";
