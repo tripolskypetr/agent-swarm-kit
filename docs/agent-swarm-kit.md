@@ -1,4 +1,3 @@
-# agent-swarm-kit
 # Agent Swarm Kit - System Overview
 
 ## Core Architecture
@@ -112,7 +111,7 @@ The `ToolValidationService` is a service designed for validating tools within an
 
 To add a new tool, you can use the `addTool` function. This function takes two parameters: `toolName`, which is the name of the tool, and `toolSchema`, which is an object representing the schema of the tool.
 
-To validate if a tool exists in the validation service, you can use the `validate` function. This function takes two parameters: `toolName`, which is the name of the tool to be validated, and `source`, which represents the source of the tool.
+To validate if a specific tool exists in the validation service, you can use the `validate` function. This function takes two parameters: `toolName`, which is the name of the tool to be validated, and `source`, which represents the source of the tool.
 
 By using these functions, you can effectively manage and validate tools within your agent-swarm system.
 
@@ -122,151 +121,150 @@ The `ToolSchemaService` is a service that manages tool schemas. It has a constru
 
 ## SwarmValidationService
 
-The SwarmValidationService is a service that allows for the validation of swarms and their agents. It has a constructor that initializes the loggerService, agentValidationService, and policyValidationService. The service also has a swarm map (_swarmMap) to store information about swarms.
+The SwarmValidationService is a service that allows for the validation of swarms and their associated agents. It utilizes a loggerService, agentValidationService, and policyValidationService for logging purposes and validating agents and policies respectively. The service also maintains a swarm map (_swarmMap) to keep track of swarms.
 
-To add a new swarm, you can use the `addSwarm` method by providing a swarm name and its schema (swarmSchema). This will add the swarm to the swarm map.
+To add a new swarm, you can use the `addSwarm` method by providing a swarm name and the corresponding schema. This will add the swarm to the swarm map.
 
-To retrieve a list of agents for a specific swarm, you can use the `getAgentList` method by providing the swarm name. This will return an array of agent names associated with the swarm.
+To retrieve a list of agents for a specific swarm, you can use the `getAgentList` method by passing in the swarm name. This will return an array of agent names associated with the swarm.
 
-To retrieve a list of all swarms, you can use the `getSwarmList` method. This will return an array of swarm names currently stored in the service.
+To retrieve a list of ban policies for a specific swarm, you can use the `getPolicyList` method by passing in the swarm name. This will return an array of policy names associated with the swarm.
 
-To validate a swarm and its agents, you can use the `validate` method by providing a swarm name and the source code of the swarm. This will perform validation on both the swarm and its associated agents.
+To retrieve a list of all swarms, you can use the `getSwarmList` method. This will return an array of swarm names.
+
+To validate a specific swarm and its associated agents, you can use the `validate` method by providing the swarm name and a source. This will validate the swarm, its agents, and any associated policies.
 
 ## SwarmSchemaService
 
-The SwarmSchemaService is a service that manages swarm schemas. It has a constructor, loggerService property for logging purposes, registry property to store registered schemas, and validateShallow property for shallow validation of swarm schemas. The service allows you to register new swarm schemas using the `register` method, which takes a key and an ISwarmSchema object as parameters. You can retrieve a swarm schema by its name using the `get` method, which takes a key as the parameter.
+The SwarmSchemaService is a service that manages swarm schemas. It has a constructor, loggerService property for logging purposes, registry property to store registered schemas, and validateShallow property for shallow validation of swarm schemas. The service provides two methods: register and get.
+
+The `register` method is used to add a new swarm schema by providing the key and value of the schema. This allows for easy storage and retrieval of swarm schemas.
+
+The `get` method is used to retrieve a swarm schema by its name. Simply pass the key of the desired schema to retrieve it from the registry.
 
 ## SwarmPublicService
 
-The SwarmPublicService is a TypeScript class that implements the TSwarmConnectionService interface. It is responsible for managing public swarm interactions, which involve communication and coordination between agents in a swarm. The class provides various methods to interact with the swarm, such as navigating, canceling output, waiting for output, getting agent information, and disposing of the swarm. The service also has properties for a loggerService, swarmConnectionService, and navigationPop.
+The SwarmPublicService is a TypeScript class that implements the TSwarmConnectionService interface. It is designed to manage public swarm interactions, allowing users to interact with swarms in a public context. The class provides various methods to perform actions such as popping the navigation stack, canceling output awaits, waiting for swarm outputs, getting agent names and agents from the swarm, setting agent references and names in the swarm, and disposing of a swarm. These methods are asynchronous and return promises for the respective actions.
 
 ## SwarmMetaService
 
-The SwarmMetaService is a service that handles swarm metadata. It has properties such as loggerService, swarmSchemaService, agentMetaService and serialize. The loggerService is used for logging, swarmSchemaService handles the schema related operations for swarms, agentMetaService handles metadata related to agents and serialize is used for serialization. The makeSwarmNode function creates a swarm node with the given swarm name. The toUML function converts the swarm metadata into UML format.
+The SwarmMetaService is a service designed to handle swarm metadata. It has a constructor that initializes the loggerService, swarmSchemaService, agentMetaService, and serialize properties. The makeSwarmNode function creates a swarm node with the given swarm name. The toUML function converts the swarm metadata into UML format.
 
 ## SwarmConnectionService
 
-The SwarmConnectionService is a TypeScript class that implements the ISwarm interface and provides functionality for managing swarm connections. It has a constructor that initializes the loggerService, busService, methodContextService, agentConnectionService, and swarmSchemaService properties.
-
-The service provides several methods to interact with swarms, including:
-- `getSwarm`: Retrieves a swarm instance based on the client ID and swarm name.
-- `navigationPop`: Pops the navigation stack or returns the default agent.
-- `cancelOutput`: Cancels the await of output by emitting an empty string.
-- `waitForOutput`: Waits for the output from the swarm.
-- `getAgentName`: Retrieves the agent name from the swarm.
-- `getAgent`: Retrieves the agent from the swarm.
-- `setAgentRef`: Sets the agent reference in the swarm.
-- `setAgentName`: Sets the agent name in the swarm.
-- `dispose`: Disposes of the swarm connection.
-
-Overall, SwarmConnectionService is a TypeScript class that provides methods for managing swarm connections, retrieving and setting agent information, waiting for output from the swarm, and disposing of the connection.
+The SwarmConnectionService is a TypeScript class that implements the ISwarm interface and manages connections to a swarm. It has properties for the loggerService, busService, methodContextService, agentConnectionService, and swarmSchemaService. The class provides various methods to interact with the swarm, such as retrieving a swarm instance based on client ID and swarm name, popping the navigation stack or returning a default agent, waiting for output from the swarm, retrieving agent name and agent from the swarm, setting the agent reference and name in the swarm, and disposing of the swarm connection.
 
 ## StorageValidationService
 
-The StorageValidationService is a service designed to validate storages within the storage swarm. It provides a way to add new storages, as well as validate existing ones. The service utilizes a loggerService for logging purposes, an embeddingValidationService to handle validation of embedded storages, and a storageMap to keep track of the added storages.
+The StorageValidationService is a service designed to validate storages within the storage swarm. It has a constructor, loggerService property for logging purposes, embeddingValidationService property to validate the embeddings of storages, and a private property _storageMap to store the added storages.
 
 To add a new storage, you can use the `addStorage` method by providing a storage name and its schema. This will add the new storage to the validation service.
 
 To validate an existing storage, you can use the `validate` method by providing a storage name and its source. This will initiate the validation process for that specific storage.
 
-Overall, the StorageValidationService provides a way to manage and validate storages within the storage swarm, ensuring their correctness and consistency.
-
 ## StorageUtils
 
 The `StorageUtils` class implements the `TStorage` interface and provides various methods to interact with a storage system. It allows you to take, upsert, remove, get, list, and clear items from the storage.
 
-- `take`: This method takes items from the storage by specifying a search query, total count, client ID, agent name, and storage name. It returns a Promise that resolves to an array of items matching the specified criteria.
-- `upsert`: This method upserts an item into the storage. It requires providing the new item, client ID, agent name, and storage name. It returns a Promise that resolves when the item is successfully upserted.
-- `remove`: This method removes an item from the storage based on its ID, client ID, agent name, and storage name. It returns a Promise that resolves when the item is successfully removed.
-- `get`: This method retrieves an item from the storage based on its ID, client ID, agent name, and storage name. It returns a Promise that resolves to the requested item.
-- `list`: This method lists items from the storage based on specified criteria such as client ID, agent name, storage name, and an optional filter function. It returns a Promise that resolves to an array of items matching the specified criteria.
-- `clear`: This method clears the entire storage for a given client ID, agent name, and storage name. It returns a Promise that resolves when the storage is successfully cleared.
+1. `take`: This method takes items from the storage. You need to provide a payload object containing the search query, total number of items to retrieve, client ID, agent name, and storage name. It returns a promise that resolves to an array of items matching the search query.
+2. `upsert`: This method upserts an item in the storage. You need to provide a payload object containing the item you want to upsert, client ID, agent name, and storage name. It returns a promise that resolves to `void`.
+3. `remove`: This method removes an item from the storage. You need to provide a payload object containing the item ID, client ID, agent name, and storage name. It returns a promise that resolves to `void`.
+4. `get`: This method gets an item from the storage. You need to provide a payload object containing the item ID, client ID, agent name, and storage name. It returns a promise that resolves to the item.
+5. `list`: This method lists items from the storage. You need to provide a payload object containing the client ID, agent name, storage name, and an optional filter function. It returns a promise that resolves to an array of items matching the filter function or all items if no filter is provided.
+6. `clear`: This method clears the storage. You need to provide a payload object containing the client ID, agent name, and storage name. It returns a promise that resolves to `void`.
+
+These methods provide a convenient way to interact with various storage systems in your TypeScript application.
 
 ## StorageSchemaService
 
-The StorageSchemaService is a service used for managing storage schemas. It has a constructor, loggerService property for logging service messages, registry property to store registered schemas, and validateShallow property for shallow validation of storage schemas. The service provides two main functions: register and get. The `register` function is used to add a new storage schema by providing the key and value of the schema. The `get` function retrieves a storage schema by its key. This service allows for efficient management and retrieval of storage schemas.
+The StorageSchemaService is a service used for managing storage schemas. It has a constructor, loggerService property for logging purposes, registry property to store registered schemas, and validateShallow property for shallow validation of storage schemas. The service provides two main functions: register and get. The `register` function is used to add a new storage schema by providing the key and value of the schema. The `get` function retrieves a storage schema by its key. This service allows for efficient management and retrieval of storage schemas.
 
 ## StoragePublicService
 
-The StoragePublicService is a service that handles interactions with public storage. It implements the TStorageConnectionService interface and provides methods for managing storage data. The service has properties such as loggerService and storageConnectionService for logging and managing connections to the storage, respectively.
+The `StoragePublicService` is a TypeScript class that implements the `TStorageConnectionService` interface. It is responsible for managing interactions with public storage services. The class has a constructor, properties such as `loggerService` and `storageConnectionService`, as well as several methods for interacting with the storage.
 
-The StoragePublicService offers several methods: take, upsert, remove, get, list, clear, and dispose. The take method retrieves a list of storage data based on a search query and total number of items. The upsert method allows for inserting or updating an item in the storage. The remove method deletes an item from the storage by its ID. The get method retrieves an item from the storage by its ID. The list method retrieves a list of items from the storage, optionally filtered by a predicate function. The clear method clears all items from the storage, and the dispose method releases resources associated with the storage.
+The `take` method retrieves a list of storage data based on a search query and total number of items. The `upsert` method upserts an item in the storage. The `remove` method removes an item from the storage. The `get` method retrieves an item from the storage by its ID. The `list` method retrieves a list of items from the storage, optionally filtered by a predicate function. The `clear` method clears all items from the storage. The `dispose` method disposes of the storage.
 
 ## StorageConnectionService
 
-The StorageConnectionService is a TypeScript class that manages storage connections. It has a constructor to initialize dependencies and several properties for interacting with other services. The getStorage method retrieves a storage instance based on the client ID and storage name. The take method retrieves a list of storage data based on a search query and total number of items. The upsert method upserts an item in the storage. The remove method removes an item from the storage. The get method retrieves an item from the storage by its ID. The list method retrieves a list of items from the storage, optionally filtered by a predicate function. The clear method clears all items from the storage. The dispose method is used to release resources associated with the storage connection.
+The StorageConnectionService is a TypeScript class that manages storage connections. It has a constructor to initialize dependencies and properties such as loggerService, busService, methodContextService, storageSchemaService, sessionValidationService, embeddingSchemaService, sharedStorageConnectionService, _sharedStorageSet. The service provides methods to retrieve, insert, update, remove and list items from the storage. It also allows clearing all items and disposing of the storage connection.
 
 ## StateUtils
 
-The `StateUtils` class is a utility for managing state in an agent swarm. It provides methods to retrieve, set, and clear state for a given client and state name. The class is generic, allowing for different types of state to be used.
+The `StateUtils` class is a utility for managing state in an agent swarm. It provides methods to retrieve, set, and clear state for a given client and state name. The class is implemented with a generic type `TState` to allow for flexible state types.
 
-To retrieve the current state for a specific client and state name, you can use the `getState` method. This asynchronous function takes a payload object with the client ID, agent name, and state name as parameters. It returns a promise that resolves to the current state value.
+To retrieve the current state for a specific client and state name, you can use the `getState` method. This asynchronous function takes a payload object containing the client ID, agent name, and state name as parameters. It returns a promise that resolves to the current state value.
 
 To set a new state for a specific client and state name, you can use the `setState` method. This asynchronous function takes a dispatching function and the payload object. The dispatching function can either be a value or a function that takes the previous state as an argument and returns a promise resolving to the new state.
 
-To clear a specific client's state and set it back to its initial value, you can use the `clearState` method. This asynchronous function takes a payload object with the client ID, agent name, and state name as parameters. It returns a promise that resolves to the initial state value.
+To clear a specific client's state and set it back to its initial value, you can use the `clearState` method. This asynchronous function takes a payload object containing the client ID, agent name, and state name as parameters. It returns a promise that resolves to the initial state value.
+
+Overall, `StateUtils` provides a convenient way to manage and manipulate state within an agent swarm system.
 
 ## StateSchemaService
 
-The `StateSchemaService` is a service used for managing state schemas. It has a constructor, properties such as `loggerService`, `registry` and `validateShallow`, as well as two methods: `register` and `get`. The `register` method is used to register a new state schema by providing a key and the `IStateSchema<any>` value. The `get` method is used to retrieve a state schema by providing its key. This service allows for efficient management and retrieval of state schemas.
+The `StateSchemaService` is a service used for managing state schemas. It has a constructor, properties such as `loggerService`, `registry` and `validateShallow`, as well as two methods: `register` and `get`. The `register` method is used to add a new state schema by providing the key and value. The `get` method is used to retrieve a state schema by its key. This service allows for efficient management and retrieval of state schemas in a TypeScript application.
 
 ## StatePublicService
 
-The `StatePublicService` class is an implementation of the `TStateConnectionService` interface. It has a constructor, as well as properties `loggerService` and `stateConnectionService`. 
+The `StatePublicService` is an implementation of the `TStateConnectionService` interface. It has a constructor, as well as properties `loggerService` and `stateConnectionService`. 
 
-The class provides three main methods: `setState`, `clearState`, and `getState`. The `setState` method sets the state using a provided dispatch function. The `clearState` method sets the state to its initial value. The `getState` method retrieves the current state.
+The class provides three main methods: `setState`, `clearState`, and `getState`. 
 
-Lastly, there is a `dispose` method that disposes the state.
+The `setState` method sets the state using a provided dispatch function. 
 
-This class is used to manage and interact with the state in a system, allowing for setting, clearing, retrieving, and disposing of state data.
+The `clearState` method sets the state to its initial value. 
+
+The `getState` method retrieves the current state. 
+
+Lastly, the `dispose` method disposes of the state.
 
 ## StateConnectionService
 
-The `StateConnectionService` is a TypeScript class that manages state connections. It implements the `IState<T>` interface and provides various methods to interact with the state. The class has several properties such as `loggerService`, `busService`, `methodContextService`, `stateSchemaService`, `sessionValidationService`, and `sharedStateConnectionService` which are used for logging, event bus communication, method context management, state schema handling, session validation, and shared state connection management respectively.
+The `StateConnectionService` is a TypeScript class that manages state connections. It has a constructor which initializes properties such as `loggerService`, `busService`, `methodContextService`, `stateSchemaService`, `sessionValidationService`, and `sharedStateConnectionService`. It also has a private property `_sharedStateSet`.
 
-The `constructor` is used to initialize the service.
+The class provides a memoized function `getStateRef` to get a state reference. It also has methods `setState`, `clearState`, and `getState` to set, clear, or get the state respectively. These methods return a promise that resolves to the updated state.
 
-The `getStateRef` is a memoized function that returns a state reference based on the provided `clientId` and `stateName`.
+Lastly, there is a `dispose` method that disposes the state connection.
 
-The `setState` method sets the state by dispatching a function that takes the previous state as an argument and returns a promise that resolves to the updated state.
-
-The `clearState` method sets the state to its initial value.
-
-The `getState` method retrieves the current state as a promise.
-
-The `dispose` method is used to dispose of the state connection.
-
-Overall, `StateConnectionService` provides a way to manage state connections and interact with the state by setting, clearing, getting, and disposing of the state.
+This service is used to manage and interact with the state in a TypeScript application.
 
 ## SharedStorageUtils
 
-The `SharedStorageUtils` is a TypeScript class that implements the `TSharedStorage` interface. It provides methods for interacting with a storage system. The class has several properties and methods that allow you to perform various operations on the storage, such as taking items, upserting (insert or update) items, removing items, getting specific items, listing items with an optional filter, and clearing the entire storage. Each of these methods returns a Promise, allowing you to handle asynchronous operations.
+The `SharedStorageUtils` is a TypeScript class that implements the `TSharedStorage` interface. It provides various methods to interact with a storage system. The class has several properties and methods that allow you to take, upsert, remove, get, list, and clear items from the storage.
+
+The `take` method takes items from the storage based on a given payload, which includes search criteria and total number of items to retrieve. It returns a promise that resolves with an array of items matching the search criteria.
+
+The `upsert` method allows you to upsert an item into the storage. It takes an item and a storage name as parameters, and returns a promise that resolves when the item is successfully upserted.
+
+The `remove` method removes an item from the storage based on its ID and a specified storage name. It returns a promise that resolves when the item is successfully removed.
+
+The `get` method retrieves an item from the storage based on its ID and a specified storage name. It returns a promise that resolves with the retrieved item.
+
+The `list` method lists items from the storage based on a specified storage name and an optional filter function. It returns a promise that resolves with an array of items matching the filter criteria.
+
+The `clear` method clears the specified storage, removing all items from it. It returns a promise that resolves when the storage is successfully cleared.
 
 ## SharedStoragePublicService
 
-The SharedStoragePublicService is a TypeScript class that implements the TSharedStorageConnectionService and is responsible for managing public storage interactions. It provides methods to interact with shared storage, such as retrieving, inserting, updating, and deleting data. The service also includes a loggerService and sharedStorageConnectionService for logging and connecting to the storage respectively.
-
-The constructor is used to initialize the service. The loggerService and sharedStorageConnectionService properties are used for logging and connecting to the storage respectively.
-
-The take method retrieves a list of storage data based on a search query and total number of items. It returns a Promise that resolves to an array of IStorageData objects.
-
-The upsert method is used to insert or update an item in the storage. It takes an IStorageData object, the method name, and storage name as parameters. It returns a Promise that resolves when the operation is complete.
-
-The remove method removes an item from the storage based on its ID. It takes the item's ID, method name, and storage name as parameters. It returns a Promise that resolves when the operation is complete.
-
-The get method retrieves an item from the storage by its ID. It takes the item's ID, method name, and storage name as parameters. It returns a Promise that resolves to an IStorageData object.
-
-The list method retrieves a list of items from the storage, optionally filtered by a predicate function. It takes the method name, storage name, and an optional filter function as parameters. The filter function can be used to specify a custom condition for filtering the items. It returns a Promise that resolves to an array of IStorageData objects.
-
-The clear method is used to delete all items from the storage. It takes the method name and storage name as parameters. It returns a Promise that resolves when the operation is complete.
+The SharedStoragePublicService is a TypeScript class that implements the TSharedStorageConnectionService and is responsible for managing public storage interactions. It provides various methods to interact with the storage, such as retrieving data based on a search query, upserting items, removing items by their IDs, retrieving specific items by their IDs, listing items with an optional filtering function, and clearing all items from the storage. The service also has properties like loggerService and sharedStorageConnectionService for logging and connecting to the storage respectively.
 
 ## SharedStorageConnectionService
 
-The SharedStorageConnectionService is a service that manages storage connections. It has properties such as loggerService, busService, methodContextService, storageSchemaService, and embeddingSchemaService. The getStorage method retrieves a storage instance based on the client ID and storage name. The take method retrieves a list of storage data based on a search query and total number of items. The upsert method upserts an item in the storage. The remove method removes an item from the storage. The get method retrieves an item from the storage by its ID. The list method retrieves a list of items from the storage, optionally filtered by a predicate function. The clear method clears all items from the storage.
+The SharedStorageConnectionService is a TypeScript class that provides functionality for managing storage connections. It implements the `IStorage` interface and has a constructor that initializes properties such as `loggerService`, `busService`, `methodContextService`, `storageSchemaService`, and `embeddingSchemaService`.
+
+The service offers a method called `getStorage` which retrieves a storage instance based on the client ID and storage name. It also provides several other methods:
+- `take` retrieves a list of storage data based on a search query and total number of items.
+- `upsert` upserts an item in the storage.
+- `remove` removes an item from the storage.
+- `get` retrieves an item from the storage by its ID.
+- `list` retrieves a list of items from the storage, optionally filtered by a predicate function.
+- `clear` clears all items from the storage.
+
+This service is used to manage and interact with storage connections in a TypeScript application.
 
 ## SharedStateUtils
 
-The SharedStateUtils is a utility class designed for managing state in the agent swarm. It provides methods to retrieve, set, and clear state for a given client and state name. The class uses promises to handle asynchronous operations.
+The SharedStateUtils is a utility class designed for managing state within the agent swarm. It provides methods to retrieve, set, and clear state for a given client and state name. The class uses promises to handle asynchronous operations.
 
 To retrieve the state for a specific client and state name, you can use the `getState` method. This method returns a promise that resolves to the state value.
 
@@ -278,189 +276,183 @@ Overall, SharedStateUtils provides a convenient way to manage and manipulate sta
 
 ## SharedStatePublicService
 
-The SharedStatePublicService is a class that implements the TSharedStateConnectionService. It has a constructor, and two properties: loggerService and sharedStateConnectionService. The setState method allows you to update the state using a provided dispatch function, while clearState resets the state to its initial value. The getState method retrieves the current state of the system.
+The SharedStatePublicService is a class that implements the TSharedStateConnectionService. It has a constructor, and two properties: loggerService and sharedStateConnectionService. The setState function sets the state using a provided dispatch function, while clearState sets the state to its initial value. The getState function retrieves the current state. All of these functions require a methodName and stateName as parameters.
 
 ## SharedStateConnectionService
 
-The `SharedStateConnectionService` is a TypeScript class that manages shared state connections. It implements the `IState<T>` interface, which allows it to handle state data of any type. The class has several properties, including `loggerService`, `busService`, `methodContextService`, and `stateSchemaService`. These properties are used for logging, event bus communication, method context management, and state schema handling.
+The `SharedStateConnectionService` is a TypeScript class that provides functionality for managing shared state connections. It implements the `IState<T>` interface. This service utilizes dependencies such as `loggerService`, `busService`, `methodContextService`, and `stateSchemaService`.
 
-The `getStateRef` property is a memoized function that returns a reference to the shared state. It takes in a `stateName` parameter and returns a `ClientState<any>` object.
+The constructor of this class initializes these dependencies. The `getStateRef` property is a memoized function that returns a reference to the shared state. The `setState` method allows you to set the state by providing a dispatch function that takes the previous state and returns a Promise for the updated state. The `clearState` method sets the state to its initial value, and the `getState` method retrieves the current state as a Promise.
 
-The `setState` method takes in a dispatch function as a parameter and returns a promise that resolves to the updated state. This method is used to set the shared state by dispatching an action.
-
-The `clearState` method clears the shared state and returns a promise that resolves to the initial state value.
-
-The `getState` method returns a promise that resolves to the current state value.
-
-Overall, `SharedStateConnectionService` provides a way to manage and interact with shared state data in a TypeScript application.
+Overall, the `SharedStateConnectionService` provides a way to manage and interact with shared state connections in a TypeScript application.
 
 ## SessionValidationService
 
-The `SessionValidationService` is a service that handles session validation and management. It allows you to add, remove, and manage sessions, as well as track agent usage for each session. The service also provides methods to get information about sessions, such as the session mode, swarm name, agent list, and history list.
+The `SessionValidationService` is a service used for validating and managing sessions in an application. It provides methods to add, remove and manage sessions, agents, history, storage, and state usage. The service also allows for session validation and disposal of session validation cache.
 
-To use this service, you need to provide a `loggerService` for logging purposes. The service also uses several `_` prefixed properties to store and manage session data.
+The service has properties such as `loggerService`, which is used for logging, and several `_` prefixed properties that are used to store session data.
 
-Some key methods of this service include:
-- `addSession` to add a new session.
-- `addAgentUsage`, `addHistoryUsage`, `addStorageUsage`, and `addStateUsage` to add agent, history, storage, and state usage to a session respectively.
-- `removeAgentUsage`, `removeHistoryUsage`, `removeStorageUsage`, and `removeStateUsage` to remove agent, history, storage, and state usage from a session respectively.
-- `getSessionMode` to get the mode of a session.
-- `hasSession` to check if a session exists.
-- `getSessionList` to get the list of all session IDs.
-- `getSessionAgentList` to get the list of agents for a session.
-- `getSessionHistoryList` to get the history list of agents for a session.
-- `getSwarm` to get the swarm name for a session.
-- `validate` to validate if a session exists.
-- `removeSession` to remove a session.
-- `dispose` to dispose a session validation cache.
+To add a new session, you can use the `addSession` method by providing a client ID, swarm name, and session mode. The `addAgentUsage`, `addHistoryUsage`, `addStorageUsage`, and `addStateUsage` methods are used to add agent, history, storage, and state usage to a session respectively.
 
-Overall, the `SessionValidationService` provides a way to manage and validate sessions, as well as track agent usage for each session.
+To remove agent, history, storage, or state usage from a session, you can use the `removeAgentUsage`, `removeHistoryUsage`, `removeStorageUsage`, and `removeStateUsage` methods respectively.
+
+The `getSessionMode` method is used to get the mode of a session by providing a client ID. The `hasSession` method checks if a session exists for the given client ID.
+
+The `getSessionList` method returns the list of all session IDs. The `getSessionAgentList` and `getSessionHistoryList` methods return the list of agents for a session and the history list of agents for a session respectively.
+
+The `getSwarm` method returns the swarm name for a session.
+
+The `validate` method is used to validate if a session exists by providing the client ID and source.
+
+The `removeSession` method removes a session by providing the client ID.
+
+The `dispose` method is used to dispose of the session validation cache by providing the client ID.
 
 ## SessionPublicService
 
-The `SessionPublicService` is a Typescript class that provides methods for managing public session interactions. It takes in dependencies such as `loggerService`, `perfService`, `sessionConnectionService`, and `busService`. 
+The `SessionPublicService` is a Typescript class that provides methods for managing public session interactions. It implements the `TSessionConnectionService` interface. The class has several properties such as `loggerService`, `perfService`, `sessionConnectionService`, and `busService`. 
 
-The class has several methods:
-- `emit` for emitting a message to the session.
-- `execute` for executing a command in the session.
-- `run` for running a completion stateless.
-- `connect` for connecting to the session.
-- `commitToolOutput` for committing tool output to the session.
-- `commitSystemMessage` for committing a system message to the session.
-- `commitAssistantMessage` for committing an assistant message to the session.
-- `commitUserMessage` for committing a user message to the agent without answer.
-- `commitFlush` for committing a flush of agent history.
-- `commitStopTools` for preventing the next tool from being executed.
-- `dispose` for disposing of the session.
-
-These methods allow for various interactions with the session, such as emitting messages, executing commands, committing different types of messages, and disposing the session when necessary.
+The class provides methods like `emit`, `execute`, `run`, `connect`, `commitToolOutput`, `commitSystemMessage`, `commitAssistantMessage`, `commitUserMessage`, `commitFlush`, `commitStopTools`, and `dispose`. These methods allow for sending messages, executing commands in the session, connecting to the session, committing tool output and system messages to the session, committing assistant and user messages without an answer, flushing the agent history, preventing the next tool from being executed, and disposing of the session.
 
 ## SessionConnectionService
 
 The `SessionConnectionService` is a service that manages session connections. It has properties such as `loggerService`, `busService`, `methodContextService`, `swarmConnectionService`, `policyConnectionService`, and `swarmSchemaService`. 
 
-The service provides methods to retrieve a memoized session based on `clientId` and `swarmName`, emit a message to the session, execute commands in the session, connect to the session using a provided connector, commit tool output to the session, commit system messages and assistant messages to the session, commit user message without answer, flush and stop tools in the session, and dispose of the service.
+The service provides methods to retrieve a memoized session based on clientId and swarmName, emit a message to the session, execute commands in the session, connect to the session using a connector, commit tool output to the session, commit system messages and assistant messages to the session, commit user message without answer, flush and stop tools in the session, and dispose of the service.
 
 ## SchemaUtils
 
-The `SchemaUtils` is a utility class that provides functions for performing operations related to schemas. It has a constructor that does not take any arguments.
+The `SchemaUtils` is a utility class that provides functions for performing operations related to schemas. It has a constructor that doesn't take any arguments.
 
-The class has three properties: `writeSessionMemory`, `readSessionMemory`, and `serialize`. 
+The class has three properties: `writeSessionMemory`, `readSessionMemory` and `serialize`.
 
-The `writeSessionMemory` property is a function that allows you to write a value into the session memory for a specific client. It takes two arguments: `clientId` (a string representing the client's ID) and `value` (the data you want to write). It returns the written value.
+The `writeSessionMemory` function allows you to write a value into the session memory for a specific client. It takes two arguments: `clientId` (a string representing the client's ID) and `value` (the data you want to write). It returns the written value.
 
-The `readSessionMemory` property is a function that retrieves a value from the session memory for a specific client. It takes one argument: `clientId` (a string representing the client's ID). It returns the value stored in session memory for that client.
+The `readSessionMemory` function enables you to read a value from the session memory for a specific client. It takes one argument: `clientId` (a string representing the client's ID). It returns the value stored in session memory for that client.
 
-The `serialize` property is a function that serializes an object or an array of objects into a formatted string. It takes one argument: `data` (the object or array of objects you want to serialize). It returns the serialized string representation of the data.
+The `serialize` function is used to serialize an object or an array of objects into a formatted string. It takes one argument: `data` (the object or array of objects you want to serialize). It returns the serialized string.
 
 ## PolicyValidationService
 
-The PolicyValidationService is a tool used within the agent-swarm to validate policies. It provides a way to add new policies and validate existing ones. The service utilizes a loggerService for logging purposes and maintains an internal policyMap to store the policies.
+The PolicyValidationService is a tool used within the agent-swarm to validate policies. It provides a way to add new policies and validate existing ones. The service utilizes a loggerService for logging purposes and maintains an internal policyMap to store policies.
 
 To add a new policy, you can use the `addPolicy` function by providing a policy name and its schema. This will add the new policy to the validation service.
 
-To validate a policy, you can use the `validate` function by specifying the policy name and its source. This will check if the policy exists in the validation service.
+To validate a policy, you can use the `validate` function by specifying a policy name and the source of the policy. This will check if the specified policy exists in the validation service.
 
-Overall, this API Reference describes the functionality of the PolicyValidationService, including its constructor and properties like loggerService and _policyMap, as well as the methods for adding and validating policies.
+Overall, this API reference describes the functionality of the PolicyValidationService, including its constructor and properties like `loggerService` and `_policyMap`, as well as the methods for adding and validating policies.
 
 ## PolicyUtils
 
-The `PolicyUtils` class in TypeScript provides utility methods for banning and unbanning clients. The class has a constructor that initializes the utility methods. The `banClient` method takes a payload object containing the client ID, swarm name, and policy name as parameters. It returns a Promise that resolves when the client is successfully banned. The `unbanClient` method also takes a payload object with the same parameters and returns a Promise that resolves when the client is successfully unbanned. These methods can be used to manage client access in a swarm environment.
+The `PolicyUtils` class in TypeScript provides utility methods for banning and unbanning clients in a distributed system. The constructor initializes the class, while `banClient` and `unbanClient` are asynchronous methods that allow you to ban or unban a client respectively. The `hasBan` method is also asynchronous and checks if a client has been banned by returning a boolean value. The methods take in an object payload containing the client ID, swarm name, and policy name as parameters.
 
 ## PolicySchemaService
 
-The PolicySchemaService is a service that manages policy schemas. It has a constructor, loggerService property for logging purposes, registry property to store policy schemas, and validateShallow property for shallow validation of policy schemas. The service provides two methods: register and get.
-
-The `register` method is used to add a new policy schema by providing the key and value of the schema. The `get` method retrieves an existing policy schema by its name (key).
+The PolicySchemaService is a service used for managing policy schemas. It has a constructor, loggerService property for logging purposes, registry property to store registered policy schemas, and validateShallow property for shallow validation of policy schemas. The service provides two main functions: register and get. The `register` function is used to add a new policy schema by providing the key and value of the schema. The `get` function retrieves an existing policy schema by its name.
 
 ## PolicyPublicService
 
-The `PolicyPublicService` is a TypeScript class that implements the `TPolicyConnectionService` interface. It is responsible for handling public policy operations, such as banning and unbanning clients in a specific swarm. The class has properties `loggerService` and `policyConnectionService`, which are used for logging and connecting to policies, respectively.
+The `PolicyPublicService` is a TypeScript class that implements the `TPolicyConnectionService` interface. It is responsible for handling public policy operations, such as checking and managing bans for clients in a specific swarm. The class has properties for `loggerService` and `policyConnectionService`, which are used for logging and connecting to policy services, respectively.
 
-The `PolicyPublicService` provides several methods:
-1. `getBanMessage` retrieves the ban message for a client in a specific swarm.
-2. `validateInput` validates the input for a specific policy.
-3. `validateOutput` validates the output for a specific policy.
-4. `banClient` bans a client from a specific swarm.
-5. `unbanClient` unbans a client from a specific swarm.
+The class provides several methods for interacting with policies:
+- `hasBan` checks if a ban message exists for the specified client, swarm, method name, and policy.
+- `getBanMessage` retrieves the ban message for a client in a specific swarm.
+- `validateInput` validates the input for a specific policy.
+- `validateOutput` validates the output for a specific policy.
+- `banClient` bans a client from a specific swarm.
+- `unbanClient` unbans a client from a specific swarm.
 
-These methods use promises to handle asynchronous operations, ensuring that the code can handle multiple requests without blocking.
+These methods use promises to handle asynchronous operations and return `boolean` or `void` values as appropriate.
 
 ## PolicyConnectionService
 
-The `PolicyConnectionService` is a service that manages policy connections and provides methods to interact with policies, ban messages, and client banning/unbanning in a swarm. It implements the `IPolicy` interface and has properties for dependency injection of `loggerService`, `busService`, `methodContextService`, and `policySchemaService`.
+The `PolicyConnectionService` is a TypeScript class that implements the `IPolicy` interface and manages policy connections. It has a constructor that initializes the logger service, bus service, method context service, policy schema service. The class provides several methods for retrieving policies, checking bans and ban messages for clients in a swarm, validating input and output for clients in a swarm, banning and unbanning clients from a swarm.
 
-The service provides the following methods:
-1. `getPolicy` - Retrieves a policy based on the given policy name.
-2. `getBanMessage` - Retrieves the ban message for a client in a swarm asynchronously.
-3. `validateInput` - Validates the input for a client in a swarm asynchronously.
-4. `validateOutput` - Validates the output for a client in a swarm asynchronously.
-5. `banClient` - Bans a client from a swarm asynchronously.
-6. `unbanClient` - Unbans a client from a swarm asynchronously.
-
-These methods allow for the management of policies, validation of client input and output in a swarm, and the ability to ban or unban clients from a swarm.
+The `getPolicy` method retrieves a policy based on the provided policy name. The `hasBan` method checks if a client is banned in a specific swarm. The `getBanMessage` method retrieves the ban message for a client in a swarm. The `validateInput` method validates the input for a client in a swarm. The `validateOutput` method validates the output for a client in a swarm. The `banClient` method bans a client from a swarm, and the `unbanClient` method unbans a client from a swarm.
 
 ## PerfService
 
-The PerfService is a performance tracking and logging service that monitors the execution times, input lengths, and output lengths for different client sessions. It uses various services such as loggerService, sessionValidationService, memorySchemaService, swarmValidationService, agentValidationService, statePublicService, swarmPublicService, and stateConnectionService for different functionalities.
+The PerfService is a performance tracking and logging service that monitors the execution times, input lengths, and output lengths for different client sessions. It uses various services such as loggerService, sessionValidationService, memorySchemaService, swarmValidationService, agentValidationService, statePublicService, swarmPublicService, policyPublicService, stateConnectionService, and executionScheduleMap to store and retrieve data.
 
-The PerfService has properties like loggerService, sessionValidationService, memorySchemaService, swarmValidationService, agentValidationService, statePublicService, swarmPublicService, stateConnectionService, executionScheduleMap, executionOutputLenMap, executionInputLenMap, executionCountMap, executionTimeMap, totalResponseTime, and totalRequestCount. These properties store data related to client sessions and performance metrics.
+The service provides properties like loggerService, sessionValidationService, memorySchemaService, swarmValidationService, agentValidationService, statePublicService, swarmPublicService, policyPublicService, stateConnectionService, executionScheduleMap, executionOutputLenMap, executionInputLenMap, executionCountMap, executionTimeMap, totalResponseTime, and totalRequestCount to access the stored data.
 
-The PerfService provides methods to get the number of active session executions for a given client, the total execution time and average execution time for a given client's sessions, the average input length and output length for active sessions of a given client, the total input length and output length for active sessions of a given client, the list of active sessions, the average response time for all requests, and the total number of executions.
+The service also offers methods like getActiveSessionExecutionCount, getActiveSessionExecutionTotalTime, getActiveSessionExecutionAverageTime, getActiveSessionAverageInputLength, getActiveSessionAverageOutputLength, getActiveSessionTotalInputLength, and getActiveSessionTotalOutputLength to retrieve performance data for specific clients. It has methods like getActiveSessions, getAverageResponseTime, and getTotalExecutionCount to retrieve general performance data.
 
-The PerfService also allows starting and ending executions for a given client, disposing of all data related to a given client, and converting performance measures of clients or all clients for serialization.
+To start and end an execution for a client, the service provides methods startExecution and endExecution. The toClientRecord method converts the performance measures of a specific client for serialization, while the toRecord method converts performance measures of all clients for serialization. Finally, the dispose method is used to discard all data related to a given client.
 
 ## MemorySchemaService
 
-The MemorySchemaService is a service that allows for the management of memory schemas across different sessions. It utilizes a loggerService for logging purposes and a memoryMap to store data. The constructor is used for initializing the service, while writeValue is a method that writes values to the memory map for a specific client ID. The readValue method retrieves values from the memory map for a given client ID. Lastly, the dispose method is used to remove a memory map entry for a specific client ID.
+The `MemorySchemaService` is a service that allows you to manage memory schemas for different sessions. It provides methods to write, read and dispose of memory map entries for a given client ID. The `loggerService` and `memoryMap` properties are used internally for logging and managing the memory map respectively.
+
+To write a value to the memory map, you can use the `writeValue` method. This method takes a client ID and the value you want to store. It returns the written value, which is of type `T` where `T` extends to an object.
+
+To read a value from the memory map, you can use the `readValue` method. This method takes a client ID and returns the value stored for that specific client. The returned value is also of type `T` where `T` extends to an object.
+
+If you want to dispose of a memory map entry for a given client ID, you can use the `dispose` method. This method takes a client ID and removes the corresponding memory map entry.
+
+Overall, the `MemorySchemaService` provides a way to manage and manipulate memory schemas for different sessions in a structured manner.
 
 ## LoggerUtils
 
-The LoggerUtils is a TypeScript class that implements the ILoggerAdapter and ILoggerControl interfaces. It has a constructor, several properties and methods for logging different levels of information, and a dispose method. The LoggerFactory property is used to create logger instances, while LoggerCallbacks and getLogger are used for customizing the logger behavior. The useCommonAdapter, useClientCallbacks and useClientAdapter methods are used to configure the logger with different adapters and callbacks. The logClient, infoClient, debugClient, log, debug, info and dispose methods are used for logging different levels of information and disposing a logger instance.
+The LoggerUtils class is an implementation of the ILoggerAdapter and ILoggerControl interfaces. It has a constructor, several properties and methods for logging messages. The LoggerFactory, LoggerCallbacks and getLogger properties are used internally. The useCommonAdapter, useClientCallbacks and useClientAdapter methods are used to configure the logger. The logClient, infoClient and debugClient methods are used to log messages with different levels of severity, while the log, debug and info methods are aliases for the respective client-specific logging methods. The dispose method is used to clean up resources when the logger instance is no longer needed.
 
 ## LoggerService
 
-The LoggerService is a class that implements the ILogger interface and provides methods to log and debug messages. It has a constructor, several properties such as methodContextService and executionContextService, and methods like log, debug, info, and setLogger. The log method logs messages using the current logger, while debug and info log debug messages and information messages, respectively. The setLogger method allows you to set a new logger. This class is useful for logging and debugging purposes in a system.
+The LoggerService is a class that implements the ILogger interface, providing methods to log and debug messages. It has a constructor, several properties such as methodContextService and executionContextService, and methods like log, debug, info, and setLogger. The log method logs messages using the current logger, while debug and info log debug messages and information messages, respectively. The setLogger method allows you to set a new logger. This class is useful for logging and debugging purposes in a software application.
 
 ## LoggerInstance
 
-The `LoggerInstance` is a class that implements the `ILoggerInstance` interface. It has a constructor that takes in two parameters: `clientId` of type string and `callbacks` of type `Partial<ILoggerInstanceCallbacks>`.
+The LoggerInstance is a class that implements the ILoggerInstanceCallbacks interface. It has a constructor that takes in two parameters: clientId, a string representing the ID of the client, and callbacks, an object containing optional callback functions.
 
-The `clientId` property is of type string and represents the ID for a specific client. The `callbacks` property is an object that contains callback functions for various events.
+The clientId property is a string representing the ID of the client.
+The callbacks property is an object containing optional callback functions.
+The __@LOGGER_INSTANCE_WAIT_FOR_INIT@2250 property is a placeholder for internal use.
 
-The `__@LOGGER_INSTANCE_WAIT_FOR_INIT@2230` property is an internal variable used for waiting for initialization.
+The LoggerInstance has two methods: waitForInit and log. The waitForInit method returns a Promise that resolves when the LoggerInstance is initialized. The log method logs a message with the specified topic and any additional arguments.
 
-The `waitForInit` method returns a Promise that resolves when the instance is initialized.
+The LoggerInstance also has two additional methods: debug and info. The debug method logs a debug message with the specified topic and any additional arguments. The info method logs an information message with the specified topic and any additional arguments.
 
-The `log`, `debug`, and `info` methods are used to log different types of messages. They all take in a `topic` parameter of type string and additional arguments (`...args`) of any type. The `log` method logs a general message, the `debug` method logs a debug message, and the `info` method logs an informational message.
+Lastly, the LoggerInstance has a dispose method that cleans up any resources associated with the instance.
 
 ## HistoryUtils
 
-The `HistoryUtils` class provides functionality for managing and interacting with the history of messages in a system. It implements `IHistoryAdapter` and `IHistoryControl`, which allow for customization and control over the history. The class has a constructor, properties such as `HistoryFactory`, `HistoryCallbacks`, and functions like `getHistory`, `useHistoryAdapter`, and `useHistoryCallbacks`. 
+The `HistoryUtils` class provides functionality for working with history utilities and implements the `IHistoryAdapter` and `IHistoryControl` interfaces. It has a constructor, several properties and methods for managing history operations.
 
-The `push` function allows you to add a new message to the history, while `dispose` enables you to dispose of the history for a specific client and agent. The `iterate` function provides an asynchronous iterator to iterate over the history messages.
+The `HistoryFactory` and `HistoryCallbacks` properties store any necessary objects for history management. The `getHistory` method retrieves the history. The `useHistoryAdapter` method allows the use of a custom history adapter, while `useHistoryCallbacks` enables the use of history lifecycle callbacks.
+
+The `push` method is used to add a new message to the history, and it returns a Promise. The `dispose` method disposes of the history for a specific client and agent, also returning a Promise.
+
+The `iterate` method allows for iterating over the history messages, returning an `AsyncIterableIterator` object.
 
 ## HistoryPublicService
 
-The `HistoryPublicService` is a TypeScript class that implements the `THistoryConnectionService` interface. It is responsible for handling public operations related to the history. The class has a constructor, which initializes the `loggerService` and `historyConnectionService`.
+The `HistoryPublicService` is a TypeScript class that implements the `THistoryConnectionService` interface. It is responsible for handling public operations related to the history. The class has a constructor, properties such as `loggerService`, `historyConnectionService`, and methods like `push`, `toArrayForAgent`, `toArrayForRaw`, and `dispose`.
 
-The class provides several methods to interact with the history. The `push` method allows you to push a message to the history asynchronously. The `toArrayForAgent` method converts the history into an array specifically for a given agent. The `toArrayForRaw` method converts the history into a raw array. Lastly, the `dispose` method allows you to dispose of the history.
+The `push` method allows you to push a message to the history asynchronously. It takes in a `message` object of type `IModelMessage`, the `methodName` as a string, `clientId` as a string, and the `agentName` as a string.
 
-Overall, this class provides a set of functions to interact with the history, including pushing messages, converting to arrays for specific agents or raw data, and disposing of the history.
+The `toArrayForAgent` method converts the history to an array specifically for a given agent. It takes in the `prompt` as a string, the `methodName` as a string, the `clientId` as a string, and the `agentName` as a string. It returns an array of `IModelMessage` objects asynchronously.
+
+The `toArrayForRaw` method converts the history to a raw array. It takes in the `methodName` as a string, the `clientId` as a string, and the `agentName` as a string. It also returns an array of `IModelMessage` objects asynchronously.
+
+The `dispose` method allows you to dispose of the history asynchronously. It takes in the `methodName` as a string, the `clientId` as a string, and the `agentName` as a string.
+
+Overall, the `HistoryPublicService` class provides methods to interact with the history, such as pushing messages, converting history to arrays for specific agents or raw format, and disposing of the history.
 
 ## HistoryInstance
 
-The `HistoryInstance` class in TypeScript represents a History Instance and implements the `IHistoryInstance` interface. It has a constructor that takes in `clientId` and `callbacks`, which are used to initialize the instance. The class also has properties such as `clientId`, `callbacks`, and `_array` to store data.
+The `HistoryInstance` class in TypeScript represents a History Instance and implements the `IHistoryInstance` interface. It has a constructor that takes in `clientId` and `callbacks`, which are used to initialize the instance. The class also has several properties and methods to interact with the history data.
 
-The class provides several methods: `waitForInit`, which waits for the history to initialize; `iterate`, which allows you to iterate over the history messages for a given agent; `push`, which adds a new message to the history for a given agent; and `dispose`, which disposes of the history for a given agent.
+The `clientId` property stores the ID of the client associated with this history instance, while `callbacks` is an object that contains callback functions for various events related to the history instance. The `_array` property is an array that stores the history messages, and `__@HISTORY_INSTANCE_WAIT_FOR_INIT@525` is a variable used for waiting for the history to initialize.
 
-Overall, the `HistoryInstance` class provides functionality to manage and manipulate a history instance in TypeScript.
+The `waitForInit` method allows you to wait for the history instance to initialize, which is useful when you need to ensure that the history data is ready before proceeding with further operations. The `iterate` method allows you to iterate over the history messages for a specific agent, providing an asynchronous iterator that you can use to access the messages.
+
+The `push` method is used to add a new message to the history for a given agent, and it returns a promise that resolves once the message has been successfully added. Finally, the `dispose` method is used to dispose of the history for a given agent, which can be useful when you no longer need to access the history data for that agent.
 
 ## HistoryConnectionService
 
 The `HistoryConnectionService` is a TypeScript class that implements the `IHistory` interface. It is responsible for managing history connections and provides several methods to interact with the history. The class has a constructor that initializes the logger service, bus service, method context service, and session validation service.
 
-The `getHistory` method retrieves the history for a given client and agent. It also implements `IClearableMemoize` and `IControlMemoize`, which allow for clearing and controlling the memoized history.
+The `getHistory` method retrieves the history for a given client and agent. It also implements `IClearableMemoize` and `IControlMemoize`, which allow for clearing and controlling the memoized history based on specific parameters.
 
 The `push` method pushes a message to the history asynchronously.
 
@@ -472,105 +464,104 @@ The `dispose` method disposes of the history connection service, releasing any r
 
 ## EmbeddingValidationService
 
-The EmbeddingValidationService is a tool used within the agent-swarm to validate embeddings. It has a constructor, loggerService property for logging messages or errors, and a private _embeddingMap property to store the embeddings. The service allows you to add new embeddings using the `addEmbedding` function, which takes the embedding name and its schema as parameters. The `validate` function checks if a specific embedding exists in the validation service by providing its name and source. This helps ensure that the embeddings being used are valid and properly configured.
+The EmbeddingValidationService is a tool used within the agent-swarm to validate embeddings. It has a constructor, loggerService property for logging messages, and a private _embeddingMap property for storing the embeddings. The service allows you to add new embeddings using the `addEmbedding` function, which takes an embedding name and its schema as parameters. The `validate` function is used to check if an embedding exists in the validation service by providing its name and source.
 
 ## EmbeddingSchemaService
 
-The EmbeddingSchemaService is a service used for managing embedding schemas. It has a constructor, loggerService, registry, and validateShallow properties. The `register` function is used to register an embedding with a given key and value, while the `get` function retrieves an embedding by its key. This service provides a way to manage and access embedding schemas in your application.
+The EmbeddingSchemaService is a service used for managing embedding schemas. It has a constructor, loggerService property for logging purposes, registry property to store registered embeddings, and validateShallow property for shallow validation of embedding schemas. The service provides two methods: register and get. 
+
+The `register` method is used to register a new embedding with the given key and value. This allows you to store embeddings for later use.
+
+The `get` method is used to retrieve an embedding by its key. This allows you to access previously registered embeddings when needed.
 
 ## DocService
 
-The DocService is a service that generates documentation for swarms and agents. It has a constructor that initializes several properties, including loggerService for logging messages, perfService for performance tracking, swarmValidationService and agentValidationService for validating swarm and agent schemas, respectively, swarmSchemaService and agentSchemaService for managing schema definitions, policySchemaService and toolSchemaService for managing policy and tool definitions, storageSchemaService for managing storage schema, stateSchemaService for managing state schema, and agentMetaService and swarmMetaService for managing metadata related to agents and swarms.
+The DocService is a TypeScript class that provides functionality for generating documentation and performance data. It uses various services such as loggerService, perfService, swarmValidationService, agentValidationService, swarmSchemaService, agentSchemaService, policySchemaService, toolSchemaService, storageSchemaService, stateSchemaService, agentMetaService and swarmMetaService.
 
-The service provides two methods for writing documentation: writeSwarmDoc, which writes the documentation for a swarm schema, and writeAgentDoc, which writes the documentation for an agent schema. Additionally, there are two methods for dumping documentation: dumpDocs, which dumps the documentation for all swarms and agents, and dumpPerfomance, which dumps the performance data to a file. There is also another method, dumpClientPerfomance, which dumps the client performance data to a file, specifying the client ID as an argument.
+The constructor initializes these services and sets them as properties of the class. The writeSwarmDoc function is used to generate documentation for a swarm schema, while the writeAgentDoc function is used to generate documentation for an agent schema.
+
+The dumpDocs function is used to generate and save the documentation for all swarms and agents, while the dumpPerfomance function is used to generate and save the performance data. The dumpClientPerfomance function is used to generate and save the performance data for a specific client.
+
+Overall, the DocService class provides a way to generate and save documentation and performance data for swarms, agents, and clients.
 
 ## CompletionValidationService
 
-The CompletionValidationService is a TypeScript service designed to validate completion names. It has a constructor that initializes the service and two properties, loggerService and _completionSet. The loggerService property is used for logging messages, while the _completionSet property stores a set of completion names.
+The CompletionValidationService is a TypeScript service that allows you to validate the existence of completion names in a set. It has a constructor, which is used to initialize the service. The service also has two properties: `loggerService` and `_completionSet`. 
 
-To add a new completion name to the set, you can use the addCompletion method. This method takes a string parameter representing the completion name and adds it to the set.
+The `loggerService` property is used for logging messages, while the `_completionSet` property is used to store the set of completion names.
 
-To validate if a completion name exists in the set, you can use the validate method. This method takes two parameters: a string representing the completion name to be validated and a string representing the source of the completion name. The method will check if the given completion name exists in the set and perform any necessary validation.
+To add a new completion name to the set, you can use the `addCompletion` method. This method takes a string parameter `completionName` and adds it to the set.
 
-Overall, the CompletionValidationService provides functionality to manage and validate completion names in a TypeScript application.
+To validate if a completion name exists in the set, you can use the `validate` method. This method takes two parameters: `completionName` (a string representing the name to be validated) and `source` (a string representing the source of the completion name). The method will return a boolean value indicating whether the completion name exists in the set or not.
 
 ## CompletionSchemaService
 
-The `CompletionSchemaService` is a service that manages completion schemas. It has a constructor, properties like `loggerService`, `registry`, and `validateShallow`, as well as two methods: `register` and `get`. 
-
-The `register` method is used to register a new completion schema by providing a key and the corresponding `ICompletionSchema` object. 
-
-The `get` method allows you to retrieve a completion schema by providing its key. 
-
-This service helps in managing and accessing completion schemas efficiently.
+The `CompletionSchemaService` is a service used for managing completion schemas. It has a constructor, properties like `loggerService`, `registry`, and `validateShallow` for logging, registry management and validation of completion schemas respectively. The `register` function is used to register a new completion schema by providing the key and value, while `get` function retrieves a completion schema by its key. This service allows for efficient management and retrieval of completion schemas.
 
 ## ClientSwarm
 
-The ClientSwarm class is an implementation of the ISwarm interface and manages agents within a swarm. It has properties such as `params`, `_agentChangedSubject`, `_activeAgent`, and `_navigationStack` to handle various functionalities. The class provides methods like `navigationPop`, `cancelOutput`, `getAgentName`, `getAgent`, `setAgentRef`, and `setAgentName` to interact with the swarm and its agents. The `waitForOutput` property allows waiting for output from the active agent.
+The ClientSwarm class is an implementation of the ISwarm interface and manages agents within a swarm. It has several properties and methods to interact with the swarm. The constructor takes in a parameter of type ISwarmParams. The class has properties such as `params`, `_agentChangedSubject`, `_activeAgent`, `_navigationStack`, and `_cancelOutputSubject`. 
+
+The class also has methods like `waitForOutput`, which waits for output from the active agent, `navigationPop`, which pops the navigation stack or returns the default agent, `cancelOutput`, which cancels the await of output by emitting an empty string, `getAgentName`, which gets the name of the active agent, `getAgent`, which gets the active agent, `setAgentRef`, which sets the reference of an agent in the swarm, and `setAgentName`, which sets the active agent by name.
 
 ## ClientStorage
 
-The ClientStorage class is an implementation of the IStorage interface and provides methods to manage storage operations. It has a constructor that takes in parameters of type IStorageParams<T> and properties such as _itemMap, which is a Map that stores items based on their unique identifier, and _createEmbedding, which creates an embedding for a given item.
-
-The class also has methods like take, which takes a specified number of items based on search criteria, upsert to upsert an item into the storage, remove to delete an item from the storage, clear to remove all items from the storage, get to retrieve an item by its ID, list to list all items in the storage (optionally filtered), and dispose to dispose of the state.
-
-Additionally, there is a waitForInit property that waits for the initialization of the storage.
+The ClientStorage class is an implementation of the IStorage interface and provides methods for managing storage operations. It has a constructor that takes in parameters of type IStorageParams<T> and properties such as _itemMap, _createEmbedding for managing items and creating embeddings respectively. The class also has methods like take, upsert, remove, clear, get and list for performing various storage operations. The dispose method is used to release the state. The waitForInit property is used to wait for the initialization of the storage.
 
 ## ClientState
 
-The `ClientState` class in this Typescript API Reference represents the client state and implements `IState<State>`. It has a constructor that takes in `IStateParams<State>` as a parameter. The class has several properties and methods to manage the state.
+The `ClientState` class represents the client state and implements `IState<State>`. It has a constructor that takes in `IStateParams<State>` as a parameter. The class has properties such as `params`, `_state`, and `dispatch`. The `params` property holds the state parameters, while `_state` stores the current state. The `dispatch` property is a function that dispatches an action and returns the updated state as a promise.
 
-The `params` property holds the parameters used to initialize the state, while `_state` stores the current state. The `dispatch` method allows you to dispatch actions and return the updated state as a promise. The `waitForInit` property is used to wait for the state initialization process.
-
-The `setState` method sets the state using a provided dispatch function asynchronously, while `clearState` sets the state to its initial value. The `getState` method retrieves the current state as a promise. Finally, `dispose` is used to dispose of the state, releasing any resources associated with it.
+The `ClientState` class also has a method called `waitForInit`, which waits for the state to initialize. It takes a function as an argument and returns a promise. The class provides other methods like `setState`, which sets the state using a provided dispatch function, `clearState`, which sets the state to its initial value, `getState`, which retrieves the current state as a promise, and `dispose`, which disposes of the state.
 
 ## ClientSession
 
 The ClientSession class is an implementation of the ISession interface. It has a constructor that takes in parameters of type ISessionParams. The class has several methods and properties that allow for communication with the session.
 
-The `emit` method allows for emitting a message. The `execute` method executes a message and optionally emits the output. The `run` method runs a completion stateless.
+The `emit` method allows for the emission of a message. The `execute` method executes a message and optionally emits the output. The `run` method runs a completion stateless.
 
 Other methods include `commitToolOutput`, which commits tool output; `commitUserMessage`, which commits a user message without an answer; `commitFlush`, which commits a flush of the agent history; `commitStopTools`, which commits the stop of the next tool execution; `commitSystemMessage`, which commits a system message; and `commitAssistantMessage`, which commits an assistant message.
 
-The `connect` method connects the session to a connector function, and `dispose` should be called on session dispose.
+The `connect` method connects the session to a connector function, and `dispose` should be called when the session is disposed.
 
 ## ClientPolicy
 
-The `ClientPolicy` class in TypeScript is an implementation of the `IPolicy` interface. It represents a client policy and provides methods to manage bans, validate input/output from clients, and get the ban message for a client. The class has properties such as `params` which holds the policy parameters and `_banSet` which is a set of banned clients.
+The `ClientPolicy` class in this Typescript API Reference represents a client policy that implements the `IPolicy` interface. It allows you to check if a client is banned, get the ban message for a client, validate input and output from/to clients, ban or unban a client. The class takes in parameters through the `IPolicyParams` interface and uses a set called `_banSet` to store banned client IDs.
 
-The constructor takes in `IPolicyParams` as a parameter to initialize the policy. The `getBanMessage` method returns the ban message for a specific client based on their ID and the swarm name. The `validateInput` method validates the input from a client, while `validateOutput` validates the output to a client. Both methods return `true` if the input/output is valid and `false` otherwise.
+To use the `ClientPolicy` class, you need to create an instance by passing the required parameters in the constructor. The class provides several methods to interact with the client policy:
 
-The `banClient` method bans a client by their ID and swarm name, while the `unbanClient` method removes a client's ban. Both methods return `void` as they do not have a return value.
+1. `hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean>` - This method checks if a client is banned by checking the `_banSet` for a match between the provided `clientId` and `swarmName`.
+2. `getBanMessage(clientId: SessionId, swarmName: SwarmName): Promise<string>` - This method retrieves the ban message for a client by checking the `_banSet` for a match between the provided `clientId` and `swarmName`.
+3. `validateInput(incoming: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>` - This method validates the input from a client by performing some validation logic on the `incoming` string, `clientId`, and `swarmName`.
+4. `validateOutput(outgoing: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>` - This method validates the output to a client by performing some validation logic on the `outgoing` string, `clientId`, and `swarmName`.
+5. `banClient(clientId: SessionId, swarmName: SwarmName): Promise<void>` - This method bans a client by adding the provided `clientId` and `swarmName` to the `_banSet`.
+6. `unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void>` - This method unbans a client by removing the provided `clientId` and `swarmName` from the `_banSet`.
 
-Overall, the `ClientPolicy` class provides functionality to manage client bans, validate input/output from clients, and retrieve ban messages for specific clients in a TypeScript application.
+These methods help in managing client policies by checking for bans, retrieving ban messages, validating input and output from/to clients, and banning or unbanning clients as needed.
 
 ## ClientHistory
 
 The `ClientHistory` class in TypeScript represents the history of messages exchanged between a client and an AI model. It implements the `IHistory` interface and provides various methods to interact with the history.
 
-The class has a constructor that takes in `IHistoryParams` as a parameter. It also has two properties: `params` and `_filterCondition`. The `params` property holds the parameters for initializing the history, while `_filterCondition` is a filter condition used in the `toArrayForAgent` method.
+The class has a constructor that takes in `IHistoryParams` as a parameter. It also has two properties: `params` and `_filterCondition`. The `params` property stores the parameters for the history, while `_filterCondition` is a filter condition used in the `toArrayForAgent` method.
 
-The class provides four methods: `push`, `toArrayForRaw`, `toArrayForAgent`, and `dispose`. The `push` method adds a message to the history asynchronously. The `toArrayForRaw` method converts the history into an array of raw messages asynchronously. The `toArrayForAgent` method converts the history into an array of messages suitable for the agent, taking a prompt and optional system messages as parameters. Finally, the `dispose` method should be called when an agent is disposed to clean up any resources associated with the history.
+The class provides four methods: `push`, `toArrayForRaw`, `toArrayForAgent`, and `dispose`. The `push` method adds a message to the history asynchronously. The `toArrayForRaw` method converts the history into an array of raw messages asynchronously. The `toArrayForAgent` method converts the history into an array of messages suitable for the agent, taking into account a prompt and optional system messages. Finally, the `dispose` method should be called when an agent is disposed to clean up any resources associated with the history.
 
 ## ClientAgent
 
-The `ClientAgent` class in TypeScript represents a client agent that interacts with the system. It implements the `IAgent` interface and has properties such as `params`, `_agentChangeSubject`, `_toolErrorSubject`, `_toolStopSubject`, `_toolCommitSubject`, and `_outputSubject`. The class also has methods like `execute`, `run`, `_emitOuput`, `_resurrectModel`, `waitForOutput`, `getCompletion`, `commitUserMessage`, `commitFlush`, `commitAgentChange`, `commitStopTools`, `commitSystemMessage`, `commitAssistantMessage`, `commitToolOutput`, and `dispose`. The class provides functionality for executing messages, emitting output results after validation, resurrecting the model based on a given reason, waiting for output to be available, getting the completion message from the model, committing a user message to the history without answer, committing a flush of agent history, committing a change of agent to prevent the next tool execution from being called, committing a change of agent to prevent the next tool execution from being called, committing a system message to the history, committing an assistant message to the history without execute, committing the tool output to the history, and disposing of the agent.
+The `ClientAgent` class in TypeScript implements the `IAgent` interface and represents a client agent that interacts with the system. It has a constructor that takes in `IAgentParams` as a parameter. The class has several properties and methods to handle agent interactions, executions, outputs, and subject subscriptions.
+
+The `execute` method executes the incoming message and processes tool calls if any. The `run` method runs the completion stateless and returns the output. The `_emitOutput` method emits the output result after validation. The `_resurrectModel` method resurrects the model based on a given reason. The `waitForOutput` method waits for the output to be available. The `getCompletion` method gets the completion message from the model. The `commitUserMessage`, `commitFlush`, `commitAgentChange`, `commitStopTools`, `commitSystemMessage`, `commitAssistantMessage`, and `commitToolOutput` methods commit different types of messages to the history. The `dispose` method should be called on agent disposal.
 
 ## BusService
 
-The BusService is an implementation of the IBus interface that provides functionality for event handling and communication between different clients. It uses the loggerService and sessionValidationService for logging and validation purposes. The class has several properties such as _eventSourceSet, _eventWildcardMap and getEventSubject for managing events.
+The BusService is an implementation of the IBus interface that provides functionality for event handling and communication between different clients. It utilizes the loggerService, sessionValidationService, and maintains internal properties like _eventSourceSet, _eventWildcardMap and getEventSubject.
 
-The constructor is used to initialize the BusService.
+The constructor initializes the BusService object. The loggerService and sessionValidationService are used for logging and validation purposes. The _eventSourceSet, _eventWildcardMap and getEventSubject properties are used for event handling.
 
-The subscribe method allows clients to subscribe to specific events by providing a clientId, source and callback function. This enables clients to receive events that match the specified source.
+The subscribe method allows clients to subscribe to specific events by providing a clientId, source and callback function. The once method is similar to subscribe, but only triggers the callback function once. The emit method is used to send events to a specific client.
 
-The once method is similar to subscribe, but it allows clients to receive only one event that matches the specified filter.
-
-The emit method is used to send events to a specific client.
-
-The commitExecutionBegin and commitExecutionEnd methods are aliases for emitting the corresponding events.
-
-The dispose method is used to clean up event subscriptions for a specific client.
+The commitExecutionBegin and commitExecutionEnd methods are aliases for emitting the execution begin and end events, respectively. The dispose method is used to clean up event subscriptions for a specific client.
 
 ## AgentValidationService
 
@@ -584,50 +575,20 @@ Finally, the `validate` method is used to validate an agent by its name and sour
 
 ## AgentSchemaService
 
-The `AgentSchemaService` is a service used for managing agent schemas. It has a constructor, properties such as `loggerService`, `registry`, and `validateShallow` for logging, registry management, and validation of agent schemas respectively. The service also has two methods: `register` and `get`. 
-
-The `register` method is used to register a new agent schema by providing the key and value of the schema. 
-
-The `get` method is used to retrieve an agent schema by its name, providing the key as a parameter.
+The `AgentSchemaService` is a service that manages agent schemas. It has a constructor, properties such as `loggerService`, `registry`, and `validateShallow` for logging, registry management and validation of agent schemas respectively. The `register` function is used to register a new agent schema by providing the key and value of the schema. The `get` function retrieves an agent schema by its name. This service allows for efficient management and retrieval of agent schemas.
 
 ## AgentPublicService
 
-The `AgentPublicService` is a TypeScript class that provides methods for managing public agent operations. It implements the `TAgentConnectionService` interface. The class has a constructor, several properties and methods.
-
-The `loggerService` property is an instance of a logger service, which can be used to log messages. The `agentConnectionService` property is an instance of the `TAgentConnectionService` class, which provides methods for connecting to agents.
-
-The `createAgentRef` method creates a reference to an agent by specifying the method name, client ID and agent name. It returns a `ClientAgent` object that represents the agent.
-
-The `execute` method executes a command on the agent by specifying the input, execution mode, method name, client ID and agent name. It returns a promise that resolves when the command is executed.
-
-The `run` method runs the completion stateless by specifying the input, method name, client ID and agent name. It returns a promise that resolves with the output of the command.
-
-The `waitForOutput` method waits for the agent's output by specifying the method name, client ID and agent name. It returns a promise that resolves with the output of the agent.
-
-The `commitToolOutput` method commits tool output to the agent by specifying the tool ID, content, method name, client ID and agent name. It returns a promise that resolves when the output is committed.
-
-The `commitSystemMessage` method commits a system message to the agent by specifying the message, method name, client ID and agent name. It returns a promise that resolves when the message is committed.
-
-The `commitAssistantMessage` method commits an assistant message to the agent history by specifying the message, method name, client ID and agent name. It returns a promise that resolves when the message is committed.
-
-The `commitUserMessage` method commits user message to the agent without answer by specifying the message, method name, client ID and agent name. It returns a promise that resolves when the message is committed.
-
-The `commitFlush` method commits flush of agent history by specifying the method name, client ID and agent name. It returns a promise that resolves when the flush is committed.
-
-The `commitAgentChange` method commits change of agent to prevent the next tool execution from being called by specifying the method name, client ID and agent name. It returns a promise that resolves when the change is committed.
-
-The `commitStopTools` method prevents the next tool from being executed by specifying the method name, client ID and agent name. It returns a promise that resolves when the prevention is committed.
-
-The `dispose` method disposes of the agent by specifying the method name, client ID and agent name. It returns a promise that resolves when the agent is disposed.
+The `AgentPublicService` is a Typescript class that implements the `TAgentConnectionService` interface. It is responsible for managing public agent operations, such as creating an agent reference, executing commands on the agent, waiting for output from the agent, and committing messages to the agent's history. The class has several methods for performing these operations, such as `createAgentRef`, `execute`, `waitForOutput`, and others. The class also has properties for the `loggerService` and `agentConnectionService`, which are used for logging and connecting to agents, respectively.
 
 ## AgentMetaService
 
-The `AgentMetaService` is a class that provides methods for managing agent meta nodes and converting them to UML format. It has a constructor, properties such as `loggerService`, `agentSchemaService` and `serialize`, as well as methods like `makeAgentNode` and `toUML`. 
+The `AgentMetaService` is a class that provides methods for managing agent meta nodes and converting them to UML format. It has a constructor, properties such as `loggerService`, `agentSchemaService` and `serialize`, as well as methods like `makeAgentNode` and `toUML`.
 
-The `makeAgentNode` method creates a meta node for the given agent, while `makeAgentNodeCommon` does the same but with additional functionality. The `toUML` method converts the meta nodes of a specific agent to UML format. The `withSubtree` parameter determines whether to include the subtree of the agent in the UML conversion.
+The `makeAgentNode` method creates a meta node for the given agent, while `makeAgentNodeCommon` does the same but with an optional `seen` parameter. The `toUML` method converts the meta nodes of a specific agent to UML format, with an optional `withSubtree` parameter.
 
 ## AgentConnectionService
 
-The `AgentConnectionService` is a TypeScript class that manages agent connections and provides methods for executing commands, waiting for output, and committing messages. It implements the `IAgent` interface and has several properties for services such as `loggerService`, `busService`, and others.
+The `AgentConnectionService` is a Typescript class that manages agent connections and provides methods for executing commands, waiting for output, and committing messages. It implements the `IAgent` interface and has several properties for services such as `loggerService`, `busService`, and others.
 
-The class provides a `getAgent` method to retrieve an agent instance, and methods like `execute`, `run`, `waitForOutput`, and more for executing commands, waiting for output from the agent, and committing different types of messages. The `dispose` method is used to dispose of the agent connection.
+The class provides a `getAgent` method for retrieving an agent instance, and several other methods for executing commands (`execute`, `run`), waiting for output (`waitForOutput`), committing messages (`commitToolOutput`, `commitSystemMessage`, `commitAssistantMessage`, `commitUserMessage`), committing agent change (`commitAgentChange`), preventing the next tool execution (`commitStopTools`), committing a flush of agent history (`commitFlush`), and disposing of the agent connection (`dispose`).
