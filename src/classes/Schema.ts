@@ -57,9 +57,9 @@ export class SchemaUtils {
   public serialize = <T extends object = any>(
     data: T[] | T,
     map: {
-      mapKey: typeof GLOBAL_CONFIG.CC_NAME_TO_TITLE;
-      mapValue: (key: string, value: string) => string;
-    }
+      mapKey?: typeof GLOBAL_CONFIG.CC_NAME_TO_TITLE;
+      mapValue?: (key: string, value: string) => string;
+    } = {}
   ): string => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_SERIALIZE, {
