@@ -15,6 +15,7 @@ import { ExecutionMode } from "../../../interfaces/Session.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import StorageConnectionService from "./StorageConnectionService";
 import BusService from "../base/BusService";
+import StateConnectionService from "./StateConnectionService";
 
 /**
  * Service for managing agent connections.
@@ -34,6 +35,9 @@ export class AgentConnectionService implements IAgent {
   );
   private readonly storageConnectionService = inject<StorageConnectionService>(
     TYPES.storageConnectionService
+  );
+  private readonly stateConnectionService = inject<StateConnectionService>(
+    TYPES.stateConnectionService
   );
   private readonly agentSchemaService = inject<AgentSchemaService>(
     TYPES.agentSchemaService
@@ -73,9 +77,9 @@ export class AgentConnectionService implements IAgent {
           .getStorage(clientId, storageName)
           .waitForInit()
       );
-      states?.forEach((storageName) =>
-        this.storageConnectionService
-          .getStorage(clientId, storageName)
+      states?.forEach((stateName) =>
+        this.stateConnectionService
+          .getStateRef(clientId, stateName)
           .waitForInit()
       );
       return new ClientAgent({
