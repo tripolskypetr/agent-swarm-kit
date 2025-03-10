@@ -43,6 +43,7 @@
     "build:docs": "rimraf docs && mkdir docs && node ./scripts/dts-docs.cjs ./types.d.ts ./docs",
     "docs:gpt": "npm run build && node ./scripts/gpt-docs.mjs",
     "docs:uml": "npm run build && node ./scripts/uml.mjs",
+    "docs:www": "typedoc",
     "repl": "dotenv -e .env -- npm run build && node -e \"import('./scripts/repl.mjs')\" --interactive"
   },
   "main": "build/index.cjs",
@@ -67,7 +68,8 @@
     "rollup-plugin-dts": "6.1.1",
     "rollup-plugin-peer-deps-external": "2.2.4",
     "tslib": "2.7.0",
-    "worker-testbed": "1.0.10"
+    "worker-testbed": "1.0.10",
+    "typedoc": "0.27.9"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
