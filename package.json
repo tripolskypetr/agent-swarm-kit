@@ -1,6 +1,6 @@
 {
   "name": "agent-swarm-kit",
-  "version": "1.0.125",
+  "version": "1.0.126",
   "description": "A TypeScript library for building orchestrated framework-agnostic multi-agent AI systems",
   "author": {
     "name": "Petr Tripolsky",
@@ -12,7 +12,7 @@
     "url": "http://paypal.me/tripolskypetr"
   },
   "license": "MIT",
-  "homepage": "https://react-declarative-playground.github.io",
+  "homepage": "https://agent-swarm.github.io",
   "keywords": [
     "NVIDIA NIM",
     "OpenAI",
