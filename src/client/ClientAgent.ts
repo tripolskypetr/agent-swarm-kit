@@ -9,7 +9,11 @@ import {
 } from "functools-kit";
 import { omit } from "lodash-es";
 import { IModelMessage } from "../model/ModelMessage.model";
-import { IAgent, IAgentParams } from "../interfaces/Agent.interface";
+import {
+  IAgent,
+  IAgentParams,
+  IAgentTool,
+} from "../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import { ExecutionMode } from "../interfaces/Session.interface";
 import { IToolCall } from "../model/Tool.model";
@@ -23,12 +27,64 @@ const TOOL_ERROR_SYMBOL = Symbol("tool-error");
 const TOOL_STOP_SYMBOL = Symbol("tool-stop");
 const TOOL_NO_OUTPUT_WARNING = 15_000;
 
-const getPlaceholder = () =>
+const createPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[
     Math.floor(
       Math.random() * GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS.length
     )
   ];
+
+const createToolCall = async (
+  idx: number,
+  tool: IToolCall,
+  toolCalls: IToolCall[],
+  targetFn: IAgentTool,
+  self: ClientAgent,
+  isResqued: () => boolean
+) => {
+  if (isResqued()) {
+    return;
+  }
+  try {
+    await targetFn.call({
+      toolId: tool.id,
+      clientId: self.params.clientId,
+      agentName: self.params.agentName,
+      params: tool.function.arguments,
+      isLast: idx === toolCalls.length - 1,
+      toolCalls,
+    });
+    targetFn.callbacks?.onAfterCall &&
+      targetFn.callbacks?.onAfterCall(
+        tool.id,
+        self.params.clientId,
+        self.params.agentName,
+        tool.function.arguments
+      );
+  } catch (error) {
+    console.error(
+      `agent-swarm tool call error functionName=${
+        tool.function.name
+      } error=${getErrorMessage(error)}`,
+      {
+        clientId: self.params.clientId,
+        agentName: self.params.agentName,
+        tool_call_id: tool.id,
+        arguments: tool.function.arguments,
+        error: errorData(error),
+      }
+    );
+    targetFn.callbacks?.onCallError &&
+      targetFn.callbacks?.onCallError(
+        tool.id,
+        self.params.clientId,
+        self.params.agentName,
+        tool.function.arguments,
+        error
+      );
+    self._toolErrorSubject.next(TOOL_ERROR_SYMBOL);
+  }
+};
 
 const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -153,11 +209,56 @@ const EXECUTE_FN = async (
       ...message,
       agentName: self.params.agentName,
     });
+    /**
+     * The next `EXECUTE_FN` is going to be started by `execute` call in the tool body after `commitToolOutput`.
+     * So the `EXECUTE_FN` should not be dead locked by the direct await of the tool return value
+     *
+     * But the next tool call triggered in a single assistant message
+     * should be chained to avoid the lose of chat history order.
+     * We join them by using last call ref
+     *
+     * The tool call is try-catched so it is safe to chain Promise.resolve values
+     */
+    let lastToolCallRef = Promise.resolve();
+    /**
+     * When the inner `execute` in the call trigger `_resurrectModel` method
+     * should prevent the next tool from running in the chain
+     */
+    let isResqued = false;
+    {
+      const unResque = self._modelResqueSubject.once(() => {
+        isResqued = false;
+      });
+      /**
+       * Effective way of garbage collection cause the agent
+       * will defenitely say something or will be recreated on change
+       *
+       * On navigation:
+       *
+       * 1. Agent.dispose
+       * 2. Agent.createAgentRef
+       * 3. Swarm.setAgentRef
+       *
+       * That means the _outputSubject being marked for GC so this
+       * does not matter are we listening it or not
+       *
+       * @see /src/function/navigate/changeToAgent
+       */
+      self._outputSubject.once(unResque);
+    }
     for (let idx = 0; idx !== toolCalls.length; idx++) {
       const tool = toolCalls[idx];
       const targetFn = self.params.tools?.find(
         (t) => t.function.name === tool.function.name
       );
+      if (isResqued) {
+        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+          self.params.logger.debug(
+            `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} tool execution canceled due to the model was resqued in the chain`,
+            self.params.tools
+          );
+        return;
+      }
       if (!targetFn) {
         GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
           self.params.logger.debug(
@@ -218,48 +319,9 @@ const EXECUTE_FN = async (
       /**
        * @description Do not await to avoid deadlock! The tool can send the message to other agents by emulating user messages
        */
-      Promise.resolve(
-        targetFn.call({
-          toolId: tool.id,
-          clientId: self.params.clientId,
-          agentName: self.params.agentName,
-          params: tool.function.arguments,
-          isLast: idx === toolCalls.length - 1,
-          toolCalls,
-        })
-      )
-        .then(() => {
-          targetFn.callbacks?.onAfterCall &&
-            targetFn.callbacks?.onAfterCall(
-              tool.id,
-              self.params.clientId,
-              self.params.agentName,
-              tool.function.arguments
-            );
-        })
-        .catch((error) => {
-          console.error(
-            `agent-swarm tool call error functionName=${
-              tool.function.name
-            } error=${getErrorMessage(error)}`,
-            {
-              clientId: self.params.clientId,
-              agentName: self.params.agentName,
-              tool_call_id: tool.id,
-              arguments: tool.function.arguments,
-              error: errorData(error),
-            }
-          );
-          targetFn.callbacks?.onCallError &&
-            targetFn.callbacks?.onCallError(
-              tool.id,
-              self.params.clientId,
-              self.params.agentName,
-              tool.function.arguments,
-              error
-            );
-          self._toolErrorSubject.next(TOOL_ERROR_SYMBOL);
-        });
+      lastToolCallRef = lastToolCallRef.then(() =>
+        createToolCall(idx, tool, toolCalls, targetFn, self, () => isResqued)
+      );
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         self.params.logger.debug(
           `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} tool call executing`
@@ -272,6 +334,11 @@ const EXECUTE_FN = async (
           );
         }
       });
+      /**
+       * The chain is being unblocked by `commitToolOutput` or exceptional case.
+       * That means all the next executions are going to be started after all
+       * tools commit their output or raise an exception
+       */
       const status = await Promise.race([
         self._agentChangeSubject.toPromise(),
         self._toolCommitSubject.toPromise(),
@@ -572,7 +639,7 @@ export class ClientAgent implements IAgent {
       console.warn(
         `agent-swarm model ressurect did not solved the problem for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY}`
       );
-      const content = getPlaceholder();
+      const content = createPlaceholder();
       await this.params.history.push({
         agentName: this.params.agentName,
         role: "assistant",
