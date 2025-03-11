@@ -147,6 +147,9 @@ const EXECUTE_FN = async (
       agentName: self.params.agentName,
     });
     for (let idx = 0; idx !== toolCalls.length; idx++) {
+      if (idx >= GLOBAL_CONFIG.CC_MAX_TOOLS) {
+        break;
+      }
       const tool = toolCalls[idx];
       const targetFn = self.params.tools?.find(
         (t) => t.function.name === tool.function.name
@@ -537,6 +540,9 @@ export class ClientAgent implements IAgent {
         this.params.logger.debug(
           `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel validation error: ${validation}`
         );
+      console.warn(
+        `agent-swarm model ressurect did not solved the problem for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY}`
+      );
       const content = getPlaceholder();
       await this.params.history.push({
         agentName: this.params.agentName,

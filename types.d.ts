@@ -5339,6 +5339,7 @@ declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
     CC_KEEP_MESSAGES: number;
+    CC_MAX_TOOLS: number;
     CC_GET_AGENT_HISTORY_ADAPTER: (clientId: string, agentName: AgentName) => IHistoryAdapter;
     CC_GET_CLIENT_LOGGER_ADAPTER: () => ILoggerAdapter;
     CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
