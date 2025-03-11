@@ -33,7 +33,7 @@ Validation for state schema
 ### register
 
 ```ts
-register: (key: string, value: IAgentTool<Record<string, unknown>>) => void
+register: (key: string, value: IAgentTool<Record<string, ToolValue>>) => void
 ```
 
 Registers a tool with the given key and value.
@@ -41,7 +41,7 @@ Registers a tool with the given key and value.
 ### get
 
 ```ts
-get: (key: string) => IAgentTool<Record<string, unknown>>
+get: (key: string) => IAgentTool<Record<string, ToolValue>>
 ```
 
 Retrieves a tool by its key.

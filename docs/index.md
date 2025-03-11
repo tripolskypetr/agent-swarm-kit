@@ -60,6 +60,7 @@
 - [StorageUtils](classes/StorageUtils.md)
 - [SharedStorageUtils](classes/SharedStorageUtils.md)
 - [SchemaUtils](classes/SchemaUtils.md)
+- [AdapterUtils](classes/AdapterUtils.md)
 
 ## Enums
 
@@ -164,6 +165,7 @@
 - [ExecutionMode](types/ExecutionMode.md)
 - [THistoryInstanceCtor](types/THistoryInstanceCtor.md)
 - [CompletionName](types/CompletionName.md)
+- [ToolValue](types/ToolValue.md)
 - [AgentName](types/AgentName.md)
 - [ToolName](types/ToolName.md)
 - [InternalKeys$8](types/InternalKeys$8.md)

@@ -44,6 +44,14 @@ onPush: (data: IModelMessage, clientId: string, agentName: string) => void
 
 Callback for when the history get the new message
 
+### onPop
+
+```ts
+onPop: (data: IModelMessage, clientId: string, agentName: string) => void
+```
+
+Callback for when the history pop the last message
+
 ### onRead
 
 ```ts

@@ -99,6 +99,7 @@ export const complete = beginContext(
       {
         clientId,
         executionId,
+        processId: GLOBAL_CONFIG.CC_PROCESS_UUID,
       }
     );
   }

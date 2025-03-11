@@ -23,7 +23,7 @@ The name of the tool.
 ### callbacks
 
 ```ts
-callbacks: Partial<IAgentToolCallbacks<Record<string, unknown>>>
+callbacks: Partial<IAgentToolCallbacks<Record<string, ToolValue>>>
 ```
 
 The name of the tool.

@@ -36,6 +36,14 @@ push(message: IModelMessage): Promise<void>;
 
 Pushes a message to the history.
 
+### pop
+
+```ts
+pop(): Promise<IModelMessage | null>;
+```
+
+Pushes a message to the history.
+
 ### toArrayForRaw
 
 ```ts

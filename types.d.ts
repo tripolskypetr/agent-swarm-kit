@@ -9,6 +9,7 @@ import { ICompletionArgs as ICompletionArgs$1 } from 'src/interfaces/Completion.
 interface IExecutionContext {
     clientId: string;
     executionId: string;
+    processId: string;
 }
 /**
  * Service providing execution context information.

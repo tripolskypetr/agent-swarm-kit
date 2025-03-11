@@ -6,6 +6,7 @@ import { scoped } from "di-scoped";
 export interface IExecutionContext {
   clientId: string;
   executionId: string;
+  processId: string;
 }
 
 /**

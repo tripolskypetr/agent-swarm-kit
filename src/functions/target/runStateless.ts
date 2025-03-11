@@ -80,6 +80,7 @@ export const runStateless = beginContext(
       {
         clientId,
         executionId,
+        processId: GLOBAL_CONFIG.CC_PROCESS_UUID,
       }
     );
   }

@@ -25,7 +25,7 @@ _toolMap: any
 ### addTool
 
 ```ts
-addTool: (toolName: string, toolSchema: IAgentTool<Record<string, unknown>>) => void
+addTool: (toolName: string, toolSchema: IAgentTool<Record<string, ToolValue>>) => void
 ```
 
 Adds a new tool to the validation service.

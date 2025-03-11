@@ -52,6 +52,14 @@ push: (message: IModelMessage) => Promise<void>
 
 Pushes a message to the history.
 
+### pop
+
+```ts
+pop: () => Promise<IModelMessage>
+```
+
+Pop a message from the history.
+
 ### toArrayForAgent
 
 ```ts

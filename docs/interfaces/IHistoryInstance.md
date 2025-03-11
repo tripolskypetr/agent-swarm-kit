@@ -28,6 +28,14 @@ push: (value: IModelMessage, agentName: string) => Promise<void>
 
 Push a new message to the history for a given agent.
 
+### pop
+
+```ts
+pop: (agentName: string) => Promise<IModelMessage>
+```
+
+Pop the last message from a history
+
 ### dispose
 
 ```ts

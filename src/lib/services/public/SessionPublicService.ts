@@ -197,6 +197,7 @@ export class SessionPublicService implements TSessionConnectionService {
         {
           clientId,
           executionId,
+          processId: GLOBAL_CONFIG.CC_PROCESS_UUID,
         }
       );
     };

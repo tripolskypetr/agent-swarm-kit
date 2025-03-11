@@ -12,6 +12,14 @@ push: (value: IModelMessage, clientId: string, agentName: string) => Promise<voi
 
 Push a new message to the history.
 
+### pop
+
+```ts
+pop: (clientId: string, agentName: string) => Promise<IModelMessage>
+```
+
+Pop the last message from a history
+
 ### dispose
 
 ```ts

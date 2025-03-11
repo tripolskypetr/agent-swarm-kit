@@ -30,10 +30,10 @@ callbacks: Partial<IHistoryInstanceCallbacks>
 _array: IModelMessage[]
 ```
 
-### __@HISTORY_INSTANCE_WAIT_FOR_INIT@525
+### __@HISTORY_INSTANCE_WAIT_FOR_INIT@537
 
 ```ts
-__@HISTORY_INSTANCE_WAIT_FOR_INIT@525: any
+__@HISTORY_INSTANCE_WAIT_FOR_INIT@537: any
 ```
 
 Makes the singleshot for initialization
@@ -63,6 +63,14 @@ push(value: IModelMessage, agentName: AgentName): Promise<void>;
 ```
 
 Push a new message to the history for a given agent.
+
+### pop
+
+```ts
+pop(agentName: AgentName): Promise<IModelMessage>;
+```
+
+Pop the last message from a history
 
 ### dispose
 

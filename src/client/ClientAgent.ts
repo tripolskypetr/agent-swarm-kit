@@ -608,7 +608,10 @@ export class ClientAgent implements IAgent {
     const output = await this.params.completion.getCompletion(args);
     this.params.completion.callbacks?.onComplete &&
       this.params.completion.callbacks?.onComplete(args, output);
-    return output;
+    return {
+      ...output,
+      content: output.content || "",
+    };
   }
 
   /**

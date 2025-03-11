@@ -47,7 +47,7 @@ The completion instance.
 ### tools
 
 ```ts
-tools: IAgentTool<Record<string, unknown>>[]
+tools: IAgentTool<Record<string, ToolValue>>[]
 ```
 
 The tools used by the agent.

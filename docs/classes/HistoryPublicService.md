@@ -32,6 +32,14 @@ push: (message: IModelMessage, methodName: string, clientId: string, agentName: 
 
 Pushes a message to the history.
 
+### pop
+
+```ts
+pop: (methodName: string, clientId: string, agentName: string) => Promise<IModelMessage>
+```
+
+Pushes a message to the history.
+
 ### toArrayForAgent
 
 ```ts

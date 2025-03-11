@@ -48,6 +48,12 @@ historyConnectionService: any
 storageConnectionService: any
 ```
 
+### stateConnectionService
+
+```ts
+stateConnectionService: any
+```
+
 ### agentSchemaService
 
 ```ts

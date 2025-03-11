@@ -6,7 +6,7 @@ import removeXmlTags from "../utils/removeXmlTags";
 import { HistoryAdapter, IHistoryAdapter } from "../classes/History";
 import nameToTitle from "../utils/nameToTitle";
 import LoggerAdapter, { ILoggerAdapter } from "../classes/Logger";
-import { randomString } from "functools-kit";
+import { randomString, str } from "functools-kit";
 
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
@@ -16,7 +16,11 @@ const CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT = "Start the conversation";
 /**
  * @description fix for invalid tool calls on IlyaGusev/saiga_yandexgpt_8b_gguf (LMStudio, appear time to time)
  */
-const CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT = "I see your previous message is malformed. Think again and resend it correct";
+const CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT = str.newline(
+  "Please analyze the last tool call message and identify any errors in its syntax or parameters.",
+  "Then, provide a corrected version of the tool call that properly follows the required format and includes all necessary parameters with appropriate values.",
+  "Include a brief explanation of what was fixed as a text content of a new message with correct tool calls request"
+);
 
 /**
  * @description custom function to fix the model

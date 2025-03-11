@@ -29,7 +29,7 @@ Reads a value from the session memory for a given client.
 ### serialize
 
 ```ts
-serialize: <T extends object = any>(data: T | T[]) => string
+serialize: <T extends object = any>(data: T | T[], map?: { mapKey?: (name: string) => string; mapValue?: (key: string, value: string) => string; }) => string
 ```
 
 Serializes an object or an array of objects into a formatted string.
