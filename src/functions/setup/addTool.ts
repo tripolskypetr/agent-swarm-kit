@@ -20,4 +20,4 @@ export const addTool = beginContext((toolSchema: IAgentTool) => {
   swarm.toolValidationService.addTool(toolSchema.toolName, toolSchema);
   swarm.toolSchemaService.register(toolSchema.toolName, toolSchema);
   return toolSchema.toolName;
-}) as <T extends any = ToolValue>(storageSchema: IAgentTool<T>) => string;
+}) as <T extends any = Record<string, ToolValue>>(storageSchema: IAgentTool<T>) => string;

@@ -4455,7 +4455,7 @@ declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
  * @param {IAgentTool} toolSchema - The schema of the tool to be added.
  * @returns {string} The name of the tool that was added.
  */
-declare const addTool: <T extends any = ToolValue>(storageSchema: IAgentTool<T>) => string;
+declare const addTool: <T extends any = Record<string, ToolValue>>(storageSchema: IAgentTool<T>) => string;
 
 /**
  * Adds a new state to the state registry. The swarm takes only those states which was registered
