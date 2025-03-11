@@ -8,7 +8,6 @@ import { GLOBAL_CONFIG } from "../config/params";
  * Interface for History Adapter Callbacks
  */
 export interface IHistoryInstanceCallbacks {
-
   /**
    * Callback for compute of dynamic system prompt
    * @param clientId - The client ID.
@@ -63,6 +62,18 @@ export interface IHistoryInstanceCallbacks {
    * @param agentName - The agent name.
    */
   onPush: (data: IModelMessage, clientId: string, agentName: AgentName) => void;
+
+  /**
+   * Callback for when the history pop the last message
+   * @param data - The array of model messages.
+   * @param clientId - The client ID.
+   * @param agentName - The agent name.
+   */
+  onPop: (
+    data: IModelMessage | null,
+    clientId: string,
+    agentName: AgentName
+  ) => void;
 
   /**
    * Callback for when the history is read. Will be called for each message
@@ -138,6 +149,17 @@ export interface IHistoryAdapter {
   ) => Promise<void>;
 
   /**
+   * Pop the last message from a history
+   * @param clientId - The client ID.
+   * @param agentName - The agent name.
+   * @returns The last message or null
+   */
+  pop: (
+    clientId: string,
+    agentName: AgentName
+  ) => Promise<IModelMessage | null>;
+
+  /**
    * Dispose of the history for a given client and agent.
    * @param clientId - The client ID.
    * @param agentName - The agent name or null.
@@ -191,6 +213,14 @@ export interface IHistoryInstance {
   push(value: IModelMessage, agentName: AgentName): Promise<void>;
 
   /**
+   * Pop the last message from a history
+   * @param value - The model message to push.
+   * @param agentName - The agent name.
+   * @returns A promise that resolves the last message or null
+   */
+  pop(agentName: AgentName): Promise<IModelMessage | null>;
+
+  /**
    * Dispose of the history for a given agent.
    * @param agentName - The agent name or null.
    * @returns A promise that resolves when the history is disposed.
@@ -214,15 +244,20 @@ const INSTANCE_METHOD_NAME_ITERATE_CONDITION =
   "HistoryInstance.iterate_condition";
 const INSTANCE_METHOD_NAME_ITERATE = "HistoryInstance.iterate";
 const INSTANCE_METHOD_NAME_PUSH = "HistoryInstance.push";
+const INSTANCE_METHOD_NAME_POP = "HistoryInstance.pop";
 const INSTANCE_METHOD_NAME_DISPOSE = "HistoryInstance.dispose";
 
 const METHOD_NAME_USE_HISTORY_ADAPTER = "HistoryUtils.useHistoryAdapter";
 const METHOD_NAME_USE_HISTORY_CALLBACKS = "HistoryUtils.useHistoryCallbacks";
 const METHOD_NAME_ITERATE = "HistoryUtils.iterate";
 const METHOD_NAME_PUSH = "HistoryUtils.push";
+const METHOD_NAME_POP = "HistoryUtils.pop";
 const METHOD_NAME_DISPOSE = "HistoryUtils.dispose";
 
-const HISTORY_INSTANCE_WAIT_FOR_INIT_FN = async (agentName: AgentName, self: HistoryInstance) => {
+const HISTORY_INSTANCE_WAIT_FOR_INIT_FN = async (
+  agentName: AgentName,
+  self: HistoryInstance
+) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     swarm.loggerService.debug(INSTANCE_METHOD_NAME_WAIT_FOR_INIT, {
       clientId: self.clientId,
@@ -231,7 +266,7 @@ const HISTORY_INSTANCE_WAIT_FOR_INIT_FN = async (agentName: AgentName, self: His
   if (self.callbacks.getData) {
     self._array = await self.callbacks.getData(self.clientId, agentName);
   }
-}
+};
 
 /**
  * Class representing a History Instance
@@ -243,7 +278,10 @@ export class HistoryInstance implements IHistoryInstance {
    * Makes the singleshot for initialization
    * @param agentName - The agent name.
    */
-  private [HISTORY_INSTANCE_WAIT_FOR_INIT] = singleshot(async (agentName) => await HISTORY_INSTANCE_WAIT_FOR_INIT_FN(agentName, this));
+  private [HISTORY_INSTANCE_WAIT_FOR_INIT] = singleshot(
+    async (agentName) =>
+      await HISTORY_INSTANCE_WAIT_FOR_INIT_FN(agentName, this)
+  );
 
   /**
    * Wait for the history to initialize.
@@ -297,13 +335,16 @@ export class HistoryInstance implements IHistoryInstance {
             }
           }
           if (this.callbacks.getSystemPrompt) {
-            for (const content of await this.callbacks.getSystemPrompt(this.clientId, agentName)) {
+            for (const content of await this.callbacks.getSystemPrompt(
+              this.clientId,
+              agentName
+            )) {
               yield {
                 role: "system",
                 content,
                 agentName,
-                mode: "tool"
-              }
+                mode: "tool",
+              };
             }
           }
           this.callbacks.onReadEnd &&
@@ -320,13 +361,16 @@ export class HistoryInstance implements IHistoryInstance {
           }
         }
         if (this.callbacks.getSystemPrompt) {
-          for (const content of await this.callbacks.getSystemPrompt(this.clientId, agentName)) {
+          for (const content of await this.callbacks.getSystemPrompt(
+            this.clientId,
+            agentName
+          )) {
             yield {
               role: "system",
               content,
               agentName,
-              mode: "tool"
-            }
+              mode: "tool",
+            };
           }
         }
         this.callbacks.onReadEnd &&
@@ -365,13 +409,16 @@ export class HistoryInstance implements IHistoryInstance {
       yield item;
     }
     if (this.callbacks.getSystemPrompt) {
-      for (const content of await this.callbacks.getSystemPrompt(this.clientId, agentName)) {
+      for (const content of await this.callbacks.getSystemPrompt(
+        this.clientId,
+        agentName
+      )) {
         yield {
           role: "system",
           content,
           agentName,
-          mode: "tool"
-        }
+          mode: "tool",
+        };
       }
     }
     this.callbacks.onReadEnd &&
@@ -396,6 +443,25 @@ export class HistoryInstance implements IHistoryInstance {
     this.callbacks.onChange &&
       this.callbacks.onChange(this._array, this.clientId, agentName);
     return Promise.resolve();
+  }
+
+  /**
+   * Pop the last message from a history
+   * @param agentName - The agent name.
+   * @returns A promise that resolves when the message is pushed.
+   */
+  public pop(agentName: AgentName) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(INSTANCE_METHOD_NAME_POP, {
+        clientId: this.clientId,
+        agentName,
+      });
+    const value = this._array.pop() ?? null;
+    this.callbacks.onPop &&
+      this.callbacks.onPop(value, this.clientId, agentName);
+    this.callbacks.onChange &&
+      this.callbacks.onChange(this._array, this.clientId, agentName);
+    return Promise.resolve(value);
   }
 
   /**
@@ -497,6 +563,25 @@ class HistoryUtils implements IHistoryAdapter, IHistoryControl {
     const history = await this.getHistory(clientId);
     await history.waitForInit(agentName, isInitial);
     return await history.push(value, agentName);
+  };
+
+  /**
+   * Pop the last message from the history.
+   * @param value - The model message to push.
+   * @param clientId - The client ID.
+   * @param agentName - The agent name.
+   * @returns A promise that resolves when the message is pushed.
+   */
+  public pop = async (clientId: string, agentName: AgentName) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME_POP, {
+        clientId,
+        agentName,
+      });
+    const isInitial = this.getHistory.has(clientId);
+    const history = await this.getHistory(clientId);
+    await history.waitForInit(agentName, isInitial);
+    return await history.pop(agentName);
   };
 
   /**

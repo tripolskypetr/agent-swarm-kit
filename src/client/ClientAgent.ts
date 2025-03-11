@@ -472,11 +472,17 @@ export class ClientAgent implements IAgent {
    * @returns {Promise<string>}
    * @private
    */
-  async _resurrectModel(mode: ExecutionMode, reason?: string): Promise<string> {
+  async _resurrectModel(
+    mode: ExecutionMode,
+    reason = "unknown"
+  ): Promise<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel`
       );
+    console.warn(
+      `agent-swarm model ressurect for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY} reason=${reason}`
+    );
     this.params.onResurrect &&
       this.params.onResurrect(
         this.params.clientId,
@@ -484,7 +490,14 @@ export class ClientAgent implements IAgent {
         mode,
         reason
       );
-    {
+    if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "recomplete") {
+      await this.params.history.push({
+        role: "user",
+        mode: "tool",
+        agentName: this.params.agentName,
+        content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
+      });
+    } else if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "flush") {
       await this.params.history.push({
         role: "resque",
         mode: "tool",
@@ -495,8 +508,17 @@ export class ClientAgent implements IAgent {
         role: "user",
         mode: "tool",
         agentName: this.params.agentName,
-        content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_PROMPT,
+        content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
       });
+    } else if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "custom") {
+      await GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_CUSTON_FUNCTION(
+        this.params.clientId,
+        this.params.agentName
+      );
+    } else {
+      throw new Error(
+        `agent-swarm _resurrectModel invalid strategy value=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY} agentName=${this.params.agentName} clientId=${this.params.clientId}`
+      );
     }
     const rawMessage = await this.getCompletion(mode);
     const message = await this.params.map(

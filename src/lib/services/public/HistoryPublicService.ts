@@ -64,6 +64,39 @@ export class HistoryPublicService implements THistoryConnectionService {
   };
 
   /**
+   * Pushes a message to the history.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The agent name.
+   * @returns {Promise<IModelMessage | null>} A promise that resolves when the operation is complete.
+   */
+  public pop = async (
+    methodName: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("historyPublicService pop", {
+        methodName,
+        clientId,
+        agentName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.historyConnectionService.pop();
+      },
+      {
+        methodName,
+        clientId,
+        agentName,
+        policyName: "",
+        swarmName: "",
+        storageName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
    * Converts history to an array for a specific agent.
    * @param {string} prompt - The prompt.
    * @param {string} clientId - The client ID.

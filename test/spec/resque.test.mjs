@@ -20,6 +20,10 @@ const debug = {
 
 test("Will resque model on unexisting tool call", async ({ pass, fail }) => {
 
+    setConfig({
+        CC_RESQUE_STRATEGY: "flush"
+    })
+
     const MOCK_COMPLETION = addCompletion({
         completionName: "mock-completion",
         getCompletion: async ({ agentName, messages }) => {
@@ -60,7 +64,7 @@ test("Will resque model on unexisting tool call", async ({ pass, fail }) => {
     });
 
     setConfig({
-        CC_TOOL_CALL_EXCEPTION_PROMPT: "Resque",
+        CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT: "Resque",
     });
 
     const result = await complete("test", CLIENT_ID, TEST_SWARM);
@@ -75,6 +79,10 @@ test("Will resque model on unexisting tool call", async ({ pass, fail }) => {
 });
 
 test("Will resque model on empty output", async ({ pass, fail }) => {
+
+    setConfig({
+        CC_RESQUE_STRATEGY: "flush"
+    })
 
     const MOCK_COMPLETION = addCompletion({
         completionName: "mock-completion",
@@ -108,7 +116,7 @@ test("Will resque model on empty output", async ({ pass, fail }) => {
     });
 
     setConfig({
-        CC_TOOL_CALL_EXCEPTION_PROMPT: "Resque",
+        CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT: "Resque",
     });
 
     const result = await complete("test", CLIENT_ID, TEST_SWARM);
@@ -123,6 +131,10 @@ test("Will resque model on empty output", async ({ pass, fail }) => {
 });
 
 test("Will resque model on failed tool validation", async ({ pass, fail }) => {
+
+    setConfig({
+        CC_RESQUE_STRATEGY: "flush"
+    })
 
     const MOCK_COMPLETION = addCompletion({
         completionName: "mock-completion",
@@ -179,7 +191,7 @@ test("Will resque model on failed tool validation", async ({ pass, fail }) => {
     });
 
     setConfig({
-        CC_TOOL_CALL_EXCEPTION_PROMPT: "Resque",
+        CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT: "Resque",
     });
 
     const result = await complete("test", CLIENT_ID, TEST_SWARM);
@@ -194,6 +206,7 @@ test("Will resque model on failed tool validation", async ({ pass, fail }) => {
 });
 
 test("Failed resque raise a placeholder", async ({ pass, fail }) => {
+    
   const MOCK_COMPLETION = addCompletion({
     completionName: "mock-completion",
     getCompletion: async ({ agentName }) => {

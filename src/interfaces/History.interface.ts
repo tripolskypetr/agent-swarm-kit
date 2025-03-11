@@ -16,6 +16,12 @@ export interface IHistory {
   push(message: IModelMessage): Promise<void>;
 
   /**
+   * Pop the last message from a history
+   * @returns {Promise<IModelMessage | null>}
+   */
+  pop(): Promise<IModelMessage | null>;
+
+  /**
    * Converts the history to an array of messages for a specific agent.
    * @param {string} prompt - The prompt to filter messages for the agent.
    * @returns {Promise<IModelMessage[]>}
