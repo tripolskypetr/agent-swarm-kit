@@ -1807,6 +1807,7 @@ declare class LoggerService implements ILogger {
 }
 
 declare const AGENT_CHANGE_SYMBOL: unique symbol;
+declare const MODEL_RESQUE_SYMBOL: unique symbol;
 declare const TOOL_ERROR_SYMBOL: unique symbol;
 declare const TOOL_STOP_SYMBOL: unique symbol;
 /**
@@ -1816,6 +1817,7 @@ declare const TOOL_STOP_SYMBOL: unique symbol;
 declare class ClientAgent implements IAgent {
     readonly params: IAgentParams;
     readonly _agentChangeSubject: Subject<typeof AGENT_CHANGE_SYMBOL>;
+    readonly _modelResqueSubject: Subject<typeof MODEL_RESQUE_SYMBOL>;
     readonly _toolErrorSubject: Subject<typeof TOOL_ERROR_SYMBOL>;
     readonly _toolStopSubject: Subject<typeof TOOL_STOP_SYMBOL>;
     readonly _toolCommitSubject: Subject<void>;

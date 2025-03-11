@@ -16,9 +16,11 @@ import { IToolCall } from "../model/Tool.model";
 import { IBusEvent } from "../model/Event.model";
 
 const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
+
+const MODEL_RESQUE_SYMBOL = Symbol("model-resque");
+
 const TOOL_ERROR_SYMBOL = Symbol("tool-error");
 const TOOL_STOP_SYMBOL = Symbol("tool-stop");
-
 const TOOL_NO_OUTPUT_WARNING = 15_000;
 
 const getPlaceholder = () =>
@@ -140,19 +142,18 @@ const EXECUTE_FN = async (
       self.params.logger.debug(
         `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} tool call begin`
       );
-    const toolCalls: IToolCall[] = message.tool_calls.map((call) => ({
-      function: call.function,
-      id: call.id ?? randomString(),
-      type: call.type ?? "function",
-    }));
+    const toolCalls: IToolCall[] = message.tool_calls
+      .map((call) => ({
+        function: call.function,
+        id: call.id ?? randomString(),
+        type: call.type ?? "function",
+      }))
+      .slice(0, GLOBAL_CONFIG.CC_MAX_TOOLS);
     await self.params.history.push({
       ...message,
       agentName: self.params.agentName,
     });
     for (let idx = 0; idx !== toolCalls.length; idx++) {
-      if (idx >= GLOBAL_CONFIG.CC_MAX_TOOLS) {
-        break;
-      }
       const tool = toolCalls[idx];
       const targetFn = self.params.tools?.find(
         (t) => t.function.name === tool.function.name
@@ -277,12 +278,26 @@ const EXECUTE_FN = async (
         self._toolErrorSubject.toPromise(),
         self._toolStopSubject.toPromise(),
         self._outputSubject.toPromise(),
+        self._modelResqueSubject.toPromise(),
       ]);
       isResolved = true;
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         self.params.logger.debug(
           `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} tool call end`
         );
+      if (status === MODEL_RESQUE_SYMBOL) {
+        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+          self.params.logger.debug(
+            `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the model resque`
+          );
+        self.params.callbacks?.onAfterToolCalls &&
+          self.params.callbacks.onAfterToolCalls(
+            self.params.clientId,
+            self.params.agentName,
+            toolCalls
+          );
+        return;
+      }
       if (status === AGENT_CHANGE_SYMBOL) {
         GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
           self.params.logger.debug(
@@ -379,10 +394,12 @@ const EXECUTE_FN = async (
 export class ClientAgent implements IAgent {
   readonly _agentChangeSubject = new Subject<typeof AGENT_CHANGE_SYMBOL>();
 
+  readonly _modelResqueSubject = new Subject<typeof MODEL_RESQUE_SYMBOL>();
+
   readonly _toolErrorSubject = new Subject<typeof TOOL_ERROR_SYMBOL>();
   readonly _toolStopSubject = new Subject<typeof TOOL_STOP_SYMBOL>();
-
   readonly _toolCommitSubject = new Subject<void>();
+
   readonly _outputSubject = new Subject<string>();
 
   /**
@@ -562,12 +579,14 @@ export class ClientAgent implements IAgent {
         mode: "tool",
         content,
       });
+      await this._modelResqueSubject.next(MODEL_RESQUE_SYMBOL);
       return content;
     }
     await this.params.history.push({
       ...message,
       agentName: this.params.agentName,
     });
+    await this._modelResqueSubject.next(MODEL_RESQUE_SYMBOL);
     return result;
   }
 
