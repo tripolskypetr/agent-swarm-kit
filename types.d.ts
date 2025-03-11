@@ -1817,7 +1817,7 @@ declare const TOOL_STOP_SYMBOL: unique symbol;
 declare class ClientAgent implements IAgent {
     readonly params: IAgentParams;
     readonly _agentChangeSubject: Subject<typeof AGENT_CHANGE_SYMBOL>;
-    readonly _modelResqueSubject: Subject<typeof MODEL_RESQUE_SYMBOL>;
+    readonly _resqueSubject: Subject<typeof MODEL_RESQUE_SYMBOL>;
     readonly _toolErrorSubject: Subject<typeof TOOL_ERROR_SYMBOL>;
     readonly _toolStopSubject: Subject<typeof TOOL_STOP_SYMBOL>;
     readonly _toolCommitSubject: Subject<void>;
@@ -1833,7 +1833,7 @@ declare class ClientAgent implements IAgent {
      * @returns {Promise<void>}
      * @private
      */
-    _emitOuput(mode: ExecutionMode, rawResult: string): Promise<void>;
+    _emitOutput(mode: ExecutionMode, rawResult: string): Promise<void>;
     /**
      * Resurrects the model based on the given reason.
      * @param {string} [reason] - The reason for resurrecting the model.
