@@ -275,6 +275,14 @@ export interface IAgentSchemaCallbacks {
  * Interface representing the schema for an agent.
  */
 export interface IAgentSchema {
+  /** The map function to filter unwanted tool calls */
+  mapToolCalls?: (
+    tool: IToolCall[],
+    clientId: string,
+    agentName: AgentName
+  ) => IToolCall[] | Promise<IToolCall[]>;
+  /** The maximum quantity of tool calls per complete */
+  maxToolCalls?: number;
   /** The description for documentation */
   docDescription?: string;
   /** The name of the agent. */

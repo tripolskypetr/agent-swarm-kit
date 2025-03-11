@@ -1645,6 +1645,10 @@ interface IAgentSchemaCallbacks {
  * Interface representing the schema for an agent.
  */
 interface IAgentSchema {
+    /** The map function to filter unwanted tool calls */
+    mapToolCalls?: (tool: IToolCall[], clientId: string, agentName: AgentName) => IToolCall[] | Promise<IToolCall[]>;
+    /** The maximum quantity of tool calls per complete */
+    maxToolCalls?: number;
     /** The description for documentation */
     docDescription?: string;
     /** The name of the agent. */
@@ -5342,7 +5346,8 @@ declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
     CC_KEEP_MESSAGES: number;
-    CC_MAX_TOOLS: number;
+    CC_MAX_TOOL_CALLS: number;
+    CC_AGENT_MAP_TOOLS: (tool: IToolCall[], clientId: string, agentName: AgentName) => IToolCall[] | Promise<IToolCall[]>;
     CC_GET_AGENT_HISTORY_ADAPTER: (clientId: string, agentName: AgentName) => IHistoryAdapter;
     CC_GET_CLIENT_LOGGER_ADAPTER: () => ILoggerAdapter;
     CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;

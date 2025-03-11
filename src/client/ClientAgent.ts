@@ -197,13 +197,16 @@ const EXECUTE_FN = async (
       self.params.logger.debug(
         `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} tool call begin`
       );
-    const toolCalls: IToolCall[] = message.tool_calls
-      .map((call) => ({
+    let toolCalls: IToolCall[] = await self.params.mapToolCalls(
+      message.tool_calls.map((call) => ({
         function: call.function,
         id: call.id ?? randomString(),
         type: call.type ?? "function",
-      }))
-      .slice(0, GLOBAL_CONFIG.CC_MAX_TOOLS);
+      })),
+      self.params.clientId,
+      self.params.agentName
+    );
+    toolCalls = toolCalls.slice(0, self.params.maxToolCalls);
     await self.params.history.push({
       ...message,
       agentName: self.params.agentName,

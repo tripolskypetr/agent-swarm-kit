@@ -7,6 +7,7 @@ import { HistoryAdapter, IHistoryAdapter } from "../classes/History";
 import nameToTitle from "../utils/nameToTitle";
 import LoggerAdapter, { ILoggerAdapter } from "../classes/Logger";
 import { randomString, str } from "functools-kit";
+import { IToolCall } from "../model/Tool.model";
 
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
@@ -25,7 +26,10 @@ const CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT = str.newline(
 /**
  * @description custom function to fix the model
  */
-const CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: AgentName) => Promise<void> = () => Promise.resolve();
+const CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (
+  clientId: string,
+  agentName: AgentName
+) => Promise<void> = () => Promise.resolve();
 
 /**
  * @description When the model output is empty just say hello to the customer
@@ -65,7 +69,7 @@ const CC_SWARM_STACK_CHANGED: (
 
 const CC_SWARM_DEFAULT_STACK: (
   clientId: string,
-  swarmName: SwarmName,
+  swarmName: SwarmName
 ) => Promise<AgentName[]> = async () => {
   return [];
 };
@@ -93,7 +97,13 @@ const CC_AGENT_OUTPUT_TRANSFORM = removeXmlTags;
 
 const CC_KEEP_MESSAGES = 15;
 
-const CC_MAX_TOOLS = 1;
+const CC_MAX_TOOL_CALLS = 1;
+
+const CC_AGENT_MAP_TOOLS: (
+  tool: IToolCall[],
+  clientId: string,
+  agentName: AgentName
+) => IToolCall[] | Promise<IToolCall[]> = (tools) => tools;
 
 const CC_GET_AGENT_HISTORY_ADAPTER: (
   clientId: string,
@@ -120,18 +130,21 @@ let CC_RESQUE_STRATEGY: "flush" | "recomplete" | "custom";
 
 const CC_NAME_TO_TITLE = nameToTitle;
 
-const CC_FN_PLANTUML: (uml: string) => Promise<string> = () => Promise.resolve("");
+const CC_FN_PLANTUML: (uml: string) => Promise<string> = () =>
+  Promise.resolve("");
 
 const CC_PROCESS_UUID = randomString();
 
-const CC_BANHAMMER_PLACEHOLDER = "You have been banned! To continue conversation, please contact the administrator."
+const CC_BANHAMMER_PLACEHOLDER =
+  "You have been banned! To continue conversation, please contact the administrator.";
 
 const GLOBAL_CONFIG = {
   CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
   CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
   CC_EMPTY_OUTPUT_PLACEHOLDERS,
   CC_KEEP_MESSAGES,
-  CC_MAX_TOOLS,
+  CC_MAX_TOOL_CALLS,
+  CC_AGENT_MAP_TOOLS,
   CC_GET_AGENT_HISTORY_ADAPTER,
   CC_GET_CLIENT_LOGGER_ADAPTER,
   CC_SWARM_AGENT_CHANGED,
@@ -165,4 +178,4 @@ export const setConfig = (config: Partial<typeof GLOBAL_CONFIG>) => {
   Object.assign(GLOBAL_CONFIG, config);
 };
 
-export { GLOBAL_CONFIG }
+export { GLOBAL_CONFIG };
