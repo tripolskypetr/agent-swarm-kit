@@ -526,7 +526,7 @@ export class ClientAgent implements IAgent {
         content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
       });
     } else if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "custom") {
-      await GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_CUSTON_FUNCTION(
+      await GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION(
         this.params.clientId,
         this.params.agentName
       );

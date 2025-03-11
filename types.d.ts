@@ -5365,7 +5365,7 @@ declare const GLOBAL_CONFIG: {
     CC_FN_PLANTUML: (uml: string) => Promise<string>;
     CC_PROCESS_UUID: string;
     CC_BANHAMMER_PLACEHOLDER: string;
-    CC_TOOL_CALL_EXCEPTION_CUSTON_FUNCTION: (clientId: string, agentName: AgentName) => Promise<void>;
+    CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: AgentName) => Promise<void>;
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 

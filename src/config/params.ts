@@ -25,7 +25,7 @@ const CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT = str.newline(
 /**
  * @description custom function to fix the model
  */
-const CC_TOOL_CALL_EXCEPTION_CUSTON_FUNCTION: (clientId: string, agentName: AgentName) => Promise<void> = () => Promise.resolve();
+const CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: AgentName) => Promise<void> = () => Promise.resolve();
 
 /**
  * @description When the model output is empty just say hello to the customer
@@ -156,7 +156,7 @@ const GLOBAL_CONFIG = {
   CC_FN_PLANTUML,
   CC_PROCESS_UUID,
   CC_BANHAMMER_PLACEHOLDER,
-  CC_TOOL_CALL_EXCEPTION_CUSTON_FUNCTION,
+  CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION,
 };
 
 GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "recomplete";
