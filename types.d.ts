@@ -4455,7 +4455,7 @@ declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
  * @param {IAgentTool} toolSchema - The schema of the tool to be added.
  * @returns {string} The name of the tool that was added.
  */
-declare const addTool: (toolSchema: IAgentTool<Record<string, string | number | boolean>>) => string;
+declare const addTool: <T extends any = ToolValue>(storageSchema: IAgentTool<T>) => string;
 
 /**
  * Adds a new state to the state registry. The swarm takes only those states which was registered
@@ -4463,7 +4463,7 @@ declare const addTool: (toolSchema: IAgentTool<Record<string, string | number | 
  * @param {IStateSchema} stateSchema - The schema of the state to be added.
  * @returns {string} The name of the added state.
  */
-declare const addState: (stateSchema: IStateSchema<any>) => string;
+declare const addState: <T extends unknown = any>(storageSchema: IStateSchema<T>) => string;
 
 /**
  * Adds a new embedding to the embedding registry. The swarm takes only those embeddings which was registered

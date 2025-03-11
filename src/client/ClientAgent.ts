@@ -4,6 +4,7 @@ import {
   not,
   queued,
   randomString,
+  sleep,
   Subject,
 } from "functools-kit";
 import { omit } from "lodash-es";
@@ -17,6 +18,8 @@ import { IBusEvent } from "../model/Event.model";
 const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
 const TOOL_ERROR_SYMBOL = Symbol("tool-error");
 const TOOL_STOP_SYMBOL = Symbol("tool-stop");
+
+const TOOL_NO_OUTPUT_WARNING = 15_000;
 
 const getPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[
@@ -260,6 +263,14 @@ const EXECUTE_FN = async (
         self.params.logger.debug(
           `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} tool call executing`
         );
+      let isResolved = false;
+      sleep(TOOL_NO_OUTPUT_WARNING).then(() => {
+        if (!isResolved) {
+          console.warn(
+            `agent-swarm no tool output after ${TOOL_NO_OUTPUT_WARNING}ms clientId=${self.params.clientId} agentName=${self.params.agentName} toolId=${tool.id} functionName=${tool.function.name}`
+          );
+        }
+      });
       const status = await Promise.race([
         self._agentChangeSubject.toPromise(),
         self._toolCommitSubject.toPromise(),
@@ -267,6 +278,7 @@ const EXECUTE_FN = async (
         self._toolStopSubject.toPromise(),
         self._outputSubject.toPromise(),
       ]);
+      isResolved = true;
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         self.params.logger.debug(
           `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} tool call end`

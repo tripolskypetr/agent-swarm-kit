@@ -11,7 +11,7 @@ import { StorageName } from "./Storage.interface";
 import { StateName } from "./State.interface";
 import { IBus } from "./Bus.interface";
 
-type ToolValue = string | number | boolean | null;
+export type ToolValue = string | number | boolean | null;
 
 /**
  * Interface representing lifecycle callbacks of a tool

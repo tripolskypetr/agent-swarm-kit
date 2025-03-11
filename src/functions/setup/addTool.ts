@@ -1,4 +1,4 @@
-import { IAgentTool } from "../../interfaces/Agent.interface";
+import { IAgentTool, ToolValue } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../..//utils/beginContext";
@@ -20,4 +20,4 @@ export const addTool = beginContext((toolSchema: IAgentTool) => {
   swarm.toolValidationService.addTool(toolSchema.toolName, toolSchema);
   swarm.toolSchemaService.register(toolSchema.toolName, toolSchema);
   return toolSchema.toolName;
-});
+}) as <T extends any = ToolValue>(storageSchema: IAgentTool<T>) => string;

@@ -23,4 +23,4 @@ export const addState = beginContext((stateSchema: IStateSchema) => {
       .waitForInit();
   }
   return stateSchema.stateName;
-});
+}) as <T extends unknown = any>(storageSchema: IStateSchema<T>) => string;
