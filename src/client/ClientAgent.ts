@@ -594,6 +594,30 @@ export class ClientAgent implements IAgent {
       );
     }
     const rawMessage = await this.getCompletion(mode);
+    if (rawMessage.tool_calls?.length) {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel failed due to tool_calls`
+        );
+      console.warn(
+        `agent-swarm model ressurect did not solved the problem (tool_calls) for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY}`
+      );
+      const content = createPlaceholder();
+      await this.params.history.push({
+        role: "resque",
+        mode: "tool",
+        agentName: this.params.agentName,
+        content: reason || "Unknown error",
+      });
+      await this.params.history.push({
+        agentName: this.params.agentName,
+        role: "assistant",
+        mode: "tool",
+        content,
+      });
+      await this._resqueSubject.next(MODEL_RESQUE_SYMBOL);
+      return content;
+    }
     const message = await this.params.map(
       rawMessage,
       this.params.clientId,

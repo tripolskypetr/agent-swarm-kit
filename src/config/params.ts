@@ -93,7 +93,7 @@ const CC_AGENT_OUTPUT_TRANSFORM = removeXmlTags;
 
 const CC_KEEP_MESSAGES = 15;
 
-const CC_MAX_TOOLS = 3;
+const CC_MAX_TOOLS = 1;
 
 const CC_GET_AGENT_HISTORY_ADAPTER: (
   clientId: string,
