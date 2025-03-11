@@ -613,6 +613,12 @@ export class ClientAgent implements IAgent {
       );
       const content = createPlaceholder();
       await this.params.history.push({
+        role: "resque",
+        mode: "tool",
+        agentName: this.params.agentName,
+        content: reason || "Unknown error",
+      });
+      await this.params.history.push({
         agentName: this.params.agentName,
         role: "assistant",
         mode: "tool",
