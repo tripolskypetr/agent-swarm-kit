@@ -62,6 +62,19 @@ export class HistoryConnectionService implements IHistory {
   };
 
   /**
+   * Pop a message from the history.
+   * @returns {Promise<IModelMessage | null>} A promise that resolves when the message is popped.
+   */
+  public pop = async () => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`historyConnectionService pop`);
+    return await this.getHistory(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
+    ).pop();
+  };
+
+  /**
    * Converts the history to an array for the agent.
    * @param {string} prompt - The prompt.
    * @returns {Promise<any[]>} A promise that resolves to an array for the agent.

@@ -11,11 +11,13 @@ import { StorageName } from "./Storage.interface";
 import { StateName } from "./State.interface";
 import { IBus } from "./Bus.interface";
 
+type ToolValue = string | number | boolean | null;
+
 /**
  * Interface representing lifecycle callbacks of a tool
  * @template T - The type of the parameters for the tool.
  */
-export interface IAgentToolCallbacks<T = Record<string, unknown>> {
+export interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
   /**
    * Callback triggered before the tool is called.
    * @param toolId - The `tool_call_id` for openai history
@@ -76,7 +78,7 @@ export interface IAgentToolCallbacks<T = Record<string, unknown>> {
  * Interface representing a tool used by an agent.
  * @template T - The type of the parameters for the tool.
  */
-export interface IAgentTool<T = Record<string, unknown>> extends ITool {
+export interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
   /** The description for documentation */
   docNote?: string;
   /** The name of the tool. */

@@ -11,7 +11,17 @@ import { randomString } from "functools-kit";
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
  */
-const CC_TOOL_CALL_EXCEPTION_PROMPT = "Start the conversation";
+const CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT = "Start the conversation";
+
+/**
+ * @description fix for invalid tool calls on IlyaGusev/saiga_yandexgpt_8b_gguf (LMStudio, appear time to time)
+ */
+const CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT = "I see your previous message is malformed. Think again and resend it correct";
+
+/**
+ * @description custom function to fix the model
+ */
+const CC_TOOL_CALL_EXCEPTION_CUSTON_FUNCTION: (clientId: string, agentName: AgentName) => Promise<void> = () => Promise.resolve();
 
 /**
  * @description When the model output is empty just say hello to the customer
@@ -100,6 +110,8 @@ const CC_LOGGER_ENABLE_DEBUG = false;
 const CC_LOGGER_ENABLE_LOG = true;
 const CC_LOGGER_ENABLE_CONSOLE = false;
 
+let CC_RESQUE_STRATEGY: "flush" | "recomplete" | "custom";
+
 const CC_NAME_TO_TITLE = nameToTitle;
 
 const CC_FN_PLANTUML: (uml: string) => Promise<string> = () => Promise.resolve("");
@@ -108,8 +120,9 @@ const CC_PROCESS_UUID = randomString();
 
 const CC_BANHAMMER_PLACEHOLDER = "You have been banned! To continue conversation, please contact the administrator."
 
-export const GLOBAL_CONFIG = {
-  CC_TOOL_CALL_EXCEPTION_PROMPT,
+const GLOBAL_CONFIG = {
+  CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
+  CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
   CC_EMPTY_OUTPUT_PLACEHOLDERS,
   CC_KEEP_MESSAGES,
   CC_GET_AGENT_HISTORY_ADAPTER,
@@ -131,12 +144,18 @@ export const GLOBAL_CONFIG = {
   CC_LOGGER_ENABLE_DEBUG,
   CC_LOGGER_ENABLE_LOG,
   CC_LOGGER_ENABLE_CONSOLE,
+  CC_RESQUE_STRATEGY,
   CC_NAME_TO_TITLE,
   CC_FN_PLANTUML,
   CC_PROCESS_UUID,
   CC_BANHAMMER_PLACEHOLDER,
+  CC_TOOL_CALL_EXCEPTION_CUSTON_FUNCTION,
 };
+
+GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "recomplete";
 
 export const setConfig = (config: Partial<typeof GLOBAL_CONFIG>) => {
   Object.assign(GLOBAL_CONFIG, config);
 };
+
+export { GLOBAL_CONFIG }

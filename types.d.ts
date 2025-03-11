@@ -1077,6 +1077,13 @@ interface IHistoryInstanceCallbacks {
      */
     onPush: (data: IModelMessage, clientId: string, agentName: AgentName) => void;
     /**
+     * Callback for when the history pop the last message
+     * @param data - The array of model messages.
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     */
+    onPop: (data: IModelMessage | null, clientId: string, agentName: AgentName) => void;
+    /**
      * Callback for when the history is read. Will be called for each message
      * @param message - The model message.
      * @param clientId - The client ID.
@@ -1131,6 +1138,13 @@ interface IHistoryAdapter {
      */
     push: (value: IModelMessage, clientId: string, agentName: AgentName) => Promise<void>;
     /**
+     * Pop the last message from a history
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     * @returns The last message or null
+     */
+    pop: (clientId: string, agentName: AgentName) => Promise<IModelMessage | null>;
+    /**
      * Dispose of the history for a given client and agent.
      * @param clientId - The client ID.
      * @param agentName - The agent name or null.
@@ -1177,6 +1191,13 @@ interface IHistoryInstance {
      * @returns A promise that resolves when the message is pushed.
      */
     push(value: IModelMessage, agentName: AgentName): Promise<void>;
+    /**
+     * Pop the last message from a history
+     * @param value - The model message to push.
+     * @param agentName - The agent name.
+     * @returns A promise that resolves the last message or null
+     */
+    pop(agentName: AgentName): Promise<IModelMessage | null>;
     /**
      * Dispose of the history for a given agent.
      * @param agentName - The agent name or null.
@@ -1226,6 +1247,12 @@ declare class HistoryInstance implements IHistoryInstance {
      */
     push(value: IModelMessage, agentName: AgentName): Promise<void>;
     /**
+     * Pop the last message from a history
+     * @param agentName - The agent name.
+     * @returns A promise that resolves when the message is pushed.
+     */
+    pop(agentName: AgentName): Promise<IModelMessage>;
+    /**
      * Dispose of the history for a given agent.
      * @param agentName - The agent name or null.
      * @returns A promise that resolves when the history is disposed.
@@ -1265,6 +1292,14 @@ declare class HistoryUtils implements IHistoryAdapter, IHistoryControl {
      */
     push: (value: IModelMessage, clientId: string, agentName: AgentName) => Promise<void>;
     /**
+     * Pop the last message from the history.
+     * @param value - The model message to push.
+     * @param clientId - The client ID.
+     * @param agentName - The agent name.
+     * @returns A promise that resolves when the message is pushed.
+     */
+    pop: (clientId: string, agentName: AgentName) => Promise<IModelMessage>;
+    /**
      * Dispose of the history for a given client and agent.
      * @param clientId - The client ID.
      * @param agentName - The agent name or null.
@@ -1291,6 +1326,11 @@ interface IHistory {
      * @returns {Promise<void>}
      */
     push(message: IModelMessage): Promise<void>;
+    /**
+     * Pop the last message from a history
+     * @returns {Promise<IModelMessage | null>}
+     */
+    pop(): Promise<IModelMessage | null>;
     /**
      * Converts the history to an array of messages for a specific agent.
      * @param {string} prompt - The prompt to filter messages for the agent.
@@ -1401,11 +1441,12 @@ interface ICompletionSchema {
  */
 type CompletionName = string;
 
+type ToolValue = string | number | boolean | null;
 /**
  * Interface representing lifecycle callbacks of a tool
  * @template T - The type of the parameters for the tool.
  */
-interface IAgentToolCallbacks<T = Record<string, unknown>> {
+interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
     /**
      * Callback triggered before the tool is called.
      * @param toolId - The `tool_call_id` for openai history
@@ -1445,7 +1486,7 @@ interface IAgentToolCallbacks<T = Record<string, unknown>> {
  * Interface representing a tool used by an agent.
  * @template T - The type of the parameters for the tool.
  */
-interface IAgentTool<T = Record<string, unknown>> extends ITool {
+interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
     /** The description for documentation */
     docNote?: string;
     /** The name of the tool. */
@@ -1973,6 +2014,11 @@ declare class ClientHistory implements IHistory {
      */
     push(message: IModelMessage): Promise<void>;
     /**
+     * Pushes a message to the history.
+     * @returns {Promise<IModelMessage | null>}
+     */
+    pop(): Promise<IModelMessage | null>;
+    /**
      * Converts the history to an array of raw messages.
      * @returns {Promise<IModelMessage[]>} - The array of raw messages.
      */
@@ -2013,6 +2059,11 @@ declare class HistoryConnectionService implements IHistory {
      * @returns {Promise<void>} A promise that resolves when the message is pushed.
      */
     push: (message: IModelMessage) => Promise<void>;
+    /**
+     * Pop a message from the history.
+     * @returns {Promise<IModelMessage | null>} A promise that resolves when the message is popped.
+     */
+    pop: () => Promise<IModelMessage>;
     /**
      * Converts the history to an array for the agent.
      * @param {string} prompt - The prompt.
@@ -2542,6 +2593,13 @@ declare class HistoryPublicService implements THistoryConnectionService {
      * @returns {Promise<void>} A promise that resolves when the operation is complete.
      */
     push: (message: IModelMessage, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Pushes a message to the history.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The agent name.
+     * @returns {Promise<IModelMessage | null>} A promise that resolves when the operation is complete.
+     */
+    pop: (methodName: string, clientId: string, agentName: AgentName) => Promise<IModelMessage>;
     /**
      * Converts history to an array for a specific agent.
      * @param {string} prompt - The prompt.
@@ -4397,7 +4455,7 @@ declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
  * @param {IAgentTool} toolSchema - The schema of the tool to be added.
  * @returns {string} The name of the tool that was added.
  */
-declare const addTool: (toolSchema: IAgentTool<Record<string, unknown>>) => string;
+declare const addTool: (toolSchema: IAgentTool<Record<string, string | number | boolean>>) => string;
 
 /**
  * Adds a new state to the state registry. The swarm takes only those states which was registered
@@ -5277,7 +5335,8 @@ declare const LoggerAdapter: LoggerUtils;
 declare const Logger: ILoggerControl;
 
 declare const GLOBAL_CONFIG: {
-    CC_TOOL_CALL_EXCEPTION_PROMPT: string;
+    CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT: string;
+    CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT: string;
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
     CC_KEEP_MESSAGES: number;
     CC_GET_AGENT_HISTORY_ADAPTER: (clientId: string, agentName: AgentName) => IHistoryAdapter;
@@ -5299,10 +5358,12 @@ declare const GLOBAL_CONFIG: {
     CC_LOGGER_ENABLE_DEBUG: boolean;
     CC_LOGGER_ENABLE_LOG: boolean;
     CC_LOGGER_ENABLE_CONSOLE: boolean;
+    CC_RESQUE_STRATEGY: "flush" | "recomplete" | "custom";
     CC_NAME_TO_TITLE: (name: string) => string;
     CC_FN_PLANTUML: (uml: string) => Promise<string>;
     CC_PROCESS_UUID: string;
     CC_BANHAMMER_PLACEHOLDER: string;
+    CC_TOOL_CALL_EXCEPTION_CUSTON_FUNCTION: (clientId: string, agentName: AgentName) => Promise<void>;
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 

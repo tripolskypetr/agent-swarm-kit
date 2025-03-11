@@ -58,7 +58,36 @@ export class ClientHistory implements IHistory {
       },
       clientId: this.params.clientId,
     });
-  };
+  }
+
+  /**
+   * Pushes a message to the history.
+   * @returns {Promise<IModelMessage | null>}
+   */
+  async pop(): Promise<IModelMessage | null> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientHistory agentName=${this.params.agentName} pop`,
+      );
+    const value = await this.params.items.pop(
+      this.params.clientId,
+      this.params.agentName
+    );
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "pop",
+      source: "history-bus",
+      input: {
+      },
+      output: {
+        value
+      },
+      context: {
+        agentName: this.params.agentName,
+      },
+      clientId: this.params.clientId,
+    });
+    return value;
+  }
 
   /**
    * Converts the history to an array of raw messages.
@@ -77,7 +106,7 @@ export class ClientHistory implements IHistory {
       result.push(item);
     }
     return result;
-  };
+  }
 
   /**
    * Converts the history to an array of messages for the agent.
@@ -179,7 +208,7 @@ export class ClientHistory implements IHistory {
       );
     }
     return [...promptMessages, ...systemMessages, ...assistantMessages];
-  };
+  }
 
   /**
    * Should call on agent dispose
@@ -194,7 +223,7 @@ export class ClientHistory implements IHistory {
       this.params.clientId,
       this.params.agentName
     );
-  };
+  }
 }
 
 export default ClientHistory;
