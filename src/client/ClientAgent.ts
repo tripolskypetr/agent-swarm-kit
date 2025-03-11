@@ -1,4 +1,5 @@
 import {
+  createAwaiter,
   errorData,
   getErrorMessage,
   not,
@@ -207,7 +208,11 @@ const EXECUTE_FN = async (
       ...message,
       agentName: self.params.agentName,
     });
+
     let lastToolStatusRef = Promise.resolve(null);
+
+    const [runAwaiter, { resolve: run }] = createAwaiter<boolean>();
+
     for (let idx = 0; idx !== toolCalls.length; idx++) {
       const tool = toolCalls[idx];
       const targetFn = self.params.tools?.find(
@@ -228,6 +233,7 @@ const EXECUTE_FN = async (
             `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
           );
         await self._emitOutput(mode, result);
+        run(false);
         return;
       }
       targetFn.callbacks?.onValidate &&
@@ -261,6 +267,7 @@ const EXECUTE_FN = async (
             `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
           );
         await self._emitOutput(mode, result);
+        run(false);
         return;
       }
       targetFn.callbacks?.onBeforeCall &&
@@ -273,121 +280,116 @@ const EXECUTE_FN = async (
       /**
        * Do not await directly to avoid the deadlock! The tool can send the message to other agents by emulating user messages
        */
-      {
-        lastToolStatusRef.then((lastStatus) => {
-          if (lastStatus === MODEL_RESQUE_SYMBOL) {
-            return;
-          }
-          if (lastStatus === AGENT_CHANGE_SYMBOL) {
-            return;
-          }
-          if (lastStatus === TOOL_STOP_SYMBOL) {
-            return;
-          }
-          if (lastStatus === TOOL_ERROR_SYMBOL) {
-            return;
-          }
-          return createToolCall(idx, tool, toolCalls, targetFn, self);
-        });
-        lastToolStatusRef = lastToolStatusRef.then(() =>
-          Promise.race([
-            self._agentChangeSubject.toPromise(),
-            self._toolCommitSubject.toPromise(),
-            self._toolErrorSubject.toPromise(),
-            self._toolStopSubject.toPromise(),
-            self._resqueSubject.toPromise(),
-          ])
-        );
-      }
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-        self.params.logger.debug(
-          `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} tool call executing`
-        );
-      Promise.race([
-        sleep(TOOL_NO_OUTPUT_WARNING_TIMEOUT).then(
-          () => TOOL_NO_OUTPUT_WARNING_SYMBOL
-        ),
-        lastToolStatusRef,
-      ]).then((result) => {
-        if (result === TOOL_NO_OUTPUT_WARNING_SYMBOL) {
-          console.warn(
-            `agent-swarm no tool output after ${TOOL_NO_OUTPUT_WARNING_TIMEOUT}ms clientId=${self.params.clientId} agentName=${self.params.agentName} toolId=${tool.id} functionName=${tool.function.name}`
-          );
+      lastToolStatusRef = lastToolStatusRef.then(async (lastStatus) => {
+        if (await not(runAwaiter)) {
+          return;
         }
+        if (lastStatus === MODEL_RESQUE_SYMBOL) {
+          return lastStatus;
+        }
+        if (lastStatus === AGENT_CHANGE_SYMBOL) {
+          return lastStatus;
+        }
+        if (lastStatus === TOOL_STOP_SYMBOL) {
+          return lastStatus;
+        }
+        if (lastStatus === TOOL_ERROR_SYMBOL) {
+          return lastStatus;
+        }
+        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+          self.params.logger.debug(
+            `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} tool call executing`
+          );
+        const statusAwaiter = Promise.race([
+          self._agentChangeSubject.toPromise(),
+          self._toolCommitSubject.toPromise(),
+          self._toolErrorSubject.toPromise(),
+          self._toolStopSubject.toPromise(),
+          self._resqueSubject.toPromise(),
+        ]);
+        Promise.race([
+          sleep(TOOL_NO_OUTPUT_WARNING_TIMEOUT).then(
+            () => TOOL_NO_OUTPUT_WARNING_SYMBOL
+          ),
+          statusAwaiter,
+        ]).then((result) => {
+          if (result === TOOL_NO_OUTPUT_WARNING_SYMBOL) {
+            console.warn(
+              `agent-swarm no tool output after ${TOOL_NO_OUTPUT_WARNING_TIMEOUT}ms clientId=${self.params.clientId} agentName=${self.params.agentName} toolId=${tool.id} functionName=${tool.function.name}`
+            );
+          }
+        });
+        createToolCall(idx, tool, toolCalls, targetFn, self);
+        const status = await statusAwaiter;
+        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+          self.params.logger.debug(
+            `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} tool call end`
+          );
+        if (status === MODEL_RESQUE_SYMBOL) {
+          GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+            self.params.logger.debug(
+              `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the model resque`
+            );
+          self.params.callbacks?.onAfterToolCalls &&
+            self.params.callbacks.onAfterToolCalls(
+              self.params.clientId,
+              self.params.agentName,
+              toolCalls
+            );
+        }
+        if (status === AGENT_CHANGE_SYMBOL) {
+          GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+            self.params.logger.debug(
+              `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the agent changed`
+            );
+          self.params.callbacks?.onAfterToolCalls &&
+            self.params.callbacks.onAfterToolCalls(
+              self.params.clientId,
+              self.params.agentName,
+              toolCalls
+            );
+        }
+        if (status === TOOL_STOP_SYMBOL) {
+          GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+            self.params.logger.debug(
+              `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the commitStopTools call`
+            );
+          self.params.callbacks?.onAfterToolCalls &&
+            self.params.callbacks.onAfterToolCalls(
+              self.params.clientId,
+              self.params.agentName,
+              toolCalls
+            );
+        }
+        if (status === TOOL_ERROR_SYMBOL) {
+          GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+            self.params.logger.debug(
+              `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the call error`
+            );
+          const result = await self._resurrectModel(
+            mode,
+            `Function call failed with error: name=${
+              tool.function.name
+            } arguments=${JSON.stringify(tool.function.arguments)}`
+          );
+          GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+            self.params.logger.debug(
+              `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
+            );
+          await self._emitOutput(mode, result);
+        }
+        return status;
       });
-
-      /**
-       * It is important to start awaiting subjects before executing the next function
-       */
-      const status = await lastToolStatusRef;
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-        self.params.logger.debug(
-          `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} tool call end`
-        );
-      if (status === MODEL_RESQUE_SYMBOL) {
-        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-          self.params.logger.debug(
-            `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the model resque`
-          );
-        self.params.callbacks?.onAfterToolCalls &&
-          self.params.callbacks.onAfterToolCalls(
-            self.params.clientId,
-            self.params.agentName,
-            toolCalls
-          );
-        return;
-      }
-      if (status === AGENT_CHANGE_SYMBOL) {
-        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-          self.params.logger.debug(
-            `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the agent changed`
-          );
-        self.params.callbacks?.onAfterToolCalls &&
-          self.params.callbacks.onAfterToolCalls(
-            self.params.clientId,
-            self.params.agentName,
-            toolCalls
-          );
-        return;
-      }
-      if (status === TOOL_STOP_SYMBOL) {
-        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-          self.params.logger.debug(
-            `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the commitStopTools call`
-          );
-        self.params.callbacks?.onAfterToolCalls &&
-          self.params.callbacks.onAfterToolCalls(
-            self.params.clientId,
-            self.params.agentName,
-            toolCalls
-          );
-        return;
-      }
-      if (status === TOOL_ERROR_SYMBOL) {
-        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-          self.params.logger.debug(
-            `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the call error`
-          );
-        const result = await self._resurrectModel(
-          mode,
-          `Function call failed with error: name=${
-            tool.function.name
-          } arguments=${JSON.stringify(tool.function.arguments)}`
-        );
-        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-          self.params.logger.debug(
-            `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
-          );
-        await self._emitOutput(mode, result);
-        return;
-      }
     }
-    self.params.callbacks?.onAfterToolCalls &&
-      self.params.callbacks.onAfterToolCalls(
-        self.params.clientId,
-        self.params.agentName,
-        toolCalls
-      );
+    lastToolStatusRef.finally(() => {
+      self.params.callbacks?.onAfterToolCalls &&
+        self.params.callbacks.onAfterToolCalls(
+          self.params.clientId,
+          self.params.agentName,
+          toolCalls
+        );
+    });
+    run(true);
     return;
   }
   if (!message.tool_calls) {
