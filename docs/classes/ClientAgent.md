@@ -24,6 +24,12 @@ params: IAgentParams
 _agentChangeSubject: Subject<unique symbol>
 ```
 
+### _resqueSubject
+
+```ts
+_resqueSubject: Subject<unique symbol>
+```
+
 ### _toolErrorSubject
 
 ```ts
@@ -66,10 +72,10 @@ Run the completion stateless and return the output
 
 ## Methods
 
-### _emitOuput
+### _emitOutput
 
 ```ts
-_emitOuput(mode: ExecutionMode, rawResult: string): Promise<void>;
+_emitOutput(mode: ExecutionMode, rawResult: string): Promise<void>;
 ```
 
 Emits the output result after validation.

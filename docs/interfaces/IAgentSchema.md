@@ -4,6 +4,22 @@ Interface representing the schema for an agent.
 
 ## Properties
 
+### mapToolCalls
+
+```ts
+mapToolCalls: (tool: IToolCall[], clientId: string, agentName: string) => IToolCall[] | Promise<IToolCall[]>
+```
+
+The map function to filter unwanted tool calls
+
+### maxToolCalls
+
+```ts
+maxToolCalls: number
+```
+
+The maximum quantity of tool calls per complete
+
 ### docDescription
 
 ```ts

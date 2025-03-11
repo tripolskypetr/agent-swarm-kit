@@ -61,7 +61,7 @@ export class ClientHistory implements IHistory {
   }
 
   /**
-   * Pushes a message to the history.
+   * Pop a message from the history.
    * @returns {Promise<IModelMessage | null>}
    */
   async pop(): Promise<IModelMessage | null> {
