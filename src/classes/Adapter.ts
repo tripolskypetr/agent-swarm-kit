@@ -219,14 +219,16 @@ export class AdapterUtils {
 
       const messages = [...rawMessages];
 
-      messages.unshift({
-        agentName,
-        mode: "tool",
-        role: "system",
-        content: tool_call_protocol,
-      });
+      if (tool_call_protocol) {
+        messages.unshift({
+          agentName,
+          mode: "tool",
+          role: "system",
+          content: tool_call_protocol,
+        });
+      }
 
-      const response = ollama.chat({
+      const response = await ollama.chat({
         model: model,
         keep_alive: "24h",
         options: {
