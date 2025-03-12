@@ -2021,7 +2021,7 @@ declare class ClientHistory implements IHistory {
      */
     push(message: IModelMessage): Promise<void>;
     /**
-     * Pushes a message to the history.
+     * Pop a message from the history.
      * @returns {Promise<IModelMessage | null>}
      */
     pop(): Promise<IModelMessage | null>;
@@ -5372,7 +5372,7 @@ declare const GLOBAL_CONFIG: {
     CC_FN_PLANTUML: (uml: string) => Promise<string>;
     CC_PROCESS_UUID: string;
     CC_BANHAMMER_PLACEHOLDER: string;
-    CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: AgentName) => Promise<void>;
+    CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: AgentName) => Promise<IModelMessage | null>;
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
