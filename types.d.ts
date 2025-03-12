@@ -1,7 +1,6 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
-import { ICompletionArgs as ICompletionArgs$1 } from 'src/interfaces/Completion.interface';
 
 /**
  * Interface representing the context.
@@ -5730,13 +5729,39 @@ declare class AdapterUtils {
      */
     fromOpenAI: (openai: any, model?: string, response_format?: {
         type: string;
-    }) => ({ agentName, messages: rawMessages, mode, tools, clientId, }: ICompletionArgs$1) => Promise<{
+    }) => ({ agentName, messages: rawMessages, mode, tools, clientId, }: ICompletionArgs) => Promise<{
         content: any;
         mode: ExecutionMode;
         agentName: string;
         role: any;
         tool_calls: any;
     }>;
+    /**
+     * Creates a function to interact with LMStudio's chat completions.
+     *
+     * @param {any} openai - The LMStudio instance.
+     * @param {string} [model="saiga_yandexgpt_8b_gguf"] - The model to use for completions.
+     * @param {Object} [response_format] - The format of the response.
+     * @returns {Function} - A function that takes completion arguments and returns a response from LMStudio.
+     */
+    fromLMStudio: (openai: any, model?: string, response_format?: {
+        type: string;
+    }) => ({ agentName, messages: rawMessages, mode, tools, clientId, }: ICompletionArgs) => Promise<{
+        content: any;
+        mode: ExecutionMode;
+        agentName: string;
+        role: any;
+        tool_calls: any;
+    }>;
+    /**
+     * Creates a function to interact with Ollama's chat completions.
+     *
+     * @param {any} ollama - The Ollama instance.
+     * @param {string} [model="nemotron-mini:4b"] - The model to use for completions.
+     * @param {string} [tool_call_protocol=TOOL_PROTOCOL_PROMPT] - The protocol for tool calls.
+     * @returns {Function} - A function that takes completion arguments and returns a response from Ollama.
+     */
+    fromOllama: (ollama: any, model?: string, tool_call_protocol?: string) => ({ agentName, messages: rawMessages, mode, tools, clientId, }: ICompletionArgs) => Promise<any>;
 }
 /**
  * An instance of AdapterUtils.

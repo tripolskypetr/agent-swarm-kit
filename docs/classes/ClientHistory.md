@@ -42,7 +42,7 @@ Pushes a message to the history.
 pop(): Promise<IModelMessage | null>;
 ```
 
-Pushes a message to the history.
+Pop a message from the history.
 
 ### toArrayForRaw
 
