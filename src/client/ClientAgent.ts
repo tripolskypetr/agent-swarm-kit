@@ -488,7 +488,7 @@ export class ClientAgent implements IAgent {
       );
       if ((validation = await this.params.validate(result))) {
         throw new Error(
-          `agent-swarm-kit ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} model ressurect failed: ${validation}`
+          `agent-swarm-kit ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} model resurrect failed: ${validation}`
         );
       }
       this.params.onOutput &&
@@ -557,8 +557,9 @@ export class ClientAgent implements IAgent {
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel`
       );
     console.warn(
-      `agent-swarm model ressurect for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY} reason=${reason}`
+      `agent-swarm model resurrect for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY} reason=${reason}`
     );
+    const placeholder = createPlaceholder();
     this.params.onResurrect &&
       this.params.onResurrect(
         this.params.clientId,
@@ -566,19 +567,21 @@ export class ClientAgent implements IAgent {
         mode,
         reason
       );
-    if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "recomplete") {
-      await this.params.history.push({
-        role: "user",
-        mode: "tool",
-        agentName: this.params.agentName,
-        content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
-      });
-    } else if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "flush") {
+    {
+      if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "recomplete") {
+        console.warn(
+          `agent-swarm model resurrect did not solved the problem (still being called after recomplete patch) for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY}`
+        );
+      } else if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "custom") {
+        console.warn(
+          `agent-swarm model resurrect did not solved the problem (still being called after patchedMessage emit) for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY}`
+        );
+      }
       await this.params.history.push({
         role: "resque",
         mode: "tool",
         agentName: this.params.agentName,
-        content: reason || "Unknown error",
+        content: reason || "_resurrectModel call",
       });
       await this.params.history.push({
         role: "user",
@@ -586,40 +589,24 @@ export class ClientAgent implements IAgent {
         agentName: this.params.agentName,
         content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
       });
-    } else if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "custom") {
-      await GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION(
-        this.params.clientId,
-        this.params.agentName
-      );
-    } else {
-      throw new Error(
-        `agent-swarm _resurrectModel invalid strategy value=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY} agentName=${this.params.agentName} clientId=${this.params.clientId}`
-      );
     }
     const rawMessage = await this.getCompletion(mode);
     if (rawMessage.tool_calls?.length) {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         this.params.logger.debug(
-          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel failed due to tool_calls`
+          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel should not emit tool_calls`
         );
       console.warn(
-        `agent-swarm model ressurect did not solved the problem (tool_calls) for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY}`
+        `agent-swarm _resurrectModel should not emit tool_calls for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY}`
       );
-      const content = createPlaceholder();
       await this.params.history.push({
         role: "resque",
         mode: "tool",
         agentName: this.params.agentName,
-        content: reason || "Unknown error",
-      });
-      await this.params.history.push({
-        agentName: this.params.agentName,
-        role: "assistant",
-        mode: "tool",
-        content,
+        content: "_resurrectModel should not emit tool calls",
       });
       await this._resqueSubject.next(MODEL_RESQUE_SYMBOL);
-      return content;
+      return placeholder;
     }
     const message = await this.params.map(
       rawMessage,
@@ -638,30 +625,22 @@ export class ClientAgent implements IAgent {
           `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resurrectModel validation error: ${validation}`
         );
       console.warn(
-        `agent-swarm model ressurect did not solved the problem for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY}`
+        `agent-swarm model resurrect did not solved the problem for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY} validation=${validation}`
       );
-      const content = createPlaceholder();
       await this.params.history.push({
         role: "resque",
         mode: "tool",
         agentName: this.params.agentName,
-        content: reason || "Unknown error",
+        content: `_resurrectModel failed validation: ${validation}`,
       });
+    } else {
       await this.params.history.push({
+        ...message,
         agentName: this.params.agentName,
-        role: "assistant",
-        mode: "tool",
-        content,
       });
-      await this._resqueSubject.next(MODEL_RESQUE_SYMBOL);
-      return content;
     }
-    await this.params.history.push({
-      ...message,
-      agentName: this.params.agentName,
-    });
     await this._resqueSubject.next(MODEL_RESQUE_SYMBOL);
-    return result;
+    return placeholder;
   }
 
   /**
@@ -699,12 +678,80 @@ export class ClientAgent implements IAgent {
       ),
     };
     const output = await this.params.completion.getCompletion(args);
-    this.params.completion.callbacks?.onComplete &&
-      this.params.completion.callbacks?.onComplete(args, output);
-    return {
-      ...output,
-      content: output.content || "",
-    };
+    const message = await this.params.map(
+      output,
+      this.params.clientId,
+      this.params.agentName
+    );
+    const result = await this.params.transform(
+      message.content,
+      this.params.clientId,
+      this.params.agentName
+    );
+    if (message.tool_calls?.length) {
+      return {
+        ...output,
+        content: output.content || "",
+      };
+    }
+    let validation = await this.params.validate(result);
+    if (!validation) {
+      this.params.completion.callbacks?.onComplete &&
+        this.params.completion.callbacks?.onComplete(args, output);
+      return {
+        ...output,
+        content: output.content || "",
+      };
+    } else if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "recomplete") {
+      console.warn(
+        `agent-swarm model using recomplete resurrect for agentName=${this.params.agentName} clientId=${this.params.clientId} validation=${validation}`
+      );
+      await this.params.history.push({
+        role: "user",
+        mode: "tool",
+        agentName: this.params.agentName,
+        content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
+      });
+      const messages = await this.params.history.toArrayForAgent(
+        this.params.prompt,
+        this.params.system
+      );
+      const args = {
+        clientId: this.params.clientId,
+        agentName: this.params.agentName,
+        messages,
+        mode,
+        tools: this.params.tools?.map((t) =>
+          omit(t, "toolName", "docNote", "call", "validate", "callbacks")
+        ),
+      };
+      const output = await this.params.completion.getCompletion(args);
+      return {
+        ...output,
+        content: output.content || "",
+      };
+    } else if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "custom") {
+      console.warn(
+        `agent-swarm model using custom resurrect for agentName=${this.params.agentName} clientId=${this.params.clientId} validation=${validation}`
+      );
+      const output = await GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION(
+        this.params.clientId,
+        this.params.agentName
+      );
+      this.params.completion.callbacks?.onComplete &&
+        this.params.completion.callbacks?.onComplete(args, output);
+      return output;
+    } else {
+      console.warn(
+        `agent-swarm model completion pending resurrect for agentName=${this.params.agentName} clientId=${this.params.clientId} strategy=${GLOBAL_CONFIG.CC_RESQUE_STRATEGY} validation=${validation}`
+      );
+      this.params.completion.callbacks?.onComplete &&
+        this.params.completion.callbacks?.onComplete(args, output);
+      return {
+        ...output,
+        content: output.content || "",
+      };
+    }
   }
 
   /**

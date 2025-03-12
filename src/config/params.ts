@@ -29,7 +29,7 @@ const CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT = str.newline(
 const CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (
   clientId: string,
   agentName: AgentName
-) => Promise<void> = () => Promise.resolve();
+) => Promise<IModelMessage | null> = () => Promise.resolve(null);
 
 /**
  * @description When the model output is empty just say hello to the customer

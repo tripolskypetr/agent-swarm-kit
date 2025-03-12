@@ -21,7 +21,8 @@ const debug = {
 test("Will resque model on unexisting tool call", async ({ pass, fail }) => {
 
     setConfig({
-        CC_RESQUE_STRATEGY: "flush"
+        CC_RESQUE_STRATEGY: "flush",
+        CC_EMPTY_OUTPUT_PLACEHOLDERS: ["Resque"]
     })
 
     const MOCK_COMPLETION = addCompletion({
@@ -63,10 +64,6 @@ test("Will resque model on unexisting tool call", async ({ pass, fail }) => {
         defaultAgent: TEST_AGENT,
     });
 
-    setConfig({
-        CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT: "Resque",
-    });
-
     const result = await complete("test", CLIENT_ID, TEST_SWARM);
 
     if (result === "Resque") {
@@ -81,7 +78,8 @@ test("Will resque model on unexisting tool call", async ({ pass, fail }) => {
 test("Will resque model on empty output", async ({ pass, fail }) => {
 
     setConfig({
-        CC_RESQUE_STRATEGY: "flush"
+        CC_RESQUE_STRATEGY: "flush",
+        CC_EMPTY_OUTPUT_PLACEHOLDERS: ["Resque"]
     })
 
     const MOCK_COMPLETION = addCompletion({
@@ -115,10 +113,6 @@ test("Will resque model on empty output", async ({ pass, fail }) => {
         defaultAgent: TEST_AGENT,
     });
 
-    setConfig({
-        CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT: "Resque",
-    });
-
     const result = await complete("test", CLIENT_ID, TEST_SWARM);
 
     if (result === "Resque") {
@@ -133,7 +127,8 @@ test("Will resque model on empty output", async ({ pass, fail }) => {
 test("Will resque model on failed tool validation", async ({ pass, fail }) => {
 
     setConfig({
-        CC_RESQUE_STRATEGY: "flush"
+        CC_RESQUE_STRATEGY: "flush",
+        CC_EMPTY_OUTPUT_PLACEHOLDERS: ["Resque"]
     })
 
     const MOCK_COMPLETION = addCompletion({
@@ -188,10 +183,6 @@ test("Will resque model on failed tool validation", async ({ pass, fail }) => {
         swarmName: "test-swarm",
         agentList: [TEST_AGENT],
         defaultAgent: TEST_AGENT,
-    });
-
-    setConfig({
-        CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT: "Resque",
     });
 
     const result = await complete("test", CLIENT_ID, TEST_SWARM);
