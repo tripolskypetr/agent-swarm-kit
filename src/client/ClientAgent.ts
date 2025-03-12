@@ -590,6 +590,10 @@ export class ClientAgent implements IAgent {
         content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
       });
     }
+    if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "flush") {
+      await this._resqueSubject.next(MODEL_RESQUE_SYMBOL);
+      return placeholder;
+    }
     const rawMessage = await this.getCompletion(mode);
     if (rawMessage.tool_calls?.length) {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -678,6 +682,14 @@ export class ClientAgent implements IAgent {
       ),
     };
     const output = await this.params.completion.getCompletion(args);
+    if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "flush") {
+      this.params.completion.callbacks?.onComplete &&
+        this.params.completion.callbacks?.onComplete(args, output);
+      return {
+        ...output,
+        content: output.content || "",
+      };
+    }
     const message = await this.params.map(
       output,
       this.params.clientId,
@@ -689,6 +701,8 @@ export class ClientAgent implements IAgent {
       this.params.agentName
     );
     if (message.tool_calls?.length) {
+      this.params.completion.callbacks?.onComplete &&
+        this.params.completion.callbacks?.onComplete(args, output);
       return {
         ...output,
         content: output.content || "",
@@ -726,6 +740,8 @@ export class ClientAgent implements IAgent {
         ),
       };
       const output = await this.params.completion.getCompletion(args);
+      this.params.completion.callbacks?.onComplete &&
+        this.params.completion.callbacks?.onComplete(args, output);
       return {
         ...output,
         content: output.content || "",
