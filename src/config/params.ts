@@ -172,7 +172,7 @@ const GLOBAL_CONFIG = {
   CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION,
 };
 
-GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "recomplete";
+GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";
 
 export const setConfig = (config: Partial<typeof GLOBAL_CONFIG>) => {
   Object.assign(GLOBAL_CONFIG, config);
