@@ -518,6 +518,8 @@ interface IPolicySchema {
     policyName: PolicyName;
     /** The message to display when a client is banned */
     banMessage?: string;
+    /** Ban immediately after failed validation */
+    autoBan?: boolean;
     /**
      * Gets the ban message for a client.
      * @param clientId - The session ID of the client.

@@ -150,7 +150,9 @@ export class ClientPolicy implements IPolicy {
     ) {
       return true;
     }
-    await this.banClient(clientId, swarmName);
+    if (this.params.autoBan) {
+      await this.banClient(clientId, swarmName);
+    }
     return false;
   }
 
@@ -217,7 +219,9 @@ export class ClientPolicy implements IPolicy {
     ) {
       return true;
     }
-    await this.banClient(clientId, swarmName);
+    if (this.params.autoBan) {
+      await this.banClient(clientId, swarmName);
+    }
     return false;
   }
 
