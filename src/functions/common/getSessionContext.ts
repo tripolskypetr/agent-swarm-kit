@@ -18,6 +18,7 @@ const METHOD_NAME = "function.common.getSessionContext";
  */
 interface ISessionContext {
   clientId: string | null;
+  processId: string;
   methodContext: IMethodContext | null;
   executionContext: IExecutionContext | null;
 }
@@ -40,6 +41,7 @@ export const getSessionContext = async (): Promise<ISessionContext> => {
   const clientId = methodContext?.clientId ?? executionContext?.clientId;
   return {
     clientId,
+    processId: GLOBAL_CONFIG.CC_PROCESS_UUID,
     methodContext,
     executionContext,
   };

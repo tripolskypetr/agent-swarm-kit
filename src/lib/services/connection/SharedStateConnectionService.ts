@@ -12,6 +12,7 @@ import {
   StateName,
 } from "../../../interfaces/State.interface";
 import BusService from "../base/BusService";
+import { PersistState } from "src/classes/Persist";
 
 /**
  * Service for managing shared state connections.
@@ -41,17 +42,23 @@ export class SharedStateConnectionService<T extends IStateData = IStateData>
     ([stateName]) => `${stateName}`,
     (stateName: StateName) => {
       const {
-        getState,
-        setState,
+        persist = GLOBAL_CONFIG.CC_PERSIST_ENABLED_BY_DEFAULT,
+        getState = persist
+          ? PersistState.getState
+          : GLOBAL_CONFIG.CC_DEFAULT_STATE_GET,
+        setState = persist
+          ? PersistState.setState
+          : GLOBAL_CONFIG.CC_DEFAULT_STATE_SET,
         middlewares = [],
         shared,
+        defaultState = {},
         callbacks,
       } = this.stateSchemaService.get(stateName);
       if (!shared) {
         throw new Error(`agent-swarm state not shared stateName=${stateName}`);
       }
       return new ClientState({
-        clientId: "*",
+        clientId: "shared",
         stateName,
         logger: this.loggerService,
         bus: this.busService,
@@ -63,6 +70,7 @@ export class SharedStateConnectionService<T extends IStateData = IStateData>
         getState,
         middlewares,
         callbacks,
+        defaultState,
       });
     }
   );

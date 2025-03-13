@@ -17,7 +17,8 @@ const WAIT_FOR_INIT_FN = async (self: ClientStorage) => {
   }
   const data = await self.params.getData(
     self.params.clientId,
-    self.params.storageName
+    self.params.storageName,
+    self.params.defaultData
   );
   await Promise.all(
     data.map(
@@ -201,9 +202,17 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     this._itemMap.set(item.id, item);
     this._createEmbedding.clear(item.id);
     await this._createEmbedding(item);
+    const data = [...this._itemMap.values()];
+    if (this.params.setData) {
+      await this.params.setData(
+        data,
+        this.params.clientId,
+        this.params.storageName
+      );
+    }
     if (this.params.callbacks?.onUpdate) {
       this.params.callbacks?.onUpdate(
-        [...this._itemMap.values()],
+        data,
         this.params.clientId,
         this.params.storageName
       );
@@ -237,9 +246,17 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       );
     this._itemMap.delete(itemId);
     this._createEmbedding.clear(itemId);
+    const data = [...this._itemMap.values()];
+    if (this.params.setData) {
+      await this.params.setData(
+        data,
+        this.params.clientId,
+        this.params.storageName
+      );
+    }
     if (this.params.callbacks?.onUpdate) {
       this.params.callbacks?.onUpdate(
-        [...this._itemMap.values()],
+        data,
         this.params.clientId,
         this.params.storageName
       );
