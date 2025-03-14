@@ -29,18 +29,6 @@ export interface IPersistBase<Entity extends IEntity = IEntity> {
   readValue(entityId: EntityId): Promise<Entity>;
   hasValue(entityId: EntityId): Promise<boolean>;
   writeValue(entityId: EntityId, entity: Entity): Promise<void>;
-  removeValue(entityId: EntityId): Promise<void>;
-  removeAll(): Promise<void>;
-  values(): AsyncGenerator<Entity>;
-  keys(): AsyncGenerator<EntityId>;
-  [Symbol.asyncIterator](): AsyncIterableIterator<any>;
-  filter<T extends IEntity = IEntity>(
-    predicate: (value: T) => boolean
-  ): AsyncGenerator<T>;
-  take<T extends IEntity = IEntity>(
-    total: number,
-    predicate?: (value: T) => boolean
-  ): AsyncGenerator<T>;
 }
 
 export type TPersistBaseCtor<
@@ -124,7 +112,9 @@ const LIST_GET_LAST_KEY_FN = async (self: PersistList) => {
  * Base class for persistent storage of entities in a file system
  * @template EntityName - The type of entity name
  */
-export class PersistBase<EntityName extends string = string> {
+export class PersistBase<EntityName extends string = string>
+  implements IPersistBase
+{
   /** The directory path where entity files are stored */
   _directory: string;
 
@@ -474,10 +464,19 @@ interface IPersistNavigationStackData {
   agentStack: AgentName[];
 }
 
+interface IPersistSwarmControl {
+  usePersistActiveAgentAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>
+  ): void;
+  usePersistNavigationStackAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>
+  ): void;
+}
+
 /**
  * Utility class for managing swarm-related persistence
  */
-class PersistSwarmUtils {
+class PersistSwarmUtils implements IPersistSwarmControl {
   private PersistActiveAgentFactory: TPersistBaseCtor<
     SwarmName,
     IPersistActiveAgentData
@@ -500,6 +499,18 @@ class PersistSwarmUtils {
         `./logs/data/_swarm_active_agent/`
       )
   );
+
+  public usePersistActiveAgentAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>
+  ) {
+    this.PersistActiveAgentFactory = Ctor;
+  }
+
+  public usePersistNavigationStackAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>
+  ) {
+    this.PersistNavigationStackFactory = Ctor;
+  }
 
   /**
    * Memoized function to get storage for navigation stacks
@@ -599,14 +610,22 @@ class PersistSwarmUtils {
  */
 export const PersistSwarmAdapter = new PersistSwarmUtils();
 
+export const PersistSwarm = PersistSwarmAdapter as IPersistSwarmControl;
+
 interface IPersistStateData<T = unknown> {
   state: T;
+}
+
+interface IPersistStateControl {
+  usePersistStateAdapter(
+    Ctor: TPersistBaseCtor<StorageName, IPersistStateData>
+  ): void;
 }
 
 /**
  * Utility class for managing state persistence
  */
-class PersistStateUtils {
+class PersistStateUtils implements IPersistStateControl {
   private PersistStateFactory: TPersistBaseCtor<StateName, IPersistStateData> =
     PersistBase;
 
@@ -620,6 +639,12 @@ class PersistStateUtils {
     (stateName: StateName) =>
       new this.PersistStateFactory(stateName, `./logs/data/state/`)
   );
+
+  public usePersistStateAdapter(
+    Ctor: TPersistBaseCtor<StorageName, IPersistStateData>
+  ) {
+    this.PersistStateFactory = Ctor;
+  }
 
   /**
    * Sets the state for a client
@@ -669,14 +694,22 @@ class PersistStateUtils {
  */
 export const PersistStateAdapter = new PersistStateUtils();
 
+export const PersistState = PersistStateAdapter as IPersistStateControl;
+
 interface IPersistStorageData<T extends IStorageData = IStorageData> {
   data: T[];
+}
+
+interface IPersistStorageControl {
+  usePersistStorageAdapter(
+    Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>
+  ): void;
 }
 
 /**
  * Utility class for managing storage persistence
  */
-class PersistStorageUtils {
+class PersistStorageUtils implements IPersistStorageControl {
   private PersistStorageFactory: TPersistBaseCtor<
     StorageName,
     IPersistStorageData
@@ -692,6 +725,12 @@ class PersistStorageUtils {
     (storageName: StorageName) =>
       new this.PersistStorageFactory(storageName, `./logs/data/storage/`)
   );
+
+  public usePersistStorageAdapter(
+    Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>
+  ) {
+    this.PersistStorageFactory = Ctor;
+  }
 
   /**
    * Gets the data for a client from a specific storage
@@ -740,3 +779,5 @@ class PersistStorageUtils {
  * Singleton instance of PersistStorageUtils for managing storage persistence
  */
 export const PersistStorageAdapter = new PersistStorageUtils();
+
+export const PersistStorage = PersistStorageAdapter as IPersistStorageControl;
