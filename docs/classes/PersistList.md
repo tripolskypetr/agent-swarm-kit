@@ -20,26 +20,26 @@ _lastCount: number
 
 Tracks the last used numeric key
 
-### __@LIST_CREATE_KEY_SYMBOL@510
+### __@LIST_CREATE_KEY_SYMBOL@517
 
 ```ts
-__@LIST_CREATE_KEY_SYMBOL@510: any
+__@LIST_CREATE_KEY_SYMBOL@517: any
 ```
 
 Creates a new unique key for a list item
 
-### __@LIST_GET_LAST_KEY_SYMBOL@511
+### __@LIST_GET_LAST_KEY_SYMBOL@518
 
 ```ts
-__@LIST_GET_LAST_KEY_SYMBOL@511: any
+__@LIST_GET_LAST_KEY_SYMBOL@518: any
 ```
 
 Gets the key of the last item in the list
 
-### __@LIST_POP_SYMBOL@513
+### __@LIST_POP_SYMBOL@520
 
 ```ts
-__@LIST_POP_SYMBOL@513: any
+__@LIST_POP_SYMBOL@520: any
 ```
 
 Removes and returns the last item in the list

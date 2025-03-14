@@ -68,10 +68,10 @@ callbacks: Partial<IStorageCallbacks<T>>
 
 Optional callbacks for storage events.
 
-### defaultData
+### getDefaultData
 
 ```ts
-defaultData: T[]
+getDefaultData: (clientId: string, storageName: string) => T[] | Promise<T[]>
 ```
 
 The default value. Resolved in `PersistStorage`

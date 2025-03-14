@@ -36,10 +36,10 @@ stateName: string
 
 The name of the state.
 
-### defaultState
+### getDefaultState
 
 ```ts
-defaultState: T
+getDefaultState: (clientId: string, stateName: string) => T | Promise<T>
 ```
 
 The default value for a state

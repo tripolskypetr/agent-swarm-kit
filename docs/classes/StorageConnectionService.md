@@ -63,7 +63,7 @@ _sharedStorageSet: any
 ### getStorage
 
 ```ts
-getStorage: ((clientId: string, storageName: string) => ClientStorage<IStorageData>) & IClearableMemoize<string> & IControlMemoize<string, ClientStorage<IStorageData>>
+getStorage: ((clientId: string, storageName: string) => ClientStorage<any>) & IClearableMemoize<string> & IControlMemoize<string, ClientStorage<any>>
 ```
 
 Retrieves a storage instance based on client ID and storage name.

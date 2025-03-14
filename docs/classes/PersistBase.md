@@ -13,35 +13,27 @@ constructor(entityName: EntityName, baseDir: string);
 ### entityName
 
 ```ts
-entityName: any
+entityName: EntityName
 ```
 
 ### baseDir
 
 ```ts
-baseDir: any
+baseDir: string
 ```
 
-### directory
+### _directory
 
 ```ts
-directory: any
+_directory: string
 ```
 
 The directory path where entity files are stored
 
-### getFilePath
+### __@BASE_WAIT_FOR_INIT_SYMBOL@469
 
 ```ts
-getFilePath: any
-```
-
-Gets the file path for an entity
-
-### __@BASE_WAIT_FOR_INIT_SYMBOL@464
-
-```ts
-__@BASE_WAIT_FOR_INIT_SYMBOL@464: any
+__@BASE_WAIT_FOR_INIT_SYMBOL@469: any
 ```
 
 Initializes the storage directory
@@ -55,6 +47,14 @@ writeValue: <T extends IEntity = IEntity>(entityId: EntityId, entity: T) => Prom
 Writes an entity to storage
 
 ## Methods
+
+### _getFilePath
+
+```ts
+_getFilePath(entityId: EntityId): string;
+```
+
+Gets the file path for an entity
 
 ### waitForInit
 
@@ -120,7 +120,7 @@ keys(): AsyncGenerator<EntityId>;
 
 Iterates over all entity IDs in storage
 
-### __@asyncIterator@465
+### __@asyncIterator@470
 
 ```ts
 [Symbol.asyncIterator](): AsyncIterableIterator<any>;
