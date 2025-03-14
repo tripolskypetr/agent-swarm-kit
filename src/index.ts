@@ -117,6 +117,8 @@ export {
   HistoryPersistInstance,
   History,
   HistoryAdapter,
+  THistoryInstanceCtor,
+  IHistoryControl,
   IHistoryAdapter,
   IHistoryInstance,
   IHistoryInstanceCallbacks,
@@ -137,6 +139,11 @@ export {
   PersistState,
   PersistStorage,
   PersistSwarm,
+  IPersistBase,
+  TPersistBaseCtor,
+  PersistStateAdapter,
+  PersistStorageAdapter,
+  PersistSwarmAdapter,
 } from "./classes/Persist";
 
 export { Policy } from "./classes/Policy";

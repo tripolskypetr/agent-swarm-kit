@@ -1,5 +1,7 @@
 # PersistBase
 
+Implements `IPersistBase`
+
 Base class for persistent storage of entities in a file system
 
 ## Constructor
@@ -30,21 +32,13 @@ _directory: string
 
 The directory path where entity files are stored
 
-### __@BASE_WAIT_FOR_INIT_SYMBOL@469
+### __@BASE_WAIT_FOR_INIT_SYMBOL@482
 
 ```ts
-__@BASE_WAIT_FOR_INIT_SYMBOL@469: any
+__@BASE_WAIT_FOR_INIT_SYMBOL@482: any
 ```
 
 Initializes the storage directory
-
-### writeValue
-
-```ts
-writeValue: <T extends IEntity = IEntity>(entityId: EntityId, entity: T) => Promise<void>
-```
-
-Writes an entity to storage
 
 ## Methods
 
@@ -88,6 +82,14 @@ hasValue(entityId: EntityId): Promise<boolean>;
 
 Checks if an entity exists in storage
 
+### writeValue
+
+```ts
+writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
+```
+
+Writes an entity to storage
+
 ### removeValue
 
 ```ts
@@ -120,7 +122,7 @@ keys(): AsyncGenerator<EntityId>;
 
 Iterates over all entity IDs in storage
 
-### __@asyncIterator@470
+### __@asyncIterator@483
 
 ```ts
 [Symbol.asyncIterator](): AsyncIterableIterator<any>;
@@ -131,7 +133,7 @@ Implements the Symbol.asyncIterator protocol
 ### filter
 
 ```ts
-filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<Awaited<T>, void, unknown>;
+filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<T>;
 ```
 
 Filters entities based on a predicate
@@ -139,7 +141,7 @@ Filters entities based on a predicate
 ### take
 
 ```ts
-take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<Awaited<T>, void, unknown>;
+take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<T>;
 ```
 
 Takes a limited number of entities, optionally filtered
