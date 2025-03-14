@@ -3,7 +3,7 @@ import path from "path";
 import crypto from "crypto";
 import os from "os";
 
-const IS_WINDOWS = os.platform() === 'win32';
+const IS_WINDOWS = os.platform() === "win32";
 
 interface Options {
   encoding?: BufferEncoding | undefined;
@@ -29,11 +29,6 @@ export async function writeFileAtomic(
   options: Options | BufferEncoding = {}
 ) {
 
-  if (IS_WINDOWS) {
-    await fs.writeFile(file, data, options);
-    return;
-  }
-
   if (typeof options === "string") {
     options = { encoding: options };
   } else if (!options) {
@@ -42,6 +37,30 @@ export async function writeFileAtomic(
 
   const { encoding = "utf8", mode = 0o666, tmpPrefix = ".tmp-" } = options;
 
+  let fileHandle: fs.FileHandle = null;
+
+  if (IS_WINDOWS) {
+    try {
+      // Create and write to temporary file
+      fileHandle = await fs.open(file, "w", mode);
+
+      // Write data to the temp file
+      await fileHandle.writeFile(data, { encoding });
+
+      // Ensure data is flushed to disk
+      await fileHandle.sync();
+
+      // Close the file before rename
+      await fileHandle.close();
+    } catch (error) {
+      // Clean up if something went wrong
+      if (fileHandle) {
+        await fileHandle.close().catch(() => {});
+      }
+    }
+    return;
+  }
+
   // Create a temporary filename in the same directory
   const dir = path.dirname(file);
   const filename = path.basename(file);
@@ -49,8 +68,6 @@ export async function writeFileAtomic(
     dir,
     `${tmpPrefix}${crypto.randomBytes(6).toString("hex")}-${filename}`
   );
-
-  let fileHandle = null;
 
   try {
     // Create and write to temporary file
