@@ -23,6 +23,31 @@ const LIST_GET_LAST_KEY_SYMBOL = Symbol("get-last-key");
 /** Symbol for popping the last item from a persistent list */
 const LIST_POP_SYMBOL = Symbol("pop");
 
+/** Interface for PersistBase */
+export interface IPersistBase<Entity extends IEntity = IEntity> {
+  waitForInit(initial: boolean): Promise<void>;
+  readValue(entityId: EntityId): Promise<Entity>;
+  hasValue(entityId: EntityId): Promise<boolean>;
+  writeValue(entityId: EntityId, entity: Entity): Promise<void>;
+  removeValue(entityId: EntityId): Promise<void>;
+  removeAll(): Promise<void>;
+  values(): AsyncGenerator<Entity>;
+  keys(): AsyncGenerator<EntityId>;
+  [Symbol.asyncIterator](): AsyncIterableIterator<any>;
+  filter<T extends IEntity = IEntity>(
+    predicate: (value: T) => boolean
+  ): AsyncGenerator<T>;
+  take<T extends IEntity = IEntity>(
+    total: number,
+    predicate?: (value: T) => boolean
+  ): AsyncGenerator<T>;
+}
+
+export type TPersistBaseCtor<
+  EntityName extends string = string,
+  Entity extends IEntity = IEntity
+> = new (entityName: EntityName, ...args: unknown[]) => IPersistBase<Entity>;
+
 /**
  * Wait for storage initialization
  */
@@ -441,10 +466,27 @@ export class PersistList<
   }
 }
 
+interface IPersistActiveAgentData {
+  agentName: AgentName;
+}
+
+interface IPersistNavigationStackData {
+  agentStack: AgentName[];
+}
+
 /**
  * Utility class for managing swarm-related persistence
  */
 class PersistSwarmUtils {
+  private PersistActiveAgentFactory: TPersistBaseCtor<
+    SwarmName,
+    IPersistActiveAgentData
+  > = PersistBase;
+  private PersistNavigationStackFactory: TPersistBaseCtor<
+    SwarmName,
+    IPersistNavigationStackData
+  > = PersistBase;
+
   /**
    * Memoized function to get storage for active agents
    * @param swarmName - The name of the swarm
@@ -453,7 +495,10 @@ class PersistSwarmUtils {
   private getActiveAgentStorage = memoize(
     ([swarmName]) => `${swarmName}`,
     (swarmName: SwarmName) =>
-      new PersistBase(swarmName, `./logs/data/_swarm_active_agent/`)
+      new this.PersistActiveAgentFactory(
+        swarmName,
+        `./logs/data/_swarm_active_agent/`
+      )
   );
 
   /**
@@ -464,7 +509,10 @@ class PersistSwarmUtils {
   private getNavigationStackStorage = memoize(
     ([swarmName]) => `${swarmName}`,
     (swarmName: SwarmName) =>
-      new PersistBase(swarmName, `./logs/data/_swarm_navigation_stack/`)
+      new this.PersistNavigationStackFactory(
+        swarmName,
+        `./logs/data/_swarm_navigation_stack/`
+      )
   );
 
   /**
@@ -483,9 +531,7 @@ class PersistSwarmUtils {
     const activeAgentStorage = this.getActiveAgentStorage(swarmName);
     await activeAgentStorage.waitForInit(isInitial);
     if (await activeAgentStorage.hasValue(clientId)) {
-      const { agentName } = await activeAgentStorage.readValue<{
-        agentName: AgentName;
-      }>(clientId);
+      const { agentName } = await activeAgentStorage.readValue(clientId);
       return agentName;
     }
     return defaultAgent;
@@ -523,9 +569,7 @@ class PersistSwarmUtils {
     const navigationStackStorage = this.getNavigationStackStorage(swarmName);
     await navigationStackStorage.waitForInit(isInitial);
     if (await navigationStackStorage.hasValue(clientId)) {
-      const { agentStack } = await navigationStackStorage.readValue<{
-        agentStack: AgentName[];
-      }>(clientId);
+      const { agentStack } = await navigationStackStorage.readValue(clientId);
       return agentStack;
     }
     return [];
@@ -546,21 +590,26 @@ class PersistSwarmUtils {
     const isInitial = this.getNavigationStackStorage.has(swarmName);
     const navigationStackStorage = this.getNavigationStackStorage(swarmName);
     await navigationStackStorage.waitForInit(isInitial);
-    await navigationStackStorage.writeValue<{
-      agentStack: AgentName[];
-    }>(clientId, { agentStack });
+    await navigationStackStorage.writeValue(clientId, { agentStack });
   };
 }
 
 /**
  * Singleton instance of PersistSwarmUtils for managing swarm persistence
  */
-export const PersistSwarm = new PersistSwarmUtils();
+export const PersistSwarmAdapter = new PersistSwarmUtils();
+
+interface IPersistStateData<T = unknown> {
+  state: T;
+}
 
 /**
  * Utility class for managing state persistence
  */
 class PersistStateUtils {
+  private PersistStateFactory: TPersistBaseCtor<StateName, IPersistStateData> =
+    PersistBase;
+
   /**
    * Memoized function to get storage for a specific state
    * @param stateName - The name of the state
@@ -568,7 +617,8 @@ class PersistStateUtils {
    */
   private getStateStorage = memoize(
     ([stateName]) => `${stateName}`,
-    (stateName: StateName) => new PersistBase(stateName, `./logs/data/state/`)
+    (stateName: StateName) =>
+      new this.PersistStateFactory(stateName, `./logs/data/state/`)
   );
 
   /**
@@ -607,7 +657,7 @@ class PersistStateUtils {
     const stateStorage = this.getStateStorage(stateName);
     await stateStorage.waitForInit(isInitial);
     if (await stateStorage.hasValue(clientId)) {
-      const { state } = await stateStorage.readValue<{ state: T }>(clientId);
+      const { state } = await stateStorage.readValue(clientId);
       return state;
     }
     return defaultState;
@@ -617,12 +667,21 @@ class PersistStateUtils {
 /**
  * Singleton instance of PersistStateUtils for managing state persistence
  */
-export const PersistState = new PersistStateUtils();
+export const PersistStateAdapter = new PersistStateUtils();
+
+interface IPersistStorageData<T extends IStorageData = IStorageData> {
+  data: T[];
+}
 
 /**
  * Utility class for managing storage persistence
  */
 class PersistStorageUtils {
+  private PersistStorageFactory: TPersistBaseCtor<
+    StorageName,
+    IPersistStorageData
+  > = PersistBase;
+
   /**
    * Memoized function to get storage for a specific storage name
    * @param storageName - The name of the storage
@@ -631,7 +690,7 @@ class PersistStorageUtils {
   private getPersistStorage = memoize(
     ([storageName]) => `${storageName}`,
     (storageName: StorageName) =>
-      new PersistBase(storageName, `./logs/data/storage/`)
+      new this.PersistStorageFactory(storageName, `./logs/data/storage/`)
   );
 
   /**
@@ -651,7 +710,7 @@ class PersistStorageUtils {
     const persistStorage = this.getPersistStorage(storageName);
     await persistStorage.waitForInit(isInitial);
     if (await persistStorage.hasValue(clientId)) {
-      const { data } = await persistStorage.readValue<{ data: T[] }>(clientId);
+      const { data } = await persistStorage.readValue(clientId);
       return data;
     }
     return defaultValue;
@@ -680,4 +739,4 @@ class PersistStorageUtils {
 /**
  * Singleton instance of PersistStorageUtils for managing storage persistence
  */
-export const PersistStorage = new PersistStorageUtils();
+export const PersistStorageAdapter = new PersistStorageUtils();

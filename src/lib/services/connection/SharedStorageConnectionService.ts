@@ -13,7 +13,7 @@ import {
 } from "../../../interfaces/Storage.interface";
 import EmbeddingSchemaService from "../schema/EmbeddingSchemaService";
 import BusService from "../base/BusService";
-import { PersistStorage } from "src/classes/Persist";
+import { PersistStorageAdapter } from "src/classes/Persist";
 
 /**
  * Service for managing storage connections.
@@ -47,10 +47,10 @@ export class SharedStorageConnectionService implements IStorage {
         createIndex,
         persist = GLOBAL_CONFIG.CC_PERSIST_ENABLED_BY_DEFAULT,
         getData = persist
-          ? PersistStorage.getData
+          ? PersistStorageAdapter.getData
           : GLOBAL_CONFIG.CC_DEFAULT_STORAGE_GET,
         setData = persist
-          ? PersistStorage.setData
+          ? PersistStorageAdapter.setData
           : GLOBAL_CONFIG.CC_DEFAULT_STORAGE_SET,
         embedding: embeddingName,
         shared = false,

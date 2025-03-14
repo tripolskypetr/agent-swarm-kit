@@ -15,7 +15,7 @@ import EmbeddingSchemaService from "../schema/EmbeddingSchemaService";
 import SessionValidationService from "../validation/SessionValidationService";
 import BusService from "../base/BusService";
 import SharedStorageConnectionService from "./SharedStorageConnectionService";
-import { PersistStorage } from "src/classes/Persist";
+import { PersistStorageAdapter } from "src/classes/Persist";
 
 /**
  * Service for managing storage connections.
@@ -61,10 +61,10 @@ export class StorageConnectionService implements IStorage {
         createIndex,
         persist = GLOBAL_CONFIG.CC_PERSIST_ENABLED_BY_DEFAULT,
         getData = persist
-          ? PersistStorage.getData
+          ? PersistStorageAdapter.getData
           : GLOBAL_CONFIG.CC_DEFAULT_STORAGE_GET,
         setData = persist
-          ? PersistStorage.setData
+          ? PersistStorageAdapter.setData
           : GLOBAL_CONFIG.CC_DEFAULT_STORAGE_SET,
         embedding: embeddingName,
         getDefaultData = () => [],

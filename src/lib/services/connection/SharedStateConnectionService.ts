@@ -12,7 +12,7 @@ import {
   StateName,
 } from "../../../interfaces/State.interface";
 import BusService from "../base/BusService";
-import { PersistState } from "src/classes/Persist";
+import { PersistStateAdapter } from "src/classes/Persist";
 
 /**
  * Service for managing shared state connections.
@@ -44,10 +44,10 @@ export class SharedStateConnectionService<T extends IStateData = IStateData>
       const {
         persist = GLOBAL_CONFIG.CC_PERSIST_ENABLED_BY_DEFAULT,
         getState = persist
-          ? PersistState.getState
+          ? PersistStateAdapter.getState
           : GLOBAL_CONFIG.CC_DEFAULT_STATE_GET,
         setState = persist
-          ? PersistState.setState
+          ? PersistStateAdapter.setState
           : GLOBAL_CONFIG.CC_DEFAULT_STATE_SET,
         middlewares = [],
         shared,
