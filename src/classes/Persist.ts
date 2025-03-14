@@ -5,6 +5,7 @@ import { SwarmName } from "../interfaces/Swarm.interface";
 import { AgentName } from "../interfaces/Agent.interface";
 import { StateName } from "../interfaces/State.interface";
 import { IStorageData, StorageName } from "src/interfaces/Storage.interface";
+import { writeFileAtomic } from "src/utils/writeFileAtomic";
 
 /** Identifier for an entity, can be string or number */
 type EntityId = string | number;
@@ -213,7 +214,7 @@ export class PersistBase<EntityName extends string = string> {
     try {
       const filePath = this._getFilePath(entityId);
       const serializedData = JSON.stringify(entity);
-      await fs.writeFile(filePath, serializedData, "utf-8");
+      await writeFileAtomic(filePath, serializedData, "utf-8");
     } catch (error) {
       throw new Error(
         `Failed to write entity ${

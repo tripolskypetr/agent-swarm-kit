@@ -11,7 +11,7 @@ import SwarmMetaService from "../meta/SwarmMetaService";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import { join } from "path";
 import { execpool, not, trycatch } from "functools-kit";
-import { writeFile, mkdir, access } from "fs/promises";
+import { mkdir, access } from "fs/promises";
 import { IAgentSchema } from "../../../interfaces/Agent.interface";
 import ToolSchemaService from "../schema/ToolSchemaService";
 import StorageSchemaService from "../schema/StorageSchemaService";
@@ -19,6 +19,7 @@ import StateSchemaService from "../schema/StateSchemaService";
 import PerfService from "./PerfService";
 import { getMomentStamp, getTimeStamp } from "get-moment-stamp";
 import PolicySchemaService from "../schema/PolicySchemaService";
+import { writeFileAtomic } from "src/utils/writeFileAtomic";
 
 const THREAD_POOL_SIZE = 5;
 
@@ -100,7 +101,7 @@ export class DocService {
         const umlName = `swarm_schema_${swarmSchema.swarmName}.svg`;
         const umlSvg = await GLOBAL_CONFIG.CC_FN_PLANTUML(umlSchema);
         if (umlSvg) {
-          await writeFile(join(dirName, "image", umlName), umlSvg);
+          await writeFileAtomic(join(dirName, "image", umlName), umlSvg);
           result.push(`![schema](./image/${umlName})`);
           result.push("");
         }
@@ -152,9 +153,7 @@ export class DocService {
           if (!swarmSchema.policies[i]) {
             continue;
           }
-          result.push(
-            `${i + 1}. ${swarmSchema.policies[i]}`
-          );
+          result.push(`${i + 1}. ${swarmSchema.policies[i]}`);
           const { docDescription } = this.policySchemaService.get(
             swarmSchema.policies[i]
           );
@@ -180,7 +179,7 @@ export class DocService {
         result.push("");
       }
 
-      await writeFile(
+      await writeFileAtomic(
         join(dirName, `./${swarmSchema.swarmName}.md`),
         result.join("\n")
       );
@@ -226,7 +225,7 @@ export class DocService {
         const umlName = `agent_schema_${agentSchema.agentName}.svg`;
         const umlSvg = await GLOBAL_CONFIG.CC_FN_PLANTUML(umlSchema);
         if (umlSvg) {
-          await writeFile(join(dirName, "image", umlName), umlSvg);
+          await writeFileAtomic(join(dirName, "image", umlName), umlSvg);
           result.push(`![schema](../image/${umlName})`);
           result.push("");
         }
@@ -439,7 +438,7 @@ export class DocService {
         result.push("");
       }
 
-      await writeFile(
+      await writeFileAtomic(
         join(dirName, `./agent/${agentSchema.agentName}.md`),
         result.join("\n")
       );
@@ -498,7 +497,7 @@ export class DocService {
     if (await not(exists(dirName))) {
       await mkdir(dirName, { recursive: true });
     }
-    await writeFile(
+    await writeFileAtomic(
       join(dirName, `${getMomentStamp()}.${getTimeStamp()}.json`),
       JSON.stringify(await this.perfService.toRecord())
     );
@@ -518,10 +517,10 @@ export class DocService {
       this.loggerService.info("docService dumpPerfomance", {
         dirName,
       });
-    if (!await not(exists(dirName))) {
+    if (!(await not(exists(dirName)))) {
       await mkdir(dirName, { recursive: true });
     }
-    await writeFile(
+    await writeFileAtomic(
       join(dirName, `${clientId}.${getMomentStamp()}.json`),
       JSON.stringify(await this.perfService.toClientRecord(clientId))
     );
