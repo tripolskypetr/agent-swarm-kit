@@ -23,6 +23,24 @@ const LIST_GET_LAST_KEY_SYMBOL = Symbol("get-last-key");
 const LIST_POP_SYMBOL = Symbol("pop");
 
 /**
+ * Wait for storage initialization
+ */
+const BASE_WAIT_FOR_INIT_FN = async (self: PersistBase) => {
+  await fs.mkdir(self._directory, { recursive: true });
+  for await (const key of self.keys()) {
+    try {
+      await self.readValue(key);
+    } catch {
+      const filePath = self._getFilePath(key);
+      console.error(
+        `agent-swarm PersistBase found invalid document for filePath=${filePath} entityName=${self.entityName}`
+      );
+      await fs.unlink(filePath);
+    }
+  }
+};
+
+/**
  * Creates a new key for a list item
  * @param self - The PersistList instance
  * @returns A Promise resolving to a string key
@@ -82,7 +100,7 @@ const LIST_GET_LAST_KEY_FN = async (self: PersistList) => {
  */
 export class PersistBase<EntityName extends string = string> {
   /** The directory path where entity files are stored */
-  private directory: string;
+  _directory: string;
 
   /**
    * Creates a new PersistBase instance
@@ -90,10 +108,10 @@ export class PersistBase<EntityName extends string = string> {
    * @param baseDir - The base directory for storing entity files
    */
   constructor(
-    private readonly entityName: EntityName,
-    private readonly baseDir = join(process.cwd(), "logs/data")
+    readonly entityName: EntityName,
+    readonly baseDir = join(process.cwd(), "logs/data")
   ) {
-    this.directory = join(this.baseDir, this.entityName);
+    this._directory = join(this.baseDir, this.entityName);
   }
 
   /**
@@ -101,7 +119,7 @@ export class PersistBase<EntityName extends string = string> {
    * @param entityId - The ID of the entity
    * @returns The full file path for the entity
    */
-  private getFilePath(entityId: EntityId) {
+  _getFilePath(entityId: EntityId) {
     return join(this.baseDir, this.entityName, `${entityId}.json`);
   }
 
@@ -109,9 +127,9 @@ export class PersistBase<EntityName extends string = string> {
    * Initializes the storage directory
    * @returns A Promise that resolves when initialization is complete
    */
-  private [BASE_WAIT_FOR_INIT_SYMBOL] = singleshot(async () => {
-    await fs.mkdir(this.directory, { recursive: true });
-  });
+  private [BASE_WAIT_FOR_INIT_SYMBOL] = singleshot(
+    async () => await BASE_WAIT_FOR_INIT_FN(this)
+  );
 
   /**
    * Waits for initialization to complete
@@ -127,7 +145,7 @@ export class PersistBase<EntityName extends string = string> {
    * @returns A Promise resolving to the number of entities
    */
   public async getCount(): Promise<number> {
-    const files = await fs.readdir(this.directory);
+    const files = await fs.readdir(this._directory);
     const { length } = files.filter((file) => file.endsWith(".json"));
     return length;
   }
@@ -143,7 +161,7 @@ export class PersistBase<EntityName extends string = string> {
     entityId: EntityId
   ): Promise<T> {
     try {
-      const filePath = this.getFilePath(entityId);
+      const filePath = this._getFilePath(entityId);
       const fileContent = await fs.readFile(filePath, "utf-8");
       return JSON.parse(fileContent) as T;
     } catch (error) {
@@ -165,7 +183,7 @@ export class PersistBase<EntityName extends string = string> {
    */
   public async hasValue(entityId: EntityId): Promise<boolean> {
     try {
-      const filePath = this.getFilePath(entityId);
+      const filePath = this._getFilePath(entityId);
       await fs.access(filePath);
       return true;
     } catch (error) {
@@ -193,7 +211,7 @@ export class PersistBase<EntityName extends string = string> {
     entity: T
   ) => {
     try {
-      const filePath = this.getFilePath(entityId);
+      const filePath = this._getFilePath(entityId);
       const serializedData = JSON.stringify(entity);
       await fs.writeFile(filePath, serializedData, "utf-8");
     } catch (error) {
@@ -213,7 +231,7 @@ export class PersistBase<EntityName extends string = string> {
    */
   public async removeValue(entityId: EntityId): Promise<void> {
     try {
-      const filePath = this.getFilePath(entityId);
+      const filePath = this._getFilePath(entityId);
       await fs.unlink(filePath);
     } catch (error: any) {
       if (error?.code === "ENOENT") {
@@ -234,7 +252,7 @@ export class PersistBase<EntityName extends string = string> {
    */
   public async removeAll(): Promise<void> {
     try {
-      const files = await fs.readdir(this.directory);
+      const files = await fs.readdir(this._directory);
       const entityFiles = files.filter((file) => file.endsWith(".json"));
       for (const file of entityFiles) {
         await fs.unlink(file);
@@ -256,7 +274,7 @@ export class PersistBase<EntityName extends string = string> {
    */
   public async *values<T extends IEntity = IEntity>(): AsyncGenerator<T> {
     try {
-      const files = await fs.readdir(this.directory);
+      const files = await fs.readdir(this._directory);
       const entityIds = files
         .filter((file) => file.endsWith(".json"))
         .map((file) => file.slice(0, -5))
@@ -286,7 +304,7 @@ export class PersistBase<EntityName extends string = string> {
    */
   public async *keys(): AsyncGenerator<EntityId> {
     try {
-      const files = await fs.readdir(this.directory);
+      const files = await fs.readdir(this._directory);
       const entityIds = files
         .filter((file) => file.endsWith(".json"))
         .map((file) => file.slice(0, -5))

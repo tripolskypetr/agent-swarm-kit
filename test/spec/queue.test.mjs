@@ -9,6 +9,7 @@ import {
   getRawHistory,
   makeConnection,
   session,
+  setConfig,
 } from "../../build/index.mjs";
 import { randomString, sleep } from "functools-kit";
 
@@ -137,6 +138,10 @@ test("Will parallel completion for makeConnection", async ({ pass, fail }) => {
 test("Will commit user message for makeConnection without emit and execution", async ({ pass, fail }) => {
   
   const CLIENT_ID = randomString();
+
+  setConfig({
+    CC_PERSIST_ENABLED_BY_DEFAULT: false,
+  })
 
   const TEST_COMPLETION = addCompletion({
     completionName: "test-completion",

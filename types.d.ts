@@ -1078,10 +1078,10 @@ declare const LIST_POP_SYMBOL: unique symbol;
  * @template EntityName - The type of entity name
  */
 declare class PersistBase<EntityName extends string = string> {
-    private readonly entityName;
-    private readonly baseDir;
+    readonly entityName: EntityName;
+    readonly baseDir: string;
     /** The directory path where entity files are stored */
-    private directory;
+    _directory: string;
     /**
      * Creates a new PersistBase instance
      * @param entityName - The name of the entity type
@@ -1093,7 +1093,7 @@ declare class PersistBase<EntityName extends string = string> {
      * @param entityId - The ID of the entity
      * @returns The full file path for the entity
      */
-    private getFilePath;
+    _getFilePath(entityId: EntityId): string;
     /**
      * Initializes the storage directory
      * @returns A Promise that resolves when initialization is complete
