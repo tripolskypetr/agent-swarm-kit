@@ -1,7 +1,7 @@
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 import { Source } from "functools-kit";
-import beginContext from "src/utils/beginContext";
+import beginContext from "../utils/beginContext";
 
 const METHOD_NAME = "cli.dumpPerfomance";
 const METHOD_NAME_INTERNAL = "cli.dumpPerfomance.internal";

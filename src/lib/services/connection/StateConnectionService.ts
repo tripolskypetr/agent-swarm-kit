@@ -14,7 +14,7 @@ import {
 import SessionValidationService from "../validation/SessionValidationService";
 import BusService from "../base/BusService";
 import SharedStateConnectionService from "./SharedStateConnectionService";
-import { PersistStateAdapter } from "src/classes/Persist";
+import { PersistStateAdapter } from "../../../classes/Persist";
 
 /**
  * Service for managing state connections.

@@ -15,7 +15,7 @@ import EmbeddingSchemaService from "../schema/EmbeddingSchemaService";
 import SessionValidationService from "../validation/SessionValidationService";
 import BusService from "../base/BusService";
 import SharedStorageConnectionService from "./SharedStorageConnectionService";
-import { PersistStorageAdapter } from "src/classes/Persist";
+import { PersistStorageAdapter } from "../../../classes/Persist";
 
 /**
  * Service for managing storage connections.

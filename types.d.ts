@@ -1,7 +1,6 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
-import { StorageName as StorageName$1, IStorageData as IStorageData$1 } from 'src/interfaces/Storage.interface';
 
 /**
  * Interface representing the context.
@@ -1080,7 +1079,7 @@ interface IPersistBase<Entity extends IEntity = IEntity> {
     hasValue(entityId: EntityId): Promise<boolean>;
     writeValue(entityId: EntityId, entity: Entity): Promise<void>;
 }
-type TPersistBaseCtor<EntityName extends string = string, Entity extends IEntity = IEntity> = new (entityName: EntityName, ...args: unknown[]) => IPersistBase<Entity>;
+type TPersistBaseCtor<EntityName extends string = string, Entity extends IEntity = IEntity> = new (entityName: EntityName, baseDir: string) => IPersistBase<Entity>;
 /**
  * Base class for persistent storage of entities in a file system
  * @template EntityName - The type of entity name
@@ -1241,14 +1240,14 @@ interface IPersistStateData<T = unknown> {
     state: T;
 }
 interface IPersistStateControl {
-    usePersistStateAdapter(Ctor: TPersistBaseCtor<StorageName$1, IPersistStateData>): void;
+    usePersistStateAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStateData>): void;
 }
 declare const PersistState: IPersistStateControl;
-interface IPersistStorageData<T extends IStorageData$1 = IStorageData$1> {
+interface IPersistStorageData<T extends IStorageData = IStorageData> {
     data: T[];
 }
 interface IPersistStorageControl {
-    usePersistStorageAdapter(Ctor: TPersistBaseCtor<StorageName$1, IPersistStorageData>): void;
+    usePersistStorageAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>): void;
 }
 declare const PersistStorage: IPersistStorageControl;
 
@@ -5648,8 +5647,9 @@ declare const GLOBAL_CONFIG: {
     CC_AUTOBAN_ENABLED_BY_DEFAULT: boolean;
     CC_DEFAULT_STATE_SET: <T = any>(state: T, clientId: string, stateName: StateName) => Promise<void>;
     CC_DEFAULT_STATE_GET: <T = any>(clientId: string, stateName: StateName, defaultState: T) => Promise<T>;
-    CC_DEFAULT_STORAGE_GET: <T extends IStorageData$1 = IStorageData$1>(clientId: string, storageName: StorageName$1, defaultValue: T[]) => Promise<T[]>;
-    CC_DEFAULT_STORAGE_SET: <T extends IStorageData$1 = IStorageData$1>(data: T[], clientId: string, storageName: StorageName$1) => Promise<void>;
+    CC_DEFAULT_STORAGE_GET: <T extends IStorageData = IStorageData>(clientId: string, storageName: StorageName, defaultValue: T[]) => Promise<T[]>;
+    CC_DEFAULT_STORAGE_SET: <T extends IStorageData = IStorageData>(data: T[], clientId: string, storageName: StorageName) => Promise<void>;
+    CC_SKIP_POSIX_RENAME: boolean;
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
@@ -6066,4 +6066,4 @@ declare const Adapter: AdapterUtils;
  */
 declare const beginContext: <T extends (...args: any[]) => any>(run: T) => ((...args: Parameters<T>) => ReturnType<T>);
 
-export { Adapter, type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, PersistBase, PersistList, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };

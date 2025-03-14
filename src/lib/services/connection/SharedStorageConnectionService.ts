@@ -13,7 +13,7 @@ import {
 } from "../../../interfaces/Storage.interface";
 import EmbeddingSchemaService from "../schema/EmbeddingSchemaService";
 import BusService from "../base/BusService";
-import { PersistStorageAdapter } from "src/classes/Persist";
+import { PersistStorageAdapter } from "../../../classes/Persist";
 
 /**
  * Service for managing storage connections.

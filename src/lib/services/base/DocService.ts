@@ -19,7 +19,7 @@ import StateSchemaService from "../schema/StateSchemaService";
 import PerfService from "./PerfService";
 import { getMomentStamp, getTimeStamp } from "get-moment-stamp";
 import PolicySchemaService from "../schema/PolicySchemaService";
-import { writeFileAtomic } from "src/utils/writeFileAtomic";
+import { writeFileAtomic } from "../../../utils/writeFileAtomic";
 
 const THREAD_POOL_SIZE = 5;
 

@@ -4,8 +4,8 @@ import { join } from "path";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import { AgentName } from "../interfaces/Agent.interface";
 import { StateName } from "../interfaces/State.interface";
-import { IStorageData, StorageName } from "src/interfaces/Storage.interface";
-import { writeFileAtomic } from "src/utils/writeFileAtomic";
+import { IStorageData, StorageName } from "../interfaces/Storage.interface";
+import { writeFileAtomic } from "../utils/writeFileAtomic";
 
 /** Identifier for an entity, can be string or number */
 type EntityId = string | number;
@@ -34,7 +34,7 @@ export interface IPersistBase<Entity extends IEntity = IEntity> {
 export type TPersistBaseCtor<
   EntityName extends string = string,
   Entity extends IEntity = IEntity
-> = new (entityName: EntityName, ...args: unknown[]) => IPersistBase<Entity>;
+> = new (entityName: EntityName, baseDir: string) => IPersistBase<Entity>;
 
 /**
  * Wait for storage initialization

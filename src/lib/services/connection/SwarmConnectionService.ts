@@ -10,7 +10,7 @@ import { AgentName, IAgent } from "../../../interfaces/Agent.interface";
 import ISwarm from "../../../interfaces/Swarm.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import BusService from "../base/BusService";
-import { PersistSwarmAdapter } from "src/classes/Persist";
+import { PersistSwarmAdapter } from "../../../classes/Persist";
 
 /**
  * Service for managing swarm connections.

@@ -12,7 +12,7 @@ import {
   StateName,
 } from "../../../interfaces/State.interface";
 import BusService from "../base/BusService";
-import { PersistStateAdapter } from "src/classes/Persist";
+import { PersistStateAdapter } from "../../../classes/Persist";
 
 /**
  * Service for managing shared state connections.
