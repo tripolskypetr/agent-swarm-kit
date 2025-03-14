@@ -23,7 +23,10 @@ const LIST_GET_LAST_KEY_SYMBOL = Symbol("get-last-key");
 /** Symbol for popping the last item from a persistent list */
 const LIST_POP_SYMBOL = Symbol("pop");
 
-/** Interface for PersistBase */
+/**
+ * Interface for PersistBase
+ * @template Entity - The type of entity, defaults to IEntity
+ */
 export interface IPersistBase<Entity extends IEntity = IEntity> {
   waitForInit(initial: boolean): Promise<void>;
   readValue(entityId: EntityId): Promise<Entity>;
@@ -31,6 +34,11 @@ export interface IPersistBase<Entity extends IEntity = IEntity> {
   writeValue(entityId: EntityId, entity: Entity): Promise<void>;
 }
 
+/**
+ * Type definition for PersistBase constructor
+ * @template EntityName - The type of entity name, defaults to string
+ * @template Entity - The type of entity, defaults to IEntity
+ */
 export type TPersistBaseCtor<
   EntityName extends string = string,
   Entity extends IEntity = IEntity
@@ -38,6 +46,8 @@ export type TPersistBaseCtor<
 
 /**
  * Wait for storage initialization
+ * @param self - The PersistBase instance
+ * @returns A Promise that resolves when initialization is complete
  */
 const BASE_WAIT_FOR_INIT_FN = async (self: PersistBase) => {
   await fs.mkdir(self._directory, { recursive: true });
@@ -110,7 +120,7 @@ const LIST_GET_LAST_KEY_FN = async (self: PersistList) => {
 
 /**
  * Base class for persistent storage of entities in a file system
- * @template EntityName - The type of entity name
+ * @template EntityName - The type of entity name, defaults to string
  */
 export class PersistBase<EntityName extends string = string>
   implements IPersistBase
@@ -222,10 +232,10 @@ export class PersistBase<EntityName extends string = string>
    * @returns A Promise that resolves when writing is complete
    * @throws Error if writing fails
    */
-  public writeValue = async <T extends IEntity = IEntity>(
+  public async writeValue<T extends IEntity = IEntity>(
     entityId: EntityId,
     entity: T
-  ) => {
+  ): Promise<void> {
     try {
       const filePath = this._getFilePath(entityId);
       const serializedData = JSON.stringify(entity);
@@ -237,7 +247,7 @@ export class PersistBase<EntityName extends string = string>
         }:${entityId}: ${getErrorMessage(error)}`
       );
     }
-  };
+  }
 
   /**
    * Removes an entity from storage
@@ -358,7 +368,7 @@ export class PersistBase<EntityName extends string = string>
    */
   public async *filter<T extends IEntity = IEntity>(
     predicate: (value: T) => boolean
-  ) {
+  ): AsyncGenerator<T> {
     for await (const entity of this.values<T>()) {
       if (predicate(entity)) {
         yield entity;
@@ -376,7 +386,7 @@ export class PersistBase<EntityName extends string = string>
   public async *take<T extends IEntity = IEntity>(
     total: number,
     predicate?: (value: T) => boolean
-  ) {
+  ): AsyncGenerator<T> {
     let count = 0;
     if (predicate) {
       for await (const entity of this.values<T>()) {
@@ -403,8 +413,8 @@ export class PersistBase<EntityName extends string = string>
 
 /**
  * Class for persistent storage of entities in a list structure
- * @template EntityName - The type of entity name
- * @extends PersistBase
+ * @template EntityName - The type of entity name, defaults to string
+ * @extends PersistBase<EntityName>
  */
 export class PersistList<
   EntityName extends string = string
@@ -442,7 +452,7 @@ export class PersistList<
    * @param entity - The entity to add
    * @returns A Promise that resolves when the entity is added
    */
-  public async push<T extends IEntity = IEntity>(entity: T) {
+  public async push<T extends IEntity = IEntity>(entity: T): Promise<void> {
     return await this.writeValue(await this[LIST_CREATE_KEY_SYMBOL](), entity);
   }
 
@@ -451,19 +461,28 @@ export class PersistList<
    * @template T - The type of the entity
    * @returns A Promise resolving to the removed entity or null if list is empty
    */
-  public async pop() {
+  public async pop<T extends IEntity = IEntity>(): Promise<T | null> {
     return await this[LIST_POP_SYMBOL]();
   }
 }
 
+/**
+ * Interface for data stored in active agent persistence
+ */
 interface IPersistActiveAgentData {
   agentName: AgentName;
 }
 
+/**
+ * Interface for data stored in navigation stack persistence
+ */
 interface IPersistNavigationStackData {
   agentStack: AgentName[];
 }
 
+/**
+ * Interface for swarm control persistence operations
+ */
 interface IPersistSwarmControl {
   usePersistActiveAgentAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>
@@ -500,15 +519,23 @@ class PersistSwarmUtils implements IPersistSwarmControl {
       )
   );
 
+  /**
+   * Sets the factory for active agent persistence
+   * @param Ctor - The constructor for active agent persistence
+   */
   public usePersistActiveAgentAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>
-  ) {
+  ): void {
     this.PersistActiveAgentFactory = Ctor;
   }
 
+  /**
+   * Sets the factory for navigation stack persistence
+   * @param Ctor - The constructor for navigation stack persistence
+   */
   public usePersistNavigationStackAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>
-  ) {
+  ): void {
     this.PersistNavigationStackFactory = Ctor;
   }
 
@@ -537,7 +564,7 @@ class PersistSwarmUtils implements IPersistSwarmControl {
     clientId: string,
     swarmName: SwarmName,
     defaultAgent: AgentName
-  ) => {
+  ): Promise<AgentName> => {
     const isInitial = this.getActiveAgentStorage.has(swarmName);
     const activeAgentStorage = this.getActiveAgentStorage(swarmName);
     await activeAgentStorage.waitForInit(isInitial);
@@ -559,7 +586,7 @@ class PersistSwarmUtils implements IPersistSwarmControl {
     clientId: string,
     agentName: AgentName,
     swarmName: SwarmName
-  ) => {
+  ): Promise<void> => {
     const isInitial = this.getActiveAgentStorage.has(swarmName);
     const activeAgentStorage = this.getActiveAgentStorage(swarmName);
     await activeAgentStorage.waitForInit(isInitial);
@@ -575,7 +602,7 @@ class PersistSwarmUtils implements IPersistSwarmControl {
   public getNavigationStack = async (
     clientId: string,
     swarmName: SwarmName
-  ) => {
+  ): Promise<AgentName[]> => {
     const isInitial = this.getNavigationStackStorage.has(swarmName);
     const navigationStackStorage = this.getNavigationStackStorage(swarmName);
     await navigationStackStorage.waitForInit(isInitial);
@@ -597,7 +624,7 @@ class PersistSwarmUtils implements IPersistSwarmControl {
     clientId: string,
     agentStack: AgentName[],
     swarmName: SwarmName
-  ) => {
+  ): Promise<void> => {
     const isInitial = this.getNavigationStackStorage.has(swarmName);
     const navigationStackStorage = this.getNavigationStackStorage(swarmName);
     await navigationStackStorage.waitForInit(isInitial);
@@ -610,12 +637,22 @@ class PersistSwarmUtils implements IPersistSwarmControl {
  */
 export const PersistSwarmAdapter = new PersistSwarmUtils();
 
+/**
+ * Exported singleton for swarm persistence operations
+ */
 export const PersistSwarm = PersistSwarmAdapter as IPersistSwarmControl;
 
+/**
+ * Interface for state data persistence
+ * @template T - The type of the state
+ */
 interface IPersistStateData<T = unknown> {
   state: T;
 }
 
+/**
+ * Interface for state persistence control operations
+ */
 interface IPersistStateControl {
   usePersistStateAdapter(
     Ctor: TPersistBaseCtor<StorageName, IPersistStateData>
@@ -640,9 +677,13 @@ class PersistStateUtils implements IPersistStateControl {
       new this.PersistStateFactory(stateName, `./logs/data/state/`)
   );
 
+  /**
+   * Sets the factory for state persistence
+   * @param Ctor - The constructor for state persistence
+   */
   public usePersistStateAdapter(
     Ctor: TPersistBaseCtor<StorageName, IPersistStateData>
-  ) {
+  ): void {
     this.PersistStateFactory = Ctor;
   }
 
@@ -658,7 +699,7 @@ class PersistStateUtils implements IPersistStateControl {
     state: T,
     clientId: string,
     stateName: StateName
-  ) => {
+  ): Promise<void> => {
     const isInitial = this.getStateStorage.has(stateName);
     const stateStorage = this.getStateStorage(stateName);
     await stateStorage.waitForInit(isInitial);
@@ -677,13 +718,13 @@ class PersistStateUtils implements IPersistStateControl {
     clientId: string,
     stateName: StateName,
     defaultState: T
-  ) => {
+  ): Promise<T> => {
     const isInitial = this.getStateStorage.has(stateName);
     const stateStorage = this.getStateStorage(stateName);
     await stateStorage.waitForInit(isInitial);
     if (await stateStorage.hasValue(clientId)) {
       const { state } = await stateStorage.readValue(clientId);
-      return state;
+      return state as T;
     }
     return defaultState;
   };
@@ -694,12 +735,22 @@ class PersistStateUtils implements IPersistStateControl {
  */
 export const PersistStateAdapter = new PersistStateUtils();
 
+/**
+ * Exported singleton for state persistence operations
+ */
 export const PersistState = PersistStateAdapter as IPersistStateControl;
 
+/**
+ * Interface for storage data persistence
+ * @template T - The type of storage data
+ */
 interface IPersistStorageData<T extends IStorageData = IStorageData> {
   data: T[];
 }
 
+/**
+ * Interface for storage persistence control operations
+ */
 interface IPersistStorageControl {
   usePersistStorageAdapter(
     Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>
@@ -726,9 +777,13 @@ class PersistStorageUtils implements IPersistStorageControl {
       new this.PersistStorageFactory(storageName, `./logs/data/storage/`)
   );
 
+  /**
+   * Sets the factory for storage persistence
+   * @param Ctor - The constructor for storage persistence
+   */
   public usePersistStorageAdapter(
     Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>
-  ) {
+  ): void {
     this.PersistStorageFactory = Ctor;
   }
 
@@ -744,13 +799,13 @@ class PersistStorageUtils implements IPersistStorageControl {
     clientId: string,
     storageName: StorageName,
     defaultValue: T[]
-  ) => {
+  ): Promise<T[]> => {
     const isInitial = this.getPersistStorage.has(storageName);
     const persistStorage = this.getPersistStorage(storageName);
     await persistStorage.waitForInit(isInitial);
     if (await persistStorage.hasValue(clientId)) {
       const { data } = await persistStorage.readValue(clientId);
-      return data;
+      return data as T[];
     }
     return defaultValue;
   };
@@ -767,7 +822,7 @@ class PersistStorageUtils implements IPersistStorageControl {
     data: T[],
     clientId: string,
     storageName: StorageName
-  ) => {
+  ): Promise<void> => {
     const isInitial = this.getPersistStorage.has(storageName);
     const persistStorage = this.getPersistStorage(storageName);
     await persistStorage.waitForInit(isInitial);
@@ -780,4 +835,7 @@ class PersistStorageUtils implements IPersistStorageControl {
  */
 export const PersistStorageAdapter = new PersistStorageUtils();
 
+/**
+ * Exported singleton for storage persistence operations
+ */
 export const PersistStorage = PersistStorageAdapter as IPersistStorageControl;

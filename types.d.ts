@@ -1072,17 +1072,25 @@ declare const LIST_CREATE_KEY_SYMBOL: unique symbol;
 declare const LIST_GET_LAST_KEY_SYMBOL: unique symbol;
 /** Symbol for popping the last item from a persistent list */
 declare const LIST_POP_SYMBOL: unique symbol;
-/** Interface for PersistBase */
+/**
+ * Interface for PersistBase
+ * @template Entity - The type of entity, defaults to IEntity
+ */
 interface IPersistBase<Entity extends IEntity = IEntity> {
     waitForInit(initial: boolean): Promise<void>;
     readValue(entityId: EntityId): Promise<Entity>;
     hasValue(entityId: EntityId): Promise<boolean>;
     writeValue(entityId: EntityId, entity: Entity): Promise<void>;
 }
+/**
+ * Type definition for PersistBase constructor
+ * @template EntityName - The type of entity name, defaults to string
+ * @template Entity - The type of entity, defaults to IEntity
+ */
 type TPersistBaseCtor<EntityName extends string = string, Entity extends IEntity = IEntity> = new (entityName: EntityName, baseDir: string) => IPersistBase<Entity>;
 /**
  * Base class for persistent storage of entities in a file system
- * @template EntityName - The type of entity name
+ * @template EntityName - The type of entity name, defaults to string
  */
 declare class PersistBase<EntityName extends string = string> implements IPersistBase {
     readonly entityName: EntityName;
@@ -1139,7 +1147,7 @@ declare class PersistBase<EntityName extends string = string> implements IPersis
      * @returns A Promise that resolves when writing is complete
      * @throws Error if writing fails
      */
-    writeValue: <T extends IEntity = IEntity>(entityId: EntityId, entity: T) => Promise<void>;
+    writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
     /**
      * Removes an entity from storage
      * @param entityId - The ID of the entity to remove
@@ -1177,7 +1185,7 @@ declare class PersistBase<EntityName extends string = string> implements IPersis
      * @param predicate - A function to test each entity
      * @returns An AsyncGenerator yielding entities that pass the predicate
      */
-    filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<Awaited<T>, void, unknown>;
+    filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<T>;
     /**
      * Takes a limited number of entities, optionally filtered
      * @template T - The type of the entities
@@ -1185,12 +1193,12 @@ declare class PersistBase<EntityName extends string = string> implements IPersis
      * @param predicate - Optional function to test each entity
      * @returns An AsyncGenerator yielding up to total entities
      */
-    take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<Awaited<T>, void, unknown>;
+    take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<T>;
 }
 /**
  * Class for persistent storage of entities in a list structure
- * @template EntityName - The type of entity name
- * @extends PersistBase
+ * @template EntityName - The type of entity name, defaults to string
+ * @extends PersistBase<EntityName>
  */
 declare class PersistList<EntityName extends string = string> extends PersistBase<EntityName> {
     /** Tracks the last used numeric key */
@@ -1223,32 +1231,64 @@ declare class PersistList<EntityName extends string = string> extends PersistBas
      * @template T - The type of the entity
      * @returns A Promise resolving to the removed entity or null if list is empty
      */
-    pop(): Promise<IEntity>;
+    pop<T extends IEntity = IEntity>(): Promise<T | null>;
 }
+/**
+ * Interface for data stored in active agent persistence
+ */
 interface IPersistActiveAgentData {
     agentName: AgentName;
 }
+/**
+ * Interface for data stored in navigation stack persistence
+ */
 interface IPersistNavigationStackData {
     agentStack: AgentName[];
 }
+/**
+ * Interface for swarm control persistence operations
+ */
 interface IPersistSwarmControl {
     usePersistActiveAgentAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>): void;
     usePersistNavigationStackAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>): void;
 }
+/**
+ * Exported singleton for swarm persistence operations
+ */
 declare const PersistSwarm: IPersistSwarmControl;
+/**
+ * Interface for state data persistence
+ * @template T - The type of the state
+ */
 interface IPersistStateData<T = unknown> {
     state: T;
 }
+/**
+ * Interface for state persistence control operations
+ */
 interface IPersistStateControl {
     usePersistStateAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStateData>): void;
 }
+/**
+ * Exported singleton for state persistence operations
+ */
 declare const PersistState: IPersistStateControl;
+/**
+ * Interface for storage data persistence
+ * @template T - The type of storage data
+ */
 interface IPersistStorageData<T extends IStorageData = IStorageData> {
     data: T[];
 }
+/**
+ * Interface for storage persistence control operations
+ */
 interface IPersistStorageControl {
     usePersistStorageAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>): void;
 }
+/**
+ * Exported singleton for storage persistence operations
+ */
 declare const PersistStorage: IPersistStorageControl;
 
 /**
