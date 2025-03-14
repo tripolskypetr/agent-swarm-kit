@@ -18,7 +18,10 @@ const WAIT_FOR_INIT_FN = async (self: ClientStorage) => {
   const data = await self.params.getData(
     self.params.clientId,
     self.params.storageName,
-    self.params.defaultData
+    await self.params.getDefaultData(
+      self.params.clientId,
+      self.params.storageName
+    )
   );
   await Promise.all(
     data.map(

@@ -67,7 +67,7 @@ export class StorageConnectionService implements IStorage {
           ? PersistStorage.setData
           : GLOBAL_CONFIG.CC_DEFAULT_STORAGE_SET,
         embedding: embeddingName,
-        defaultData = [],
+        getDefaultData = () => [],
         shared = false,
         callbacks,
       } = this.storageSchemaService.get(storageName);
@@ -87,7 +87,7 @@ export class StorageConnectionService implements IStorage {
         calculateSimilarity,
         createEmbedding,
         createIndex,
-        defaultData,
+        getDefaultData,
         getData,
         setData,
         shared,

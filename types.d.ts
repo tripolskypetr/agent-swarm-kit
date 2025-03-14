@@ -190,7 +190,7 @@ interface IStorageSchema<T extends IStorageData = IStorageData> {
     /**
      * The default value. Resolved in `PersistStorage`
      */
-    defaultData?: T[];
+    getDefaultData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
 }
 /**
  * Interface representing the callbacks for storage events.
@@ -372,7 +372,7 @@ interface IStateSchema<T extends IStateData = IStateData> {
     /**
      * The default value for a state
      */
-    defaultState: T;
+    getDefaultState: (clientId: string, stateName: StateName) => T | Promise<T>;
     /**
      * Gets the state.
      * @param {string} clientId - The client ID.
@@ -3562,7 +3562,7 @@ declare class StorageConnectionService implements IStorage {
      * @param {string} storageName - The storage name.
      * @returns {ClientStorage} The client storage instance.
      */
-    getStorage: ((clientId: string, storageName: StorageName) => ClientStorage<IStorageData>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<IStorageData>>;
+    getStorage: ((clientId: string, storageName: StorageName) => ClientStorage<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<any>>;
     /**
      * Retrieves a list of storage data based on a search query and total number of items.
      * @param {string} search - The search query.
@@ -4032,7 +4032,7 @@ declare class SharedStorageConnectionService implements IStorage {
      * @param {string} storageName - The storage name.
      * @returns {ClientStorage} The client storage instance.
      */
-    getStorage: ((storageName: StorageName) => ClientStorage<IStorageData>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<IStorageData>>;
+    getStorage: ((storageName: StorageName) => ClientStorage<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<any>>;
     /**
      * Retrieves a list of storage data based on a search query and total number of items.
      * @param {string} search - The search query.

@@ -51,7 +51,7 @@ export class SharedStateConnectionService<T extends IStateData = IStateData>
           : GLOBAL_CONFIG.CC_DEFAULT_STATE_SET,
         middlewares = [],
         shared,
-        defaultState = {},
+        getDefaultState = () => ({}),
         callbacks,
       } = this.stateSchemaService.get(stateName);
       if (!shared) {
@@ -70,7 +70,7 @@ export class SharedStateConnectionService<T extends IStateData = IStateData>
         getState,
         middlewares,
         callbacks,
-        defaultState,
+        getDefaultState,
       });
     }
   );

@@ -39,7 +39,10 @@ const WAIT_FOR_INIT_FN = async (self: ClientState) => {
   self._state = await self.params.getState(
     self.params.clientId,
     self.params.stateName,
-    self.params.defaultState,
+    await self.params.getDefaultState(
+      self.params.clientId,
+      self.params.stateName
+    )
   );
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
@@ -160,7 +163,10 @@ export class ClientState<State extends IStateData = IStateData>
       return await this.params.getState(
         this.params.clientId,
         this.params.stateName,
-        this.params.defaultState,
+        await this.params.getDefaultState(
+          this.params.clientId,
+          this.params.stateName
+        )
       );
     });
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&

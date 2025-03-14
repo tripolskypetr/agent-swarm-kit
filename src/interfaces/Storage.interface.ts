@@ -81,7 +81,7 @@ export interface IStorageSchema<T extends IStorageData = IStorageData> {
   /**
    * The default value. Resolved in `PersistStorage`
    */
-  defaultData?: T[];
+  getDefaultData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
 }
 
 /**

@@ -84,7 +84,7 @@ export interface IStateSchema<T extends IStateData = IStateData> {
   /**
    * The default value for a state
    */
-  defaultState: T;
+  getDefaultState: (clientId: string, stateName: StateName) => T | Promise<T>;
 
   /**
    * Gets the state.

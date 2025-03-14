@@ -54,7 +54,7 @@ export class SharedStorageConnectionService implements IStorage {
           : GLOBAL_CONFIG.CC_DEFAULT_STORAGE_SET,
         embedding: embeddingName,
         shared = false,
-        defaultData = [],
+        getDefaultData = () => [],
         callbacks,
       } = this.storageSchemaService.get(storageName);
       if (!shared) {
@@ -77,7 +77,7 @@ export class SharedStorageConnectionService implements IStorage {
         getData,
         setData,
         shared,
-        defaultData,
+        getDefaultData,
         logger: this.loggerService,
         bus: this.busService,
         ...embedding,
