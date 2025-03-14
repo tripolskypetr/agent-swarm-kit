@@ -14,6 +14,49 @@ interface IEntity {}
 
 const BASE_WAIT_FOR_INIT_SYMBOL = Symbol("wait-for-init");
 
+const LIST_CREATE_KEY_SYMBOL = Symbol("create-key");
+const LIST_GET_LAST_KEY_SYMBOL = Symbol("get-last-key");
+const LIST_POP_SYMBOL = Symbol("pop");
+
+const LIST_CREATE_KEY_FN = async (self: PersistList) => {
+  if (self._lastCount === null) {
+    for await (const key of self.keys()) {
+      const numericKey = Number(key);
+      if (!isNaN(numericKey)) {
+        self._lastCount = Math.max(numericKey, self._lastCount || 0);
+      }
+    }
+  }
+  if (self._lastCount === null) {
+    self._lastCount = 0;
+  }
+  return String((self._lastCount += 1));
+};
+
+const LIST_POP_FN = async (self: PersistList) => {
+  const lastKey = await self[LIST_GET_LAST_KEY_SYMBOL]();
+  if (lastKey === null) {
+    return null;
+  }
+  const value = await self.readValue(lastKey);
+  await self.removeValue(lastKey);
+  return value;
+};
+
+const LIST_GET_LAST_KEY_FN = async (self: PersistList) => {
+  let lastKey = 0;
+  for await (const key of self.keys()) {
+    const numericKey = Number(key);
+    if (!isNaN(numericKey)) {
+      lastKey = Math.max(numericKey, lastKey);
+    }
+  }
+  if (lastKey === 0) {
+    return null;
+  }
+  return String(lastKey);
+};
+
 export class PersistBase<EntityName extends string = string> {
   private directory: string;
 
@@ -85,7 +128,7 @@ export class PersistBase<EntityName extends string = string> {
     try {
       const filePath = this.getFilePath(entityId);
       const serializedData = JSON.stringify(entity);
-      await fs.writeFile(filePath, serializedData, 'utf-8');
+      await fs.writeFile(filePath, serializedData, "utf-8");
     } catch (error) {
       throw new Error(
         `Failed to write entity ${
@@ -93,7 +136,7 @@ export class PersistBase<EntityName extends string = string> {
         }:${entityId}: ${getErrorMessage(error)}`
       );
     }
-  }
+  };
 
   public async removeValue(entityId: EntityId): Promise<void> {
     try {
@@ -221,50 +264,26 @@ export class PersistBase<EntityName extends string = string> {
 export class PersistList<
   EntityName extends string = string
 > extends PersistBase<EntityName> {
-  private lastCount: number | null = null;
+  _lastCount: number | null = null;
 
-  private createKey = queued(async () => {
-    if (this.lastCount === null) {
-      for await (const key of this.keys()) {
-        const numericKey = Number(key);
-        if (!isNaN(numericKey)) {
-          this.lastCount = Math.max(numericKey, this.lastCount || 0);
-        }
-      }
-    }
-    if (this.lastCount === null) {
-      this.lastCount = 0;
-    }
-    return String((this.lastCount += 1));
-  }) as () => Promise<string>;
+  private [LIST_CREATE_KEY_SYMBOL] = queued(
+    async () => await LIST_CREATE_KEY_FN(this)
+  ) as () => Promise<string>;
 
-  private async getLastKey() {
-    let lastKey = 0;
-    for await (const key of this.keys()) {
-      const numericKey = Number(key);
-      if (!isNaN(numericKey)) {
-        lastKey = Math.max(numericKey, lastKey);
-      }
-    }
-    if (lastKey === 0) {
-      return null;
-    }
-    return String(lastKey);
-  }
+  private [LIST_GET_LAST_KEY_SYMBOL] = async () =>
+    await LIST_GET_LAST_KEY_FN(this);
+
+  private [LIST_POP_SYMBOL] = queued(async () => await LIST_POP_FN(this)) as <
+    T extends IEntity = IEntity
+  >() => Promise<T | null>;
 
   public async push<T extends IEntity = IEntity>(entity: T) {
-    await this.writeValue(await this.createKey(), entity);
+    return await this.writeValue(await this[LIST_CREATE_KEY_SYMBOL](), entity);
   }
 
-  public pop = queued(async () => {
-    const lastKey = await this.getLastKey();
-    if (lastKey === null) {
-      return null;
-    }
-    const value = await this.readValue(lastKey);
-    await this.removeValue(lastKey);
-    return value;
-  }) as <T extends IEntity = IEntity>() => Promise<T | null>;
+  public async pop() {
+    return await this[LIST_POP_SYMBOL]();
+  }
 }
 
 class PersistSwarmUtils {

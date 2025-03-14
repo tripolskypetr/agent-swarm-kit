@@ -1064,6 +1064,9 @@ type EntityId = string | number;
 interface IEntity {
 }
 declare const BASE_WAIT_FOR_INIT_SYMBOL: unique symbol;
+declare const LIST_CREATE_KEY_SYMBOL: unique symbol;
+declare const LIST_GET_LAST_KEY_SYMBOL: unique symbol;
+declare const LIST_POP_SYMBOL: unique symbol;
 declare class PersistBase<EntityName extends string = string> {
     private readonly entityName;
     private readonly baseDir;
@@ -1085,11 +1088,12 @@ declare class PersistBase<EntityName extends string = string> {
     take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<Awaited<T>, void, unknown>;
 }
 declare class PersistList<EntityName extends string = string> extends PersistBase<EntityName> {
-    private lastCount;
-    private createKey;
-    private getLastKey;
+    _lastCount: number | null;
+    private [LIST_CREATE_KEY_SYMBOL];
+    private [LIST_GET_LAST_KEY_SYMBOL];
+    private [LIST_POP_SYMBOL];
     push<T extends IEntity = IEntity>(entity: T): Promise<void>;
-    pop: <T extends IEntity = IEntity>() => Promise<T | null>;
+    pop(): Promise<IEntity>;
 }
 declare class PersistSwarmUtils {
     private getActiveAgentStorage;
