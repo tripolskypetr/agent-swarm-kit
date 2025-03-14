@@ -3,7 +3,7 @@ import { AgentName } from "../interfaces/Agent.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
-import { PersistHistory } from "./Persist";
+import { PersistList } from "./Persist";
 
 /**
  * Interface for History Adapter Callbacks
@@ -300,8 +300,8 @@ const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT_FN = async (
         agentName,
       }
     );
-  await PersistHistory.waitForInit(self.clientId);
-  for await (const message of PersistHistory.iterate(self.clientId)) {
+  await self._persistStorage.waitForInit(true);
+  for await (const message of self._persistStorage) {
     self._array.push(message);
   }
 };
@@ -312,7 +312,9 @@ const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT_FN = async (
  * to manage and persist history messages.
  */
 export class HistoryPersistInstance implements IHistoryInstance {
+  
   _array: IModelMessage[] = [];
+  _persistStorage: PersistList;
 
   /**
    * Makes the singleshot for initialization
@@ -346,6 +348,7 @@ export class HistoryPersistInstance implements IHistoryInstance {
       swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_CTOR, {
         clientId: this.clientId,
       });
+    this._persistStorage = new PersistList(this.clientId, `./logs/data/history`)
     if (callbacks.onInit) {
       callbacks.onInit(clientId);
     }
@@ -487,7 +490,7 @@ export class HistoryPersistInstance implements IHistoryInstance {
     this._array.push(value);
     this.callbacks.onChange &&
       this.callbacks.onChange(this._array, this.clientId, agentName);
-    PersistHistory.push(this.clientId, value);
+    await this._persistStorage.push(value);
   }
 
   /**
@@ -506,7 +509,7 @@ export class HistoryPersistInstance implements IHistoryInstance {
       this.callbacks.onPop(value, this.clientId, agentName);
     this.callbacks.onChange &&
       this.callbacks.onChange(this._array, this.clientId, agentName);
-    PersistHistory.pop(this.clientId);
+    await this._persistStorage.pop();
     return value;
   }
 
@@ -524,7 +527,6 @@ export class HistoryPersistInstance implements IHistoryInstance {
     if (agentName === null) {
       this.callbacks.onDispose && this.callbacks.onDispose(this.clientId);
       this._array = [];
-      PersistHistory.dispose(this.clientId);
     }
     return;
   }

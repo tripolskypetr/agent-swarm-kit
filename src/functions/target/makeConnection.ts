@@ -31,26 +31,26 @@ const makeConnectionInternal = beginContext(
       swarmName,
       "makeConnection"
     );
-    const send = swarm.sessionPublicService.connect(
-      connector,
-      METHOD_NAME,
-      clientId,
-      swarmName
+    const send = queued(
+      swarm.sessionPublicService.connect(
+        connector,
+        METHOD_NAME,
+        clientId,
+        swarmName
+      )
     );
-    return queued(
-      beginContext(async (outgoing) => {
-        swarm.sessionValidationService.validate(clientId, METHOD_NAME);
-        return await send({
-          data: outgoing,
-          agentName: await swarm.swarmPublicService.getAgentName(
-            METHOD_NAME,
-            clientId,
-            swarmName
-          ),
+    return beginContext(async (outgoing) => {
+      swarm.sessionValidationService.validate(clientId, METHOD_NAME);
+      return await send({
+        data: outgoing,
+        agentName: await swarm.swarmPublicService.getAgentName(
+          METHOD_NAME,
           clientId,
-        });
-      })
-    ) as unknown as SendMessageFn;
+          swarmName
+        ),
+        clientId,
+      });
+    }) as unknown as SendMessageFn;
   }
 );
 

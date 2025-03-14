@@ -226,7 +226,10 @@ export class PersistList<
   private createKey = queued(async () => {
     if (this.lastCount === null) {
       for await (const key of this.keys()) {
-        this.lastCount = Math.max(Number(key), this.lastCount || 0);
+        const numericKey = Number(key);
+        if (!isNaN(numericKey)) {
+          this.lastCount = Math.max(numericKey, this.lastCount || 0);
+        }
       }
     }
     if (this.lastCount === null) {
@@ -238,7 +241,10 @@ export class PersistList<
   private async getLastKey() {
     let lastKey = 0;
     for await (const key of this.keys()) {
-      lastKey = Math.max(Number(key), lastKey);
+      const numericKey = Number(key);
+      if (!isNaN(numericKey)) {
+        lastKey = Math.max(numericKey, lastKey);
+      }
     }
     if (lastKey === 0) {
       return null;
@@ -404,51 +410,3 @@ class PersistStorageUtils {
 }
 
 export const PersistStorage = new PersistStorageUtils();
-
-class PersistHistoryUtils {
-
-  private getHistoryStorage = memoize(
-    ([clientId]) => `${clientId}`,
-    (clientId: string) =>
-      new PersistList(clientId, `./logs/data/history`)
-  );
-
-  public async waitForInit(
-    clientId: string,
-  ): Promise<void> {
-    const isInitial = this.getHistoryStorage.has(clientId);
-    const historyStorage = this.getHistoryStorage(clientId);
-    await historyStorage.waitForInit(isInitial);
-  }
-
-  public async *iterate(
-    clientId: string,
-  ): AsyncIterableIterator<IModelMessage> {
-    const isInitial = this.getHistoryStorage.has(clientId);
-    const historyStorage = this.getHistoryStorage(clientId);
-    await historyStorage.waitForInit(isInitial);
-    for await (const message of historyStorage.values<IModelMessage>()) {
-      yield message;
-    }
-  }
-
-  public async push(clientId: string, value: IModelMessage) {
-    const isInitial = this.getHistoryStorage.has(clientId);
-    const historyStorage = this.getHistoryStorage(clientId);
-    await historyStorage.waitForInit(isInitial);
-    await historyStorage.push(value);
-  }
-
-  public async pop(clientId: string) {
-    const isInitial = this.getHistoryStorage.has(clientId);
-    const historyStorage = this.getHistoryStorage(clientId);
-    await historyStorage.waitForInit(isInitial);
-    await historyStorage.pop();
-  }
-
-  public dispose(clientId: string) {
-    this.getHistoryStorage.clear(clientId);
-  }
-}
-
-export const PersistHistory = new PersistHistoryUtils();

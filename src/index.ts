@@ -132,9 +132,6 @@ export {
 } from "./classes/Logger";
 
 export {
-  PersistBase,
-  PersistList,
-  PersistHistory,
   PersistState,
   PersistStorage,
   PersistSwarm,
