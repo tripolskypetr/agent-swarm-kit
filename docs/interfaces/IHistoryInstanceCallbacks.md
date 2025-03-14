@@ -95,7 +95,7 @@ Callback for when the history is initialized.
 ### onRef
 
 ```ts
-onRef: (history: HistoryInstance) => void
+onRef: (history: IHistoryInstance) => void
 ```
 
 Callback to obtain history ref

@@ -4,6 +4,14 @@ Schema for defining a swarm.
 
 ## Properties
 
+### persist
+
+```ts
+persist: boolean
+```
+
+Mark the swarm to serialize it navigation and active agent state to the hard drive
+
 ### docDescription
 
 ```ts

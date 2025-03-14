@@ -10,6 +10,12 @@ Represents the session context.
 clientId: string
 ```
 
+### processId
+
+```ts
+processId: string
+```
+
 ### methodContext
 
 ```ts
