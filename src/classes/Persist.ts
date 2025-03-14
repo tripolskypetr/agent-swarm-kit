@@ -495,7 +495,7 @@ interface IPersistSwarmControl {
 /**
  * Utility class for managing swarm-related persistence
  */
-class PersistSwarmUtils implements IPersistSwarmControl {
+export class PersistSwarmUtils implements IPersistSwarmControl {
   private PersistActiveAgentFactory: TPersistBaseCtor<
     SwarmName,
     IPersistActiveAgentData
@@ -662,7 +662,7 @@ interface IPersistStateControl {
 /**
  * Utility class for managing state persistence
  */
-class PersistStateUtils implements IPersistStateControl {
+export class PersistStateUtils implements IPersistStateControl {
   private PersistStateFactory: TPersistBaseCtor<StateName, IPersistStateData> =
     PersistBase;
 
@@ -760,7 +760,7 @@ interface IPersistStorageControl {
 /**
  * Utility class for managing storage persistence
  */
-class PersistStorageUtils implements IPersistStorageControl {
+export class PersistStorageUtils implements IPersistStorageControl {
   private PersistStorageFactory: TPersistBaseCtor<
     StorageName,
     IPersistStorageData

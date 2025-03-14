@@ -49,7 +49,7 @@ export interface ILoggerAdapter {
  * @interface ILoggerControl
  * @description Interface for logger control.
  */
-interface ILoggerControl {
+export interface ILoggerControl {
   useCommonAdapter(logger: ILogger): void;
   useClientCallbacks(Callbacks: Partial<ILoggerInstanceCallbacks>): void;
   useClientAdapter(Ctor: TLoggerInstanceCtor): void;
@@ -145,7 +145,7 @@ export class LoggerInstance implements ILoggerInstance {
  * @implements ILoggerAdapter, ILoggerControl
  * @description Utility class for logger.
  */
-class LoggerUtils implements ILoggerAdapter, ILoggerControl {
+export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   private LoggerFactory: TLoggerInstanceCtor = LoggerInstance;
   private LoggerCallbacks: Partial<ILoggerInstanceCallbacks> = {};
 

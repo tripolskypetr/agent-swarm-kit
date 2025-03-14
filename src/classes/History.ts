@@ -753,7 +753,7 @@ export class HistoryMemoryInstance implements IHistoryInstance {
 /**
  * Class representing History Utilities
  */
-class HistoryUtils implements IHistoryAdapter, IHistoryControl {
+export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
   private HistoryFactory: THistoryInstanceCtor;
   private HistoryCallbacks: Partial<IHistoryInstanceCallbacks> = {};
 

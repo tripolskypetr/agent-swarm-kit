@@ -1253,6 +1253,66 @@ interface IPersistSwarmControl {
     usePersistNavigationStackAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>): void;
 }
 /**
+ * Utility class for managing swarm-related persistence
+ */
+declare class PersistSwarmUtils implements IPersistSwarmControl {
+    private PersistActiveAgentFactory;
+    private PersistNavigationStackFactory;
+    /**
+     * Memoized function to get storage for active agents
+     * @param swarmName - The name of the swarm
+     * @returns A PersistBase instance for the active agent storage
+     */
+    private getActiveAgentStorage;
+    /**
+     * Sets the factory for active agent persistence
+     * @param Ctor - The constructor for active agent persistence
+     */
+    usePersistActiveAgentAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>): void;
+    /**
+     * Sets the factory for navigation stack persistence
+     * @param Ctor - The constructor for navigation stack persistence
+     */
+    usePersistNavigationStackAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>): void;
+    /**
+     * Memoized function to get storage for navigation stacks
+     * @param swarmName - The name of the swarm
+     * @returns A PersistBase instance for the navigation stack storage
+     */
+    private getNavigationStackStorage;
+    /**
+     * Gets the active agent for a client in a swarm
+     * @param clientId - The client identifier
+     * @param swarmName - The name of the swarm
+     * @param defaultAgent - The default agent to return if no active agent is set
+     * @returns A Promise resolving to the active agent name
+     */
+    getActiveAgent: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
+    /**
+     * Sets the active agent for a client in a swarm
+     * @param clientId - The client identifier
+     * @param agentName - The name of the agent to set as active
+     * @param swarmName - The name of the swarm
+     * @returns A Promise that resolves when the active agent is set
+     */
+    setActiveAgent: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Gets the navigation stack for a client in a swarm
+     * @param clientId - The client identifier
+     * @param swarmName - The name of the swarm
+     * @returns A Promise resolving to the navigation stack (array of agent names)
+     */
+    getNavigationStack: (clientId: string, swarmName: SwarmName) => Promise<AgentName[]>;
+    /**
+     * Sets the navigation stack for a client in a swarm
+     * @param clientId - The client identifier
+     * @param agentStack - The navigation stack (array of agent names)
+     * @param swarmName - The name of the swarm
+     * @returns A Promise that resolves when the navigation stack is set
+     */
+    setNavigationStack: (clientId: string, agentStack: AgentName[], swarmName: SwarmName) => Promise<void>;
+}
+/**
  * Exported singleton for swarm persistence operations
  */
 declare const PersistSwarm: IPersistSwarmControl;
@@ -1270,6 +1330,41 @@ interface IPersistStateControl {
     usePersistStateAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStateData>): void;
 }
 /**
+ * Utility class for managing state persistence
+ */
+declare class PersistStateUtils implements IPersistStateControl {
+    private PersistStateFactory;
+    /**
+     * Memoized function to get storage for a specific state
+     * @param stateName - The name of the state
+     * @returns A PersistBase instance for the state storage
+     */
+    private getStateStorage;
+    /**
+     * Sets the factory for state persistence
+     * @param Ctor - The constructor for state persistence
+     */
+    usePersistStateAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStateData>): void;
+    /**
+     * Sets the state for a client
+     * @template T - The type of the state
+     * @param state - The state data to set
+     * @param clientId - The client identifier
+     * @param stateName - The name of the state
+     * @returns A Promise that resolves when the state is set
+     */
+    setState: <T = unknown>(state: T, clientId: string, stateName: StateName) => Promise<void>;
+    /**
+     * Gets the state for a client
+     * @template T - The type of the state
+     * @param clientId - The client identifier
+     * @param stateName - The name of the state
+     * @param defaultState - The default state to return if no state is set
+     * @returns A Promise resolving to the state data
+     */
+    getState: <T = unknown>(clientId: string, stateName: StateName, defaultState: T) => Promise<T>;
+}
+/**
  * Exported singleton for state persistence operations
  */
 declare const PersistState: IPersistStateControl;
@@ -1285,6 +1380,41 @@ interface IPersistStorageData<T extends IStorageData = IStorageData> {
  */
 interface IPersistStorageControl {
     usePersistStorageAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>): void;
+}
+/**
+ * Utility class for managing storage persistence
+ */
+declare class PersistStorageUtils implements IPersistStorageControl {
+    private PersistStorageFactory;
+    /**
+     * Memoized function to get storage for a specific storage name
+     * @param storageName - The name of the storage
+     * @returns A PersistBase instance for the storage
+     */
+    private getPersistStorage;
+    /**
+     * Sets the factory for storage persistence
+     * @param Ctor - The constructor for storage persistence
+     */
+    usePersistStorageAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>): void;
+    /**
+     * Gets the data for a client from a specific storage
+     * @template T - The type of the storage data
+     * @param clientId - The client identifier
+     * @param storageName - The name of the storage
+     * @param defaultValue - The default value to return if no data is set
+     * @returns A Promise resolving to the storage data
+     */
+    getData: <T extends IStorageData = IStorageData>(clientId: string, storageName: StorageName, defaultValue: T[]) => Promise<T[]>;
+    /**
+     * Sets the data for a client in a specific storage
+     * @template T - The type of the storage data
+     * @param data - The data to set
+     * @param clientId - The client identifier
+     * @param storageName - The name of the storage
+     * @returns A Promise that resolves when the data is set
+     */
+    setData: <T extends IStorageData = IStorageData>(data: T[], clientId: string, storageName: StorageName) => Promise<void>;
 }
 /**
  * Exported singleton for storage persistence operations
@@ -1569,58 +1699,6 @@ declare class HistoryMemoryInstance implements IHistoryInstance {
      */
     dispose(agentName: AgentName | null): Promise<void>;
 }
-/**
- * Class representing History Utilities
- */
-declare class HistoryUtils implements IHistoryAdapter, IHistoryControl {
-    private HistoryFactory;
-    private HistoryCallbacks;
-    private getHistory;
-    /**
-     * Use a custom history adapter.
-     * @param Ctor - The constructor for the history instance.
-     */
-    useHistoryAdapter: (Ctor: THistoryInstanceCtor) => void;
-    /**
-     * Use history lifecycle callbacks.
-     * @param Callbacks - The callbacks dictionary.
-     */
-    useHistoryCallbacks: (Callbacks: Partial<IHistoryInstanceCallbacks>) => void;
-    /**
-     * Iterate over the history messages.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
-     * @returns An async iterable iterator of model messages.
-     */
-    iterate(clientId: string, agentName: AgentName): AsyncIterableIterator<IModelMessage>;
-    /**
-     * Push a new message to the history.
-     * @param value - The model message to push.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
-     * @returns A promise that resolves when the message is pushed.
-     */
-    push: (value: IModelMessage, clientId: string, agentName: AgentName) => Promise<void>;
-    /**
-     * Pop the last message from the history.
-     * @param value - The model message to push.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
-     * @returns A promise that resolves when the message is pushed.
-     */
-    pop: (clientId: string, agentName: AgentName) => Promise<IModelMessage>;
-    /**
-     * Dispose of the history for a given client and agent.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name or null.
-     * @returns A promise that resolves when the history is disposed.
-     */
-    dispose: (clientId: string, agentName: AgentName | null) => Promise<void>;
-}
-/**
- * Exported History Adapter instance
- */
-declare const HistoryAdapter: HistoryUtils;
 /**
  * Exported History Control instance
  */
@@ -5552,100 +5630,6 @@ declare class LoggerInstance implements ILoggerInstance {
     dispose(): void;
 }
 /**
- * @class LoggerUtils
- * @implements ILoggerAdapter, ILoggerControl
- * @description Utility class for logger.
- */
-declare class LoggerUtils implements ILoggerAdapter, ILoggerControl {
-    private LoggerFactory;
-    private LoggerCallbacks;
-    private getLogger;
-    /**
-     * @method useCommonAdapter
-     * @description Sets the common logger adapter.
-     * @param {ILogger} logger - The logger instance.
-     */
-    useCommonAdapter: (logger: ILogger) => void;
-    /**
-     * @method useClientCallbacks
-     * @description Sets the client-specific callbacks.
-     * @param {Partial<ILoggerInstanceCallbacks>} Callbacks - The callbacks.
-     */
-    useClientCallbacks: (Callbacks: Partial<ILoggerInstanceCallbacks>) => void;
-    /**
-     * @method useClientAdapter
-     * @description Sets the client-specific logger adapter.
-     * @param {TLoggerInstanceCtor} Ctor - The logger instance constructor.
-     */
-    useClientAdapter: (Ctor: TLoggerInstanceCtor) => void;
-    /**
-     * @method logClient
-     * @description Logs a message for a specific client.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The topic of the log.
-     * @param {...any[]} args - The log arguments.
-     * @returns {Promise<void>}
-     */
-    logClient: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
-    /**
-     * @method infoClient
-     * @description Logs an info message for a specific client.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The topic of the info log.
-     * @param {...any[]} args - The info log arguments.
-     * @returns {Promise<void>}
-     */
-    infoClient: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
-    /**
-     * @method debugClient
-     * @description Logs a debug message for a specific client.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The topic of the debug log.
-     * @param {...any[]} args - The debug log arguments.
-     * @returns {Promise<void>}
-     */
-    debugClient: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
-    /**
-     * @method log
-     * @description Logs a message.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The topic of the log.
-     * @param {...any[]} args - The log arguments.
-     * @returns {Promise<void>}
-     */
-    log: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
-    /**
-     * @method debug
-     * @description Logs a debug message.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The topic of the debug log.
-     * @param {...any[]} args - The debug log arguments.
-     * @returns {Promise<void>}
-     */
-    debug: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
-    /**
-     * @method info
-     * @description Logs an info message.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The topic of the info log.
-     * @param {...any[]} args - The info log arguments.
-     * @returns {Promise<void>}
-     */
-    info: (clientId: string, topic: string, ...args: any[]) => Promise<void>;
-    /**
-     * @method dispose
-     * @description Disposes the logger instance.
-     * @param {string} clientId - The client ID.
-     * @returns {Promise<void>}
-     */
-    dispose: (clientId: string) => Promise<void>;
-}
-/**
- * @constant LoggerAdapter
- * @description Singleton instance of LoggerUtils.
- */
-declare const LoggerAdapter: LoggerUtils;
-/**
  * @constant Logger
  * @description Logger control interface.
  */
@@ -6106,4 +6090,10 @@ declare const Adapter: AdapterUtils;
  */
 declare const beginContext: <T extends (...args: any[]) => any>(run: T) => ((...args: Parameters<T>) => ReturnType<T>);
 
-export { Adapter, type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, PersistBase, PersistList, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
+declare const Utils: {
+    PersistStateUtils: typeof PersistStateUtils;
+    PersistSwarmUtils: typeof PersistSwarmUtils;
+    PersistStorageUtils: typeof PersistStorageUtils;
+};
+
+export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistBase, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PersistBase, PersistList, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type TPersistBaseCtor, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };

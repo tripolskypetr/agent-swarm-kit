@@ -22,10 +22,10 @@ clientId: string
 callbacks: Partial<ILoggerInstanceCallbacks>
 ```
 
-### __@LOGGER_INSTANCE_WAIT_FOR_INIT@2423
+### __@LOGGER_INSTANCE_WAIT_FOR_INIT@2461
 
 ```ts
-__@LOGGER_INSTANCE_WAIT_FOR_INIT@2423: any
+__@LOGGER_INSTANCE_WAIT_FOR_INIT@2461: any
 ```
 
 ## Methods

@@ -30,10 +30,10 @@ callbacks: Partial<IHistoryInstanceCallbacks>
 _array: IModelMessage[]
 ```
 
-### __@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@672
+### __@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@737
 
 ```ts
-__@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@672: any
+__@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@737: any
 ```
 
 Makes the singleshot for initialization
