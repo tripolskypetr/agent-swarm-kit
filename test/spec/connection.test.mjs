@@ -13,6 +13,7 @@ import {
   session,
   swarm,
   emit,
+  setConfig,
 } from "../../build/index.mjs";
 import { getErrorMessage, randomString, sleep } from "functools-kit";
 
@@ -187,6 +188,10 @@ test("Will orchestrate swarms for each connection", async ({ pass, fail }) => {
 test("Will queue user messages in connection", async ({ pass, fail }) => {
   const TOTAL_CHECKS = 10;
 
+  setConfig({
+    CC_PERSIST_ENABLED_BY_DEFAULT: false,
+  })
+
   const checkMessages = (messages) => {
     const assistantMessages = messages
       .filter(({ role }) => role === "assistant")
@@ -318,6 +323,10 @@ test("Will allow server-side emit for makeConnection", async ({
 }) => {
   const CLIENT_ID = randomString();
   const TOTAL_CHECKS = 100;
+
+  setConfig({
+    CC_PERSIST_ENABLED_BY_DEFAULT: false,
+  })
 
   const TEST_COMPLETION = addCompletion({
     completionName: "test-completion",

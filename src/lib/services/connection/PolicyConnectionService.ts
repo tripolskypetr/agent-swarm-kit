@@ -33,11 +33,15 @@ export class PolicyConnectionService implements IPolicy {
   public getPolicy = memoize(
     ([policyName]) => `${policyName}`,
     (policyName: PolicyName) => {
-      const schema = this.policySchemaService.get(policyName);
+      const {
+        autoBan = GLOBAL_CONFIG.CC_AUTOBAN_ENABLED_BY_DEFAULT,
+        ...schema
+      } = this.policySchemaService.get(policyName);
       return new ClientPolicy({
         policyName,
         bus: this.busService,
         logger: this.loggerService,
+        autoBan,
         ...schema,
       });
     }

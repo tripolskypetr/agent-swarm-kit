@@ -4,6 +4,14 @@ Schema for state management.
 
 ## Properties
 
+### persist
+
+```ts
+persist: boolean
+```
+
+Mark the state to serialize values to the hard drive
+
 ### docDescription
 
 ```ts
@@ -28,10 +36,18 @@ stateName: string
 
 The name of the state.
 
+### defaultState
+
+```ts
+defaultState: T
+```
+
+The default value for a state
+
 ### getState
 
 ```ts
-getState: (clientId: string, stateName: string) => T | Promise<T>
+getState: (clientId: string, stateName: string, defaultState: T) => T | Promise<T>
 ```
 
 Gets the state.

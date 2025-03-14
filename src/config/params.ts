@@ -8,6 +8,8 @@ import nameToTitle from "../utils/nameToTitle";
 import LoggerAdapter, { ILoggerAdapter } from "../classes/Logger";
 import { randomString, str } from "functools-kit";
 import { IToolCall } from "../model/Tool.model";
+import { StateName } from "../interfaces/State.interface";
+import { IStorageData, StorageName } from "src/interfaces/Storage.interface";
 
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
@@ -128,6 +130,28 @@ const CC_LOGGER_ENABLE_CONSOLE = false;
 
 let CC_RESQUE_STRATEGY: "flush" | "recomplete" | "custom";
 
+const CC_DEFAULT_STATE_SET: <T = any>(
+  state: T,
+  clientId: string,
+  stateName: StateName
+) => Promise<void> = () => Promise.resolve();
+const CC_DEFAULT_STATE_GET: <T = any>(
+  clientId: string,
+  stateName: StateName,
+  defaultState: T
+) => Promise<T> = ({}, {}, defaultState) => Promise.resolve(defaultState);
+
+const CC_DEFAULT_STORAGE_GET: <T extends IStorageData = IStorageData>(
+  clientId: string,
+  storageName: StorageName,
+  defaultValue: T[]
+) => Promise<T[]> = ({}, {}, defaultValue) => Promise.resolve(defaultValue);
+const CC_DEFAULT_STORAGE_SET: <T extends IStorageData = IStorageData>(
+  data: T[],
+  clientId: string,
+  storageName: StorageName
+) => Promise<void> = () => Promise.resolve();
+
 const CC_NAME_TO_TITLE = nameToTitle;
 
 const CC_FN_PLANTUML: (uml: string) => Promise<string> = () =>
@@ -135,8 +159,10 @@ const CC_FN_PLANTUML: (uml: string) => Promise<string> = () =>
 
 const CC_PROCESS_UUID = randomString();
 
-const CC_BANHAMMER_PLACEHOLDER =
-  "You have been banned! To continue conversation, please contact the administrator.";
+const CC_BANHAMMER_PLACEHOLDER = "I am not going to discuss it!";
+
+const CC_PERSIST_ENABLED_BY_DEFAULT = true;
+const CC_AUTOBAN_ENABLED_BY_DEFAULT = false;
 
 const GLOBAL_CONFIG = {
   CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
@@ -170,6 +196,12 @@ const GLOBAL_CONFIG = {
   CC_PROCESS_UUID,
   CC_BANHAMMER_PLACEHOLDER,
   CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION,
+  CC_PERSIST_ENABLED_BY_DEFAULT,
+  CC_AUTOBAN_ENABLED_BY_DEFAULT,
+  CC_DEFAULT_STATE_SET,
+  CC_DEFAULT_STATE_GET,
+  CC_DEFAULT_STORAGE_GET,
+  CC_DEFAULT_STORAGE_SET,
 };
 
 GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";

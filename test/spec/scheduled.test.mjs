@@ -11,6 +11,7 @@ import {
   getUserHistory,
   makeConnection,
   session,
+  setConfig,
 } from "../../build/index.mjs";
 import { randomString, sleep } from "functools-kit";
 
@@ -23,6 +24,10 @@ const debug = {
 test("Will schedule messages for makeConnection", async ({ pass, fail }) => {
   const CLIENT_ID = randomString();
   const COMPLETION_DELAY = 500;
+
+  setConfig({
+    CC_PERSIST_ENABLED_BY_DEFAULT: false,
+  })
 
   let completionCounter = 0;
 
@@ -94,7 +99,11 @@ test("Will schedule messages for makeConnection", async ({ pass, fail }) => {
 test("Will schedule messages for session", async ({ pass, fail }) => {
     const CLIENT_ID = randomString();
     const COMPLETION_DELAY = 500;
-  
+
+    setConfig({
+      CC_PERSIST_ENABLED_BY_DEFAULT: false,
+    })
+
     let completionCounter = 0;
   
     const TEST_COMPLETION = addCompletion({
@@ -146,13 +155,13 @@ test("Will schedule messages for session", async ({ pass, fail }) => {
   
     for (const testCase of TEST_CASE) {
       if (!userHistory.some(({ content }) => content === testCase)) {
-          fail(`Missing ${testCase} in user messages`);
+          fail(`Missing ${testCase} in user messages data=${JSON.stringify(userHistory)}`);
       }
     }
   
     for (const testCase of ["foo", "bad"]) {
       if (!assistantHistory.some(({ content }) => content === testCase)) {
-          fail(`Missing ${testCase} in assistant messages`);
+          fail(`Missing ${testCase} in assistant messages data=${JSON.stringify(assistantHistory)}`);
       }
     }
   

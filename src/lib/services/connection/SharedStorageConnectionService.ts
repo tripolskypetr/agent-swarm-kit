@@ -13,6 +13,7 @@ import {
 } from "../../../interfaces/Storage.interface";
 import EmbeddingSchemaService from "../schema/EmbeddingSchemaService";
 import BusService from "../base/BusService";
+import { PersistStorage } from "src/classes/Persist";
 
 /**
  * Service for managing storage connections.
@@ -44,13 +45,22 @@ export class SharedStorageConnectionService implements IStorage {
     (storageName: StorageName) => {
       const {
         createIndex,
-        getData,
+        persist = GLOBAL_CONFIG.CC_PERSIST_ENABLED_BY_DEFAULT,
+        getData = persist
+          ? PersistStorage.getData
+          : GLOBAL_CONFIG.CC_DEFAULT_STORAGE_GET,
+        setData = persist
+          ? PersistStorage.setData
+          : GLOBAL_CONFIG.CC_DEFAULT_STORAGE_SET,
         embedding: embeddingName,
         shared = false,
+        getDefaultData = () => [],
         callbacks,
       } = this.storageSchemaService.get(storageName);
       if (!shared) {
-        throw new Error(`agent-swarm storage not shared storageName=${storageName}`);
+        throw new Error(
+          `agent-swarm storage not shared storageName=${storageName}`
+        );
       }
       const {
         calculateSimilarity,
@@ -58,14 +68,16 @@ export class SharedStorageConnectionService implements IStorage {
         callbacks: embedding,
       } = this.embeddingSchemaService.get(embeddingName);
       return new ClientStorage({
-        clientId: "*",
+        clientId: "shared",
         storageName,
         embedding: embeddingName,
         calculateSimilarity,
         createEmbedding,
         createIndex,
         getData,
+        setData,
         shared,
+        getDefaultData,
         logger: this.loggerService,
         bus: this.busService,
         ...embedding,

@@ -2,7 +2,13 @@
 
 ## Classes
 
-- [HistoryInstance](classes/HistoryInstance.md)
+- [PersistBase](classes/PersistBase.md)
+- [PersistList](classes/PersistList.md)
+- [PersistSwarmUtils](classes/PersistSwarmUtils.md)
+- [PersistStateUtils](classes/PersistStateUtils.md)
+- [PersistStorageUtils](classes/PersistStorageUtils.md)
+- [HistoryPersistInstance](classes/HistoryPersistInstance.md)
+- [HistoryMemoryInstance](classes/HistoryMemoryInstance.md)
 - [HistoryUtils](classes/HistoryUtils.md)
 - [LoggerService](classes/LoggerService.md)
 - [ClientAgent](classes/ClientAgent.md)
@@ -106,6 +112,7 @@
 - [IToolCall](interfaces/IToolCall.md)
 - [ITool](interfaces/ITool.md)
 - [IModelMessage](interfaces/IModelMessage.md)
+- [IEntity](interfaces/IEntity.md)
 - [IHistoryInstanceCallbacks](interfaces/IHistoryInstanceCallbacks.md)
 - [IHistoryAdapter](interfaces/IHistoryAdapter.md)
 - [IHistoryControl](interfaces/IHistoryControl.md)
@@ -163,6 +170,7 @@
 - [SessionId](types/SessionId.md)
 - [SessionMode](types/SessionMode.md)
 - [ExecutionMode](types/ExecutionMode.md)
+- [EntityId](types/EntityId.md)
 - [THistoryInstanceCtor](types/THistoryInstanceCtor.md)
 - [CompletionName](types/CompletionName.md)
 - [ToolValue](types/ToolValue.md)

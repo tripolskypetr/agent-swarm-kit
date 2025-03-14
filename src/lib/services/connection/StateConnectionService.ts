@@ -14,6 +14,7 @@ import {
 import SessionValidationService from "../validation/SessionValidationService";
 import BusService from "../base/BusService";
 import SharedStateConnectionService from "./SharedStateConnectionService";
+import { PersistState } from "src/classes/Persist";
 
 /**
  * Service for managing state connections.
@@ -53,10 +54,16 @@ export class StateConnectionService<T extends IStateData = IStateData>
     (clientId: string, stateName: StateName) => {
       this.sessionValidationService.addStateUsage(clientId, stateName);
       const {
-        getState,
-        setState,
+        persist = GLOBAL_CONFIG.CC_PERSIST_ENABLED_BY_DEFAULT,
+        getState = persist
+          ? PersistState.getState
+          : GLOBAL_CONFIG.CC_DEFAULT_STATE_GET,
+        setState = persist
+          ? PersistState.setState
+          : GLOBAL_CONFIG.CC_DEFAULT_STATE_SET,
         middlewares = [],
         callbacks,
+        getDefaultState = () => ({}),
         shared = false,
       } = this.stateSchemaService.get(stateName);
       if (shared) {
@@ -76,6 +83,7 @@ export class StateConnectionService<T extends IStateData = IStateData>
         getState,
         middlewares,
         callbacks,
+        getDefaultState,
       });
     }
   );

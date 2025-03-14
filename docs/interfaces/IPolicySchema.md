@@ -28,6 +28,14 @@ banMessage: string
 
 The message to display when a client is banned
 
+### autoBan
+
+```ts
+autoBan: boolean
+```
+
+Ban immediately after failed validation
+
 ### getBanMessage
 
 ```ts

@@ -15,6 +15,7 @@ import EmbeddingSchemaService from "../schema/EmbeddingSchemaService";
 import SessionValidationService from "../validation/SessionValidationService";
 import BusService from "../base/BusService";
 import SharedStorageConnectionService from "./SharedStorageConnectionService";
+import { PersistStorage } from "src/classes/Persist";
 
 /**
  * Service for managing storage connections.
@@ -58,8 +59,15 @@ export class StorageConnectionService implements IStorage {
       this.sessionValidationService.addStorageUsage(clientId, storageName);
       const {
         createIndex,
-        getData,
+        persist = GLOBAL_CONFIG.CC_PERSIST_ENABLED_BY_DEFAULT,
+        getData = persist
+          ? PersistStorage.getData
+          : GLOBAL_CONFIG.CC_DEFAULT_STORAGE_GET,
+        setData = persist
+          ? PersistStorage.setData
+          : GLOBAL_CONFIG.CC_DEFAULT_STORAGE_SET,
         embedding: embeddingName,
+        getDefaultData = () => [],
         shared = false,
         callbacks,
       } = this.storageSchemaService.get(storageName);
@@ -79,7 +87,9 @@ export class StorageConnectionService implements IStorage {
         calculateSimilarity,
         createEmbedding,
         createIndex,
+        getDefaultData,
         getData,
+        setData,
         shared,
         logger: this.loggerService,
         bus: this.busService,

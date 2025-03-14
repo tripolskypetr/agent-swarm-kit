@@ -24,6 +24,49 @@ const sessionInternal = beginContext(
       });
     swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
     swarm.sessionValidationService.addSession(clientId, swarmName, "session");
+
+    const complete = queued(async (content: string) => {
+      swarm.sessionValidationService.validate(clientId, METHOD_NAME);
+      return ExecutionContextService.runInContext(
+        async () => {
+          let isFinished = false;
+          swarm.perfService.startExecution(
+            executionId,
+            clientId,
+            content.length
+          );
+          try {
+            swarm.busService.commitExecutionBegin(clientId, {
+              swarmName,
+            });
+            const result = await swarm.sessionPublicService.execute(
+              content,
+              "user",
+              METHOD_NAME,
+              clientId,
+              swarmName
+            );
+            isFinished = swarm.perfService.endExecution(
+              executionId,
+              clientId,
+              result.length
+            );
+            swarm.busService.commitExecutionEnd(clientId, { swarmName });
+            return result;
+          } finally {
+            if (!isFinished) {
+              swarm.perfService.endExecution(executionId, clientId, 0);
+            }
+          }
+        },
+        {
+          clientId,
+          executionId,
+          processId: GLOBAL_CONFIG.CC_PROCESS_UUID,
+        }
+      );
+    });
+
     return {
       /**
        * Completes the session with the given content.
@@ -31,49 +74,7 @@ const sessionInternal = beginContext(
        * @param {string} content - The content to complete the session with.
        * @returns {Promise<string>} A promise that resolves with the result of the session execution.
        */
-      complete: queued(
-        beginContext(async (content: string) => {
-          swarm.sessionValidationService.validate(clientId, METHOD_NAME);
-          return ExecutionContextService.runInContext(
-            async () => {
-              let isFinished = false;
-              swarm.perfService.startExecution(
-                executionId,
-                clientId,
-                content.length
-              );
-              try {
-                swarm.busService.commitExecutionBegin(clientId, {
-                  swarmName,
-                });
-                const result = await swarm.sessionPublicService.execute(
-                  content,
-                  "user",
-                  METHOD_NAME,
-                  clientId,
-                  swarmName
-                );
-                isFinished = swarm.perfService.endExecution(
-                  executionId,
-                  clientId,
-                  result.length
-                );
-                swarm.busService.commitExecutionEnd(clientId, { swarmName });
-                return result;
-              } finally {
-                if (!isFinished) {
-                  swarm.perfService.endExecution(executionId, clientId, 0);
-                }
-              }
-            },
-            {
-              clientId,
-              executionId,
-              processId: GLOBAL_CONFIG.CC_PROCESS_UUID,
-            }
-          );
-        })
-      ) as TComplete,
+      complete: beginContext(complete) as TComplete,
 
       /**
        * Disposes of the session.

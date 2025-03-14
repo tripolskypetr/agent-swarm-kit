@@ -65,6 +65,9 @@ export interface IStateCallbacks<T extends IStateData = IStateData> {
  */
 export interface IStateSchema<T extends IStateData = IStateData> {
 
+  /** Mark the state to serialize values to the hard drive */
+  persist?: boolean;
+
   /** The description for documentation */
   docDescription?: string;
 
@@ -79,12 +82,17 @@ export interface IStateSchema<T extends IStateData = IStateData> {
   stateName: StateName;
 
   /**
+   * The default value for a state
+   */
+  getDefaultState: (clientId: string, stateName: StateName) => T | Promise<T>;
+
+  /**
    * Gets the state.
    * @param {string} clientId - The client ID.
    * @param {StateName} stateName - The name of the state.
    * @returns {T | Promise<T>} - The current state.
    */
-  getState: (clientId: string, stateName: StateName) => T | Promise<T>;
+  getState?: (clientId: string, stateName: StateName, defaultState: T) => T | Promise<T>;
 
   /**
    * Sets the state.

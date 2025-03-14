@@ -21,6 +21,8 @@ export interface IStorageData {
  * @template T - Type of the storage data.
  */
 export interface IStorageSchema<T extends IStorageData = IStorageData> {
+  /** Mark the storage to serialize values to the hard drive */
+  persist?: boolean;
 
   /** The description for documentation */
   docDescription?: string;
@@ -36,7 +38,23 @@ export interface IStorageSchema<T extends IStorageData = IStorageData> {
    * @param storageName - The name of the storage.
    * @returns A promise that resolves to an array of storage data or an array of storage data.
    */
-  getData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
+  getData?: (
+    clientId: string,
+    storageName: StorageName,
+    defaultValue: T[]
+  ) => Promise<T[]> | T[];
+
+  /**
+   * Function to set data from the storage to hard drive.
+   * @param clientId - The client ID.
+   * @param storageName - The name of the storage.
+   * @returns A promise that resolves to an array of storage data or an array of storage data.
+   */
+  setData?: (
+    data: T[],
+    clientId: string,
+    storageName: StorageName
+  ) => Promise<void> | void;
 
   /**
    * Function to create an index for an item.
@@ -59,6 +77,11 @@ export interface IStorageSchema<T extends IStorageData = IStorageData> {
    * Optional callbacks for storage events.
    */
   callbacks?: Partial<IStorageCallbacks<T>>;
+
+  /**
+   * The default value. Resolved in `PersistStorage`
+   */
+  getDefaultData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
 }
 
 /**

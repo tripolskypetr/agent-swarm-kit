@@ -1,6 +1,7 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
+import { IStorageData as IStorageData$1, StorageName as StorageName$1 } from 'src/interfaces/Storage.interface';
 
 /**
  * Interface representing the context.
@@ -146,6 +147,8 @@ interface IStorageData {
  * @template T - Type of the storage data.
  */
 interface IStorageSchema<T extends IStorageData = IStorageData> {
+    /** Mark the storage to serialize values to the hard drive */
+    persist?: boolean;
     /** The description for documentation */
     docDescription?: string;
     /**
@@ -158,7 +161,14 @@ interface IStorageSchema<T extends IStorageData = IStorageData> {
      * @param storageName - The name of the storage.
      * @returns A promise that resolves to an array of storage data or an array of storage data.
      */
-    getData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
+    getData?: (clientId: string, storageName: StorageName, defaultValue: T[]) => Promise<T[]> | T[];
+    /**
+     * Function to set data from the storage to hard drive.
+     * @param clientId - The client ID.
+     * @param storageName - The name of the storage.
+     * @returns A promise that resolves to an array of storage data or an array of storage data.
+     */
+    setData?: (data: T[], clientId: string, storageName: StorageName) => Promise<void> | void;
     /**
      * Function to create an index for an item.
      * @param item - The item to index.
@@ -177,6 +187,10 @@ interface IStorageSchema<T extends IStorageData = IStorageData> {
      * Optional callbacks for storage events.
      */
     callbacks?: Partial<IStorageCallbacks<T>>;
+    /**
+     * The default value. Resolved in `PersistStorage`
+     */
+    getDefaultData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
 }
 /**
  * Interface representing the callbacks for storage events.
@@ -343,6 +357,8 @@ interface IStateCallbacks<T extends IStateData = IStateData> {
  * @template T - The type of the state data.
  */
 interface IStateSchema<T extends IStateData = IStateData> {
+    /** Mark the state to serialize values to the hard drive */
+    persist?: boolean;
     /** The description for documentation */
     docDescription?: string;
     /**
@@ -354,12 +370,16 @@ interface IStateSchema<T extends IStateData = IStateData> {
      */
     stateName: StateName;
     /**
+     * The default value for a state
+     */
+    getDefaultState: (clientId: string, stateName: StateName) => T | Promise<T>;
+    /**
      * Gets the state.
      * @param {string} clientId - The client ID.
      * @param {StateName} stateName - The name of the state.
      * @returns {T | Promise<T>} - The current state.
      */
-    getState: (clientId: string, stateName: StateName) => T | Promise<T>;
+    getState?: (clientId: string, stateName: StateName, defaultState: T) => T | Promise<T>;
     /**
      * Sets the state.
      * @param {T} state - The new state.
@@ -740,6 +760,8 @@ interface ISwarmParams extends Omit<ISwarmSchema, keyof {
  * @interface
  */
 interface ISwarmSchema {
+    /** Mark the swarm to serialize it navigation and active agent state to the hard drive */
+    persist?: boolean;
     /** The description for documentation */
     docDescription?: string;
     /** The banhammer policies */
@@ -1038,6 +1060,283 @@ interface IModelMessage {
     tool_call_id?: string;
 }
 
+/** Identifier for an entity, can be string or number */
+type EntityId = string | number;
+/** Base interface for all persistent entities */
+interface IEntity {
+}
+/** Symbol for the wait-for-initialization operation */
+declare const BASE_WAIT_FOR_INIT_SYMBOL: unique symbol;
+/** Symbol for creating a new key in a persistent list */
+declare const LIST_CREATE_KEY_SYMBOL: unique symbol;
+/** Symbol for getting the last key in a persistent list */
+declare const LIST_GET_LAST_KEY_SYMBOL: unique symbol;
+/** Symbol for popping the last item from a persistent list */
+declare const LIST_POP_SYMBOL: unique symbol;
+/**
+ * Base class for persistent storage of entities in a file system
+ * @template EntityName - The type of entity name
+ */
+declare class PersistBase<EntityName extends string = string> {
+    readonly entityName: EntityName;
+    readonly baseDir: string;
+    /** The directory path where entity files are stored */
+    _directory: string;
+    /**
+     * Creates a new PersistBase instance
+     * @param entityName - The name of the entity type
+     * @param baseDir - The base directory for storing entity files
+     */
+    constructor(entityName: EntityName, baseDir?: string);
+    /**
+     * Gets the file path for an entity
+     * @param entityId - The ID of the entity
+     * @returns The full file path for the entity
+     */
+    _getFilePath(entityId: EntityId): string;
+    /**
+     * Initializes the storage directory
+     * @returns A Promise that resolves when initialization is complete
+     */
+    private [BASE_WAIT_FOR_INIT_SYMBOL];
+    /**
+     * Waits for initialization to complete
+     * @param initial - Whether this is the initial initialization
+     * @returns A Promise that resolves when initialization is complete
+     */
+    waitForInit(initial: boolean): Promise<void>;
+    /**
+     * Gets the count of entities in the storage
+     * @returns A Promise resolving to the number of entities
+     */
+    getCount(): Promise<number>;
+    /**
+     * Reads an entity from storage
+     * @template T - The type of the entity
+     * @param entityId - The ID of the entity to read
+     * @returns A Promise resolving to the entity
+     * @throws Error if the entity is not found or reading fails
+     */
+    readValue<T extends IEntity = IEntity>(entityId: EntityId): Promise<T>;
+    /**
+     * Checks if an entity exists in storage
+     * @param entityId - The ID of the entity to check
+     * @returns A Promise resolving to true if the entity exists, false otherwise
+     */
+    hasValue(entityId: EntityId): Promise<boolean>;
+    /**
+     * Writes an entity to storage
+     * @template T - The type of the entity
+     * @param entityId - The ID of the entity to write
+     * @param entity - The entity data to write
+     * @returns A Promise that resolves when writing is complete
+     * @throws Error if writing fails
+     */
+    writeValue: <T extends IEntity = IEntity>(entityId: EntityId, entity: T) => Promise<void>;
+    /**
+     * Removes an entity from storage
+     * @param entityId - The ID of the entity to remove
+     * @returns A Promise that resolves when removal is complete
+     * @throws Error if the entity is not found or removal fails
+     */
+    removeValue(entityId: EntityId): Promise<void>;
+    /**
+     * Removes all entities from storage
+     * @returns A Promise that resolves when all entities are removed
+     * @throws Error if removal fails
+     */
+    removeAll(): Promise<void>;
+    /**
+     * Iterates over all entities in storage
+     * @template T - The type of the entities
+     * @returns An AsyncGenerator yielding entities
+     * @throws Error if reading fails
+     */
+    values<T extends IEntity = IEntity>(): AsyncGenerator<T>;
+    /**
+     * Iterates over all entity IDs in storage
+     * @returns An AsyncGenerator yielding entity IDs
+     * @throws Error if reading fails
+     */
+    keys(): AsyncGenerator<EntityId>;
+    /**
+     * Implements the Symbol.asyncIterator protocol
+     * @returns An AsyncIterableIterator of entities
+     */
+    [Symbol.asyncIterator](): AsyncIterableIterator<any>;
+    /**
+     * Filters entities based on a predicate
+     * @template T - The type of the entities
+     * @param predicate - A function to test each entity
+     * @returns An AsyncGenerator yielding entities that pass the predicate
+     */
+    filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<Awaited<T>, void, unknown>;
+    /**
+     * Takes a limited number of entities, optionally filtered
+     * @template T - The type of the entities
+     * @param total - The maximum number of entities to take
+     * @param predicate - Optional function to test each entity
+     * @returns An AsyncGenerator yielding up to total entities
+     */
+    take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<Awaited<T>, void, unknown>;
+}
+/**
+ * Class for persistent storage of entities in a list structure
+ * @template EntityName - The type of entity name
+ * @extends PersistBase
+ */
+declare class PersistList<EntityName extends string = string> extends PersistBase<EntityName> {
+    /** Tracks the last used numeric key */
+    _lastCount: number | null;
+    /**
+     * Creates a new unique key for a list item
+     * @returns A Promise resolving to a string key
+     */
+    private [LIST_CREATE_KEY_SYMBOL];
+    /**
+     * Gets the key of the last item in the list
+     * @returns A Promise resolving to the last key or null if list is empty
+     */
+    private [LIST_GET_LAST_KEY_SYMBOL];
+    /**
+     * Removes and returns the last item in the list
+     * @template T - The type of the entity
+     * @returns A Promise resolving to the removed item or null if list is empty
+     */
+    private [LIST_POP_SYMBOL];
+    /**
+     * Adds an entity to the end of the list
+     * @template T - The type of the entity
+     * @param entity - The entity to add
+     * @returns A Promise that resolves when the entity is added
+     */
+    push<T extends IEntity = IEntity>(entity: T): Promise<void>;
+    /**
+     * Removes and returns the last entity in the list
+     * @template T - The type of the entity
+     * @returns A Promise resolving to the removed entity or null if list is empty
+     */
+    pop(): Promise<IEntity>;
+}
+/**
+ * Utility class for managing swarm-related persistence
+ */
+declare class PersistSwarmUtils {
+    /**
+     * Memoized function to get storage for active agents
+     * @param swarmName - The name of the swarm
+     * @returns A PersistBase instance for the active agent storage
+     */
+    private getActiveAgentStorage;
+    /**
+     * Memoized function to get storage for navigation stacks
+     * @param swarmName - The name of the swarm
+     * @returns A PersistBase instance for the navigation stack storage
+     */
+    private getNavigationStackStorage;
+    /**
+     * Gets the active agent for a client in a swarm
+     * @param clientId - The client identifier
+     * @param swarmName - The name of the swarm
+     * @param defaultAgent - The default agent to return if no active agent is set
+     * @returns A Promise resolving to the active agent name
+     */
+    getActiveAgent: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<string>;
+    /**
+     * Sets the active agent for a client in a swarm
+     * @param clientId - The client identifier
+     * @param agentName - The name of the agent to set as active
+     * @param swarmName - The name of the swarm
+     * @returns A Promise that resolves when the active agent is set
+     */
+    setActiveAgent: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Gets the navigation stack for a client in a swarm
+     * @param clientId - The client identifier
+     * @param swarmName - The name of the swarm
+     * @returns A Promise resolving to the navigation stack (array of agent names)
+     */
+    getNavigationStack: (clientId: string, swarmName: SwarmName) => Promise<string[]>;
+    /**
+     * Sets the navigation stack for a client in a swarm
+     * @param clientId - The client identifier
+     * @param agentStack - The navigation stack (array of agent names)
+     * @param swarmName - The name of the swarm
+     * @returns A Promise that resolves when the navigation stack is set
+     */
+    setNavigationStack: (clientId: string, agentStack: AgentName[], swarmName: SwarmName) => Promise<void>;
+}
+/**
+ * Singleton instance of PersistSwarmUtils for managing swarm persistence
+ */
+declare const PersistSwarm: PersistSwarmUtils;
+/**
+ * Utility class for managing state persistence
+ */
+declare class PersistStateUtils {
+    /**
+     * Memoized function to get storage for a specific state
+     * @param stateName - The name of the state
+     * @returns A PersistBase instance for the state storage
+     */
+    private getStateStorage;
+    /**
+     * Sets the state for a client
+     * @template T - The type of the state
+     * @param state - The state data to set
+     * @param clientId - The client identifier
+     * @param stateName - The name of the state
+     * @returns A Promise that resolves when the state is set
+     */
+    setState: <T = unknown>(state: T, clientId: string, stateName: StateName) => Promise<void>;
+    /**
+     * Gets the state for a client
+     * @template T - The type of the state
+     * @param clientId - The client identifier
+     * @param stateName - The name of the state
+     * @param defaultState - The default state to return if no state is set
+     * @returns A Promise resolving to the state data
+     */
+    getState: <T = unknown>(clientId: string, stateName: StateName, defaultState: T) => Promise<T>;
+}
+/**
+ * Singleton instance of PersistStateUtils for managing state persistence
+ */
+declare const PersistState: PersistStateUtils;
+/**
+ * Utility class for managing storage persistence
+ */
+declare class PersistStorageUtils {
+    /**
+     * Memoized function to get storage for a specific storage name
+     * @param storageName - The name of the storage
+     * @returns A PersistBase instance for the storage
+     */
+    private getPersistStorage;
+    /**
+     * Gets the data for a client from a specific storage
+     * @template T - The type of the storage data
+     * @param clientId - The client identifier
+     * @param storageName - The name of the storage
+     * @param defaultValue - The default value to return if no data is set
+     * @returns A Promise resolving to the storage data
+     */
+    getData: <T extends IStorageData$1 = IStorageData$1>(clientId: string, storageName: StorageName$1, defaultValue: T[]) => Promise<T[]>;
+    /**
+     * Sets the data for a client in a specific storage
+     * @template T - The type of the storage data
+     * @param data - The data to set
+     * @param clientId - The client identifier
+     * @param storageName - The name of the storage
+     * @returns A Promise that resolves when the data is set
+     */
+    setData: <T extends IStorageData$1 = IStorageData$1>(data: T[], clientId: string, storageName: StorageName$1) => Promise<void>;
+}
+/**
+ * Singleton instance of PersistStorageUtils for managing storage persistence
+ */
+declare const PersistStorage: PersistStorageUtils;
+
 /**
  * Interface for History Adapter Callbacks
  */
@@ -1118,7 +1417,7 @@ interface IHistoryInstanceCallbacks {
      * Callback to obtain history ref
      * @param clientId - The client ID.
      */
-    onRef: (history: HistoryInstance) => void;
+    onRef: (history: IHistoryInstance) => void;
 }
 /**
  * Interface for History Adapter
@@ -1211,11 +1510,66 @@ interface IHistoryInstance {
  * Type for History Instance Constructor
  */
 type THistoryInstanceCtor = new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>) => IHistoryInstance;
-declare const HISTORY_INSTANCE_WAIT_FOR_INIT: unique symbol;
+declare const HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT: unique symbol;
+declare const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT: unique symbol;
+/**
+ * Class representing a persistent history instance.
+ * This class implements the IHistoryInstance interface and provides methods
+ * to manage and persist history messages.
+ */
+declare class HistoryPersistInstance implements IHistoryInstance {
+    readonly clientId: string;
+    readonly callbacks: Partial<IHistoryInstanceCallbacks>;
+    _array: IModelMessage[];
+    _persistStorage: PersistList;
+    /**
+     * Makes the singleshot for initialization
+     * @param agentName - The agent name.
+     */
+    private [HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT];
+    /**
+     * Wait for the history to initialize.
+     * @param agentName - The agent name.
+     * @param isInitial - Whether the history is initializing.
+     * @returns A promise that resolves when the history is initialized.
+     */
+    waitForInit(agentName: AgentName): Promise<void>;
+    /**
+     * Create a HistoryPersistInstance.
+     * @param clientId - The client ID.
+     * @param callbacks - The callbacks for the history instance.
+     */
+    constructor(clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>);
+    /**
+     * Iterate over the history messages for a given agent.
+     * @param agentName - The agent name.
+     * @returns An async iterable iterator of model messages.
+     */
+    iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+    /**
+     * Push a new message to the history for a given agent.
+     * @param value - The model message to push.
+     * @param agentName - The agent name.
+     * @returns A promise that resolves when the message is pushed.
+     */
+    push(value: IModelMessage, agentName: AgentName): Promise<void>;
+    /**
+     * Pop the last message from the history for a given agent.
+     * @param agentName - The agent name.
+     * @returns A promise that resolves to the last message or null.
+     */
+    pop(agentName: AgentName): Promise<IModelMessage>;
+    /**
+     * Dispose of the history for a given agent.
+     * @param agentName - The agent name or null.
+     * @returns A promise that resolves when the history is disposed.
+     */
+    dispose(agentName: AgentName | null): Promise<void>;
+}
 /**
  * Class representing a History Instance
  */
-declare class HistoryInstance implements IHistoryInstance {
+declare class HistoryMemoryInstance implements IHistoryInstance {
     readonly clientId: string;
     readonly callbacks: Partial<IHistoryInstanceCallbacks>;
     _array: IModelMessage[];
@@ -1223,14 +1577,14 @@ declare class HistoryInstance implements IHistoryInstance {
      * Makes the singleshot for initialization
      * @param agentName - The agent name.
      */
-    private [HISTORY_INSTANCE_WAIT_FOR_INIT];
+    private [HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT];
     /**
      * Wait for the history to initialize.
      * @param agentName - The agent name.
      */
     waitForInit(agentName: AgentName): Promise<void>;
     /**
-     * Create a HistoryInstance.
+     * Create a HistoryMemoryInstance.
      * @param clientId - The client ID.
      * @param callbacks - The callbacks for the history instance.
      */
@@ -3208,7 +3562,7 @@ declare class StorageConnectionService implements IStorage {
      * @param {string} storageName - The storage name.
      * @returns {ClientStorage} The client storage instance.
      */
-    getStorage: ((clientId: string, storageName: StorageName) => ClientStorage<IStorageData>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<IStorageData>>;
+    getStorage: ((clientId: string, storageName: StorageName) => ClientStorage<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<any>>;
     /**
      * Retrieves a list of storage data based on a search query and total number of items.
      * @param {string} search - The search query.
@@ -3678,7 +4032,7 @@ declare class SharedStorageConnectionService implements IStorage {
      * @param {string} storageName - The storage name.
      * @returns {ClientStorage} The client storage instance.
      */
-    getStorage: ((storageName: StorageName) => ClientStorage<IStorageData>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<IStorageData>>;
+    getStorage: ((storageName: StorageName) => ClientStorage<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<any>>;
     /**
      * Retrieves a list of storage data based on a search query and total number of items.
      * @param {string} search - The search query.
@@ -4912,6 +5266,7 @@ declare const getSessionMode: (clientId: string) => Promise<SessionMode>;
  */
 interface ISessionContext {
     clientId: string | null;
+    processId: string;
     methodContext: IMethodContext | null;
     executionContext: IExecutionContext | null;
 }
@@ -5374,6 +5729,12 @@ declare const GLOBAL_CONFIG: {
     CC_PROCESS_UUID: string;
     CC_BANHAMMER_PLACEHOLDER: string;
     CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: AgentName) => Promise<IModelMessage | null>;
+    CC_PERSIST_ENABLED_BY_DEFAULT: boolean;
+    CC_AUTOBAN_ENABLED_BY_DEFAULT: boolean;
+    CC_DEFAULT_STATE_SET: <T = any>(state: T, clientId: string, stateName: StateName) => Promise<void>;
+    CC_DEFAULT_STATE_GET: <T = any>(clientId: string, stateName: StateName, defaultState: T) => Promise<T>;
+    CC_DEFAULT_STORAGE_GET: <T extends IStorageData$1 = IStorageData$1>(clientId: string, storageName: StorageName$1, defaultValue: T[]) => Promise<T[]>;
+    CC_DEFAULT_STORAGE_SET: <T extends IStorageData$1 = IStorageData$1>(data: T[], clientId: string, storageName: StorageName$1) => Promise<void>;
 };
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
@@ -5790,4 +6151,4 @@ declare const Adapter: AdapterUtils;
  */
 declare const beginContext: <T extends (...args: any[]) => any>(run: T) => ((...args: Parameters<T>) => ReturnType<T>);
 
-export { Adapter, type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, type EventSource, ExecutionContextService, History, HistoryAdapter, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerAdapter, LoggerInstance, MethodContextService, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };

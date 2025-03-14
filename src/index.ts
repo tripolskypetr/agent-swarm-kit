@@ -113,9 +113,10 @@ export {
 export { setConfig } from "./config/params";
 
 export {
+  HistoryMemoryInstance,
+  HistoryPersistInstance,
   History,
   HistoryAdapter,
-  HistoryInstance,
   IHistoryAdapter,
   IHistoryInstance,
   IHistoryInstanceCallbacks,
@@ -129,6 +130,12 @@ export {
   ILoggerInstance,
   ILoggerInstanceCallbacks,
 } from "./classes/Logger";
+
+export {
+  PersistState,
+  PersistStorage,
+  PersistSwarm,
+} from "./classes/Persist";
 
 export { Policy } from "./classes/Policy";
 export { State } from "./classes/State";

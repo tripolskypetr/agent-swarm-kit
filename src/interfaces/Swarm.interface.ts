@@ -98,6 +98,8 @@ export interface ISwarmParams
  * @interface
  */
 export interface ISwarmSchema {
+  /** Mark the swarm to serialize it navigation and active agent state to the hard drive */
+  persist?: boolean;
   /** The description for documentation */
   docDescription?: string;
   /** The banhammer policies */
