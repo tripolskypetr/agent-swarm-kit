@@ -6044,6 +6044,7 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
+type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
 declare class AdapterUtils {
     /**
      * Creates a function to interact with OpenAI's chat completions.
@@ -6054,13 +6055,7 @@ declare class AdapterUtils {
      */
     fromOpenAI: (openai: any, model?: string, response_format?: {
         type: string;
-    }) => ({ agentName, messages: rawMessages, mode, tools, clientId, }: ICompletionArgs) => Promise<{
-        content: any;
-        mode: ExecutionMode;
-        agentName: string;
-        role: any;
-        tool_calls: any;
-    }>;
+    }) => TCompleteFn;
     /**
      * Creates a function to interact with LMStudio's chat completions.
      *
@@ -6071,13 +6066,7 @@ declare class AdapterUtils {
      */
     fromLMStudio: (openai: any, model?: string, response_format?: {
         type: string;
-    }) => ({ agentName, messages: rawMessages, mode, tools, clientId, }: ICompletionArgs) => Promise<{
-        content: any;
-        mode: ExecutionMode;
-        agentName: string;
-        role: any;
-        tool_calls: any;
-    }>;
+    }) => TCompleteFn;
     /**
      * Creates a function to interact with Ollama's chat completions.
      *
@@ -6086,7 +6075,7 @@ declare class AdapterUtils {
      * @param {string} [tool_call_protocol=TOOL_PROTOCOL_PROMPT] - The protocol for tool calls.
      * @returns {Function} - A function that takes completion arguments and returns a response from Ollama.
      */
-    fromOllama: (ollama: any, model?: string, tool_call_protocol?: string) => ({ agentName, messages: rawMessages, mode, tools, clientId, }: ICompletionArgs) => Promise<any>;
+    fromOllama: (ollama: any, model?: string, tool_call_protocol?: string) => TCompleteFn;
 }
 /**
  * An instance of AdapterUtils.
