@@ -3530,340 +3530,584 @@ declare class SessionConnectionService implements ISession {
     dispose: () => Promise<void>;
 }
 
+/**
+ * Interface extending AgentConnectionService for type definition purposes.
+ * Used to define TAgentConnectionService by excluding internal keys, ensuring AgentPublicService aligns with public-facing operations.
+ * @interface IAgentConnectionService
+ */
 interface IAgentConnectionService extends AgentConnectionService {
 }
+/**
+ * Type representing keys to exclude from IAgentConnectionService (internal methods).
+ * Used to filter out non-public methods like getAgent in TAgentConnectionService.
+ * @typedef {keyof { getAgent: never }} InternalKeys
+ */
 type InternalKeys$8 = keyof {
     getAgent: never;
 };
+/**
+ * Type representing the public interface of AgentPublicService, derived from IAgentConnectionService.
+ * Excludes internal methods (e.g., getAgent) via InternalKeys, ensuring a consistent public API for agent operations.
+ * @typedef {Object} TAgentConnectionService
+ */
 type TAgentConnectionService = {
     [key in Exclude<keyof IAgentConnectionService, InternalKeys$8>]: unknown;
 };
 /**
- * Service for managing public agent operations.
+ * Service class for managing public agent operations in the swarm system.
+ * Implements TAgentConnectionService to provide a public API for agent interactions, delegating to AgentConnectionService and wrapping calls with MethodContextService for context scoping.
+ * Integrates with ClientAgent (e.g., EXECUTE_FN, RUN_FN execution), PerfService (e.g., execution tracking via execute), DocService (e.g., agent documentation via agentName), and BusService (e.g., execution events via clientId).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), supporting operations like agent creation, execution, message commits, and disposal.
  */
 declare class AgentPublicService implements TAgentConnectionService {
+    /**
+     * Logger service instance, injected via DI, for logging agent operations.
+     * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with DocService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * Agent connection service instance, injected via DI, for underlying agent operations.
+     * Provides core functionality (e.g., getAgent, execute) called by public methods, aligning with ClientAgent’s execution model.
+     * @type {AgentConnectionService}
+     * @private
+     */
     private readonly agentConnectionService;
     /**
-     * Creates a reference to an agent.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<unknown>} The agent reference.
+     * Creates a reference to an agent for a specific client and method context.
+     * Wraps AgentConnectionService.getAgent with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., to initialize agent refs) and PerfService (e.g., to track agent usage via clientId).
+     * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+     * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking.
+     * @param {AgentName} agentName - The name of the agent, sourced from Agent.interface, used in DocService docs.
+     * @returns {Promise<unknown>} A promise resolving to the agent reference object.
      */
     createAgentRef: (methodName: string, clientId: string, agentName: AgentName) => Promise<ClientAgent>;
     /**
-     * Executes a command on the agent.
-     * @param {string} input - The input command.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<unknown>} The execution result.
+     * Executes a command on the agent with a specified execution mode.
+     * Wraps AgentConnectionService.execute with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Mirrors ClientAgent’s EXECUTE_FN, triggering BusService events (e.g., commitExecutionBegin) and PerfService tracking (e.g., startExecution).
+     * @param {string} input - The command input to execute, passed to the agent.
+     * @param {ExecutionMode} mode - The execution mode (e.g., stateless, stateful), sourced from Session.interface.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the execution result.
      */
     execute: (input: string, mode: ExecutionMode, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
-     * Run the completion stateless
-     * @param {string} input - The input command.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<unknown>} The execution result.
+     * Runs a stateless completion on the agent with the given input.
+     * Wraps AgentConnectionService.run with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Mirrors ClientAgent’s RUN_FN, used for quick completions without state persistence, tracked by PerfService.
+     * @param {string} input - The command input to run, passed to the agent.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the completion result.
      */
     run: (input: string, methodName: string, clientId: string, agentName: AgentName) => Promise<string>;
     /**
-     * Waits for the agent's output.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<unknown>} The output result.
+     * Waits for the agent’s output after an operation.
+     * Wraps AgentConnectionService.waitForOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., post-execution output retrieval), complementing execute and run.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the agent’s output.
      */
     waitForOutput: (methodName: string, clientId: string, agentName: AgentName) => Promise<string>;
     /**
-     * Commits tool output to the agent.
-     * @param {string} toolId - The `tool_call_id` for openai history
-     * @param {string} content - The content to commit.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<unknown>} The commit result.
+     * Commits tool output to the agent’s history, typically for OpenAI-style tool calls.
+     * Wraps AgentConnectionService.commitToolOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent’s tool execution (e.g., TOOL_EXECUTOR), documented in DocService (e.g., tool schemas).
+     * @param {string} toolId - The tool_call_id for OpenAI history integration.
+     * @param {string} content - The tool output content to commit.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the commit result.
      */
     commitToolOutput: (toolId: string, content: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
-     * Commits a system message to the agent.
-     * @param {string} message - The message to commit.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<unknown>} The commit result.
+     * Commits a system message to the agent’s history.
+     * Wraps AgentConnectionService.commitSystemMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., system prompt updates), documented in DocService (e.g., system prompts).
+     * @param {string} message - The system message to commit.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the commit result.
      */
     commitSystemMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
-     * Commits an assistant message to the agent history.
-     * @param {string} message - The message to commit.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<unknown>} The commit result.
+     * Commits an assistant message to the agent’s history.
+     * Wraps AgentConnectionService.commitAssistantMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent’s assistant responses, tracked by PerfService and documented in DocService.
+     * @param {string} message - The assistant message to commit.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the commit result.
      */
     commitAssistantMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
-     * Commits user message to the agent without answer.
-     * @param {string} message - The message to commit.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<unknown>} The commit result.
+     * Commits a user message to the agent’s history without triggering an answer.
+     * Wraps AgentConnectionService.commitUserMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent for user input logging, complementing execute and run.
+     * @param {string} message - The user message to commit.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the commit result.
      */
     commitUserMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
-     * Commits flush of agent history
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<unknown>} The commit result.
+     * Commits a flush of the agent’s history, clearing stored data.
+     * Wraps AgentConnectionService.commitFlush with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent session resets, tracked by PerfService for performance cleanup.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the flush result.
      */
     commitFlush: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
-     * Commits change of agent to prevent the next tool execution from being called.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<unknown>} The commit result.
+     * Commits a change of agent to prevent subsequent tool executions.
+     * Wraps AgentConnectionService.commitAgentChange with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent to manage agent transitions, documented in DocService (e.g., agent dependencies).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the change result.
      */
     commitAgentChange: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
-     * Prevent the next tool from being executed
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<unknown>} The commit result.
+     * Commits a stop to prevent the next tool from being executed.
+     * Wraps AgentConnectionService.commitStopTools with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the stop result.
      */
     commitStopTools: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
-     * Disposes of the agent.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<unknown>} The dispose result.
+     * Disposes of the agent, cleaning up resources.
+     * Wraps AgentConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Aligns with PerfService’s dispose (e.g., session cleanup) and BusService’s dispose (e.g., subscription cleanup).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the dispose result.
      */
     dispose: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
 }
 
+/**
+ * Interface extending HistoryConnectionService for type definition purposes.
+ * Used to define THistoryConnectionService by excluding internal keys, ensuring HistoryPublicService aligns with public-facing operations.
+ * @interface IHistoryConnectionService
+ */
 interface IHistoryConnectionService extends HistoryConnectionService {
 }
+/**
+ * Type representing keys to exclude from IHistoryConnectionService (internal methods).
+ * Used to filter out non-public methods like getHistory and getItems in THistoryConnectionService.
+ * @typedef {keyof { getHistory: never; getItems: never }} InternalKeys
+ */
 type InternalKeys$7 = keyof {
     getHistory: never;
     getItems: never;
 };
+/**
+ * Type representing the public interface of HistoryPublicService, derived from IHistoryConnectionService.
+ * Excludes internal methods (e.g., getHistory, getItems) via InternalKeys, ensuring a consistent public API for history operations.
+ * @typedef {Object} THistoryConnectionService
+ */
 type THistoryConnectionService = {
     [key in Exclude<keyof IHistoryConnectionService, InternalKeys$7>]: unknown;
 };
 /**
- * Service for handling public history operations.
+ * Service class for managing public history operations in the swarm system.
+ * Implements THistoryConnectionService to provide a public API for history interactions, delegating to HistoryConnectionService and wrapping calls with MethodContextService for context scoping.
+ * Integrates with ClientAgent (e.g., message history in EXECUTE_FN), AgentPublicService (e.g., commitSystemMessage pushing to history), PerfService (e.g., session tracking via clientId), and DocService (e.g., history documentation).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), supporting operations like pushing messages, popping messages, converting history to arrays, and disposal.
  */
 declare class HistoryPublicService implements THistoryConnectionService {
+    /**
+     * Logger service instance, injected via DI, for logging history operations.
+     * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentPublicService and DocService logging patterns.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * History connection service instance, injected via DI, for underlying history operations.
+     * Provides core functionality (e.g., push, pop) called by public methods, aligning with ClientAgent’s history management.
+     * @type {HistoryConnectionService}
+     * @private
+     */
     private readonly historyConnectionService;
     /**
-     * Pushes a message to the history.
-     * @param {IModelMessage} message - The message to push.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @returns {Promise<void>} A promise that resolves when the operation is complete.
+     * Pushes a message to the agent’s history for a specific client and method context.
+     * Wraps HistoryConnectionService.push with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in AgentPublicService (e.g., commitSystemMessage, commitUserMessage) and ClientAgent (e.g., EXECUTE_FN message logging).
+     * @param {IModelMessage} message - The message object to push, sourced from ModelMessage.model (e.g., system, user, assistant messages).
+     * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+     * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking.
+     * @param {AgentName} agentName - The name of the agent, sourced from Agent.interface, used in DocService docs.
+     * @returns {Promise<void>} A promise resolving when the message is pushed to history.
      */
     push: (message: IModelMessage, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
-     * Pushes a message to the history.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @returns {Promise<IModelMessage | null>} A promise that resolves when the operation is complete.
+     * Pops the most recent message from the agent’s history.
+     * Wraps HistoryConnectionService.pop with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., retrieving last message in EXECUTE_FN) and AgentPublicService (e.g., history manipulation).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<IModelMessage | null>} A promise resolving to the popped message or null if the history is empty.
      */
     pop: (methodName: string, clientId: string, agentName: AgentName) => Promise<IModelMessage>;
     /**
-     * Converts history to an array for a specific agent.
-     * @param {string} prompt - The prompt.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @returns {Promise<any[]>} A promise that resolves to an array of history items.
+     * Converts the agent’s history to an array tailored for agent processing, incorporating a prompt.
+     * Wraps HistoryConnectionService.toArrayForAgent with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., EXECUTE_FN context preparation) and DocService (e.g., history documentation with prompts).
+     * @param {string} prompt - The prompt to include in the array conversion, enhancing agent context.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<any[]>} A promise resolving to an array of history items formatted for agent use.
      */
     toArrayForAgent: (prompt: string, methodName: string, clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
     /**
-     * Converts history to a raw array.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @returns {Promise<any[]>} A promise that resolves to a raw array of history items.
+     * Converts the agent’s history to a raw array of items.
+     * Wraps HistoryConnectionService.toArrayForRaw with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., raw history access in EXECUTE_FN) and PerfService (e.g., history-based performance metrics).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<any[]>} A promise resolving to a raw array of history items.
      */
     toArrayForRaw: (methodName: string, clientId: string, agentName: AgentName) => Promise<IModelMessage[]>;
     /**
-     * Disposes of the history.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @returns {Promise<void>} A promise that resolves when the operation is complete.
+     * Disposes of the agent’s history, cleaning up resources.
+     * Wraps HistoryConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Aligns with AgentPublicService’s dispose (e.g., agent cleanup) and PerfService’s dispose (e.g., session cleanup).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<void>} A promise resolving when the history is disposed.
      */
     dispose: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
 }
 
+/**
+ * Interface extending SessionConnectionService for type definition purposes.
+ * Used to define TSessionConnectionService by excluding internal keys, ensuring SessionPublicService aligns with public-facing operations.
+ * @interface ISessionConnectionService
+ */
 interface ISessionConnectionService extends SessionConnectionService {
 }
+/**
+ * Type representing keys to exclude from ISessionConnectionService (internal methods).
+ * Used to filter out non-public methods like getSession in TSessionConnectionService.
+ * @typedef {keyof { getSession: never }} InternalKeys
+ */
 type InternalKeys$6 = keyof {
     getSession: never;
 };
+/**
+ * Type representing the public interface of SessionPublicService, derived from ISessionConnectionService.
+ * Excludes internal methods (e.g., getSession) via InternalKeys, ensuring a consistent public API for session operations.
+ * @typedef {Object} TSessionConnectionService
+ */
 type TSessionConnectionService = {
     [key in Exclude<keyof ISessionConnectionService, InternalKeys$6>]: unknown;
 };
 /**
- * Service for managing public session interactions.
+ * Service class for managing public session interactions in the swarm system.
+ * Implements TSessionConnectionService to provide a public API for session-related operations, delegating to SessionConnectionService and wrapping calls with MethodContextService and ExecutionContextService for context scoping.
+ * Integrates with ClientAgent (e.g., EXECUTE_FN, RUN_FN session execution), AgentPublicService (e.g., session-level messaging), PerfService (e.g., execution tracking in startExecution), BusService (e.g., commitExecutionBegin events), and SwarmMetaService (e.g., swarm context via swarmName).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), supporting operations like message emission, execution, connection handling, message commits, and session disposal.
  */
 declare class SessionPublicService implements TSessionConnectionService {
+    /**
+     * Logger service instance, injected via DI, for logging session operations.
+     * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO or CC_LOGGER_ENABLE_LOG is true, consistent with AgentPublicService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * Performance service instance, injected via DI, for tracking execution metrics.
+     * Used in connect to measure execution duration (startExecution, endExecution), aligning with PerfService’s sessionState tracking.
+     * @type {PerfService}
+     * @private
+     */
     private readonly perfService;
+    /**
+     * Session connection service instance, injected via DI, for underlying session operations.
+     * Provides core functionality (e.g., emit, execute) called by public methods, supporting ClientAgent’s session model.
+     * @type {SessionConnectionService}
+     * @private
+     */
     private readonly sessionConnectionService;
+    /**
+     * Bus service instance, injected via DI, for emitting session-related events.
+     * Used in connect to signal execution start and end (commitExecutionBegin, commitExecutionEnd), integrating with BusService’s event system.
+     * @type {BusService}
+     * @private
+     */
     private readonly busService;
     /**
-     * Emits a message to the session.
-     * @param {string} content - The content to emit.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Emits a message to the session for a specific client and swarm.
+     * Wraps SessionConnectionService.emit with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., session-level messaging) and AgentPublicService (e.g., swarm context emission).
+     * @param {string} content - The message content to emit to the session.
+     * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+     * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking.
+     * @param {SwarmName} swarmName - The swarm name, sourced from Swarm.interface, used in SwarmMetaService context.
+     * @returns {Promise<void>} A promise resolving when the message is emitted.
      */
     emit: (content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
-     * Executes a command in the session.
-     * @param {string} content - The content to execute.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Executes a command in the session with a specified execution mode.
+     * Wraps SessionConnectionService.execute with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Mirrors ClientAgent’s EXECUTE_FN at the session level, triggering BusService events and PerfService tracking.
+     * @param {string} content - The command content to execute in the session.
+     * @param {ExecutionMode} mode - The execution mode (e.g., stateless, stateful), sourced from Session.interface.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {SwarmName} swarmName - The swarm name for context.
+     * @returns {Promise<void>} A promise resolving when the command is executed.
      */
     execute: (content: string, mode: ExecutionMode, methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
-     * Run the completion stateless
-     * @param {string} content - The content to execute.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Runs a stateless completion in the session with the given content.
+     * Wraps SessionConnectionService.run with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Mirrors ClientAgent’s RUN_FN at the session level, used for quick completions without state persistence.
+     * @param {string} content - The content to run in the session.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {SwarmName} swarmName - The swarm name for context.
+     * @returns {Promise<void>} A promise resolving when the completion is run.
      */
     run: (content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
-     * Connects to the session.
-     * @param {SendMessageFn} connector - The function to send messages.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {ReceiveMessageFn}
+     * Connects to the session, establishing a messaging channel with performance tracking and event emission.
+     * Uses SessionConnectionService.connect directly, wrapping execution in ExecutionContextService for detailed tracking, logging via LoggerService if enabled.
+     * Integrates with ClientAgent (e.g., session-level messaging), PerfService (e.g., execution metrics), and BusService (e.g., execution events).
+     * @param {SendMessageFn} connector - The function to send messages, provided by the caller (e.g., ClientAgent).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {SwarmName} swarmName - The swarm name for context.
+     * @returns {ReceiveMessageFn<string>} A function to receive and process incoming messages, returning execution results.
      */
     connect: (connector: SendMessageFn$1, methodName: string, clientId: string, swarmName: SwarmName) => ReceiveMessageFn<string>;
     /**
-     * Commits tool output to the session.
-     * @param {string} toolId - The `tool_call_id` for openai history
-     * @param {string} content - The content to commit.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Commits tool output to the session’s history, typically for OpenAI-style tool calls.
+     * Wraps SessionConnectionService.commitToolOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent’s tool execution (e.g., TOOL_EXECUTOR), mirrored in AgentPublicService.
+     * @param {string} toolId - The tool_call_id for OpenAI history integration.
+     * @param {string} content - The tool output content to commit.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {SwarmName} swarmName - The swarm name for context.
+     * @returns {Promise<void>} A promise resolving when the tool output is committed.
      */
     commitToolOutput: (toolId: string, content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
-     * Commits a system message to the session.
-     * @param {string} message - The message to commit.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Commits a system message to the session’s history.
+     * Wraps SessionConnectionService.commitSystemMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., system prompt updates), mirrored in AgentPublicService.
+     * @param {string} message - The system message to commit.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {SwarmName} swarmName - The swarm name for context.
+     * @returns {Promise<void>} A promise resolving when the system message is committed.
      */
     commitSystemMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
-     * Commits an assistant message to the session.
-     * @param {string} message - The message to commit.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>``}
+     * Commits an assistant message to the session’s history.
+     * Wraps SessionConnectionService.commitAssistantMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent’s assistant responses, mirrored in AgentPublicService and tracked by PerfService.
+     * @param {string} message - The assistant message to commit.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {SwarmName} swarmName - The swarm name for context.
+     * @returns {Promise<void>} A promise resolving when the assistant message is committed.
      */
     commitAssistantMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
-     * Commits user message to the agent without answer.
-     * @param {string} message - The message to commit.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Commits a user message to the session’s history without triggering an answer.
+     * Wraps SessionConnectionService.commitUserMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent for user input logging, mirrored in AgentPublicService.
+     * @param {string} message - The user message to commit.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {SwarmName} swarmName - The swarm name for context.
+     * @returns {Promise<void>} A promise resolving when the user message is committed.
      */
     commitUserMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
-     * Commits flush of agent history
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Commits a flush of the session’s history, clearing stored data.
+     * Wraps SessionConnectionService.commitFlush with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent session resets, mirrored in AgentPublicService and tracked by PerfService.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {SwarmName} swarmName - The swarm name for context.
+     * @returns {Promise<void>} A promise resolving when the history is flushed.
      */
     commitFlush: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
-     * Prevent the next tool from being executed
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Commits a stop to prevent the next tool from being executed in the session.
+     * Wraps SessionConnectionService.commitStopTools with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption), mirrored in AgentPublicService.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {SwarmName} swarmName - The swarm name for context.
+     * @returns {Promise<void>} A promise resolving when the tool stop is committed.
      */
     commitStopTools: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
-     * Disposes of the session.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Disposes of the session, cleaning up resources.
+     * Wraps SessionConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Aligns with AgentPublicService’s dispose and PerfService’s session cleanup.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {SwarmName} swarmName - The swarm name for context.
+     * @returns {Promise<void>} A promise resolving when the session is disposed.
      */
     dispose: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
 }
 
+/**
+ * Interface extending SwarmConnectionService for type definition purposes.
+ * Used to define TSwarmConnectionService by excluding internal keys, ensuring SwarmPublicService aligns with public-facing operations.
+ * @interface ISwarmConnectionService
+ */
 interface ISwarmConnectionService extends SwarmConnectionService {
 }
+/**
+ * Type representing keys to exclude from ISwarmConnectionService (internal methods).
+ * Used to filter out non-public methods like getSwarm in TSwarmConnectionService.
+ * @typedef {keyof { getSwarm: never }} InternalKeys
+ */
 type InternalKeys$5 = keyof {
     getSwarm: never;
 };
+/**
+ * Type representing the public interface of SwarmPublicService, derived from ISwarmConnectionService.
+ * Excludes internal methods (e.g., getSwarm) via InternalKeys, ensuring a consistent public API for swarm-level operations.
+ * @typedef {Object} TSwarmConnectionService
+ */
 type TSwarmConnectionService = {
     [key in Exclude<keyof ISwarmConnectionService, InternalKeys$5>]: unknown;
 };
 /**
- * Service for managing public swarm interactions.
+ * Service class for managing public swarm-level interactions in the swarm system.
+ * Implements TSwarmConnectionService to provide a public API for swarm operations, delegating to SwarmConnectionService and wrapping calls with MethodContextService for context scoping.
+ * Integrates with ClientAgent (e.g., agent execution in EXECUTE_FN), AgentPublicService (e.g., agent-specific operations), SwarmMetaService (e.g., swarm metadata via swarmName), SessionPublicService (e.g., swarm context), and PerfService (e.g., tracking swarm interactions in sessionState).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), supporting operations like navigation, output control, agent management, and swarm disposal, all scoped to a client (clientId) and swarm (swarmName).
  */
 declare class SwarmPublicService implements TSwarmConnectionService {
+    /**
+     * Logger service instance, injected via DI, for logging swarm operations.
+     * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionPublicService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * Swarm connection service instance, injected via DI, for underlying swarm operations.
+     * Provides core functionality (e.g., navigationPop, getAgent) called by public methods, supporting ClientAgent’s swarm-level needs.
+     * @type {SwarmConnectionService}
+     * @private
+     */
     private readonly swarmConnectionService;
     /**
-     * Pop the navigation stack or return default agent
-     * @returns {Promise<string>} - The pending agent for navigation
+     * Pops the navigation stack or returns the default agent for the swarm, scoped to a client.
+     * Wraps SwarmConnectionService.navigationPop with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., navigating agent flow in EXECUTE_FN) and SwarmMetaService (e.g., managing swarm navigation state).
+     * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+     * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking, scoping the operation to a specific client.
+     * @param {SwarmName} swarmName - The name of the swarm, sourced from Swarm.interface, used in SwarmMetaService context.
+     * @returns {Promise<string>} A promise resolving to the pending agent name for navigation.
      */
     navigationPop: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
-     * Cancel the await of output by emit of empty string
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Cancels the await of output in the swarm by emitting an empty string, scoped to a client.
+     * Wraps SwarmConnectionService.cancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., interrupting EXECUTE_FN output) and SessionPublicService (e.g., output control in connect).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the operation to a specific client.
+     * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+     * @returns {Promise<void>} A promise resolving when the output is canceled.
      */
     cancelOutput: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
-     * Waits for output from the swarm.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Waits for output from the swarm, scoped to a client.
+     * Wraps SwarmConnectionService.waitForOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., awaiting EXECUTE_FN results) and SessionPublicService (e.g., output handling in connect).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the operation to a specific client.
+     * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+     * @returns {Promise<void>} A promise resolving when output is received from the swarm.
      */
     waitForOutput: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
-     * Gets the agent name from the swarm.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<string>}
+     * Retrieves the current agent name from the swarm, scoped to a client.
+     * Wraps SwarmConnectionService.getAgentName with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., identifying active agent in EXECUTE_FN) and AgentPublicService (e.g., agent context).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the operation to a specific client.
+     * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+     * @returns {Promise<string>} A promise resolving to the current agent name.
      */
     getAgentName: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
-     * Gets the agent from the swarm.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<IAgent>}
+     * Retrieves the current agent instance from the swarm, scoped to a client.
+     * Wraps SwarmConnectionService.getAgent with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., accessing agent details in EXECUTE_FN) and AgentPublicService (e.g., agent operations).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the operation to a specific client.
+     * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+     * @returns {Promise<IAgent>} A promise resolving to the current agent instance, sourced from Agent.interface.
      */
     getAgent: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<IAgent>;
     /**
-     * Sets the agent reference in the swarm.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @param {AgentName} agentName - The agent name.
-     * @param {IAgent} agent - The agent instance.
-     * @returns {Promise<void>}
+     * Sets an agent reference in the swarm, associating an agent instance with an agent name, scoped to a client.
+     * Wraps SwarmConnectionService.setAgentRef with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., configuring agents in EXECUTE_FN) and AgentPublicService (e.g., agent management).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the operation to a specific client.
+     * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+     * @param {AgentName} agentName - The name of the agent to set, sourced from Agent.interface.
+     * @param {IAgent} agent - The agent instance to associate, sourced from Agent.interface.
+     * @returns {Promise<void>} A promise resolving when the agent reference is set.
      */
     setAgentRef: (methodName: string, clientId: string, swarmName: SwarmName, agentName: AgentName, agent: IAgent) => Promise<void>;
     /**
-     * Sets the agent name in the swarm.
-     * @param {AgentName} agentName - The agent name.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Sets the current agent name in the swarm, scoped to a client.
+     * Wraps SwarmConnectionService.setAgentName with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., switching agents in EXECUTE_FN) and AgentPublicService (e.g., agent context updates).
+     * @param {AgentName} agentName - The name of the agent to set, sourced from Agent.interface.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the operation to a specific client.
+     * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+     * @returns {Promise<void>} A promise resolving when the agent name is set.
      */
     setAgentName: (agentName: AgentName, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
-     * Disposes of the swarm.
-     * @param {string} clientId - The client ID.
-     * @param {SwarmName} swarmName - The swarm name.
-     * @returns {Promise<void>}
+     * Disposes of the swarm, cleaning up resources, scoped to a client.
+     * Wraps SwarmConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Aligns with ClientAgent’s cleanup (e.g., post-EXECUTE_FN), SessionPublicService’s dispose, and PerfService’s resource management.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the operation to a specific client.
+     * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+     * @returns {Promise<void>} A promise resolving when the swarm is disposed.
      */
     dispose: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
 }
@@ -4341,62 +4585,127 @@ declare class StorageConnectionService implements IStorage {
     dispose: () => Promise<void>;
 }
 
+/**
+ * Interface extending StorageConnectionService for type definition purposes.
+ * Used to define TStorageConnectionService by excluding internal keys, ensuring StoragePublicService aligns with public-facing operations.
+ * @interface IStorageConnectionService
+ */
 interface IStorageConnectionService extends StorageConnectionService {
 }
+/**
+ * Type representing keys to exclude from IStorageConnectionService (internal methods).
+ * Used to filter out non-public methods like getStorage and getSharedStorage in TStorageConnectionService.
+ * @typedef {keyof { getStorage: never; getSharedStorage: never }} InternalKeys
+ */
 type InternalKeys$4 = keyof {
     getStorage: never;
     getSharedStorage: never;
 };
+/**
+ * Type representing the public interface of StoragePublicService, derived from IStorageConnectionService.
+ * Excludes internal methods (e.g., getStorage, getSharedStorage) via InternalKeys, ensuring a consistent public API for client-specific storage operations.
+ * @typedef {Object} TStorageConnectionService
+ */
 type TStorageConnectionService = {
     [key in Exclude<keyof IStorageConnectionService, InternalKeys$4>]: unknown;
 };
 /**
- * Service for managing public storage interactions.
+ * Service class for managing public client-specific storage operations in the swarm system.
+ * Implements TStorageConnectionService to provide a public API for storage interactions, delegating to StorageConnectionService and wrapping calls with MethodContextService for context scoping.
+ * Integrates with ClientAgent (e.g., storing/retrieving client-specific data in EXECUTE_FN), PerfService (e.g., tracking storage usage in sessionState per clientId), and DocService (e.g., documenting storage schemas via storageName).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), supporting operations like retrieving, upserting, removing, listing, clearing, and disposing client-specific storage.
+ * Contrasts with SharedStoragePublicService (system-wide storage) by scoping storage to individual clients via clientId.
  */
 declare class StoragePublicService implements TStorageConnectionService {
+    /**
+     * Logger service instance, injected via DI, for logging storage operations.
+     * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StatePublicService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * Storage connection service instance, injected via DI, for underlying storage operations.
+     * Provides core functionality (e.g., take, upsert) called by public methods, supporting ClientAgent’s client-specific storage needs.
+     * @type {StorageConnectionService}
+     * @private
+     */
     private readonly storageConnectionService;
     /**
-     * Retrieves a list of storage data based on a search query and total number of items.
-     * @param {string} search - The search query.
-     * @param {number} total - The total number of items to retrieve.
-     * @returns {Promise<IStorageData[]>} The list of storage data.
+     * Retrieves a list of storage items based on a search query, total count, and optional score, from a client-specific storage identified by storageName and clientId.
+     * Wraps StorageConnectionService.take with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., searching client-specific storage in EXECUTE_FN) and DocService (e.g., documenting searchable storage data per client).
+     * @param {string} search - The search query to filter storage items.
+     * @param {number} total - The maximum number of items to retrieve.
+     * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+     * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking, scoping the storage to a specific client.
+     * @param {StorageName} storageName - The name of the storage, sourced from Storage.interface, used in DocService documentation.
+     * @param {number} [score] - An optional score for ranking or filtering items (e.g., relevance score).
+     * @returns {Promise<IStorageData[]>} A promise resolving to an array of storage items matching the query.
      */
     take: (search: string, total: number, methodName: string, clientId: string, storageName: StorageName, score?: number) => Promise<IStorageData[]>;
     /**
-     * Upserts an item in the storage.
-     * @param {IStorageData} item - The item to upsert.
-     * @returns {Promise<void>}
+     * Upserts (inserts or updates) an item in the client-specific storage identified by storageName and clientId.
+     * Wraps StorageConnectionService.upsert with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., storing client-specific data in EXECUTE_FN) and PerfService (e.g., tracking storage updates in sessionState per client).
+     * @param {IStorageData} item - The storage item to upsert, sourced from Storage.interface (e.g., with id, data fields).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the storage operation to a specific client.
+     * @param {StorageName} storageName - The name of the storage, used in DocService documentation.
+     * @returns {Promise<void>} A promise resolving when the item is upserted.
      */
     upsert: (item: IStorageData, methodName: string, clientId: string, storageName: StorageName) => Promise<void>;
     /**
-     * Removes an item from the storage.
-     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
-     * @returns {Promise<void>}
+     * Removes an item from the client-specific storage identified by storageName and clientId, using the item’s ID.
+     * Wraps StorageConnectionService.remove with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., deleting client-specific data in EXECUTE_FN) and PerfService (e.g., tracking storage cleanup per client).
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove, sourced from Storage.interface.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the storage operation to a specific client.
+     * @param {StorageName} storageName - The name of the storage, used in DocService documentation.
+     * @returns {Promise<void>} A promise resolving when the item is removed.
      */
     remove: (itemId: IStorageData["id"], methodName: string, clientId: string, storageName: StorageName) => Promise<void>;
     /**
-     * Retrieves an item from the storage by its ID.
-     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
-     * @returns {Promise<IStorageData>} The retrieved item.
+     * Retrieves a specific item from the client-specific storage identified by storageName and clientId, using the item’s ID.
+     * Wraps StorageConnectionService.get with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., fetching client-specific data in EXECUTE_FN) and PerfService (e.g., reading storage for metrics per client).
+     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve, sourced from Storage.interface.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the storage operation to a specific client.
+     * @param {StorageName} storageName - The name of the storage, used in DocService documentation.
+     * @returns {Promise<IStorageData | null>} A promise resolving to the retrieved item or null if not found.
      */
     get: (itemId: IStorageData["id"], methodName: string, clientId: string, storageName: StorageName) => Promise<IStorageData | null>;
     /**
-     * Retrieves a list of items from the storage, optionally filtered by a predicate function.
-     * @param {function(IStorageData): boolean} [filter] - The optional filter function.
-     * @returns {Promise<IStorageData[]>} The list of items.
+     * Retrieves a list of all items from the client-specific storage identified by storageName and clientId, optionally filtered by a predicate function.
+     * Wraps StorageConnectionService.list with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., listing client-specific storage in EXECUTE_FN) and DocService (e.g., documenting storage contents per client).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the storage operation to a specific client.
+     * @param {StorageName} storageName - The name of the storage, used in DocService documentation.
+     * @param {(item: IStorageData) => boolean} [filter] - An optional predicate function to filter items.
+     * @returns {Promise<IStorageData[]>} A promise resolving to an array of storage items.
      */
     list: (methodName: string, clientId: string, storageName: StorageName, filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
     /**
-     * Clears all items from the storage.
-     * @returns {Promise<void>}
+     * Clears all items from the client-specific storage identified by storageName and clientId.
+     * Wraps StorageConnectionService.clear with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., resetting client-specific storage in EXECUTE_FN) and PerfService (e.g., clearing storage for performance resets per client).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the storage operation to a specific client.
+     * @param {StorageName} storageName - The name of the storage, used in DocService documentation.
+     * @returns {Promise<void>} A promise resolving when the storage is cleared.
      */
     clear: (methodName: string, clientId: string, storageName: StorageName) => Promise<void>;
     /**
-     * Disposes of the storage.
-     * @param {string} clientId - The client ID.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<void>}
+     * Disposes of the client-specific storage identified by storageName and clientId, cleaning up resources.
+     * Wraps StorageConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Aligns with ClientAgent’s cleanup (e.g., post-EXECUTE_FN) and PerfService’s dispose (e.g., clearing client-specific storage).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the storage disposal to a specific client.
+     * @param {StorageName} storageName - The name of the storage, used in DocService documentation.
+     * @returns {Promise<void>} A promise resolving when the storage is disposed.
      */
     dispose: (methodName: string, clientId: string, storageName: StorageName) => Promise<void>;
 }
@@ -4546,45 +4855,92 @@ declare class StateConnectionService<T extends IStateData = IStateData> implemen
     dispose: () => Promise<void>;
 }
 
+/**
+ * Interface extending StateConnectionService for type definition purposes.
+ * Used to define TStateConnectionService by excluding internal keys, ensuring StatePublicService aligns with public-facing operations.
+ * @interface IStateConnectionService
+ */
 interface IStateConnectionService extends StateConnectionService {
 }
+/**
+ * Type representing keys to exclude from IStateConnectionService (internal methods).
+ * Used to filter out non-public methods like getStateRef and getSharedStateRef in TStateConnectionService.
+ * @typedef {keyof { getStateRef: never; getSharedStateRef: never }} InternalKeys
+ */
 type InternalKeys$3 = keyof {
     getStateRef: never;
     getSharedStateRef: never;
 };
+/**
+ * Type representing the public interface of StatePublicService, derived from IStateConnectionService.
+ * Excludes internal methods (e.g., getStateRef, getSharedStateRef) via InternalKeys, ensuring a consistent public API for client-specific state operations.
+ * @typedef {Object} TStateConnectionService
+ */
 type TStateConnectionService = {
     [key in Exclude<keyof IStateConnectionService, InternalKeys$3>]: unknown;
 };
+/**
+ * Service class for managing public client-specific state operations in the swarm system, with generic type support for state data.
+ * Implements TStateConnectionService to provide a public API for state interactions, delegating to StateConnectionService and wrapping calls with MethodContextService for context scoping.
+ * Integrates with ClientAgent (e.g., managing client-specific state in EXECUTE_FN), PerfService (e.g., tracking sessionState per clientId), and DocService (e.g., documenting state schemas via stateName).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), supporting operations like setting, clearing, retrieving, and disposing client-specific state.
+ * Contrasts with SharedStatePublicService (system-wide state) and SharedStoragePublicService (persistent storage) by scoping state to individual clients via clientId.
+ * @template T - The type of state data, extending IStateData from State.interface, defaulting to IStateData.
+ */
 declare class StatePublicService<T extends IStateData = IStateData> implements TStateConnectionService {
+    /**
+     * Logger service instance, injected via DI, for logging state operations.
+     * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionPublicService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * State connection service instance, injected via DI, for underlying state operations.
+     * Provides core functionality (e.g., setState, getState) called by public methods, supporting ClientAgent’s client-specific state needs.
+     * @type {StateConnectionService}
+     * @private
+     */
     private readonly stateConnectionService;
     /**
-     * Sets the state using the provided dispatch function.
-     * @param {function(T): Promise<T>} dispatchFn - The function to dispatch the state change.
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The name of the state.
-     * @returns {Promise<T>} - The updated state.
+     * Sets the client-specific state using a provided dispatch function, updating the state identified by stateName for a given clientId.
+     * Wraps StateConnectionService.setState with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., updating client state in EXECUTE_FN) and PerfService (e.g., tracking state changes in sessionState per client).
+     * @param {(prevState: T) => Promise<T>} dispatchFn - The async function to dispatch the state change, taking the previous state and returning the updated state.
+     * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+     * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking, scoping the state to a specific client.
+     * @param {StateName} stateName - The name of the state, sourced from State.interface, used in DocService documentation.
+     * @returns {Promise<T>} A promise resolving to the updated state of type T.
      */
     setState: (dispatchFn: (prevState: T) => Promise<T>, methodName: string, clientId: string, stateName: StateName) => Promise<T>;
     /**
-     * Set the state to initial value
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The name of the state.
-     * @returns {Promise<T>} - The initial state.
+     * Resets the client-specific state to its initial value, identified by stateName for a given clientId.
+     * Wraps StateConnectionService.clearState with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., resetting client state in EXECUTE_FN) and PerfService (e.g., clearing sessionState for a specific client).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the state reset to a specific client.
+     * @param {StateName} stateName - The name of the state to clear, used in DocService documentation.
+     * @returns {Promise<T>} A promise resolving to the initial state of type T.
      */
     clearState: (methodName: string, clientId: string, stateName: StateName) => Promise<T>;
     /**
-     * Gets the current state.
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The name of the state.
-     * @returns {Promise<T>} - The current state.
+     * Retrieves the current client-specific state identified by stateName for a given clientId.
+     * Wraps StateConnectionService.getState with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., accessing client state in EXECUTE_FN) and PerfService (e.g., reading sessionState for a specific client).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the state retrieval to a specific client.
+     * @param {StateName} stateName - The name of the state to retrieve, used in DocService documentation.
+     * @returns {Promise<T>} A promise resolving to the current state of type T.
      */
     getState: (methodName: string, clientId: string, stateName: StateName) => Promise<T>;
     /**
-     * Disposes the state.
-     * @param {string} clientId - The client ID.
-     * @param {StateName} stateName - The name of the state.
-     * @returns {Promise<void>} - A promise that resolves when the state is disposed.
+     * Disposes of the client-specific state identified by stateName for a given clientId, cleaning up resources.
+     * Wraps StateConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Aligns with ClientAgent’s cleanup (e.g., post-EXECUTE_FN) and PerfService’s dispose (e.g., clearing client-specific sessionState).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the state disposal to a specific client.
+     * @param {StateName} stateName - The name of the state to dispose, used in DocService documentation.
+     * @returns {Promise<void>} A promise resolving when the state is disposed.
      */
     dispose: (methodName: string, clientId: string, stateName: StateName) => Promise<void>;
 }
@@ -5067,88 +5423,186 @@ declare class SharedStateConnectionService<T extends IStateData = IStateData> im
     getState: () => Promise<T>;
 }
 
+/**
+ * Interface extending SharedStateConnectionService for type definition purposes.
+ * Used to define TSharedStateConnectionService by excluding internal keys, ensuring SharedStatePublicService aligns with public-facing operations.
+ * @interface ISharedStateConnectionService
+ */
 interface ISharedStateConnectionService extends SharedStateConnectionService {
 }
+/**
+ * Type representing keys to exclude from ISharedStateConnectionService (internal methods).
+ * Used to filter out non-public methods like getStateRef and getSharedStateRef in TSharedStateConnectionService.
+ * @typedef {keyof { getStateRef: never; getSharedStateRef: never }} InternalKeys
+ */
 type InternalKeys$2 = keyof {
     getStateRef: never;
     getSharedStateRef: never;
 };
+/**
+ * Type representing the public interface of SharedStatePublicService, derived from ISharedStateConnectionService.
+ * Excludes internal methods (e.g., getStateRef, getSharedStateRef) via InternalKeys, ensuring a consistent public API for shared state operations.
+ * @typedef {Object} TSharedStateConnectionService
+ */
 type TSharedStateConnectionService = {
     [key in Exclude<keyof ISharedStateConnectionService, InternalKeys$2>]: unknown;
 };
+/**
+ * Service class for managing public shared state operations in the swarm system, with generic type support for state data.
+ * Implements TSharedStateConnectionService to provide a public API for shared state interactions, delegating to SharedStateConnectionService and wrapping calls with MethodContextService for context scoping.
+ * Integrates with PerfService (e.g., sessionState tracking in computeClientState), ClientAgent (e.g., state management in EXECUTE_FN), and DocService (e.g., documenting state schemas via stateName).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), supporting operations like setting, clearing, and retrieving shared state across the system.
+ * @template T - The type of state data, extending IStateData from State.interface, defaulting to IStateData.
+ */
 declare class SharedStatePublicService<T extends IStateData = IStateData> implements TSharedStateConnectionService {
+    /**
+     * Logger service instance, injected via DI, for logging shared state operations.
+     * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionPublicService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * Shared state connection service instance, injected via DI, for underlying state operations.
+     * Provides core functionality (e.g., setState, getState) called by public methods, supporting ClientAgent’s state management needs.
+     * @type {SharedStateConnectionService}
+     * @private
+     */
     private readonly sharedStateConnectionService;
     /**
-     * Sets the state using the provided dispatch function.
-     * @param {function(T): Promise<T>} dispatchFn - The function to dispatch the state change.
-     * @param {StateName} stateName - The name of the state.
-     * @returns {Promise<T>} - The updated state.
+     * Sets the shared state using a provided dispatch function, updating the state identified by stateName.
+     * Wraps SharedStateConnectionService.setState with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., updating state in EXECUTE_FN) and PerfService (e.g., tracking state changes in sessionState).
+     * @param {(prevState: T) => Promise<T>} dispatchFn - The async function to dispatch the state change, taking the previous state and returning the updated state.
+     * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+     * @param {StateName} stateName - The name of the shared state, sourced from State.interface, used in DocService documentation.
+     * @returns {Promise<T>} A promise resolving to the updated state of type T.
      */
     setState: (dispatchFn: (prevState: T) => Promise<T>, methodName: string, stateName: StateName) => Promise<T>;
     /**
-     * Set the state to initial value
-     * @param {StateName} stateName - The name of the state.
-     * @returns {Promise<T>} - The initial state.
+     * Resets the shared state to its initial value, identified by stateName.
+     * Wraps SharedStateConnectionService.clearState with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., resetting state in EXECUTE_FN) and PerfService (e.g., clearing sessionState for performance resets).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {StateName} stateName - The name of the shared state to clear, used in DocService documentation.
+     * @returns {Promise<T>} A promise resolving to the initial state of type T.
      */
     clearState: (methodName: string, stateName: StateName) => Promise<T>;
     /**
-     * Gets the current state.
-     * @param {StateName} stateName - The name of the state.
-     * @returns {Promise<T>} - The current state.
+     * Retrieves the current shared state identified by stateName.
+     * Wraps SharedStateConnectionService.getState with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., accessing state in EXECUTE_FN) and PerfService (e.g., reading sessionState for metrics).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {StateName} stateName - The name of the shared state to retrieve, used in DocService documentation.
+     * @returns {Promise<T>} A promise resolving to the current state of type T.
      */
     getState: (methodName: string, stateName: StateName) => Promise<T>;
 }
 
+/**
+ * Interface extending SharedStorageConnectionService for type definition purposes.
+ * Used to define TSharedStorageConnectionService by excluding internal keys, ensuring SharedStoragePublicService aligns with public-facing operations.
+ * @interface ISharedStorageConnectionService
+ */
 interface ISharedStorageConnectionService extends SharedStorageConnectionService {
 }
+/**
+ * Type representing keys to exclude from ISharedStorageConnectionService (internal methods).
+ * Used to filter out non-public methods like getStorage and getSharedStorage in TSharedStorageConnectionService.
+ * @typedef {keyof { getStorage: never; getSharedStorage: never }} InternalKeys
+ */
 type InternalKeys$1 = keyof {
     getStorage: never;
     getSharedStorage: never;
 };
+/**
+ * Type representing the public interface of SharedStoragePublicService, derived from ISharedStorageConnectionService.
+ * Excludes internal methods (e.g., getStorage, getSharedStorage) via InternalKeys, ensuring a consistent public API for shared storage operations.
+ * @typedef {Object} TSharedStorageConnectionService
+ */
 type TSharedStorageConnectionService = {
     [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys$1>]: unknown;
 };
 /**
- * Service for managing public storage interactions.
+ * Service class for managing public shared storage operations in the swarm system.
+ * Implements TSharedStorageConnectionService to provide a public API for shared storage interactions, delegating to SharedStorageConnectionService and wrapping calls with MethodContextService for context scoping.
+ * Integrates with ClientAgent (e.g., storing/retrieving data in EXECUTE_FN), PerfService (e.g., tracking storage usage in sessionState), and DocService (e.g., documenting storage schemas via storageName).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), supporting operations like retrieving, upserting, removing, listing, and clearing items in shared storage across the system.
  */
 declare class SharedStoragePublicService implements TSharedStorageConnectionService {
+    /**
+     * Logger service instance, injected via DI, for logging shared storage operations.
+     * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SharedStatePublicService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * Shared storage connection service instance, injected via DI, for underlying storage operations.
+     * Provides core functionality (e.g., take, upsert) called by public methods, supporting ClientAgent’s storage needs.
+     * @type {SharedStorageConnectionService}
+     * @private
+     */
     private readonly sharedStorageConnectionService;
     /**
-     * Retrieves a list of storage data based on a search query and total number of items.
-     * @param {string} search - The search query.
-     * @param {number} total - The total number of items to retrieve.
-     * @returns {Promise<IStorageData[]>} The list of storage data.
+     * Retrieves a list of storage items based on a search query, total count, and optional score, from a storage identified by storageName.
+     * Wraps SharedStorageConnectionService.take with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., searching storage in EXECUTE_FN) and DocService (e.g., documenting searchable storage data).
+     * @param {string} search - The search query to filter storage items.
+     * @param {number} total - The maximum number of items to retrieve.
+     * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+     * @param {StorageName} storageName - The name of the shared storage, sourced from Storage.interface, used in DocService documentation.
+     * @param {number} [score] - An optional score for ranking or filtering items (e.g., relevance score).
+     * @returns {Promise<IStorageData[]>} A promise resolving to an array of storage items matching the query.
      */
     take: (search: string, total: number, methodName: string, storageName: StorageName, score?: number) => Promise<IStorageData[]>;
     /**
-     * Upserts an item in the storage.
-     * @param {IStorageData} item - The item to upsert.
-     * @returns {Promise<void>}
+     * Upserts (inserts or updates) an item in the shared storage identified by storageName.
+     * Wraps SharedStorageConnectionService.upsert with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., storing data in EXECUTE_FN) and PerfService (e.g., tracking storage updates in sessionState).
+     * @param {IStorageData} item - The storage item to upsert, sourced from Storage.interface (e.g., with id, data fields).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {StorageName} storageName - The name of the shared storage, used in DocService documentation.
+     * @returns {Promise<void>} A promise resolving when the item is upserted.
      */
     upsert: (item: IStorageData, methodName: string, storageName: StorageName) => Promise<void>;
     /**
-     * Removes an item from the storage.
-     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
-     * @returns {Promise<void>}
+     * Removes an item from the shared storage identified by storageName, using the item’s ID.
+     * Wraps SharedStorageConnectionService.remove with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., deleting data in EXECUTE_FN) and PerfService (e.g., tracking storage cleanup).
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove, sourced from Storage.interface.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {StorageName} storageName - The name of the shared storage, used in DocService documentation.
+     * @returns {Promise<void>} A promise resolving when the item is removed.
      */
     remove: (itemId: IStorageData["id"], methodName: string, storageName: StorageName) => Promise<void>;
     /**
-     * Retrieves an item from the storage by its ID.
-     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
-     * @returns {Promise<IStorageData>} The retrieved item.
+     * Retrieves a specific item from the shared storage identified by storageName, using the item’s ID.
+     * Wraps SharedStorageConnectionService.get with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., fetching data in EXECUTE_FN) and PerfService (e.g., reading storage for metrics).
+     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve, sourced from Storage.interface.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {StorageName} storageName - The name of the shared storage, used in DocService documentation.
+     * @returns {Promise<IStorageData | null>} A promise resolving to the retrieved item or null if not found.
      */
     get: (itemId: IStorageData["id"], methodName: string, storageName: StorageName) => Promise<IStorageData | null>;
     /**
-     * Retrieves a list of items from the storage, optionally filtered by a predicate function.
-     * @param {function(IStorageData): boolean} [filter] - The optional filter function.
-     * @returns {Promise<IStorageData[]>} The list of items.
+     * Retrieves a list of all items from the shared storage identified by storageName, optionally filtered by a predicate function.
+     * Wraps SharedStorageConnectionService.list with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., listing storage in EXECUTE_FN) and DocService (e.g., documenting storage contents).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {StorageName} storageName - The name of the shared storage, used in DocService documentation.
+     * @param {(item: IStorageData) => boolean} [filter] - An optional predicate function to filter items.
+     * @returns {Promise<IStorageData[]>} A promise resolving to an array of storage items.
      */
     list: (methodName: string, storageName: StorageName, filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
     /**
-     * Clears all items from the storage.
-     * @returns {Promise<void>}
+     * Clears all items from the shared storage identified by storageName.
+     * Wraps SharedStorageConnectionService.clear with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., resetting storage in EXECUTE_FN) and PerfService (e.g., clearing storage for performance resets).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {StorageName} storageName - The name of the shared storage, used in DocService documentation.
+     * @returns {Promise<void>} A promise resolving when the storage is cleared.
      */
     clear: (methodName: string, storageName: StorageName) => Promise<void>;
 }
@@ -5744,74 +6198,116 @@ declare class PolicyConnectionService implements IPolicy {
     unbanClient: (clientId: SessionId, swarmName: SwarmName) => Promise<void>;
 }
 
+/**
+ * Interface extending PolicyConnectionService for type definition purposes.
+ * Used to define TPolicyConnectionService by excluding internal keys, ensuring PolicyPublicService aligns with public-facing operations.
+ * @interface IPolicyConnectionService
+ */
 interface IPolicyConnectionService extends PolicyConnectionService {
 }
+/**
+ * Type representing keys to exclude from IPolicyConnectionService (internal methods).
+ * Used to filter out non-public methods like getPolicy in TPolicyConnectionService.
+ * @typedef {keyof { getPolicy: never }} InternalKeys
+ */
 type InternalKeys = keyof {
     getPolicy: never;
 };
+/**
+ * Type representing the public interface of PolicyPublicService, derived from IPolicyConnectionService.
+ * Excludes internal methods (e.g., getPolicy) via InternalKeys, ensuring a consistent public API for policy operations.
+ * @typedef {Object} TPolicyConnectionService
+ */
 type TPolicyConnectionService = {
     [key in Exclude<keyof IPolicyConnectionService, InternalKeys>]: unknown;
 };
 /**
- * Service for handling public policy operations.
+ * Service class for managing public policy operations in the swarm system.
+ * Implements TPolicyConnectionService to provide a public API for policy-related interactions, delegating to PolicyConnectionService and wrapping calls with MethodContextService for context scoping.
+ * Integrates with PerfService (e.g., policyBans in computeClientState), ClientAgent (e.g., input/output validation in EXECUTE_FN), DocService (e.g., policy documentation via policyName), and SwarmMetaService (e.g., swarm context via swarmName).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), supporting operations like ban checking, validation, and client ban management.
  */
 declare class PolicyPublicService implements TPolicyConnectionService {
+    /**
+     * Logger service instance, injected via DI, for logging policy operations.
+     * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentPublicService and DocService logging patterns.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * Policy connection service instance, injected via DI, for underlying policy operations.
+     * Provides core functionality (e.g., hasBan, validateInput) called by public methods, aligning with PerfService’s policy enforcement.
+     * @type {PolicyConnectionService}
+     * @private
+     */
     private readonly policyConnectionService;
     /**
-     * Check if has ban message
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {string} methodName - The name of the method.
-     * @param {string} clientId - The ID of the client.
-     * @param {PolicyName} policyName - The name of the policy.
-     * @returns {Promise<boolean>}
+     * Checks if a client is banned from a specific swarm under a given policy.
+     * Wraps PolicyConnectionService.hasBan with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in PerfService (e.g., policyBans in computeClientState) and ClientAgent (e.g., pre-execution ban checks in EXECUTE_FN).
+     * @param {SwarmName} swarmName - The name of the swarm, sourced from Swarm.interface, tying to SwarmMetaService.
+     * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+     * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking.
+     * @param {PolicyName} policyName - The name of the policy, sourced from Policy.interface, used in DocService docs.
+     * @returns {Promise<boolean>} A promise resolving to true if the client is banned, false otherwise.
      */
     hasBan: (swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<boolean>;
     /**
-     * Retrieves the ban message for a client in a specific swarm.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {string} methodName - The name of the method.
-     * @param {string} clientId - The ID of the client.
-     * @param {PolicyName} policyName - The name of the policy.
-     * @returns {Promise<string>} The ban message.
+     * Retrieves the ban message for a client in a specific swarm under a given policy.
+     * Wraps PolicyConnectionService.getBanMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., displaying ban reasons in EXECUTE_FN) and PerfService (e.g., policyBans logging).
+     * @param {SwarmName} swarmName - The name of the swarm, tying to SwarmMetaService context.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {PolicyName} policyName - The policy name for identification and documentation.
+     * @returns {Promise<string>} A promise resolving to the ban message string.
      */
     getBanMessage: (swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<string>;
     /**
-     * Validates the input for a specific policy.
-     * @param {string} incoming - The incoming data to validate.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {string} methodName - The name of the method.
-     * @param {string} clientId - The ID of the client.
-     * @param {PolicyName} policyName - The name of the policy.
-     * @returns {Promise<boolean>} The result of the validation.
+     * Validates incoming data against a specific policy for a client in a swarm.
+     * Wraps PolicyConnectionService.validateInput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., input validation in EXECUTE_FN) and PerfService (e.g., policy enforcement in computeClientState).
+     * @param {string} incoming - The incoming data to validate (e.g., user input).
+     * @param {SwarmName} swarmName - The name of the swarm for context.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {PolicyName} policyName - The policy name for identification.
+     * @returns {Promise<boolean>} A promise resolving to true if the input is valid, false otherwise.
      */
     validateInput: (incoming: string, swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<boolean>;
     /**
-     * Validates the output for a specific policy.
-     * @param {string} outgoing - The outgoing data to validate.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {string} methodName - The name of the method.
-     * @param {string} clientId - The ID of the client.
-     * @param {PolicyName} policyName - The name of the policy.
-     * @returns {Promise<boolean>} The result of the validation.
+     * Validates outgoing data against a specific policy for a client in a swarm.
+     * Wraps PolicyConnectionService.validateOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., output validation in EXECUTE_FN) and DocService (e.g., documenting policy-compliant outputs).
+     * @param {string} outgoing - The outgoing data to validate (e.g., agent response).
+     * @param {SwarmName} swarmName - The name of the swarm for context.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {PolicyName} policyName - The policy name for identification.
+     * @returns {Promise<boolean>} A promise resolving to true if the output is valid, false otherwise.
      */
     validateOutput: (outgoing: string, swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<boolean>;
     /**
-     * Bans a client from a specific swarm.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {string} methodName - The name of the method.
-     * @param {string} clientId - The ID of the client.
-     * @param {PolicyName} policyName - The name of the policy.
-     * @returns {Promise<void>}
+     * Bans a client from a specific swarm under a given policy.
+     * Wraps PolicyConnectionService.banClient with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in PerfService (e.g., enforcing policyBans in computeClientState) and ClientAgent (e.g., restricting access).
+     * @param {SwarmName} swarmName - The name of the swarm to ban the client from.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID to ban.
+     * @param {PolicyName} policyName - The policy name enforcing the ban.
+     * @returns {Promise<void>} A promise resolving when the client is banned.
      */
     banClient: (swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<void>;
     /**
-     * Unbans a client from a specific swarm.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {string} methodName - The name of the method.
-     * @param {string} clientId - The ID of the client.
-     * @param {PolicyName} policyName - The name of the policy.
-     * @returns {Promise<void>}
+     * Unbans a client from a specific swarm under a given policy.
+     * Wraps PolicyConnectionService.unbanClient with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports PerfService (e.g., reversing policyBans) and ClientAgent (e.g., restoring access).
+     * @param {SwarmName} swarmName - The name of the swarm to unban the client from.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID to unban.
+     * @param {PolicyName} policyName - The policy name lifting the ban.
+     * @returns {Promise<void>} A promise resolving when the client is unbanned.
      */
     unbanClient: (swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<void>;
 }

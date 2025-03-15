@@ -2,7 +2,10 @@
 
 Implements `TAgentConnectionService`
 
-Service for managing public agent operations.
+Service class for managing public agent operations in the swarm system.
+Implements TAgentConnectionService to provide a public API for agent interactions, delegating to AgentConnectionService and wrapping calls with MethodContextService for context scoping.
+Integrates with ClientAgent (e.g., EXECUTE_FN, RUN_FN execution), PerfService (e.g., execution tracking via execute), DocService (e.g., agent documentation via agentName), and BusService (e.g., execution events via clientId).
+Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), supporting operations like agent creation, execution, message commits, and disposal.
 
 ## Constructor
 
@@ -18,11 +21,17 @@ constructor();
 loggerService: any
 ```
 
+Logger service instance, injected via DI, for logging agent operations.
+Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with DocService and PerfService logging patterns.
+
 ### agentConnectionService
 
 ```ts
 agentConnectionService: any
 ```
+
+Agent connection service instance, injected via DI, for underlying agent operations.
+Provides core functionality (e.g., getAgent, execute) called by public methods, aligning with ClientAgent’s execution model.
 
 ### createAgentRef
 
@@ -30,7 +39,9 @@ agentConnectionService: any
 createAgentRef: (methodName: string, clientId: string, agentName: string) => Promise<ClientAgent>
 ```
 
-Creates a reference to an agent.
+Creates a reference to an agent for a specific client and method context.
+Wraps AgentConnectionService.getAgent with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Used in ClientAgent (e.g., to initialize agent refs) and PerfService (e.g., to track agent usage via clientId).
 
 ### execute
 
@@ -38,7 +49,9 @@ Creates a reference to an agent.
 execute: (input: string, mode: ExecutionMode, methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
-Executes a command on the agent.
+Executes a command on the agent with a specified execution mode.
+Wraps AgentConnectionService.execute with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Mirrors ClientAgent’s EXECUTE_FN, triggering BusService events (e.g., commitExecutionBegin) and PerfService tracking (e.g., startExecution).
 
 ### run
 
@@ -46,7 +59,9 @@ Executes a command on the agent.
 run: (input: string, methodName: string, clientId: string, agentName: string) => Promise<string>
 ```
 
-Run the completion stateless
+Runs a stateless completion on the agent with the given input.
+Wraps AgentConnectionService.run with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Mirrors ClientAgent’s RUN_FN, used for quick completions without state persistence, tracked by PerfService.
 
 ### waitForOutput
 
@@ -54,7 +69,9 @@ Run the completion stateless
 waitForOutput: (methodName: string, clientId: string, agentName: string) => Promise<string>
 ```
 
-Waits for the agent's output.
+Waits for the agent’s output after an operation.
+Wraps AgentConnectionService.waitForOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Used in ClientAgent (e.g., post-execution output retrieval), complementing execute and run.
 
 ### commitToolOutput
 
@@ -62,7 +79,9 @@ Waits for the agent's output.
 commitToolOutput: (toolId: string, content: string, methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
-Commits tool output to the agent.
+Commits tool output to the agent’s history, typically for OpenAI-style tool calls.
+Wraps AgentConnectionService.commitToolOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports ClientAgent’s tool execution (e.g., TOOL_EXECUTOR), documented in DocService (e.g., tool schemas).
 
 ### commitSystemMessage
 
@@ -70,7 +89,9 @@ Commits tool output to the agent.
 commitSystemMessage: (message: string, methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
-Commits a system message to the agent.
+Commits a system message to the agent’s history.
+Wraps AgentConnectionService.commitSystemMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Used in ClientAgent (e.g., system prompt updates), documented in DocService (e.g., system prompts).
 
 ### commitAssistantMessage
 
@@ -78,7 +99,9 @@ Commits a system message to the agent.
 commitAssistantMessage: (message: string, methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
-Commits an assistant message to the agent history.
+Commits an assistant message to the agent’s history.
+Wraps AgentConnectionService.commitAssistantMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports ClientAgent’s assistant responses, tracked by PerfService and documented in DocService.
 
 ### commitUserMessage
 
@@ -86,7 +109,9 @@ Commits an assistant message to the agent history.
 commitUserMessage: (message: string, methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
-Commits user message to the agent without answer.
+Commits a user message to the agent’s history without triggering an answer.
+Wraps AgentConnectionService.commitUserMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Used in ClientAgent for user input logging, complementing execute and run.
 
 ### commitFlush
 
@@ -94,7 +119,9 @@ Commits user message to the agent without answer.
 commitFlush: (methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
-Commits flush of agent history
+Commits a flush of the agent’s history, clearing stored data.
+Wraps AgentConnectionService.commitFlush with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports ClientAgent session resets, tracked by PerfService for performance cleanup.
 
 ### commitAgentChange
 
@@ -102,7 +129,9 @@ Commits flush of agent history
 commitAgentChange: (methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
-Commits change of agent to prevent the next tool execution from being called.
+Commits a change of agent to prevent subsequent tool executions.
+Wraps AgentConnectionService.commitAgentChange with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Used in ClientAgent to manage agent transitions, documented in DocService (e.g., agent dependencies).
 
 ### commitStopTools
 
@@ -110,7 +139,9 @@ Commits change of agent to prevent the next tool execution from being called.
 commitStopTools: (methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
-Prevent the next tool from being executed
+Commits a stop to prevent the next tool from being executed.
+Wraps AgentConnectionService.commitStopTools with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption).
 
 ### dispose
 
@@ -118,4 +149,6 @@ Prevent the next tool from being executed
 dispose: (methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
-Disposes of the agent.
+Disposes of the agent, cleaning up resources.
+Wraps AgentConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Aligns with PerfService’s dispose (e.g., session cleanup) and BusService’s dispose (e.g., subscription cleanup).

@@ -2,7 +2,10 @@
 
 Implements `TSwarmConnectionService`
 
-Service for managing public swarm interactions.
+Service class for managing public swarm-level interactions in the swarm system.
+Implements TSwarmConnectionService to provide a public API for swarm operations, delegating to SwarmConnectionService and wrapping calls with MethodContextService for context scoping.
+Integrates with ClientAgent (e.g., agent execution in EXECUTE_FN), AgentPublicService (e.g., agent-specific operations), SwarmMetaService (e.g., swarm metadata via swarmName), SessionPublicService (e.g., swarm context), and PerfService (e.g., tracking swarm interactions in sessionState).
+Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), supporting operations like navigation, output control, agent management, and swarm disposal, all scoped to a client (clientId) and swarm (swarmName).
 
 ## Constructor
 
@@ -18,11 +21,17 @@ constructor();
 loggerService: any
 ```
 
+Logger service instance, injected via DI, for logging swarm operations.
+Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionPublicService and PerfService logging patterns.
+
 ### swarmConnectionService
 
 ```ts
 swarmConnectionService: any
 ```
+
+Swarm connection service instance, injected via DI, for underlying swarm operations.
+Provides core functionality (e.g., navigationPop, getAgent) called by public methods, supporting ClientAgent’s swarm-level needs.
 
 ### navigationPop
 
@@ -30,7 +39,9 @@ swarmConnectionService: any
 navigationPop: (methodName: string, clientId: string, swarmName: string) => Promise<string>
 ```
 
-Pop the navigation stack or return default agent
+Pops the navigation stack or returns the default agent for the swarm, scoped to a client.
+Wraps SwarmConnectionService.navigationPop with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Used in ClientAgent (e.g., navigating agent flow in EXECUTE_FN) and SwarmMetaService (e.g., managing swarm navigation state).
 
 ### cancelOutput
 
@@ -38,7 +49,9 @@ Pop the navigation stack or return default agent
 cancelOutput: (methodName: string, clientId: string, swarmName: string) => Promise<void>
 ```
 
-Cancel the await of output by emit of empty string
+Cancels the await of output in the swarm by emitting an empty string, scoped to a client.
+Wraps SwarmConnectionService.cancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports ClientAgent (e.g., interrupting EXECUTE_FN output) and SessionPublicService (e.g., output control in connect).
 
 ### waitForOutput
 
@@ -46,7 +59,9 @@ Cancel the await of output by emit of empty string
 waitForOutput: (methodName: string, clientId: string, swarmName: string) => Promise<string>
 ```
 
-Waits for output from the swarm.
+Waits for output from the swarm, scoped to a client.
+Wraps SwarmConnectionService.waitForOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Used in ClientAgent (e.g., awaiting EXECUTE_FN results) and SessionPublicService (e.g., output handling in connect).
 
 ### getAgentName
 
@@ -54,7 +69,9 @@ Waits for output from the swarm.
 getAgentName: (methodName: string, clientId: string, swarmName: string) => Promise<string>
 ```
 
-Gets the agent name from the swarm.
+Retrieves the current agent name from the swarm, scoped to a client.
+Wraps SwarmConnectionService.getAgentName with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports ClientAgent (e.g., identifying active agent in EXECUTE_FN) and AgentPublicService (e.g., agent context).
 
 ### getAgent
 
@@ -62,7 +79,9 @@ Gets the agent name from the swarm.
 getAgent: (methodName: string, clientId: string, swarmName: string) => Promise<IAgent>
 ```
 
-Gets the agent from the swarm.
+Retrieves the current agent instance from the swarm, scoped to a client.
+Wraps SwarmConnectionService.getAgent with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Used in ClientAgent (e.g., accessing agent details in EXECUTE_FN) and AgentPublicService (e.g., agent operations).
 
 ### setAgentRef
 
@@ -70,7 +89,9 @@ Gets the agent from the swarm.
 setAgentRef: (methodName: string, clientId: string, swarmName: string, agentName: string, agent: IAgent) => Promise<void>
 ```
 
-Sets the agent reference in the swarm.
+Sets an agent reference in the swarm, associating an agent instance with an agent name, scoped to a client.
+Wraps SwarmConnectionService.setAgentRef with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports ClientAgent (e.g., configuring agents in EXECUTE_FN) and AgentPublicService (e.g., agent management).
 
 ### setAgentName
 
@@ -78,7 +99,9 @@ Sets the agent reference in the swarm.
 setAgentName: (agentName: string, methodName: string, clientId: string, swarmName: string) => Promise<void>
 ```
 
-Sets the agent name in the swarm.
+Sets the current agent name in the swarm, scoped to a client.
+Wraps SwarmConnectionService.setAgentName with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Used in ClientAgent (e.g., switching agents in EXECUTE_FN) and AgentPublicService (e.g., agent context updates).
 
 ### dispose
 
@@ -86,4 +109,6 @@ Sets the agent name in the swarm.
 dispose: (methodName: string, clientId: string, swarmName: string) => Promise<void>
 ```
 
-Disposes of the swarm.
+Disposes of the swarm, cleaning up resources, scoped to a client.
+Wraps SwarmConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Aligns with ClientAgent’s cleanup (e.g., post-EXECUTE_FN), SessionPublicService’s dispose, and PerfService’s resource management.

@@ -7,28 +7,64 @@ import { SwarmName } from "../../../interfaces/Swarm.interface";
 import { AgentName, IAgent } from "../../../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
 
+/**
+ * Interface extending SwarmConnectionService for type definition purposes.
+ * Used to define TSwarmConnectionService by excluding internal keys, ensuring SwarmPublicService aligns with public-facing operations.
+ * @interface ISwarmConnectionService
+ */
 interface ISwarmConnectionService extends SwarmConnectionService {}
 
+/**
+ * Type representing keys to exclude from ISwarmConnectionService (internal methods).
+ * Used to filter out non-public methods like getSwarm in TSwarmConnectionService.
+ * @typedef {keyof { getSwarm: never }} InternalKeys
+ */
 type InternalKeys = keyof {
   getSwarm: never;
 };
 
+/**
+ * Type representing the public interface of SwarmPublicService, derived from ISwarmConnectionService.
+ * Excludes internal methods (e.g., getSwarm) via InternalKeys, ensuring a consistent public API for swarm-level operations.
+ * @typedef {Object} TSwarmConnectionService
+ */
 type TSwarmConnectionService = {
   [key in Exclude<keyof ISwarmConnectionService, InternalKeys>]: unknown;
 };
 
 /**
- * Service for managing public swarm interactions.
+ * Service class for managing public swarm-level interactions in the swarm system.
+ * Implements TSwarmConnectionService to provide a public API for swarm operations, delegating to SwarmConnectionService and wrapping calls with MethodContextService for context scoping.
+ * Integrates with ClientAgent (e.g., agent execution in EXECUTE_FN), AgentPublicService (e.g., agent-specific operations), SwarmMetaService (e.g., swarm metadata via swarmName), SessionPublicService (e.g., swarm context), and PerfService (e.g., tracking swarm interactions in sessionState).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), supporting operations like navigation, output control, agent management, and swarm disposal, all scoped to a client (clientId) and swarm (swarmName).
  */
 export class SwarmPublicService implements TSwarmConnectionService {
+  /**
+   * Logger service instance, injected via DI, for logging swarm operations.
+   * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionPublicService and PerfService logging patterns.
+   * @type {LoggerService}
+   * @private
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+
+  /**
+   * Swarm connection service instance, injected via DI, for underlying swarm operations.
+   * Provides core functionality (e.g., navigationPop, getAgent) called by public methods, supporting ClientAgent’s swarm-level needs.
+   * @type {SwarmConnectionService}
+   * @private
+   */
   private readonly swarmConnectionService = inject<SwarmConnectionService>(
     TYPES.swarmConnectionService
   );
 
   /**
-   * Pop the navigation stack or return default agent
-   * @returns {Promise<string>} - The pending agent for navigation
+   * Pops the navigation stack or returns the default agent for the swarm, scoped to a client.
+   * Wraps SwarmConnectionService.navigationPop with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Used in ClientAgent (e.g., navigating agent flow in EXECUTE_FN) and SwarmMetaService (e.g., managing swarm navigation state).
+   * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+   * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking, scoping the operation to a specific client.
+   * @param {SwarmName} swarmName - The name of the swarm, sourced from Swarm.interface, used in SwarmMetaService context.
+   * @returns {Promise<string>} A promise resolving to the pending agent name for navigation.
    */
   public navigationPop = async (
     methodName: string,
@@ -57,10 +93,13 @@ export class SwarmPublicService implements TSwarmConnectionService {
   };
 
   /**
-   * Cancel the await of output by emit of empty string
-   * @param {string} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
-   * @returns {Promise<void>}
+   * Cancels the await of output in the swarm by emitting an empty string, scoped to a client.
+   * Wraps SwarmConnectionService.cancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports ClientAgent (e.g., interrupting EXECUTE_FN output) and SessionPublicService (e.g., output control in connect).
+   * @param {string} methodName - The method name for context and logging.
+   * @param {string} clientId - The client ID, scoping the operation to a specific client.
+   * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+   * @returns {Promise<void>} A promise resolving when the output is canceled.
    */
   public cancelOutput = async (
     methodName: string,
@@ -89,10 +128,13 @@ export class SwarmPublicService implements TSwarmConnectionService {
   };
 
   /**
-   * Waits for output from the swarm.
-   * @param {string} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
-   * @returns {Promise<void>}
+   * Waits for output from the swarm, scoped to a client.
+   * Wraps SwarmConnectionService.waitForOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Used in ClientAgent (e.g., awaiting EXECUTE_FN results) and SessionPublicService (e.g., output handling in connect).
+   * @param {string} methodName - The method name for context and logging.
+   * @param {string} clientId - The client ID, scoping the operation to a specific client.
+   * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+   * @returns {Promise<void>} A promise resolving when output is received from the swarm.
    */
   public waitForOutput = async (
     methodName: string,
@@ -122,10 +164,13 @@ export class SwarmPublicService implements TSwarmConnectionService {
   };
 
   /**
-   * Gets the agent name from the swarm.
-   * @param {string} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
-   * @returns {Promise<string>}
+   * Retrieves the current agent name from the swarm, scoped to a client.
+   * Wraps SwarmConnectionService.getAgentName with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports ClientAgent (e.g., identifying active agent in EXECUTE_FN) and AgentPublicService (e.g., agent context).
+   * @param {string} methodName - The method name for context and logging.
+   * @param {string} clientId - The client ID, scoping the operation to a specific client.
+   * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+   * @returns {Promise<string>} A promise resolving to the current agent name.
    */
   public getAgentName = async (
     methodName: string,
@@ -155,10 +200,13 @@ export class SwarmPublicService implements TSwarmConnectionService {
   };
 
   /**
-   * Gets the agent from the swarm.
-   * @param {string} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
-   * @returns {Promise<IAgent>}
+   * Retrieves the current agent instance from the swarm, scoped to a client.
+   * Wraps SwarmConnectionService.getAgent with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Used in ClientAgent (e.g., accessing agent details in EXECUTE_FN) and AgentPublicService (e.g., agent operations).
+   * @param {string} methodName - The method name for context and logging.
+   * @param {string} clientId - The client ID, scoping the operation to a specific client.
+   * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+   * @returns {Promise<IAgent>} A promise resolving to the current agent instance, sourced from Agent.interface.
    */
   public getAgent = async (
     methodName: string,
@@ -187,12 +235,15 @@ export class SwarmPublicService implements TSwarmConnectionService {
   };
 
   /**
-   * Sets the agent reference in the swarm.
-   * @param {string} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
-   * @param {AgentName} agentName - The agent name.
-   * @param {IAgent} agent - The agent instance.
-   * @returns {Promise<void>}
+   * Sets an agent reference in the swarm, associating an agent instance with an agent name, scoped to a client.
+   * Wraps SwarmConnectionService.setAgentRef with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports ClientAgent (e.g., configuring agents in EXECUTE_FN) and AgentPublicService (e.g., agent management).
+   * @param {string} methodName - The method name for context and logging.
+   * @param {string} clientId - The client ID, scoping the operation to a specific client.
+   * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+   * @param {AgentName} agentName - The name of the agent to set, sourced from Agent.interface.
+   * @param {IAgent} agent - The agent instance to associate, sourced from Agent.interface.
+   * @returns {Promise<void>} A promise resolving when the agent reference is set.
    */
   public setAgentRef = async (
     methodName: string,
@@ -226,11 +277,14 @@ export class SwarmPublicService implements TSwarmConnectionService {
   };
 
   /**
-   * Sets the agent name in the swarm.
-   * @param {AgentName} agentName - The agent name.
-   * @param {string} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
-   * @returns {Promise<void>}
+   * Sets the current agent name in the swarm, scoped to a client.
+   * Wraps SwarmConnectionService.setAgentName with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Used in ClientAgent (e.g., switching agents in EXECUTE_FN) and AgentPublicService (e.g., agent context updates).
+   * @param {AgentName} agentName - The name of the agent to set, sourced from Agent.interface.
+   * @param {string} methodName - The method name for context and logging.
+   * @param {string} clientId - The client ID, scoping the operation to a specific client.
+   * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+   * @returns {Promise<void>} A promise resolving when the agent name is set.
    */
   public setAgentName = async (
     agentName: AgentName,
@@ -262,10 +316,13 @@ export class SwarmPublicService implements TSwarmConnectionService {
   };
 
   /**
-   * Disposes of the swarm.
-   * @param {string} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
-   * @returns {Promise<void>}
+   * Disposes of the swarm, cleaning up resources, scoped to a client.
+   * Wraps SwarmConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Aligns with ClientAgent’s cleanup (e.g., post-EXECUTE_FN), SessionPublicService’s dispose, and PerfService’s resource management.
+   * @param {string} methodName - The method name for context and logging.
+   * @param {string} clientId - The client ID, scoping the operation to a specific client.
+   * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+   * @returns {Promise<void>} A promise resolving when the swarm is disposed.
    */
   public dispose = async (
     methodName: string,
@@ -295,4 +352,9 @@ export class SwarmPublicService implements TSwarmConnectionService {
   };
 }
 
+/**
+ * Default export of the SwarmPublicService class.
+ * Provides the primary public interface for swarm-level operations in the swarm system, integrating with ClientAgent, AgentPublicService, SwarmMetaService, SessionPublicService, and PerfService.
+ * @type {typeof SwarmPublicService}
+ */
 export default SwarmPublicService;
