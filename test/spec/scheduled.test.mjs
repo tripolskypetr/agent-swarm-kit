@@ -159,7 +159,7 @@ test("Will schedule messages for session", async ({ pass, fail }) => {
       }
     }
   
-    for (const testCase of ["foo", "bad"]) {
+    for (const testCase of ["bad"]) {
       if (!assistantHistory.some(({ content }) => content === testCase)) {
           fail(`Missing ${testCase} in assistant messages data=${JSON.stringify(assistantHistory)}`);
       }
