@@ -1,4 +1,10 @@
-import { execpool, memoize, singleshot, SortedArray } from "functools-kit";
+import {
+  execpool,
+  memoize,
+  queued,
+  singleshot,
+  SortedArray,
+} from "functools-kit";
 import {
   IStorage,
   IStorageData,
@@ -6,6 +12,37 @@ import {
 } from "../interfaces/Storage.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import { IBusEvent } from "../model/Event.model";
+
+type Action = "upsert" | "remove" | "clear";
+
+type Payload<T extends IStorageData = IStorageData> = {
+  itemId: IStorageData["id"];
+  item: T;
+};
+
+const CREATE_EMBEDDING_FN = async <T extends IStorageData = IStorageData>(
+  item: T,
+  self: ClientStorage
+) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    self.params.logger.debug(
+      `ClientStorage storageName=${self.params.storageName} clientId=${self.params.clientId} shared=${self.params.shared} _createEmbedding`,
+      {
+        id: item.id,
+      }
+    );
+  const index = await self.params.createIndex(item);
+  const embeddings = await self.params.createEmbedding(index);
+  if (self.params.onCreate) {
+    self.params.onCreate(
+      index,
+      embeddings,
+      self.params.clientId,
+      self.params.embedding
+    );
+  }
+  return [embeddings, index] as const;
+};
 
 const WAIT_FOR_INIT_FN = async (self: ClientStorage) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -32,6 +69,147 @@ const WAIT_FOR_INIT_FN = async (self: ClientStorage) => {
     )
   );
   self._itemMap = new Map(data.map((item) => [item.id, item]));
+};
+
+const UPSERT_FN = async <T extends IStorageData = IStorageData>(
+  item: T,
+  self: ClientStorage
+) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    self.params.logger.debug(
+      `ClientStorage storageName=${self.params.storageName} clientId=${self.params.clientId} shared=${self.params.shared} upsert`,
+      {
+        item,
+      }
+    );
+  self._itemMap.set(item.id, item);
+  self._createEmbedding.clear(item.id);
+  await self._createEmbedding(item);
+  const data = [...self._itemMap.values()];
+  if (self.params.setData) {
+    await self.params.setData(
+      data,
+      self.params.clientId,
+      self.params.storageName
+    );
+  }
+  if (self.params.callbacks?.onUpdate) {
+    self.params.callbacks?.onUpdate(
+      data,
+      self.params.clientId,
+      self.params.storageName
+    );
+  }
+  await self.params.bus.emit<IBusEvent>(self.params.clientId, {
+    type: "upsert",
+    source: "storage-bus",
+    input: {
+      item,
+    },
+    output: {},
+    context: {
+      storageName: self.params.storageName,
+    },
+    clientId: self.params.clientId,
+  });
+};
+
+const REMOVE_FN = async (itemId: IStorageData["id"], self: ClientStorage) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    self.params.logger.debug(
+      `ClientStorage storageName=${self.params.storageName} clientId=${self.params.clientId} shared=${self.params.shared} remove`,
+      {
+        id: itemId,
+      }
+    );
+  self._itemMap.delete(itemId);
+  self._createEmbedding.clear(itemId);
+  const data = [...self._itemMap.values()];
+  if (self.params.setData) {
+    await self.params.setData(
+      data,
+      self.params.clientId,
+      self.params.storageName
+    );
+  }
+  if (self.params.callbacks?.onUpdate) {
+    self.params.callbacks?.onUpdate(
+      data,
+      self.params.clientId,
+      self.params.storageName
+    );
+  }
+  await self.params.bus.emit<IBusEvent>(self.params.clientId, {
+    type: "remove",
+    source: "storage-bus",
+    input: {
+      itemId,
+    },
+    output: {},
+    context: {
+      storageName: self.params.storageName,
+    },
+    clientId: self.params.clientId,
+  });
+};
+
+const CLEAR_FN = async (self: ClientStorage) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    self.params.logger.debug(
+      `ClientStorage storageName=${self.params.storageName} clientId=${self.params.clientId} shared=${self.params.shared} clear`
+    );
+  self._itemMap.clear();
+  self._createEmbedding.clear();
+  const data = [];
+  if (self.params.setData) {
+    await self.params.setData(
+      data,
+      self.params.clientId,
+      self.params.storageName
+    );
+  }
+  if (self.params.callbacks?.onUpdate) {
+    self.params.callbacks?.onUpdate(
+      data,
+      self.params.clientId,
+      self.params.storageName
+    );
+  }
+  await self.params.bus.emit<IBusEvent>(self.params.clientId, {
+    type: "clear",
+    source: "storage-bus",
+    input: {},
+    output: {},
+    context: {
+      storageName: self.params.storageName,
+    },
+    clientId: self.params.clientId,
+  });
+};
+
+const DISPATCH_FN = async <T extends IStorageData = IStorageData>(
+  action: Action,
+  self: ClientStorage,
+  payload: Partial<Payload<T>>
+) => {
+  if (action === "clear") {
+    return await CLEAR_FN(self);
+  }
+  if (action === "remove") {
+    console.assert(
+      payload.itemId,
+      `agent-swarm ClientStorage REMOVE_FN payload.itemId is required`
+    );
+    return await REMOVE_FN(payload.itemId, self);
+  }
+  if (action === "upsert") {
+    console.assert(
+      payload.item,
+      `agent-swarm ClientStorage UPSERT_FN payload.itemId is required`
+    );
+    return await UPSERT_FN(payload.item, self);
+  }
+  throw new Error("agent-swarm ClientStorage unknown action");
 };
 
 /**
@@ -63,6 +241,10 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     }
   }
 
+  dispatch = queued(
+    async (action, payload) => await DISPATCH_FN<T>(action, this, payload)
+  ) as (action: Action, payload: Partial<Payload<T>>) => Promise<void>;
+
   /**
    * Creates an embedding for the given item.
    * @param {T} item - The item to create an embedding for.
@@ -70,26 +252,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    */
   _createEmbedding = memoize(
     ([{ id }]) => id,
-    async (item: T) => {
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-        this.params.logger.debug(
-          `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} _createEmbedding`,
-          {
-            id: item.id,
-          }
-        );
-      const index = await this.params.createIndex(item);
-      const embeddings = await this.params.createEmbedding(index);
-      if (this.params.onCreate) {
-        this.params.onCreate(
-          index,
-          embeddings,
-          this.params.clientId,
-          this.params.embedding
-        );
-      }
-      return [embeddings, index] as const;
-    }
+    async (item: T) => await CREATE_EMBEDDING_FN(item, this)
   );
 
   /**
@@ -195,42 +358,8 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @returns {Promise<void>}
    */
   async upsert(item: T) {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      this.params.logger.debug(
-        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} upsert`,
-        {
-          item,
-        }
-      );
-    this._itemMap.set(item.id, item);
-    this._createEmbedding.clear(item.id);
-    await this._createEmbedding(item);
-    const data = [...this._itemMap.values()];
-    if (this.params.setData) {
-      await this.params.setData(
-        data,
-        this.params.clientId,
-        this.params.storageName
-      );
-    }
-    if (this.params.callbacks?.onUpdate) {
-      this.params.callbacks?.onUpdate(
-        data,
-        this.params.clientId,
-        this.params.storageName
-      );
-    }
-    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
-      type: "upsert",
-      source: "storage-bus",
-      input: {
-        item,
-      },
-      output: {},
-      context: {
-        storageName: this.params.storageName,
-      },
-      clientId: this.params.clientId,
+    return await this.dispatch("upsert", {
+      item,
     });
   }
 
@@ -240,41 +369,8 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @returns {Promise<void>}
    */
   async remove(itemId: IStorageData["id"]) {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      this.params.logger.debug(
-        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} remove`,
-        {
-          id: itemId,
-        }
-      );
-    this._itemMap.delete(itemId);
-    this._createEmbedding.clear(itemId);
-    const data = [...this._itemMap.values()];
-    if (this.params.setData) {
-      await this.params.setData(
-        data,
-        this.params.clientId,
-        this.params.storageName
-      );
-    }
-    if (this.params.callbacks?.onUpdate) {
-      this.params.callbacks?.onUpdate(
-        data,
-        this.params.clientId,
-        this.params.storageName
-      );
-    }
-    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
-      type: "remove",
-      source: "storage-bus",
-      input: {
-        itemId,
-      },
-      output: {},
-      context: {
-        storageName: this.params.storageName,
-      },
-      clientId: this.params.clientId,
+    return await this.dispatch("remove", {
+      itemId,
     });
   }
 
@@ -283,22 +379,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * @returns {Promise<void>}
    */
   async clear() {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      this.params.logger.debug(
-        `ClientStorage storageName=${this.params.storageName} clientId=${this.params.clientId} shared=${this.params.shared} clear`
-      );
-    this._itemMap.clear();
-    this._createEmbedding.clear();
-    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
-      type: "clear",
-      source: "storage-bus",
-      input: {},
-      output: {},
-      context: {
-        storageName: this.params.storageName,
-      },
-      clientId: this.params.clientId,
-    });
+    return await this.dispatch("clear", {});
   }
 
   /**

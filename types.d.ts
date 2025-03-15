@@ -3509,6 +3509,11 @@ declare class StorageSchemaService {
     get: (key: StorageName) => IStorageSchema;
 }
 
+type Action = "upsert" | "remove" | "clear";
+type Payload<T extends IStorageData = IStorageData> = {
+    itemId: IStorageData["id"];
+    item: T;
+};
 /**
  * ClientStorage class to manage storage operations.
  * @template T - The type of storage data.
@@ -3521,6 +3526,7 @@ declare class ClientStorage<T extends IStorageData = IStorageData> implements IS
      * @param {IStorageParams<T>} params - The storage parameters.
      */
     constructor(params: IStorageParams<T>);
+    dispatch: (action: Action, payload: Partial<Payload<T>>) => Promise<void>;
     /**
      * Creates an embedding for the given item.
      * @param {T} item - The item to create an embedding for.
