@@ -1203,6 +1203,7 @@ declare class PersistBase<EntityName extends string = string> implements IPersis
 declare class PersistList<EntityName extends string = string> extends PersistBase<EntityName> {
     /** Tracks the last used numeric key */
     _lastCount: number | null;
+    constructor(entityName: EntityName, baseDir?: string);
     /**
      * Creates a new unique key for a list item
      * @returns A Promise resolving to a string key
