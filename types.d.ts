@@ -2823,113 +2823,156 @@ declare const MODEL_RESQUE_SYMBOL: unique symbol;
 declare const TOOL_ERROR_SYMBOL: unique symbol;
 declare const TOOL_STOP_SYMBOL: unique symbol;
 /**
- * Represents a client agent that interacts with the system, managing message execution, tool calls, and history.
+ * Represents a client-side agent in the swarm system, implementing the IAgent interface.
+ * Manages message execution, tool calls, history updates, and event emissions, with queued execution to prevent overlap.
+ * Integrates with AgentConnectionService (instantiation), HistoryConnectionService (history), ToolSchemaService (tools), CompletionSchemaService (completions), SwarmConnectionService (swarm coordination), and BusService (events).
+ * Uses Subjects from functools-kit for asynchronous state management (e.g., tool errors, agent changes).
  * @implements {IAgent}
  */
 declare class ClientAgent implements IAgent {
     readonly params: IAgentParams;
+    /**
+     * Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.
+     * @type {Subject<typeof AGENT_CHANGE_SYMBOL>}
+     * @readonly
+     */
     readonly _agentChangeSubject: Subject<typeof AGENT_CHANGE_SYMBOL>;
+    /**
+     * Subject for signaling model resurrection events, triggered by _resurrectModel during error recovery.
+     * @type {Subject<typeof MODEL_RESQUE_SYMBOL>}
+     * @readonly
+     */
     readonly _resqueSubject: Subject<typeof MODEL_RESQUE_SYMBOL>;
+    /**
+     * Subject for signaling tool execution errors, emitted by createToolCall on failure.
+     * @type {Subject<typeof TOOL_ERROR_SYMBOL>}
+     * @readonly
+     */
     readonly _toolErrorSubject: Subject<typeof TOOL_ERROR_SYMBOL>;
+    /**
+     * Subject for signaling tool execution stops, triggered by commitStopTools.
+     * @type {Subject<typeof TOOL_STOP_SYMBOL>}
+     * @readonly
+     */
     readonly _toolStopSubject: Subject<typeof TOOL_STOP_SYMBOL>;
+    /**
+     * Subject for signaling tool output commitments, triggered by commitToolOutput.
+     * @type {Subject<void>}
+     * @readonly
+     */
     readonly _toolCommitSubject: Subject<void>;
+    /**
+     * Subject for emitting transformed outputs, used by _emitOutput and waitForOutput.
+     * @type {Subject<string>}
+     * @readonly
+     */
     readonly _outputSubject: Subject<string>;
     /**
-     * Creates an instance of ClientAgent.
-     * @param {IAgentParams} params - The parameters for initializing the agent.
+     * Constructs a ClientAgent instance with the provided parameters.
+     * Initializes event subjects and invokes the onInit callback, logging construction details if enabled.
+     * @param {IAgentParams} params - The parameters for agent initialization, including clientId, agentName, completion, tools, etc.
      */
     constructor(params: IAgentParams);
     /**
-     * Emits the transformed output after validation, invoking callbacks and emitting events.
-     * If validation fails, attempts to resurrect the model and revalidate.
-     * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
-     * @param {string} rawResult - The raw result to be transformed and emitted.
-     * @returns {Promise<void>}
-     * @throws {Error} If validation fails after model resurrection.
+     * Emits the transformed output after validation, invoking callbacks and emitting events via BusService.
+     * Attempts model resurrection via _resurrectModel if validation fails, throwing an error if unrecoverable.
+     * Supports SwarmConnectionService by broadcasting agent outputs within the swarm.
+     * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
+     * @param {string} rawResult - The raw result to transform and emit, typically from getCompletion or tool execution.
+     * @returns {Promise<void>} Resolves when output is emitted successfully.
+     * @throws {Error} If validation fails after model resurrection, indicating an unrecoverable state.
      * @private
      */
     _emitOutput(mode: ExecutionMode, rawResult: string): Promise<void>;
     /**
-     * Resurrects the model in case of failures by applying configured strategies (e.g., flush, recomplete, custom).
-     * Updates the history and returns a placeholder or transformed result.
-     * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
-     * @param {string} [reason="unknown"] - The reason for resurrecting the model.
-     * @returns {Promise<string>} A placeholder or transformed result after resurrection.
+     * Resurrects the model in case of failures using configured strategies (flush, recomplete, custom).
+     * Updates history with failure details and returns a placeholder or transformed result, signaling via _resqueSubject.
+     * Supports error recovery for CompletionSchemaService’s getCompletion calls.
+     * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
+     * @param {string} [reason="unknown"] - The reason for resurrection, logged for debugging.
+     * @returns {Promise<string>} A placeholder (for flush) or transformed result (for recomplete/custom) after recovery.
      * @private
      */
     _resurrectModel(mode: ExecutionMode, reason?: string): Promise<string>;
     /**
-     * Waits for the output to be available and returns it.
-     * @returns {Promise<string>} The output emitted by the agent.
+     * Waits for the next output to be emitted via _outputSubject, typically after execute or run.
+     * Useful for external consumers (e.g., SwarmConnectionService) awaiting agent responses.
+     * @returns {Promise<string>} The next transformed output emitted by the agent.
      */
     waitForOutput(): Promise<string>;
     /**
-     * Retrieves a completion message from the model based on the current history and tools.
-     * Handles validation and applies resurrection strategies if needed.
-     * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
-     * @returns {Promise<IModelMessage>} The completion message from the model.
+     * Retrieves a completion message from the model using the current history and tools.
+     * Applies validation and resurrection strategies (via _resurrectModel) if needed, integrating with CompletionSchemaService.
+     * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
+     * @returns {Promise<IModelMessage>} The completion message from the model, with content defaulted to an empty string if null.
      */
     getCompletion(mode: ExecutionMode): Promise<IModelMessage>;
     /**
-     * Commits a user message to the history without triggering a response.
-     * @param {string} message - The user message to commit.
-     * @returns {Promise<void>}
+     * Commits a user message to the history without triggering a response, notifying the system via BusService.
+     * Supports SessionConnectionService by logging user interactions within a session.
+     * @param {string} message - The user message to commit, trimmed before storage.
+     * @returns {Promise<void>} Resolves when the message is committed to history and the event is emitted.
      */
     commitUserMessage(message: string): Promise<void>;
     /**
-     * Commits a flush of the agent's history, clearing it and notifying the system.
-     * @returns {Promise<void>}
+     * Commits a flush of the agent’s history, clearing it and notifying the system via BusService.
+     * Useful for resetting agent state, coordinated with HistoryConnectionService.
+     * @returns {Promise<void>} Resolves when the flush is committed and the event is emitted.
      */
     commitFlush(): Promise<void>;
     /**
-     * Signals a change in the agent to halt subsequent tool executions.
-     * Emits an event to notify the system.
-     * @returns {Promise<void>}
+     * Signals an agent change to halt subsequent tool executions, emitting an event via _agentChangeSubject and BusService.
+     * Supports SwarmConnectionService by allowing dynamic agent switching within a swarm.
+     * @returns {Promise<void>} Resolves when the change is signaled and the event is emitted.
      */
     commitAgentChange(): Promise<void>;
     /**
-     * Signals a stop to prevent further tool executions.
-     * Emits an event to notify the system.
-     * @returns {Promise<void>}
+     * Signals a stop to prevent further tool executions, emitting an event via _toolStopSubject and BusService.
+     * Used to interrupt tool call chains, coordinated with ToolSchemaService tools.
+     * @returns {Promise<void>} Resolves when the stop is signaled and the event is emitted.
      */
     commitStopTools(): Promise<void>;
     /**
-     * Commits a system message to the history and notifies the system.
-     * @param {string} message - The system message to commit.
-     * @returns {Promise<void>}
+     * Commits a system message to the history, notifying the system via BusService without triggering execution.
+     * Supports system-level updates, coordinated with SessionConnectionService.
+     * @param {string} message - The system message to commit, trimmed before storage.
+     * @returns {Promise<void>} Resolves when the message is committed and the event is emitted.
      */
     commitSystemMessage(message: string): Promise<void>;
     /**
-     * Commits an assistant message to the history without triggering execution.
-     * @param {string} message - The assistant message to commit.
-     * @returns {Promise<void>}
+     * Commits an assistant message to the history without triggering execution, notifying the system via BusService.
+     * Useful for logging assistant responses, coordinated with HistoryConnectionService.
+     * @param {string} message - The assistant message to commit, trimmed before storage.
+     * @returns {Promise<void>} Resolves when the message is committed and the event is emitted.
      */
     commitAssistantMessage(message: string): Promise<void>;
     /**
-     * Commits the tool output to the history and notifies the system.
-     * @param {string} toolId - The ID of the tool that produced the output.
-     * @param {string} content - The tool output content.
-     * @returns {Promise<void>}
+     * Commits tool output to the history, signaling completion via _toolCommitSubject and notifying the system via BusService.
+     * Integrates with ToolSchemaService by linking tool output to tool calls.
+     * @param {string} toolId - The ID of the tool that produced the output, linking to the tool call.
+     * @param {string} content - The tool output content to commit.
+     * @returns {Promise<void>} Resolves when the output is committed and the event is emitted.
      */
     commitToolOutput(toolId: string, content: string): Promise<void>;
     /**
-     * Executes the incoming message and processes tool calls if any.
-     * Queues the execution to prevent overlapping calls.
-     * @param {string} incoming - The incoming message content.
-     * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
-     * @returns {Promise<void>}
+     * Executes the incoming message and processes tool calls if present, queued to prevent overlapping executions.
+     * Implements IAgent.execute, delegating to EXECUTE_FN with queuing via functools-kit’s queued decorator.
+     * @param {string} incoming - The incoming message content to process.
+     * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool").
+     * @returns {Promise<void>} Resolves when execution completes, including tool calls and output emission.
      */
     execute: IAgent["execute"];
     /**
-     * Runs the completion statelessly and returns the transformed output.
-     * Queues the execution to prevent overlapping calls.
-     * @param {string} incoming - The incoming message content.
-     * @returns {Promise<string>} The transformed result of the completion.
+     * Runs a stateless completion for the incoming message, queued to prevent overlapping executions.
+     * Implements IAgent.run, delegating to RUN_FN with queuing via functools-kit’s queued decorator.
+     * @param {string} incoming - The incoming message content to process.
+     * @returns {Promise<string>} The transformed result of the completion, or an empty string if invalid.
      */
     run: IAgent["run"];
     /**
      * Disposes of the agent, performing cleanup and invoking the onDispose callback.
-     * @returns {Promise<void>}
+     * Logs the disposal if debugging is enabled, supporting AgentConnectionService cleanup.
+     * @returns {Promise<void>} Resolves when disposal is complete.
      */
     dispose(): Promise<void>;
 }
@@ -3111,51 +3154,61 @@ declare class AgentConnectionService implements IAgent {
 }
 
 /**
- * Class representing the history of client messages, managing storage and retrieval of messages.
+ * Class representing the history of client messages in the swarm system, implementing the IHistory interface.
+ * Manages storage, retrieval, and filtering of messages for an agent, with event emission via BusService.
+ * Integrates with HistoryConnectionService (history instantiation), ClientAgent (message logging and completion context),
+ * BusService (event emission), and SessionConnectionService (session history tracking).
+ * Uses a filter condition from GLOBAL_CONFIG to tailor message arrays for agent-specific needs, with limits and transformations.
  * @implements {IHistory}
  */
 declare class ClientHistory implements IHistory {
     readonly params: IHistoryParams;
     /**
-     * Filter condition function for `toArrayForAgent`, used to filter messages based on agent-specific criteria.
+     * Filter condition function for toArrayForAgent, used to filter messages based on agent-specific criteria.
+     * Initialized from GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER, applied to common messages to exclude irrelevant entries.
+     * @type {(message: IModelMessage) => boolean}
      */
     _filterCondition: (message: IModelMessage) => boolean;
     /**
-     * Creates an instance of ClientHistory.
-     * Initializes the filter condition based on global configuration.
-     * @param {IHistoryParams} params - The parameters for initializing the history.
+     * Constructs a ClientHistory instance with the provided parameters.
+     * Initializes the filter condition using GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER and logs construction if debugging is enabled.
+     * @param {IHistoryParams} params - The parameters for initializing the history, including clientId, agentName, items, bus, and logger.
      */
     constructor(params: IHistoryParams);
     /**
-     * Pushes a message into the history and emits a corresponding event.
-     * @param {IModelMessage} message - The message to add to the history.
-     * @returns {Promise<void>}
+     * Pushes a message into the history and emits a corresponding event via BusService.
+     * Adds the message to the underlying storage (params.items) and notifies the system, supporting ClientAgent’s history updates.
+     * @param {IModelMessage} message - The message to add to the history, sourced from ModelMessage.model.
+     * @returns {Promise<void>} Resolves when the message is stored and the event is emitted.
      */
     push(message: IModelMessage): Promise<void>;
     /**
-     * Removes and returns the most recent message from the history.
-     * Emits an event with the popped message or null if the history is empty.
+     * Removes and returns the most recent message from the history, emitting an event via BusService.
+     * Retrieves the message from params.items and notifies the system, returning null if the history is empty.
+     * Useful for ClientAgent to undo recent actions or inspect the latest entry.
      * @returns {Promise<IModelMessage | null>} The most recent message, or null if the history is empty.
      */
     pop(): Promise<IModelMessage | null>;
     /**
-     * Converts the history into an array of raw messages without any filtering or transformation.
-     * @returns {Promise<IModelMessage[]>} An array of raw messages in the history.
+     * Converts the history into an array of raw messages without filtering or transformation.
+     * Iterates over params.items to collect all messages as-is, useful for debugging or raw data access.
+     * @returns {Promise<IModelMessage[]>} An array of raw messages in the history, sourced from ModelMessage.model.
      */
     toArrayForRaw(): Promise<IModelMessage[]>;
     /**
-     * Converts the history into an array of messages tailored for the agent.
-     * Filters messages based on the agent's filter condition, limits the number of messages,
-     * and prepends prompt and system messages.
-     * @param {string} prompt - The initial prompt message to prepend.
+     * Converts the history into an array of messages tailored for the agent, used by ClientAgent for completions.
+     * Filters messages with _filterCondition, limits to GLOBAL_CONFIG.CC_KEEP_MESSAGES, handles resque/flush resets,
+     * and prepends prompt and system messages (from params and GLOBAL_CONFIG.CC_AGENT_SYSTEM_PROMPT).
+     * Ensures tool call consistency by linking tool outputs to calls, supporting CompletionSchemaService’s context needs.
+     * @param {string} prompt - The initial prompt message to prepend as a system message.
      * @param {string[] | undefined} system - Optional array of additional system messages to prepend.
-     * @returns {Promise<IModelMessage[]>} An array of messages formatted for the agent.
+     * @returns {Promise<IModelMessage[]>} An array of filtered and transformed messages formatted for the agent.
      */
     toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
     /**
-     * Disposes of the history, performing cleanup and releasing resources.
-     * Should be called when the agent is being disposed.
-     * @returns {Promise<void>}
+     * Disposes of the history, releasing resources and performing cleanup via params.items.dispose.
+     * Called when the agent (e.g., ClientAgent) is disposed, ensuring proper resource management with HistoryConnectionService.
+     * @returns {Promise<void>} Resolves when the history resources are fully released.
      */
     dispose(): Promise<void>;
 }
@@ -3358,83 +3411,100 @@ declare class ToolSchemaService {
 declare const AGENT_NEED_FETCH: unique symbol;
 declare const STACK_NEED_FETCH: unique symbol;
 /**
- * Manages a collection of agents within a swarm, handling agent switching, output waiting, and navigation.
+ * Manages a collection of agents within a swarm in the swarm system, implementing the ISwarm interface.
+ * Handles agent switching, output waiting, and navigation stack management, with queued operations and event-driven updates via BusService.
+ * Integrates with SwarmConnectionService (swarm instantiation), ClientSession (agent execution/output), ClientAgent (agent instances),
+ * SwarmSchemaService (swarm structure), and BusService (event emission).
+ * Uses Subjects for agent change notifications and output cancellation, ensuring coordinated agent interactions.
  * @implements {ISwarm}
  */
 declare class ClientSwarm implements ISwarm {
     readonly params: ISwarmParams;
     /**
      * Subject that emits when an agent reference changes, providing the agent name and instance.
+     * Used by setAgentRef to notify subscribers (e.g., waitForOutput) of updates to agent instances.
+     * @type {Subject<[agentName: AgentName, agent: IAgent]>}
      */
     _agentChangedSubject: Subject<[agentName: string, agent: IAgent]>;
     /**
      * The name of the currently active agent, or a symbol indicating it needs to be fetched.
+     * Initialized as AGENT_NEED_FETCH, lazily populated by getAgentName via params.getActiveAgent.
+     * Updated by setAgentName, persisted via params.setActiveAgent.
+     * @type {AgentName | typeof AGENT_NEED_FETCH}
      */
     _activeAgent: AgentName | typeof AGENT_NEED_FETCH;
     /**
      * The navigation stack of agent names, or a symbol indicating it needs to be fetched.
+     * Initialized as STACK_NEED_FETCH, lazily populated by navigationPop via params.getNavigationStack.
+     * Updated by setAgentName (push) and navigationPop (pop), persisted via params.setNavigationStack.
+     * @type {AgentName[] | typeof STACK_NEED_FETCH}
      */
     _navigationStack: AgentName[] | typeof STACK_NEED_FETCH;
     /**
-     * Subject that emits to cancel output waiting, providing an empty output string.
+     * Subject that emits to cancel output waiting, providing an empty output string and agent name.
+     * Triggered by cancelOutput to interrupt waitForOutput, ensuring responsive cancellation.
+     * @type {Subject<{ agentName: string; output: string }>}
      */
     _cancelOutputSubject: Subject<{
         agentName: string;
         output: string;
     }>;
     /**
-     * Getter for the list of agent name-agent pairs from the agent map.
-     * @returns {[string, IAgent][]} An array of tuples containing agent names and their instances.
+     * Getter for the list of agent name-agent pairs from the agent map (params.agentMap).
+     * Provides a snapshot of available agents, used internally by waitForOutput to monitor outputs.
+     * @returns {[string, IAgent][]} An array of tuples containing agent names and their instances, sourced from Agent.interface.
      */
     get _agentList(): [string, IAgent][];
     /**
-     * Creates an instance of ClientSwarm.
-     * @param {ISwarmParams} params - The parameters for initializing the swarm, including agent map and callbacks.
+     * Constructs a ClientSwarm instance with the provided parameters.
+     * Initializes Subjects and logs construction if debugging is enabled, setting up the swarm structure.
+     * @param {ISwarmParams} params - The parameters for initializing the swarm, including clientId, swarmName, agentMap, getActiveAgent, etc.
      */
     constructor(params: ISwarmParams);
     /**
-     * Pops the most recent agent from the navigation stack or returns the default agent if empty.
-     * Updates the persisted navigation stack.
-     * @returns {Promise<string>} The name of the previous agent, or the default agent if the stack is empty.
+     * Pops the most recent agent from the navigation stack, falling back to the default agent if empty.
+     * Updates and persists the stack via params.setNavigationStack, supporting ClientSession’s agent navigation.
+     * @returns {Promise<string>} The name of the previous agent, or params.defaultAgent if the stack is empty.
      */
     navigationPop(): Promise<string>;
     /**
-     * Cancels the current output wait by emitting an empty string via the cancel subject.
-     * @returns {Promise<void>} A promise that resolves when the cancellation is complete.
+     * Cancels the current output wait by emitting an empty string via _cancelOutputSubject, logging via BusService.
+     * Interrupts waitForOutput, ensuring responsive cancellation for ClientSession’s execution flow.
+     * @returns {Promise<void>} Resolves when the cancellation is emitted and logged.
      */
     cancelOutput(): Promise<void>;
     /**
-     * Waits for output from the active agent in a queued manner.
-     * Handles cancellation and agent changes, ensuring only one wait operation at a time.
+     * Waits for output from the active agent in a queued manner, delegating to WAIT_FOR_OUTPUT_FN.
+     * Ensures only one wait operation runs at a time, handling cancellation and agent changes, supporting ClientSession’s output retrieval.
      * @returns {Promise<string>} The output from the active agent, or an empty string if canceled.
      */
     waitForOutput: () => Promise<string>;
     /**
-     * Retrieves the name of the active agent, fetching it if not yet loaded.
-     * Emits an event with the result.
-     * @returns {Promise<AgentName>} The name of the active agent.
+     * Retrieves the name of the active agent, lazily fetching it via params.getActiveAgent if not loaded.
+     * Emits an event via BusService with the result, supporting ClientSession’s agent identification.
+     * @returns {Promise<AgentName>} The name of the active agent, sourced from Agent.interface.
      */
     getAgentName(): Promise<AgentName>;
     /**
-     * Retrieves the active agent instance based on its name.
-     * Emits an event with the result.
-     * @returns {Promise<IAgent>} The active agent instance.
+     * Retrieves the active agent instance (ClientAgent) based on its name from params.agentMap.
+     * Emits an event via BusService with the result, supporting ClientSession’s execution and history operations.
+     * @returns {Promise<IAgent>} The active agent instance, sourced from Agent.interface.
      */
     getAgent(): Promise<IAgent>;
     /**
-     * Updates the reference to an agent in the swarm's agent map.
-     * Notifies subscribers via the agent changed subject.
-     * @param {AgentName} agentName - The name of the agent to update.
-     * @param {IAgent} agent - The new agent instance.
-     * @throws {Error} If the agent name is not found in the swarm's agent map.
-     * @returns {Promise<void>} A promise that resolves when the update is complete.
+     * Updates the reference to an agent in the swarm’s agent map (params.agentMap), notifying subscribers via _agentChangedSubject.
+     * Emits an event via BusService, supporting dynamic agent updates within ClientSession’s execution flow.
+     * @param {AgentName} agentName - The name of the agent to update, sourced from Agent.interface.
+     * @param {IAgent} agent - The new agent instance (ClientAgent) to set.
+     * @throws {Error} If the agent name is not found in params.agentMap, indicating an invalid agent.
+     * @returns {Promise<void>} Resolves when the agent reference is updated, emitted, and subscribers are notified.
      */
     setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
     /**
-     * Sets the active agent by name, updates the navigation stack, and persists the change.
-     * Invokes the onAgentChanged callback if provided.
-     * @param {AgentName} agentName - The name of the agent to set as active.
-     * @returns {Promise<void>} A promise that resolves when the agent is set and persisted.
+     * Sets the active agent by name, updates the navigation stack, and persists the change via params.setActiveAgent/setNavigationStack.
+     * Invokes the onAgentChanged callback and emits an event via BusService, supporting ClientSession’s agent switching.
+     * @param {AgentName} agentName - The name of the agent to set as active, sourced from Agent.interface.
+     * @returns {Promise<void>} Resolves when the agent is set, stack is updated, and the event is logged.
      */
     setAgentName(agentName: AgentName): Promise<void>;
 }
@@ -3663,88 +3733,106 @@ declare class CompletionSchemaService {
 }
 
 /**
- * Represents a client session for managing message execution, emission, and agent interactions.
+ * Represents a client session in the swarm system, implementing the ISession interface.
+ * Manages message execution, emission, and agent interactions for a client within a swarm, with policy enforcement via ClientPolicy
+ * and event-driven communication via BusService. Uses a Subject for output emission to subscribers.
+ * Integrates with SessionConnectionService (session instantiation), SwarmConnectionService (agent/swarm access via SwarmSchemaService),
+ * ClientAgent (execution/history), ClientPolicy (validation), and BusService (event emission).
  * @implements {ISession}
  */
 declare class ClientSession implements ISession {
     readonly params: ISessionParams;
     /**
-     * Subject for emitting output messages to subscribers.
+     * Subject for emitting output messages to subscribers, used by emit and connect methods.
+     * Provides an asynchronous stream of validated messages, supporting real-time updates to external connectors.
+     * @type {Subject<string>}
+     * @readonly
      */
     readonly _emitSubject: Subject<string>;
     /**
-     * Constructs a new ClientSession instance.
-     * Invokes the onInit callback if provided.
-     * @param {ISessionParams} params - The parameters for initializing the session.
+     * Constructs a new ClientSession instance with the provided parameters.
+     * Invokes the onInit callback if defined and logs construction if debugging is enabled.
+     * @param {ISessionParams} params - The parameters for initializing the session, including clientId, swarmName, swarm, policy, bus, etc.
      */
     constructor(params: ISessionParams);
     /**
-     * Emits a message to subscribers after validating it against the policy.
-     * If validation fails, emits the ban message instead.
-     * @param {string} message - The message to emit.
-     * @returns {Promise<void>}
+     * Emits a message to subscribers via _emitSubject after validating it against the policy (ClientPolicy).
+     * Emits the ban message if validation fails, notifying subscribers and logging via BusService.
+     * Supports SwarmConnectionService by broadcasting session outputs within the swarm.
+     * @param {string} message - The message to emit, typically an agent response or tool output.
+     * @returns {Promise<void>} Resolves when the message (or ban message) is emitted and the event is logged.
      */
     emit(message: string): Promise<void>;
     /**
-     * Executes a message using the swarm's agent and returns the output.
-     * Validates input and output against the policy, returning a ban message if either fails.
-     * @param {string} message - The message to execute.
-     * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool").
+     * Executes a message using the swarm's agent (ClientAgent) and returns the output after policy validation.
+     * Validates input and output via ClientPolicy, returning a ban message if either fails, with event logging via BusService.
+     * Coordinates with SwarmConnectionService to fetch the agent and wait for output, supporting session-level execution.
+     * @param {string} message - The message to execute, typically from a user or tool.
+     * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
      * @returns {Promise<string>} The output of the execution, or a ban message if validation fails.
      */
     execute(message: string, mode: ExecutionMode): Promise<string>;
     /**
-     * Runs a stateless completion of a message using the swarm's agent and returns the output.
-     * Does not emit the result but logs the execution via the event bus.
-     * @param {string} message - The message to run.
-     * @returns {Promise<string>} The output of the completion.
+     * Runs a stateless completion of a message using the swarm's agent (ClientAgent) and returns the output.
+     * Does not emit the result but logs the execution via BusService, bypassing output validation for stateless use cases.
+     * Integrates with SwarmConnectionService to access the agent, supporting lightweight completions.
+     * @param {string} message - The message to run, typically from a user or tool.
+     * @returns {Promise<string>} The output of the completion, without emission or output validation.
      */
     run(message: string): Promise<string>;
     /**
-     * Commits tool output to the agent's history via the swarm.
-     * @param {string} toolId - The ID of the tool call (e.g., `tool_call_id` for OpenAI history).
+     * Commits tool output to the agent's history via the swarm’s agent (ClientAgent), logging the action via BusService.
+     * Supports ToolSchemaService by linking tool output to tool calls, integrating with ClientAgent’s history management.
+     * @param {string} toolId - The ID of the tool call (e.g., tool_call_id for OpenAI history), linking to the tool execution.
      * @param {string} content - The tool output content to commit.
-     * @returns {Promise<void>}
+     * @returns {Promise<void>} Resolves when the output is committed and the event is logged.
      */
     commitToolOutput(toolId: string, content: string): Promise<void>;
     /**
-     * Commits a user message to the agent's history without triggering a response.
-     * @param {string} message - The user message to commit.
-     * @returns {Promise<void>}
+     * Commits a user message to the agent’s history via the swarm’s agent (ClientAgent) without triggering a response.
+     * Logs the action via BusService, supporting SessionConnectionService’s session history tracking.
+     * @param {string} message - The user message to commit, typically from client input.
+     * @returns {Promise<void>} Resolves when the message is committed and the event is logged.
      */
     commitUserMessage(message: string): Promise<void>;
     /**
-     * Commits a flush of the agent's history, clearing it.
-     * @returns {Promise<void>}
+     * Commits a flush of the agent’s history via the swarm’s agent (ClientAgent), clearing it and logging via BusService.
+     * Useful for resetting session state, coordinated with ClientHistory via ClientAgent.
+     * @returns {Promise<void>} Resolves when the flush is committed and the event is logged.
      */
     commitFlush(): Promise<void>;
     /**
-     * Signals the agent to stop the execution of subsequent tools.
-     * @returns {Promise<void>}
+     * Signals the agent (via swarm’s ClientAgent) to stop the execution of subsequent tools, logging via BusService.
+     * Supports ToolSchemaService by interrupting tool call chains, enhancing session control.
+     * @returns {Promise<void>} Resolves when the stop signal is committed and the event is logged.
      */
     commitStopTools(): Promise<void>;
     /**
-     * Commits a system message to the agent's history.
-     * @param {string} message - The system message to commit.
-     * @returns {Promise<void>}
+     * Commits a system message to the agent’s history via the swarm’s agent (ClientAgent), logging via BusService.
+     * Supports system-level updates within the session, coordinated with ClientHistory.
+     * @param {string} message - The system message to commit, typically for configuration or context.
+     * @returns {Promise<void>} Resolves when the message is committed and the event is logged.
      */
     commitSystemMessage(message: string): Promise<void>;
     /**
-     * Commits an assistant message to the agent's history without triggering execution.
-     * @param {string} message - The assistant message to commit.
-     * @returns {Promise<void>}
+     * Commits an assistant message to the agent’s history via the swarm’s agent (ClientAgent) without triggering execution.
+     * Logs the action via BusService, supporting ClientHistory for assistant response logging.
+     * @param {string} message - The assistant message to commit, typically an agent response.
+     * @returns {Promise<void>} Resolves when the message is committed and the event is logged.
      */
     commitAssistantMessage(message: string): Promise<void>;
     /**
      * Connects the session to a message connector, subscribing to emitted messages and returning a receiver function.
-     * @param {SendMessageFn} connector - The function to handle outgoing messages.
-     * @returns {ReceiveMessageFn<string>} A function to receive incoming messages and process them.
+     * Links _emitSubject to the connector for outgoing messages and processes incoming messages via execute, supporting real-time interaction.
+     * Integrates with SessionConnectionService for session lifecycle and SwarmConnectionService for agent metadata.
+     * @param {SendMessageFn} connector - The function to handle outgoing messages, receiving data, agentName, and clientId.
+     * @returns {ReceiveMessageFn<string>} A function to receive incoming messages (IIncomingMessage) and return processed output.
      */
     connect(connector: SendMessageFn$1): ReceiveMessageFn<string>;
     /**
      * Disposes of the session, performing cleanup and invoking the onDispose callback if provided.
-     * Should be called when the session is no longer needed.
-     * @returns {Promise<void>}
+     * Called when the session is no longer needed, ensuring proper resource release with SessionConnectionService.
+     * @returns {Promise<void>} Resolves when disposal is complete and logged.
      */
     dispose(): Promise<void>;
 }
@@ -6805,72 +6893,80 @@ declare class PolicyValidationService {
 
 declare const BAN_NEED_FETCH: unique symbol;
 /**
- * Class representing a client policy for managing bans, input/output validation, and client restrictions.
+ * Class representing a client policy in the swarm system, implementing the IPolicy interface.
+ * Manages client bans, input/output validation, and restrictions, with lazy-loaded ban lists and event emission via BusService.
+ * Integrates with PolicyConnectionService (policy instantiation), SwarmConnectionService (swarm-level restrictions via SwarmSchemaService’s policies),
+ * ClientAgent (message validation), and BusService (event emission).
+ * Supports auto-banning on validation failure and customizable ban messages, ensuring swarm security and compliance.
  * @implements {IPolicy}
  */
 declare class ClientPolicy implements IPolicy {
     readonly params: IPolicyParams;
     /**
      * Set of banned client IDs or a symbol indicating the ban list needs to be fetched.
-     * Initialized as BAN_NEED_FETCH and lazily populated on first use.
+     * Initialized as BAN_NEED_FETCH, lazily populated via params.getBannedClients on first use in hasBan, validateInput, etc.
+     * Updated by banClient and unbanClient, persisted if params.setBannedClients is provided.
+     * @type {Set<SessionId> | typeof BAN_NEED_FETCH}
      */
     _banSet: Set<SessionId> | typeof BAN_NEED_FETCH;
     /**
-     * Creates an instance of ClientPolicy.
-     * Invokes the onInit callback if provided.
-     * @param {IPolicyParams} params - The parameters for initializing the policy.
+     * Constructs a ClientPolicy instance with the provided parameters.
+     * Invokes the onInit callback if defined and logs construction if debugging is enabled.
+     * @param {IPolicyParams} params - The parameters for initializing the policy, including policyName, getBannedClients, validateInput, etc.
      */
     constructor(params: IPolicyParams);
     /**
-     * Checks if a client is banned for a specific swarm.
-     * Lazily fetches the ban list on the first call if not already loaded.
-     * @param {SessionId} clientId - The ID of the client to check.
-     * @param {SwarmName} swarmName - The name of the swarm to check against.
-     * @returns {Promise<boolean>} True if the client is banned, false otherwise.
+     * Checks if a client is banned for a specific swarm, lazily fetching the ban list if not already loaded.
+     * Used by SwarmConnectionService to enforce swarm-level restrictions defined in SwarmSchemaService’s policies.
+     * @param {SessionId} clientId - The ID of the client to check, sourced from Session.interface.
+     * @param {SwarmName} swarmName - The name of the swarm to check against, sourced from Swarm.interface.
+     * @returns {Promise<boolean>} True if the client is banned for the swarm, false otherwise.
      */
     hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
     /**
-     * Retrieves the ban message for a client.
-     * Uses a custom getBanMessage function if provided, otherwise falls back to the default ban message.
-     * @param {SessionId} clientId - The ID of the client to get the ban message for.
-     * @param {SwarmName} swarmName - The name of the swarm to check against.
-     * @returns {Promise<string>} The ban message for the client.
+     * Retrieves the ban message for a client, using a custom getBanMessage function if provided or falling back to params.banMessage.
+     * Supports ClientAgent by providing ban feedback when validation fails, enhancing user experience.
+     * @param {SessionId} clientId - The ID of the client to get the ban message for, sourced from Session.interface.
+     * @param {SwarmName} swarmName - The name of the swarm to check against, sourced from Swarm.interface.
+     * @returns {Promise<string>} The ban message for the client, either custom or default.
      */
     getBanMessage(clientId: SessionId, swarmName: SwarmName): Promise<string>;
     /**
-     * Validates an incoming message from a client.
-     * Checks if the client is banned and applies the custom validation function if provided.
-     * Automatically bans the client if validation fails and autoBan is enabled.
-     * @param {string} incoming - The incoming message to validate.
-     * @param {SessionId} clientId - The ID of the client sending the message.
-     * @param {SwarmName} swarmName - The name of the swarm to validate against.
+     * Validates an incoming message from a client, checking ban status and applying custom validation if provided.
+     * Auto-bans the client via banClient if validation fails and params.autoBan is true, emitting events via BusService.
+     * Used by ClientAgent to filter incoming messages before processing, ensuring policy compliance.
+     * @param {string} incoming - The incoming message to validate, typically from a user or tool.
+     * @param {SessionId} clientId - The ID of the client sending the message, sourced from Session.interface.
+     * @param {SwarmName} swarmName - The name of the swarm to validate against, sourced from Swarm.interface.
      * @returns {Promise<boolean>} True if the input is valid and the client is not banned, false otherwise.
      */
     validateInput(incoming: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
     /**
-     * Validates an outgoing message to a client.
-     * Checks if the client is banned and applies the custom validation function if provided.
-     * Automatically bans the client if validation fails and autoBan is enabled.
-     * @param {string} outgoing - The outgoing message to validate.
-     * @param {SessionId} clientId - The ID of the client receiving the message.
-     * @param {SwarmName} swarmName - The name of the swarm to validate against.
+     * Validates an outgoing message to a client, checking ban status and applying custom validation if provided.
+     * Auto-bans the client via banClient if validation fails and params.autoBan is true, emitting events via BusService.
+     * Used by ClientAgent to ensure outgoing messages comply with swarm policies before emission.
+     * @param {string} outgoing - The outgoing message to validate, typically an agent response or tool output.
+     * @param {SessionId} clientId - The ID of the client receiving the message, sourced from Session.interface.
+     * @param {SwarmName} swarmName - The name of the swarm to validate against, sourced from Swarm.interface.
      * @returns {Promise<boolean>} True if the output is valid and the client is not banned, false otherwise.
      */
     validateOutput(outgoing: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
     /**
-     * Bans a client, adding them to the ban set and persisting the change if setBannedClients is provided.
-     * Emits a ban event and invokes the onBanClient callback if defined.
-     * @param {SessionId} clientId - The ID of the client to ban.
-     * @param {SwarmName} swarmName - The name of the swarm to ban the client from.
-     * @returns {Promise<void>}
+     * Bans a client, adding them to the ban set and persisting the change if params.setBannedClients is provided.
+     * Emits a ban event via BusService and invokes the onBanClient callback, supporting SwarmConnectionService’s access control.
+     * Skips if the client is already banned to avoid redundant updates.
+     * @param {SessionId} clientId - The ID of the client to ban, sourced from Session.interface.
+     * @param {SwarmName} swarmName - The name of the swarm to ban the client from, sourced from Swarm.interface.
+     * @returns {Promise<void>} Resolves when the client is banned and the event is emitted.
      */
     banClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
     /**
-     * Unbans a client, removing them from the ban set and persisting the change if setBannedClients is provided.
-     * Emits an unban event and invokes the onUnbanClient callback if defined.
-     * @param {SessionId} clientId - The ID of the client to unban.
-     * @param {SwarmName} swarmName - The name of the swarm to unban the client from.
-     * @returns {Promise<void>}
+     * Unbans a client, removing them from the ban set and persisting the change if params.setBannedClients is provided.
+     * Emits an unban event via BusService and invokes the onUnbanClient callback, supporting dynamic policy adjustments.
+     * Skips if the client is not banned to avoid redundant updates.
+     * @param {SessionId} clientId - The ID of the client to unban, sourced from Session.interface.
+     * @param {SwarmName} swarmName - The name of the swarm to unban the client from, sourced from Swarm.interface.
+     * @returns {Promise<void>} Resolves when the client is unbanned and the event is emitted.
      */
     unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
 }

@@ -29,7 +29,8 @@ const TOOL_NO_OUTPUT_WARNING_SYMBOL = Symbol("tool-warning-timeout");
 
 /**
  * Creates a random placeholder string from the configured empty output placeholders.
- * @returns {string} A randomly selected placeholder string.
+ * Used in error recovery scenarios (e.g., _resurrectModel) to provide a fallback output.
+ * @returns {string} A randomly selected placeholder string from GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS.
  */
 const createPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[
@@ -39,13 +40,15 @@ const createPlaceholder = () =>
   ];
 
 /**
- * Executes a tool call and handles success or error scenarios, invoking relevant callbacks.
- * @param {number} idx - The index of the current tool call in the tool calls array.
- * @param {IToolCall} tool - The tool call object containing the function and arguments.
- * @param {IToolCall[]} toolCalls - The array of all tool calls.
- * @param {IAgentTool} targetFn - The target tool function to execute.
- * @param {ClientAgent} self - The instance of the ClientAgent.
- * @returns {Promise<void>}
+ * Executes a tool call asynchronously, handling success or error scenarios and invoking relevant callbacks.
+ * Emits events via subjects (e.g., _toolErrorSubject) to manage execution flow in ClientAgent.
+ * Supports AgentConnectionService by executing tools defined in ToolSchemaService and referenced in AgentSchemaService.
+ * @param {number} idx - The index of the current tool call in the toolCalls array, used to determine if it’s the last call.
+ * @param {IToolCall} tool - The tool call object containing the function name, arguments, and ID, sourced from Tool.model.
+ * @param {IToolCall[]} toolCalls - The full array of tool calls for context, passed to the tool’s call method.
+ * @param {IAgentTool} targetFn - The target tool function (from ToolSchemaService) to execute, containing call and callbacks.
+ * @param {ClientAgent} self - The ClientAgent instance, providing context (e.g., clientId, agentName) and subjects.
+ * @returns {Promise<void>} Resolves when the tool call completes or errors, with side effects via callbacks and subjects.
  */
 const createToolCall = async (
   idx: number,
@@ -96,11 +99,12 @@ const createToolCall = async (
 };
 
 /**
- * Runs a stateless completion for the incoming message and returns the transformed result.
- * If tool calls are present or validation fails, returns an empty string.
- * @param {string} incoming - The incoming message content.
- * @param {ClientAgent} self - The instance of the ClientAgent.
- * @returns {Promise<string>} The transformed result of the completion, or an empty string if validation fails or tool calls are present.
+ * Runs a stateless completion for the incoming message, returning the transformed result.
+ * Returns an empty string if tool calls are present or validation fails, avoiding further processing.
+ * Integrates with CompletionSchemaService (via params.completion) and HistoryConnectionService (via params.history).
+ * @param {string} incoming - The incoming message content to process, typically from a user or tool.
+ * @param {ClientAgent} self - The ClientAgent instance, providing params (e.g., completion, history, logger).
+ * @returns {Promise<string>} The transformed result from the completion, or an empty string if invalid or tool-related.
  */
 const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -181,12 +185,13 @@ const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
 };
 
 /**
- * Executes the incoming message, processes tool calls if any, and emits the output.
- * Updates the history and handles validation of the output.
- * @param {string} incoming - The incoming message content.
- * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
- * @param {ClientAgent} self - The instance of the ClientAgent.
- * @returns {Promise<void>}
+ * Executes an incoming message, processes tool calls if present, and emits the output via _emitOutput.
+ * Updates history (via HistoryConnectionService) and handles validation, with queued execution to prevent overlap.
+ * Coordinates with ToolSchemaService (tool execution) and BusService (event emission).
+ * @param {string} incoming - The incoming message content to process, typically from a user or tool.
+ * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
+ * @param {ClientAgent} self - The ClientAgent instance, providing params and subjects for execution flow.
+ * @returns {Promise<void>} Resolves when execution completes, including tool calls and output emission.
  */
 const EXECUTE_FN = async (
   incoming: string,
@@ -306,7 +311,7 @@ const EXECUTE_FN = async (
           tool.function.arguments
         );
       /**
-       * Do not await directly to avoid the deadlock! The tool can send the message to other agents by emulating user messages
+       * Do not await directly to avoid deadlock! The tool can send messages to other agents by emulating user messages.
        */
       lastToolStatusRef = lastToolStatusRef.then(async (lastStatus) => {
         if (await not(runAwaiter)) {
@@ -457,20 +462,59 @@ const EXECUTE_FN = async (
 };
 
 /**
- * Represents a client agent that interacts with the system, managing message execution, tool calls, and history.
+ * Represents a client-side agent in the swarm system, implementing the IAgent interface.
+ * Manages message execution, tool calls, history updates, and event emissions, with queued execution to prevent overlap.
+ * Integrates with AgentConnectionService (instantiation), HistoryConnectionService (history), ToolSchemaService (tools), CompletionSchemaService (completions), SwarmConnectionService (swarm coordination), and BusService (events).
+ * Uses Subjects from functools-kit for asynchronous state management (e.g., tool errors, agent changes).
  * @implements {IAgent}
  */
 export class ClientAgent implements IAgent {
+  /**
+   * Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.
+   * @type {Subject<typeof AGENT_CHANGE_SYMBOL>}
+   * @readonly
+   */
   readonly _agentChangeSubject = new Subject<typeof AGENT_CHANGE_SYMBOL>();
+
+  /**
+   * Subject for signaling model resurrection events, triggered by _resurrectModel during error recovery.
+   * @type {Subject<typeof MODEL_RESQUE_SYMBOL>}
+   * @readonly
+   */
   readonly _resqueSubject = new Subject<typeof MODEL_RESQUE_SYMBOL>();
+
+  /**
+   * Subject for signaling tool execution errors, emitted by createToolCall on failure.
+   * @type {Subject<typeof TOOL_ERROR_SYMBOL>}
+   * @readonly
+   */
   readonly _toolErrorSubject = new Subject<typeof TOOL_ERROR_SYMBOL>();
+
+  /**
+   * Subject for signaling tool execution stops, triggered by commitStopTools.
+   * @type {Subject<typeof TOOL_STOP_SYMBOL>}
+   * @readonly
+   */
   readonly _toolStopSubject = new Subject<typeof TOOL_STOP_SYMBOL>();
+
+  /**
+   * Subject for signaling tool output commitments, triggered by commitToolOutput.
+   * @type {Subject<void>}
+   * @readonly
+   */
   readonly _toolCommitSubject = new Subject<void>();
+
+  /**
+   * Subject for emitting transformed outputs, used by _emitOutput and waitForOutput.
+   * @type {Subject<string>}
+   * @readonly
+   */
   readonly _outputSubject = new Subject<string>();
 
   /**
-   * Creates an instance of ClientAgent.
-   * @param {IAgentParams} params - The parameters for initializing the agent.
+   * Constructs a ClientAgent instance with the provided parameters.
+   * Initializes event subjects and invokes the onInit callback, logging construction details if enabled.
+   * @param {IAgentParams} params - The parameters for agent initialization, including clientId, agentName, completion, tools, etc.
    */
   constructor(readonly params: IAgentParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -484,12 +528,13 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Emits the transformed output after validation, invoking callbacks and emitting events.
-   * If validation fails, attempts to resurrect the model and revalidate.
-   * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
-   * @param {string} rawResult - The raw result to be transformed and emitted.
-   * @returns {Promise<void>}
-   * @throws {Error} If validation fails after model resurrection.
+   * Emits the transformed output after validation, invoking callbacks and emitting events via BusService.
+   * Attempts model resurrection via _resurrectModel if validation fails, throwing an error if unrecoverable.
+   * Supports SwarmConnectionService by broadcasting agent outputs within the swarm.
+   * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
+   * @param {string} rawResult - The raw result to transform and emit, typically from getCompletion or tool execution.
+   * @returns {Promise<void>} Resolves when output is emitted successfully.
+   * @throws {Error} If validation fails after model resurrection, indicating an unrecoverable state.
    * @private
    */
   async _emitOutput(mode: ExecutionMode, rawResult: string): Promise<void> {
@@ -568,11 +613,12 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Resurrects the model in case of failures by applying configured strategies (e.g., flush, recomplete, custom).
-   * Updates the history and returns a placeholder or transformed result.
-   * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
-   * @param {string} [reason="unknown"] - The reason for resurrecting the model.
-   * @returns {Promise<string>} A placeholder or transformed result after resurrection.
+   * Resurrects the model in case of failures using configured strategies (flush, recomplete, custom).
+   * Updates history with failure details and returns a placeholder or transformed result, signaling via _resqueSubject.
+   * Supports error recovery for CompletionSchemaService’s getCompletion calls.
+   * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
+   * @param {string} [reason="unknown"] - The reason for resurrection, logged for debugging.
+   * @returns {Promise<string>} A placeholder (for flush) or transformed result (for recomplete/custom) after recovery.
    * @private
    */
   async _resurrectModel(
@@ -675,8 +721,9 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Waits for the output to be available and returns it.
-   * @returns {Promise<string>} The output emitted by the agent.
+   * Waits for the next output to be emitted via _outputSubject, typically after execute or run.
+   * Useful for external consumers (e.g., SwarmConnectionService) awaiting agent responses.
+   * @returns {Promise<string>} The next transformed output emitted by the agent.
    */
   async waitForOutput(): Promise<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -687,10 +734,10 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Retrieves a completion message from the model based on the current history and tools.
-   * Handles validation and applies resurrection strategies if needed.
-   * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
-   * @returns {Promise<IModelMessage>} The completion message from the model.
+   * Retrieves a completion message from the model using the current history and tools.
+   * Applies validation and resurrection strategies (via _resurrectModel) if needed, integrating with CompletionSchemaService.
+   * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
+   * @returns {Promise<IModelMessage>} The completion message from the model, with content defaulted to an empty string if null.
    */
   async getCompletion(mode: ExecutionMode): Promise<IModelMessage> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -800,9 +847,10 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Commits a user message to the history without triggering a response.
-   * @param {string} message - The user message to commit.
-   * @returns {Promise<void>}
+   * Commits a user message to the history without triggering a response, notifying the system via BusService.
+   * Supports SessionConnectionService by logging user interactions within a session.
+   * @param {string} message - The user message to commit, trimmed before storage.
+   * @returns {Promise<void>} Resolves when the message is committed to history and the event is emitted.
    */
   async commitUserMessage(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -837,8 +885,9 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Commits a flush of the agent's history, clearing it and notifying the system.
-   * @returns {Promise<void>}
+   * Commits a flush of the agent’s history, clearing it and notifying the system via BusService.
+   * Useful for resetting agent state, coordinated with HistoryConnectionService.
+   * @returns {Promise<void>} Resolves when the flush is committed and the event is emitted.
    */
   async commitFlush(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -866,9 +915,9 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Signals a change in the agent to halt subsequent tool executions.
-   * Emits an event to notify the system.
-   * @returns {Promise<void>}
+   * Signals an agent change to halt subsequent tool executions, emitting an event via _agentChangeSubject and BusService.
+   * Supports SwarmConnectionService by allowing dynamic agent switching within a swarm.
+   * @returns {Promise<void>} Resolves when the change is signaled and the event is emitted.
    */
   async commitAgentChange(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -889,9 +938,9 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Signals a stop to prevent further tool executions.
-   * Emits an event to notify the system.
-   * @returns {Promise<void>}
+   * Signals a stop to prevent further tool executions, emitting an event via _toolStopSubject and BusService.
+   * Used to interrupt tool call chains, coordinated with ToolSchemaService tools.
+   * @returns {Promise<void>} Resolves when the stop is signaled and the event is emitted.
    */
   async commitStopTools(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -912,9 +961,10 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Commits a system message to the history and notifies the system.
-   * @param {string} message - The system message to commit.
-   * @returns {Promise<void>}
+   * Commits a system message to the history, notifying the system via BusService without triggering execution.
+   * Supports system-level updates, coordinated with SessionConnectionService.
+   * @param {string} message - The system message to commit, trimmed before storage.
+   * @returns {Promise<void>} Resolves when the message is committed and the event is emitted.
    */
   async commitSystemMessage(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -949,9 +999,10 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Commits an assistant message to the history without triggering execution.
-   * @param {string} message - The assistant message to commit.
-   * @returns {Promise<void>}
+   * Commits an assistant message to the history without triggering execution, notifying the system via BusService.
+   * Useful for logging assistant responses, coordinated with HistoryConnectionService.
+   * @param {string} message - The assistant message to commit, trimmed before storage.
+   * @returns {Promise<void>} Resolves when the message is committed and the event is emitted.
    */
   async commitAssistantMessage(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -986,10 +1037,11 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Commits the tool output to the history and notifies the system.
-   * @param {string} toolId - The ID of the tool that produced the output.
-   * @param {string} content - The tool output content.
-   * @returns {Promise<void>}
+   * Commits tool output to the history, signaling completion via _toolCommitSubject and notifying the system via BusService.
+   * Integrates with ToolSchemaService by linking tool output to tool calls.
+   * @param {string} toolId - The ID of the tool that produced the output, linking to the tool call.
+   * @param {string} content - The tool output content to commit.
+   * @returns {Promise<void>} Resolves when the output is committed and the event is emitted.
    */
   async commitToolOutput(toolId: string, content: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -1028,21 +1080,21 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Executes the incoming message and processes tool calls if any.
-   * Queues the execution to prevent overlapping calls.
-   * @param {string} incoming - The incoming message content.
-   * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
-   * @returns {Promise<void>}
+   * Executes the incoming message and processes tool calls if present, queued to prevent overlapping executions.
+   * Implements IAgent.execute, delegating to EXECUTE_FN with queuing via functools-kit’s queued decorator.
+   * @param {string} incoming - The incoming message content to process.
+   * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool").
+   * @returns {Promise<void>} Resolves when execution completes, including tool calls and output emission.
    */
   execute = queued(
     async (incoming, mode) => await EXECUTE_FN(incoming, mode, this)
   ) as IAgent["execute"];
 
   /**
-   * Runs the completion statelessly and returns the transformed output.
-   * Queues the execution to prevent overlapping calls.
-   * @param {string} incoming - The incoming message content.
-   * @returns {Promise<string>} The transformed result of the completion.
+   * Runs a stateless completion for the incoming message, queued to prevent overlapping executions.
+   * Implements IAgent.run, delegating to RUN_FN with queuing via functools-kit’s queued decorator.
+   * @param {string} incoming - The incoming message content to process.
+   * @returns {Promise<string>} The transformed result of the completion, or an empty string if invalid.
    */
   run = queued(
     async (incoming) => await RUN_FN(incoming, this)
@@ -1050,7 +1102,8 @@ export class ClientAgent implements IAgent {
 
   /**
    * Disposes of the agent, performing cleanup and invoking the onDispose callback.
-   * @returns {Promise<void>}
+   * Logs the disposal if debugging is enabled, supporting AgentConnectionService cleanup.
+   * @returns {Promise<void>} Resolves when disposal is complete.
    */
   async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -1062,4 +1115,11 @@ export class ClientAgent implements IAgent {
   }
 }
 
+/**
+ * Default export of the ClientAgent class.
+ * Provides the primary implementation of the IAgent interface for client-side agent functionality in the swarm system,
+ * integrating with AgentConnectionService, HistoryConnectionService, ToolSchemaService, CompletionSchemaService,
+ * SwarmConnectionService, and BusService, with queued execution and event-driven state management.
+ * @type {typeof ClientAgent}
+ */
 export default ClientAgent;
