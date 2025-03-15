@@ -13,11 +13,21 @@ type DispatchFn<State extends IStateData = IStateData> = (
 
 type Action = "read" | "write";
 
+/**
+ * Dispatches an action to read or write the state.
+ * @template State - The type of the state data.
+ * @param {Action} action - The action to perform ("read" or "write").
+ * @param {ClientState} self - The instance of ClientState.
+ * @param {DispatchFn<State>} [payload] - The function to update the state (required for "write").
+ * @returns {Promise<State>} The current state for "read" or the updated state for "write".
+ * @throws {Error} If the action is neither "read" nor "write", or if payload is missing for "write".
+ * @private
+ */
 const DISPATCH_FN = async <State extends IStateData = IStateData>(
   action: Action,
   self: ClientState,
   payload?: DispatchFn<State>
-) => {
+): Promise<State> => {
   if (action === "read") {
     return self._state;
   }
@@ -31,7 +41,14 @@ const DISPATCH_FN = async <State extends IStateData = IStateData>(
   throw new Error("agent-swarm ClientState unknown action");
 };
 
-const WAIT_FOR_INIT_FN = async (self: ClientState) => {
+/**
+ * Initializes the state by fetching it or using the default state.
+ * Invokes the onLoad callback if provided.
+ * @param {ClientState} self - The instance of ClientState.
+ * @returns {Promise<void>}
+ * @private
+ */
+const WAIT_FOR_INIT_FN = async (self: ClientState): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
       `ClientState stateName=${self.params.stateName} clientId=${self.params.clientId} shared=${self.params.shared} waitForInit`
@@ -59,15 +76,24 @@ const WAIT_FOR_INIT_FN = async (self: ClientState) => {
 };
 
 /**
- * Class representing the client state.
- * @template State - The type of the state data.
+ * Class representing the client state, managing state data with read/write operations.
+ * @template State - The type of the state data, extending IStateData.
  * @implements {IState<State>}
  */
 export class ClientState<State extends IStateData = IStateData>
   implements IState<State>
 {
+  /**
+   * The current state data, initialized as null and set during waitForInit.
+   */
   _state: State = null as State;
 
+  /**
+   * Queued dispatch function to read or write the state.
+   * @param {string} action - The action to perform ("read" or "write").
+   * @param {DispatchFn<State>} [payload] - The function to update the state (required for "write").
+   * @returns {Promise<State>} The current or updated state.
+   */
   dispatch = queued(
     async (action: Action, payload) =>
       await DISPATCH_FN<State>(action, this, payload)
@@ -75,7 +101,8 @@ export class ClientState<State extends IStateData = IStateData>
 
   /**
    * Creates an instance of ClientState.
-   * @param {IStateParams<State>} params - The state parameters.
+   * Invokes the onInit callback if provided.
+   * @param {IStateParams<State>} params - The parameters for initializing the state.
    */
   constructor(readonly params: IStateParams<State>) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -91,17 +118,19 @@ export class ClientState<State extends IStateData = IStateData>
   }
 
   /**
-   * Waits for the state to initialize.
+   * Waits for the state to initialize, ensuring it’s only called once.
+   * Uses singleshot to prevent multiple initializations.
    * @returns {Promise<void>}
    */
-  waitForInit = singleshot(async () => await WAIT_FOR_INIT_FN(this));
+  waitForInit = singleshot(async (): Promise<void> => await WAIT_FOR_INIT_FN(this));
 
   /**
-   * Sets the state using the provided dispatch function.
-   * @param {DispatchFn<State>} dispatchFn - The dispatch function.
-   * @returns {Promise<State>}
+   * Sets the state using the provided dispatch function, applying middlewares and persisting the result.
+   * Invokes the onWrite callback and emits an event if configured.
+   * @param {DispatchFn<State>} dispatchFn - The function to update the state.
+   * @returns {Promise<State>} The updated state.
    */
-  async setState(dispatchFn: DispatchFn<State>) {
+  async setState(dispatchFn: DispatchFn<State>): Promise<State> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} setState`
@@ -151,10 +180,11 @@ export class ClientState<State extends IStateData = IStateData>
   }
 
   /**
-   * Sets the to initial value
-   * @returns {Promise<State>}
+   * Resets the state to its initial value as determined by getState and getDefaultState.
+   * Persists the result and invokes the onWrite callback if configured.
+   * @returns {Promise<State>} The reset state.
    */
-  async clearState() {
+  async clearState(): Promise<State> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} clearState`
@@ -203,10 +233,11 @@ export class ClientState<State extends IStateData = IStateData>
   }
 
   /**
-   * Gets the current state.
-   * @returns {Promise<State>}
+   * Retrieves the current state.
+   * Invokes the onRead callback and emits an event if configured.
+   * @returns {Promise<State>} The current state.
    */
-  async getState() {
+  async getState(): Promise<State> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} getState`
@@ -235,10 +266,10 @@ export class ClientState<State extends IStateData = IStateData>
   }
 
   /**
-   * Disposes of the state.
+   * Disposes of the state, performing cleanup and invoking the onDispose callback if provided.
    * @returns {Promise<void>}
    */
-  dispose() {
+  async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} dispose`

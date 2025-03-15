@@ -4,18 +4,19 @@ import { GLOBAL_CONFIG } from "../config/params";
 import { IBusEvent } from "../model/Event.model";
 
 /**
- * Class representing the history of client messages.
+ * Class representing the history of client messages, managing storage and retrieval of messages.
  * @implements {IHistory}
  */
 export class ClientHistory implements IHistory {
   /**
-   * Filter condition for `toArrayForAgent`
+   * Filter condition function for `toArrayForAgent`, used to filter messages based on agent-specific criteria.
    */
   _filterCondition: (message: IModelMessage) => boolean;
 
   /**
    * Creates an instance of ClientHistory.
-   * @param {IHistoryParams} params - The parameters for the history.
+   * Initializes the filter condition based on global configuration.
+   * @param {IHistoryParams} params - The parameters for initializing the history.
    */
   constructor(readonly params: IHistoryParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -31,8 +32,8 @@ export class ClientHistory implements IHistory {
   }
 
   /**
-   * Pushes a message to the history.
-   * @param {IModelMessage} message - The message to push.
+   * Pushes a message into the history and emits a corresponding event.
+   * @param {IModelMessage} message - The message to add to the history.
    * @returns {Promise<void>}
    */
   async push(message: IModelMessage): Promise<void> {
@@ -61,13 +62,14 @@ export class ClientHistory implements IHistory {
   }
 
   /**
-   * Pop a message from the history.
-   * @returns {Promise<IModelMessage | null>}
+   * Removes and returns the most recent message from the history.
+   * Emits an event with the popped message or null if the history is empty.
+   * @returns {Promise<IModelMessage | null>} The most recent message, or null if the history is empty.
    */
   async pop(): Promise<IModelMessage | null> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
-        `ClientHistory agentName=${this.params.agentName} pop`,
+        `ClientHistory agentName=${this.params.agentName} pop`
       );
     const value = await this.params.items.pop(
       this.params.clientId,
@@ -76,10 +78,9 @@ export class ClientHistory implements IHistory {
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "pop",
       source: "history-bus",
-      input: {
-      },
+      input: {},
       output: {
-        value
+        value,
       },
       context: {
         agentName: this.params.agentName,
@@ -90,8 +91,8 @@ export class ClientHistory implements IHistory {
   }
 
   /**
-   * Converts the history to an array of raw messages.
-   * @returns {Promise<IModelMessage[]>} - The array of raw messages.
+   * Converts the history into an array of raw messages without any filtering or transformation.
+   * @returns {Promise<IModelMessage[]>} An array of raw messages in the history.
    */
   async toArrayForRaw(): Promise<IModelMessage[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -109,10 +110,12 @@ export class ClientHistory implements IHistory {
   }
 
   /**
-   * Converts the history to an array of messages for the agent.
-   * @param {string} prompt - The prompt message.
-   * @param {string} system - The tool calling protocol
-   * @returns {Promise<IModelMessage[]>} - The array of messages for the agent.
+   * Converts the history into an array of messages tailored for the agent.
+   * Filters messages based on the agent's filter condition, limits the number of messages,
+   * and prepends prompt and system messages.
+   * @param {string} prompt - The initial prompt message to prepend.
+   * @param {string[] | undefined} system - Optional array of additional system messages to prepend.
+   * @returns {Promise<IModelMessage[]>} An array of messages formatted for the agent.
    */
   async toArrayForAgent(
     prompt: string,
@@ -211,13 +214,14 @@ export class ClientHistory implements IHistory {
   }
 
   /**
-   * Should call on agent dispose
+   * Disposes of the history, performing cleanup and releasing resources.
+   * Should be called when the agent is being disposed.
    * @returns {Promise<void>}
    */
   async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
-        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} dispose`
+        `ClientHistory agentName=${this.params.agentName} clientId=${this.params.clientId} dispose`
       );
     await this.params.items.dispose(
       this.params.clientId,

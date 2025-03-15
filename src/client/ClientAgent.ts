@@ -21,15 +21,16 @@ import { IToolCall } from "../model/Tool.model";
 import { IBusEvent } from "../model/Event.model";
 
 const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
-
 const MODEL_RESQUE_SYMBOL = Symbol("model-resque");
-
 const TOOL_ERROR_SYMBOL = Symbol("tool-error");
 const TOOL_STOP_SYMBOL = Symbol("tool-stop");
-
 const TOOL_NO_OUTPUT_WARNING_TIMEOUT = 15_000;
 const TOOL_NO_OUTPUT_WARNING_SYMBOL = Symbol("tool-warning-timeout");
 
+/**
+ * Creates a random placeholder string from the configured empty output placeholders.
+ * @returns {string} A randomly selected placeholder string.
+ */
 const createPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[
     Math.floor(
@@ -37,6 +38,15 @@ const createPlaceholder = () =>
     )
   ];
 
+/**
+ * Executes a tool call and handles success or error scenarios, invoking relevant callbacks.
+ * @param {number} idx - The index of the current tool call in the tool calls array.
+ * @param {IToolCall} tool - The tool call object containing the function and arguments.
+ * @param {IToolCall[]} toolCalls - The array of all tool calls.
+ * @param {IAgentTool} targetFn - The target tool function to execute.
+ * @param {ClientAgent} self - The instance of the ClientAgent.
+ * @returns {Promise<void>}
+ */
 const createToolCall = async (
   idx: number,
   tool: IToolCall,
@@ -85,6 +95,13 @@ const createToolCall = async (
   }
 };
 
+/**
+ * Runs a stateless completion for the incoming message and returns the transformed result.
+ * If tool calls are present or validation fails, returns an empty string.
+ * @param {string} incoming - The incoming message content.
+ * @param {ClientAgent} self - The instance of the ClientAgent.
+ * @returns {Promise<string>} The transformed result of the completion, or an empty string if validation fails or tool calls are present.
+ */
 const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
@@ -163,6 +180,14 @@ const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
   return result;
 };
 
+/**
+ * Executes the incoming message, processes tool calls if any, and emits the output.
+ * Updates the history and handles validation of the output.
+ * @param {string} incoming - The incoming message content.
+ * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
+ * @param {ClientAgent} self - The instance of the ClientAgent.
+ * @returns {Promise<void>}
+ */
 const EXECUTE_FN = async (
   incoming: string,
   mode: ExecutionMode,
@@ -432,23 +457,20 @@ const EXECUTE_FN = async (
 };
 
 /**
- * Represents a client agent that interacts with the system.
+ * Represents a client agent that interacts with the system, managing message execution, tool calls, and history.
  * @implements {IAgent}
  */
 export class ClientAgent implements IAgent {
   readonly _agentChangeSubject = new Subject<typeof AGENT_CHANGE_SYMBOL>();
-
   readonly _resqueSubject = new Subject<typeof MODEL_RESQUE_SYMBOL>();
-
   readonly _toolErrorSubject = new Subject<typeof TOOL_ERROR_SYMBOL>();
   readonly _toolStopSubject = new Subject<typeof TOOL_STOP_SYMBOL>();
   readonly _toolCommitSubject = new Subject<void>();
-
   readonly _outputSubject = new Subject<string>();
 
   /**
    * Creates an instance of ClientAgent.
-   * @param {IAgentParams} params - The parameters for the agent.
+   * @param {IAgentParams} params - The parameters for initializing the agent.
    */
   constructor(readonly params: IAgentParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -462,9 +484,12 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Emits the output result after validation.
-   * @param {string} result - The result to be emitted.
+   * Emits the transformed output after validation, invoking callbacks and emitting events.
+   * If validation fails, attempts to resurrect the model and revalidate.
+   * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
+   * @param {string} rawResult - The raw result to be transformed and emitted.
    * @returns {Promise<void>}
+   * @throws {Error} If validation fails after model resurrection.
    * @private
    */
   async _emitOutput(mode: ExecutionMode, rawResult: string): Promise<void> {
@@ -543,9 +568,11 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Resurrects the model based on the given reason.
-   * @param {string} [reason] - The reason for resurrecting the model.
-   * @returns {Promise<string>}
+   * Resurrects the model in case of failures by applying configured strategies (e.g., flush, recomplete, custom).
+   * Updates the history and returns a placeholder or transformed result.
+   * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
+   * @param {string} [reason="unknown"] - The reason for resurrecting the model.
+   * @returns {Promise<string>} A placeholder or transformed result after resurrection.
    * @private
    */
   async _resurrectModel(
@@ -648,8 +675,8 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Waits for the output to be available.
-   * @returns {Promise<string>}
+   * Waits for the output to be available and returns it.
+   * @returns {Promise<string>} The output emitted by the agent.
    */
   async waitForOutput(): Promise<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -660,8 +687,10 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Gets the completion message from the model.
-   * @returns {Promise<IModelMessage>}
+   * Retrieves a completion message from the model based on the current history and tools.
+   * Handles validation and applies resurrection strategies if needed.
+   * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
+   * @returns {Promise<IModelMessage>} The completion message from the model.
    */
   async getCompletion(mode: ExecutionMode): Promise<IModelMessage> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -771,8 +800,8 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Commits a user message to the history without answer.
-   * @param {string} message - The message to commit.
+   * Commits a user message to the history without triggering a response.
+   * @param {string} message - The user message to commit.
    * @returns {Promise<void>}
    */
   async commitUserMessage(message: string): Promise<void> {
@@ -808,7 +837,7 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Commits flush of agent history
+   * Commits a flush of the agent's history, clearing it and notifying the system.
    * @returns {Promise<void>}
    */
   async commitFlush(): Promise<void> {
@@ -837,7 +866,8 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Commits change of agent to prevent the next tool execution from being called.
+   * Signals a change in the agent to halt subsequent tool executions.
+   * Emits an event to notify the system.
    * @returns {Promise<void>}
    */
   async commitAgentChange(): Promise<void> {
@@ -859,7 +889,8 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Commits change of agent to prevent the next tool execution from being called.
+   * Signals a stop to prevent further tool executions.
+   * Emits an event to notify the system.
    * @returns {Promise<void>}
    */
   async commitStopTools(): Promise<void> {
@@ -881,7 +912,7 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Commits a system message to the history.
+   * Commits a system message to the history and notifies the system.
    * @param {string} message - The system message to commit.
    * @returns {Promise<void>}
    */
@@ -918,8 +949,8 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Commits an assistant message to the history without execute.
-   * @param {string} message - The system message to commit.
+   * Commits an assistant message to the history without triggering execution.
+   * @param {string} message - The assistant message to commit.
    * @returns {Promise<void>}
    */
   async commitAssistantMessage(message: string): Promise<void> {
@@ -955,7 +986,8 @@ export class ClientAgent implements IAgent {
   }
 
   /**
-   * Commits the tool output to the history.
+   * Commits the tool output to the history and notifies the system.
+   * @param {string} toolId - The ID of the tool that produced the output.
    * @param {string} content - The tool output content.
    * @returns {Promise<void>}
    */
@@ -997,7 +1029,9 @@ export class ClientAgent implements IAgent {
 
   /**
    * Executes the incoming message and processes tool calls if any.
+   * Queues the execution to prevent overlapping calls.
    * @param {string} incoming - The incoming message content.
+   * @param {ExecutionMode} mode - The execution mode (e.g., user or tool).
    * @returns {Promise<void>}
    */
   execute = queued(
@@ -1005,16 +1039,17 @@ export class ClientAgent implements IAgent {
   ) as IAgent["execute"];
 
   /**
-   * Run the completion stateless and return the output
+   * Runs the completion statelessly and returns the transformed output.
+   * Queues the execution to prevent overlapping calls.
    * @param {string} incoming - The incoming message content.
-   * @returns {Promise<void>}
+   * @returns {Promise<string>} The transformed result of the completion.
    */
   run = queued(
     async (incoming) => await RUN_FN(incoming, this)
   ) as IAgent["run"];
 
   /**
-   * Should call on agent dispose
+   * Disposes of the agent, performing cleanup and invoking the onDispose callback.
    * @returns {Promise<void>}
    */
   async dispose(): Promise<void> {

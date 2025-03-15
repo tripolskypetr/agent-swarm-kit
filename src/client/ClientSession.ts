@@ -12,14 +12,19 @@ import { IBusEvent } from "../model/Event.model";
 import { GLOBAL_CONFIG } from "../config/params";
 
 /**
- * ClientSession class implements the ISession interface.
+ * Represents a client session for managing message execution, emission, and agent interactions.
+ * @implements {ISession}
  */
 export class ClientSession implements ISession {
+  /**
+   * Subject for emitting output messages to subscribers.
+   */
   readonly _emitSubject = new Subject<string>();
 
   /**
    * Constructs a new ClientSession instance.
-   * @param {ISessionParams} params - The session parameters.
+   * Invokes the onInit callback if provided.
+   * @param {ISessionParams} params - The parameters for initializing the session.
    */
   constructor(readonly params: ISessionParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -33,11 +38,12 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Emits a message.
+   * Emits a message to subscribers after validating it against the policy.
+   * If validation fails, emits the ban message instead.
    * @param {string} message - The message to emit.
    * @returns {Promise<void>}
    */
-  async emit(message: string) {
+  async emit(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} emit`,
@@ -87,12 +93,13 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Executes a message and optionally emits the output.
+   * Executes a message using the swarm's agent and returns the output.
+   * Validates input and output against the policy, returning a ban message if either fails.
    * @param {string} message - The message to execute.
-   * @param {boolean} [noEmit=false] - Whether to emit the output or not.
-   * @returns {Promise<string>} - The output of the execution.
+   * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool").
+   * @returns {Promise<string>} The output of the execution, or a ban message if validation fails.
    */
-  async execute(message: string, mode: ExecutionMode) {
+  async execute(message: string, mode: ExecutionMode): Promise<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} execute`,
@@ -175,11 +182,12 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Run the completion stateless
+   * Runs a stateless completion of a message using the swarm's agent and returns the output.
+   * Does not emit the result but logs the execution via the event bus.
    * @param {string} message - The message to run.
-   * @returns {Promise<string>} - The output of the execution.
+   * @returns {Promise<string>} The output of the completion.
    */
-  async run(message: string) {
+  async run(message: string): Promise<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} run`,
@@ -209,12 +217,12 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Commits tool output.
-   * @param {string} toolId - The `tool_call_id` for openai history
-   * @param {string} content - The content to commit.
+   * Commits tool output to the agent's history via the swarm.
+   * @param {string} toolId - The ID of the tool call (e.g., `tool_call_id` for OpenAI history).
+   * @param {string} content - The tool output content to commit.
    * @returns {Promise<void>}
    */
-  async commitToolOutput(toolId: string, content: string) {
+  async commitToolOutput(toolId: string, content: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitToolOutput`,
@@ -242,11 +250,11 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Commits user message without answer.
-   * @param {string} message - The message to commit.
+   * Commits a user message to the agent's history without triggering a response.
+   * @param {string} message - The user message to commit.
    * @returns {Promise<void>}
    */
-  async commitUserMessage(message: string) {
+  async commitUserMessage(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitUserMessage`,
@@ -272,10 +280,10 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Commits flush of agent history
+   * Commits a flush of the agent's history, clearing it.
    * @returns {Promise<void>}
    */
-  async commitFlush() {
+  async commitFlush(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitFlush`
@@ -296,10 +304,10 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Commits stop of the nexttool execution
+   * Signals the agent to stop the execution of subsequent tools.
    * @returns {Promise<void>}
    */
-  async commitStopTools() {
+  async commitStopTools(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitStopTools`
@@ -320,11 +328,11 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Commits a system message.
+   * Commits a system message to the agent's history.
    * @param {string} message - The system message to commit.
    * @returns {Promise<void>}
    */
-  async commitSystemMessage(message: string) {
+  async commitSystemMessage(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitSystemMessage`,
@@ -350,11 +358,11 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Commits an assistant message.
+   * Commits an assistant message to the agent's history without triggering execution.
    * @param {string} message - The assistant message to commit.
    * @returns {Promise<void>}
    */
-  async commitAssistantMessage(message: string) {
+  async commitAssistantMessage(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitAssistantMessage`,
@@ -380,9 +388,9 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Connects the session to a connector function.
-   * @param {SendMessageFn} connector - The connector function.
-   * @returns {ReceiveMessageFn<string>} - The function to receive messages.
+   * Connects the session to a message connector, subscribing to emitted messages and returning a receiver function.
+   * @param {SendMessageFn} connector - The function to handle outgoing messages.
+   * @returns {ReceiveMessageFn<string>} A function to receive incoming messages and process them.
    */
   connect(connector: SendMessageFn): ReceiveMessageFn<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -409,14 +417,14 @@ export class ClientSession implements ISession {
       },
       clientId: this.params.clientId,
     });
-    return async (incoming: IIncomingMessage) => {
+    return async (incoming: IIncomingMessage): Promise<string> => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         this.params.logger.debug(
           `ClientSession clientId=${this.params.clientId} connect call`
         );
       const data = await this.execute(incoming.data, "user");
       if (!data) {
-        return;
+        return "";
       }
       await connector({
         data,
@@ -428,7 +436,8 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Should call on session dispose
+   * Disposes of the session, performing cleanup and invoking the onDispose callback if provided.
+   * Should be called when the session is no longer needed.
    * @returns {Promise<void>}
    */
   async dispose(): Promise<void> {

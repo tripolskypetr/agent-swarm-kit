@@ -7,15 +7,20 @@ import { SwarmName } from "../interfaces/Swarm.interface";
 const BAN_NEED_FETCH = Symbol("ban-need-fetch");
 
 /**
- * Class representing a client policy.
+ * Class representing a client policy for managing bans, input/output validation, and client restrictions.
  * @implements {IPolicy}
  */
 export class ClientPolicy implements IPolicy {
+  /**
+   * Set of banned client IDs or a symbol indicating the ban list needs to be fetched.
+   * Initialized as BAN_NEED_FETCH and lazily populated on first use.
+   */
   _banSet: Set<SessionId> | typeof BAN_NEED_FETCH = BAN_NEED_FETCH;
 
   /**
    * Creates an instance of ClientPolicy.
-   * @param {IPolicyParams} params - The policy parameters.
+   * Invokes the onInit callback if provided.
+   * @param {IPolicyParams} params - The parameters for initializing the policy.
    */
   constructor(readonly params: IPolicyParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -31,10 +36,11 @@ export class ClientPolicy implements IPolicy {
   }
 
   /**
-   * Check if client is banned
-   * @param {SessionId} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
-   * @returns {Promise<boolean>}
+   * Checks if a client is banned for a specific swarm.
+   * Lazily fetches the ban list on the first call if not already loaded.
+   * @param {SessionId} clientId - The ID of the client to check.
+   * @param {SwarmName} swarmName - The name of the swarm to check against.
+   * @returns {Promise<boolean>} True if the client is banned, false otherwise.
    */
   async hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -54,10 +60,11 @@ export class ClientPolicy implements IPolicy {
   }
 
   /**
-   * Gets the ban message for a client.
-   * @param {SessionId} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
-   * @returns {Promise<string>} The ban message.
+   * Retrieves the ban message for a client.
+   * Uses a custom getBanMessage function if provided, otherwise falls back to the default ban message.
+   * @param {SessionId} clientId - The ID of the client to get the ban message for.
+   * @param {SwarmName} swarmName - The name of the swarm to check against.
+   * @returns {Promise<string>} The ban message for the client.
    */
   async getBanMessage(
     clientId: SessionId,
@@ -88,11 +95,13 @@ export class ClientPolicy implements IPolicy {
   }
 
   /**
-   * Validates the input from a client.
-   * @param {string} incoming - The incoming message.
-   * @param {SessionId} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
-   * @returns {Promise<boolean>} Whether the input is valid.
+   * Validates an incoming message from a client.
+   * Checks if the client is banned and applies the custom validation function if provided.
+   * Automatically bans the client if validation fails and autoBan is enabled.
+   * @param {string} incoming - The incoming message to validate.
+   * @param {SessionId} clientId - The ID of the client sending the message.
+   * @param {SwarmName} swarmName - The name of the swarm to validate against.
+   * @returns {Promise<boolean>} True if the input is valid and the client is not banned, false otherwise.
    */
   async validateInput(
     incoming: string,
@@ -157,11 +166,13 @@ export class ClientPolicy implements IPolicy {
   }
 
   /**
-   * Validates the output to a client.
-   * @param {string} outgoing - The outgoing message.
-   * @param {SessionId} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
-   * @returns {Promise<boolean>} Whether the output is valid.
+   * Validates an outgoing message to a client.
+   * Checks if the client is banned and applies the custom validation function if provided.
+   * Automatically bans the client if validation fails and autoBan is enabled.
+   * @param {string} outgoing - The outgoing message to validate.
+   * @param {SessionId} clientId - The ID of the client receiving the message.
+   * @param {SwarmName} swarmName - The name of the swarm to validate against.
+   * @returns {Promise<boolean>} True if the output is valid and the client is not banned, false otherwise.
    */
   async validateOutput(
     outgoing: string,
@@ -226,9 +237,10 @@ export class ClientPolicy implements IPolicy {
   }
 
   /**
-   * Bans a client.
-   * @param {SessionId} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
+   * Bans a client, adding them to the ban set and persisting the change if setBannedClients is provided.
+   * Emits a ban event and invokes the onBanClient callback if defined.
+   * @param {SessionId} clientId - The ID of the client to ban.
+   * @param {SwarmName} swarmName - The name of the swarm to ban the client from.
    * @returns {Promise<void>}
    */
   async banClient(clientId: SessionId, swarmName: SwarmName): Promise<void> {
@@ -277,9 +289,10 @@ export class ClientPolicy implements IPolicy {
   }
 
   /**
-   * Unbans a client.
-   * @param {SessionId} clientId - The client ID.
-   * @param {SwarmName} swarmName - The swarm name.
+   * Unbans a client, removing them from the ban set and persisting the change if setBannedClients is provided.
+   * Emits an unban event and invokes the onUnbanClient callback if defined.
+   * @param {SessionId} clientId - The ID of the client to unban.
+   * @param {SwarmName} swarmName - The name of the swarm to unban the client from.
    * @returns {Promise<void>}
    */
   async unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void> {

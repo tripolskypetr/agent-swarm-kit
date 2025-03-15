@@ -13,6 +13,13 @@ import { IBusEvent } from "../model/Event.model";
 const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
 const STACK_NEED_FETCH = Symbol("stack-need-fetch");
 
+/**
+ * Waits for output from an agent in the swarm, handling cancellation and agent changes.
+ * Resolves with the output from the active agent or an empty string if canceled.
+ * @param {ClientSwarm} self - The ClientSwarm instance.
+ * @returns {Promise<string>} The output from the active agent.
+ * @private
+ */
 const WAIT_FOR_OUTPUT_FN = async (self: ClientSwarm): Promise<string> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
@@ -78,26 +85,44 @@ const WAIT_FOR_OUTPUT_FN = async (self: ClientSwarm): Promise<string> => {
 };
 
 /**
- * ClientSwarm class implements the ISwarm interface and manages agents within a swarm.
+ * Manages a collection of agents within a swarm, handling agent switching, output waiting, and navigation.
+ * @implements {ISwarm}
  */
 export class ClientSwarm implements ISwarm {
+  /**
+   * Subject that emits when an agent reference changes, providing the agent name and instance.
+   */
   _agentChangedSubject = new Subject<[agentName: AgentName, agent: IAgent]>();
 
+  /**
+   * The name of the currently active agent, or a symbol indicating it needs to be fetched.
+   */
   _activeAgent: AgentName | typeof AGENT_NEED_FETCH = AGENT_NEED_FETCH;
+
+  /**
+   * The navigation stack of agent names, or a symbol indicating it needs to be fetched.
+   */
   _navigationStack: AgentName[] | typeof STACK_NEED_FETCH = STACK_NEED_FETCH;
 
+  /**
+   * Subject that emits to cancel output waiting, providing an empty output string.
+   */
   _cancelOutputSubject = new Subject<{
     agentName: string;
     output: string;
   }>();
 
-  get _agentList() {
+  /**
+   * Getter for the list of agent name-agent pairs from the agent map.
+   * @returns {[string, IAgent][]} An array of tuples containing agent names and their instances.
+   */
+  get _agentList(): [string, IAgent][] {
     return Object.entries(this.params.agentMap);
   }
 
   /**
    * Creates an instance of ClientSwarm.
-   * @param {ISwarmParams} params - The parameters for the swarm.
+   * @param {ISwarmParams} params - The parameters for initializing the swarm, including agent map and callbacks.
    */
   constructor(readonly params: ISwarmParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -110,10 +135,11 @@ export class ClientSwarm implements ISwarm {
   }
 
   /**
-   * Pop the navigation stack or return default agent
-   * @returns {Promise<string>} - The pending agent for navigation
+   * Pops the most recent agent from the navigation stack or returns the default agent if empty.
+   * Updates the persisted navigation stack.
+   * @returns {Promise<string>} The name of the previous agent, or the default agent if the stack is empty.
    */
-  async navigationPop() {
+  async navigationPop(): Promise<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} navigationPop`
@@ -134,10 +160,10 @@ export class ClientSwarm implements ISwarm {
   }
 
   /**
-   * Cancel the await of output by emit of empty string
-   * @returns {Promise<string>} - The output from the active agent.
+   * Cancels the current output wait by emitting an empty string via the cancel subject.
+   * @returns {Promise<void>} A promise that resolves when the cancellation is complete.
    */
-  async cancelOutput() {
+  async cancelOutput(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} cancelOutput`
@@ -159,16 +185,18 @@ export class ClientSwarm implements ISwarm {
   }
 
   /**
-   * Waits for output from the active agent.
-   * @returns {Promise<string>} - The output from the active agent.
+   * Waits for output from the active agent in a queued manner.
+   * Handles cancellation and agent changes, ensuring only one wait operation at a time.
+   * @returns {Promise<string>} The output from the active agent, or an empty string if canceled.
    */
   waitForOutput = queued(
-    async () => await WAIT_FOR_OUTPUT_FN(this)
+    async (): Promise<string> => await WAIT_FOR_OUTPUT_FN(this)
   ) as () => Promise<string>;
 
   /**
-   * Gets the name of the active agent.
-   * @returns {Promise<AgentName>} - The name of the active agent.
+   * Retrieves the name of the active agent, fetching it if not yet loaded.
+   * Emits an event with the result.
+   * @returns {Promise<AgentName>} The name of the active agent.
    */
   async getAgentName(): Promise<AgentName> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -198,16 +226,17 @@ export class ClientSwarm implements ISwarm {
   }
 
   /**
-   * Gets the active agent.
-   * @returns {Promise<IAgent>} - The active agent.
+   * Retrieves the active agent instance based on its name.
+   * Emits an event with the result.
+   * @returns {Promise<IAgent>} The active agent instance.
    */
-  async getAgent() {
+  async getAgent(): Promise<IAgent> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getAgent`
       );
-    const agent = await this.getAgentName();
-    const result = this.params.agentMap[agent];
+    const agentName = await this.getAgentName();
+    const result = this.params.agentMap[agentName];
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "get-agent",
       source: "swarm-bus",
@@ -224,12 +253,14 @@ export class ClientSwarm implements ISwarm {
   }
 
   /**
-   * Sets the reference of an agent in the swarm.
-   * @param {AgentName} agentName - The name of the agent.
-   * @param {IAgent} agent - The agent instance.
-   * @throws {Error} - If the agent is not in the swarm.
+   * Updates the reference to an agent in the swarm's agent map.
+   * Notifies subscribers via the agent changed subject.
+   * @param {AgentName} agentName - The name of the agent to update.
+   * @param {IAgent} agent - The new agent instance.
+   * @throws {Error} If the agent name is not found in the swarm's agent map.
+   * @returns {Promise<void>} A promise that resolves when the update is complete.
    */
-  async setAgentRef(agentName: AgentName, agent: IAgent) {
+  async setAgentRef(agentName: AgentName, agent: IAgent): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setAgentRef agentName=${agentName}`
@@ -255,10 +286,12 @@ export class ClientSwarm implements ISwarm {
   }
 
   /**
-   * Sets the active agent by name.
+   * Sets the active agent by name, updates the navigation stack, and persists the change.
+   * Invokes the onAgentChanged callback if provided.
    * @param {AgentName} agentName - The name of the agent to set as active.
+   * @returns {Promise<void>} A promise that resolves when the agent is set and persisted.
    */
-  async setAgentName(agentName: AgentName) {
+  async setAgentName(agentName: AgentName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setAgentName agentName=${agentName}`
