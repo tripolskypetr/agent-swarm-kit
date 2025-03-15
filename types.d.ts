@@ -3509,75 +3509,91 @@ declare class StorageSchemaService {
     get: (key: StorageName) => IStorageSchema;
 }
 
+/**
+ * Type representing possible storage actions.
+ */
 type Action = "upsert" | "remove" | "clear";
+/**
+ * Type representing the payload for storage actions.
+ * @template T - The type of storage data, extending IStorageData.
+ */
 type Payload<T extends IStorageData = IStorageData> = {
+    /** The ID of the item. */
     itemId: IStorageData["id"];
+    /** The item data to upsert. */
     item: T;
 };
 /**
- * ClientStorage class to manage storage operations.
- * @template T - The type of storage data.
+ * ClientStorage class to manage storage operations with embedding-based search capabilities.
+ * @template T - The type of storage data, extending IStorageData.
  */
 declare class ClientStorage<T extends IStorageData = IStorageData> implements IStorage<T> {
     readonly params: IStorageParams<T>;
+    /** Internal map to store items by their IDs. */
     _itemMap: Map<string | number, T>;
     /**
      * Creates an instance of ClientStorage.
-     * @param {IStorageParams<T>} params - The storage parameters.
+     * @param {IStorageParams<T>} params - The storage parameters, including client ID, storage name, and callback functions.
      */
     constructor(params: IStorageParams<T>);
+    /**
+     * Dispatches a storage action (upsert, remove, or clear) in a queued manner.
+     * @param {Action} action - The action to perform ("upsert", "remove", or "clear").
+     * @param {Partial<Payload<T>>} payload - The payload for the action.
+     * @returns {Promise<void>} A promise that resolves when the action is complete.
+     */
     dispatch: (action: Action, payload: Partial<Payload<T>>) => Promise<void>;
     /**
-     * Creates an embedding for the given item.
-     * @param {T} item - The item to create an embedding for.
-     * @returns {Promise<readonly [any, any]>} - The embeddings and index.
+     * Creates embeddings for the given item, memoized by item ID.
+     * @param {T} item - The item to create embeddings for.
+     * @returns {Promise<readonly [any, any]>} A promise resolving to a tuple of embeddings and index.
      */
     _createEmbedding: ((item: T) => Promise<readonly [Embeddings, string]>) & functools_kit.IClearableMemoize<string | number> & functools_kit.IControlMemoize<string | number, Promise<readonly [Embeddings, string]>>;
     /**
-     * Waits for the initialization of the storage.
-     * @returns {Promise<void>}
+     * Waits for the initialization of the storage, loading initial data if available.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
      */
     waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable;
     /**
-     * Takes a specified number of items based on the search criteria.
-     * @param {string} search - The search string.
-     * @param {number} total - The total number of items to take.
-     * @param {number} [score=GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY] - The similarity score.
-     * @returns {Promise<T[]>} - The list of items.
+     * Takes a specified number of items based on similarity to a search string.
+     * @param {string} search - The search string to compare against stored items.
+     * @param {number} total - The maximum number of items to return.
+     * @param {number} [score=GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY] - The minimum similarity score for items to be included.
+     * @returns {Promise<T[]>} A promise resolving to an array of items sorted by similarity.
      */
     take(search: string, total: number, score?: number): Promise<T[]>;
     /**
      * Upserts an item into the storage.
      * @param {T} item - The item to upsert.
-     * @returns {Promise<void>}
+     * @returns {Promise<void>} A promise that resolves when the upsert operation is complete.
      */
     upsert(item: T): Promise<void>;
     /**
-     * Removes an item from the storage.
+     * Removes an item from the storage by its ID.
      * @param {IStorageData["id"]} itemId - The ID of the item to remove.
-     * @returns {Promise<void>}
+     * @returns {Promise<void>} A promise that resolves when the remove operation is complete.
      */
     remove(itemId: IStorageData["id"]): Promise<void>;
     /**
      * Clears all items from the storage.
-     * @returns {Promise<void>}
+     * @returns {Promise<void>} A promise that resolves when the clear operation is complete.
      */
     clear(): Promise<void>;
     /**
-     * Gets an item by its ID.
-     * @param {IStorageData["id"]} itemId - The ID of the item to get.
-     * @returns {Promise<T | null>} - The item or null if not found.
+     * Retrieves an item from the storage by its ID.
+     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
+     * @returns {Promise<T | null>} A promise resolving to the item if found, or null if not found.
      */
     get(itemId: IStorageData["id"]): Promise<T | null>;
     /**
      * Lists all items in the storage, optionally filtered by a predicate.
-     * @param {(item: T) => boolean} [filter] - The filter predicate.
-     * @returns {Promise<T[]>} - The list of items.
+     * @param {(item: T) => boolean} [filter] - An optional predicate to filter items.
+     * @returns {Promise<T[]>} A promise resolving to an array of items.
      */
     list(filter?: (item: T) => boolean): Promise<T[]>;
     /**
-     * Disposes of the state.
-     * @returns {Promise<void>}
+     * Disposes of the storage instance, invoking the onDispose callback if provided.
+     * @returns {Promise<void>} A promise that resolves when disposal is complete.
      */
     dispose(): Promise<void>;
 }
