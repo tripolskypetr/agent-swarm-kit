@@ -10,7 +10,7 @@ import { AgentName, IAgent } from "../../../interfaces/Agent.interface";
 import ISwarm from "../../../interfaces/Swarm.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import BusService from "../base/BusService";
-import { PersistSwarm } from "src/classes/Persist";
+import { PersistSwarmAdapter } from "../../../classes/Persist";
 
 /**
  * Service for managing swarm connections.
@@ -46,16 +46,16 @@ export class SwarmConnectionService implements ISwarm {
         defaultAgent,
         callbacks,
         getActiveAgent = persist
-          ? PersistSwarm.getActiveAgent
+          ? PersistSwarmAdapter.getActiveAgent
           : GLOBAL_CONFIG.CC_SWARM_DEFAULT_AGENT,
         setActiveAgent = persist
-          ? PersistSwarm.setActiveAgent
+          ? PersistSwarmAdapter.setActiveAgent
           : GLOBAL_CONFIG.CC_SWARM_AGENT_CHANGED,
         getNavigationStack = persist
-          ? PersistSwarm.getNavigationStack
+          ? PersistSwarmAdapter.getNavigationStack
           : GLOBAL_CONFIG.CC_SWARM_DEFAULT_STACK,
         setNavigationStack = persist
-          ? PersistSwarm.setNavigationStack
+          ? PersistSwarmAdapter.setNavigationStack
           : GLOBAL_CONFIG.CC_SWARM_STACK_CHANGED,
       } = this.swarmSchemaService.get(swarmName);
       const agentMap: Record<AgentName, IAgent> = {};

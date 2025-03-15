@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import os from "os";
+import { GLOBAL_CONFIG } from "../config/params";
 
 const IS_WINDOWS = os.platform() === "win32";
 
@@ -39,7 +40,7 @@ export async function writeFileAtomic(
 
   let fileHandle: fs.FileHandle = null;
 
-  if (IS_WINDOWS) {
+  if (IS_WINDOWS || GLOBAL_CONFIG.CC_SKIP_POSIX_RENAME) {
     try {
       // Create and write to temporary file
       fileHandle = await fs.open(file, "w", mode);

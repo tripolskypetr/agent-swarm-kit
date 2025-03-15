@@ -38,10 +38,10 @@ _array: IModelMessage[]
 _persistStorage: PersistList<string>
 ```
 
-### __@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@676
+### __@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@718
 
 ```ts
-__@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@676: any
+__@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@718: any
 ```
 
 Makes the singleshot for initialization

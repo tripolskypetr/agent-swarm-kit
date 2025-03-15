@@ -1,7 +1,7 @@
 import { IBusEvent } from "../model/Event.model";
 import swarm from "../lib";
 import { queued } from "functools-kit";
-import beginContext from "src/utils/beginContext";
+import beginContext from "../utils/beginContext";
 
 const validateClientId = (clientId: string) => {
   if (clientId === "*") {

@@ -4,8 +4,10 @@ import { join } from "path";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import { AgentName } from "../interfaces/Agent.interface";
 import { StateName } from "../interfaces/State.interface";
-import { IStorageData, StorageName } from "src/interfaces/Storage.interface";
-import { writeFileAtomic } from "src/utils/writeFileAtomic";
+import { IStorageData, StorageName } from "../interfaces/Storage.interface";
+import { writeFileAtomic } from "../utils/writeFileAtomic";
+import { GLOBAL_CONFIG } from "../config/params";
+import swarm from "../lib";
 
 /** Identifier for an entity, can be string or number */
 type EntityId = string | number;
@@ -23,10 +25,88 @@ const LIST_GET_LAST_KEY_SYMBOL = Symbol("get-last-key");
 /** Symbol for popping the last item from a persistent list */
 const LIST_POP_SYMBOL = Symbol("pop");
 
+// Logging method names for PersistBase
+const PERSIST_BASE_METHOD_NAME_CTOR = "PersistBase.CTOR";
+const PERSIST_BASE_METHOD_NAME_WAIT_FOR_INIT = "PersistBase.waitForInit";
+const PERSIST_BASE_METHOD_NAME_READ_VALUE = "PersistBase.readValue";
+const PERSIST_BASE_METHOD_NAME_WRITE_VALUE = "PersistBase.writeValue";
+const PERSIST_BASE_METHOD_NAME_HAS_VALUE = "PersistBase.hasValue";
+const PERSIST_BASE_METHOD_NAME_REMOVE_VALUE = "PersistBase.removeValue";
+const PERSIST_BASE_METHOD_NAME_REMOVE_ALL = "PersistBase.removeAll";
+const PERSIST_BASE_METHOD_NAME_VALUES = "PersistBase.values";
+const PERSIST_BASE_METHOD_NAME_KEYS = "PersistBase.keys";
+
+// Logging method names for PersistList
+const PERSIST_LIST_METHOD_NAME_CTOR = "PersistList.CTOR";
+const PERSIST_LIST_METHOD_NAME_PUSH = "PersistList.push";
+const PERSIST_LIST_METHOD_NAME_POP = "PersistList.pop";
+
+// Logging method names for PersistSwarmUtils
+const PERSIST_SWARM_UTILS_METHOD_NAME_USE_PERSIST_ACTIVE_AGENT_ADAPTER =
+  "PersistSwarmUtils.usePersistActiveAgentAdapter";
+const PERSIST_SWARM_UTILS_METHOD_NAME_USE_PERSIST_NAVIGATION_STACK_ADAPTER =
+  "PersistSwarmUtils.usePersistNavigationStackAdapter";
+const PERSIST_SWARM_UTILS_METHOD_NAME_GET_ACTIVE_AGENT =
+  "PersistSwarmUtils.getActiveAgent";
+const PERSIST_SWARM_UTILS_METHOD_NAME_SET_ACTIVE_AGENT =
+  "PersistSwarmUtils.setActiveAgent";
+const PERSIST_SWARM_UTILS_METHOD_NAME_GET_NAVIGATION_STACK =
+  "PersistSwarmUtils.getNavigationStack";
+const PERSIST_SWARM_UTILS_METHOD_NAME_SET_NAVIGATION_STACK =
+  "PersistSwarmUtils.setNavigationStack";
+
+// Logging method names for PersistStateUtils
+const PERSIST_STATE_UTILS_METHOD_NAME_USE_PERSIST_STATE_ADAPTER =
+  "PersistStateUtils.usePersistStateAdapter";
+const PERSIST_STATE_UTILS_METHOD_NAME_SET_STATE = "PersistStateUtils.setState";
+const PERSIST_STATE_UTILS_METHOD_NAME_GET_STATE = "PersistStateUtils.getState";
+
+// Logging method names for PersistStorageUtils
+const PERSIST_STORAGE_UTILS_METHOD_NAME_USE_PERSIST_STORAGE_ADAPTER =
+  "PersistStorageUtils.usePersistStorageAdapter";
+const PERSIST_STORAGE_UTILS_METHOD_NAME_GET_DATA =
+  "PersistStorageUtils.getData";
+const PERSIST_STORAGE_UTILS_METHOD_NAME_SET_DATA =
+  "PersistStorageUtils.setData";
+
+// Logging method names for the functions
+const BASE_WAIT_FOR_INIT_FN_METHOD_NAME = "PersistBase.waitForInitFn";
+const LIST_CREATE_KEY_FN_METHOD_NAME = "PersistList.createKeyFn";
+const LIST_POP_FN_METHOD_NAME = "PersistList.popFn";
+const LIST_GET_LAST_KEY_FN_METHOD_NAME = "PersistList.getLastKeyFn";
+
+/**
+ * Interface for PersistBase
+ * @template Entity - The type of entity, defaults to IEntity
+ */
+export interface IPersistBase<Entity extends IEntity = IEntity> {
+  waitForInit(initial: boolean): Promise<void>;
+  readValue(entityId: EntityId): Promise<Entity>;
+  hasValue(entityId: EntityId): Promise<boolean>;
+  writeValue(entityId: EntityId, entity: Entity): Promise<void>;
+}
+
+/**
+ * Type definition for PersistBase constructor
+ * @template EntityName - The type of entity name, defaults to string
+ * @template Entity - The type of entity, defaults to IEntity
+ */
+export type TPersistBaseCtor<
+  EntityName extends string = string,
+  Entity extends IEntity = IEntity
+> = new (entityName: EntityName, baseDir: string) => IPersistBase<Entity>;
+
 /**
  * Wait for storage initialization
+ * @param self - The PersistBase instance
+ * @returns A Promise that resolves when initialization is complete
  */
 const BASE_WAIT_FOR_INIT_FN = async (self: PersistBase) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    swarm.loggerService.debug(BASE_WAIT_FOR_INIT_FN_METHOD_NAME, {
+      entityName: self.entityName,
+      directory: self._directory,
+    });
   await fs.mkdir(self._directory, { recursive: true });
   for await (const key of self.keys()) {
     try {
@@ -47,6 +127,11 @@ const BASE_WAIT_FOR_INIT_FN = async (self: PersistBase) => {
  * @returns A Promise resolving to a string key
  */
 const LIST_CREATE_KEY_FN = async (self: PersistList) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    swarm.loggerService.debug(LIST_CREATE_KEY_FN_METHOD_NAME, {
+      entityName: self.entityName,
+      lastCount: self._lastCount,
+    });
   if (self._lastCount === null) {
     for await (const key of self.keys()) {
       const numericKey = Number(key);
@@ -67,12 +152,27 @@ const LIST_CREATE_KEY_FN = async (self: PersistList) => {
  * @returns A Promise resolving to the removed item or null if list is empty
  */
 const LIST_POP_FN = async (self: PersistList) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    swarm.loggerService.debug(LIST_POP_FN_METHOD_NAME, {
+      entityName: self.entityName,
+    });
   const lastKey = await self[LIST_GET_LAST_KEY_SYMBOL]();
   if (lastKey === null) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(LIST_POP_FN_METHOD_NAME, {
+        entityName: self.entityName,
+        result: "No last key found, returning null",
+      });
     return null;
   }
   const value = await self.readValue(lastKey);
   await self.removeValue(lastKey);
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    swarm.loggerService.debug(LIST_POP_FN_METHOD_NAME, {
+      entityName: self.entityName,
+      lastKey,
+      value,
+    });
   return value;
 };
 
@@ -82,6 +182,10 @@ const LIST_POP_FN = async (self: PersistList) => {
  * @returns A Promise resolving to the last key or null if list is empty
  */
 const LIST_GET_LAST_KEY_FN = async (self: PersistList) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    swarm.loggerService.debug(LIST_GET_LAST_KEY_FN_METHOD_NAME, {
+      entityName: self.entityName,
+    });
   let lastKey = 0;
   for await (const key of self.keys()) {
     const numericKey = Number(key);
@@ -97,9 +201,11 @@ const LIST_GET_LAST_KEY_FN = async (self: PersistList) => {
 
 /**
  * Base class for persistent storage of entities in a file system
- * @template EntityName - The type of entity name
+ * @template EntityName - The type of entity name, defaults to string
  */
-export class PersistBase<EntityName extends string = string> {
+export class PersistBase<EntityName extends string = string>
+  implements IPersistBase
+{
   /** The directory path where entity files are stored */
   _directory: string;
 
@@ -112,6 +218,11 @@ export class PersistBase<EntityName extends string = string> {
     readonly entityName: EntityName,
     readonly baseDir = join(process.cwd(), "logs/data")
   ) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_CTOR, {
+        entityName: this.entityName,
+        baseDir,
+      });
     this._directory = join(this.baseDir, this.entityName);
   }
 
@@ -161,6 +272,11 @@ export class PersistBase<EntityName extends string = string> {
   public async readValue<T extends IEntity = IEntity>(
     entityId: EntityId
   ): Promise<T> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_READ_VALUE, {
+        entityName: this.entityName,
+        entityId,
+      });
     try {
       const filePath = this._getFilePath(entityId);
       const fileContent = await fs.readFile(filePath, "utf-8");
@@ -183,6 +299,11 @@ export class PersistBase<EntityName extends string = string> {
    * @returns A Promise resolving to true if the entity exists, false otherwise
    */
   public async hasValue(entityId: EntityId): Promise<boolean> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_HAS_VALUE, {
+        entityName: this.entityName,
+        entityId,
+      });
     try {
       const filePath = this._getFilePath(entityId);
       await fs.access(filePath);
@@ -207,10 +328,15 @@ export class PersistBase<EntityName extends string = string> {
    * @returns A Promise that resolves when writing is complete
    * @throws Error if writing fails
    */
-  public writeValue = async <T extends IEntity = IEntity>(
+  public async writeValue<T extends IEntity = IEntity>(
     entityId: EntityId,
     entity: T
-  ) => {
+  ): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_WRITE_VALUE, {
+        entityName: this.entityName,
+        entityId,
+      });
     try {
       const filePath = this._getFilePath(entityId);
       const serializedData = JSON.stringify(entity);
@@ -222,7 +348,7 @@ export class PersistBase<EntityName extends string = string> {
         }:${entityId}: ${getErrorMessage(error)}`
       );
     }
-  };
+  }
 
   /**
    * Removes an entity from storage
@@ -231,6 +357,11 @@ export class PersistBase<EntityName extends string = string> {
    * @throws Error if the entity is not found or removal fails
    */
   public async removeValue(entityId: EntityId): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_REMOVE_VALUE, {
+        entityName: this.entityName,
+        entityId,
+      });
     try {
       const filePath = this._getFilePath(entityId);
       await fs.unlink(filePath);
@@ -252,6 +383,10 @@ export class PersistBase<EntityName extends string = string> {
    * @throws Error if removal fails
    */
   public async removeAll(): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_REMOVE_ALL, {
+        entityName: this.entityName,
+      });
     try {
       const files = await fs.readdir(this._directory);
       const entityFiles = files.filter((file) => file.endsWith(".json"));
@@ -274,6 +409,10 @@ export class PersistBase<EntityName extends string = string> {
    * @throws Error if reading fails
    */
   public async *values<T extends IEntity = IEntity>(): AsyncGenerator<T> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_VALUES, {
+        entityName: this.entityName,
+      });
     try {
       const files = await fs.readdir(this._directory);
       const entityIds = files
@@ -304,6 +443,10 @@ export class PersistBase<EntityName extends string = string> {
    * @throws Error if reading fails
    */
   public async *keys(): AsyncGenerator<EntityId> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_KEYS, {
+        entityName: this.entityName,
+      });
     try {
       const files = await fs.readdir(this._directory);
       const entityIds = files
@@ -343,7 +486,7 @@ export class PersistBase<EntityName extends string = string> {
    */
   public async *filter<T extends IEntity = IEntity>(
     predicate: (value: T) => boolean
-  ) {
+  ): AsyncGenerator<T> {
     for await (const entity of this.values<T>()) {
       if (predicate(entity)) {
         yield entity;
@@ -361,7 +504,7 @@ export class PersistBase<EntityName extends string = string> {
   public async *take<T extends IEntity = IEntity>(
     total: number,
     predicate?: (value: T) => boolean
-  ) {
+  ): AsyncGenerator<T> {
     let count = 0;
     if (predicate) {
       for await (const entity of this.values<T>()) {
@@ -388,14 +531,23 @@ export class PersistBase<EntityName extends string = string> {
 
 /**
  * Class for persistent storage of entities in a list structure
- * @template EntityName - The type of entity name
- * @extends PersistBase
+ * @template EntityName - The type of entity name, defaults to string
+ * @extends PersistBase<EntityName>
  */
 export class PersistList<
   EntityName extends string = string
 > extends PersistBase<EntityName> {
   /** Tracks the last used numeric key */
   _lastCount: number | null = null;
+
+  constructor(entityName: EntityName, baseDir?: string) {
+    super(entityName, baseDir);
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(PERSIST_LIST_METHOD_NAME_CTOR, {
+        entityName: this.entityName,
+        baseDir,
+      });
+  }
 
   /**
    * Creates a new unique key for a list item
@@ -427,7 +579,11 @@ export class PersistList<
    * @param entity - The entity to add
    * @returns A Promise that resolves when the entity is added
    */
-  public async push<T extends IEntity = IEntity>(entity: T) {
+  public async push<T extends IEntity = IEntity>(entity: T): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(PERSIST_LIST_METHOD_NAME_PUSH, {
+        entityName: this.entityName,
+      });
     return await this.writeValue(await this[LIST_CREATE_KEY_SYMBOL](), entity);
   }
 
@@ -436,15 +592,54 @@ export class PersistList<
    * @template T - The type of the entity
    * @returns A Promise resolving to the removed entity or null if list is empty
    */
-  public async pop() {
+  public async pop<T extends IEntity = IEntity>(): Promise<T | null> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(PERSIST_LIST_METHOD_NAME_POP, {
+        entityName: this.entityName,
+      });
     return await this[LIST_POP_SYMBOL]();
   }
 }
 
 /**
+ * Interface for data stored in active agent persistence
+ */
+interface IPersistActiveAgentData {
+  agentName: AgentName;
+}
+
+/**
+ * Interface for data stored in navigation stack persistence
+ */
+interface IPersistNavigationStackData {
+  agentStack: AgentName[];
+}
+
+/**
+ * Interface for swarm control persistence operations
+ */
+interface IPersistSwarmControl {
+  usePersistActiveAgentAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>
+  ): void;
+  usePersistNavigationStackAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>
+  ): void;
+}
+
+/**
  * Utility class for managing swarm-related persistence
  */
-class PersistSwarmUtils {
+export class PersistSwarmUtils implements IPersistSwarmControl {
+  private PersistActiveAgentFactory: TPersistBaseCtor<
+    SwarmName,
+    IPersistActiveAgentData
+  > = PersistBase;
+  private PersistNavigationStackFactory: TPersistBaseCtor<
+    SwarmName,
+    IPersistNavigationStackData
+  > = PersistBase;
+
   /**
    * Memoized function to get storage for active agents
    * @param swarmName - The name of the swarm
@@ -453,8 +648,39 @@ class PersistSwarmUtils {
   private getActiveAgentStorage = memoize(
     ([swarmName]) => `${swarmName}`,
     (swarmName: SwarmName) =>
-      new PersistBase(swarmName, `./logs/data/_swarm_active_agent/`)
+      new this.PersistActiveAgentFactory(
+        swarmName,
+        `./logs/data/_swarm_active_agent/`
+      )
   );
+
+  /**
+   * Sets the factory for active agent persistence
+   * @param Ctor - The constructor for active agent persistence
+   */
+  public usePersistActiveAgentAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>
+  ): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_SWARM_UTILS_METHOD_NAME_USE_PERSIST_ACTIVE_AGENT_ADAPTER
+      );
+    this.PersistActiveAgentFactory = Ctor;
+  }
+
+  /**
+   * Sets the factory for navigation stack persistence
+   * @param Ctor - The constructor for navigation stack persistence
+   */
+  public usePersistNavigationStackAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>
+  ): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_SWARM_UTILS_METHOD_NAME_USE_PERSIST_NAVIGATION_STACK_ADAPTER
+      );
+    this.PersistNavigationStackFactory = Ctor;
+  }
 
   /**
    * Memoized function to get storage for navigation stacks
@@ -464,7 +690,10 @@ class PersistSwarmUtils {
   private getNavigationStackStorage = memoize(
     ([swarmName]) => `${swarmName}`,
     (swarmName: SwarmName) =>
-      new PersistBase(swarmName, `./logs/data/_swarm_navigation_stack/`)
+      new this.PersistNavigationStackFactory(
+        swarmName,
+        `./logs/data/_swarm_navigation_stack/`
+      )
   );
 
   /**
@@ -478,14 +707,20 @@ class PersistSwarmUtils {
     clientId: string,
     swarmName: SwarmName,
     defaultAgent: AgentName
-  ) => {
+  ): Promise<AgentName> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_SWARM_UTILS_METHOD_NAME_GET_ACTIVE_AGENT,
+        {
+          clientId,
+          swarmName,
+        }
+      );
     const isInitial = this.getActiveAgentStorage.has(swarmName);
     const activeAgentStorage = this.getActiveAgentStorage(swarmName);
     await activeAgentStorage.waitForInit(isInitial);
     if (await activeAgentStorage.hasValue(clientId)) {
-      const { agentName } = await activeAgentStorage.readValue<{
-        agentName: AgentName;
-      }>(clientId);
+      const { agentName } = await activeAgentStorage.readValue(clientId);
       return agentName;
     }
     return defaultAgent;
@@ -502,7 +737,16 @@ class PersistSwarmUtils {
     clientId: string,
     agentName: AgentName,
     swarmName: SwarmName
-  ) => {
+  ): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_SWARM_UTILS_METHOD_NAME_SET_ACTIVE_AGENT,
+        {
+          clientId,
+          agentName,
+          swarmName,
+        }
+      );
     const isInitial = this.getActiveAgentStorage.has(swarmName);
     const activeAgentStorage = this.getActiveAgentStorage(swarmName);
     await activeAgentStorage.waitForInit(isInitial);
@@ -518,14 +762,20 @@ class PersistSwarmUtils {
   public getNavigationStack = async (
     clientId: string,
     swarmName: SwarmName
-  ) => {
+  ): Promise<AgentName[]> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_SWARM_UTILS_METHOD_NAME_GET_NAVIGATION_STACK,
+        {
+          clientId,
+          swarmName,
+        }
+      );
     const isInitial = this.getNavigationStackStorage.has(swarmName);
     const navigationStackStorage = this.getNavigationStackStorage(swarmName);
     await navigationStackStorage.waitForInit(isInitial);
     if (await navigationStackStorage.hasValue(clientId)) {
-      const { agentStack } = await navigationStackStorage.readValue<{
-        agentStack: AgentName[];
-      }>(clientId);
+      const { agentStack } = await navigationStackStorage.readValue(clientId);
       return agentStack;
     }
     return [];
@@ -542,25 +792,56 @@ class PersistSwarmUtils {
     clientId: string,
     agentStack: AgentName[],
     swarmName: SwarmName
-  ) => {
+  ): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_SWARM_UTILS_METHOD_NAME_SET_NAVIGATION_STACK,
+        {
+          clientId,
+          swarmName,
+        }
+      );
     const isInitial = this.getNavigationStackStorage.has(swarmName);
     const navigationStackStorage = this.getNavigationStackStorage(swarmName);
     await navigationStackStorage.waitForInit(isInitial);
-    await navigationStackStorage.writeValue<{
-      agentStack: AgentName[];
-    }>(clientId, { agentStack });
+    await navigationStackStorage.writeValue(clientId, { agentStack });
   };
 }
 
 /**
  * Singleton instance of PersistSwarmUtils for managing swarm persistence
  */
-export const PersistSwarm = new PersistSwarmUtils();
+export const PersistSwarmAdapter = new PersistSwarmUtils();
+
+/**
+ * Exported singleton for swarm persistence operations
+ */
+export const PersistSwarm = PersistSwarmAdapter as IPersistSwarmControl;
+
+/**
+ * Interface for state data persistence
+ * @template T - The type of the state
+ */
+interface IPersistStateData<T = unknown> {
+  state: T;
+}
+
+/**
+ * Interface for state persistence control operations
+ */
+interface IPersistStateControl {
+  usePersistStateAdapter(
+    Ctor: TPersistBaseCtor<StorageName, IPersistStateData>
+  ): void;
+}
 
 /**
  * Utility class for managing state persistence
  */
-class PersistStateUtils {
+export class PersistStateUtils implements IPersistStateControl {
+  private PersistStateFactory: TPersistBaseCtor<StateName, IPersistStateData> =
+    PersistBase;
+
   /**
    * Memoized function to get storage for a specific state
    * @param stateName - The name of the state
@@ -568,8 +849,23 @@ class PersistStateUtils {
    */
   private getStateStorage = memoize(
     ([stateName]) => `${stateName}`,
-    (stateName: StateName) => new PersistBase(stateName, `./logs/data/state/`)
+    (stateName: StateName) =>
+      new this.PersistStateFactory(stateName, `./logs/data/state/`)
   );
+
+  /**
+   * Sets the factory for state persistence
+   * @param Ctor - The constructor for state persistence
+   */
+  public usePersistStateAdapter(
+    Ctor: TPersistBaseCtor<StorageName, IPersistStateData>
+  ): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_STATE_UTILS_METHOD_NAME_USE_PERSIST_STATE_ADAPTER
+      );
+    this.PersistStateFactory = Ctor;
+  }
 
   /**
    * Sets the state for a client
@@ -583,7 +879,12 @@ class PersistStateUtils {
     state: T,
     clientId: string,
     stateName: StateName
-  ) => {
+  ): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(PERSIST_STATE_UTILS_METHOD_NAME_SET_STATE, {
+        clientId,
+        stateName,
+      });
     const isInitial = this.getStateStorage.has(stateName);
     const stateStorage = this.getStateStorage(stateName);
     await stateStorage.waitForInit(isInitial);
@@ -602,13 +903,18 @@ class PersistStateUtils {
     clientId: string,
     stateName: StateName,
     defaultState: T
-  ) => {
+  ): Promise<T> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(PERSIST_STATE_UTILS_METHOD_NAME_GET_STATE, {
+        clientId,
+        stateName,
+      });
     const isInitial = this.getStateStorage.has(stateName);
     const stateStorage = this.getStateStorage(stateName);
     await stateStorage.waitForInit(isInitial);
     if (await stateStorage.hasValue(clientId)) {
-      const { state } = await stateStorage.readValue<{ state: T }>(clientId);
-      return state;
+      const { state } = await stateStorage.readValue(clientId);
+      return state as T;
     }
     return defaultState;
   };
@@ -617,12 +923,39 @@ class PersistStateUtils {
 /**
  * Singleton instance of PersistStateUtils for managing state persistence
  */
-export const PersistState = new PersistStateUtils();
+export const PersistStateAdapter = new PersistStateUtils();
+
+/**
+ * Exported singleton for state persistence operations
+ */
+export const PersistState = PersistStateAdapter as IPersistStateControl;
+
+/**
+ * Interface for storage data persistence
+ * @template T - The type of storage data
+ */
+interface IPersistStorageData<T extends IStorageData = IStorageData> {
+  data: T[];
+}
+
+/**
+ * Interface for storage persistence control operations
+ */
+interface IPersistStorageControl {
+  usePersistStorageAdapter(
+    Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>
+  ): void;
+}
 
 /**
  * Utility class for managing storage persistence
  */
-class PersistStorageUtils {
+export class PersistStorageUtils implements IPersistStorageControl {
+  private PersistStorageFactory: TPersistBaseCtor<
+    StorageName,
+    IPersistStorageData
+  > = PersistBase;
+
   /**
    * Memoized function to get storage for a specific storage name
    * @param storageName - The name of the storage
@@ -631,8 +964,22 @@ class PersistStorageUtils {
   private getPersistStorage = memoize(
     ([storageName]) => `${storageName}`,
     (storageName: StorageName) =>
-      new PersistBase(storageName, `./logs/data/storage/`)
+      new this.PersistStorageFactory(storageName, `./logs/data/storage/`)
   );
+
+  /**
+   * Sets the factory for storage persistence
+   * @param Ctor - The constructor for storage persistence
+   */
+  public usePersistStorageAdapter(
+    Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>
+  ): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_STORAGE_UTILS_METHOD_NAME_USE_PERSIST_STORAGE_ADAPTER
+      );
+    this.PersistStorageFactory = Ctor;
+  }
 
   /**
    * Gets the data for a client from a specific storage
@@ -646,13 +993,18 @@ class PersistStorageUtils {
     clientId: string,
     storageName: StorageName,
     defaultValue: T[]
-  ) => {
+  ): Promise<T[]> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(PERSIST_STORAGE_UTILS_METHOD_NAME_GET_DATA, {
+        clientId,
+        storageName,
+      });
     const isInitial = this.getPersistStorage.has(storageName);
     const persistStorage = this.getPersistStorage(storageName);
     await persistStorage.waitForInit(isInitial);
     if (await persistStorage.hasValue(clientId)) {
-      const { data } = await persistStorage.readValue<{ data: T[] }>(clientId);
-      return data;
+      const { data } = await persistStorage.readValue(clientId);
+      return data as T[];
     }
     return defaultValue;
   };
@@ -669,7 +1021,12 @@ class PersistStorageUtils {
     data: T[],
     clientId: string,
     storageName: StorageName
-  ) => {
+  ): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(PERSIST_STORAGE_UTILS_METHOD_NAME_SET_DATA, {
+        clientId,
+        storageName,
+      });
     const isInitial = this.getPersistStorage.has(storageName);
     const persistStorage = this.getPersistStorage(storageName);
     await persistStorage.waitForInit(isInitial);
@@ -680,4 +1037,9 @@ class PersistStorageUtils {
 /**
  * Singleton instance of PersistStorageUtils for managing storage persistence
  */
-export const PersistStorage = new PersistStorageUtils();
+export const PersistStorageAdapter = new PersistStorageUtils();
+
+/**
+ * Exported singleton for storage persistence operations
+ */
+export const PersistStorage = PersistStorageAdapter as IPersistStorageControl;

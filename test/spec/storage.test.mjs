@@ -59,13 +59,13 @@ test("Will keep separate storages for different connections", async ({
   session(CLIENT_ID1, TEST_SWARM)
   session(CLIENT_ID2, TEST_SWARM)
 
-  Storage.upsert({
+  await Storage.upsert({
     agentName: TEST_AGENT,
     clientId: CLIENT_ID1,
     item: { id: "test", foo: "bar" },
     storageName: TEST_STORAGE,
   });
-  Storage.upsert({
+  await Storage.upsert({
     agentName: TEST_AGENT,
     clientId: CLIENT_ID2,
     item: { id: "test", foo: "baz" },

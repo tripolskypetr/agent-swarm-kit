@@ -116,7 +116,8 @@ export {
   HistoryMemoryInstance,
   HistoryPersistInstance,
   History,
-  HistoryAdapter,
+  THistoryInstanceCtor,
+  IHistoryControl,
   IHistoryAdapter,
   IHistoryInstance,
   IHistoryInstanceCallbacks,
@@ -124,7 +125,6 @@ export {
 
 export {
   Logger,
-  LoggerAdapter,
   LoggerInstance,
   ILoggerAdapter,
   ILoggerInstance,
@@ -132,9 +132,13 @@ export {
 } from "./classes/Logger";
 
 export {
+  PersistBase,
+  PersistList,
   PersistState,
   PersistStorage,
   PersistSwarm,
+  IPersistBase,
+  TPersistBaseCtor,
 } from "./classes/Persist";
 
 export { Policy } from "./classes/Policy";
@@ -150,4 +154,16 @@ export { Adapter } from "./classes/Adapter";
 export { ExecutionContextService } from "./lib/services/context/ExecutionContextService";
 export { MethodContextService } from "./lib/services/context/MethodContextService";
 
-export { beginContext } from './utils/beginContext';
+export { beginContext } from "./utils/beginContext";
+
+import {
+  PersistStateUtils,
+  PersistSwarmUtils,
+  PersistStorageUtils,
+} from "./classes/Persist";
+
+export const Utils = {
+  PersistStateUtils,
+  PersistSwarmUtils,
+  PersistStorageUtils,
+};

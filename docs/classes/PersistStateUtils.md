@@ -1,5 +1,7 @@
 # PersistStateUtils
 
+Implements `IPersistStateControl`
+
 Utility class for managing state persistence
 
 ## Constructor
@@ -9,6 +11,12 @@ constructor();
 ```
 
 ## Properties
+
+### PersistStateFactory
+
+```ts
+PersistStateFactory: any
+```
 
 ### getStateStorage
 
@@ -33,3 +41,13 @@ getState: <T = unknown>(clientId: string, stateName: string, defaultState: T) =>
 ```
 
 Gets the state for a client
+
+## Methods
+
+### usePersistStateAdapter
+
+```ts
+usePersistStateAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStateData>): void;
+```
+
+Sets the factory for state persistence

@@ -1,5 +1,7 @@
 # PersistSwarmUtils
 
+Implements `IPersistSwarmControl`
+
 Utility class for managing swarm-related persistence
 
 ## Constructor
@@ -9,6 +11,18 @@ constructor();
 ```
 
 ## Properties
+
+### PersistActiveAgentFactory
+
+```ts
+PersistActiveAgentFactory: any
+```
+
+### PersistNavigationStackFactory
+
+```ts
+PersistNavigationStackFactory: any
+```
 
 ### getActiveAgentStorage
 
@@ -57,3 +71,21 @@ setNavigationStack: (clientId: string, agentStack: string[], swarmName: string) 
 ```
 
 Sets the navigation stack for a client in a swarm
+
+## Methods
+
+### usePersistActiveAgentAdapter
+
+```ts
+usePersistActiveAgentAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>): void;
+```
+
+Sets the factory for active agent persistence
+
+### usePersistNavigationStackAdapter
+
+```ts
+usePersistNavigationStackAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>): void;
+```
+
+Sets the factory for navigation stack persistence

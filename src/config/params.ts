@@ -9,7 +9,7 @@ import LoggerAdapter, { ILoggerAdapter } from "../classes/Logger";
 import { randomString, str } from "functools-kit";
 import { IToolCall } from "../model/Tool.model";
 import { StateName } from "../interfaces/State.interface";
-import { IStorageData, StorageName } from "src/interfaces/Storage.interface";
+import { IStorageData, StorageName } from "../interfaces/Storage.interface";
 
 /**
  * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
@@ -164,6 +164,8 @@ const CC_BANHAMMER_PLACEHOLDER = "I am not going to discuss it!";
 const CC_PERSIST_ENABLED_BY_DEFAULT = true;
 const CC_AUTOBAN_ENABLED_BY_DEFAULT = false;
 
+const CC_SKIP_POSIX_RENAME = false;
+
 const GLOBAL_CONFIG = {
   CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
   CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
@@ -202,6 +204,7 @@ const GLOBAL_CONFIG = {
   CC_DEFAULT_STATE_GET,
   CC_DEFAULT_STORAGE_GET,
   CC_DEFAULT_STORAGE_SET,
+  CC_SKIP_POSIX_RENAME,
 };
 
 GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";
