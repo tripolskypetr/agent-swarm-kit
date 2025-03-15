@@ -5028,123 +5028,242 @@ interface IClientPerfomanceRecord {
 }
 
 /**
- * Performance Service to track and log execution times, input lengths, and output lengths
- * for different client sessions.
+ * Service class for tracking and logging performance metrics of client sessions in the swarm system.
+ * Monitors execution times, input/output lengths, and session states, aggregating data into IPerformanceRecord and IClientPerfomanceRecord structures.
+ * Integrates with ClientAgent workflows (e.g., execute, run) to measure performance, using LoggerService for logging (gated by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) and validation/public services for state computation.
+ * Provides methods to start/end executions, retrieve metrics, and serialize performance data for reporting or analytics.
  */
 declare class PerfService {
+    /**
+     * Logger service instance for logging performance-related information, injected via DI.
+     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO, used across methods (e.g., startExecution, toRecord) for info-level logging.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * Session validation service instance, injected via DI.
+     * Used to retrieve session lists (e.g., getActiveSessions) and swarm names (e.g., computeClientState).
+     * @type {SessionValidationService}
+     * @private
+     */
     private readonly sessionValidationService;
+    /**
+     * Memory schema service instance, injected via DI.
+     * Provides session memory data for toClientRecord, aligning with IClientPerfomanceRecord.sessionMemory.
+     * @type {MemorySchemaService}
+     * @private
+     */
     private readonly memorySchemaService;
+    /**
+     * Swarm validation service instance, injected via DI.
+     * Retrieves agent and policy lists for computeClientState, supporting swarm-level state aggregation.
+     * @type {SwarmValidationService}
+     * @private
+     */
     private readonly swarmValidationService;
+    /**
+     * Agent validation service instance, injected via DI.
+     * Fetches state lists for agents in computeClientState, enabling client state computation.
+     * @type {AgentValidationService}
+     * @private
+     */
     private readonly agentValidationService;
+    /**
+     * State public service instance, injected via DI.
+     * Retrieves state values for computeClientState, populating IClientPerfomanceRecord.sessionState.
+     * @type {StatePublicService}
+     * @private
+     */
     private readonly statePublicService;
+    /**
+     * Swarm public service instance, injected via DI.
+     * Provides agent names for computeClientState, supporting swarm status in sessionState.
+     * @type {SwarmPublicService}
+     * @private
+     */
     private readonly swarmPublicService;
+    /**
+     * Policy public service instance, injected via DI.
+     * Checks for bans in computeClientState, contributing to policyBans in sessionState.
+     * @type {PolicyPublicService}
+     * @private
+     */
     private readonly policyPublicService;
+    /**
+     * State connection service instance, injected via DI.
+     * Verifies state references in computeClientState, ensuring valid state retrieval.
+     * @type {StateConnectionService}
+     * @private
+     */
     private readonly stateConnectionService;
+    /**
+     * Map tracking execution start times for clients, keyed by clientId and executionId.
+     * Used in startExecution and endExecution to calculate response times per execution.
+     * @type {Map<string, Map<string, number[]>>}
+     * @private
+     */
     private executionScheduleMap;
+    /**
+     * Map of total output lengths per client, keyed by clientId.
+     * Updated in endExecution, used for IClientPerfomanceRecord.executionOutputTotal.
+     * @type {Map<string, number>}
+     * @private
+     */
     private executionOutputLenMap;
+    /**
+     * Map of total input lengths per client, keyed by clientId.
+     * Updated in startExecution, used for IClientPerfomanceRecord.executionInputTotal.
+     * @type {Map<string, number>}
+     * @private
+     */
     private executionInputLenMap;
+    /**
+     * Map of execution counts per client, keyed by clientId.
+     * Updated in startExecution, used for IClientPerfomanceRecord.executionCount.
+     * @type {Map<string, number>}
+     * @private
+     */
     private executionCountMap;
+    /**
+     * Map of total execution times per client, keyed by clientId.
+     * Updated in endExecution, used for IClientPerfomanceRecord.executionTimeTotal.
+     * @type {Map<string, number>}
+     * @private
+     */
     private executionTimeMap;
+    /**
+     * Total response time across all executions, in milliseconds.
+     * Aggregated in endExecution, used for IPerformanceRecord.totalResponseTime.
+     * @type {number}
+     * @private
+     */
     private totalResponseTime;
+    /**
+     * Total number of execution requests across all clients.
+     * Incremented in endExecution, used for IPerformanceRecord.totalExecutionCount.
+     * @type {number}
+     * @private
+     */
     private totalRequestCount;
     /**
-     * Computes the state of the client by aggregating the states of all agents in the client's swarm.
-     * @param {string} clientId - The client ID.
-     * @returns {Promise<Record<string, unknown>>} A promise that resolves to an object containing the aggregated state of the client.
+     * Computes the aggregated state of a client by collecting swarm, agent, policy, and state data.
+     * Used in toClientRecord to populate IClientPerfomanceRecord.sessionState, integrating with validation and public services.
+     * Logs via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true (e.g., ClientAgent-style debug logging).
+     * @param {string} clientId - The unique identifier of the client.
+     * @returns {Promise<Record<string, unknown>>} A promise resolving to an object with swarm status, policy bans, and state values.
+     * @private
      */
     private computeClientState;
     /**
-     * Gets the number of active session executions for a given client.
-     * @param {string} clientId - The client ID.
-     * @returns {number} The number of active session executions.
+     * Retrieves the number of active executions for a client’s session.
+     * Used to monitor execution frequency, reflecting IClientPerfomanceRecord.executionCount.
+     * @param {string} clientId - The unique identifier of the client.
+     * @returns {number} The number of executions recorded for the client, or 0 if none.
      */
     getActiveSessionExecutionCount: (clientId: string) => number;
     /**
-     * Gets the total execution time for a given client's sessions.
-     * @param {string} clientId - The client ID.
-     * @returns {number} The total execution time in milliseconds.
+     * Retrieves the total execution time for a client’s sessions, in milliseconds.
+     * Used for performance analysis, feeding into IClientPerfomanceRecord.executionTimeTotal.
+     * @param {string} clientId - The unique identifier of the client.
+     * @returns {number} The total execution time in milliseconds, or 0 if none.
      */
     getActiveSessionExecutionTotalTime: (clientId: string) => number;
     /**
-     * Gets the average execution time for a given client's sessions.
-     * @param {string} clientId - The client ID.
-     * @returns {number} The average execution time in milliseconds.
+     * Calculates the average execution time per execution for a client’s sessions, in milliseconds.
+     * Used for performance metrics, contributing to IClientPerfomanceRecord.executionTimeAverage.
+     * @param {string} clientId - The unique identifier of the client.
+     * @returns {number} The average execution time in milliseconds, or 0 if no executions.
      */
     getActiveSessionExecutionAverageTime: (clientId: string) => number;
     /**
-     * Gets the average input length for active sessions of a given client.
-     * @param {string} clientId - The client ID.
-     * @returns {number} The average input length.
+     * Calculates the average input length per execution for a client’s sessions.
+     * Used for data throughput analysis, feeding into IClientPerfomanceRecord.executionInputAverage.
+     * @param {string} clientId - The unique identifier of the client.
+     * @returns {number} The average input length (e.g., bytes, characters), or 0 if no executions.
      */
     getActiveSessionAverageInputLength: (clientId: string) => number;
     /**
-     * Gets the average output length for active sessions of a given client.
-     * @param {string} clientId - The client ID.
-     * @returns {number} The average output length.
+     * Calculates the average output length per execution for a client’s sessions.
+     * Used for data throughput analysis, feeding into IClientPerfomanceRecord.executionOutputAverage.
+     * @param {string} clientId - The unique identifier of the client.
+     * @returns {number} The average output length (e.g., bytes, characters), or 0 if no executions.
      */
     getActiveSessionAverageOutputLength: (clientId: string) => number;
     /**
-     * Gets the total input length for active sessions of a given client.
-     * @param {string} clientId - The client ID.
-     * @returns {number} The total input length.
+     * Retrieves the total input length for a client’s sessions.
+     * Used for data volume tracking, aligning with IClientPerfomanceRecord.executionInputTotal.
+     * @param {string} clientId - The unique identifier of the client.
+     * @returns {number} The total input length (e.g., bytes, characters), or 0 if none.
      */
     getActiveSessionTotalInputLength: (clientId: string) => number;
     /**
-     * Gets the total output length for active sessions of a given client.
-     * @param {string} clientId - The client ID.
-     * @returns {number} The total output length.
+     * Retrieves the total output length for a client’s sessions.
+     * Used for data volume tracking, aligning with IClientPerfomanceRecord.executionOutputTotal.
+     * @param {string} clientId - The unique identifier of the client.
+     * @returns {number} The total output length (e.g., bytes, characters), or 0 if none.
      */
     getActiveSessionTotalOutputLength: (clientId: string) => number;
     /**
-     * Gets the list of active sessions.
-     * @returns {string[]} The list of active sessions.
+     * Retrieves the list of active session client IDs.
+     * Sources data from sessionValidationService, used in toRecord to enumerate clients.
+     * @returns {string[]} An array of client IDs with active sessions.
      */
     getActiveSessions: () => string[];
     /**
-     * Gets the average response time for all requests.
-     * @returns {number} The average response time.
+     * Calculates the average response time across all executions, in milliseconds.
+     * Used for system-wide performance metrics, feeding into IPerformanceRecord.averageResponseTime.
+     * @returns {number} The average response time in milliseconds, or 0 if no requests.
      */
     getAverageResponseTime: () => number;
     /**
-     * Gets the total number of executions.
-     * @returns {number} The total number of executions.
+     * Retrieves the total number of executions across all clients.
+     * Used for system-wide metrics, aligning with IPerformanceRecord.totalExecutionCount.
+     * @returns {number} The total execution count.
      */
     getTotalExecutionCount: () => number;
     /**
-     * Gets the total response time for all requests.
-     * @returns {number} The total response time.
+     * Retrieves the total response time across all executions, in milliseconds.
+     * Used for system-wide metrics, feeding into IPerformanceRecord.totalResponseTime.
+     * @returns {number} The total response time in milliseconds.
      */
     getTotalResponseTime: () => number;
     /**
-     * Starts an execution for a given client.
-     * @param {string} executionId - The execution ID.
-     * @param {string} clientId - The client ID.
-     * @param {number} inputLen - The input length.
+     * Starts tracking an execution for a client, recording start time and input length.
+     * Initializes maps and increments execution count/input length, used with endExecution to measure performance (e.g., ClientAgent.execute).
+     * @param {string} executionId - The unique identifier of the execution (e.g., a command or tool call).
+     * @param {string} clientId - The unique identifier of the client.
+     * @param {number} inputLen - The length of the input data (e.g., bytes, characters).
+     * @returns {void}
      */
     startExecution: (executionId: string, clientId: string, inputLen: number) => void;
     /**
-     * Ends an execution for a given client.
-     * @param {string} executionId - The execution ID.
-     * @param {string} clientId - The client ID.
-     * @param {number} outputLen - The output length.
-     * @returns {boolean} True if the execution ended successfully (all required data was found), false otherwise.
+     * Ends tracking an execution for a client, calculating response time and updating output length.
+     * Pairs with startExecution to compute execution duration, updating totals for IClientPerfomanceRecord metrics.
+     * @param {string} executionId - The unique identifier of the execution.
+     * @param {string} clientId - The unique identifier of the client.
+     * @param {number} outputLen - The length of the output data (e.g., bytes, characters).
+     * @returns {boolean} True if the execution was successfully ended (start time found), false otherwise.
      */
     endExecution: (executionId: string, clientId: string, outputLen: number) => boolean;
     /**
-     * Convert performance measures of the client for serialization
-     * @param {string} clientId - The client ID.
+     * Serializes performance metrics for a specific client into an IClientPerfomanceRecord.
+     * Aggregates execution counts, input/output lengths, times, memory, and state, used in toRecord for per-client data.
+     * @param {string} clientId - The unique identifier of the client.
+     * @returns {Promise<IClientPerfomanceRecord>} A promise resolving to the client’s performance record.
      */
     toClientRecord: (clientId: string) => Promise<IClientPerfomanceRecord>;
     /**
-     * Convert performance measures of all clients for serialization.
-     * @returns {Promise<IPerformanceRecord>} An object containing performance measures of all clients,
-     *                   total execution count, total response time, and average response time.
+     * Serializes performance metrics for all clients into an IPerformanceRecord.
+     * Aggregates client records, total execution counts, and response times, used for system-wide performance reporting.
+     * @returns {Promise<IPerformanceRecord>} A promise resolving to the complete performance record.
      */
     toRecord: () => Promise<IPerformanceRecord>;
     /**
-     * Disposes of all data related to a given client.
-     * @param {string} clientId - The client ID.
+     * Disposes of all performance data associated with a client.
+     * Clears maps for the clientId, used to reset or terminate tracking (e.g., session end in ClientAgent).
+     * @param {string} clientId - The unique identifier of the client.
+     * @returns {void}
      */
     dispose: (clientId: string) => void;
 }
@@ -6439,6 +6558,12 @@ declare class LoggerInstance implements ILoggerInstance {
  */
 declare const Logger: ILoggerControl;
 
+/**
+ * Global configuration object defining default settings and behaviors for the swarm system.
+ * Centralizes constants and functions used across components like ClientAgent (e.g., tool handling, logging, history), customizable via setConfig.
+ * Influences workflows such as message processing (e.g., CC_EMPTY_OUTPUT_PLACEHOLDERS in RUN_FN), tool call recovery (e.g., CC_RESQUE_STRATEGY in _resurrectModel), and logging (e.g., CC_LOGGER_ENABLE_DEBUG).
+ * @type {typeof GLOBAL_CONFIG}
+ */
 declare const GLOBAL_CONFIG: {
     CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT: string;
     CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT: string;
@@ -6479,6 +6604,14 @@ declare const GLOBAL_CONFIG: {
     CC_DEFAULT_STORAGE_SET: <T extends IStorageData = IStorageData>(data: T[], clientId: string, storageName: StorageName) => Promise<void>;
     CC_SKIP_POSIX_RENAME: boolean;
 };
+/**
+ * Function to update the GLOBAL_CONFIG object with custom settings at runtime.
+ * Merges provided config overrides into GLOBAL_CONFIG, allowing dynamic adjustment of system behavior (e.g., enabling CC_LOGGER_ENABLE_DEBUG for ClientAgent).
+ * @param {Partial<typeof GLOBAL_CONFIG>} config - The partial configuration object to apply.
+ * @returns {void}
+ * @example
+ * setConfig({ CC_LOGGER_ENABLE_DEBUG: true }); // Enables debug logging
+ */
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
 /**

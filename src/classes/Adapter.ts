@@ -1,6 +1,6 @@
 import { ICompletionArgs } from "../interfaces/Completion.interface";
 import Logger from "./Logger";
-import { execpool, randomString, str } from "functools-kit";
+import { execpool, randomString, retry, str } from "functools-kit";
 import { IModelMessage } from "../model/ModelMessage.model";
 
 /**
@@ -24,6 +24,16 @@ const EXECPOOL_SIZE = 5;
  * Delay in milliseconds between executions in the execpool for completion requests.
  */
 const EXECPOOL_WAIT = 100;
+
+/**
+ * Maximum retry count before the exception
+ */
+const RETRY_COUNT = 5;
+
+/**
+ * Delay in milliseconds between complete attempts
+ */
+const RETRY_DELAY = 5_000;
 
 /**
  * Type definition for a function that handles completion requests to an AI provider.
@@ -61,63 +71,67 @@ export class AdapterUtils {
      * @returns {Promise<IModelMessage>} The response from OpenAI in `agent-swarm-kit` format.
      */
     execpool(
-      async ({
-        agentName,
-        messages: rawMessages,
-        mode,
-        tools,
-        clientId,
-      }: ICompletionArgs): Promise<IModelMessage> => {
-        Logger.logClient(
+      retry(
+        async ({
+          agentName,
+          messages: rawMessages,
+          mode,
+          tools,
           clientId,
-          "AdapterUtils fromOpenAI completion",
-          JSON.stringify(rawMessages)
-        );
+        }: ICompletionArgs): Promise<IModelMessage> => {
+          Logger.logClient(
+            clientId,
+            "AdapterUtils fromOpenAI completion",
+            JSON.stringify(rawMessages)
+          );
 
-        const messages = rawMessages.map(
-          ({ role, tool_call_id, tool_calls, content }) => ({
+          const messages = rawMessages.map(
+            ({ role, tool_call_id, tool_calls, content }) => ({
+              role,
+              tool_call_id,
+              content,
+              tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
+                ...rest,
+                function: {
+                  name: f.name,
+                  arguments: JSON.stringify(f.arguments),
+                },
+              })),
+            })
+          );
+
+          const {
+            choices: [
+              {
+                message: { content, role, tool_calls },
+              },
+            ],
+          } = await openai.chat.completions.create({
+            model,
+            messages: messages as any,
+            tools: tools as any,
+            temperature: 0,
+            seed: 0,
+            response_format,
+          });
+
+          return {
+            content: content!,
+            mode,
+            agentName,
             role,
-            tool_call_id,
-            content,
             tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
               ...rest,
               function: {
                 name: f.name,
-                arguments: JSON.stringify(f.arguments),
+                arguments: JSON.parse(f.arguments),
               },
             })),
-          })
-        );
-
-        const {
-          choices: [
-            {
-              message: { content, role, tool_calls },
-            },
-          ],
-        } = await openai.chat.completions.create({
-          model,
-          messages: messages as any,
-          tools: tools as any,
-          temperature: 0,
-          seed: 0,
-          response_format,
-        });
-
-        return {
-          content: content!,
-          mode,
-          agentName,
-          role,
-          tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
-            ...rest,
-            function: {
-              name: f.name,
-              arguments: JSON.parse(f.arguments),
-            },
-          })),
-        };
-      },
+          };
+        },
+        RETRY_COUNT,
+        RETRY_DELAY,
+      ),
       {
         maxExec: EXECPOOL_SIZE,
         delay: EXECPOOL_WAIT,
@@ -148,63 +162,67 @@ export class AdapterUtils {
      * @returns {Promise<IModelMessage>} The response from LMStudio in `agent-swarm-kit` format.
      */
     execpool(
-      async ({
-        agentName,
-        messages: rawMessages,
-        mode,
-        tools,
-        clientId,
-      }: ICompletionArgs): Promise<IModelMessage> => {
-        Logger.logClient(
+      retry(
+        async ({
+          agentName,
+          messages: rawMessages,
+          mode,
+          tools,
           clientId,
-          "AdapterUtils fromLMStudio completion",
-          JSON.stringify(rawMessages)
-        );
+        }: ICompletionArgs): Promise<IModelMessage> => {
+          Logger.logClient(
+            clientId,
+            "AdapterUtils fromLMStudio completion",
+            JSON.stringify(rawMessages)
+          );
 
-        const messages = rawMessages.map(
-          ({ role, tool_call_id, tool_calls, content }) => ({
+          const messages = rawMessages.map(
+            ({ role, tool_call_id, tool_calls, content }) => ({
+              role,
+              tool_call_id,
+              content,
+              tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
+                ...rest,
+                function: {
+                  name: f.name,
+                  arguments: JSON.stringify(f.arguments),
+                },
+              })),
+            })
+          );
+
+          const {
+            choices: [
+              {
+                message: { content, role, tool_calls },
+              },
+            ],
+          } = await openai.chat.completions.create({
+            model,
+            messages: messages as any,
+            tools: tools as any,
+            temperature: 0,
+            seed: 0,
+            response_format,
+          });
+
+          return {
+            content: content!,
+            mode,
+            agentName,
             role,
-            tool_call_id,
-            content,
             tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
               ...rest,
               function: {
                 name: f.name,
-                arguments: JSON.stringify(f.arguments),
+                arguments: JSON.parse(f.arguments),
               },
             })),
-          })
-        );
-
-        const {
-          choices: [
-            {
-              message: { content, role, tool_calls },
-            },
-          ],
-        } = await openai.chat.completions.create({
-          model,
-          messages: messages as any,
-          tools: tools as any,
-          temperature: 0,
-          seed: 0,
-          response_format,
-        });
-
-        return {
-          content: content!,
-          mode,
-          agentName,
-          role,
-          tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
-            ...rest,
-            function: {
-              name: f.name,
-              arguments: JSON.parse(f.arguments),
-            },
-          })),
-        };
-      },
+          };
+        },
+        RETRY_COUNT,
+        RETRY_DELAY
+      ),
       {
         maxExec: EXECPOOL_SIZE,
         delay: EXECPOOL_WAIT,
@@ -235,59 +253,63 @@ export class AdapterUtils {
      * @returns {Promise<IModelMessage>} The response from Ollama in `agent-swarm-kit` format.
      */
     execpool(
-      async ({
-        agentName,
-        messages: rawMessages,
-        mode,
-        tools,
-        clientId,
-      }: ICompletionArgs): Promise<IModelMessage> => {
-        Logger.logClient(
-          clientId,
-          "AdapterUtils fromOllama completion",
-          JSON.stringify(rawMessages)
-        );
-
-        const messages = [...rawMessages];
-
-        if (tool_call_protocol) {
-          messages.unshift({
-            agentName,
-            mode: "tool",
-            role: "system",
-            content: tool_call_protocol,
-          });
-        }
-
-        const response = await ollama.chat({
-          model: model,
-          keep_alive: "24h",
-          options: {
-            temperature: 0,
-            seed: 0,
-          },
-          messages: messages.map((message) => ({
-            content: message.content,
-            role: message.role,
-            tool_calls: message.tool_calls?.map((call) => ({
-              function: call.function,
-            })),
-          })),
-          tools,
-        });
-
-        return {
-          ...response.message,
-          tool_calls: response.message.tool_calls?.map((call) => ({
-            function: call.function,
-            type: "function",
-            id: randomString(),
-          })),
-          mode,
+      retry(
+        async ({
           agentName,
-          role: response.message.role as IModelMessage["role"],
-        };
-      },
+          messages: rawMessages,
+          mode,
+          tools,
+          clientId,
+        }: ICompletionArgs): Promise<IModelMessage> => {
+          Logger.logClient(
+            clientId,
+            "AdapterUtils fromOllama completion",
+            JSON.stringify(rawMessages)
+          );
+
+          const messages = [...rawMessages];
+
+          if (tool_call_protocol) {
+            messages.unshift({
+              agentName,
+              mode: "tool",
+              role: "system",
+              content: tool_call_protocol,
+            });
+          }
+
+          const response = await ollama.chat({
+            model: model,
+            keep_alive: "24h",
+            options: {
+              temperature: 0,
+              seed: 0,
+            },
+            messages: messages.map((message) => ({
+              content: message.content,
+              role: message.role,
+              tool_calls: message.tool_calls?.map((call) => ({
+                function: call.function,
+              })),
+            })),
+            tools,
+          });
+
+          return {
+            ...response.message,
+            tool_calls: response.message.tool_calls?.map((call) => ({
+              function: call.function,
+              type: "function",
+              id: randomString(),
+            })),
+            mode,
+            agentName,
+            role: response.message.role as IModelMessage["role"],
+          };
+        },
+        RETRY_COUNT,
+        RETRY_DELAY
+      ),
       {
         maxExec: EXECPOOL_SIZE,
         delay: EXECPOOL_WAIT,
