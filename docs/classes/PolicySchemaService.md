@@ -1,6 +1,10 @@
 # PolicySchemaService
 
-Service for managing policy schemas.
+Service class for managing policy schemas in the swarm system.
+Provides a centralized registry for storing and retrieving IPolicySchema instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
+Integrates with PolicyConnectionService (policy enforcement via getBannedClients), ClientAgent (policy application during execution), SessionConnectionService (session-level policy checks), and PolicyPublicService (public policy API).
+Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
+Serves as a foundational service for defining policy logic (e.g., getBannedClients function) to manage access control and restrictions within the swarm ecosystem.
 
 ## Constructor
 
@@ -16,11 +20,18 @@ constructor();
 loggerService: LoggerService
 ```
 
+Logger service instance, injected via DI, for logging policy schema operations.
+Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with PolicyConnectionService and PerfService logging patterns.
+
 ### registry
 
 ```ts
 registry: any
 ```
+
+Registry instance for storing policy schemas, initialized with ToolRegistry from functools-kit.
+Maps PolicyName keys to IPolicySchema values, providing efficient storage and retrieval, used in register and get methods.
+Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
 
 ### validateShallow
 
@@ -28,7 +39,10 @@ registry: any
 validateShallow: any
 ```
 
-Validation for policy schema
+Validates a policy schema shallowly, ensuring required fields meet basic integrity constraints.
+Checks policyName as a string and getBannedClients as a function, critical for policy enforcement in PolicyConnectionService.
+Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with PolicyConnectionService’s needs.
+Supports ClientAgent and SessionConnectionService by ensuring policy schema validity before registration.
 
 ### register
 
@@ -36,7 +50,10 @@ Validation for policy schema
 register: (key: string, value: IPolicySchema) => void
 ```
 
-Registers a new policy schema.
+Registers a new policy schema in the registry after validation.
+Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (policyName).
+Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with PolicyConnectionService’s policy enforcement.
+Supports ClientAgent execution and SessionConnectionService by providing validated policy schemas for access control.
 
 ### get
 
@@ -44,4 +61,6 @@ Registers a new policy schema.
 get: (key: string) => IPolicySchema
 ```
 
-Retrieves an policy schema by name.
+Retrieves a policy schema from the registry by its name.
+Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports PolicyConnectionService’s getBannedClients method by providing policy logic, used in ClientAgent execution and SessionConnectionService session management.

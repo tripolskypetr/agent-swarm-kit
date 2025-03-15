@@ -3247,49 +3247,110 @@ declare class HistoryConnectionService implements IHistory {
 }
 
 /**
- * Service for managing agent schemas.
+ * Service class for managing agent schemas in the swarm system.
+ * Provides a centralized registry for storing and retrieving IAgentSchema instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
+ * Integrates with AgentConnectionService (agent instantiation using schemas), SwarmConnectionService (swarm agent configuration), ClientAgent (schema-driven execution), and AgentMetaService (meta-level agent management).
+ * Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
+ * Serves as a foundational service for defining agent behavior, dependencies, and resources (e.g., states, storages, tools) within the swarm ecosystem.
  */
 declare class AgentSchemaService {
+    /**
+     * Logger service instance, injected via DI, for logging schema operations.
+     * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentConnectionService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @readonly
+     */
     readonly loggerService: LoggerService;
+    /**
+     * Registry instance for storing agent schemas, initialized with ToolRegistry from functools-kit.
+     * Maps AgentName keys to IAgentSchema values, providing efficient storage and retrieval, used in register and get methods.
+     * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
+     * @type {ToolRegistry<Record<AgentName, IAgentSchema>>}
+     * @private
+     */
     private registry;
     /**
-     * Validation for agent schema
+     * Validates an agent schema shallowly, ensuring required fields and array properties meet basic integrity constraints.
+     * Checks agentName, completion, and prompt as strings; ensures system, dependsOn, states, storages, and tools are arrays of unique strings if present.
+     * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentConnectionService’s validation needs.
+     * Supports ClientAgent instantiation by ensuring schema validity before registration.
+     * @param {IAgentSchema} agentSchema - The agent schema to validate, sourced from Agent.interface.
+     * @throws {Error} If any validation check fails, with detailed messages including agentName and invalid values.
+     * @private
      */
     private validateShallow;
     /**
-     * Registers a new agent schema.
-     * @param {AgentName} key - The name of the agent.
-     * @param {IAgentSchema} value - The schema of the agent.
+     * Registers a new agent schema in the registry after validation.
+     * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (agentName).
+     * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentConnectionService’s schema usage.
+     * Supports ClientAgent instantiation by providing validated schemas to AgentConnectionService and SwarmConnectionService.
+     * @param {AgentName} key - The name of the agent, used as the registry key, sourced from Agent.interface.
+     * @param {IAgentSchema} value - The agent schema to register, sourced from Agent.interface, validated before storage.
+     * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
     register: (key: AgentName, value: IAgentSchema) => void;
     /**
-     * Retrieves an agent schema by name.
-     * @param {AgentName} key - The name of the agent.
-     * @returns {IAgentSchema} The schema of the agent.
+     * Retrieves an agent schema from the registry by its name.
+     * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports AgentConnectionService’s getAgent method by providing schema data for agent instantiation, and SwarmConnectionService’s swarm configuration.
+     * @param {AgentName} key - The name of the agent to retrieve, sourced from Agent.interface.
+     * @returns {IAgentSchema} The agent schema associated with the key, sourced from Agent.interface.
+     * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
      */
     get: (key: AgentName) => IAgentSchema;
 }
 
 /**
- * Service for managing tool schemas.
+ * Service class for managing tool schemas in the swarm system.
+ * Provides a centralized registry for storing and retrieving IAgentTool instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
+ * Integrates with AgentSchemaService (tool references in agent schemas via the tools field), ClientAgent (tool usage during execution), AgentConnectionService (agent instantiation with tools), and SwarmConnectionService (swarm-level agent execution).
+ * Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
+ * Serves as a foundational service for defining agent tools (e.g., call, validate, function properties) used by agents to perform specific tasks within the swarm ecosystem.
  */
 declare class ToolSchemaService {
+    /**
+     * Logger service instance, injected via DI, for logging tool schema operations.
+     * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentConnectionService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @private
+     * @readonly
+     */
     private readonly loggerService;
+    /**
+     * Registry instance for storing tool schemas, initialized with ToolRegistry from functools-kit.
+     * Maps ToolName keys to IAgentTool values, providing efficient storage and retrieval, used in register and get methods.
+     * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
+     * @type {ToolRegistry<Record<ToolName, IAgentTool>>}
+     * @private
+     */
     private registry;
     /**
-     * Validation for state schema
+     * Validates a tool schema shallowly, ensuring required fields meet basic integrity constraints.
+     * Checks toolName as a string, call and validate as functions (for tool execution and input validation), and function as an object (tool metadata), using isObject from functools-kit.
+     * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentConnectionService’s tool integration needs.
+     * Supports ClientAgent execution by ensuring tool schema validity before registration.
+     * @param {IAgentTool} toolSchema - The tool schema to validate, sourced from Agent.interface.
+     * @throws {Error} If any validation check fails, with detailed messages including toolName.
+     * @private
      */
     private validateShallow;
     /**
-     * Registers a tool with the given key and value.
-     * @param {ToolName} key - The name of the tool.
-     * @param {IAgentTool} value - The tool to register.
+     * Registers a new tool schema in the registry after validation.
+     * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (toolName).
+     * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentSchemaService’s tool references.
+     * Supports ClientAgent execution by providing validated tool schemas to AgentConnectionService and SwarmConnectionService for agent tool integration.
+     * @param {ToolName} key - The name of the tool, used as the registry key, sourced from Agent.interface.
+     * @param {IAgentTool} value - The tool schema to register, sourced from Agent.interface, validated before storage.
+     * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
     register: (key: ToolName, value: IAgentTool) => void;
     /**
-     * Retrieves a tool by its key.
-     * @param {ToolName} key - The name of the tool.
-     * @returns {IAgentTool} The tool associated with the given key.
+     * Retrieves a tool schema from the registry by its name.
+     * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports AgentConnectionService by providing tool definitions (e.g., call, validate, function) for agent instantiation, referenced in AgentSchemaService schemas via the tools field.
+     * @param {ToolName} key - The name of the tool to retrieve, sourced from Agent.interface.
+     * @returns {IAgentTool} The tool schema associated with the key, sourced from Agent.interface, including call, validate, and function properties.
+     * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
      */
     get: (key: ToolName) => IAgentTool;
 }
@@ -3494,49 +3555,109 @@ declare class SwarmConnectionService implements ISwarm {
 }
 
 /**
- * Service for managing swarm schemas.
+ * Service class for managing swarm schemas in the swarm system.
+ * Provides a centralized registry for storing and retrieving ISwarmSchema instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
+ * Integrates with SwarmConnectionService (swarm configuration for ClientSwarm), AgentConnectionService (agent list instantiation), PolicySchemaService (policy references), ClientAgent (swarm-coordinated execution), SessionConnectionService (session-swarm linking), and SwarmPublicService (public swarm API).
+ * Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
+ * Serves as a foundational service for defining swarm configurations (e.g., agentList, defaultAgent, policies) used to orchestrate agents within the swarm ecosystem.
  */
 declare class SwarmSchemaService {
+    /**
+     * Logger service instance, injected via DI, for logging swarm schema operations.
+     * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SwarmConnectionService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @readonly
+     */
     readonly loggerService: LoggerService;
+    /**
+     * Registry instance for storing swarm schemas, initialized with ToolRegistry from functools-kit.
+     * Maps SwarmName keys to ISwarmSchema values, providing efficient storage and retrieval, used in register and get methods.
+     * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
+     * @type {ToolRegistry<Record<SwarmName, ISwarmSchema>>}
+     * @private
+     */
     private registry;
     /**
-     * Validation for swarm schema
+     * Validates a swarm schema shallowly, ensuring required fields and optional properties meet basic integrity constraints.
+     * Checks swarmName and defaultAgent as strings, agentList as an array of unique strings (AgentName references), and policies, if present, as an array of unique strings (PolicyName references).
+     * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SwarmConnectionService’s configuration needs.
+     * Supports ClientSwarm instantiation in SwarmConnectionService by ensuring schema validity before registration.
+     * @param {ISwarmSchema} swarmSchema - The swarm schema to validate, sourced from Swarm.interface.
+     * @throws {Error} If any validation check fails, with detailed messages including swarmName and invalid values.
+     * @private
      */
     private validateShallow;
     /**
-     * Registers a new swarm schema.
-     * @param {SwarmName} key - The name of the swarm.
-     * @param {ISwarmSchema} value - The schema of the swarm.
+     * Registers a new swarm schema in the registry after validation.
+     * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (swarmName).
+     * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SwarmConnectionService’s swarm management.
+     * Supports ClientAgent execution by providing validated swarm schemas to SwarmConnectionService for ClientSwarm configuration.
+     * @param {SwarmName} key - The name of the swarm, used as the registry key, sourced from Swarm.interface.
+     * @param {ISwarmSchema} value - The swarm schema to register, sourced from Swarm.interface, validated before storage.
+     * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
     register: (key: SwarmName, value: ISwarmSchema) => void;
     /**
-     * Retrieves a swarm schema by its name.
-     * @param {SwarmName} key - The name of the swarm.
-     * @returns {ISwarmSchema} The schema of the swarm.
+     * Retrieves a swarm schema from the registry by its name.
+     * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports SwarmConnectionService by providing swarm configuration (e.g., agentList, defaultAgent, policies) for ClientSwarm instantiation, linking to AgentConnectionService and PolicySchemaService.
+     * @param {SwarmName} key - The name of the swarm to retrieve, sourced from Swarm.interface.
+     * @returns {ISwarmSchema} The swarm schema associated with the key, sourced from Swarm.interface, including agentList, defaultAgent, and optional policies.
+     * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
      */
     get: (key: SwarmName) => ISwarmSchema;
 }
 
 /**
- * Service for managing completion schemas.
+ * Service class for managing completion schemas in the swarm system.
+ * Provides a centralized registry for storing and retrieving ICompletionSchema instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
+ * Integrates with AgentSchemaService (completions referenced in agent schemas), ClientAgent (execution using completion functions), AgentConnectionService (agent instantiation with completions), and SwarmConnectionService (swarm-level agent execution).
+ * Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
+ * Serves as a foundational service for defining completion logic (e.g., getCompletion functions) used by agents within the swarm ecosystem.
  */
 declare class CompletionSchemaService {
+    /**
+     * Logger service instance, injected via DI, for logging completion schema operations.
+     * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentSchemaService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @readonly
+     */
     readonly loggerService: LoggerService;
+    /**
+     * Registry instance for storing completion schemas, initialized with ToolRegistry from functools-kit.
+     * Maps CompletionName keys to ICompletionSchema values, providing efficient storage and retrieval, used in register and get methods.
+     * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
+     * @type {ToolRegistry<Record<CompletionName, ICompletionSchema>>}
+     * @private
+     */
     private registry;
     /**
-     * Validation for completion schemaschema
+     * Validates a completion schema shallowly, ensuring required fields meet basic integrity constraints.
+     * Checks completionName as a string and getCompletion as a function, critical for agent execution in ClientAgent.
+     * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentConnectionService’s schema-driven needs.
+     * Supports ClientAgent execution by ensuring completion schema validity before registration.
+     * @param {ICompletionSchema} completionSchema - The completion schema to validate, sourced from Completion.interface.
+     * @throws {Error} If any validation check fails, with detailed messages including completionName.
+     * @private
      */
     private validateShallow;
     /**
-     * Registers a new completion schema.
-     * @param {CompletionName} key - The key for the schema.
-     * @param {ICompletionSchema} value - The schema to register.
+     * Registers a new completion schema in the registry after validation.
+     * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (completionName).
+     * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentSchemaService’s completion references.
+     * Supports ClientAgent execution by providing validated completion schemas to AgentConnectionService and SwarmConnectionService.
+     * @param {CompletionName} key - The name of the completion, used as the registry key, sourced from Completion.interface.
+     * @param {ICompletionSchema} value - The completion schema to register, sourced from Completion.interface, validated before storage.
+     * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
     register: (key: CompletionName, value: ICompletionSchema) => void;
     /**
-     * Retrieves a completion schema by key.
-     * @param {CompletionName} key - The key of the schema to retrieve.
-     * @returns {ICompletionSchema} The retrieved schema.
+     * Retrieves a completion schema from the registry by its name.
+     * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports AgentConnectionService’s agent instantiation by providing completion logic (getCompletion) referenced in AgentSchemaService schemas, and ClientAgent’s execution flow.
+     * @param {CompletionName} key - The name of the completion to retrieve, sourced from Completion.interface.
+     * @returns {ICompletionSchema} The completion schema associated with the key, sourced from Completion.interface, including the getCompletion function.
+     * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
      */
     get: (key: CompletionName) => ICompletionSchema;
 }
@@ -4628,49 +4749,110 @@ declare class CompletionValidationService {
 }
 
 /**
- * Service for managing embedding schemas.
+ * Service class for managing embedding schemas in the swarm system.
+ * Provides a centralized registry for storing and retrieving IEmbeddingSchema instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
+ * Integrates with StorageConnectionService and SharedStorageConnectionService (embedding logic for storage operations like take), ClientAgent (potential embedding use in execution), and AgentSchemaService (embedding references in agent schemas).
+ * Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
+ * Serves as a foundational service for defining embedding logic (e.g., calculateSimilarity and createEmbedding functions) used primarily in storage similarity searches within the swarm ecosystem.
  */
 declare class EmbeddingSchemaService {
+    /**
+     * Logger service instance, injected via DI, for logging embedding schema operations.
+     * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StorageConnectionService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @private
+     * @readonly
+     */
     private readonly loggerService;
+    /**
+     * Registry instance for storing embedding schemas, initialized with ToolRegistry from functools-kit.
+     * Maps EmbeddingName keys to IEmbeddingSchema values, providing efficient storage and retrieval, used in register and get methods.
+     * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
+     * @type {ToolRegistry<Record<EmbeddingName, IEmbeddingSchema>>}
+     * @private
+     */
     private registry;
     /**
-     * Validation for embedding schema
+     * Validates an embedding schema shallowly, ensuring required fields meet basic integrity constraints.
+     * Checks embeddingName as a string and calculateSimilarity and createEmbedding as functions, critical for storage operations in StorageConnectionService and SharedStorageConnectionService.
+     * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with storage service needs.
+     * Supports storage similarity searches (e.g., take method) by ensuring embedding schema validity before registration.
+     * @param {IEmbeddingSchema} embeddingSchema - The embedding schema to validate, sourced from Embedding.interface.
+     * @throws {Error} If any validation check fails, with detailed messages including embeddingName.
+     * @private
      */
     private validateShallow;
     /**
-     * Registers a embedding with the given key and value.
-     * @param {EmbeddingName} key - The name of the embedding.
-     * @param {IAgentTool} value - The embedding to register.
+     * Registers a new embedding schema in the registry after validation.
+     * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (embeddingName).
+     * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StorageConnectionService’s embedding usage.
+     * Supports storage operations (e.g., similarity-based retrieval in ClientStorage) by providing validated embedding schemas to StorageConnectionService and SharedStorageConnectionService.
+     * @param {EmbeddingName} key - The name of the embedding, used as the registry key, sourced from Embedding.interface.
+     * @param {IEmbeddingSchema} value - The embedding schema to register, sourced from Embedding.interface, validated before storage.
+     * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
     register: (key: EmbeddingName, value: IEmbeddingSchema) => void;
     /**
-     * Retrieves a embedding by its key.
-     * @param {EmbeddingName} key - The name of the embedding.
-     * @returns {IAgentTool} The embedding associated with the given key.
+     * Retrieves an embedding schema from the registry by its name.
+     * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports StorageConnectionService and SharedStorageConnectionService by providing embedding logic (calculateSimilarity and createEmbedding) for storage operations like take, referenced in storage schemas.
+     * @param {EmbeddingName} key - The name of the embedding to retrieve, sourced from Embedding.interface.
+     * @returns {IEmbeddingSchema} The embedding schema associated with the key, sourced from Embedding.interface, including calculateSimilarity and createEmbedding functions.
+     * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
      */
     get: (key: EmbeddingName) => IEmbeddingSchema;
 }
 
 /**
- * Service for managing storage schemas.
+ * Service class for managing storage schemas in the swarm system.
+ * Provides a centralized registry for storing and retrieving IStorageSchema instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
+ * Integrates with StorageConnectionService and SharedStorageConnectionService (storage configuration for ClientStorage), EmbeddingSchemaService (embedding references), AgentSchemaService (storage references in agent schemas), ClientAgent (storage usage in execution), and StoragePublicService (public storage API).
+ * Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
+ * Serves as a foundational service for defining storage configurations (e.g., createIndex function, embedding reference) used by client-specific and shared storage instances within the swarm ecosystem.
  */
 declare class StorageSchemaService {
+    /**
+     * Logger service instance, injected via DI, for logging storage schema operations.
+     * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StorageConnectionService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @readonly
+     */
     readonly loggerService: LoggerService;
+    /**
+     * Registry instance for storing storage schemas, initialized with ToolRegistry from functools-kit.
+     * Maps StorageName keys to IStorageSchema values, providing efficient storage and retrieval, used in register and get methods.
+     * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
+     * @type {ToolRegistry<Record<StorageName, IStorageSchema>>}
+     * @private
+     */
     private registry;
     /**
-     * Validation for storage schema
+     * Validates a storage schema shallowly, ensuring required fields meet basic integrity constraints.
+     * Checks storageName as a string, createIndex as a function (for indexing storage data), and embedding as a string (referencing an EmbeddingName from EmbeddingSchemaService).
+     * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StorageConnectionService’s configuration needs.
+     * Supports ClientStorage instantiation in StorageConnectionService and SharedStorageConnectionService by ensuring schema validity before registration.
+     * @param {IStorageSchema} storageSchema - The storage schema to validate, sourced from Storage.interface.
+     * @throws {Error} If any validation check fails, with detailed messages including storageName.
+     * @private
      */
     private validateShallow;
     /**
-     * Registers a new storage schema.
-     * @param {StorageName} key - The key for the schema.
-     * @param {IStorageSchema} value - The schema to register.
+     * Registers a new storage schema in the registry after validation.
+     * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (storageName).
+     * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StorageConnectionService’s storage management.
+     * Supports ClientAgent execution by providing validated storage schemas to StorageConnectionService and SharedStorageConnectionService for ClientStorage configuration.
+     * @param {StorageName} key - The name of the storage, used as the registry key, sourced from Storage.interface.
+     * @param {IStorageSchema} value - The storage schema to register, sourced from Storage.interface, validated before storage.
+     * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
     register: (key: StorageName, value: IStorageSchema) => void;
     /**
-     * Retrieves a storage schema by key.
-     * @param {StorageName} key - The key of the schema to retrieve.
-     * @returns {IStorageSchema} The retrieved schema.
+     * Retrieves a storage schema from the registry by its name.
+     * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports StorageConnectionService and SharedStorageConnectionService by providing storage configuration (e.g., createIndex, embedding) for ClientStorage instantiation, referenced in AgentSchemaService schemas via the storages field.
+     * @param {StorageName} key - The name of the storage to retrieve, sourced from Storage.interface.
+     * @returns {IStorageSchema} The storage schema associated with the key, sourced from Storage.interface, including createIndex and embedding fields.
+     * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
      */
     get: (key: StorageName) => IStorageSchema;
 }
@@ -5329,25 +5511,55 @@ declare class StatePublicService<T extends IStateData = IStateData> implements T
 }
 
 /**
- * Service for managing state schemas.
+ * Service class for managing state schemas in the swarm system.
+ * Provides a centralized registry for storing and retrieving IStateSchema instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
+ * Integrates with StateConnectionService and SharedStateConnectionService (state configuration for ClientState), ClientAgent (state usage in execution), AgentSchemaService (state references in agent schemas), and StatePublicService (public state API).
+ * Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
+ * Serves as a foundational service for defining state configurations (e.g., getState function, middlewares) used by client-specific and shared states within the swarm ecosystem.
  */
 declare class StateSchemaService {
+    /**
+     * Logger service instance, injected via DI, for logging state schema operations.
+     * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StateConnectionService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @readonly
+     */
     readonly loggerService: LoggerService;
+    /**
+     * Registry instance for storing state schemas, initialized with ToolRegistry from functools-kit.
+     * Maps StateName keys to IStateSchema values, providing efficient storage and retrieval, used in register and get methods.
+     * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
+     * @type {ToolRegistry<Record<StateName, IStateSchema>>}
+     * @private
+     */
     private registry;
     /**
-     * Validation for state schema
+     * Validates a state schema shallowly, ensuring required fields and optional properties meet basic integrity constraints.
+     * Checks stateName as a string and getState as a function (required for state retrieval), and ensures middlewares, if present, is an array of functions.
+     * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StateConnectionService’s configuration needs.
+     * Supports ClientState instantiation in StateConnectionService and SharedStateConnectionService by ensuring schema validity before registration.
+     * @param {IStateSchema} stateSchema - The state schema to validate, sourced from State.interface.
+     * @throws {Error} If any validation check fails, with detailed messages including stateName.
+     * @private
      */
     private validateShallow;
     /**
-     * Registers a new state schema.
-     * @param {StateName} key - The key for the schema.
-     * @param {IStateSchema} value - The schema to register.
+     * Registers a new state schema in the registry after validation.
+     * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (stateName).
+     * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StateConnectionService’s state management.
+     * Supports ClientAgent execution by providing validated state schemas to StateConnectionService and SharedStateConnectionService for ClientState configuration.
+     * @param {StateName} key - The name of the state, used as the registry key, sourced from State.interface.
+     * @param {IStateSchema} value - The state schema to register, sourced from State.interface, validated before storage.
+     * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
     register: (key: StateName, value: IStateSchema) => void;
     /**
-     * Retrieves a state schema by key.
-     * @param {StateName} key - The key of the schema to retrieve.
-     * @returns {IStateSchema} The retrieved schema.
+     * Retrieves a state schema from the registry by its name.
+     * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports StateConnectionService and SharedStateConnectionService by providing state configuration (e.g., getState, middlewares) for ClientState instantiation, referenced in AgentSchemaService schemas.
+     * @param {StateName} key - The name of the state to retrieve, sourced from State.interface.
+     * @returns {IStateSchema} The state schema associated with the key, sourced from State.interface, including getState and optional middlewares.
+     * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
      */
     get: (key: StateName) => IStateSchema;
 }
@@ -6079,31 +6291,56 @@ declare class SharedStoragePublicService implements TSharedStorageConnectionServ
 }
 
 /**
- * Service to manage memory schema for different sessions.
+ * Service class for managing in-memory data for different sessions in the swarm system.
+ * Provides a simple key-value store using a Map, associating SessionId (as clientId) with arbitrary objects, with methods to write, read, and dispose of session-specific memory data.
+ * Integrates with SessionConnectionService (session-specific memory management), ClientAgent (potential runtime memory for agents), PerfService (tracking via logging), and SessionPublicService (public session API).
+ * Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during write, read, and dispose operations.
+ * Acts as a lightweight, non-persistent memory layer for session-scoped data, distinct from StateConnectionService or StorageConnectionService, with no schema validation or persistence.
  */
 declare class MemorySchemaService {
+    /**
+     * Logger service instance, injected via DI, for logging memory operations.
+     * Used in writeValue, readValue, and dispose methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionConnectionService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @private
+     * @readonly
+     */
     private readonly loggerService;
+    /**
+     * Map instance for storing session-specific memory data.
+     * Maps SessionId (as clientId) to arbitrary objects, providing a simple in-memory store, used in writeValue, readValue, and dispose methods.
+     * Not persisted, serving as a transient memory layer for session runtime data.
+     * @type {Map<SessionId, object>}
+     * @private
+     */
     private memoryMap;
     /**
-     * Writes a value to the memory map for a given client ID.
-     *
-     * @template T - The type of the value to be written.
-     * @param {string} clientId - The ID of the client.
-     * @param {T} value - The value to be written.
+     * Writes a value to the memory map for a given client ID, merging it with existing data.
+     * Merges the provided value with any existing object for the clientId using Object.assign, then stores the result in the memoryMap, returning the merged value.
+     * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionConnectionService’s session data needs.
+     * Supports ClientAgent by providing a flexible, session-scoped memory store for runtime data.
+     * @template T - The type of the value to be written, extending object, defaulting to a generic object.
+     * @param {string} clientId - The ID of the client, typed as SessionId from Session.interface, scoping the memory to a session.
+     * @param {T} value - The value to write, merged with existing data if present.
+     * @returns {T} The merged value stored in the memory map, reflecting the updated session data.
      */
     writeValue: <T extends object = object>(clientId: string, value: T) => T;
     /**
-     * Reads a value from the memory map for a given client ID.
-     *
-     * @template T - The type of the value to be read.
-     * @param {string} clientId - The ID of the client.
-     * @returns {T} - The value associated with the client ID.
+     * Reads a value from the memory map for a given client ID, returning an empty object if not found.
+     * Retrieves the stored object for the clientId from the memoryMap, defaulting to an empty object if no entry exists, cast to the generic type T.
+     * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionPublicService’s data access needs.
+     * Supports ClientAgent by providing access to session-scoped runtime memory.
+     * @template T - The type of the value to be read, extending object, defaulting to a generic object.
+     * @param {string} clientId - The ID of the client, typed as SessionId from Session.interface, scoping the memory to a session.
+     * @returns {T} The value associated with the clientId, or an empty object if none exists, cast to type T.
      */
     readValue: <T extends object = object>(clientId: string) => T;
     /**
-     * Disposes the memory map entry for a given client ID.
-     *
-     * @param {string} clientId - The ID of the client.
+     * Disposes of the memory map entry for a given client ID, removing it from storage.
+     * Deletes the entry associated with the clientId from the memoryMap, effectively clearing session-specific data.
+     * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionConnectionService’s cleanup needs.
+     * Supports session termination or reset scenarios in SessionPublicService and ClientAgent workflows.
+     * @param {string} clientId - The ID of the client, typed as SessionId from Session.interface, scoping the memory to a session.
      */
     dispose: (clientId: string) => void;
 }
@@ -6491,25 +6728,55 @@ declare class PerfService {
 }
 
 /**
- * Service for managing policy schemas.
+ * Service class for managing policy schemas in the swarm system.
+ * Provides a centralized registry for storing and retrieving IPolicySchema instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
+ * Integrates with PolicyConnectionService (policy enforcement via getBannedClients), ClientAgent (policy application during execution), SessionConnectionService (session-level policy checks), and PolicyPublicService (public policy API).
+ * Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
+ * Serves as a foundational service for defining policy logic (e.g., getBannedClients function) to manage access control and restrictions within the swarm ecosystem.
  */
 declare class PolicySchemaService {
+    /**
+     * Logger service instance, injected via DI, for logging policy schema operations.
+     * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with PolicyConnectionService and PerfService logging patterns.
+     * @type {LoggerService}
+     * @readonly
+     */
     readonly loggerService: LoggerService;
+    /**
+     * Registry instance for storing policy schemas, initialized with ToolRegistry from functools-kit.
+     * Maps PolicyName keys to IPolicySchema values, providing efficient storage and retrieval, used in register and get methods.
+     * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
+     * @type {ToolRegistry<Record<PolicyName, IPolicySchema>>}
+     * @private
+     */
     private registry;
     /**
-     * Validation for policy schema
+     * Validates a policy schema shallowly, ensuring required fields meet basic integrity constraints.
+     * Checks policyName as a string and getBannedClients as a function, critical for policy enforcement in PolicyConnectionService.
+     * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with PolicyConnectionService’s needs.
+     * Supports ClientAgent and SessionConnectionService by ensuring policy schema validity before registration.
+     * @param {IPolicySchema} policySchema - The policy schema to validate, sourced from Policy.interface.
+     * @throws {Error} If any validation check fails, with detailed messages including policyName.
+     * @private
      */
     private validateShallow;
     /**
-     * Registers a new policy schema.
-     * @param {PolicyName} key - The name of the policy.
-     * @param {IPolicySchema} value - The schema of the policy.
+     * Registers a new policy schema in the registry after validation.
+     * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (policyName).
+     * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with PolicyConnectionService’s policy enforcement.
+     * Supports ClientAgent execution and SessionConnectionService by providing validated policy schemas for access control.
+     * @param {PolicyName} key - The name of the policy, used as the registry key, sourced from Policy.interface.
+     * @param {IPolicySchema} value - The policy schema to register, sourced from Policy.interface, validated before storage.
+     * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
     register: (key: PolicyName, value: IPolicySchema) => void;
     /**
-     * Retrieves an policy schema by name.
-     * @param {PolicyName} key - The name of the policy.
-     * @returns {IPolicySchema} The schema of the policy.
+     * Retrieves a policy schema from the registry by its name.
+     * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports PolicyConnectionService’s getBannedClients method by providing policy logic, used in ClientAgent execution and SessionConnectionService session management.
+     * @param {PolicyName} key - The name of the policy to retrieve, sourced from Policy.interface.
+     * @returns {IPolicySchema} The policy schema associated with the key, sourced from Policy.interface, including the getBannedClients function.
+     * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
      */
     get: (key: PolicyName) => IPolicySchema;
 }
