@@ -1,6 +1,6 @@
 # IPersistStateControl
 
-Interface for state persistence control operations
+Interface defining control methods for state persistence operations.
 
 ## Methods
 
@@ -9,3 +9,5 @@ Interface for state persistence control operations
 ```ts
 usePersistStateAdapter: (Ctor: TPersistBaseCtor<string, IPersistStateData<unknown>>) => void
 ```
+
+Sets a custom persistence adapter for state storage.

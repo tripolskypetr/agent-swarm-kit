@@ -2,7 +2,7 @@
 
 Implements `IAgent`
 
-Represents a client agent that interacts with the system.
+Represents a client agent that interacts with the system, managing message execution, tool calls, and history.
 
 ## Constructor
 
@@ -61,6 +61,7 @@ execute: (input: string, mode: ExecutionMode) => Promise<void>
 ```
 
 Executes the incoming message and processes tool calls if any.
+Queues the execution to prevent overlapping calls.
 
 ### run
 
@@ -68,7 +69,8 @@ Executes the incoming message and processes tool calls if any.
 run: (input: string) => Promise<string>
 ```
 
-Run the completion stateless and return the output
+Runs the completion statelessly and returns the transformed output.
+Queues the execution to prevent overlapping calls.
 
 ## Methods
 
@@ -78,7 +80,8 @@ Run the completion stateless and return the output
 _emitOutput(mode: ExecutionMode, rawResult: string): Promise<void>;
 ```
 
-Emits the output result after validation.
+Emits the transformed output after validation, invoking callbacks and emitting events.
+If validation fails, attempts to resurrect the model and revalidate.
 
 ### _resurrectModel
 
@@ -86,7 +89,8 @@ Emits the output result after validation.
 _resurrectModel(mode: ExecutionMode, reason?: string): Promise<string>;
 ```
 
-Resurrects the model based on the given reason.
+Resurrects the model in case of failures by applying configured strategies (e.g., flush, recomplete, custom).
+Updates the history and returns a placeholder or transformed result.
 
 ### waitForOutput
 
@@ -94,7 +98,7 @@ Resurrects the model based on the given reason.
 waitForOutput(): Promise<string>;
 ```
 
-Waits for the output to be available.
+Waits for the output to be available and returns it.
 
 ### getCompletion
 
@@ -102,7 +106,8 @@ Waits for the output to be available.
 getCompletion(mode: ExecutionMode): Promise<IModelMessage>;
 ```
 
-Gets the completion message from the model.
+Retrieves a completion message from the model based on the current history and tools.
+Handles validation and applies resurrection strategies if needed.
 
 ### commitUserMessage
 
@@ -110,7 +115,7 @@ Gets the completion message from the model.
 commitUserMessage(message: string): Promise<void>;
 ```
 
-Commits a user message to the history without answer.
+Commits a user message to the history without triggering a response.
 
 ### commitFlush
 
@@ -118,7 +123,7 @@ Commits a user message to the history without answer.
 commitFlush(): Promise<void>;
 ```
 
-Commits flush of agent history
+Commits a flush of the agent's history, clearing it and notifying the system.
 
 ### commitAgentChange
 
@@ -126,7 +131,8 @@ Commits flush of agent history
 commitAgentChange(): Promise<void>;
 ```
 
-Commits change of agent to prevent the next tool execution from being called.
+Signals a change in the agent to halt subsequent tool executions.
+Emits an event to notify the system.
 
 ### commitStopTools
 
@@ -134,7 +140,8 @@ Commits change of agent to prevent the next tool execution from being called.
 commitStopTools(): Promise<void>;
 ```
 
-Commits change of agent to prevent the next tool execution from being called.
+Signals a stop to prevent further tool executions.
+Emits an event to notify the system.
 
 ### commitSystemMessage
 
@@ -142,7 +149,7 @@ Commits change of agent to prevent the next tool execution from being called.
 commitSystemMessage(message: string): Promise<void>;
 ```
 
-Commits a system message to the history.
+Commits a system message to the history and notifies the system.
 
 ### commitAssistantMessage
 
@@ -150,7 +157,7 @@ Commits a system message to the history.
 commitAssistantMessage(message: string): Promise<void>;
 ```
 
-Commits an assistant message to the history without execute.
+Commits an assistant message to the history without triggering execution.
 
 ### commitToolOutput
 
@@ -158,7 +165,7 @@ Commits an assistant message to the history without execute.
 commitToolOutput(toolId: string, content: string): Promise<void>;
 ```
 
-Commits the tool output to the history.
+Commits the tool output to the history and notifies the system.
 
 ### dispose
 
@@ -166,4 +173,4 @@ Commits the tool output to the history.
 dispose(): Promise<void>;
 ```
 
-Should call on agent dispose
+Disposes of the agent, performing cleanup and invoking the onDispose callback.

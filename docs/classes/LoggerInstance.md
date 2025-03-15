@@ -2,6 +2,8 @@
 
 Implements `ILoggerInstance`
 
+Manages logging operations for a specific client, with customizable callbacks.
+
 ## Constructor
 
 ```ts
@@ -22,11 +24,13 @@ clientId: string
 callbacks: Partial<ILoggerInstanceCallbacks>
 ```
 
-### __@LOGGER_INSTANCE_WAIT_FOR_INIT@2461
+### __@LOGGER_INSTANCE_WAIT_FOR_INIT@2471
 
 ```ts
-__@LOGGER_INSTANCE_WAIT_FOR_INIT@2461: any
+__@LOGGER_INSTANCE_WAIT_FOR_INIT@2471: any
 ```
+
+Memoized initialization function to ensure it runs only once.
 
 ## Methods
 
@@ -36,13 +40,15 @@ __@LOGGER_INSTANCE_WAIT_FOR_INIT@2461: any
 waitForInit(): Promise<void>;
 ```
 
+Initializes the logger instance, invoking the onInit callback if provided.
+
 ### log
 
 ```ts
 log(topic: string, ...args: any[]): void;
 ```
 
-Logs a message.
+Logs a message to the console (if enabled) and invokes the onLog callback.
 
 ### debug
 
@@ -50,7 +56,7 @@ Logs a message.
 debug(topic: string, ...args: any[]): void;
 ```
 
-Logs a debug message.
+Logs a debug message to the console (if enabled) and invokes the onDebug callback.
 
 ### info
 
@@ -58,10 +64,12 @@ Logs a debug message.
 info(topic: string, ...args: any[]): void;
 ```
 
-Logs a info message.
+Logs an info message to the console (if enabled) and invokes the onInfo callback.
 
 ### dispose
 
 ```ts
 dispose(): void;
 ```
+
+Disposes of the logger instance, invoking the onDispose callback if provided.

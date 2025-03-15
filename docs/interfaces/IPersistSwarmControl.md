@@ -1,6 +1,6 @@
 # IPersistSwarmControl
 
-Interface for swarm control persistence operations
+Interface defining control methods for swarm persistence operations.
 
 ## Methods
 
@@ -10,8 +10,12 @@ Interface for swarm control persistence operations
 usePersistActiveAgentAdapter: (Ctor: TPersistBaseCtor<string, IPersistActiveAgentData>) => void
 ```
 
+Sets a custom persistence adapter for active agent storage.
+
 ### usePersistNavigationStackAdapter
 
 ```ts
 usePersistNavigationStackAdapter: (Ctor: TPersistBaseCtor<string, IPersistNavigationStackData>) => void
 ```
+
+Sets a custom persistence adapter for navigation stack storage.

@@ -2,7 +2,7 @@
 
 Implements `IPolicy`
 
-Class representing a client policy.
+Class representing a client policy for managing bans, input/output validation, and client restrictions.
 
 ## Constructor
 
@@ -24,6 +24,9 @@ params: IPolicyParams
 _banSet: Set<string> | unique symbol
 ```
 
+Set of banned client IDs or a symbol indicating the ban list needs to be fetched.
+Initialized as BAN_NEED_FETCH and lazily populated on first use.
+
 ## Methods
 
 ### hasBan
@@ -32,7 +35,8 @@ _banSet: Set<string> | unique symbol
 hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
 ```
 
-Check if client is banned
+Checks if a client is banned for a specific swarm.
+Lazily fetches the ban list on the first call if not already loaded.
 
 ### getBanMessage
 
@@ -40,7 +44,8 @@ Check if client is banned
 getBanMessage(clientId: SessionId, swarmName: SwarmName): Promise<string>;
 ```
 
-Gets the ban message for a client.
+Retrieves the ban message for a client.
+Uses a custom getBanMessage function if provided, otherwise falls back to the default ban message.
 
 ### validateInput
 
@@ -48,7 +53,9 @@ Gets the ban message for a client.
 validateInput(incoming: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
 ```
 
-Validates the input from a client.
+Validates an incoming message from a client.
+Checks if the client is banned and applies the custom validation function if provided.
+Automatically bans the client if validation fails and autoBan is enabled.
 
 ### validateOutput
 
@@ -56,7 +63,9 @@ Validates the input from a client.
 validateOutput(outgoing: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
 ```
 
-Validates the output to a client.
+Validates an outgoing message to a client.
+Checks if the client is banned and applies the custom validation function if provided.
+Automatically bans the client if validation fails and autoBan is enabled.
 
 ### banClient
 
@@ -64,7 +73,8 @@ Validates the output to a client.
 banClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
 ```
 
-Bans a client.
+Bans a client, adding them to the ban set and persisting the change if setBannedClients is provided.
+Emits a ban event and invokes the onBanClient callback if defined.
 
 ### unbanClient
 
@@ -72,4 +82,5 @@ Bans a client.
 unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
 ```
 
-Unbans a client.
+Unbans a client, removing them from the ban set and persisting the change if setBannedClients is provided.
+Emits an unban event and invokes the onUnbanClient callback if defined.

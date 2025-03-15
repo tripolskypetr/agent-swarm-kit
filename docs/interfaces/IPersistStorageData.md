@@ -1,6 +1,6 @@
 # IPersistStorageData
 
-Interface for storage data persistence
+Interface for storage data persistence.
 
 ## Properties
 
@@ -9,3 +9,5 @@ Interface for storage data persistence
 ```ts
 data: T[]
 ```
+
+The array of storage data to persist

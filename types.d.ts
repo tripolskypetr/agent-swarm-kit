@@ -1059,649 +1059,760 @@ interface IModelMessage {
     tool_call_id?: string;
 }
 
-/** Identifier for an entity, can be string or number */
+/**
+ * Identifier for an entity, can be a string or number.
+ * @typedef {string | number} EntityId
+ */
 type EntityId = string | number;
-/** Base interface for all persistent entities */
+/**
+ * Base interface for all persistent entities.
+ * @interface IEntity
+ */
 interface IEntity {
 }
-/** Symbol for the wait-for-initialization operation */
+/** @private Symbol for memoizing the wait-for-initialization operation in PersistBase */
 declare const BASE_WAIT_FOR_INIT_SYMBOL: unique symbol;
-/** Symbol for creating a new key in a persistent list */
+/** @private Symbol for creating a new key in a persistent list */
 declare const LIST_CREATE_KEY_SYMBOL: unique symbol;
-/** Symbol for getting the last key in a persistent list */
+/** @private Symbol for getting the last key in a persistent list */
 declare const LIST_GET_LAST_KEY_SYMBOL: unique symbol;
-/** Symbol for popping the last item from a persistent list */
+/** @private Symbol for popping the last item from a persistent list */
 declare const LIST_POP_SYMBOL: unique symbol;
 /**
- * Interface for PersistBase
- * @template Entity - The type of entity, defaults to IEntity
+ * Interface defining methods for persistent storage operations.
+ * @template Entity - The type of entity, defaults to IEntity.
  */
 interface IPersistBase<Entity extends IEntity = IEntity> {
+    /**
+     * Initializes the storage, creating directories and validating existing data.
+     * @param {boolean} initial - Whether this is the initial setup (affects caching behavior).
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     */
     waitForInit(initial: boolean): Promise<void>;
+    /**
+     * Reads an entity from storage by its ID.
+     * @param {EntityId} entityId - The ID of the entity to read.
+     * @returns {Promise<Entity>} A promise resolving to the entity.
+     * @throws {Error} If the entity is not found or reading fails.
+     */
     readValue(entityId: EntityId): Promise<Entity>;
+    /**
+     * Checks if an entity exists in storage.
+     * @param {EntityId} entityId - The ID of the entity to check.
+     * @returns {Promise<boolean>} A promise resolving to true if the entity exists, false otherwise.
+     * @throws {Error} If checking existence fails (other than not found).
+     */
     hasValue(entityId: EntityId): Promise<boolean>;
+    /**
+     * Writes an entity to storage with the specified ID.
+     * @param {EntityId} entityId - The ID of the entity to write.
+     * @param {Entity} entity - The entity data to write.
+     * @returns {Promise<void>} A promise that resolves when writing is complete.
+     * @throws {Error} If writing fails.
+     */
     writeValue(entityId: EntityId, entity: Entity): Promise<void>;
 }
 /**
- * Type definition for PersistBase constructor
- * @template EntityName - The type of entity name, defaults to string
- * @template Entity - The type of entity, defaults to IEntity
+ * Constructor type for creating PersistBase instances.
+ * @template EntityName - The type of entity name, defaults to string.
+ * @template Entity - The type of entity, defaults to IEntity.
+ * @typedef {new (entityName: EntityName, baseDir: string) => IPersistBase<Entity>} TPersistBaseCtor
  */
 type TPersistBaseCtor<EntityName extends string = string, Entity extends IEntity = IEntity> = new (entityName: EntityName, baseDir: string) => IPersistBase<Entity>;
 /**
- * Base class for persistent storage of entities in a file system
- * @template EntityName - The type of entity name, defaults to string
+ * Base class for persistent storage of entities in the file system.
+ * @template EntityName - The type of entity name, defaults to string.
+ * @implements {IPersistBase}
  */
 declare class PersistBase<EntityName extends string = string> implements IPersistBase {
     readonly entityName: EntityName;
     readonly baseDir: string;
-    /** The directory path where entity files are stored */
+    /** @private The directory path where entity files are stored */
     _directory: string;
     /**
-     * Creates a new PersistBase instance
-     * @param entityName - The name of the entity type
-     * @param baseDir - The base directory for storing entity files
+     * Creates a new PersistBase instance for managing persistent storage.
+     * @param {EntityName} entityName - The name of the entity type (used as a subdirectory).
+     * @param {string} [baseDir=join(process.cwd(), "logs/data")] - The base directory for storing entity files.
      */
     constructor(entityName: EntityName, baseDir?: string);
     /**
-     * Gets the file path for an entity
-     * @param entityId - The ID of the entity
-     * @returns The full file path for the entity
+     * Computes the file path for an entity based on its ID.
+     * @param {EntityId} entityId - The ID of the entity.
+     * @returns {string} The full file path for the entity (e.g., `<baseDir>/<entityName>/<entityId>.json`).
+     * @private
      */
     _getFilePath(entityId: EntityId): string;
     /**
-     * Initializes the storage directory
-     * @returns A Promise that resolves when initialization is complete
+     * Memoized initialization function to ensure it runs only once.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     * @private
      */
     private [BASE_WAIT_FOR_INIT_SYMBOL];
     /**
-     * Waits for initialization to complete
-     * @param initial - Whether this is the initial initialization
-     * @returns A Promise that resolves when initialization is complete
+     * Initializes the storage directory and validates existing entities.
+     * Creates the directory if it doesn't exist and removes invalid files.
+     * @param {boolean} initial - Whether this is the initial setup (unused in this implementation).
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
      */
     waitForInit(initial: boolean): Promise<void>;
     /**
-     * Gets the count of entities in the storage
-     * @returns A Promise resolving to the number of entities
+     * Retrieves the number of entities stored in the directory.
+     * @returns {Promise<number>} A promise resolving to the count of `.json` files.
+     * @throws {Error} If reading the directory fails.
      */
     getCount(): Promise<number>;
     /**
-     * Reads an entity from storage
-     * @template T - The type of the entity
-     * @param entityId - The ID of the entity to read
-     * @returns A Promise resolving to the entity
-     * @throws Error if the entity is not found or reading fails
+     * Reads an entity from storage by its ID.
+     * @template T - The type of the entity, defaults to IEntity.
+     * @param {EntityId} entityId - The ID of the entity to read.
+     * @returns {Promise<T>} A promise resolving to the entity data.
+     * @throws {Error} If the file is not found (`ENOENT`) or parsing fails.
      */
     readValue<T extends IEntity = IEntity>(entityId: EntityId): Promise<T>;
     /**
-     * Checks if an entity exists in storage
-     * @param entityId - The ID of the entity to check
-     * @returns A Promise resolving to true if the entity exists, false otherwise
+     * Checks if an entity exists in storage by its ID.
+     * @param {EntityId} entityId - The ID of the entity to check.
+     * @returns {Promise<boolean>} A promise resolving to true if the entity exists, false otherwise.
+     * @throws {Error} If checking existence fails (other than not found).
      */
     hasValue(entityId: EntityId): Promise<boolean>;
     /**
-     * Writes an entity to storage
-     * @template T - The type of the entity
-     * @param entityId - The ID of the entity to write
-     * @param entity - The entity data to write
-     * @returns A Promise that resolves when writing is complete
-     * @throws Error if writing fails
+     * Writes an entity to storage with the specified ID.
+     * @template T - The type of the entity, defaults to IEntity.
+     * @param {EntityId} entityId - The ID of the entity to write.
+     * @param {T} entity - The entity data to write.
+     * @returns {Promise<void>} A promise that resolves when writing is complete.
+     * @throws {Error} If writing to the file fails.
      */
     writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
     /**
-     * Removes an entity from storage
-     * @param entityId - The ID of the entity to remove
-     * @returns A Promise that resolves when removal is complete
-     * @throws Error if the entity is not found or removal fails
+     * Removes an entity from storage by its ID.
+     * @param {EntityId} entityId - The ID of the entity to remove.
+     * @returns {Promise<void>} A promise that resolves when removal is complete.
+     * @throws {Error} If the entity is not found or removal fails.
      */
     removeValue(entityId: EntityId): Promise<void>;
     /**
-     * Removes all entities from storage
-     * @returns A Promise that resolves when all entities are removed
-     * @throws Error if removal fails
+     * Removes all entities from storage.
+     * @returns {Promise<void>} A promise that resolves when all entities are removed.
+     * @throws {Error} If reading the directory or removing files fails.
      */
     removeAll(): Promise<void>;
     /**
-     * Iterates over all entities in storage
-     * @template T - The type of the entities
-     * @returns An AsyncGenerator yielding entities
-     * @throws Error if reading fails
+     * Iterates over all entities in storage, sorted numerically by ID.
+     * @template T - The type of the entities, defaults to IEntity.
+     * @returns {AsyncGenerator<T>} An async generator yielding entities.
+     * @throws {Error} If reading the directory or entity files fails.
      */
     values<T extends IEntity = IEntity>(): AsyncGenerator<T>;
     /**
-     * Iterates over all entity IDs in storage
-     * @returns An AsyncGenerator yielding entity IDs
-     * @throws Error if reading fails
+     * Iterates over all entity IDs in storage, sorted numerically.
+     * @returns {AsyncGenerator<EntityId>} An async generator yielding entity IDs.
+     * @throws {Error} If reading the directory fails.
      */
     keys(): AsyncGenerator<EntityId>;
     /**
-     * Implements the Symbol.asyncIterator protocol
-     * @returns An AsyncIterableIterator of entities
+     * Implements the async iterator protocol for iterating over entities.
+     * @returns {AsyncIterableIterator<any>} An async iterator yielding entities.
      */
     [Symbol.asyncIterator](): AsyncIterableIterator<any>;
     /**
-     * Filters entities based on a predicate
-     * @template T - The type of the entities
-     * @param predicate - A function to test each entity
-     * @returns An AsyncGenerator yielding entities that pass the predicate
+     * Filters entities based on a predicate function.
+     * @template T - The type of the entities, defaults to IEntity.
+     * @param {(value: T) => boolean} predicate - A function to test each entity.
+     * @returns {AsyncGenerator<T>} An async generator yielding entities that pass the predicate.
      */
     filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<T>;
     /**
-     * Takes a limited number of entities, optionally filtered
-     * @template T - The type of the entities
-     * @param total - The maximum number of entities to take
-     * @param predicate - Optional function to test each entity
-     * @returns An AsyncGenerator yielding up to total entities
+     * Takes a limited number of entities, optionally filtered by a predicate.
+     * @template T - The type of the entities, defaults to IEntity.
+     * @param {number} total - The maximum number of entities to yield.
+     * @param {(value: T) => boolean} [predicate] - Optional function to filter entities.
+     * @returns {AsyncGenerator<T>} An async generator yielding up to `total` entities.
      */
     take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<T>;
 }
 /**
- * Class for persistent storage of entities in a list structure
- * @template EntityName - The type of entity name, defaults to string
- * @extends PersistBase<EntityName>
+ * Extends PersistBase to provide a persistent list structure with push/pop operations.
+ * @template EntityName - The type of entity name, defaults to string.
+ * @extends {PersistBase<EntityName>}
  */
 declare class PersistList<EntityName extends string = string> extends PersistBase<EntityName> {
-    /** Tracks the last used numeric key */
+    /** @private Tracks the last used numeric key for the list, null until initialized */
     _lastCount: number | null;
+    /**
+     * Creates a new PersistList instance for managing a persistent list.
+     * @param {EntityName} entityName - The name of the entity type (used as a subdirectory).
+     * @param {string} [baseDir] - The base directory for storing list files (defaults to parent class).
+     */
     constructor(entityName: EntityName, baseDir?: string);
     /**
-     * Creates a new unique key for a list item
-     * @returns A Promise resolving to a string key
+     * Queued function to create a new unique key for a list item.
+     * Ensures sequential key generation even under concurrent calls.
+     * @returns {Promise<string>} A promise resolving to the new key as a string.
+     * @private
      */
     private [LIST_CREATE_KEY_SYMBOL];
     /**
-     * Gets the key of the last item in the list
-     * @returns A Promise resolving to the last key or null if list is empty
+     * Retrieves the key of the last item in the list.
+     * @returns {Promise<string | null>} A promise resolving to the last key or null if the list is empty.
+     * @private
      */
     private [LIST_GET_LAST_KEY_SYMBOL];
     /**
-     * Removes and returns the last item in the list
-     * @template T - The type of the entity
-     * @returns A Promise resolving to the removed item or null if list is empty
+     * Queued function to remove and return the last item in the list.
+     * Ensures atomic pop operations under concurrent calls.
+     * @template T - The type of the entity, defaults to IEntity.
+     * @returns {Promise<T | null>} A promise resolving to the removed item or null if the list is empty.
+     * @private
      */
     private [LIST_POP_SYMBOL];
     /**
-     * Adds an entity to the end of the list
-     * @template T - The type of the entity
-     * @param entity - The entity to add
-     * @returns A Promise that resolves when the entity is added
+     * Adds an entity to the end of the persistent list with a new unique key.
+     * @template T - The type of the entity, defaults to IEntity.
+     * @param {T} entity - The entity to add to the list.
+     * @returns {Promise<void>} A promise that resolves when the entity is written.
+     * @throws {Error} If writing to the file fails.
      */
     push<T extends IEntity = IEntity>(entity: T): Promise<void>;
     /**
-     * Removes and returns the last entity in the list
-     * @template T - The type of the entity
-     * @returns A Promise resolving to the removed entity or null if list is empty
+     * Removes and returns the last entity from the persistent list.
+     * @template T - The type of the entity, defaults to IEntity.
+     * @returns {Promise<T | null>} A promise resolving to the removed entity or null if the list is empty.
+     * @throws {Error} If reading or removing the entity fails.
      */
     pop<T extends IEntity = IEntity>(): Promise<T | null>;
 }
 /**
- * Interface for data stored in active agent persistence
+ * Interface for data stored in active agent persistence.
  */
 interface IPersistActiveAgentData {
+    /** The name of the active agent */
     agentName: AgentName;
 }
 /**
- * Interface for data stored in navigation stack persistence
+ * Interface for data stored in navigation stack persistence.
  */
 interface IPersistNavigationStackData {
+    /** The stack of agent names representing navigation history */
     agentStack: AgentName[];
 }
 /**
- * Interface for swarm control persistence operations
+ * Interface defining control methods for swarm persistence operations.
  */
 interface IPersistSwarmControl {
+    /**
+     * Sets a custom persistence adapter for active agent storage.
+     * @param {TPersistBaseCtor<SwarmName, IPersistActiveAgentData>} Ctor - The constructor for active agent persistence.
+     */
     usePersistActiveAgentAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>): void;
+    /**
+     * Sets a custom persistence adapter for navigation stack storage.
+     * @param {TPersistBaseCtor<SwarmName, IPersistNavigationStackData>} Ctor - The constructor for navigation stack persistence.
+     */
     usePersistNavigationStackAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>): void;
 }
 /**
- * Utility class for managing swarm-related persistence
+ * Utility class for managing swarm-related persistence (active agents and navigation stacks).
+ * @implements {IPersistSwarmControl}
  */
 declare class PersistSwarmUtils implements IPersistSwarmControl {
+    /** @private Default constructor for active agent persistence, defaults to PersistBase */
     private PersistActiveAgentFactory;
+    /** @private Default constructor for navigation stack persistence, defaults to PersistBase */
     private PersistNavigationStackFactory;
     /**
-     * Memoized function to get storage for active agents
-     * @param swarmName - The name of the swarm
-     * @returns A PersistBase instance for the active agent storage
+     * Memoized function to create or retrieve storage for active agents.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {IPersistBase<IPersistActiveAgentData>} A persistence instance for active agents.
+     * @private
      */
     private getActiveAgentStorage;
     /**
-     * Sets the factory for active agent persistence
-     * @param Ctor - The constructor for active agent persistence
+     * Sets a custom constructor for active agent persistence.
+     * @param {TPersistBaseCtor<SwarmName, IPersistActiveAgentData>} Ctor - The constructor to use.
      */
     usePersistActiveAgentAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>): void;
     /**
-     * Sets the factory for navigation stack persistence
-     * @param Ctor - The constructor for navigation stack persistence
+     * Sets a custom constructor for navigation stack persistence.
+     * @param {TPersistBaseCtor<SwarmName, IPersistNavigationStackData>} Ctor - The constructor to use.
      */
     usePersistNavigationStackAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>): void;
     /**
-     * Memoized function to get storage for navigation stacks
-     * @param swarmName - The name of the swarm
-     * @returns A PersistBase instance for the navigation stack storage
+     * Memoized function to create or retrieve storage for navigation stacks.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {IPersistBase<IPersistNavigationStackData>} A persistence instance for navigation stacks.
+     * @private
      */
     private getNavigationStackStorage;
     /**
-     * Gets the active agent for a client in a swarm
-     * @param clientId - The client identifier
-     * @param swarmName - The name of the swarm
-     * @param defaultAgent - The default agent to return if no active agent is set
-     * @returns A Promise resolving to the active agent name
+     * Retrieves the active agent for a client in a swarm.
+     * @param {string} clientId - The client identifier.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @param {AgentName} defaultAgent - The default agent name to return if none is set.
+     * @returns {Promise<AgentName>} A promise resolving to the active agent name.
+     * @throws {Error} If reading from storage fails.
      */
     getActiveAgent: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
     /**
-     * Sets the active agent for a client in a swarm
-     * @param clientId - The client identifier
-     * @param agentName - The name of the agent to set as active
-     * @param swarmName - The name of the swarm
-     * @returns A Promise that resolves when the active agent is set
+     * Sets the active agent for a client in a swarm.
+     * @param {string} clientId - The client identifier.
+     * @param {AgentName} agentName - The name of the agent to set as active.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {Promise<void>} A promise that resolves when the active agent is written.
+     * @throws {Error} If writing to storage fails.
      */
     setActiveAgent: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
     /**
-     * Gets the navigation stack for a client in a swarm
-     * @param clientId - The client identifier
-     * @param swarmName - The name of the swarm
-     * @returns A Promise resolving to the navigation stack (array of agent names)
+     * Retrieves the navigation stack for a client in a swarm.
+     * @param {string} clientId - The client identifier.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {Promise<AgentName[]>} A promise resolving to the navigation stack (array of agent names).
+     * @throws {Error} If reading from storage fails.
      */
     getNavigationStack: (clientId: string, swarmName: SwarmName) => Promise<AgentName[]>;
     /**
-     * Sets the navigation stack for a client in a swarm
-     * @param clientId - The client identifier
-     * @param agentStack - The navigation stack (array of agent names)
-     * @param swarmName - The name of the swarm
-     * @returns A Promise that resolves when the navigation stack is set
+     * Sets the navigation stack for a client in a swarm.
+     * @param {string} clientId - The client identifier.
+     * @param {AgentName[]} agentStack - The navigation stack (array of agent names) to set.
+     * @param {SwarmName} swarmName - The name of the swarm.
+     * @returns {Promise<void>} A promise that resolves when the navigation stack is written.
+     * @throws {Error} If writing to storage fails.
      */
     setNavigationStack: (clientId: string, agentStack: AgentName[], swarmName: SwarmName) => Promise<void>;
 }
 /**
- * Exported singleton for swarm persistence operations
+ * Exported singleton for swarm persistence operations, cast as the control interface.
+ * @type {IPersistSwarmControl}
  */
 declare const PersistSwarm: IPersistSwarmControl;
 /**
- * Interface for state data persistence
- * @template T - The type of the state
+ * Interface for state data persistence.
+ * @template T - The type of the state data, defaults to unknown.
  */
 interface IPersistStateData<T = unknown> {
+    /** The state data to persist */
     state: T;
 }
 /**
- * Interface for state persistence control operations
+ * Interface defining control methods for state persistence operations.
  */
 interface IPersistStateControl {
+    /**
+     * Sets a custom persistence adapter for state storage.
+     * @param {TPersistBaseCtor<StorageName, IPersistStateData>} Ctor - The constructor for state persistence.
+     */
     usePersistStateAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStateData>): void;
 }
 /**
- * Utility class for managing state persistence
+ * Utility class for managing state persistence.
+ * @implements {IPersistStateControl}
  */
 declare class PersistStateUtils implements IPersistStateControl {
+    /** @private Default constructor for state persistence, defaults to PersistBase */
     private PersistStateFactory;
     /**
-     * Memoized function to get storage for a specific state
-     * @param stateName - The name of the state
-     * @returns A PersistBase instance for the state storage
+     * Memoized function to create or retrieve storage for a specific state.
+     * @param {StateName} stateName - The name of the state.
+     * @returns {IPersistBase<IPersistStateData>} A persistence instance for the state.
+     * @private
      */
     private getStateStorage;
     /**
-     * Sets the factory for state persistence
-     * @param Ctor - The constructor for state persistence
+     * Sets a custom constructor for state persistence.
+     * @param {TPersistBaseCtor<StorageName, IPersistStateData>} Ctor - The constructor to use.
      */
     usePersistStateAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStateData>): void;
     /**
-     * Sets the state for a client
-     * @template T - The type of the state
-     * @param state - The state data to set
-     * @param clientId - The client identifier
-     * @param stateName - The name of the state
-     * @returns A Promise that resolves when the state is set
+     * Sets the state for a client under a specific state name.
+     * @template T - The type of the state data, defaults to unknown.
+     * @param {T} state - The state data to persist.
+     * @param {string} clientId - The client identifier.
+     * @param {StateName} stateName - The name of the state.
+     * @returns {Promise<void>} A promise that resolves when the state is written.
+     * @throws {Error} If writing to storage fails.
      */
     setState: <T = unknown>(state: T, clientId: string, stateName: StateName) => Promise<void>;
     /**
-     * Gets the state for a client
-     * @template T - The type of the state
-     * @param clientId - The client identifier
-     * @param stateName - The name of the state
-     * @param defaultState - The default state to return if no state is set
-     * @returns A Promise resolving to the state data
+     * Retrieves the state for a client under a specific state name.
+     * @template T - The type of the state data, defaults to unknown.
+     * @param {string} clientId - The client identifier.
+     * @param {StateName} stateName - The name of the state.
+     * @param {T} defaultState - The default state to return if none is set.
+     * @returns {Promise<T>} A promise resolving to the state data.
+     * @throws {Error} If reading from storage fails.
      */
     getState: <T = unknown>(clientId: string, stateName: StateName, defaultState: T) => Promise<T>;
 }
 /**
- * Exported singleton for state persistence operations
+ * Exported singleton for state persistence operations, cast as the control interface.
+ * @type {IPersistStateControl}
  */
 declare const PersistState: IPersistStateControl;
 /**
- * Interface for storage data persistence
- * @template T - The type of storage data
+ * Interface for storage data persistence.
+ * @template T - The type of storage data, defaults to IStorageData.
  */
 interface IPersistStorageData<T extends IStorageData = IStorageData> {
+    /** The array of storage data to persist */
     data: T[];
 }
 /**
- * Interface for storage persistence control operations
+ * Interface defining control methods for storage persistence operations.
  */
 interface IPersistStorageControl {
+    /**
+     * Sets a custom persistence adapter for storage.
+     * @param {TPersistBaseCtor<StorageName, IPersistStorageData>} Ctor - The constructor for storage persistence.
+     */
     usePersistStorageAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>): void;
 }
 /**
- * Utility class for managing storage persistence
+ * Utility class for managing storage persistence.
+ * @implements {IPersistStorageControl}
  */
 declare class PersistStorageUtils implements IPersistStorageControl {
+    /** @private Default constructor for storage persistence, defaults to PersistBase */
     private PersistStorageFactory;
     /**
-     * Memoized function to get storage for a specific storage name
-     * @param storageName - The name of the storage
-     * @returns A PersistBase instance for the storage
+     * Memoized function to create or retrieve storage for a specific storage name.
+     * @param {StorageName} storageName - The name of the storage.
+     * @returns {IPersistBase<IPersistStorageData>} A persistence instance for the storage.
+     * @private
      */
     private getPersistStorage;
     /**
-     * Sets the factory for storage persistence
-     * @param Ctor - The constructor for storage persistence
+     * Sets a custom constructor for storage persistence.
+     * @param {TPersistBaseCtor<StorageName, IPersistStorageData>} Ctor - The constructor to use.
      */
     usePersistStorageAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>): void;
     /**
-     * Gets the data for a client from a specific storage
-     * @template T - The type of the storage data
-     * @param clientId - The client identifier
-     * @param storageName - The name of the storage
-     * @param defaultValue - The default value to return if no data is set
-     * @returns A Promise resolving to the storage data
+     * Retrieves the data for a client from a specific storage.
+     * @template T - The type of the storage data, defaults to IStorageData.
+     * @param {string} clientId - The client identifier.
+     * @param {StorageName} storageName - The name of the storage.
+     * @param {T[]} defaultValue - The default value to return if no data is set.
+     * @returns {Promise<T[]>} A promise resolving to the storage data array.
+     * @throws {Error} If reading from storage fails.
      */
     getData: <T extends IStorageData = IStorageData>(clientId: string, storageName: StorageName, defaultValue: T[]) => Promise<T[]>;
     /**
-     * Sets the data for a client in a specific storage
-     * @template T - The type of the storage data
-     * @param data - The data to set
-     * @param clientId - The client identifier
-     * @param storageName - The name of the storage
-     * @returns A Promise that resolves when the data is set
+     * Sets the data for a client in a specific storage.
+     * @template T - The type of the storage data, defaults to IStorageData.
+     * @param {T[]} data - The array of data to persist.
+     * @param {string} clientId - The client identifier.
+     * @param {StorageName} storageName - The name of the storage.
+     * @returns {Promise<void>} A promise that resolves when the data is written.
+     * @throws {Error} If writing to storage fails.
      */
     setData: <T extends IStorageData = IStorageData>(data: T[], clientId: string, storageName: StorageName) => Promise<void>;
 }
 /**
- * Exported singleton for storage persistence operations
+ * Exported singleton for storage persistence operations, cast as the control interface.
+ * @type {IPersistStorageControl}
  */
 declare const PersistStorage: IPersistStorageControl;
 
 /**
- * Interface for History Adapter Callbacks
+ * Callbacks for managing history instance lifecycle and message handling.
  */
 interface IHistoryInstanceCallbacks {
     /**
-     * Callback for compute of dynamic system prompt
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
-     * @returns An array of additional system prompt messages
+     * Retrieves dynamic system prompt messages for an agent.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<string[]> | string[]} An array of system prompt message contents.
      */
     getSystemPrompt?: (clientId: string, agentName: AgentName) => Promise<string[]> | string[];
     /**
-     * Filter condition for history messages.
-     * @param message - The model message.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
-     * @returns A promise that resolves to a boolean indicating whether the message passes the filter.
+     * Determines whether a message should be included in the history iteration.
+     * @param {IModelMessage} message - The message to evaluate.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<boolean> | boolean} Whether the message passes the filter.
      */
     filterCondition?: (message: IModelMessage, clientId: string, agentName: AgentName) => Promise<boolean> | boolean;
     /**
-     * Get data for the history.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
-     * @returns A promise that resolves to an array of model messages.
+     * Fetches initial history data for an agent.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<IModelMessage[]> | IModelMessage[]} The initial array of history messages.
      */
     getData: (clientId: string, agentName: AgentName) => Promise<IModelMessage[]> | IModelMessage[];
     /**
-     * Callback for when the history changes.
-     * @param data - The array of model messages.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
+     * Called when the history array changes (e.g., after push or pop).
+     * @param {IModelMessage[]} data - The updated array of history messages.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
      */
     onChange: (data: IModelMessage[], clientId: string, agentName: AgentName) => void;
     /**
-     * Callback for when the history get the new message
-     * @param data - The array of model messages.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
+     * Called when a new message is pushed to the history.
+     * @param {IModelMessage} data - The newly pushed message.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
      */
     onPush: (data: IModelMessage, clientId: string, agentName: AgentName) => void;
     /**
-     * Callback for when the history pop the last message
-     * @param data - The array of model messages.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
+     * Called when the last message is popped from the history.
+     * @param {IModelMessage | null} data - The popped message, or null if the history is empty.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
      */
     onPop: (data: IModelMessage | null, clientId: string, agentName: AgentName) => void;
     /**
-     * Callback for when the history is read. Will be called for each message
-     * @param message - The model message.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
+     * Called for each message during iteration when reading.
+     * @param {IModelMessage} message - The current message being read.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
      */
     onRead: (message: IModelMessage, clientId: string, agentName: AgentName) => void;
     /**
-     * Callback for when the read is begin
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
+     * Called at the start of a history read operation.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
      */
     onReadBegin: (clientId: string, agentName: AgentName) => void;
     /**
-     * Callback for when the read is end
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
+     * Called at the end of a history read operation.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
      */
     onReadEnd: (clientId: string, agentName: AgentName) => void;
     /**
-     * Callback for when the history is disposed.
-     * @param clientId - The client ID.
+     * Called when the history instance is disposed.
+     * @param {string} clientId - The client ID.
      */
     onDispose: (clientId: string) => void;
     /**
-     * Callback for when the history is initialized.
-     * @param clientId - The client ID.
+     * Called when the history instance is initialized.
+     * @param {string} clientId - The client ID.
      */
     onInit: (clientId: string) => void;
     /**
-     * Callback to obtain history ref
-     * @param clientId - The client ID.
+     * Provides a reference to the history instance after creation.
+     * @param {IHistoryInstance} history - The history instance.
      */
     onRef: (history: IHistoryInstance) => void;
 }
 /**
- * Interface for History Adapter
+ * Interface defining methods for interacting with a history adapter.
  */
 interface IHistoryAdapter {
     /**
-     * Iterate over the history messages.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
-     * @returns An async iterable iterator of model messages.
+     * Iterates over history messages for a client and agent.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding history messages.
      */
     iterate(clientId: string, agentName: AgentName): AsyncIterableIterator<IModelMessage>;
     /**
-     * Push a new message to the history.
-     * @param value - The model message to push.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
-     * @returns A promise that resolves when the message is pushed.
+     * Adds a new message to the history.
+     * @param {IModelMessage} value - The message to add.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when the message is added.
      */
     push: (value: IModelMessage, clientId: string, agentName: AgentName) => Promise<void>;
     /**
-     * Pop the last message from a history
-     * @param clientId - The client ID.
-     * @param agentName - The agent name.
-     * @returns The last message or null
+     * Removes and returns the last message from the history.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
      */
     pop: (clientId: string, agentName: AgentName) => Promise<IModelMessage | null>;
     /**
-     * Dispose of the history for a given client and agent.
-     * @param clientId - The client ID.
-     * @param agentName - The agent name or null.
-     * @returns A promise that resolves when the history is disposed.
+     * Disposes of the history for a client and agent, optionally clearing all data.
+     * @param {string} clientId - The client ID.
+     * @param {AgentName | null} agentName - The name of the agent, or null to dispose fully.
+     * @returns {Promise<void>} A promise that resolves when disposal is complete.
      */
     dispose: (clientId: string, agentName: AgentName | null) => Promise<void>;
 }
 /**
- * Interface for History Control
+ * Interface defining control methods for configuring history behavior.
  */
 interface IHistoryControl {
     /**
-     * Use a custom history adapter.
-     * @param Ctor - The constructor for the history instance.
+     * Sets a custom history instance constructor for the adapter.
+     * @param {THistoryInstanceCtor} Ctor - The constructor for creating history instances.
      */
     useHistoryAdapter(Ctor: THistoryInstanceCtor): void;
     /**
-     * Use history lifecycle callbacks.
-     * @param Callbacks - The callbacks dictionary.
+     * Configures lifecycle callbacks for history instances.
+     * @param {Partial<IHistoryInstanceCallbacks>} Callbacks - The callbacks to apply.
      */
     useHistoryCallbacks: (Callbacks: Partial<IHistoryInstanceCallbacks>) => void;
 }
 /**
- * Interface for History Instance
+ * Interface defining methods for a history instance implementation.
  */
 interface IHistoryInstance {
     /**
-     * Iterate over the history messages for a given agent.
-     * @param agentName - The agent name.
-     * @returns An async iterable iterator of model messages.
+     * Iterates over history messages for an agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding history messages.
      */
     iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
     /**
-     * Wait for the history to initialize.
-     * @param agentName - The agent name.
-     * @param init - Whether the history is initializing.
-     * @returns A promise that resolves when the history is initialized.
+     * Initializes the history for an agent, loading initial data if needed.
+     * @param {AgentName} agentName - The name of the agent.
+     * @param {boolean} init - Whether this is the initial setup (affects caching behavior).
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
      */
     waitForInit(agentName: AgentName, init: boolean): Promise<void>;
     /**
-     * Push a new message to the history for a given agent.
-     * @param value - The model message to push.
-     * @param agentName - The agent name.
-     * @returns A promise that resolves when the message is pushed.
+     * Adds a new message to the history for an agent.
+     * @param {IModelMessage} value - The message to add.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when the message is added.
      */
     push(value: IModelMessage, agentName: AgentName): Promise<void>;
     /**
-     * Pop the last message from a history
-     * @param value - The model message to push.
-     * @param agentName - The agent name.
-     * @returns A promise that resolves the last message or null
+     * Removes and returns the last message from the history for an agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
      */
     pop(agentName: AgentName): Promise<IModelMessage | null>;
     /**
-     * Dispose of the history for a given agent.
-     * @param agentName - The agent name or null.
-     * @returns A promise that resolves when the history is disposed.
+     * Disposes of the history for an agent, optionally clearing all data.
+     * @param {AgentName | null} agentName - The name of the agent, or null to dispose fully.
+     * @returns {Promise<void>} A promise that resolves when disposal is complete.
      */
     dispose(agentName: AgentName | null): Promise<void>;
 }
 /**
- * Type for History Instance Constructor
+ * Constructor type for creating history instances.
+ * @typedef {new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>) => IHistoryInstance} THistoryInstanceCtor
  */
 type THistoryInstanceCtor = new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>) => IHistoryInstance;
+/** @private Symbol for memoizing the waitForInit method in HistoryMemoryInstance */
 declare const HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT: unique symbol;
+/** @private Symbol for memoizing the waitForInit method in HistoryPersistInstance */
 declare const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT: unique symbol;
 /**
- * Class representing a persistent history instance.
- * This class implements the IHistoryInstance interface and provides methods
- * to manage and persist history messages.
+ * Manages a persistent history of messages, storing them in memory and on disk.
+ * @implements {IHistoryInstance}
  */
 declare class HistoryPersistInstance implements IHistoryInstance {
     readonly clientId: string;
     readonly callbacks: Partial<IHistoryInstanceCallbacks>;
+    /** @private The in-memory array of history messages */
     _array: IModelMessage[];
+    /** @private The persistent storage instance for history messages */
     _persistStorage: PersistList;
     /**
-     * Makes the singleshot for initialization
-     * @param agentName - The agent name.
+     * Memoized initialization function to ensure it runs only once per agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     * @private
      */
     private [HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT];
     /**
-     * Wait for the history to initialize.
-     * @param agentName - The agent name.
-     * @param isInitial - Whether the history is initializing.
-     * @returns A promise that resolves when the history is initialized.
+     * Initializes the history for an agent, loading data from persistent storage if needed.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
      */
     waitForInit(agentName: AgentName): Promise<void>;
     /**
-     * Create a HistoryPersistInstance.
-     * @param clientId - The client ID.
-     * @param callbacks - The callbacks for the history instance.
+     * Creates a new persistent history instance.
+     * Invokes onInit and onRef callbacks if provided.
+     * @param {string} clientId - The client ID.
+     * @param {Partial<IHistoryInstanceCallbacks>} callbacks - The lifecycle callbacks.
      */
     constructor(clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>);
     /**
-     * Iterate over the history messages for a given agent.
-     * @param agentName - The agent name.
-     * @returns An async iterable iterator of model messages.
+     * Iterates over history messages, applying filters and system prompts if configured.
+     * Invokes onRead callbacks during iteration if provided.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding filtered messages.
      */
     iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
     /**
-     * Push a new message to the history for a given agent.
-     * @param value - The model message to push.
-     * @param agentName - The agent name.
-     * @returns A promise that resolves when the message is pushed.
+     * Adds a new message to the history, persisting it to storage.
+     * Invokes onPush and onChange callbacks if provided.
+     * @param {IModelMessage} value - The message to add.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when the message is persisted.
      */
     push(value: IModelMessage, agentName: AgentName): Promise<void>;
     /**
-     * Pop the last message from the history for a given agent.
-     * @param agentName - The agent name.
-     * @returns A promise that resolves to the last message or null.
+     * Removes and returns the last message from the history, updating persistent storage.
+     * Invokes onPop and onChange callbacks if provided.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
      */
-    pop(agentName: AgentName): Promise<IModelMessage>;
+    pop(agentName: AgentName): Promise<IModelMessage | null>;
     /**
-     * Dispose of the history for a given agent.
-     * @param agentName - The agent name or null.
-     * @returns A promise that resolves when the history is disposed.
+     * Disposes of the history, clearing all data if agentName is null.
+     * Invokes onDispose callback if provided.
+     * @param {AgentName | null} agentName - The name of the agent, or null to clear all data.
+     * @returns {Promise<void>} A promise that resolves when disposal is complete.
      */
     dispose(agentName: AgentName | null): Promise<void>;
 }
 /**
- * Class representing a History Instance
+ * Manages an in-memory history of messages without persistence.
+ * @implements {IHistoryInstance}
  */
 declare class HistoryMemoryInstance implements IHistoryInstance {
     readonly clientId: string;
     readonly callbacks: Partial<IHistoryInstanceCallbacks>;
+    /** @private The in-memory array of history messages */
     _array: IModelMessage[];
     /**
-     * Makes the singleshot for initialization
-     * @param agentName - The agent name.
+     * Memoized initialization function to ensure it runs only once per agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     * @private
      */
     private [HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT];
     /**
-     * Wait for the history to initialize.
-     * @param agentName - The agent name.
+     * Initializes the history for an agent, loading initial data if needed.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
      */
     waitForInit(agentName: AgentName): Promise<void>;
     /**
-     * Create a HistoryMemoryInstance.
-     * @param clientId - The client ID.
-     * @param callbacks - The callbacks for the history instance.
+     * Creates a new in-memory history instance.
+     * Invokes onInit and onRef callbacks if provided.
+     * @param {string} clientId - The client ID.
+     * @param {Partial<IHistoryInstanceCallbacks>} callbacks - The lifecycle callbacks.
      */
     constructor(clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>);
     /**
-     * Iterate over the history messages for a given agent.
-     * @param agentName - The agent name.
-     * @returns An async iterable iterator of model messages.
+     * Iterates over history messages, applying filters and system prompts if configured.
+     * Invokes onRead callbacks during iteration if provided.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding filtered messages.
      */
     iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
     /**
-     * Push a new message to the history for a given agent.
-     * @param value - The model message to push.
-     * @param agentName - The agent name.
-     * @returns A promise that resolves when the message is pushed.
+     * Adds a new message to the in-memory history.
+     * Invokes onPush and onChange callbacks if provided.
+     * @param {IModelMessage} value - The message to add.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when the message is added.
      */
     push(value: IModelMessage, agentName: AgentName): Promise<void>;
     /**
-     * Pop the last message from a history
-     * @param agentName - The agent name.
-     * @returns A promise that resolves when the message is pushed.
+     * Removes and returns the last message from the in-memory history.
+     * Invokes onPop and onChange callbacks if provided.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
      */
-    pop(agentName: AgentName): Promise<IModelMessage>;
+    pop(agentName: AgentName): Promise<IModelMessage | null>;
     /**
-     * Dispose of the history for a given agent.
-     * @param agentName - The agent name or null.
-     * @returns A promise that resolves when the history is disposed.
+     * Disposes of the history, clearing all data if agentName is null.
+     * Invokes onDispose callback if provided.
+     * @param {AgentName | null} agentName - The name of the agent, or null to clear all data.
+     * @returns {Promise<void>} A promise that resolves when disposal is complete.
      */
     dispose(agentName: AgentName | null): Promise<void>;
 }
 /**
- * Exported History Control instance
+ * Exported History Control interface for configuring history behavior.
+ * @type {IHistoryControl}
  */
 declare const History: IHistoryControl;
 
@@ -5652,96 +5763,197 @@ declare const listenExecutionEventOnce: (clientId: string, filterFn: (event: IBu
  */
 declare const listenPolicyEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
+/** @private Symbol for memoizing the waitForInit method in LoggerInstance */
 declare const LOGGER_INSTANCE_WAIT_FOR_INIT: unique symbol;
 /**
- * @interface ILoggerInstanceCallbacks
- * @description Callbacks for logger instance events.
+ * Callbacks for managing logger instance lifecycle and log events.
  */
 interface ILoggerInstanceCallbacks {
+    /**
+     * Called when the logger instance is initialized.
+     * @param {string} clientId - The client ID.
+     */
     onInit(clientId: string): void;
+    /**
+     * Called when the logger instance is disposed.
+     * @param {string} clientId - The client ID.
+     */
     onDispose(clientId: string): void;
+    /**
+     * Called when a log message is recorded.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The log topic.
+     * @param {...any[]} args - Additional log arguments.
+     */
     onLog(clientId: string, topic: string, ...args: any[]): void;
+    /**
+     * Called when a debug message is recorded.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The debug topic.
+     * @param {...any[]} args - Additional debug arguments.
+     */
     onDebug(clientId: string, topic: string, ...args: any[]): void;
+    /**
+     * Called when an info message is recorded.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The info topic.
+     * @param {...any[]} args - Additional info arguments.
+     */
     onInfo(clientId: string, topic: string, ...args: any[]): void;
 }
 /**
- * @interface ILoggerInstance
- * @extends ILogger
- * @description Interface for logger instances.
+ * Interface for logger instances, extending the base ILogger with lifecycle methods.
+ * @extends {ILogger}
  */
 interface ILoggerInstance extends ILogger {
+    /**
+     * Initializes the logger instance, optionally waiting for setup.
+     * @param {boolean} initial - Whether this is the initial setup (affects caching behavior).
+     * @returns {Promise<void> | void} A promise that resolves when initialization is complete, or void if synchronous.
+     */
     waitForInit(initial: boolean): Promise<void> | void;
+    /**
+     * Disposes of the logger instance, cleaning up resources.
+     * @returns {Promise<void> | void} A promise that resolves when disposal is complete, or void if synchronous.
+     */
     dispose(): Promise<void> | void;
 }
 /**
- * @interface ILoggerAdapter
- * @description Interface for logger adapter.
+ * Interface defining methods for interacting with a logger adapter.
  */
 interface ILoggerAdapter {
+    /**
+     * Logs a message for a client.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The log topic.
+     * @param {...any[]} args - Additional log arguments.
+     * @returns {Promise<void>} A promise that resolves when the log is recorded.
+     */
     log(clientId: string, topic: string, ...args: any[]): Promise<void>;
+    /**
+     * Logs a debug message for a client.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The debug topic.
+     * @param {...any[]} args - Additional debug arguments.
+     * @returns {Promise<void>} A promise that resolves when the debug message is recorded.
+     */
     debug(clientId: string, topic: string, ...args: any[]): Promise<void>;
+    /**
+     * Logs an info message for a client.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The info topic.
+     * @param {...any[]} args - Additional info arguments.
+     * @returns {Promise<void>} A promise that resolves when the info message is recorded.
+     */
     info(clientId: string, topic: string, ...args: any[]): Promise<void>;
+    /**
+     * Disposes of the logger instance for a client.
+     * @param {string} clientId - The client ID.
+     * @returns {Promise<void>} A promise that resolves when disposal is complete.
+     */
     dispose(clientId: string): Promise<void>;
 }
 /**
- * @interface ILoggerControl
- * @description Interface for logger control.
+ * Interface defining control methods for configuring logger behavior.
  */
 interface ILoggerControl {
+    /**
+     * Sets a common logger adapter for all logging operations.
+     * @param {ILogger} logger - The logger instance to use.
+     */
     useCommonAdapter(logger: ILogger): void;
+    /**
+     * Configures client-specific lifecycle callbacks for logger instances.
+     * @param {Partial<ILoggerInstanceCallbacks>} Callbacks - The callbacks to apply.
+     */
     useClientCallbacks(Callbacks: Partial<ILoggerInstanceCallbacks>): void;
+    /**
+     * Sets a custom logger instance constructor for client-specific logging.
+     * @param {TLoggerInstanceCtor} Ctor - The constructor for creating logger instances.
+     */
     useClientAdapter(Ctor: TLoggerInstanceCtor): void;
+    /**
+     * Logs a message for a specific client using the common adapter.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The log topic.
+     * @param {...any[]} args - Additional log arguments.
+     * @returns {Promise<void>} A promise that resolves when the log is recorded.
+     */
     logClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
+    /**
+     * Logs an info message for a specific client using the common adapter.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The info topic.
+     * @param {...any[]} args - Additional info arguments.
+     * @returns {Promise<void>} A promise that resolves when the info message is recorded.
+     */
     infoClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
+    /**
+     * Logs a debug message for a specific client using the common adapter.
+     * @param {string} clientId - The client ID.
+     * @param {string} topic - The debug topic.
+     * @param {...any[]} args - Additional debug arguments.
+     * @returns {Promise<void>} A promise that resolves when the debug message is recorded.
+     */
     debugClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
 }
+/**
+ * Constructor type for creating logger instances.
+ * @typedef {new (clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>) => ILoggerInstance} TLoggerInstanceCtor
+ */
 type TLoggerInstanceCtor = new (clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>) => ILoggerInstance;
 /**
- * @class LoggerInstance
- * @implements ILoggerInstance
- * @description Logger instance class.
+ * Manages logging operations for a specific client, with customizable callbacks.
+ * @implements {ILoggerInstance}
  */
 declare class LoggerInstance implements ILoggerInstance {
     readonly clientId: string;
     readonly callbacks: Partial<ILoggerInstanceCallbacks>;
+    /**
+     * Creates a new logger instance.
+     * @param {string} clientId - The client ID associated with this logger.
+     * @param {Partial<ILoggerInstanceCallbacks>} callbacks - Optional lifecycle callbacks.
+     */
     constructor(clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>);
+    /**
+     * Memoized initialization function to ensure it runs only once.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     * @private
+     */
     private [LOGGER_INSTANCE_WAIT_FOR_INIT];
     /**
-     * @method waitForInit
-     * @description Waits for initialization.
-     * @returns {Promise<void>}
+     * Initializes the logger instance, invoking the onInit callback if provided.
+     * @param {boolean} [initial] - Whether this is the initial setup (unused in this implementation).
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
      */
     waitForInit(): Promise<void>;
     /**
-     * @method log
-     * @description Logs a message.
-     * @param {string} topic - The topic of the log.
-     * @param {...any[]} args - The log arguments.
+     * Logs a message to the console (if enabled) and invokes the onLog callback.
+     * @param {string} topic - The topic of the log message.
+     * @param {...any[]} args - Additional arguments to log.
      */
     log(topic: string, ...args: any[]): void;
     /**
-     * @method debug
-     * @description Logs a debug message.
-     * @param {string} topic - The topic of the debug log.
-     * @param {...any[]} args - The debug log arguments.
+     * Logs a debug message to the console (if enabled) and invokes the onDebug callback.
+     * @param {string} topic - The topic of the debug message.
+     * @param {...any[]} args - Additional arguments to debug log.
      */
     debug(topic: string, ...args: any[]): void;
     /**
-     * @method info
-     * @description Logs an info message.
-     * @param {string} topic - The topic of the info log.
-     * @param {...any[]} args - The info log arguments.
+     * Logs an info message to the console (if enabled) and invokes the onInfo callback.
+     * @param {string} topic - The topic of the info message.
+     * @param {...any[]} args - Additional arguments to info log.
      */
     info(topic: string, ...args: any[]): void;
     /**
-     * @method dispose
-     * @description Disposes the logger instance.
+     * Disposes of the logger instance, invoking the onDispose callback if provided.
+     * @returns {void} Synchronous operation with no return value.
      */
     dispose(): void;
 }
 /**
- * @constant Logger
- * @description Logger control interface.
+ * Exported Logger Control interface for configuring logger behavior.
+ * @type {ILoggerControl}
  */
 declare const Logger: ILoggerControl;
 
@@ -5788,16 +6000,19 @@ declare const GLOBAL_CONFIG: {
 declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
 
 /**
- * PolicyUtils class provides utility methods for banning and unbanning clients.
+ * Utility class providing methods to manage client bans within a swarm policy context.
+ * All methods validate inputs and execute within a context for logging and tracking.
  */
 declare class PolicyUtils {
     /**
-     * Bans a client.
-     * @param {Object} payload - The payload containing clientId, swarmName, and policyName.
-     * @param {string} payload.clientId - The client ID.
+     * Bans a client under a specific policy within a swarm.
+     * Validates the client, swarm, and policy before delegating to the policy service.
+     * @param {Object} payload - The payload containing ban details.
+     * @param {string} payload.clientId - The client ID to ban.
      * @param {SwarmName} payload.swarmName - The name of the swarm.
-     * @param {PolicyName} payload.policyName - The name of the policy.
-     * @returns {Promise<void>}
+     * @param {PolicyName} payload.policyName - The name of the policy to enforce the ban.
+     * @returns {Promise<void>} A promise that resolves when the ban is applied.
+     * @throws {Error} If validation fails or the policy service encounters an error.
      */
     banClient: (payload: {
         clientId: string;
@@ -5805,12 +6020,14 @@ declare class PolicyUtils {
         policyName: PolicyName;
     }) => Promise<void>;
     /**
-     * Unbans a client.
-     * @param {Object} payload - The payload containing clientId, swarmName, and policyName.
-     * @param {string} payload.clientId - The client ID.
+     * Unbans a client under a specific policy within a swarm.
+     * Validates the client, swarm, and policy before delegating to the policy service.
+     * @param {Object} payload - The payload containing unban details.
+     * @param {string} payload.clientId - The client ID to unban.
      * @param {SwarmName} payload.swarmName - The name of the swarm.
-     * @param {PolicyName} payload.policyName - The name of the policy.
-     * @returns {Promise<void>}
+     * @param {PolicyName} payload.policyName - The name of the policy to lift the ban from.
+     * @returns {Promise<void>} A promise that resolves when the unban is applied.
+     * @throws {Error} If validation fails or the policy service encounters an error.
      */
     unbanClient: (payload: {
         clientId: string;
@@ -5818,12 +6035,14 @@ declare class PolicyUtils {
         policyName: PolicyName;
     }) => Promise<void>;
     /**
-     * Check if client is banned
-     * @param {Object} payload - The payload containing clientId, swarmName, and policyName.
-     * @param {string} payload.clientId - The client ID.
+     * Checks if a client is banned under a specific policy within a swarm.
+     * Validates the client, swarm, and policy before querying the policy service.
+     * @param {Object} payload - The payload containing ban check details.
+     * @param {string} payload.clientId - The client ID to check.
      * @param {SwarmName} payload.swarmName - The name of the swarm.
-     * @param {PolicyName} payload.policyName - The name of the policy.
-     * @returns {Promise<boolean>}
+     * @param {PolicyName} payload.policyName - The name of the policy to check against.
+     * @returns {Promise<boolean>} A promise resolving to true if the client is banned, false otherwise.
+     * @throws {Error} If validation fails or the policy service encounters an error.
      */
     hasBan: (payload: {
         clientId: string;
@@ -5832,28 +6051,36 @@ declare class PolicyUtils {
     }) => Promise<boolean>;
 }
 /**
- * An instance of PolicyUtils.
+ * Singleton instance of PolicyUtils for managing client bans and policy enforcement.
  * @type {PolicyUtils}
  */
 declare const Policy: PolicyUtils;
 
+/**
+ * Type definition for a state object, mapping IState keys to unknown values.
+ * @typedef {{ [key in keyof IState]: unknown }} TState
+ */
 type TState = {
     [key in keyof IState]: unknown;
 };
 /**
- * Utility class for managing state in the agent swarm.
+ * Utility class for managing client-specific state within an agent swarm.
+ * Provides methods to get, set, and clear state data for specific clients, agents, and state names,
+ * interfacing with the swarm's state service and enforcing agent-state registration.
  * @implements {TState}
  */
 declare class StateUtils implements TState {
     /**
-     * Retrieves the state for a given client and state name.
-     * @template T
-     * @param {Object} payload - The payload containing client and state information.
-     * @param {string} payload.clientId - The client ID.
-     * @param {AgentName} payload.agentName - The agent name.
-     * @param {StateName} payload.stateName - The state name.
-     * @returns {Promise<T>} The state data.
-     * @throws Will throw an error if the state is not registered in the agent.
+     * Retrieves the state data for a given client, agent, and state name.
+     * Validates the client session and agent-state registration before querying the state service.
+     * Executes within a context for logging.
+     * @template T - The type of the state data to retrieve, defaults to any.
+     * @param {Object} payload - The payload containing client, agent, and state information.
+     * @param {string} payload.clientId - The ID of the client whose state is being retrieved.
+     * @param {AgentName} payload.agentName - The name of the agent associated with the state.
+     * @param {StateName} payload.stateName - The name of the state to retrieve.
+     * @returns {Promise<T>} A promise resolving to the state data associated with the client and state name.
+     * @throws {Error} If the client session is invalid, the state is not registered in the agent, or the state service encounters an error.
      */
     getState: <T extends unknown = any>(payload: {
         clientId: string;
@@ -5861,15 +6088,18 @@ declare class StateUtils implements TState {
         stateName: StateName;
     }) => Promise<T>;
     /**
-     * Sets the state for a given client and state name.
-     * @template T
-     * @param {T | ((prevState: T) => Promise<T>)} dispatchFn - The new state or a function that returns the new state.
-     * @param {Object} payload - The payload containing client and state information.
-     * @param {string} payload.clientId - The client ID.
-     * @param {AgentName} payload.agentName - The agent name.
-     * @param {StateName} payload.stateName - The state name.
-     * @returns {Promise<void>}
-     * @throws Will throw an error if the state is not registered in the agent.
+     * Sets the state data for a given client, agent, and state name.
+     * Accepts either a direct value or a function that computes the new state based on the previous state.
+     * Validates the client session and agent-state registration before updating via the state service.
+     * Executes within a context for logging.
+     * @template T - The type of the state data to set, defaults to any.
+     * @param {T | ((prevState: T) => Promise<T>)} dispatchFn - The new state value or an async function that takes the previous state and returns the new state.
+     * @param {Object} payload - The payload containing client, agent, and state information.
+     * @param {string} payload.clientId - The ID of the client whose state is being updated.
+     * @param {AgentName} payload.agentName - The name of the agent associated with the state.
+     * @param {StateName} payload.stateName - The name of the state to update.
+     * @returns {Promise<void>} A promise that resolves when the state is successfully updated.
+     * @throws {Error} If the client session is invalid, the state is not registered in the agent, or the state service encounters an error.
      */
     setState: <T extends unknown = any>(dispatchFn: T | ((prevState: T) => Promise<T>), payload: {
         clientId: string;
@@ -5877,14 +6107,16 @@ declare class StateUtils implements TState {
         stateName: StateName;
     }) => Promise<void>;
     /**
-     * Set the state to initial value
-     * @template T
-     * @param {Object} payload - The payload containing client and state information.
-     * @param {string} payload.clientId - The client ID.
-     * @param {AgentName} payload.agentName - The agent name.
-     * @param {StateName} payload.stateName - The state name.
-     * @returns {Promise<void>}
-     * @throws Will throw an error if the state is not registered in the agent.
+     * Clears the state data for a given client, agent, and state name, resetting it to its initial value.
+     * Validates the client session and agent-state registration before clearing via the state service.
+     * Executes within a context for logging.
+     * @template T - The type of the state data, defaults to any (unused in return).
+     * @param {Object} payload - The payload containing client, agent, and state information.
+     * @param {string} payload.clientId - The ID of the client whose state is being cleared.
+     * @param {AgentName} payload.agentName - The name of the agent associated with the state.
+     * @param {StateName} payload.stateName - The name of the state to clear.
+     * @returns {Promise<void>} A promise that resolves when the state is successfully cleared.
+     * @throws {Error} If the client session is invalid, the state is not registered in the agent, or the state service encounters an error.
      */
     clearState: <T extends unknown = any>(payload: {
         clientId: string;
@@ -5893,65 +6125,88 @@ declare class StateUtils implements TState {
     }) => Promise<T>;
 }
 /**
- * Instance of StateUtils for managing state.
+ * Singleton instance of StateUtils for managing client-specific state operations.
  * @type {StateUtils}
  */
 declare const State: StateUtils;
 
+/**
+ * Type definition for a shared state object, mapping IState keys to unknown values.
+ * @typedef {{ [key in keyof IState]: unknown }} TSharedState
+ */
 type TSharedState = {
     [key in keyof IState]: unknown;
 };
 /**
- * Utility class for managing state in the agent swarm.
+ * Utility class for managing shared state within an agent swarm.
+ * Provides methods to get, set, and clear state data for specific state names, interfacing with the swarm's shared state service.
  * @implements {TSharedState}
  */
 declare class SharedStateUtils implements TSharedState {
     /**
-     * Retrieves the state for a given client and state name.
-     * @template T
-     * @param {Object} payload - The payload containing client and state information.
-     * @param {StateName} payload.stateName - The state name.
-     * @returns {Promise<T>} The state data.
-     * @throws Will throw an error if the state is not registered in the agent.
+     * Retrieves the shared state data for a given state name.
+     * Executes within a context for logging and delegates to the shared state service.
+     * @template T - The type of the state data to retrieve, defaults to any.
+     * @param {StateName} stateName - The name of the state to retrieve.
+     * @returns {Promise<T>} A promise resolving to the state data associated with the state name.
+     * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
      */
     getState: <T extends unknown = any>(stateName: StateName) => Promise<T>;
     /**
-     * Sets the state for a given client and state name.
-     * @template T
-     * @param {T | ((prevSharedState: T) => Promise<T>)} dispatchFn - The new state or a function that returns the new state.
-     * @param {StateName} stateName - The state name.
-     * @returns {Promise<void>}
-     * @throws Will throw an error if the state is not registered in the agent.
+     * Sets the shared state data for a given state name.
+     * Accepts either a direct value or a function that computes the new state based on the previous state.
+     * Executes within a context for logging and delegates to the shared state service.
+     * @template T - The type of the state data to set, defaults to any.
+     * @param {T | ((prevSharedState: T) => Promise<T>)} dispatchFn - The new state value or an async function that takes the previous state and returns the new state.
+     * @param {StateName} stateName - The name of the state to update.
+     * @returns {Promise<void>} A promise that resolves when the state is successfully updated.
+     * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
      */
     setState: <T extends unknown = any>(dispatchFn: T | ((prevSharedState: T) => Promise<T>), stateName: StateName) => Promise<void>;
     /**
-     * Set the state to initial value
-     * @template T
-     * @param {StateName} payload.stateName - The state name.
-     * @returns {Promise<void>}
-     * @throws Will throw an error if the state is not registered in the agent.
+     * Clears the shared state for a given state name, resetting it to its initial value.
+     * Executes within a context for logging and delegates to the shared state service.
+     * @template T - The type of the state data, defaults to any (unused in return).
+     * @param {StateName} stateName - The name of the state to clear.
+     * @returns {Promise<void>} A promise that resolves when the state is successfully cleared.
+     * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
      */
     clearState: <T extends unknown = any>(stateName: StateName) => Promise<T>;
 }
 /**
- * Instance of SharedStateUtils for managing state.
+ * Singleton instance of SharedStateUtils for managing shared state operations.
  * @type {SharedStateUtils}
  */
 declare const SharedState: SharedStateUtils;
 
+/**
+ * Type definition for a storage object, mapping IStorage keys to unknown values.
+ * @typedef {{ [key in keyof IStorage]: unknown }} TStorage
+ */
 type TStorage = {
     [key in keyof IStorage]: unknown;
 };
+/**
+ * Utility class for managing client-specific storage within an agent swarm.
+ * Provides methods to manipulate and query storage data for specific clients, agents, and storage names,
+ * interfacing with the swarm's storage service and enforcing agent-storage registration.
+ * @implements {TStorage}
+ */
 declare class StorageUtils implements TStorage {
     /**
-     * Takes items from the storage.
-     * @param {string} search - The search query.
-     * @param {number} total - The total number of items to take.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
-     * @template T
+     * Retrieves a specified number of items from storage matching a search query for a given client and agent.
+     * Validates the client session, storage name, and agent-storage registration before querying the storage service.
+     * Executes within a context for logging.
+     * @template T - The type of the storage data items, defaults to IStorageData.
+     * @param {Object} payload - The payload containing search, client, agent, and storage details.
+     * @param {string} payload.search - The search query to filter items.
+     * @param {number} payload.total - The maximum number of items to retrieve.
+     * @param {string} payload.clientId - The ID of the client whose storage is being queried.
+     * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+     * @param {StorageName} payload.storageName - The name of the storage to query.
+     * @param {number} [payload.score] - Optional relevance score threshold for filtering items.
+     * @returns {Promise<T[]>} A promise resolving to an array of matching storage items.
+     * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
      */
     take: <T extends IStorageData = IStorageData>(payload: {
         search: string;
@@ -5962,13 +6217,17 @@ declare class StorageUtils implements TStorage {
         score?: number;
     }) => Promise<T[]>;
     /**
-     * Upserts an item in the storage.
-     * @param {T} item - The item to upsert.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
-     * @template T
+     * Inserts or updates an item in the storage for a given client and agent.
+     * Validates the client session, storage name, and agent-storage registration before updating via the storage service.
+     * Executes within a context for logging.
+     * @template T - The type of the storage data item, defaults to IStorageData.
+     * @param {Object} payload - The payload containing item, client, agent, and storage details.
+     * @param {T} payload.item - The item to upsert into the storage.
+     * @param {string} payload.clientId - The ID of the client whose storage is being updated.
+     * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+     * @param {StorageName} payload.storageName - The name of the storage to update.
+     * @returns {Promise<void>} A promise that resolves when the upsert operation is complete.
+     * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
      */
     upsert: <T extends IStorageData = IStorageData>(payload: {
         item: T;
@@ -5977,12 +6236,16 @@ declare class StorageUtils implements TStorage {
         storageName: StorageName;
     }) => Promise<void>;
     /**
-     * Removes an item from the storage.
-     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     * Removes an item from the storage by its ID for a given client and agent.
+     * Validates the client session, storage name, and agent-storage registration before removing via the storage service.
+     * Executes within a context for logging.
+     * @param {Object} payload - The payload containing item ID, client, agent, and storage details.
+     * @param {IStorageData["id"]} payload.itemId - The ID of the item to remove.
+     * @param {string} payload.clientId - The ID of the client whose storage is being modified.
+     * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+     * @param {StorageName} payload.storageName - The name of the storage to modify.
+     * @returns {Promise<void>} A promise that resolves when the removal operation is complete.
+     * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
      */
     remove: (payload: {
         itemId: IStorageData["id"];
@@ -5991,13 +6254,17 @@ declare class StorageUtils implements TStorage {
         storageName: StorageName;
     }) => Promise<void>;
     /**
-     * Gets an item from the storage.
-     * @param {IStorageData["id"]} itemId - The ID of the item to get.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
-     * @template T
+     * Retrieves an item from the storage by its ID for a given client and agent.
+     * Validates the storage name and agent-storage registration before querying the storage service.
+     * Executes within a context for logging.
+     * @template T - The type of the storage data item, defaults to IStorageData.
+     * @param {Object} payload - The payload containing item ID, client, agent, and storage details.
+     * @param {IStorageData["id"]} payload.itemId - The ID of the item to retrieve.
+     * @param {string} payload.clientId - The ID of the client whose storage is being queried.
+     * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+     * @param {StorageName} payload.storageName - The name of the storage to query.
+     * @returns {Promise<T | null>} A promise resolving to the item if found, or null if not found.
+     * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
      */
     get: <T extends IStorageData = IStorageData>(payload: {
         itemId: IStorageData["id"];
@@ -6006,13 +6273,17 @@ declare class StorageUtils implements TStorage {
         storageName: StorageName;
     }) => Promise<T | null>;
     /**
-     * Lists items from the storage.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @param {StorageName} storageName - The storage name.
-     * @param {(item: T) => boolean} [filter] - Optional filter function.
-     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
-     * @template T
+     * Lists all items in the storage for a given client and agent, optionally filtered by a predicate.
+     * Validates the storage name and agent-storage registration before querying the storage service.
+     * Executes within a context for logging.
+     * @template T - The type of the storage data items, defaults to IStorageData.
+     * @param {Object} payload - The payload containing client, agent, and storage details.
+     * @param {string} payload.clientId - The ID of the client whose storage is being queried.
+     * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+     * @param {StorageName} payload.storageName - The name of the storage to query.
+     * @param {(item: T) => boolean} [payload.filter] - Optional function to filter items; only items returning true are included.
+     * @returns {Promise<T[]>} A promise resolving to an array of storage items.
+     * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
      */
     list: <T extends IStorageData = IStorageData>(payload: {
         clientId: string;
@@ -6021,11 +6292,15 @@ declare class StorageUtils implements TStorage {
         filter?: (item: T) => boolean;
     }) => Promise<T[]>;
     /**
-     * Clears the storage.
-     * @param {string} clientId - The client ID.
-     * @param {AgentName} agentName - The agent name.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     * Clears all items from the storage for a given client and agent.
+     * Validates the storage name and agent-storage registration before clearing via the storage service.
+     * Executes within a context for logging.
+     * @param {Object} payload - The payload containing client, agent, and storage details.
+     * @param {string} payload.clientId - The ID of the client whose storage is being cleared.
+     * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+     * @param {StorageName} payload.storageName - The name of the storage to clear.
+     * @returns {Promise<void>} A promise that resolves when the clear operation is complete.
+     * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
      */
     clear: (payload: {
         clientId: string;
@@ -6033,19 +6308,36 @@ declare class StorageUtils implements TStorage {
         storageName: StorageName;
     }) => Promise<void>;
 }
+/**
+ * Singleton instance of StorageUtils for managing client-specific storage operations.
+ * @type {StorageUtils}
+ */
 declare const Storage: StorageUtils;
 
+/**
+ * Type definition for a shared storage object, mapping IStorage keys to unknown values.
+ * @typedef {{ [key in keyof IStorage]: unknown }} TSharedStorage
+ */
 type TSharedStorage = {
     [key in keyof IStorage]: unknown;
 };
+/**
+ * Utility class for managing shared storage within an agent swarm.
+ * Provides methods to manipulate and query storage data, interfacing with the swarm's shared storage service.
+ * @implements {TSharedStorage}
+ */
 declare class SharedStorageUtils implements TSharedStorage {
     /**
-     * Takes items from the storage.
-     * @param {string} search - The search query.
-     * @param {number} total - The total number of items to take.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
-     * @template T
+     * Retrieves a specified number of items from storage matching a search query.
+     * Executes within a context for logging and validation, ensuring the storage name is valid.
+     * @template T - The type of the storage data items, defaults to IStorageData.
+     * @param {Object} payload - The payload containing search and storage details.
+     * @param {string} payload.search - The search query to filter items.
+     * @param {number} payload.total - The maximum number of items to retrieve.
+     * @param {StorageName} payload.storageName - The name of the storage to query.
+     * @param {number} [payload.score] - Optional relevance score threshold for filtering items.
+     * @returns {Promise<T[]>} A promise resolving to an array of matching storage items.
+     * @throws {Error} If storage validation fails or the shared storage service encounters an error.
      */
     take: <T extends IStorageData = IStorageData>(payload: {
         search: string;
@@ -6054,72 +6346,92 @@ declare class SharedStorageUtils implements TSharedStorage {
         score?: number;
     }) => Promise<T[]>;
     /**
-     * Upserts an item in the storage.
-     * @param {T} item - The item to upsert.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
-     * @template T
+     * Inserts or updates an item in the storage.
+     * Executes within a context for logging and validation, ensuring the storage name is valid.
+     * @template T - The type of the storage data item, defaults to IStorageData.
+     * @param {T} item - The item to upsert into the storage.
+     * @param {StorageName} storageName - The name of the storage to update.
+     * @returns {Promise<void>} A promise that resolves when the upsert operation is complete.
+     * @throws {Error} If storage validation fails or the shared storage service encounters an error.
      */
     upsert: <T extends IStorageData = IStorageData>(item: T, storageName: StorageName) => Promise<void>;
     /**
-     * Removes an item from the storage.
+     * Removes an item from the storage by its ID.
+     * Executes within a context for logging and validation, ensuring the storage name is valid.
      * @param {IStorageData["id"]} itemId - The ID of the item to remove.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     * @param {StorageName} storageName - The name of the storage to modify.
+     * @returns {Promise<void>} A promise that resolves when the removal operation is complete.
+     * @throws {Error} If storage validation fails or the shared storage service encounters an error.
      */
     remove: (itemId: IStorageData["id"], storageName: StorageName) => Promise<void>;
     /**
-     * Gets an item from the storage.
-     * @param {IStorageData["id"]} itemId - The ID of the item to get.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
-     * @template T
+     * Retrieves an item from the storage by its ID.
+     * Executes within a context for logging and validation, ensuring the storage name is valid.
+     * @template T - The type of the storage data item, defaults to IStorageData.
+     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
+     * @param {StorageName} storageName - The name of the storage to query.
+     * @returns {Promise<T | null>} A promise resolving to the item if found, or null if not found.
+     * @throws {Error} If storage validation fails or the shared storage service encounters an error.
      */
     get: <T extends IStorageData = IStorageData>(itemId: IStorageData["id"], storageName: StorageName) => Promise<T | null>;
     /**
-     * Lists items from the storage.
-     * @param {StorageName} storageName - The storage name.
-     * @param {(item: T) => boolean} [filter] - Optional filter function.
-     * @returns {Promise<T[]>} - A promise that resolves to an array of items.
-     * @template T
+     * Lists all items in the storage, optionally filtered by a predicate.
+     * Executes within a context for logging and validation, ensuring the storage name is valid.
+     * @template T - The type of the storage data items, defaults to IStorageData.
+     * @param {StorageName} storageName - The name of the storage to query.
+     * @param {(item: T) => boolean} [filter] - Optional function to filter items; only items returning true are included.
+     * @returns {Promise<T[]>} A promise resolving to an array of storage items.
+     * @throws {Error} If storage validation fails or the shared storage service encounters an error.
      */
     list: <T extends IStorageData = IStorageData>(storageName: StorageName, filter?: (item: T) => boolean) => Promise<T[]>;
     /**
-     * Clears the storage.
-     * @param {StorageName} storageName - The storage name.
-     * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+     * Clears all items from the storage.
+     * Executes within a context for logging and validation, ensuring the storage name is valid.
+     * @param {StorageName} storageName - The name of the storage to clear.
+     * @returns {Promise<void>} A promise that resolves when the clear operation is complete.
+     * @throws {Error} If storage validation fails or the shared storage service encounters an error.
      */
     clear: (storageName: string) => Promise<void>;
 }
+/**
+ * Singleton instance of SharedStorageUtils for managing shared storage operations.
+ * @type {SharedStorageUtils}
+ */
 declare const SharedStorage: SharedStorageUtils;
 
 /**
- * Utility class for schema-related operations.
+ * Utility class for managing schema-related operations, including session memory access and data serialization.
+ * Provides methods to read/write client session memory and serialize objects into formatted strings.
  */
 declare class SchemaUtils {
     /**
      * Writes a value to the session memory for a given client.
-     *
-     * @template T - The type of the value to write.
-     * @param {string} clientId - The ID of the client.
-     * @param {T} value - The value to write to the session memory.
-     * @returns {T} The actual value from the session memory.
+     * Executes within a context for logging and validation, ensuring the client session is valid.
+     * @template T - The type of the value to write, must extend object.
+     * @param {string} clientId - The ID of the client whose session memory will be updated.
+     * @param {T} value - The value to write to the session memory, typically an object.
+     * @returns {T} The value written to the session memory, as returned by the memory schema service.
+     * @throws {Error} If session validation fails or the memory schema service encounters an error.
      */
     writeSessionMemory: <T extends object = object>(clientId: string, value: T) => T;
     /**
      * Reads a value from the session memory for a given client.
-     *
-     * @template T - The type of the value to read.
-     * @param {string} clientId - The ID of the client.
-     * @returns {T} The value read from the session memory.
+     * Executes within a context for logging and validation, ensuring the client session is valid.
+     * @template T - The type of the value to read, must extend object.
+     * @param {string} clientId - The ID of the client whose session memory will be read.
+     * @returns {T} The value read from the session memory, as returned by the memory schema service.
+     * @throws {Error} If session validation fails or the memory schema service encounters an error.
      */
     readSessionMemory: <T extends object = object>(clientId: string) => T;
     /**
-     * Serializes an object or an array of objects into a formatted string.
-     *
-     * @template T - The type of the object.
-     * @param {T[] | T} data - The data to serialize.
-     * @returns {string} The serialized string.
+     * Serializes an object or array of objects into a formatted string.
+     * Flattens nested objects and applies optional key/value mapping functions for formatting.
+     * @template T - The type of the object(s) to serialize, defaults to any.
+     * @param {T[] | T} data - The data to serialize, either a single object or an array of objects.
+     * @param {Object} [map] - Optional configuration for mapping keys and values.
+     * @param {(key: string) => string} [map.mapKey=GLOBAL_CONFIG.CC_NAME_TO_TITLE] - Function to transform property keys.
+     * @param {(key: string, value: string) => string} [map.mapValue] - Function to transform property values, defaults to truncating at 50 characters.
+     * @returns {string} A formatted string representation of the data, with key-value pairs separated by newlines.
      */
     serialize: <T extends object = any>(data: T[] | T, map?: {
         mapKey?: typeof GLOBAL_CONFIG.CC_NAME_TO_TITLE;
@@ -6127,56 +6439,53 @@ declare class SchemaUtils {
     }) => string;
 }
 /**
- * An instance of the SchemaUtils class.
+ * Singleton instance of SchemaUtils for managing schema operations.
+ * @type {SchemaUtils}
  */
 declare const Schema: SchemaUtils;
 
 /**
- * Handles the completion request to AI provider
- *
+ * Type definition for a function that handles completion requests to an AI provider.
+ * @callback TCompleteFn
  * @param {ICompletionArgs} args - The arguments for the completion request.
- * @param {string} args.agentName - The name of the agent.
- * @param {Array} args.messages - The messages to send to completion endpoing.
- * @param {string} args.mode - The mode of the completion.
- * @param {Array} args.tools - The tools to use for the completion.
- * @param {string} args.clientId - The client ID.
- * @returns {Promise<IModelMessage>} - The response from completion endpoint in `agent-swarm-kit` format.
+ * @returns {Promise<IModelMessage>} The response from the completion endpoint in `agent-swarm-kit` format.
  */
 type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
+/**
+ * Utility class providing adapter functions for interacting with various AI completion providers.
+ */
 declare class AdapterUtils {
     /**
-     * Creates a function to interact with OpenAI's chat completions.
-     *
-     * @param {any} openai - The OpenAI instance.
-     * @param {string} [model="gpt-3.5-turbo"] - The model to use for completions.
-     * @returns {Function} - A function that takes completion arguments and returns a response from OpenAI.
+     * Creates a function to interact with OpenAI's chat completions API.
+     * @param {any} openai - The OpenAI client instance.
+     * @param {string} [model="gpt-3.5-turbo"] - The model to use for completions (defaults to "gpt-3.5-turbo").
+     * @param {{ type: string }} [response_format] - Optional response format configuration (e.g., `{ type: "json_object" }`).
+     * @returns {TCompleteFn} A function that processes completion arguments and returns a response from OpenAI.
      */
     fromOpenAI: (openai: any, model?: string, response_format?: {
         type: string;
     }) => TCompleteFn;
     /**
-     * Creates a function to interact with LMStudio's chat completions.
-     *
-     * @param {any} openai - The LMStudio instance.
-     * @param {string} [model="saiga_yandexgpt_8b_gguf"] - The model to use for completions.
-     * @param {Object} [response_format] - The format of the response.
-     * @returns {Function} - A function that takes completion arguments and returns a response from LMStudio.
+     * Creates a function to interact with LMStudio's chat completions API.
+     * @param {any} openai - The LMStudio client instance (compatible with OpenAI-style API).
+     * @param {string} [model="saiga_yandexgpt_8b_gguf"] - The model to use for completions (defaults to "saiga_yandexgpt_8b_gguf").
+     * @param {{ type: string }} [response_format] - Optional response format configuration (e.g., `{ type: "json_object" }`).
+     * @returns {TCompleteFn} A function that processes completion arguments and returns a response from LMStudio.
      */
     fromLMStudio: (openai: any, model?: string, response_format?: {
         type: string;
     }) => TCompleteFn;
     /**
-     * Creates a function to interact with Ollama's chat completions.
-     *
-     * @param {any} ollama - The Ollama instance.
-     * @param {string} [model="nemotron-mini:4b"] - The model to use for completions.
-     * @param {string} [tool_call_protocol=TOOL_PROTOCOL_PROMPT] - The protocol for tool calls.
-     * @returns {Function} - A function that takes completion arguments and returns a response from Ollama.
+     * Creates a function to interact with Ollama's chat completions API.
+     * @param {any} ollama - The Ollama client instance.
+     * @param {string} [model="nemotron-mini:4b"] - The model to use for completions (defaults to "nemotron-mini:4b").
+     * @param {string} [tool_call_protocol=TOOL_PROTOCOL_PROMPT] - The protocol prompt for tool calls (defaults to TOOL_PROTOCOL_PROMPT).
+     * @returns {TCompleteFn} A function that processes completion arguments and returns a response from Ollama.
      */
     fromOllama: (ollama: any, model?: string, tool_call_protocol?: string) => TCompleteFn;
 }
 /**
- * An instance of AdapterUtils.
+ * Singleton instance of AdapterUtils for interacting with AI completion providers.
  * @type {AdapterUtils}
  */
 declare const Adapter: AdapterUtils;

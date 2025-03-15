@@ -1,6 +1,6 @@
 # IPersistStateData
 
-Interface for state data persistence
+Interface for state data persistence.
 
 ## Properties
 
@@ -9,3 +9,5 @@ Interface for state data persistence
 ```ts
 state: T
 ```
+
+The state data to persist

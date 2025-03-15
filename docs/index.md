@@ -191,6 +191,8 @@
 - [TSessionConnectionService](types/TSessionConnectionService.md)
 - [InternalKeys$5](types/InternalKeys$5.md)
 - [TSwarmConnectionService](types/TSwarmConnectionService.md)
+- [Action](types/Action.md)
+- [Payload](types/Payload.md)
 - [InternalKeys$4](types/InternalKeys$4.md)
 - [TStorageConnectionService](types/TStorageConnectionService.md)
 - [DispatchFn](types/DispatchFn.md)
@@ -209,3 +211,4 @@
 - [TSharedState](types/TSharedState.md)
 - [TStorage](types/TStorage.md)
 - [TSharedStorage](types/TSharedStorage.md)
+- [TCompleteFn](types/TCompleteFn.md)

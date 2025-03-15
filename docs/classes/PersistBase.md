@@ -2,7 +2,7 @@
 
 Implements `IPersistBase`
 
-Base class for persistent storage of entities in a file system
+Base class for persistent storage of entities in the file system.
 
 ## Constructor
 
@@ -30,15 +30,13 @@ baseDir: string
 _directory: string
 ```
 
-The directory path where entity files are stored
-
 ### __@BASE_WAIT_FOR_INIT_SYMBOL@482
 
 ```ts
 __@BASE_WAIT_FOR_INIT_SYMBOL@482: any
 ```
 
-Initializes the storage directory
+Memoized initialization function to ensure it runs only once.
 
 ## Methods
 
@@ -48,7 +46,7 @@ Initializes the storage directory
 _getFilePath(entityId: EntityId): string;
 ```
 
-Gets the file path for an entity
+Computes the file path for an entity based on its ID.
 
 ### waitForInit
 
@@ -56,7 +54,8 @@ Gets the file path for an entity
 waitForInit(initial: boolean): Promise<void>;
 ```
 
-Waits for initialization to complete
+Initializes the storage directory and validates existing entities.
+Creates the directory if it doesn't exist and removes invalid files.
 
 ### getCount
 
@@ -64,7 +63,7 @@ Waits for initialization to complete
 getCount(): Promise<number>;
 ```
 
-Gets the count of entities in the storage
+Retrieves the number of entities stored in the directory.
 
 ### readValue
 
@@ -72,7 +71,7 @@ Gets the count of entities in the storage
 readValue<T extends IEntity = IEntity>(entityId: EntityId): Promise<T>;
 ```
 
-Reads an entity from storage
+Reads an entity from storage by its ID.
 
 ### hasValue
 
@@ -80,7 +79,7 @@ Reads an entity from storage
 hasValue(entityId: EntityId): Promise<boolean>;
 ```
 
-Checks if an entity exists in storage
+Checks if an entity exists in storage by its ID.
 
 ### writeValue
 
@@ -88,7 +87,7 @@ Checks if an entity exists in storage
 writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
 ```
 
-Writes an entity to storage
+Writes an entity to storage with the specified ID.
 
 ### removeValue
 
@@ -96,7 +95,7 @@ Writes an entity to storage
 removeValue(entityId: EntityId): Promise<void>;
 ```
 
-Removes an entity from storage
+Removes an entity from storage by its ID.
 
 ### removeAll
 
@@ -104,7 +103,7 @@ Removes an entity from storage
 removeAll(): Promise<void>;
 ```
 
-Removes all entities from storage
+Removes all entities from storage.
 
 ### values
 
@@ -112,7 +111,7 @@ Removes all entities from storage
 values<T extends IEntity = IEntity>(): AsyncGenerator<T>;
 ```
 
-Iterates over all entities in storage
+Iterates over all entities in storage, sorted numerically by ID.
 
 ### keys
 
@@ -120,7 +119,7 @@ Iterates over all entities in storage
 keys(): AsyncGenerator<EntityId>;
 ```
 
-Iterates over all entity IDs in storage
+Iterates over all entity IDs in storage, sorted numerically.
 
 ### __@asyncIterator@483
 
@@ -128,7 +127,7 @@ Iterates over all entity IDs in storage
 [Symbol.asyncIterator](): AsyncIterableIterator<any>;
 ```
 
-Implements the Symbol.asyncIterator protocol
+Implements the async iterator protocol for iterating over entities.
 
 ### filter
 
@@ -136,7 +135,7 @@ Implements the Symbol.asyncIterator protocol
 filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<T>;
 ```
 
-Filters entities based on a predicate
+Filters entities based on a predicate function.
 
 ### take
 
@@ -144,4 +143,4 @@ Filters entities based on a predicate
 take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<T>;
 ```
 
-Takes a limited number of entities, optionally filtered
+Takes a limited number of entities, optionally filtered by a predicate.

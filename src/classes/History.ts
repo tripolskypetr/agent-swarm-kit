@@ -6,14 +6,14 @@ import { GLOBAL_CONFIG } from "../config/params";
 import { PersistList } from "./Persist";
 
 /**
- * Interface for History Adapter Callbacks
+ * Callbacks for managing history instance lifecycle and message handling.
  */
 export interface IHistoryInstanceCallbacks {
   /**
-   * Callback for compute of dynamic system prompt
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
-   * @returns An array of additional system prompt messages
+   * Retrieves dynamic system prompt messages for an agent.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<string[]> | string[]} An array of system prompt message contents.
    */
   getSystemPrompt?: (
     clientId: string,
@@ -21,11 +21,11 @@ export interface IHistoryInstanceCallbacks {
   ) => Promise<string[]> | string[];
 
   /**
-   * Filter condition for history messages.
-   * @param message - The model message.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
-   * @returns A promise that resolves to a boolean indicating whether the message passes the filter.
+   * Determines whether a message should be included in the history iteration.
+   * @param {IModelMessage} message - The message to evaluate.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<boolean> | boolean} Whether the message passes the filter.
    */
   filterCondition?: (
     message: IModelMessage,
@@ -34,10 +34,10 @@ export interface IHistoryInstanceCallbacks {
   ) => Promise<boolean> | boolean;
 
   /**
-   * Get data for the history.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
-   * @returns A promise that resolves to an array of model messages.
+   * Fetches initial history data for an agent.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<IModelMessage[]> | IModelMessage[]} The initial array of history messages.
    */
   getData: (
     clientId: string,
@@ -45,10 +45,10 @@ export interface IHistoryInstanceCallbacks {
   ) => Promise<IModelMessage[]> | IModelMessage[];
 
   /**
-   * Callback for when the history changes.
-   * @param data - The array of model messages.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
+   * Called when the history array changes (e.g., after push or pop).
+   * @param {IModelMessage[]} data - The updated array of history messages.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
    */
   onChange: (
     data: IModelMessage[],
@@ -57,18 +57,18 @@ export interface IHistoryInstanceCallbacks {
   ) => void;
 
   /**
-   * Callback for when the history get the new message
-   * @param data - The array of model messages.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
+   * Called when a new message is pushed to the history.
+   * @param {IModelMessage} data - The newly pushed message.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
    */
   onPush: (data: IModelMessage, clientId: string, agentName: AgentName) => void;
 
   /**
-   * Callback for when the history pop the last message
-   * @param data - The array of model messages.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
+   * Called when the last message is popped from the history.
+   * @param {IModelMessage | null} data - The popped message, or null if the history is empty.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
    */
   onPop: (
     data: IModelMessage | null,
@@ -77,10 +77,10 @@ export interface IHistoryInstanceCallbacks {
   ) => void;
 
   /**
-   * Callback for when the history is read. Will be called for each message
-   * @param message - The model message.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
+   * Called for each message during iteration when reading.
+   * @param {IModelMessage} message - The current message being read.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
    */
   onRead: (
     message: IModelMessage,
@@ -89,47 +89,47 @@ export interface IHistoryInstanceCallbacks {
   ) => void;
 
   /**
-   * Callback for when the read is begin
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
+   * Called at the start of a history read operation.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
    */
   onReadBegin: (clientId: string, agentName: AgentName) => void;
 
   /**
-   * Callback for when the read is end
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
+   * Called at the end of a history read operation.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
    */
   onReadEnd: (clientId: string, agentName: AgentName) => void;
 
   /**
-   * Callback for when the history is disposed.
-   * @param clientId - The client ID.
+   * Called when the history instance is disposed.
+   * @param {string} clientId - The client ID.
    */
   onDispose: (clientId: string) => void;
 
   /**
-   * Callback for when the history is initialized.
-   * @param clientId - The client ID.
+   * Called when the history instance is initialized.
+   * @param {string} clientId - The client ID.
    */
   onInit: (clientId: string) => void;
 
   /**
-   * Callback to obtain history ref
-   * @param clientId - The client ID.
+   * Provides a reference to the history instance after creation.
+   * @param {IHistoryInstance} history - The history instance.
    */
   onRef: (history: IHistoryInstance) => void;
 }
 
 /**
- * Interface for History Adapter
+ * Interface defining methods for interacting with a history adapter.
  */
 export interface IHistoryAdapter {
   /**
-   * Iterate over the history messages.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
-   * @returns An async iterable iterator of model messages.
+   * Iterates over history messages for a client and agent.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding history messages.
    */
   iterate(
     clientId: string,
@@ -137,11 +137,11 @@ export interface IHistoryAdapter {
   ): AsyncIterableIterator<IModelMessage>;
 
   /**
-   * Push a new message to the history.
-   * @param value - The model message to push.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
-   * @returns A promise that resolves when the message is pushed.
+   * Adds a new message to the history.
+   * @param {IModelMessage} value - The message to add.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<void>} A promise that resolves when the message is added.
    */
   push: (
     value: IModelMessage,
@@ -150,10 +150,10 @@ export interface IHistoryAdapter {
   ) => Promise<void>;
 
   /**
-   * Pop the last message from a history
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
-   * @returns The last message or null
+   * Removes and returns the last message from the history.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
    */
   pop: (
     clientId: string,
@@ -161,120 +161,167 @@ export interface IHistoryAdapter {
   ) => Promise<IModelMessage | null>;
 
   /**
-   * Dispose of the history for a given client and agent.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name or null.
-   * @returns A promise that resolves when the history is disposed.
+   * Disposes of the history for a client and agent, optionally clearing all data.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName | null} agentName - The name of the agent, or null to dispose fully.
+   * @returns {Promise<void>} A promise that resolves when disposal is complete.
    */
   dispose: (clientId: string, agentName: AgentName | null) => Promise<void>;
 }
 
 /**
- * Interface for History Control
+ * Interface defining control methods for configuring history behavior.
  */
 export interface IHistoryControl {
   /**
-   * Use a custom history adapter.
-   * @param Ctor - The constructor for the history instance.
+   * Sets a custom history instance constructor for the adapter.
+   * @param {THistoryInstanceCtor} Ctor - The constructor for creating history instances.
    */
   useHistoryAdapter(Ctor: THistoryInstanceCtor): void;
 
   /**
-   * Use history lifecycle callbacks.
-   * @param Callbacks - The callbacks dictionary.
+   * Configures lifecycle callbacks for history instances.
+   * @param {Partial<IHistoryInstanceCallbacks>} Callbacks - The callbacks to apply.
    */
   useHistoryCallbacks: (Callbacks: Partial<IHistoryInstanceCallbacks>) => void;
 }
 
 /**
- * Interface for History Instance
+ * Interface defining methods for a history instance implementation.
  */
 export interface IHistoryInstance {
   /**
-   * Iterate over the history messages for a given agent.
-   * @param agentName - The agent name.
-   * @returns An async iterable iterator of model messages.
+   * Iterates over history messages for an agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding history messages.
    */
   iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
 
   /**
-   * Wait for the history to initialize.
-   * @param agentName - The agent name.
-   * @param init - Whether the history is initializing.
-   * @returns A promise that resolves when the history is initialized.
+   * Initializes the history for an agent, loading initial data if needed.
+   * @param {AgentName} agentName - The name of the agent.
+   * @param {boolean} init - Whether this is the initial setup (affects caching behavior).
+   * @returns {Promise<void>} A promise that resolves when initialization is complete.
    */
   waitForInit(agentName: AgentName, init: boolean): Promise<void>;
 
   /**
-   * Push a new message to the history for a given agent.
-   * @param value - The model message to push.
-   * @param agentName - The agent name.
-   * @returns A promise that resolves when the message is pushed.
+   * Adds a new message to the history for an agent.
+   * @param {IModelMessage} value - The message to add.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<void>} A promise that resolves when the message is added.
    */
   push(value: IModelMessage, agentName: AgentName): Promise<void>;
 
   /**
-   * Pop the last message from a history
-   * @param value - The model message to push.
-   * @param agentName - The agent name.
-   * @returns A promise that resolves the last message or null
+   * Removes and returns the last message from the history for an agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
    */
   pop(agentName: AgentName): Promise<IModelMessage | null>;
 
   /**
-   * Dispose of the history for a given agent.
-   * @param agentName - The agent name or null.
-   * @returns A promise that resolves when the history is disposed.
+   * Disposes of the history for an agent, optionally clearing all data.
+   * @param {AgentName | null} agentName - The name of the agent, or null to dispose fully.
+   * @returns {Promise<void>} A promise that resolves when disposal is complete.
    */
   dispose(agentName: AgentName | null): Promise<void>;
 }
 
 /**
- * Type for History Instance Constructor
+ * Constructor type for creating history instances.
+ * @typedef {new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>) => IHistoryInstance} THistoryInstanceCtor
  */
 export type THistoryInstanceCtor = new (
   clientId: string,
   callbacks: Partial<IHistoryInstanceCallbacks>
 ) => IHistoryInstance;
 
+/** @private Symbol for memoizing the waitForInit method in HistoryMemoryInstance */
 const HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT = Symbol("wait-for-init");
+
+/** @private Symbol for memoizing the waitForInit method in HistoryPersistInstance */
 const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT = Symbol("wait-for-init");
 
+/** @private Constant for logging the waitForInit method in HistoryMemoryInstance */
 const HISTORY_MEMORY_INSTANCE_METHOD_NAME_WAIT_FOR_INIT =
   "HistoryMemoryInstance.waitForInit";
+
+/** @private Constant for logging the constructor in HistoryMemoryInstance */
 const HISTORY_MEMORY_INSTANCE_METHOD_NAME_CTOR = "HistoryMemoryInstance.CTOR";
+
+/** @private Constant for logging the iterate method with condition in HistoryMemoryInstance */
 const HISTORY_MEMORY_INSTANCE_METHOD_NAME_ITERATE_CONDITION =
   "HistoryMemoryInstance.iterate_condition";
+
+/** @private Constant for logging the iterate method in HistoryMemoryInstance */
 const HISTORY_MEMORY_INSTANCE_METHOD_NAME_ITERATE =
   "HistoryMemoryInstance.iterate";
+
+/** @private Constant for logging the push method in HistoryMemoryInstance */
 const HISTORY_MEMORY_INSTANCE_METHOD_NAME_PUSH = "HistoryMemoryInstance.push";
+
+/** @private Constant for logging the pop method in HistoryMemoryInstance */
 const HISTORY_MEMORY_INSTANCE_METHOD_NAME_POP = "HistoryMemoryInstance.pop";
+
+/** @private Constant for logging the dispose method in HistoryMemoryInstance */
 const HISTORY_MEMORY_INSTANCE_METHOD_NAME_DISPOSE =
   "HistoryMemoryInstance.dispose";
 
+/** @private Constant for logging the waitForInit method in HistoryPersistInstance */
 const HISTORY_PERSIST_INSTANCE_METHOD_NAME_WAIT_FOR_INIT =
   "HistoryPersistInstance.waitForInit";
+
+/** @private Constant for logging the constructor in HistoryPersistInstance */
 const HISTORY_PERSIST_INSTANCE_METHOD_NAME_CTOR = "HistoryPersistInstance.CTOR";
+
+/** @private Constant for logging the iterate method with condition in HistoryPersistInstance */
 const HISTORY_PERSIST_INSTANCE_METHOD_NAME_ITERATE_CONDITION =
   "HistoryPersistInstance.iterate_condition";
+
+/** @private Constant for logging the iterate method in HistoryPersistInstance */
 const HISTORY_PERSIST_INSTANCE_METHOD_NAME_ITERATE =
   "HistoryPersistInstance.iterate";
+
+/** @private Constant for logging the push method in HistoryPersistInstance */
 const HISTORY_PERSIST_INSTANCE_METHOD_NAME_PUSH = "HistoryPersistInstance.push";
+
+/** @private Constant for logging the pop method in HistoryPersistInstance */
 const HISTORY_PERSIST_INSTANCE_METHOD_NAME_POP = "HistoryPersistInstance.pop";
+
+/** @private Constant for logging the dispose method in HistoryPersistInstance */
 const HISTORY_PERSIST_INSTANCE_METHOD_NAME_DISPOSE =
   "HistoryPersistInstance.dispose";
 
+/** @private Constant for logging the useHistoryAdapter method in HistoryUtils */
 const METHOD_NAME_USE_HISTORY_ADAPTER = "HistoryUtils.useHistoryAdapter";
+
+/** @private Constant for logging the useHistoryCallbacks method in HistoryUtils */
 const METHOD_NAME_USE_HISTORY_CALLBACKS = "HistoryUtils.useHistoryCallbacks";
+
+/** @private Constant for logging the iterate method in HistoryUtils */
 const METHOD_NAME_ITERATE = "HistoryUtils.iterate";
+
+/** @private Constant for logging the push method in HistoryUtils */
 const METHOD_NAME_PUSH = "HistoryUtils.push";
+
+/** @private Constant for logging the pop method in HistoryUtils */
 const METHOD_NAME_POP = "HistoryUtils.pop";
+
+/** @private Constant for logging the dispose method in HistoryUtils */
 const METHOD_NAME_DISPOSE = "HistoryUtils.dispose";
 
+/**
+ * Initializes the memory-based history instance by loading initial data.
+ * @param {AgentName} agentName - The name of the agent.
+ * @param {HistoryMemoryInstance} self - The history instance.
+ * @returns {Promise<void>} A promise that resolves when initialization is complete.
+ * @private
+ */
 const HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT_FN = async (
   agentName: AgentName,
   self: HistoryMemoryInstance
-) => {
+): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     swarm.loggerService.debug(
       HISTORY_MEMORY_INSTANCE_METHOD_NAME_WAIT_FOR_INIT,
@@ -288,10 +335,17 @@ const HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT_FN = async (
   }
 };
 
+/**
+ * Initializes the persistent history instance by loading data from storage.
+ * @param {AgentName} agentName - The name of the agent.
+ * @param {HistoryPersistInstance} self - The history instance.
+ * @returns {Promise<void>} A promise that resolves when initialization is complete.
+ * @private
+ */
 const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT_FN = async (
   agentName: AgentName,
   self: HistoryPersistInstance
-) => {
+): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     swarm.loggerService.debug(
       HISTORY_PERSIST_INSTANCE_METHOD_NAME_WAIT_FOR_INIT,
@@ -307,38 +361,41 @@ const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT_FN = async (
 };
 
 /**
- * Class representing a persistent history instance.
- * This class implements the IHistoryInstance interface and provides methods
- * to manage and persist history messages.
+ * Manages a persistent history of messages, storing them in memory and on disk.
+ * @implements {IHistoryInstance}
  */
 export class HistoryPersistInstance implements IHistoryInstance {
-  
+  /** @private The in-memory array of history messages */
   _array: IModelMessage[] = [];
+
+  /** @private The persistent storage instance for history messages */
   _persistStorage: PersistList;
 
   /**
-   * Makes the singleshot for initialization
-   * @param agentName - The agent name.
+   * Memoized initialization function to ensure it runs only once per agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<void>} A promise that resolves when initialization is complete.
+   * @private
    */
   private [HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT] = singleshot(
-    async (agentName) =>
+    async (agentName: AgentName): Promise<void> =>
       await HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT_FN(agentName, this)
   );
 
   /**
-   * Wait for the history to initialize.
-   * @param agentName - The agent name.
-   * @param isInitial - Whether the history is initializing.
-   * @returns A promise that resolves when the history is initialized.
+   * Initializes the history for an agent, loading data from persistent storage if needed.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<void>} A promise that resolves when initialization is complete.
    */
   public async waitForInit(agentName: AgentName): Promise<void> {
     return await this[HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT](agentName);
   }
 
   /**
-   * Create a HistoryPersistInstance.
-   * @param clientId - The client ID.
-   * @param callbacks - The callbacks for the history instance.
+   * Creates a new persistent history instance.
+   * Invokes onInit and onRef callbacks if provided.
+   * @param {string} clientId - The client ID.
+   * @param {Partial<IHistoryInstanceCallbacks>} callbacks - The lifecycle callbacks.
    */
   constructor(
     readonly clientId: string,
@@ -348,7 +405,10 @@ export class HistoryPersistInstance implements IHistoryInstance {
       swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_CTOR, {
         clientId: this.clientId,
       });
-    this._persistStorage = new PersistList(this.clientId, `./logs/data/history`)
+    this._persistStorage = new PersistList(
+      this.clientId,
+      `./logs/data/history`
+    );
     if (callbacks.onInit) {
       callbacks.onInit(clientId);
     }
@@ -428,9 +488,10 @@ export class HistoryPersistInstance implements IHistoryInstance {
   }
 
   /**
-   * Iterate over the history messages for a given agent.
-   * @param agentName - The agent name.
-   * @returns An async iterable iterator of model messages.
+   * Iterates over history messages, applying filters and system prompts if configured.
+   * Invokes onRead callbacks during iteration if provided.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding filtered messages.
    */
   public async *iterate(
     agentName: AgentName
@@ -474,12 +535,13 @@ export class HistoryPersistInstance implements IHistoryInstance {
   }
 
   /**
-   * Push a new message to the history for a given agent.
-   * @param value - The model message to push.
-   * @param agentName - The agent name.
-   * @returns A promise that resolves when the message is pushed.
+   * Adds a new message to the history, persisting it to storage.
+   * Invokes onPush and onChange callbacks if provided.
+   * @param {IModelMessage} value - The message to add.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<void>} A promise that resolves when the message is persisted.
    */
-  public async push(value: IModelMessage, agentName: AgentName) {
+  public async push(value: IModelMessage, agentName: AgentName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_PUSH, {
         clientId: this.clientId,
@@ -494,11 +556,12 @@ export class HistoryPersistInstance implements IHistoryInstance {
   }
 
   /**
-   * Pop the last message from the history for a given agent.
-   * @param agentName - The agent name.
-   * @returns A promise that resolves to the last message or null.
+   * Removes and returns the last message from the history, updating persistent storage.
+   * Invokes onPop and onChange callbacks if provided.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
    */
-  public async pop(agentName: AgentName) {
+  public async pop(agentName: AgentName): Promise<IModelMessage | null> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_POP, {
         clientId: this.clientId,
@@ -514,11 +577,12 @@ export class HistoryPersistInstance implements IHistoryInstance {
   }
 
   /**
-   * Dispose of the history for a given agent.
-   * @param agentName - The agent name or null.
-   * @returns A promise that resolves when the history is disposed.
+   * Disposes of the history, clearing all data if agentName is null.
+   * Invokes onDispose callback if provided.
+   * @param {AgentName | null} agentName - The name of the agent, or null to clear all data.
+   * @returns {Promise<void>} A promise that resolves when disposal is complete.
    */
-  public async dispose(agentName: AgentName | null) {
+  public async dispose(agentName: AgentName | null): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_DISPOSE, {
         clientId: this.clientId,
@@ -533,32 +597,38 @@ export class HistoryPersistInstance implements IHistoryInstance {
 }
 
 /**
- * Class representing a History Instance
+ * Manages an in-memory history of messages without persistence.
+ * @implements {IHistoryInstance}
  */
 export class HistoryMemoryInstance implements IHistoryInstance {
+  /** @private The in-memory array of history messages */
   _array: IModelMessage[] = [];
 
   /**
-   * Makes the singleshot for initialization
-   * @param agentName - The agent name.
+   * Memoized initialization function to ensure it runs only once per agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<void>} A promise that resolves when initialization is complete.
+   * @private
    */
   private [HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT] = singleshot(
-    async (agentName) =>
+    async (agentName: AgentName): Promise<void> =>
       await HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT_FN(agentName, this)
   );
 
   /**
-   * Wait for the history to initialize.
-   * @param agentName - The agent name.
+   * Initializes the history for an agent, loading initial data if needed.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<void>} A promise that resolves when initialization is complete.
    */
   public async waitForInit(agentName: AgentName): Promise<void> {
     return await this[HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT](agentName);
   }
 
   /**
-   * Create a HistoryMemoryInstance.
-   * @param clientId - The client ID.
-   * @param callbacks - The callbacks for the history instance.
+   * Creates a new in-memory history instance.
+   * Invokes onInit and onRef callbacks if provided.
+   * @param {string} clientId - The client ID.
+   * @param {Partial<IHistoryInstanceCallbacks>} callbacks - The lifecycle callbacks.
    */
   constructor(
     readonly clientId: string,
@@ -647,9 +717,10 @@ export class HistoryMemoryInstance implements IHistoryInstance {
   }
 
   /**
-   * Iterate over the history messages for a given agent.
-   * @param agentName - The agent name.
-   * @returns An async iterable iterator of model messages.
+   * Iterates over history messages, applying filters and system prompts if configured.
+   * Invokes onRead callbacks during iteration if provided.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding filtered messages.
    */
   public async *iterate(
     agentName: AgentName
@@ -693,12 +764,16 @@ export class HistoryMemoryInstance implements IHistoryInstance {
   }
 
   /**
-   * Push a new message to the history for a given agent.
-   * @param value - The model message to push.
-   * @param agentName - The agent name.
-   * @returns A promise that resolves when the message is pushed.
+   * Adds a new message to the in-memory history.
+   * Invokes onPush and onChange callbacks if provided.
+   * @param {IModelMessage} value - The message to add.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<void>} A promise that resolves when the message is added.
    */
-  public push(value: IModelMessage, agentName: AgentName) {
+  public async push(
+    value: IModelMessage,
+    agentName: AgentName
+  ): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_PUSH, {
         clientId: this.clientId,
@@ -713,11 +788,12 @@ export class HistoryMemoryInstance implements IHistoryInstance {
   }
 
   /**
-   * Pop the last message from a history
-   * @param agentName - The agent name.
-   * @returns A promise that resolves when the message is pushed.
+   * Removes and returns the last message from the in-memory history.
+   * Invokes onPop and onChange callbacks if provided.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
    */
-  public pop(agentName: AgentName) {
+  public async pop(agentName: AgentName): Promise<IModelMessage | null> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_POP, {
         clientId: this.clientId,
@@ -732,11 +808,12 @@ export class HistoryMemoryInstance implements IHistoryInstance {
   }
 
   /**
-   * Dispose of the history for a given agent.
-   * @param agentName - The agent name or null.
-   * @returns A promise that resolves when the history is disposed.
+   * Disposes of the history, clearing all data if agentName is null.
+   * Invokes onDispose callback if provided.
+   * @param {AgentName | null} agentName - The name of the agent, or null to clear all data.
+   * @returns {Promise<void>} A promise that resolves when disposal is complete.
    */
-  public dispose(agentName: AgentName | null) {
+  public async dispose(agentName: AgentName | null): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_DISPOSE, {
         clientId: this.clientId,
@@ -751,15 +828,27 @@ export class HistoryMemoryInstance implements IHistoryInstance {
 }
 
 /**
- * Class representing History Utilities
+ * Provides utilities for managing history instances, supporting both memory and persistent storage.
+ * @implements {IHistoryAdapter}
+ * @implements {IHistoryControl}
  */
 export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
+  /** @private The custom history instance constructor, if set */
   private HistoryFactory: THistoryInstanceCtor;
+
+  /** @private The configured lifecycle callbacks for history instances */
   private HistoryCallbacks: Partial<IHistoryInstanceCallbacks> = {};
 
+  /**
+   * Memoized function to create or retrieve a history instance for a client.
+   * Defaults to HistoryPersistInstance or HistoryMemoryInstance based on global config.
+   * @param {string} clientId - The client ID.
+   * @returns {IHistoryInstance} The history instance for the client.
+   * @private
+   */
   private getHistory = memoize(
-    ([clientId]) => clientId,
-    (clientId: string) => {
+    ([clientId]: [string]): string => clientId,
+    (clientId: string): IHistoryInstance => {
       if (this.HistoryFactory) {
         return new this.HistoryFactory(clientId, this.HistoryCallbacks);
       }
@@ -770,32 +859,32 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
   );
 
   /**
-   * Use a custom history adapter.
-   * @param Ctor - The constructor for the history instance.
+   * Sets a custom history instance constructor for the adapter.
+   * @param {THistoryInstanceCtor} Ctor - The constructor for creating history instances.
    */
-  public useHistoryAdapter = (Ctor: THistoryInstanceCtor) => {
+  public useHistoryAdapter = (Ctor: THistoryInstanceCtor): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_USE_HISTORY_ADAPTER);
     this.HistoryFactory = Ctor;
   };
 
   /**
-   * Use history lifecycle callbacks.
-   * @param Callbacks - The callbacks dictionary.
+   * Configures lifecycle callbacks for all history instances created by this adapter.
+   * @param {Partial<IHistoryInstanceCallbacks>} Callbacks - The callbacks to apply.
    */
   public useHistoryCallbacks = (
     Callbacks: Partial<IHistoryInstanceCallbacks>
-  ) => {
+  ): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_USE_HISTORY_CALLBACKS);
     Object.assign(this.HistoryCallbacks, Callbacks);
   };
 
   /**
-   * Iterate over the history messages.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
-   * @returns An async iterable iterator of model messages.
+   * Iterates over history messages for a client and agent, ensuring initialization.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding history messages.
    */
   public async *iterate(
     clientId: string,
@@ -815,17 +904,17 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
   }
 
   /**
-   * Push a new message to the history.
-   * @param value - The model message to push.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
-   * @returns A promise that resolves when the message is pushed.
+   * Adds a new message to the history for a client and agent, ensuring initialization.
+   * @param {IModelMessage} value - The message to add.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<void>} A promise that resolves when the message is added.
    */
   public push = async (
     value: IModelMessage,
     clientId: string,
     agentName: AgentName
-  ) => {
+  ): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_PUSH, {
         clientId,
@@ -839,13 +928,15 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
   };
 
   /**
-   * Pop the last message from the history.
-   * @param value - The model message to push.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name.
-   * @returns A promise that resolves when the message is pushed.
+   * Removes and returns the last message from the history for a client and agent.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
    */
-  public pop = async (clientId: string, agentName: AgentName) => {
+  public pop = async (
+    clientId: string,
+    agentName: AgentName
+  ): Promise<IModelMessage | null> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_POP, {
         clientId,
@@ -858,12 +949,15 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
   };
 
   /**
-   * Dispose of the history for a given client and agent.
-   * @param clientId - The client ID.
-   * @param agentName - The agent name or null.
-   * @returns A promise that resolves when the history is disposed.
+   * Disposes of the history for a client and agent, clearing data if agentName is null.
+   * @param {string} clientId - The client ID.
+   * @param {AgentName | null} agentName - The name of the agent, or null to dispose fully.
+   * @returns {Promise<void>} A promise that resolves when disposal is complete.
    */
-  public dispose = async (clientId: string, agentName: AgentName | null) => {
+  public dispose = async (
+    clientId: string,
+    agentName: AgentName | null
+  ): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_DISPOSE, {
         clientId,
@@ -873,7 +967,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
       return;
     }
     const history = await this.getHistory(clientId);
-    await history.waitForInit(agentName, false);
+    await history.waitForInit(agentName ?? "default", false);
     await history.dispose(agentName);
     if (agentName === null) {
       this.getHistory.clear(clientId);
@@ -882,12 +976,14 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
 }
 
 /**
- * Exported History Adapter instance
+ * Singleton instance of HistoryUtils implementing the history adapter interface.
+ * @type {IHistoryAdapter & IHistoryControl}
  */
 export const HistoryAdapter = new HistoryUtils();
 
 /**
- * Exported History Control instance
+ * Exported History Control interface for configuring history behavior.
+ * @type {IHistoryControl}
  */
 export const History = HistoryAdapter as IHistoryControl;
 

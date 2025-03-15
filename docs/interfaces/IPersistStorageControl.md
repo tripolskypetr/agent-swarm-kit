@@ -1,6 +1,6 @@
 # IPersistStorageControl
 
-Interface for storage persistence control operations
+Interface defining control methods for storage persistence operations.
 
 ## Methods
 
@@ -9,3 +9,5 @@ Interface for storage persistence control operations
 ```ts
 usePersistStorageAdapter: (Ctor: TPersistBaseCtor<string, IPersistStorageData<IStorageData>>) => void
 ```
+
+Sets a custom persistence adapter for storage.

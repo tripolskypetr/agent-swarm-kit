@@ -2,7 +2,7 @@
 
 Implements `ISwarm`
 
-ClientSwarm class implements the ISwarm interface and manages agents within a swarm.
+Manages a collection of agents within a swarm, handling agent switching, output waiting, and navigation.
 
 ## Constructor
 
@@ -24,11 +24,15 @@ params: ISwarmParams
 _agentChangedSubject: Subject<[agentName: string, agent: IAgent]>
 ```
 
+Subject that emits when an agent reference changes, providing the agent name and instance.
+
 ### _activeAgent
 
 ```ts
 _activeAgent: string | unique symbol
 ```
+
+The name of the currently active agent, or a symbol indicating it needs to be fetched.
 
 ### _navigationStack
 
@@ -36,11 +40,15 @@ _activeAgent: string | unique symbol
 _navigationStack: string[] | unique symbol
 ```
 
+The navigation stack of agent names, or a symbol indicating it needs to be fetched.
+
 ### _cancelOutputSubject
 
 ```ts
 _cancelOutputSubject: Subject<{ agentName: string; output: string; }>
 ```
+
+Subject that emits to cancel output waiting, providing an empty output string.
 
 ### waitForOutput
 
@@ -48,7 +56,8 @@ _cancelOutputSubject: Subject<{ agentName: string; output: string; }>
 waitForOutput: () => Promise<string>
 ```
 
-Waits for output from the active agent.
+Waits for output from the active agent in a queued manner.
+Handles cancellation and agent changes, ensuring only one wait operation at a time.
 
 ## Methods
 
@@ -58,7 +67,8 @@ Waits for output from the active agent.
 navigationPop(): Promise<string>;
 ```
 
-Pop the navigation stack or return default agent
+Pops the most recent agent from the navigation stack or returns the default agent if empty.
+Updates the persisted navigation stack.
 
 ### cancelOutput
 
@@ -66,7 +76,7 @@ Pop the navigation stack or return default agent
 cancelOutput(): Promise<void>;
 ```
 
-Cancel the await of output by emit of empty string
+Cancels the current output wait by emitting an empty string via the cancel subject.
 
 ### getAgentName
 
@@ -74,7 +84,8 @@ Cancel the await of output by emit of empty string
 getAgentName(): Promise<AgentName>;
 ```
 
-Gets the name of the active agent.
+Retrieves the name of the active agent, fetching it if not yet loaded.
+Emits an event with the result.
 
 ### getAgent
 
@@ -82,7 +93,8 @@ Gets the name of the active agent.
 getAgent(): Promise<IAgent>;
 ```
 
-Gets the active agent.
+Retrieves the active agent instance based on its name.
+Emits an event with the result.
 
 ### setAgentRef
 
@@ -90,7 +102,8 @@ Gets the active agent.
 setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
 ```
 
-Sets the reference of an agent in the swarm.
+Updates the reference to an agent in the swarm's agent map.
+Notifies subscribers via the agent changed subject.
 
 ### setAgentName
 
@@ -98,4 +111,5 @@ Sets the reference of an agent in the swarm.
 setAgentName(agentName: AgentName): Promise<void>;
 ```
 
-Sets the active agent by name.
+Sets the active agent by name, updates the navigation stack, and persists the change.
+Invokes the onAgentChanged callback if provided.

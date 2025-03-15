@@ -2,6 +2,9 @@
 
 Implements `TSharedStorage`
 
+Utility class for managing shared storage within an agent swarm.
+Provides methods to manipulate and query storage data, interfacing with the swarm's shared storage service.
+
 ## Constructor
 
 ```ts
@@ -16,7 +19,8 @@ constructor();
 take: <T extends IStorageData = IStorageData>(payload: { search: string; total: number; storageName: string; score?: number; }) => Promise<T[]>
 ```
 
-Takes items from the storage.
+Retrieves a specified number of items from storage matching a search query.
+Executes within a context for logging and validation, ensuring the storage name is valid.
 
 ### upsert
 
@@ -24,7 +28,8 @@ Takes items from the storage.
 upsert: <T extends IStorageData = IStorageData>(item: T, storageName: string) => Promise<void>
 ```
 
-Upserts an item in the storage.
+Inserts or updates an item in the storage.
+Executes within a context for logging and validation, ensuring the storage name is valid.
 
 ### remove
 
@@ -32,7 +37,8 @@ Upserts an item in the storage.
 remove: (itemId: StorageId, storageName: string) => Promise<void>
 ```
 
-Removes an item from the storage.
+Removes an item from the storage by its ID.
+Executes within a context for logging and validation, ensuring the storage name is valid.
 
 ### get
 
@@ -40,7 +46,8 @@ Removes an item from the storage.
 get: <T extends IStorageData = IStorageData>(itemId: StorageId, storageName: string) => Promise<T>
 ```
 
-Gets an item from the storage.
+Retrieves an item from the storage by its ID.
+Executes within a context for logging and validation, ensuring the storage name is valid.
 
 ### list
 
@@ -48,7 +55,8 @@ Gets an item from the storage.
 list: <T extends IStorageData = IStorageData>(storageName: string, filter?: (item: T) => boolean) => Promise<T[]>
 ```
 
-Lists items from the storage.
+Lists all items in the storage, optionally filtered by a predicate.
+Executes within a context for logging and validation, ensuring the storage name is valid.
 
 ### clear
 
@@ -56,4 +64,5 @@ Lists items from the storage.
 clear: (storageName: string) => Promise<void>
 ```
 
-Clears the storage.
+Clears all items from the storage.
+Executes within a context for logging and validation, ensuring the storage name is valid.

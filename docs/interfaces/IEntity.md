@@ -1,3 +1,3 @@
 # IEntity
 
-Base interface for all persistent entities
+Base interface for all persistent entities.

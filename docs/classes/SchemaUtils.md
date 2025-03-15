@@ -1,6 +1,7 @@
 # SchemaUtils
 
-Utility class for schema-related operations.
+Utility class for managing schema-related operations, including session memory access and data serialization.
+Provides methods to read/write client session memory and serialize objects into formatted strings.
 
 ## Constructor
 
@@ -17,6 +18,7 @@ writeSessionMemory: <T extends object = object>(clientId: string, value: T) => T
 ```
 
 Writes a value to the session memory for a given client.
+Executes within a context for logging and validation, ensuring the client session is valid.
 
 ### readSessionMemory
 
@@ -25,6 +27,7 @@ readSessionMemory: <T extends object = object>(clientId: string) => T
 ```
 
 Reads a value from the session memory for a given client.
+Executes within a context for logging and validation, ensuring the client session is valid.
 
 ### serialize
 
@@ -32,4 +35,5 @@ Reads a value from the session memory for a given client.
 serialize: <T extends object = any>(data: T | T[], map?: { mapKey?: (name: string) => string; mapValue?: (key: string, value: string) => string; }) => string
 ```
 
-Serializes an object or an array of objects into a formatted string.
+Serializes an object or array of objects into a formatted string.
+Flattens nested objects and applies optional key/value mapping functions for formatting.
