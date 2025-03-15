@@ -18,27 +18,27 @@ constructor(entityName: EntityName, baseDir: string);
 _lastCount: number
 ```
 
-### __@LIST_CREATE_KEY_SYMBOL@527
+### __@LIST_CREATE_KEY_SYMBOL@526
 
 ```ts
-__@LIST_CREATE_KEY_SYMBOL@527: any
+__@LIST_CREATE_KEY_SYMBOL@526: any
 ```
 
 Queued function to create a new unique key for a list item.
 Ensures sequential key generation even under concurrent calls.
 
-### __@LIST_GET_LAST_KEY_SYMBOL@528
+### __@LIST_GET_LAST_KEY_SYMBOL@527
 
 ```ts
-__@LIST_GET_LAST_KEY_SYMBOL@528: any
+__@LIST_GET_LAST_KEY_SYMBOL@527: any
 ```
 
 Retrieves the key of the last item in the list.
 
-### __@LIST_POP_SYMBOL@530
+### __@LIST_POP_SYMBOL@529
 
 ```ts
-__@LIST_POP_SYMBOL@530: any
+__@LIST_POP_SYMBOL@529: any
 ```
 
 Queued function to remove and return the last item in the list.

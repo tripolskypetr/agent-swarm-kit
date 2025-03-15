@@ -1,6 +1,7 @@
 # IHistoryParams
 
 Interface representing the parameters required to create a history instance.
+Extends the history schema with runtime dependencies for agent-specific history management.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Interface representing the parameters required to create a history instance.
 agentName: string
 ```
 
-The name of the agent.
+The unique name of the agent associated with this history instance.
 
 ### clientId
 
@@ -18,7 +19,7 @@ The name of the agent.
 clientId: string
 ```
 
-The client ID.
+The unique ID of the client associated with this history instance.
 
 ### logger
 
@@ -26,7 +27,7 @@ The client ID.
 logger: ILogger
 ```
 
-The logger instance.
+The logger instance for recording history-related activity and errors.
 
 ### bus
 
@@ -34,4 +35,4 @@ The logger instance.
 bus: IBus
 ```
 
-The bus instance.
+The bus instance for event communication within the swarm.

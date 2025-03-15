@@ -36,10 +36,10 @@ _array: IModelMessage[]
 _persistStorage: PersistList<string>
 ```
 
-### __@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@720
+### __@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@719
 
 ```ts
-__@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@720: any
+__@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@719: any
 ```
 
 Memoized initialization function to ensure it runs only once per agent.

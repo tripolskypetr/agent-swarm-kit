@@ -1,6 +1,7 @@
 # IAgentSchema
 
-Interface representing the schema for an agent.
+Interface representing the configuration schema for an agent.
+Defines the agent's properties, tools, and lifecycle behavior.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Interface representing the schema for an agent.
 mapToolCalls: (tool: IToolCall[], clientId: string, agentName: string) => IToolCall[] | Promise<IToolCall[]>
 ```
 
-The map function to filter unwanted tool calls
+Optional function to filter or modify tool calls before execution.
 
 ### maxToolCalls
 
@@ -18,7 +19,7 @@ The map function to filter unwanted tool calls
 maxToolCalls: number
 ```
 
-The maximum quantity of tool calls per complete
+Optional maximum number of tool calls allowed per completion cycle.
 
 ### docDescription
 
@@ -26,7 +27,7 @@ The maximum quantity of tool calls per complete
 docDescription: string
 ```
 
-The description for documentation
+Optional description for documentation purposes, aiding in agent usage understanding.
 
 ### agentName
 
@@ -34,7 +35,7 @@ The description for documentation
 agentName: string
 ```
 
-The name of the agent.
+The unique name of the agent within the swarm.
 
 ### completion
 
@@ -42,7 +43,7 @@ The name of the agent.
 completion: string
 ```
 
-The name of the completion.
+The name of the completion mechanism used by the agent.
 
 ### prompt
 
@@ -50,7 +51,7 @@ The name of the completion.
 prompt: string
 ```
 
-The prompt for the agent.
+The primary prompt guiding the agent's behavior.
 
 ### system
 
@@ -58,7 +59,7 @@ The prompt for the agent.
 system: string[]
 ```
 
-The system prompt. Usually used for tool calling protocol.
+Optional array of system prompts, typically used for tool-calling protocols.
 
 ### tools
 
@@ -66,7 +67,7 @@ The system prompt. Usually used for tool calling protocol.
 tools: string[]
 ```
 
-The names of the tools used by the agent.
+Optional array of tool names available to the agent.
 
 ### storages
 
@@ -74,7 +75,7 @@ The names of the tools used by the agent.
 storages: string[]
 ```
 
-The names of the storages used by the agent.
+Optional array of storage names utilized by the agent.
 
 ### states
 
@@ -82,7 +83,7 @@ The names of the storages used by the agent.
 states: string[]
 ```
 
-The names of the states used by the agent.
+Optional array of state names managed by the agent.
 
 ### dependsOn
 
@@ -90,7 +91,7 @@ The names of the states used by the agent.
 dependsOn: string[]
 ```
 
-The list of dependencies for changeToAgent
+Optional array of agent names this agent depends on for transitions (e.g., via changeToAgent).
 
 ### validate
 
@@ -98,7 +99,7 @@ The list of dependencies for changeToAgent
 validate: (output: string) => Promise<string>
 ```
 
-Validates the output.
+Optional function to validate the agent's output before finalization.
 
 ### transform
 
@@ -106,7 +107,7 @@ Validates the output.
 transform: (input: string, clientId: string, agentName: string) => string | Promise<string>
 ```
 
-The transform function for model output
+Optional function to transform the model's output before further processing.
 
 ### map
 
@@ -114,7 +115,7 @@ The transform function for model output
 map: (message: IModelMessage, clientId: string, agentName: string) => IModelMessage | Promise<IModelMessage>
 ```
 
-The map function for assistant messages. Use to transform json to tool_call for deepseek r1 on ollama
+Optional function to map assistant messages, e.g., converting JSON to tool calls for specific models.
 
 ### callbacks
 
@@ -122,4 +123,4 @@ The map function for assistant messages. Use to transform json to tool_call for 
 callbacks: Partial<IAgentSchemaCallbacks>
 ```
 
-The lifecycle calbacks of the agent.
+Optional lifecycle callbacks for the agent, allowing customization of execution flow.

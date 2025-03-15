@@ -1,6 +1,7 @@
 # IEmbeddingCallbacks
 
-Interface for embedding callbacks.
+Interface representing callbacks for embedding lifecycle events.
+Provides hooks for creation and comparison of embeddings.
 
 ## Methods
 
@@ -10,7 +11,8 @@ Interface for embedding callbacks.
 onCreate: (text: string, embeddings: Embeddings, clientId: string, embeddingName: string) => void
 ```
 
-Callback for when an embedding is created.
+Callback triggered when an embedding is created.
+Useful for logging or post-processing the generated embeddings.
 
 ### onCompare
 
@@ -18,4 +20,5 @@ Callback for when an embedding is created.
 onCompare: (text1: string, text2: string, similarity: number, clientId: string, embeddingName: string) => void
 ```
 
-Callback for when embeddings are compared.
+Callback triggered when two embeddings are compared for similarity.
+Useful for logging or analyzing similarity results.

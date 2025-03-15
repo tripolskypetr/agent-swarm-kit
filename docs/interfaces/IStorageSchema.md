@@ -1,6 +1,7 @@
 # IStorageSchema
 
-Interface representing the schema of the storage.
+Interface representing the schema for storage configuration.
+Defines how storage behaves, including persistence, indexing, and data access.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Interface representing the schema of the storage.
 persist: boolean
 ```
 
-Mark the storage to serialize values to the hard drive
+Optional flag to enable serialization of storage data to persistent storage (e.g., hard drive).
 
 ### docDescription
 
@@ -18,7 +19,7 @@ Mark the storage to serialize values to the hard drive
 docDescription: string
 ```
 
-The description for documentation
+Optional description for documentation purposes, aiding in storage usage understanding.
 
 ### shared
 
@@ -26,7 +27,7 @@ The description for documentation
 shared: boolean
 ```
 
-All agents will share the same ClientStorage instance
+Optional flag indicating whether the storage instance is shared across all agents for a client.
 
 ### getData
 
@@ -34,7 +35,7 @@ All agents will share the same ClientStorage instance
 getData: (clientId: string, storageName: string, defaultValue: T[]) => T[] | Promise<T[]>
 ```
 
-Function to get data from the storage.
+Optional function to retrieve data from the storage, overriding default behavior.
 
 ### setData
 
@@ -42,7 +43,7 @@ Function to get data from the storage.
 setData: (data: T[], clientId: string, storageName: string) => void | Promise<void>
 ```
 
-Function to set data from the storage to hard drive.
+Optional function to persist storage data to the hard drive, overriding default behavior.
 
 ### embedding
 
@@ -50,7 +51,7 @@ Function to set data from the storage to hard drive.
 embedding: string
 ```
 
-The name of the embedding.
+The name of the embedding mechanism used for indexing and searching storage data.
 
 ### storageName
 
@@ -58,7 +59,7 @@ The name of the embedding.
 storageName: string
 ```
 
-The name of the storage.
+The unique name of the storage within the swarm.
 
 ### callbacks
 
@@ -66,7 +67,7 @@ The name of the storage.
 callbacks: Partial<IStorageCallbacks<T>>
 ```
 
-Optional callbacks for storage events.
+Optional partial set of lifecycle callbacks for storage events, allowing customization.
 
 ### getDefaultData
 
@@ -74,7 +75,7 @@ Optional callbacks for storage events.
 getDefaultData: (clientId: string, storageName: string) => T[] | Promise<T[]>
 ```
 
-The default value. Resolved in `PersistStorage`
+Optional function to provide the default data for the storage, resolved in persistence logic.
 
 ## Methods
 
@@ -84,4 +85,4 @@ The default value. Resolved in `PersistStorage`
 createIndex: (item: T) => string | Promise<string>
 ```
 
-Function to create an index for an item.
+Function to generate an index for a storage item, used for search and retrieval.

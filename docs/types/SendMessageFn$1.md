@@ -4,4 +4,4 @@
 type SendMessageFn$1<T = void> = (outgoing: IOutgoingMessage) => Promise<T>;
 ```
 
-Function type for sending messages.
+Type representing a function for sending messages.

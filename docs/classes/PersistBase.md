@@ -30,10 +30,10 @@ baseDir: string
 _directory: string
 ```
 
-### __@BASE_WAIT_FOR_INIT_SYMBOL@482
+### __@BASE_WAIT_FOR_INIT_SYMBOL@481
 
 ```ts
-__@BASE_WAIT_FOR_INIT_SYMBOL@482: any
+__@BASE_WAIT_FOR_INIT_SYMBOL@481: any
 ```
 
 Memoized initialization function to ensure it runs only once.
@@ -121,7 +121,7 @@ keys(): AsyncGenerator<EntityId>;
 
 Iterates over all entity IDs in storage, sorted numerically.
 
-### __@asyncIterator@483
+### __@asyncIterator@482
 
 ```ts
 [Symbol.asyncIterator](): AsyncIterableIterator<any>;

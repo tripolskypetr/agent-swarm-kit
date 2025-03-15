@@ -1,6 +1,7 @@
 # IAgentTool
 
-Interface representing a tool used by an agent.
+Interface representing a tool used by an agent, extending the base ITool interface.
+Defines the tool's execution and validation logic, with optional lifecycle callbacks.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Interface representing a tool used by an agent.
 docNote: string
 ```
 
-The description for documentation
+Optional description for documentation purposes, aiding in tool usage understanding.
 
 ### toolName
 
@@ -18,7 +19,7 @@ The description for documentation
 toolName: string
 ```
 
-The name of the tool.
+The unique name of the tool, used for identification within the agent swarm.
 
 ### callbacks
 
@@ -26,7 +27,7 @@ The name of the tool.
 callbacks: Partial<IAgentToolCallbacks<Record<string, ToolValue>>>
 ```
 
-The name of the tool.
+Optional lifecycle callbacks for the tool, allowing customization of execution flow.
 
 ## Methods
 
@@ -36,7 +37,7 @@ The name of the tool.
 call: (dto: { toolId: string; clientId: string; agentName: string; params: T; toolCalls: IToolCall[]; isLast: boolean; }) => Promise<void>
 ```
 
-Calls the tool with the specified parameters.
+Executes the tool with the specified parameters and context.
 
 ### validate
 
@@ -44,4 +45,5 @@ Calls the tool with the specified parameters.
 validate: (dto: { clientId: string; agentName: string; toolCalls: IToolCall[]; params: T; }) => boolean | Promise<boolean>
 ```
 
-Validates the parameters for the tool.
+Validates the tool parameters before execution.
+Can return synchronously or asynchronously based on validation complexity.

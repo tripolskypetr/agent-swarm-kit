@@ -1,6 +1,7 @@
 # IStateParams
 
-Parameters for state management.
+Interface representing the runtime parameters for state management.
+Extends the state schema with client-specific runtime dependencies.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Parameters for state management.
 clientId: string
 ```
 
-The client ID.
+The unique ID of the client associated with the state instance.
 
 ### logger
 
@@ -18,7 +19,7 @@ The client ID.
 logger: ILogger
 ```
 
-The logger instance.
+The logger instance for recording state-related activity and errors.
 
 ### bus
 
@@ -26,4 +27,4 @@ The logger instance.
 bus: IBus
 ```
 
-The bus instance.
+The bus instance for event communication within the swarm.

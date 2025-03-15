@@ -1,3 +1,4 @@
 # IStateMiddleware
 
-Middleware function for state management.
+Interface representing a middleware function for state management.
+Allows modification or validation of state during lifecycle operations.

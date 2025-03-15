@@ -1,6 +1,7 @@
 # IEmbeddingSchema
 
-Interface representing the schema for embeddings.
+Interface representing the schema for configuring an embedding mechanism.
+Defines how embeddings are created and compared within the swarm.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Interface representing the schema for embeddings.
 embeddingName: string
 ```
 
-The name of the embedding.
+The unique name of the embedding mechanism within the swarm.
 
 ### callbacks
 
@@ -18,7 +19,7 @@ The name of the embedding.
 callbacks: Partial<IEmbeddingCallbacks>
 ```
 
-Optional callbacks for embedding events.
+Optional partial set of callbacks for embedding events, allowing customization of creation and comparison.
 
 ## Methods
 
@@ -28,7 +29,8 @@ Optional callbacks for embedding events.
 createEmbedding: (text: string) => Promise<Embeddings>
 ```
 
-Creates an embedding from the given text.
+Creates an embedding from the provided text.
+Typically used for indexing or search operations in storage.
 
 ### calculateSimilarity
 
@@ -37,3 +39,4 @@ calculateSimilarity: (a: Embeddings, b: Embeddings) => Promise<number>
 ```
 
 Calculates the similarity between two embeddings.
+Commonly used for search or ranking operations (e.g., cosine similarity).

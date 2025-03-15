@@ -1,6 +1,7 @@
 # IAgentToolCallbacks
 
-Interface representing lifecycle callbacks of a tool
+Interface representing lifecycle callbacks for an agent tool.
+Provides hooks for pre- and post-execution, validation, and error handling.
 
 ## Properties
 
@@ -10,7 +11,8 @@ Interface representing lifecycle callbacks of a tool
 onBeforeCall: (toolId: string, clientId: string, agentName: string, params: T) => Promise<void>
 ```
 
-Callback triggered before the tool is called.
+Optional callback triggered before the tool is executed.
+Useful for logging, pre-processing, or setup tasks.
 
 ### onAfterCall
 
@@ -18,7 +20,8 @@ Callback triggered before the tool is called.
 onAfterCall: (toolId: string, clientId: string, agentName: string, params: T) => Promise<void>
 ```
 
-Callback triggered after the tool is called.
+Optional callback triggered after the tool is executed.
+Useful for cleanup, logging, or post-processing.
 
 ### onValidate
 
@@ -26,7 +29,8 @@ Callback triggered after the tool is called.
 onValidate: (clientId: string, agentName: string, params: T) => Promise<boolean>
 ```
 
-Callback triggered when the tool parameters are validated.
+Optional callback triggered to validate tool parameters before execution.
+Allows custom validation logic specific to the tool.
 
 ### onCallError
 
@@ -34,4 +38,5 @@ Callback triggered when the tool parameters are validated.
 onCallError: (toolId: string, clientId: string, agentName: string, params: T, error: Error) => Promise<void>
 ```
 
-Callback triggered when the tool fails to execute
+Optional callback triggered when the tool execution fails.
+Useful for error logging or recovery actions.

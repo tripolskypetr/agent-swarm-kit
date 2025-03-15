@@ -1,6 +1,7 @@
 # IHistorySchema
 
-Interface representing the schema of the history.
+Interface representing the schema for history configuration.
+Defines the underlying storage mechanism for model messages.
 
 ## Properties
 
@@ -10,4 +11,5 @@ Interface representing the schema of the history.
 items: IHistoryAdapter
 ```
 
-The adapter for array of model messages.
+The adapter responsible for managing the array of model messages.
+Provides the implementation for history storage and retrieval.

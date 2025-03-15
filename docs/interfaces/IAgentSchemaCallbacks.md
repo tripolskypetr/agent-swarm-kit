@@ -1,6 +1,7 @@
 # IAgentSchemaCallbacks
 
-Interface representing the lifecycle callbacks of an agent
+Interface representing lifecycle callbacks for an agent.
+Provides hooks for various stages of agent execution and interaction.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Interface representing the lifecycle callbacks of an agent
 onRun: (clientId: string, agentName: string, input: string) => void
 ```
 
-Callback triggered when the agent run stateless.
+Optional callback triggered when the agent runs statelessly (without history updates).
 
 ### onExecute
 
@@ -18,7 +19,7 @@ Callback triggered when the agent run stateless.
 onExecute: (clientId: string, agentName: string, input: string, mode: ExecutionMode) => void
 ```
 
-Callback triggered when the agent executes.
+Optional callback triggered when the agent begins execution.
 
 ### onToolOutput
 
@@ -26,7 +27,7 @@ Callback triggered when the agent executes.
 onToolOutput: (toolId: string, clientId: string, agentName: string, content: string) => void
 ```
 
-Callback triggered when there is tool output.
+Optional callback triggered when a tool produces output.
 
 ### onSystemMessage
 
@@ -34,7 +35,7 @@ Callback triggered when there is tool output.
 onSystemMessage: (clientId: string, agentName: string, message: string) => void
 ```
 
-Callback triggered when there is a system message.
+Optional callback triggered when a system message is generated.
 
 ### onAssistantMessage
 
@@ -42,7 +43,7 @@ Callback triggered when there is a system message.
 onAssistantMessage: (clientId: string, agentName: string, message: string) => void
 ```
 
-Callback triggered when there is a committed assistant message.
+Optional callback triggered when an assistant message is committed.
 
 ### onUserMessage
 
@@ -50,7 +51,7 @@ Callback triggered when there is a committed assistant message.
 onUserMessage: (clientId: string, agentName: string, message: string) => void
 ```
 
-Callback triggered when there is a user message.
+Optional callback triggered when a user message is received.
 
 ### onFlush
 
@@ -58,7 +59,7 @@ Callback triggered when there is a user message.
 onFlush: (clientId: string, agentName: string) => void
 ```
 
-Callback triggered when the agent history is flushed.
+Optional callback triggered when the agent's history is flushed.
 
 ### onOutput
 
@@ -66,7 +67,7 @@ Callback triggered when the agent history is flushed.
 onOutput: (clientId: string, agentName: string, output: string) => void
 ```
 
-Callback triggered when there is output.
+Optional callback triggered when the agent produces output.
 
 ### onResurrect
 
@@ -74,7 +75,7 @@ Callback triggered when there is output.
 onResurrect: (clientId: string, agentName: string, mode: ExecutionMode, reason?: string) => void
 ```
 
-Callback triggered when the agent is resurrected.
+Optional callback triggered when the agent is resurrected after a pause or failure.
 
 ### onInit
 
@@ -82,7 +83,7 @@ Callback triggered when the agent is resurrected.
 onInit: (clientId: string, agentName: string) => void
 ```
 
-Callback triggered when agent is initialized
+Optional callback triggered when the agent is initialized.
 
 ### onDispose
 
@@ -90,7 +91,7 @@ Callback triggered when agent is initialized
 onDispose: (clientId: string, agentName: string) => void
 ```
 
-Callback triggered when agent is disposed
+Optional callback triggered when the agent is disposed of.
 
 ### onAfterToolCalls
 
@@ -98,4 +99,4 @@ Callback triggered when agent is disposed
 onAfterToolCalls: (clientId: string, agentName: string, toolCalls: IToolCall[]) => void
 ```
 
-Callback triggered after all tools are called
+Optional callback triggered after all tool calls in a sequence are completed.

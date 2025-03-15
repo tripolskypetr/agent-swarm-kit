@@ -1,6 +1,7 @@
 # IStorage
 
-Interface representing the storage.
+Interface representing the runtime storage management API.
+Provides methods to manipulate and query storage data.
 
 ## Methods
 
@@ -10,7 +11,8 @@ Interface representing the storage.
 take: (search: string, total: number, score?: number) => Promise<T[]>
 ```
 
-Function to take items from the storage.
+Retrieves a specified number of items from the storage based on a search query.
+Uses embeddings for similarity-based retrieval.
 
 ### upsert
 
@@ -18,7 +20,8 @@ Function to take items from the storage.
 upsert: (item: T) => Promise<void>
 ```
 
-Function to upsert an item in the storage.
+Inserts or updates an item in the storage.
+Updates the index and persists data if configured.
 
 ### remove
 
@@ -26,7 +29,8 @@ Function to upsert an item in the storage.
 remove: (itemId: StorageId) => Promise<void>
 ```
 
-Function to remove an item from the storage.
+Removes an item from the storage by its ID.
+Updates the index and persists changes if configured.
 
 ### get
 
@@ -34,7 +38,7 @@ Function to remove an item from the storage.
 get: (itemId: StorageId) => Promise<T>
 ```
 
-Function to get an item from the storage.
+Retrieves an item from the storage by its ID.
 
 ### list
 
@@ -42,7 +46,7 @@ Function to get an item from the storage.
 list: (filter?: (item: T) => boolean) => Promise<T[]>
 ```
 
-Function to list items from the storage.
+Lists all items in the storage, optionally filtered by a predicate.
 
 ### clear
 
@@ -50,4 +54,5 @@ Function to list items from the storage.
 clear: () => Promise<void>
 ```
 
-Function to clear the storage.
+Clears all items from the storage, resetting it to an empty state.
+Persists changes if configured.

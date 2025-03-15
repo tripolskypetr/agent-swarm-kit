@@ -1,3 +1,4 @@
 # ISessionSchema
 
-Schema for session data.
+Interface representing the schema for session data.
+Currently empty, serving as a placeholder for future session-specific configuration.

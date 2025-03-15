@@ -1,6 +1,7 @@
 # ICompletionCallbacks
 
-Completion lifecycle callbacks
+Interface representing lifecycle callbacks for completion events.
+Provides hooks for post-completion actions.
 
 ## Properties
 
@@ -10,4 +11,5 @@ Completion lifecycle callbacks
 onComplete: (args: ICompletionArgs, output: IModelMessage) => void
 ```
 
-Callback fired after complete.
+Optional callback triggered after a completion is successfully generated.
+Useful for logging, output processing, or triggering side effects.

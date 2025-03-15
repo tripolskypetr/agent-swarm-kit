@@ -1,6 +1,7 @@
 # ISwarm
 
-Interface for a swarm.
+Interface representing a swarm of agents.
+Provides methods for navigation, agent management, and output handling.
 
 ## Methods
 
@@ -10,7 +11,7 @@ Interface for a swarm.
 navigationPop: () => Promise<string>
 ```
 
-Pop the navigation stack or return default agent
+Removes and returns the most recent agent from the navigation stack, or falls back to the default agent.
 
 ### cancelOutput
 
@@ -18,7 +19,7 @@ Pop the navigation stack or return default agent
 cancelOutput: () => Promise<void>
 ```
 
-Will return empty string in waitForOutput
+Cancels the current output operation, resulting in an empty string from waitForOutput.
 
 ### waitForOutput
 
@@ -26,7 +27,7 @@ Will return empty string in waitForOutput
 waitForOutput: () => Promise<string>
 ```
 
-Waits for the output from the swarm.
+Waits for and retrieves the output from the swarm’s active agent.
 
 ### getAgentName
 
@@ -34,7 +35,7 @@ Waits for the output from the swarm.
 getAgentName: () => Promise<string>
 ```
 
-Gets the name of the agent.
+Retrieves the name of the currently active agent in the swarm.
 
 ### getAgent
 
@@ -42,7 +43,7 @@ Gets the name of the agent.
 getAgent: () => Promise<IAgent>
 ```
 
-Gets the agent instance.
+Retrieves the instance of the currently active agent in the swarm.
 
 ### setAgentRef
 
@@ -50,7 +51,7 @@ Gets the agent instance.
 setAgentRef: (agentName: string, agent: IAgent) => Promise<void>
 ```
 
-Sets the reference to an agent.
+Registers or updates an agent reference in the swarm’s agent map.
 
 ### setAgentName
 
@@ -58,4 +59,4 @@ Sets the reference to an agent.
 setAgentName: (agentName: string) => Promise<void>
 ```
 
-Sets the name of the agent.
+Sets the active agent in the swarm by name, updating navigation if applicable.
