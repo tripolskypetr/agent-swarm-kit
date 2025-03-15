@@ -3,15 +3,32 @@ import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
 
 /**
- * Interface representing the context.
+ * Interface defining the structure of execution context in the swarm system.
+ * Represents metadata for tracking a specific execution, used across services like ClientAgent, PerfService, and BusService.
+ * @interface IExecutionContext
  */
 interface IExecutionContext {
+    /**
+     * The unique identifier of the client session, tying to ClientAgent’s clientId and PerfService’s execution tracking.
+     * @type {string}
+     */
     clientId: string;
+    /**
+     * The unique identifier of the execution instance, used in PerfService (e.g., startExecution) and BusService (e.g., commitExecutionBegin).
+     * @type {string}
+     */
     executionId: string;
+    /**
+     * The unique identifier of the process, sourced from GLOBAL_CONFIG.CC_PROCESS_UUID, used in PerfService’s IPerformanceRecord.processId.
+     * @type {string}
+     */
     processId: string;
 }
 /**
- * Service providing execution context information.
+ * Scoped service class providing execution context information in the swarm system.
+ * Stores and exposes an IExecutionContext object (clientId, executionId, processId) via dependency injection, scoped using di-scoped for execution-specific instances.
+ * Integrates with ClientAgent (e.g., EXECUTE_FN execution context), PerfService (e.g., execution tracking in startExecution), BusService (e.g., execution events in commitExecutionBegin), and LoggerService (e.g., context logging in info).
+ * Provides a lightweight, immutable context container for tracking execution metadata across the system.
  */
 declare const ExecutionContextService: (new () => {
     readonly context: IExecutionContext;
@@ -2677,19 +2694,52 @@ type AgentName = string;
 type ToolName = string;
 
 /**
- * Interface representing the context.
+ * Interface defining the structure of method call context in the swarm system.
+ * Represents metadata for tracking a specific method invocation, used across services like ClientAgent, PerfService, and LoggerService.
+ * @interface IMethodContext
  */
 interface IMethodContext {
+    /**
+     * The unique identifier of the client session, tying to ClientAgent’s clientId and PerfService’s execution tracking.
+     * @type {string}
+     */
     clientId: string;
+    /**
+     * The name of the method being invoked, used in LoggerService (e.g., log method context) and PerfService (e.g., METHOD_NAME_COMPUTE_STATE).
+     * @type {string}
+     */
     methodName: string;
+    /**
+     * The name of the agent involved in the method call, sourced from Agent.interface, used in ClientAgent (e.g., agent-specific execution) and DocService (e.g., agent docs).
+     * @type {AgentName}
+     */
     agentName: AgentName;
+    /**
+     * The name of the swarm involved in the method call, sourced from Swarm.interface, used in PerfService (e.g., computeClientState) and DocService (e.g., swarm docs).
+     * @type {SwarmName}
+     */
     swarmName: SwarmName;
+    /**
+     * The name of the storage resource involved, sourced from Storage.interface, used in ClientAgent (e.g., storage access) and DocService (e.g., storage docs).
+     * @type {StorageName}
+     */
     storageName: StorageName;
+    /**
+     * The name of the state resource involved, sourced from State.interface, used in PerfService (e.g., sessionState) and DocService (e.g., state docs).
+     * @type {StateName}
+     */
     stateName: StateName;
+    /**
+     * The name of the policy involved, sourced from Policy.interface, used in PerfService (e.g., policyBans) and DocService (e.g., policy docs).
+     * @type {PolicyName}
+     */
     policyName: PolicyName;
 }
 /**
- * Service providing method call context information.
+ * Scoped service class providing method call context information in the swarm system.
+ * Stores and exposes an IMethodContext object (clientId, methodName, agentName, etc.) via dependency injection, scoped using di-scoped for method-specific instances.
+ * Integrates with ClientAgent (e.g., EXECUTE_FN method context), PerfService (e.g., computeClientState with METHOD_NAME_COMPUTE_STATE), LoggerService (e.g., context logging in info), and DocService (e.g., documenting method-related entities).
+ * Provides a lightweight, immutable context container for tracking method invocation metadata across the system.
  */
 declare const MethodContextService: (new () => {
     readonly context: IMethodContext;
@@ -2700,35 +2750,70 @@ declare const MethodContextService: (new () => {
 }, "prototype"> & di_scoped.IScopedClassRun<[context: IMethodContext]>;
 
 /**
- * LoggerService class that implements the ILogger interface.
- * Provides methods to log and debug messages.
+ * Service class implementing the ILogger interface to provide logging functionality in the swarm system.
+ * Handles log, debug, and info messages with context awareness using MethodContextService and ExecutionContextService, routing logs to both a client-specific logger (via GLOBAL_CONFIG.CC_GET_CLIENT_LOGGER_ADAPTER) and a common logger.
+ * Integrates with ClientAgent (e.g., debug logging in RUN_FN), PerfService (e.g., info logging in startExecution), and DocService (e.g., info logging in dumpDocs), controlled by GLOBAL_CONFIG logging flags (e.g., CC_LOGGER_ENABLE_DEBUG).
+ * Supports runtime logger replacement via setLogger, enhancing flexibility across the system.
  */
 declare class LoggerService implements ILogger {
+    /**
+     * Method context service instance, injected via DI, providing method-level context (e.g., clientId).
+     * Used in log, debug, and info to attach method-specific metadata, aligning with ClientAgent’s method execution context.
+     * @type {TMethodContextService}
+     * @private
+     */
     private readonly methodContextService;
+    /**
+     * Execution context service instance, injected via DI, providing execution-level context (e.g., clientId).
+     * Used in log, debug, and info to attach execution-specific metadata, complementing ClientAgent’s execution workflows (e.g., EXECUTE_FN).
+     * @type {TExecutionContextService}
+     * @private
+     */
     private readonly executionContextService;
+    /**
+     * The common logger instance, defaults to NOOP_LOGGER, used for system-wide logging.
+     * Updated via setLogger, receives all log messages alongside client-specific loggers, ensuring a fallback logging mechanism.
+     * @type {ILogger}
+     * @private
+     */
     private _commonLogger;
     /**
-     * Creates the client logs adapter using factory
+     * Factory function to create a client-specific logger adapter, memoized with singleshot for efficiency.
+     * Sources from GLOBAL_CONFIG.CC_GET_CLIENT_LOGGER_ADAPTER (defaults to LoggerAdapter), used in log, debug, and info to route client-specific logs (e.g., ClientAgent’s clientId).
+     * @type {() => ILoggerAdapter}
+     * @private
      */
     private getLoggerAdapter;
     /**
-     * Logs messages using the current logger.
-     * @param {...any} args - The messages to log.
+     * Logs messages at the normal level, routing to both the client-specific logger (if clientId exists) and the common logger.
+     * Attaches method and execution context (e.g., clientId) for traceability, used across the system (e.g., PerfService’s dispose).
+     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG, defaults to enabled.
+     * @param {string} topic - The topic or identifier of the log message (e.g., "perfService dispose").
+     * @param {...any[]} args - The message content and optional additional data (e.g., objects, strings).
+     * @returns {void}
      */
     log: (topic: string, ...args: any[]) => void;
     /**
-     * Logs debug messages using the current logger.
-     * @param {...any} args - The debug messages to log.
+     * Logs messages at the debug level, routing to both the client-specific logger (if clientId exists) and the common logger.
+     * Attaches method and execution context for detailed debugging, heavily used in ClientAgent (e.g., RUN_FN, EXECUTE_FN) when GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG is true.
+     * @param {string} topic - The topic or identifier of the debug message (e.g., "clientAgent RUN_FN").
+     * @param {...any[]} args - The debug content and optional additional data (e.g., objects, strings).
+     * @returns {void}
      */
     debug: (topic: string, ...args: any[]) => void;
     /**
-     * Logs info messages using the current logger.
-     * @param {...any} args - The info messages to log.
+     * Logs messages at the info level, routing to both the client-specific logger (if clientId exists) and the common logger.
+     * Attaches method and execution context for informational tracking, used in PerfService (e.g., startExecution) and DocService (e.g., dumpDocs) when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * @param {string} topic - The topic or identifier of the info message (e.g., "perfService startExecution").
+     * @param {...any[]} args - The info content and optional additional data (e.g., objects, strings).
+     * @returns {void}
      */
     info: (topic: string, ...args: any[]) => void;
     /**
-     * Sets a new logger.
-     * @param {ILogger} logger - The new logger to set.
+     * Sets a new common logger instance, replacing the default NOOP_LOGGER or previous logger.
+     * Allows runtime customization of system-wide logging behavior, potentially used in testing or advanced configurations (e.g., redirecting logs to a file or console).
+     * @param {ILogger} logger - The new logger instance to set, implementing the ILogger interface.
+     * @returns {void}
      */
     setLogger: (logger: ILogger) => void;
 }
@@ -4528,154 +4613,366 @@ declare class StateSchemaService {
     get: (key: StateName) => IStateSchema;
 }
 
+/**
+ * Service class implementing the IBus interface to manage event subscriptions and emissions in the swarm system.
+ * Provides methods to subscribe to events (subscribe, once), emit events (emit, commitExecutionBegin, commitExecutionEnd), and dispose of subscriptions (dispose), using a memoized Subject per clientId and EventSource.
+ * Integrates with ClientAgent (e.g., execution events in EXECUTE_FN), PerfService (e.g., execution tracking via emit), and DocService (e.g., performance logging), leveraging LoggerService for info-level logging and SessionValidationService for session validation.
+ * Supports wildcard subscriptions (clientId="*") and execution-specific event aliases, enhancing event-driven communication across the system.
+ */
 declare class BusService implements IBus {
+    /**
+     * Logger service instance, injected via DI, for logging bus operations.
+     * Used in methods like subscribe, emit, and dispose when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with PerfService and DocService logging patterns.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * Session validation service instance, injected via DI, for checking active client sessions.
+     * Used in emit to ensure events are only emitted for valid sessions, aligning with ClientAgent’s session management (e.g., clientId validation).
+     * @type {SessionValidationService}
+     * @private
+     */
     private readonly sessionValidationService;
+    /**
+     * Set of registered event sources, tracking all unique EventSource values from subscriptions.
+     * Used in dispose to clean up subscriptions for a clientId, ensuring comprehensive resource management.
+     * @type {Set<EventSource>}
+     * @private
+     */
     private _eventSourceSet;
+    /**
+     * Map indicating wildcard subscriptions (clientId="*") for each EventSource.
+     * Used in emit to broadcast events to wildcard subscribers, enhancing flexibility in event handling (e.g., system-wide monitoring).
+     * @type {Map<EventSource, boolean>}
+     * @private
+     */
     private _eventWildcardMap;
+    /**
+     * Memoized factory function to create or retrieve a Subject for a clientId and EventSource pair.
+     * Uses memoize from functools-kit with a key of `${clientId}-${source}`, optimizing performance by reusing Subjects, integral to subscribe, once, and emit operations.
+     * @type {(clientId: string, source: EventSource) => Subject<IBaseEvent>}
+     * @private
+     */
     private getEventSubject;
     /**
-     * Subscribes to events for a specific client and source.
-     * @param {string} clientId - The client ID.
-     * @param {EventSource} source - The event source.
-     * @param {(event: T) => void} fn - The callback function to handle the event.
+     * Subscribes to events for a specific client and event source, invoking the callback for each matching event.
+     * Registers the source in _eventSourceSet and supports wildcard subscriptions (clientId="*") via _eventWildcardMap, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., to monitor execution events) and PerfService (e.g., to track execution metrics indirectly via events).
+     * @template T - The event type extending IBaseEvent.
+     * @param {string} clientId - The client ID to subscribe for, or "*" for wildcard subscription.
+     * @param {EventSource} source - The event source to listen to (e.g., "execution-bus").
+     * @param {(event: T) => void} fn - The callback function to handle emitted events.
+     * @returns {Subscription} The subscription object, allowing unsubscribe.
      */
     subscribe: <T extends IBaseEvent>(clientId: string, source: EventSource, fn: (event: T) => void) => () => void;
     /**
-     * Subscribes to a single event for a specific client and source.
-     * @param {string} clientId - The client ID.
-     * @param {EventSource} source - The event source.
-     * @param {(event: T) => boolean} filterFn - The filter function to determine if the event should be handled.
-     * @param {(event: T) => void} fn - The callback function to handle the event.
-     * @returns {Subscription} The subscription object.
+     * Subscribes to a single event for a specific client and event source, invoking the callback once when the filter condition is met.
+     * Registers the source in _eventSourceSet and supports wildcard subscriptions, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Useful for one-time event handling (e.g., ClientAgent awaiting execution completion), complementing subscribe.
+     * @template T - The event type extending IBaseEvent.
+     * @param {string} clientId - The client ID to subscribe for, or "*" for wildcard subscription.
+     * @param {EventSource} source - The event source to listen to (e.g., "execution-bus").
+     * @param {(event: T) => boolean} filterFn - The filter function to determine if the event should trigger the callback.
+     * @param {(event: T) => void} fn - The callback function to handle the filtered event.
+     * @returns {Subscription} The subscription object, automatically unsubscribed after the first match.
      */
     once: <T extends IBaseEvent>(clientId: string, source: EventSource, filterFn: (event: T) => boolean, fn: (event: T) => void) => () => void;
     /**
-     * Emits an event for a specific client.
-     * @param {string} clientId - The client ID.
-     * @param {T} event - The event to emit.
-     * @returns {Promise<void>} A promise that resolves when the event has been emitted.
+     * Emits an event for a specific client, broadcasting to subscribers of the event’s source, including wildcard subscribers.
+     * Validates the client session with SessionValidationService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, and supports PerfService execution tracking (e.g., via commitExecutionBegin).
+     * @template T - The event type extending IBaseEvent.
+     * @param {string} clientId - The client ID to emit the event for, tied to ClientAgent sessions.
+     * @param {T} event - The event object to emit, containing source, type, and other properties.
+     * @returns {Promise<void>} A promise resolving when the event has been emitted to all subscribers.
      */
     emit: <T extends IBaseEvent>(clientId: string, event: T) => Promise<void>;
     /**
-     * Alias to emit the execution begin event
+     * Emits an execution begin event for a specific client, serving as an alias for emit with a predefined IBusEvent structure.
+     * Logs via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used in ClientAgent (e.g., EXECUTE_FN start) and PerfService (e.g., startExecution trigger).
+     * @param {string} clientId - The client ID initiating the execution, tied to ClientAgent sessions.
+     * @param {Partial<IBusEventContext>} context - Contextual data for the execution event (e.g., method or execution context).
+     * @returns {Promise<void>} A promise resolving when the execution begin event is emitted.
      */
     commitExecutionBegin: (clientId: string, context: Partial<IBusEventContext>) => Promise<void>;
     /**
-     * Alias to emit the execution end event
+     * Emits an execution end event for a specific client, serving as an alias for emit with a predefined IBusEvent structure.
+     * Logs via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used in ClientAgent (e.g., EXECUTE_FN completion) and PerfService (e.g., endExecution trigger).
+     * @param {string} clientId - The client ID completing the execution, tied to ClientAgent sessions.
+     * @param {Partial<IBusEventContext>} context - Contextual data for the execution event (e.g., method or execution context).
+     * @returns {Promise<void>} A promise resolving when the execution end event is emitted.
      */
     commitExecutionEnd: (clientId: string, context: Partial<IBusEventContext>) => Promise<void>;
     /**
-     * Disposes of all event subscriptions for a specific client.
-     * @param {string} clientId - The client ID.
+     * Disposes of all event subscriptions for a specific client, unsubscribing and clearing Subjects for all registered sources.
+     * Logs via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligns with PerfService’s dispose (e.g., session cleanup) and ClientAgent’s session termination.
+     * @param {string} clientId - The client ID whose subscriptions are to be disposed, tied to ClientAgent sessions.
+     * @returns {void}
      */
     dispose: (clientId: string) => void;
 }
 
 /**
- * Interface representing a meta node.
+ * Interface defining a metadata node structure for representing agent relationships and resources.
+ * Used in AgentMetaService to build hierarchical trees for UML serialization, reflecting agent dependencies and attributes.
+ * @interface IMetaNode
  */
 interface IMetaNode {
+    /**
+     * The name of the node, typically an agent name or resource identifier (e.g., AgentName, "States").
+     * @type {string}
+     */
     name: string;
+    /**
+     * Optional array of child nodes, representing nested dependencies or resources (e.g., dependent agents, states).
+     * @type {IMetaNode[] | undefined}
+     */
     child?: IMetaNode[];
 }
 /**
- * Service class for managing agent meta nodes and converting them to UML format.
+ * Service class for managing agent metadata and converting it to UML format in the swarm system.
+ * Builds IMetaNode trees from agent schemas (via AgentSchemaService) and serializes them to UML for visualization, integrating with DocService (e.g., writeAgentDoc UML diagrams).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) and supports ClientAgent (e.g., agent metadata) and PerfService (e.g., computeClientState context).
+ * Provides methods to create detailed or common agent nodes and generate UML strings, enhancing system documentation and debugging.
  */
 declare class AgentMetaService {
+    /**
+     * Logger service instance, injected via DI, for logging meta node operations.
+     * Used in makeAgentNode, makeAgentNodeCommon, and toUML when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with DocService and PerfService logging.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * Agent schema service instance, injected via DI, for retrieving agent schema data (e.g., dependsOn, states).
+     * Used in makeAgentNode and makeAgentNodeCommon to build meta nodes, aligning with ClientAgent’s agent definitions and DocService’s agent documentation.
+     * @type {AgentSchemaService}
+     * @private
+     */
     private readonly agentSchemaService;
+    /**
+     * Serialization function created by createSerialize, used to convert IMetaNode trees to UML format.
+     * Employed in toUML to generate strings for DocService’s UML diagrams (e.g., agent_schema_[agentName].svg).
+     * @type {(nodes: IMetaNode[]) => string}
+     * @private
+     */
     private serialize;
     /**
-     * Creates a meta node for the given agent.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {IMetaNode} The created meta node.
+     * Creates a detailed meta node for the given agent, including dependencies, states, storages, and tools.
+     * Recursively builds a tree with seen set to prevent cycles, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used in toUML for full agent visualization.
+     * Integrates with ClientAgent (e.g., agent metadata) and DocService (e.g., detailed agent UML in writeAgentDoc).
+     * @param {AgentName} agentName - The name of the agent to create a meta node for, sourced from Agent.interface.
+     * @param {Set<AgentName>} [seen=new Set<AgentName>()] - Set of seen agent names to prevent infinite recursion, defaults to an empty set.
+     * @returns {IMetaNode} The created meta node with child nodes for dependencies, states, storages, and tools.
      */
     makeAgentNode: (agentName: AgentName, seen?: Set<string>) => IMetaNode;
     /**
-     * Creates a meta node for the given agent.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {IMetaNode} The created meta node.
+     * Creates a common meta node for the given agent, focusing on dependency relationships.
+     * Recursively builds a tree with seen set to prevent cycles, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used as a helper in makeAgentNode.
+     * Supports ClientAgent (e.g., dependency tracking) and PerfService (e.g., computeClientState agent context).
+     * @param {AgentName} agentName - The name of the agent to create a meta node for, sourced from Agent.interface.
+     * @param {Set<AgentName>} [seen=new Set<AgentName>()] - Set of seen agent names to prevent infinite recursion, defaults to an empty set.
+     * @returns {IMetaNode} The created meta node with child nodes for dependencies only.
      */
     makeAgentNodeCommon: (agentName: AgentName, seen?: Set<string>) => IMetaNode;
     /**
-     * Converts the meta nodes of the given agent to UML format.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {string} The UML representation of the agent's meta nodes.
+     * Converts the meta nodes of the given agent to UML format, optionally including a full subtree.
+     * Uses makeAgentNode to build the tree and serialize to generate the UML string, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Called by DocService (e.g., writeAgentDoc) to produce UML diagrams (e.g., agent_schema_[agentName].svg), enhancing agent visualization.
+     * @param {AgentName} agentName - The name of the agent to convert to UML, sourced from Agent.interface.
+     * @param {boolean} [withSubtree=false] - Whether to include the full subtree (dependencies, states, etc.) or limit recursion, defaults to false.
+     * @returns {string} The UML representation of the agent’s meta nodes, formatted as YAML for PlantUML rendering.
      */
     toUML: (agentName: AgentName, withSubtree?: boolean) => string;
 }
 
 /**
- * Service for handling swarm metadata.
+ * Service class for managing swarm metadata and converting it to UML format in the swarm system.
+ * Builds IMetaNode trees from swarm schemas (via SwarmSchemaService) and serializes them to UML for visualization, integrating with DocService (e.g., writeSwarmDoc UML diagrams).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), AgentMetaService for agent node creation, and supports ClientAgent (e.g., swarm-agent relationships) and PerfService (e.g., computeClientState context).
+ * Provides methods to create swarm nodes and generate UML strings, enhancing system documentation and debugging.
  */
 declare class SwarmMetaService {
+    /**
+     * Logger service instance, injected via DI, for logging swarm metadata operations.
+     * Used in makeSwarmNode and toUML when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with DocService and AgentMetaService logging patterns.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * Swarm schema service instance, injected via DI, for retrieving swarm schema data (e.g., defaultAgent).
+     * Used in makeSwarmNode to build meta nodes, aligning with ClientAgent’s swarm definitions and DocService’s swarm documentation.
+     * @type {SwarmSchemaService}
+     * @private
+     */
     private readonly swarmSchemaService;
+    /**
+     * Agent meta service instance, injected via DI, for creating agent meta nodes within swarm trees.
+     * Used in makeSwarmNode to include the default agent, linking to ClientAgent’s agent metadata and DocService’s agent UML generation.
+     * @type {AgentMetaService}
+     * @private
+     */
     private readonly agentMetaService;
+    /**
+     * Serialization function created by createSerialize from AgentMetaService, used to convert IMetaNode trees to UML format.
+     * Employed in toUML to generate strings for DocService’s UML diagrams (e.g., swarm_schema_[swarmName].svg), ensuring consistency with AgentMetaService.
+     * @type {(nodes: IMetaNode[]) => string}
+     * @private
+     */
     private serialize;
     /**
-     * Creates a swarm node with the given swarm name.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @returns {IMetaNode} The metadata node of the swarm.
+     * Creates a meta node for the given swarm, including its default agent as a child node.
+     * Builds a tree using SwarmSchemaService for swarm data and AgentMetaService for the default agent node, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent (e.g., swarm-agent linkage) and DocService (e.g., swarm UML in writeSwarmDoc), used in toUML for visualization.
+     * @param {SwarmName} swarmName - The name of the swarm to create a meta node for, sourced from Swarm.interface.
+     * @returns {IMetaNode} The created meta node with the swarm name and its default agent as a child.
      */
     makeSwarmNode: (swarmName: SwarmName) => IMetaNode;
     /**
-     * Converts the swarm metadata to UML format.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @returns {string} The UML representation of the swarm.
+     * Converts the swarm metadata to UML format for visualization.
+     * Uses makeSwarmNode to build the tree and serialize to generate the UML string, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Called by DocService (e.g., writeSwarmDoc) to produce UML diagrams (e.g., swarm_schema_[swarmName].svg), enhancing swarm visualization.
+     * @param {SwarmName} swarmName - The name of the swarm to convert to UML, sourced from Swarm.interface.
+     * @returns {string} The UML representation of the swarm’s meta nodes, formatted as YAML for PlantUML rendering.
      */
     toUML: (swarmName: SwarmName) => string;
 }
 
 /**
- * Service for generating documentation for swarms and agents.
- * @class
+ * Service class for generating and writing documentation for swarms, agents, and performance data in the swarm system.
+ * Produces Markdown files for swarm (ISwarmSchema) and agent (IAgentSchema) schemas, including UML diagrams via CC_FN_PLANTUML, and JSON files for performance metrics via PerfService.
+ * Integrates indirectly with ClientAgent by documenting its schema (e.g., tools, prompts) and performance (e.g., via PerfService), using LoggerService for logging gated by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+ * Manages concurrent tasks with a thread pool (THREAD_POOL_SIZE) and organizes output in a directory structure (SUBDIR_LIST), enhancing developer understanding of the system.
  */
 declare class DocService {
+    /**
+     * Logger service instance for logging documentation generation activities, injected via dependency injection.
+     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO, used in methods like dumpDocs, writeSwarmDoc, and writeAgentDoc for info-level logging.
+     * @type {LoggerService}
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * Performance service instance for retrieving system and client performance data, injected via DI.
+     * Used in dumpPerfomance and dumpClientPerfomance to serialize IPerformanceRecord and IClientPerfomanceRecord data into JSON files.
+     * @type {PerfService}
+     * @private
+     */
     private readonly perfService;
+    /**
+     * Swarm validation service instance, injected via DI.
+     * Provides the list of swarm names for dumpDocs, ensuring only valid swarms are documented.
+     * @type {SwarmValidationService}
+     * @private
+     */
     private readonly swarmValidationService;
+    /**
+     * Agent validation service instance, injected via DI.
+     * Provides the list of agent names for dumpDocs, ensuring only valid agents are documented.
+     * @type {AgentValidationService}
+     * @private
+     */
     private readonly agentValidationService;
+    /**
+     * Swarm schema service instance, injected via DI.
+     * Retrieves ISwarmSchema objects for writeSwarmDoc, supplying swarm details like agents and policies.
+     * @type {SwarmSchemaService}
+     * @private
+     */
     private readonly swarmSchemaService;
+    /**
+     * Agent schema service instance, injected via DI.
+     * Retrieves IAgentSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
+     * @type {AgentSchemaService}
+     * @private
+     */
     private readonly agentSchemaService;
+    /**
+     * Policy schema service instance, injected via DI.
+     * Supplies policy descriptions for writeSwarmDoc, documenting banhammer policies associated with swarms.
+     * @type {PolicySchemaService}
+     * @private
+     */
     private readonly policySchemaService;
+    /**
+     * Tool schema service instance, injected via DI.
+     * Provides tool details (e.g., function, callbacks) for writeAgentDoc, documenting tools used by agents (e.g., ClientAgent tools).
+     * @type {ToolSchemaService}
+     * @private
+     */
     private readonly toolSchemaService;
+    /**
+     * Storage schema service instance, injected via DI.
+     * Supplies storage details for writeAgentDoc, documenting storage resources used by agents.
+     * @type {StorageSchemaService}
+     * @private
+     */
     private readonly storageSchemaService;
+    /**
+     * State schema service instance, injected via DI.
+     * Provides state details for writeAgentDoc, documenting state resources used by agents.
+     * @type {StateSchemaService}
+     * @private
+     */
     private readonly stateSchemaService;
+    /**
+     * Agent meta service instance, injected via DI.
+     * Generates UML diagrams for agents in writeAgentDoc, enhancing documentation with visual schema representations.
+     * @type {AgentMetaService}
+     * @private
+     */
     private readonly agentMetaService;
+    /**
+     * Swarm meta service instance, injected via DI.
+     * Generates UML diagrams for swarms in writeSwarmDoc, enhancing documentation with visual schema representations.
+     * @type {SwarmMetaService}
+     * @private
+     */
     private readonly swarmMetaService;
     /**
-     * Writes documentation for a swarm schema.
-     * @param {ISwarmSchema} swarmSchema - The swarm schema to document.
-     * @param {string} dirName - The directory to write the documentation to.
-     * @returns {Promise<void>}
+     * Writes Markdown documentation for a swarm schema, detailing its name, description, UML diagram, agents, policies, and callbacks.
+     * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+     * Outputs to dirName/[swarmName].md, with UML images in dirName/image, and links to agent docs in dirName/agent, sourced from swarmSchemaService.
+     * @param {ISwarmSchema} swarmSchema - The swarm schema to document, including properties like defaultAgent and policies.
+     * @param {string} dirName - The base directory for documentation output.
+     * @returns {Promise<void>} A promise resolving when the swarm documentation file is written.
+     * @private
      */
     private writeSwarmDoc;
     /**
-     * Writes documentation for an agent schema.
-     * @param {IAgentSchema} agentSchema - The agent schema to document.
-     * @param {string} dirName - The directory to write the documentation to.
-     * @returns {Promise<void>}
+     * Writes Markdown documentation for an agent schema, detailing its name, description, UML diagram, prompts, tools, storages, states, and callbacks.
+     * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+     * Outputs to dirName/agent/[agentName].md, with UML images in dirName/image, sourced from agentSchemaService and related services (e.g., toolSchemaService).
+     * @param {IAgentSchema} agentSchema - The agent schema to document, including properties like tools and prompts (e.g., ClientAgent configuration).
+     * @param {string} dirName - The base directory for documentation output.
+     * @returns {Promise<void>} A promise resolving when the agent documentation file is written.
+     * @private
      */
     private writeAgentDoc;
     /**
-     * Dumps the documentation for all swarms and agents.
-     * @param {string} [dirName=join(process.cwd(), "docs/chat")] - The directory to write the documentation to.
-     * @returns {Promise<void>}
+     * Generates and writes documentation for all swarms and agents in the system.
+     * Creates subdirectories (SUBDIR_LIST), then concurrently writes swarm and agent docs using writeSwarmDoc and writeAgentDoc, logging progress if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+     * Outputs to a directory structure rooted at dirName (default: "docs/chat"), integrating with ClientAgent by documenting its schema.
+     * @param {string} [dirName=join(process.cwd(), "docs/chat")] - The base directory for documentation output, defaults to "docs/chat" in the current working directory.
+     * @returns {Promise<void>} A promise resolving when all documentation files are written.
      */
     dumpDocs: (dirName?: string) => Promise<void>;
     /**
-     * Dumps the performance data to a file.
-     * @param {string} [dirName=join(process.cwd(), "docs/meta")] - The directory to write the performance data to.
-     * @returns {Promise<void>}
+     * Dumps system-wide performance data to a JSON file using PerfService.toRecord.
+     * Ensures the output directory exists, then writes a timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+     * Outputs to dirName/[momentStamp].[timeStamp].json (default: "logs/meta"), providing a snapshot of system performance (e.g., tied to ClientAgent executions).
+     * @param {string} [dirName=join(process.cwd(), "logs/meta")] - The directory for performance data output, defaults to "logs/meta" in the current working directory.
+     * @returns {Promise<void>} A promise resolving when the performance data file is written.
      */
     dumpPerfomance: (dirName?: string) => Promise<void>;
     /**
-     * Dumps the client performance data to a file.
-     * @param {string} clientId - The session id to dump the data
-     * @param {string} [dirName=join(process.cwd(), "docs/meta")] - The directory to write the performance data to.
-     * @returns {Promise<void>}
+     * Dumps performance data for a specific client to a JSON file using PerfService.toClientRecord.
+     * Ensures the output directory exists, then writes a client-specific timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+     * Outputs to dirName/[clientId].[momentStamp].json (default: "logs/client"), documenting client-specific metrics (e.g., ClientAgent session performance).
+     * @param {string} clientId - The unique identifier of the client session to document.
+     * @param {string} [dirName=join(process.cwd(), "logs/client")] - The directory for client performance data output, defaults to "logs/client" in the current working directory.
+     * @returns {Promise<void>} A promise resolving when the client performance data file is written.
      */
     dumpClientPerfomance: (clientId: string, dirName?: string) => Promise<void>;
 }
