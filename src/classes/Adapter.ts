@@ -16,6 +16,17 @@ export const TOOL_PROTOCOL_PROMPT = str.newline(
 const EXECPOOL_SIZE = 5;
 const EXECPOOL_WAIT = 100;
 
+/**
+ * Handles the completion request to AI provider
+ *
+ * @param {ICompletionArgs} args - The arguments for the completion request.
+ * @param {string} args.agentName - The name of the agent.
+ * @param {Array} args.messages - The messages to send to completion endpoing.
+ * @param {string} args.mode - The mode of the completion.
+ * @param {Array} args.tools - The tools to use for the completion.
+ * @param {string} args.clientId - The client ID.
+ * @returns {Promise<IModelMessage>} - The response from completion endpoint in `agent-swarm-kit` format.
+ */
 type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
 
 export class AdapterUtils {
@@ -40,7 +51,7 @@ export class AdapterUtils {
      * @param {string} args.mode - The mode of the completion.
      * @param {Array} args.tools - The tools to use for the completion.
      * @param {string} args.clientId - The client ID.
-     * @returns {Promise<Object>} - The response from OpenAI.
+     * @returns {Promise<IModelMessage>} - The response from OpenAI.
      */
     execpool(
       async ({
@@ -128,7 +139,7 @@ export class AdapterUtils {
      * @param {string} args.mode - The mode of the completion.
      * @param {Array} args.tools - The tools to use for the completion.
      * @param {string} args.clientId - The client ID.
-     * @returns {Promise<Object>} - The response from LMStudio.
+     * @returns {Promise<IModelMessage>} - The response from LMStudio.
      */
     execpool(
       async ({
@@ -216,7 +227,7 @@ export class AdapterUtils {
      * @param {string} args.mode - The mode of the completion.
      * @param {Array} args.tools - The tools to use for the completion.
      * @param {string} args.clientId - The client ID.
-     * @returns {Promise<Object>} - The response from Ollama.
+     * @returns {Promise<IModelMessage>} - The response from Ollama.
      */
     execpool(
       async ({

@@ -6044,6 +6044,17 @@ declare class SchemaUtils {
  */
 declare const Schema: SchemaUtils;
 
+/**
+ * Handles the completion request to AI provider
+ *
+ * @param {ICompletionArgs} args - The arguments for the completion request.
+ * @param {string} args.agentName - The name of the agent.
+ * @param {Array} args.messages - The messages to send to completion endpoing.
+ * @param {string} args.mode - The mode of the completion.
+ * @param {Array} args.tools - The tools to use for the completion.
+ * @param {string} args.clientId - The client ID.
+ * @returns {Promise<IModelMessage>} - The response from completion endpoint in `agent-swarm-kit` format.
+ */
 type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
 declare class AdapterUtils {
     /**
