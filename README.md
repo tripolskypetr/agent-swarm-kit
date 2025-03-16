@@ -203,7 +203,7 @@ complete("I need a refund!").then(console.log);
 - **`addTool`**: Create reusable tools with validation and execution logic.
 - **`Storage.take`**: Search and retrieve data using embeddings (e.g., vector search).
 
-Check out the **[API Reference](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/docs/api-reference.md)** for more!
+Check out the **[API Reference](https://agent-swarm.github.io/documents/agent-swarm-kit.html)** for more!
 
 ---
 
@@ -252,8 +252,8 @@ const TEST_STORAGE = addStorage({
 // Create an agent with storage
 const TEST_AGENT = addAgent({
   agentName: "test_agent",
-  completion: {/* completion config */},
-  prompt: "Search and assist.",
+  completion: TEST_COMPLETION
+  prompt: "...",
   storages: [TEST_STORAGE],
 });
 
@@ -268,9 +268,24 @@ const TEST_SWARM = addSwarm({
 const { complete } = session("client-123", TEST_SWARM);
 complete("I need a refund!").then(console.log);
 
+...
+
+export interface PhoneModel {
+    id: number;
+    title: string;
+    description: string;
+    diagonal: number;
+}
+
 // Use vector search in a tool call
-Storage.take("reduce pain, fever", 1, "client-xyz", TEST_AGENT, TEST_STORAGE)
-  .then(result => console.log("Found:", result));
+Storage.take<PhoneModel>({
+  search: "8 inch phone",
+  agentName: AgentName.TestAgent,
+  clientId,
+  storageName: StorageName.PhoneStorage,
+  total: 1,
+  score: 0.68,
+}).then((phones) => console.log(phones));
 ```
 
 ## ❓ Orchestration Principles
