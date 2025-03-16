@@ -296,7 +296,7 @@ Storage.take("reduce pain, fever", 1, "client-xyz", TEST_AGENT, TEST_STORAGE)
 - **Navigation**: Smoothly switches between agents without deadlocks.
 - **Performance**: Efficient connection disposal and history management.
 
-See the **[Test Cases](#test-cases)** section in the docs for details.
+See the **[Test Cases](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/TEST.md)** section in the docs for details.
 
 ---
 
