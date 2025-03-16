@@ -2,7 +2,8 @@
 
 Extends `PersistBase<EntityName>`
 
-Class for persistent storage of entities in a list structure
+Extends PersistBase to provide a persistent list structure with push/pop operations.
+Manages entities with numeric keys for ordered access.
 
 ## Constructor
 
@@ -18,31 +19,31 @@ constructor(entityName: EntityName, baseDir: string);
 _lastCount: number
 ```
 
-Tracks the last used numeric key
-
-### __@LIST_CREATE_KEY_SYMBOL@525
+### __@LIST_CREATE_KEY_SYMBOL@526
 
 ```ts
-__@LIST_CREATE_KEY_SYMBOL@525: any
+__@LIST_CREATE_KEY_SYMBOL@526: any
 ```
 
-Creates a new unique key for a list item
+Queued function to create a new unique key for a list item.
+Ensures sequential key generation even under concurrent calls.
 
-### __@LIST_GET_LAST_KEY_SYMBOL@526
+### __@LIST_GET_LAST_KEY_SYMBOL@527
 
 ```ts
-__@LIST_GET_LAST_KEY_SYMBOL@526: any
+__@LIST_GET_LAST_KEY_SYMBOL@527: any
 ```
 
-Gets the key of the last item in the list
+Retrieves the key of the last item in the list.
 
-### __@LIST_POP_SYMBOL@528
+### __@LIST_POP_SYMBOL@529
 
 ```ts
-__@LIST_POP_SYMBOL@528: any
+__@LIST_POP_SYMBOL@529: any
 ```
 
-Removes and returns the last item in the list
+Queued function to remove and return the last item in the list.
+Ensures atomic pop operations under concurrent calls.
 
 ## Methods
 
@@ -52,7 +53,7 @@ Removes and returns the last item in the list
 push<T extends IEntity = IEntity>(entity: T): Promise<void>;
 ```
 
-Adds an entity to the end of the list
+Adds an entity to the end of the persistent list with a new unique numeric key.
 
 ### pop
 
@@ -60,4 +61,4 @@ Adds an entity to the end of the list
 pop<T extends IEntity = IEntity>(): Promise<T | null>;
 ```
 
-Removes and returns the last entity in the list
+Removes and returns the last entity from the persistent list.

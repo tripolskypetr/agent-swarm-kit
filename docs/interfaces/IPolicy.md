@@ -1,6 +1,7 @@
 # IPolicy
 
-Interface for a policy.
+Interface representing a policy enforcement mechanism.
+Manages client bans and validates input/output messages within the swarm.
 
 ## Methods
 
@@ -10,7 +11,7 @@ Interface for a policy.
 hasBan: (clientId: string, swarmName: string) => Promise<boolean>
 ```
 
-Check if got banhammer flag
+Checks if a client is currently banned under this policy.
 
 ### getBanMessage
 
@@ -18,7 +19,7 @@ Check if got banhammer flag
 getBanMessage: (clientId: string, swarmName: string) => Promise<string>
 ```
 
-Gets the ban message for a client.
+Retrieves the ban message for a banned client.
 
 ### validateInput
 
@@ -26,7 +27,7 @@ Gets the ban message for a client.
 validateInput: (incoming: string, clientId: string, swarmName: string) => Promise<boolean>
 ```
 
-Validates the input.
+Validates an incoming message against the policy rules.
 
 ### validateOutput
 
@@ -34,7 +35,7 @@ Validates the input.
 validateOutput: (outgoing: string, clientId: string, swarmName: string) => Promise<boolean>
 ```
 
-Validates the output.
+Validates an outgoing message against the policy rules.
 
 ### banClient
 
@@ -42,7 +43,7 @@ Validates the output.
 banClient: (clientId: string, swarmName: string) => Promise<void>
 ```
 
-Bans a client.
+Bans a client under this policy, adding them to the banned list.
 
 ### unbanClient
 
@@ -50,4 +51,4 @@ Bans a client.
 unbanClient: (clientId: string, swarmName: string) => Promise<void>
 ```
 
-Unbans a client.
+Unbans a client under this policy, removing them from the banned list.

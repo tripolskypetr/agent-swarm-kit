@@ -1,6 +1,6 @@
 # IHistoryInstance
 
-Interface for History Instance
+Interface defining methods for a history instance implementation.
 
 ## Methods
 
@@ -10,7 +10,7 @@ Interface for History Instance
 iterate: (agentName: string) => AsyncIterableIterator<IModelMessage>
 ```
 
-Iterate over the history messages for a given agent.
+Iterates over history messages for an agent.
 
 ### waitForInit
 
@@ -18,7 +18,7 @@ Iterate over the history messages for a given agent.
 waitForInit: (agentName: string, init: boolean) => Promise<void>
 ```
 
-Wait for the history to initialize.
+Initializes the history for an agent, loading initial data if needed.
 
 ### push
 
@@ -26,7 +26,7 @@ Wait for the history to initialize.
 push: (value: IModelMessage, agentName: string) => Promise<void>
 ```
 
-Push a new message to the history for a given agent.
+Adds a new message to the history for an agent.
 
 ### pop
 
@@ -34,7 +34,7 @@ Push a new message to the history for a given agent.
 pop: (agentName: string) => Promise<IModelMessage>
 ```
 
-Pop the last message from a history
+Removes and returns the last message from the history for an agent.
 
 ### dispose
 
@@ -42,4 +42,4 @@ Pop the last message from a history
 dispose: (agentName: string) => Promise<void>
 ```
 
-Dispose of the history for a given agent.
+Disposes of the history for an agent, optionally clearing all data.

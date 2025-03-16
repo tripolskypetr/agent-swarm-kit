@@ -2,7 +2,7 @@
 
 Implements `IHistoryInstance`
 
-Class representing a History Instance
+Manages an in-memory history of messages without persistence.
 
 ## Constructor
 
@@ -30,13 +30,13 @@ callbacks: Partial<IHistoryInstanceCallbacks>
 _array: IModelMessage[]
 ```
 
-### __@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@737
+### __@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@761
 
 ```ts
-__@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@737: any
+__@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@761: any
 ```
 
-Makes the singleshot for initialization
+Memoized initialization function to ensure it runs only once per agent.
 
 ## Methods
 
@@ -46,7 +46,7 @@ Makes the singleshot for initialization
 waitForInit(agentName: AgentName): Promise<void>;
 ```
 
-Wait for the history to initialize.
+Initializes the history for an agent, loading initial data if needed.
 
 ### iterate
 
@@ -54,7 +54,8 @@ Wait for the history to initialize.
 iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
 ```
 
-Iterate over the history messages for a given agent.
+Iterates over history messages, applying filters and system prompts if configured.
+Invokes onRead callbacks during iteration if provided.
 
 ### push
 
@@ -62,15 +63,17 @@ Iterate over the history messages for a given agent.
 push(value: IModelMessage, agentName: AgentName): Promise<void>;
 ```
 
-Push a new message to the history for a given agent.
+Adds a new message to the in-memory history.
+Invokes onPush and onChange callbacks if provided.
 
 ### pop
 
 ```ts
-pop(agentName: AgentName): Promise<IModelMessage>;
+pop(agentName: AgentName): Promise<IModelMessage | null>;
 ```
 
-Pop the last message from a history
+Removes and returns the last message from the in-memory history.
+Invokes onPop and onChange callbacks if provided.
 
 ### dispose
 
@@ -78,4 +81,5 @@ Pop the last message from a history
 dispose(agentName: AgentName | null): Promise<void>;
 ```
 
-Dispose of the history for a given agent.
+Disposes of the history, clearing all data if agentName is null.
+Invokes onDispose callback if provided.

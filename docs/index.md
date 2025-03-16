@@ -7,6 +7,7 @@
 - [PersistSwarmUtils](classes/PersistSwarmUtils.md)
 - [PersistStateUtils](classes/PersistStateUtils.md)
 - [PersistStorageUtils](classes/PersistStorageUtils.md)
+- [PersistMemoryUtils](classes/PersistMemoryUtils.md)
 - [HistoryPersistInstance](classes/HistoryPersistInstance.md)
 - [HistoryMemoryInstance](classes/HistoryMemoryInstance.md)
 - [LoggerService](classes/LoggerService.md)
@@ -119,6 +120,8 @@
 - [IPersistStateControl](interfaces/IPersistStateControl.md)
 - [IPersistStorageData](interfaces/IPersistStorageData.md)
 - [IPersistStorageControl](interfaces/IPersistStorageControl.md)
+- [IPersistMemoryData](interfaces/IPersistMemoryData.md)
+- [IPersistMemoryControl](interfaces/IPersistMemoryControl.md)
 - [IHistoryInstanceCallbacks](interfaces/IHistoryInstanceCallbacks.md)
 - [IHistoryAdapter](interfaces/IHistoryAdapter.md)
 - [IHistoryControl](interfaces/IHistoryControl.md)
@@ -158,6 +161,7 @@
 - [ILoggerInstance](interfaces/ILoggerInstance.md)
 - [ILoggerAdapter](interfaces/ILoggerAdapter.md)
 - [ILoggerControl](interfaces/ILoggerControl.md)
+- [IGlobalConfig](interfaces/IGlobalConfig.md)
 
 ## Types
 
@@ -191,9 +195,12 @@
 - [TSessionConnectionService](types/TSessionConnectionService.md)
 - [InternalKeys$5](types/InternalKeys$5.md)
 - [TSwarmConnectionService](types/TSwarmConnectionService.md)
+- [Action$1](types/Action$1.md)
+- [Payload](types/Payload.md)
 - [InternalKeys$4](types/InternalKeys$4.md)
 - [TStorageConnectionService](types/TStorageConnectionService.md)
 - [DispatchFn](types/DispatchFn.md)
+- [Action](types/Action.md)
 - [InternalKeys$3](types/InternalKeys$3.md)
 - [TStateConnectionService](types/TStateConnectionService.md)
 - [InternalKeys$2](types/InternalKeys$2.md)
@@ -209,3 +216,4 @@
 - [TSharedState](types/TSharedState.md)
 - [TStorage](types/TStorage.md)
 - [TSharedStorage](types/TSharedStorage.md)
+- [TCompleteFn](types/TCompleteFn.md)

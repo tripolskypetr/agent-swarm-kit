@@ -1,6 +1,6 @@
 # IHistoryAdapter
 
-Interface for History Adapter
+Interface defining methods for interacting with a history adapter.
 
 ## Properties
 
@@ -10,7 +10,7 @@ Interface for History Adapter
 push: (value: IModelMessage, clientId: string, agentName: string) => Promise<void>
 ```
 
-Push a new message to the history.
+Adds a new message to the history.
 
 ### pop
 
@@ -18,7 +18,7 @@ Push a new message to the history.
 pop: (clientId: string, agentName: string) => Promise<IModelMessage>
 ```
 
-Pop the last message from a history
+Removes and returns the last message from the history.
 
 ### dispose
 
@@ -26,7 +26,7 @@ Pop the last message from a history
 dispose: (clientId: string, agentName: string) => Promise<void>
 ```
 
-Dispose of the history for a given client and agent.
+Disposes of the history for a client and agent, optionally clearing all data.
 
 ## Methods
 
@@ -36,4 +36,4 @@ Dispose of the history for a given client and agent.
 iterate: (clientId: string, agentName: string) => AsyncIterableIterator<IModelMessage>
 ```
 
-Iterate over the history messages.
+Iterates over history messages for a client and agent.

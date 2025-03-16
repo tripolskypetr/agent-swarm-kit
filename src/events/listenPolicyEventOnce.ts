@@ -3,6 +3,12 @@ import swarm from "../lib";
 import { queued } from "functools-kit";
 import beginContext from "../utils/beginContext";
 
+/**
+ * Validates the client ID for policy event listening, allowing wildcard "*" or checking for an active session.
+ *
+ * @param {string} clientId - The client ID to validate.
+ * @throws {Error} If the client ID is not "*" and no active session exists for it.
+ */
 const validateClientId = (clientId: string) => {
   if (clientId === "*") {
     return;
@@ -15,10 +21,27 @@ const validateClientId = (clientId: string) => {
 };
 
 /**
- * Hook to subscribe to swarm events for a specific client.
+ * Subscribes to a single policy-specific event on the swarm bus service for a specific client, executing a callback when the event matches a filter.
  *
- * @param {string} clientId - The ID of the client to subscribe to events for.
- * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
+ * This function sets up a one-time listener for events on the "policy-bus" topic associated with a given client ID, invoking the provided callback
+ * with the event data when an event is received and passes the filter condition. It is wrapped in `beginContext` for a clean execution environment
+ * and logs the operation via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing, and the listener
+ * unsubscribes after the first matching event. The function supports a wildcard client ID ("*") for listening to all clients or validates a specific
+ * client session. It returns an unsubscribe function to cancel the listener prematurely.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to policy events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute once when a matching policy event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the policy event listener before it triggers.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenPolicyEventOnce(
+ *   "client-123",
+ *   (event) => event.type === "enforce",
+ *   (event) => console.log(event)
+ * );
+ * // Logs the first "enforce" policy event for "client-123"
+ * unsubscribe(); // Cancels listener if not yet triggered
  */
 export const listenPolicyEventOnce = beginContext(
   (
@@ -26,10 +49,15 @@ export const listenPolicyEventOnce = beginContext(
     filterFn: (event: IBusEvent) => boolean,
     fn: (event: IBusEvent) => void
   ) => {
+    // Log the operation details
     swarm.loggerService.log("middleware listenPolicyEventOnce", {
       clientId,
     });
+
+    // Validate the client ID
     validateClientId(clientId);
+
+    // Subscribe to policy events for one occurrence with a filter and queued callback
     return swarm.busService.once(
       clientId,
       "policy-bus",

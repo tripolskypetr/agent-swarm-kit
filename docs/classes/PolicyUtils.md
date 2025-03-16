@@ -1,6 +1,7 @@
 # PolicyUtils
 
-PolicyUtils class provides utility methods for banning and unbanning clients.
+Utility class providing methods to manage client bans within a swarm policy context.
+All methods validate inputs and execute within a context for logging and tracking.
 
 ## Constructor
 
@@ -16,7 +17,8 @@ constructor();
 banClient: (payload: { clientId: string; swarmName: string; policyName: string; }) => Promise<void>
 ```
 
-Bans a client.
+Bans a client under a specific policy within a swarm.
+Validates the client, swarm, and policy before delegating to the policy service.
 
 ### unbanClient
 
@@ -24,7 +26,8 @@ Bans a client.
 unbanClient: (payload: { clientId: string; swarmName: string; policyName: string; }) => Promise<void>
 ```
 
-Unbans a client.
+Unbans a client under a specific policy within a swarm.
+Validates the client, swarm, and policy before delegating to the policy service.
 
 ### hasBan
 
@@ -32,4 +35,5 @@ Unbans a client.
 hasBan: (payload: { clientId: string; swarmName: string; policyName: string; }) => Promise<boolean>
 ```
 
-Check if client is banned
+Checks if a client is banned under a specific policy within a swarm.
+Validates the client, swarm, and policy before querying the policy service.

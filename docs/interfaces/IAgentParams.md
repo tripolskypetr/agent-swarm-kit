@@ -1,6 +1,7 @@
 # IAgentParams
 
-Interface representing the parameters for an agent.
+Interface representing the runtime parameters for an agent.
+Combines schema properties (excluding certain fields) with callbacks and runtime dependencies.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Interface representing the parameters for an agent.
 clientId: string
 ```
 
-The ID of the client.
+The ID of the client interacting with the agent.
 
 ### logger
 
@@ -18,7 +19,7 @@ The ID of the client.
 logger: ILogger
 ```
 
-The logger instance.
+The logger instance for recording agent activity and errors.
 
 ### bus
 
@@ -26,7 +27,7 @@ The logger instance.
 bus: IBus
 ```
 
-The bus instance.
+The bus instance for event communication within the swarm.
 
 ### history
 
@@ -34,7 +35,7 @@ The bus instance.
 history: IHistory
 ```
 
-The history instance.
+The history instance for tracking agent interactions.
 
 ### completion
 
@@ -42,7 +43,7 @@ The history instance.
 completion: ICompletion
 ```
 
-The completion instance.
+The completion instance for generating responses or outputs.
 
 ### tools
 
@@ -50,7 +51,7 @@ The completion instance.
 tools: IAgentTool<Record<string, ToolValue>>[]
 ```
 
-The tools used by the agent.
+Optional array of tools available to the agent for execution.
 
 ### validate
 
@@ -58,4 +59,4 @@ The tools used by the agent.
 validate: (output: string) => Promise<string>
 ```
 
-Validates the output.
+Validates the agent's output before finalization.

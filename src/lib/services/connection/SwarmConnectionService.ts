@@ -13,29 +13,68 @@ import BusService from "../base/BusService";
 import { PersistSwarmAdapter } from "../../../classes/Persist";
 
 /**
- * Service for managing swarm connections.
+ * Service class for managing swarm connections and operations in the swarm system.
+ * Implements ISwarm to provide an interface for swarm instance management, agent navigation, output handling, and lifecycle operations, scoped to clientId and swarmName.
+ * Integrates with ClientAgent (agent execution within swarms), SwarmPublicService (public swarm API), AgentConnectionService (agent management), SessionConnectionService (session-swarm linking), and PerfService (tracking via BusService).
+ * Uses memoization via functools-kit’s memoize to cache ClientSwarm instances by a composite key (clientId-swarmName), ensuring efficient reuse across calls.
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), and coordinates with SwarmSchemaService for swarm configuration and AgentConnectionService for agent instantiation, applying persistence via PersistSwarmAdapter or defaults from GLOBAL_CONFIG.
  * @implements {ISwarm}
  */
 export class SwarmConnectionService implements ISwarm {
+  /**
+   * Logger service instance, injected via DI, for logging swarm operations.
+   * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SwarmPublicService and PerfService logging patterns.
+   * @type {LoggerService}
+   * @private
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+
+  /**
+   * Bus service instance, injected via DI, for emitting swarm-related events.
+   * Passed to ClientSwarm for event propagation (e.g., agent changes), aligning with BusService’s event system in AgentConnectionService.
+   * @type {BusService}
+   * @private
+   */
   private readonly busService = inject<BusService>(TYPES.busService);
+
+  /**
+   * Method context service instance, injected via DI, for accessing execution context.
+   * Used to retrieve clientId and swarmName in method calls, integrating with MethodContextService’s scoping in SwarmPublicService.
+   * @type {TMethodContextService}
+   * @private
+   */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
 
+  /**
+   * Agent connection service instance, injected via DI, for managing agent instances.
+   * Provides agent instances to ClientSwarm in getSwarm, supporting AgentPublicService and ClientAgent integration.
+   * @type {AgentConnectionService}
+   * @private
+   */
   private readonly agentConnectionService = inject<AgentConnectionService>(
     TYPES.agentConnectionService
   );
 
+  /**
+   * Swarm schema service instance, injected via DI, for retrieving swarm configurations.
+   * Provides configuration (e.g., agentList, defaultAgent) to ClientSwarm in getSwarm, aligning with SwarmMetaService’s schema management.
+   * @type {SwarmSchemaService}
+   * @private
+   */
   private readonly swarmSchemaService = inject<SwarmSchemaService>(
     TYPES.swarmSchemaService
   );
 
   /**
-   * Retrieves a swarm instance based on client ID and swarm name.
-   * @param {string} clientId - The client ID.
-   * @param {string} swarmName - The swarm name.
-   * @returns {ClientSwarm} The client swarm instance.
+   * Retrieves or creates a memoized ClientSwarm instance for a given client and swarm name.
+   * Uses functools-kit’s memoize to cache instances by a composite key (clientId-swarmName), ensuring efficient reuse across calls.
+   * Configures the swarm with schema data from SwarmSchemaService, agent instances from AgentConnectionService, and persistence via PersistSwarmAdapter or defaults from GLOBAL_CONFIG.
+   * Supports ClientAgent (agent execution within swarms), SessionConnectionService (swarm access in sessions), and SwarmPublicService (public API).
+   * @param {string} clientId - The client ID, scoping the swarm to a specific client, tied to Session.interface and PerfService tracking.
+   * @param {string} swarmName - The name of the swarm, sourced from Swarm.interface, used in SwarmSchemaService lookups.
+   * @returns {ClientSwarm} The memoized ClientSwarm instance configured for the client and swarm.
    */
   public getSwarm = memoize(
     ([clientId, swarmName]) => `${clientId}-${swarmName}`,
@@ -82,8 +121,10 @@ export class SwarmConnectionService implements ISwarm {
   );
 
   /**
-   * Pop the navigation stack or return default agent
-   * @returns {Promise<string>} - The pending agent for navigation
+   * Pops the navigation stack or returns the default agent if the stack is empty.
+   * Delegates to ClientSwarm.navigationPop, using context from MethodContextService to identify the swarm, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SwarmPublicService’s navigationPop, supporting ClientAgent’s navigation within swarms.
+   * @returns {Promise<string>} A promise resolving to the pending agent name for navigation.
    */
   public navigationPop = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -95,8 +136,10 @@ export class SwarmConnectionService implements ISwarm {
   };
 
   /**
-   * Cancel the await of output by emit of empty string
-   * @returns {Promise<void>}
+   * Cancels the pending output by emitting an empty string, interrupting waitForOutput.
+   * Delegates to ClientSwarm.cancelOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SwarmPublicService’s cancelOutput, supporting ClientAgent’s output control.
+   * @returns {Promise<void>} A promise resolving when the output is canceled.
    */
   public cancelOutput = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -108,10 +151,12 @@ export class SwarmConnectionService implements ISwarm {
   };
 
   /**
-   * Waits for the output from the swarm.
-   * @returns {Promise<any>} The output from the swarm.
+   * Waits for and retrieves the output from the swarm’s active agent.
+   * Delegates to ClientSwarm.waitForOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SwarmPublicService’s waitForOutput, supporting ClientAgent’s output retrieval, typically a string from agent execution.
+   * @returns {Promise<string>} A promise resolving to the output from the swarm’s active agent, typically a string.
    */
-  public waitForOutput = async () => {
+  public waitForOutput = async (): Promise<string> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`swarmConnectionService waitForOutput`);
     return await this.getSwarm(
@@ -121,10 +166,12 @@ export class SwarmConnectionService implements ISwarm {
   };
 
   /**
-   * Retrieves the agent name from the swarm.
-   * @returns {Promise<string>} The agent name.
+   * Retrieves the name of the currently active agent in the swarm.
+   * Delegates to ClientSwarm.getAgentName, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SwarmPublicService’s getAgentName, supporting ClientAgent’s agent tracking.
+   * @returns {Promise<string>} A promise resolving to the name of the active agent.
    */
-  public getAgentName = async () => {
+  public getAgentName = async (): Promise<string> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`swarmConnectionService getAgentName`);
     return await this.getSwarm(
@@ -134,10 +181,12 @@ export class SwarmConnectionService implements ISwarm {
   };
 
   /**
-   * Retrieves the agent from the swarm.
-   * @returns {Promise<IAgent>} The agent instance.
+   * Retrieves the currently active agent instance from the swarm.
+   * Delegates to ClientSwarm.getAgent, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SwarmPublicService’s getAgent, supporting ClientAgent’s agent access.
+   * @returns {Promise<IAgent>} A promise resolving to the active agent instance, implementing IAgent.
    */
-  public getAgent = async () => {
+  public getAgent = async (): Promise<IAgent> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`swarmConnectionService getAgent`);
     return await this.getSwarm(
@@ -147,10 +196,12 @@ export class SwarmConnectionService implements ISwarm {
   };
 
   /**
-   * Sets the agent reference in the swarm.
-   * @param {AgentName} agentName - The name of the agent.
-   * @param {IAgent} agent - The agent instance.
-   * @returns {Promise<void>}
+   * Sets an agent reference in the swarm’s agent map, typically for dynamic agent addition.
+   * Delegates to ClientSwarm.setAgentRef, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SwarmPublicService’s setAgentRef, supporting ClientAgent’s agent management.
+   * @param {AgentName} agentName - The name of the agent to set, sourced from Agent.interface.
+   * @param {IAgent} agent - The agent instance to register, implementing IAgent.
+   * @returns {Promise<void>} A promise resolving when the agent reference is set.
    */
   public setAgentRef = async (agentName: AgentName, agent: IAgent) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -164,9 +215,11 @@ export class SwarmConnectionService implements ISwarm {
   };
 
   /**
-   * Sets the agent name in the swarm.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {Promise<void>}
+   * Sets the active agent in the swarm by name, updating the navigation state.
+   * Delegates to ClientSwarm.setAgentName, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SwarmPublicService’s setAgentName, supporting ClientAgent’s navigation control.
+   * @param {AgentName} agentName - The name of the agent to set as active, sourced from Agent.interface.
+   * @returns {Promise<void>} A promise resolving when the active agent is set.
    */
   public setAgentName = async (agentName: AgentName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -180,8 +233,10 @@ export class SwarmConnectionService implements ISwarm {
   };
 
   /**
-   * Disposes of the swarm connection.
-   * @returns {Promise<void>}
+   * Disposes of the swarm connection, clearing the memoized instance.
+   * Checks if the swarm exists in the memoization cache before clearing it, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Aligns with SwarmPublicService’s dispose and PerfService’s cleanup, but does not call ClientSwarm.dispose (assuming cleanup is handled internally or unnecessary).
+   * @returns {Promise<void>} A promise resolving when the swarm connection is disposed.
    */
   public dispose = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -194,4 +249,9 @@ export class SwarmConnectionService implements ISwarm {
   };
 }
 
+/**
+ * Default export of the SwarmConnectionService class.
+ * Provides the primary service for managing swarm connections in the swarm system, integrating with ClientAgent, SwarmPublicService, AgentConnectionService, SessionConnectionService, and PerfService, with memoized swarm management.
+ * @type {typeof SwarmConnectionService}
+ */
 export default SwarmConnectionService;

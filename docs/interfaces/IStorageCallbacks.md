@@ -1,6 +1,7 @@
 # IStorageCallbacks
 
-Interface representing the callbacks for storage events.
+Interface representing callbacks for storage lifecycle and operational events.
+Provides hooks for updates, searches, initialization, and disposal.
 
 ## Properties
 
@@ -10,7 +11,8 @@ Interface representing the callbacks for storage events.
 onUpdate: (items: T[], clientId: string, storageName: string) => void
 ```
 
-Callback function for update events.
+Callback triggered when storage data is updated (e.g., via upsert or remove).
+Useful for logging or synchronizing state.
 
 ### onSearch
 
@@ -18,7 +20,7 @@ Callback function for update events.
 onSearch: (search: string, index: SortedArray<T>, clientId: string, storageName: string) => void
 ```
 
-Callback function for search events.
+Callback triggered during a search operation on the storage.
 
 ### onInit
 
@@ -26,7 +28,8 @@ Callback function for search events.
 onInit: (clientId: string, storageName: string) => void
 ```
 
-Callback function for init
+Callback triggered when the storage is initialized.
+Useful for setup or logging.
 
 ### onDispose
 
@@ -34,4 +37,5 @@ Callback function for init
 onDispose: (clientId: string, storageName: string) => void
 ```
 
-Callback function for dispose
+Callback triggered when the storage is disposed of.
+Useful for cleanup or logging.

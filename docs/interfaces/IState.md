@@ -1,6 +1,7 @@
 # IState
 
-State management interface.
+Interface representing the runtime state management API.
+Provides methods to get, set, and clear the state.
 
 ## Properties
 
@@ -10,7 +11,8 @@ State management interface.
 getState: () => Promise<T>
 ```
 
-Gets the state.
+Retrieves the current state value.
+Applies any configured middleware or custom `getState` logic from the schema.
 
 ### setState
 
@@ -18,7 +20,8 @@ Gets the state.
 setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>
 ```
 
-Sets the state.
+Updates the state using a dispatch function that computes the new state from the previous state.
+Applies any configured middleware or custom `setState` logic from the schema.
 
 ### clearState
 
@@ -26,4 +29,5 @@ Sets the state.
 clearState: () => Promise<T>
 ```
 
-Set the state to initial value
+Resets the state to its initial default value.
+Reverts to the value provided by `getDefaultState` in the schema.

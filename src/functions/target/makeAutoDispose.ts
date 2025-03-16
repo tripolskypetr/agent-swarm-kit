@@ -3,33 +3,48 @@ import { SwarmName } from "../../interfaces/Swarm.interface";
 import { disposeConnection } from "./disposeConnection";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
-import beginContext from "../..//utils/beginContext";
+import beginContext from "../../utils/beginContext";
 
 const METHOD_NAME = "function.target.makeAutoDispose";
 
+/**
+ * Default timeout in seconds before auto-dispose is triggered.
+ * @constant {number}
+ */
 const DEFAULT_TIMEOUT = 15 * 60;
 
 /**
  * Interface for the parameters of the makeAutoDispose function.
+ * @interface IMakeDisposeParams
+ * @property {number} timeoutSeconds - Timeout in seconds before auto-dispose is triggered.
+ * @property {(clientId: string, swarmName: SwarmName) => void} [onDestroy] - Optional callback invoked when the session is closed.
  */
 export interface IMakeDisposeParams {
-  /**
-   * Timeout in seconds before auto-dispose is triggered.
-   */
   timeoutSeconds: number;
-  /**
-   * Callback when session is closed
-   */
   onDestroy?: (clientId: string, swarmName: SwarmName) => void;
 }
 
 /**
- * Creates an auto-dispose mechanism for a client in a swarm.
+ * Creates an auto-dispose mechanism for a client session in a swarm.
  *
- * @param {string} clientId - The ID of the client.
- * @param {SwarmName} swarmName - The name of the swarm.
- * @param {Partial<IMakeDisposeParams>} [params={}] - Optional parameters for auto-dispose.
- * @returns {Object} An object with tick and stop methods to control the auto-dispose.
+ * This function establishes a timer-based auto-dispose system that monitors client activity in a swarm session. If no activity
+ * is detected (via the `tick` method) within the specified timeout period, the session is automatically disposed using `disposeConnection`.
+ * The mechanism uses a `Source` from `functools-kit` to manage the timer, which can be reset or stopped manually. The execution is wrapped
+ * in `beginContext` for a clean environment, and an optional callback (`onDestroy`) can be provided to handle post-disposal actions.
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm associated with the session.
+ * @param {Partial<IMakeDisposeParams>} [params={}] - Optional parameters for configuring the auto-dispose behavior, including timeout and callback.
+ * @returns {{ tick: () => void, destroy: () => void }} An object with `tick` to signal activity and `destroy` to stop the auto-dispose mechanism.
+ * @throws {Error} If disposal via `disposeConnection` fails when triggered automatically.
+ * @example
+ * const { tick, destroy } = makeAutoDispose("client-123", "TaskSwarm", { 
+ *   timeoutSeconds: 30, 
+ *   onDestroy: (id, name) => console.log(`Session ${id} in ${name} closed`) 
+ * });
+ * tick(); // Reset timer
+ * setInterval(tick, 10000); // Keep alive every 10 seconds
+ * destroy(); // Stop manually
  */
 export const makeAutoDispose = beginContext(
   (
@@ -40,6 +55,7 @@ export const makeAutoDispose = beginContext(
       onDestroy,
     }: Partial<IMakeDisposeParams> = {}
   ) => {
+    // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         clientId,
@@ -48,6 +64,7 @@ export const makeAutoDispose = beginContext(
 
     let isOk = true;
 
+    // Set up a timer using Source to track inactivity
     const unSource = Source.fromInterval(1_000)
       .reduce((acm) => {
         if (isOk) {
@@ -66,15 +83,9 @@ export const makeAutoDispose = beginContext(
       });
 
     return {
-      /**
-       * Signals that the client is active, resetting the auto-dispose timer.
-       */
       tick() {
         isOk = true;
       },
-      /**
-       * Stops the auto-dispose mechanism.
-       */
       destroy() {
         unSource();
         onDestroy && onDestroy(clientId, swarmName);

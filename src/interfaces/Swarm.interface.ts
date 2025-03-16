@@ -4,19 +4,25 @@ import { IBus } from "./Bus.interface";
 import { PolicyName } from "./Policy.interface";
 import { ExecutionMode } from "./Session.interface";
 
+/**
+ * Interface representing callbacks for session-related events within a swarm.
+ * Provides hooks for connection, execution, and emission events.
+ */
 export interface ISwarmSessionCallbacks {
   /**
-   * Callback triggered when a client connects.
-   * @param clientId - The ID of the client.
-   * @param swarmName - The name of the swarm.
+   * Optional callback triggered when a client connects to the swarm.
+   * Useful for logging or initialization tasks.
+   * @param {string} clientId - The unique ID of the client connecting.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
    */
   onConnect?: (clientId: string, swarmName: SwarmName) => void;
+
   /**
-   * Callback triggered when a command is executed.
-   * @param clientId - The ID of the client.
-   * @param swarmName - The name of the swarm.
-   * @param content - The content to execute.
-   * @param mode - The source of execution: tool or user.
+   * Optional callback triggered when a command is executed within the swarm.
+   * @param {string} clientId - The unique ID of the client executing the command.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
+   * @param {string} content - The content of the command to execute.
+   * @param {ExecutionMode} mode - The source of execution ("tool" or "user").
    */
   onExecute?: (
     clientId: string,
@@ -26,43 +32,51 @@ export interface ISwarmSessionCallbacks {
   ) => void;
 
   /**
-   * Callback triggered when a stateless completion run executed
-   * @param clientId - The ID of the client.
-   * @param swarmName - The name of the swarm.
-   * @param content - The content to execute.
+   * Optional callback triggered when a stateless completion run is executed.
+   * @param {string} clientId - The unique ID of the client initiating the run.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
+   * @param {string} content - The content to process statelessly.
    */
-  onRun?: (
-    clientId: string,
-    swarmName: SwarmName,
-    content: string,
-  ) => void;
+  onRun?: (clientId: string, swarmName: SwarmName, content: string) => void;
 
   /**
-   * Callback triggered when a message is emitted.
-   * @param clientId - The ID of the client.
-   * @param swarmName - The name of the swarm.
-   * @param message - The message to emit.
+   * Optional callback triggered when a message is emitted from the swarm.
+   * @param {string} clientId - The unique ID of the client associated with the emission.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
+   * @param {string} message - The message content being emitted.
    */
   onEmit?: (clientId: string, swarmName: SwarmName, message: string) => void;
+
   /**
-   * Callback triggered when a session being connected
-   * @param clientId - The ID of the client.
-   * @param swarmName - The name of the swarm.
+   * Optional callback triggered when a session is initialized within the swarm.
+   * @param {string} clientId - The unique ID of the client associated with the session.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
    */
   onInit?: (clientId: string, swarmName: SwarmName) => void;
+
   /**
-   * Callback triggered when a session being disponnected
-   * @param clientId - The ID of the client.
-   * @param swarmName - The name of the swarm.
+   * Optional callback triggered when a session is disconnected or disposed of.
+   * Note: "disponnected" in original comment corrected to "disconnected".
+   * @param {string} clientId - The unique ID of the client associated with the session.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
    */
   onDispose?: (clientId: string, swarmName: SwarmName) => void;
 }
 
 /**
- * Lifecycle callbacks of initialized swarm
+ * Interface representing lifecycle callbacks for an initialized swarm.
+ * Extends session callbacks with agent-specific navigation events.
+ * @extends {ISwarmSessionCallbacks}
  */
 export interface ISwarmCallbacks extends ISwarmSessionCallbacks {
-  /** Emit the callback on agent change */
+  /**
+   * Callback triggered when the active agent changes within the swarm.
+   * Useful for navigation tracking or state updates.
+   * @param {string} clientId - The unique ID of the client associated with the change.
+   * @param {AgentName} agentName - The name of the new active agent.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
+   * @returns {Promise<void>} A promise that resolves when the agent change is processed.
+   */
   onAgentChanged: (
     clientId: string,
     agentName: AgentName,
@@ -71,9 +85,9 @@ export interface ISwarmCallbacks extends ISwarmSessionCallbacks {
 }
 
 /**
- * Parameters for initializing a swarm.
- * @interface
- * @extends {Omit<ISwarmSchema, 'agentList'>}
+ * Interface representing the parameters required to initialize a swarm.
+ * Extends the swarm schema (excluding certain fields) with runtime dependencies.
+ * @extends {Omit<ISwarmSchema, "agentList" | "onAgentChanged">}
  */
 export interface ISwarmParams
   extends Omit<
@@ -83,112 +97,165 @@ export interface ISwarmParams
       onAgentChanged: never;
     }
   > {
-  /** Client identifier */
+  /** The unique identifier of the client initializing the swarm. */
   clientId: string;
-  /** Logger instance */
+
+  /** The logger instance for recording swarm-related activity and errors. */
   logger: ILogger;
-  /** The bus instance. */
+
+  /** The bus instance for event communication within the swarm. */
   bus: IBus;
-  /** Map of agent names to agent instances */
+
+  /** A map of agent names to their corresponding agent instances for runtime access. */
   agentMap: Record<AgentName, IAgent>;
 }
 
 /**
- * Schema for defining a swarm.
- * @interface
+ * Interface representing the schema for defining a swarm.
+ * Configures the swarm's behavior, navigation, and agent management.
  */
 export interface ISwarmSchema {
-  /** Mark the swarm to serialize it navigation and active agent state to the hard drive */
+  /** Optional flag to enable serialization of navigation stack and active agent state to persistent storage (e.g., hard drive). */
   persist?: boolean;
-  /** The description for documentation */
+
+  /** Optional description for documentation purposes, aiding in swarm usage understanding. */
   docDescription?: string;
-  /** The banhammer policies */
+
+  /** Optional array of policy names defining banhammer or access control rules for the swarm. */
   policies?: PolicyName[];
-  /** Get the current navigation stack after init */
+
+  /**
+   * Optional function to retrieve the initial navigation stack after swarm initialization.
+   * @param {string} clientId - The unique ID of the client requesting the stack.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
+   * @returns {Promise<AgentName[]> | AgentName[]} The navigation stack, synchronously or asynchronously.
+   */
   getNavigationStack?: (
     clientId: string,
     swarmName: SwarmName
   ) => Promise<AgentName[]> | AgentName[];
-  /** Upload the current navigation stack after change */
+
+  /**
+   * Optional function to persist the navigation stack after a change.
+   * @param {string} clientId - The unique ID of the client updating the stack.
+   * @param {AgentName[]} navigationStack - The updated navigation stack.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
+   * @returns {Promise<void>} A promise that resolves when the stack is persisted.
+   * @throws {Error} If persistence fails (e.g., due to storage issues).
+   */
   setNavigationStack?: (
     clientId: string,
     navigationStack: AgentName[],
     swarmName: SwarmName
   ) => Promise<void>;
-  /** Fetch the active agent on init */
+
+  /**
+   * Optional function to fetch the active agent upon swarm initialization.
+   * @param {string} clientId - The unique ID of the client requesting the agent.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
+   * @param {AgentName} defaultAgent - The default agent name to fall back to if no active agent is set.
+   * @returns {Promise<AgentName> | AgentName} The name of the active agent, synchronously or asynchronously.
+   */
   getActiveAgent?: (
     clientId: string,
     swarmName: SwarmName,
     defaultAgent: AgentName
   ) => Promise<AgentName> | AgentName;
-  /** Update the active agent after navigation */
+
+  /**
+   * Optional function to update the active agent after navigation changes.
+   * @param {string} clientId - The unique ID of the client updating the agent.
+   * @param {AgentName} agentName - The name of the new active agent.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
+   * @returns {Promise<void> | void} A promise that resolves when the agent is updated, or void if synchronous.
+   * @throws {Error} If the update fails (e.g., due to persistence issues).
+   */
   setActiveAgent?: (
     clientId: string,
     agentName: AgentName,
     swarmName: SwarmName
   ) => Promise<void> | void;
-  /** Default agent name */
+
+  /** The default agent name to use when no active agent is specified. */
   defaultAgent: AgentName;
-  /** Name of the swarm */
+
+  /** The unique name of the swarm within the system. */
   swarmName: string;
-  /** List of agent names */
+
+  /** The list of agent names available within the swarm. */
   agentList: string[];
-  /** Lifecycle callbacks*/
+
+  /** Optional partial set of lifecycle callbacks for the swarm, allowing customization of events. */
   callbacks?: Partial<ISwarmCallbacks>;
 }
 
 /**
- * Interface for a swarm.
- * @interface
+ * Interface representing a swarm of agents.
+ * Provides methods for navigation, agent management, and output handling.
  */
 export interface ISwarm {
   /**
-   * Pop the navigation stack or return default agent
-   * @returns {Promise<string>} - The pending agent for navigation
+   * Removes and returns the most recent agent from the navigation stack, or falls back to the default agent.
+   * @returns {Promise<AgentName>} A promise resolving to the agent name popped from the stack or the default agent.
+   * @throws {Error} If navigation retrieval fails (e.g., due to persistence issues).
    */
   navigationPop(): Promise<AgentName>;
 
   /**
-   * Will return empty string in waitForOutput
-   * @returns {Promise<void>}
+   * Cancels the current output operation, resulting in an empty string from waitForOutput.
+   * @returns {Promise<void>} A promise that resolves when the output is canceled.
+   * @throws {Error} If cancellation fails (e.g., due to internal errors).
    */
   cancelOutput(): Promise<void>;
 
   /**
-   * Waits for the output from the swarm.
-   * @returns {Promise<string>} The output from the swarm.
+   * Waits for and retrieves the output from the swarm’s active agent.
+   * @returns {Promise<string>} A promise resolving to the output string from the swarm.
+   * @throws {Error} If no output is available or waiting times out.
    */
   waitForOutput(): Promise<string>;
 
   /**
-   * Gets the name of the agent.
-   * @returns {Promise<AgentName>} The name of the agent.
+   * Retrieves the name of the currently active agent in the swarm.
+   * @returns {Promise<AgentName>} A promise resolving to the name of the active agent.
+   * @throws {Error} If the active agent cannot be determined (e.g., due to persistence issues).
    */
   getAgentName(): Promise<AgentName>;
 
   /**
-   * Gets the agent instance.
-   * @returns {Promise<IAgent>} The agent instance.
+   * Retrieves the instance of the currently active agent in the swarm.
+   * @returns {Promise<IAgent>} A promise resolving to the active agent instance.
+   * @throws {Error} If the agent instance cannot be retrieved (e.g., due to invalid agent name).
    */
   getAgent(): Promise<IAgent>;
 
   /**
-   * Sets the reference to an agent.
-   * @param {AgentName} agentName - The name of the agent.
-   * @param {IAgent} agent - The agent instance.
-   * @returns {Promise<void>}
+   * Registers or updates an agent reference in the swarm’s agent map.
+   * @param {AgentName} agentName - The name of the agent to register.
+   * @param {IAgent} agent - The agent instance to associate with the name.
+   * @returns {Promise<void>} A promise that resolves when the agent reference is set.
+   * @throws {Error} If registration fails (e.g., due to invalid agent or internal errors).
    */
   setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
 
   /**
-   * Sets the name of the agent.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {Promise<void>}
+   * Sets the active agent in the swarm by name, updating navigation if applicable.
+   * @param {AgentName} agentName - The name of the agent to set as active.
+   * @returns {Promise<void>} A promise that resolves when the active agent is updated.
+   * @throws {Error} If setting the agent fails (e.g., due to persistence issues or invalid name).
    */
   setAgentName(agentName: AgentName): Promise<void>;
 }
 
-/** Type alias for swarm name */
+/**
+ * Type representing the unique name of a swarm within the system.
+ * @typedef {string} SwarmName
+ */
 export type SwarmName = string;
 
+/**
+ * Default export of the ISwarm interface.
+ * Represents the primary swarm management interface for the module.
+ * @type {ISwarm}
+ */
 export default ISwarm;

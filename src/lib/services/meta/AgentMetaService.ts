@@ -5,26 +5,64 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import AgentSchemaService from "../schema/AgentSchemaService";
 
+/**
+ * Maximum nesting level for UML serialization to prevent infinite recursion.
+ * Used in createSerialize to limit depth, ensuring safe processing of agent dependencies.
+ * @type {number}
+ */
 const MAX_NESTING = 10;
+
+/**
+ * Indentation step for UML formatting, used in createSerialize for hierarchical representation.
+ * @type {string}
+ */
 const UML_STEP = "\t";
+
+/**
+ * Bullet symbol for UML nodes, used in createSerialize to denote entries.
+ * @type {string}
+ */
 const UML_BULLET = "[*]";
+
+/**
+ * Triangle symbol for UML category headers, used in makeAgentNode to mark sections (e.g., Agents, States).
+ * @type {string}
+ */
 const UML_TRIANGLE = "[>]";
 
 /**
- * Interface representing a meta node.
+ * Interface defining a metadata node structure for representing agent relationships and resources.
+ * Used in AgentMetaService to build hierarchical trees for UML serialization, reflecting agent dependencies and attributes.
+ * @interface IMetaNode
  */
 export interface IMetaNode {
+  /**
+   * The name of the node, typically an agent name or resource identifier (e.g., AgentName, "States").
+   * @type {string}
+   */
   name: string;
+
+  /**
+   * Optional array of child nodes, representing nested dependencies or resources (e.g., dependent agents, states).
+   * @type {IMetaNode[] | undefined}
+   */
   child?: IMetaNode[];
 }
 
 /**
- * Creates a function to serialize meta nodes to UML format.
- * @returns {Function} A function that takes an array of IMetaNode and returns a string in UML format.
+ * Creates a function to serialize an array of IMetaNode objects into UML format (YAML-style).
+ * Used by AgentMetaService.toUML to generate visual representations for DocService (e.g., agent UML diagrams).
+ * @returns {(nodes: IMetaNode[]) => string} A function that takes an array of meta nodes and returns a UML-formatted string.
  */
 export const createSerialize = () => (nodes: IMetaNode[]) => {
   const lines: string[] = [];
 
+  /**
+   * Recursively processes meta nodes to build UML lines with indentation.
+   * Limits nesting to MAX_NESTING, used internally by createSerialize to handle agent trees from AgentMetaService.
+   * @param {IMetaNode[]} nodes - The array of meta nodes to process.
+   * @param {number} [level=0] - The current nesting level, defaults to 0.
+   */
   const process = (nodes: IMetaNode[], level = 0) => {
     for (const node of nodes) {
       const space = [...new Array(level)].fill(UML_STEP).join("");
@@ -46,19 +84,45 @@ export const createSerialize = () => (nodes: IMetaNode[]) => {
 };
 
 /**
- * Service class for managing agent meta nodes and converting them to UML format.
+ * Service class for managing agent metadata and converting it to UML format in the swarm system.
+ * Builds IMetaNode trees from agent schemas (via AgentSchemaService) and serializes them to UML for visualization, integrating with DocService (e.g., writeAgentDoc UML diagrams).
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) and supports ClientAgent (e.g., agent metadata) and PerfService (e.g., computeClientState context).
+ * Provides methods to create detailed or common agent nodes and generate UML strings, enhancing system documentation and debugging.
  */
 export class AgentMetaService {
+  /**
+   * Logger service instance, injected via DI, for logging meta node operations.
+   * Used in makeAgentNode, makeAgentNodeCommon, and toUML when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with DocService and PerfService logging.
+   * @type {LoggerService}
+   * @private
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+
+  /**
+   * Agent schema service instance, injected via DI, for retrieving agent schema data (e.g., dependsOn, states).
+   * Used in makeAgentNode and makeAgentNodeCommon to build meta nodes, aligning with ClientAgent’s agent definitions and DocService’s agent documentation.
+   * @type {AgentSchemaService}
+   * @private
+   */
   private readonly agentSchemaService = inject<AgentSchemaService>(
     TYPES.agentSchemaService
   );
+
+  /**
+   * Serialization function created by createSerialize, used to convert IMetaNode trees to UML format.
+   * Employed in toUML to generate strings for DocService’s UML diagrams (e.g., agent_schema_[agentName].svg).
+   * @type {(nodes: IMetaNode[]) => string}
+   * @private
+   */
   private serialize = createSerialize();
 
   /**
-   * Creates a meta node for the given agent.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {IMetaNode} The created meta node.
+   * Creates a detailed meta node for the given agent, including dependencies, states, storages, and tools.
+   * Recursively builds a tree with seen set to prevent cycles, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used in toUML for full agent visualization.
+   * Integrates with ClientAgent (e.g., agent metadata) and DocService (e.g., detailed agent UML in writeAgentDoc).
+   * @param {AgentName} agentName - The name of the agent to create a meta node for, sourced from Agent.interface.
+   * @param {Set<AgentName>} [seen=new Set<AgentName>()] - Set of seen agent names to prevent infinite recursion, defaults to an empty set.
+   * @returns {IMetaNode} The created meta node with child nodes for dependencies, states, storages, and tools.
    */
   public makeAgentNode = (
     agentName: AgentName,
@@ -125,9 +189,12 @@ export class AgentMetaService {
   };
 
   /**
-   * Creates a meta node for the given agent.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {IMetaNode} The created meta node.
+   * Creates a common meta node for the given agent, focusing on dependency relationships.
+   * Recursively builds a tree with seen set to prevent cycles, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used as a helper in makeAgentNode.
+   * Supports ClientAgent (e.g., dependency tracking) and PerfService (e.g., computeClientState agent context).
+   * @param {AgentName} agentName - The name of the agent to create a meta node for, sourced from Agent.interface.
+   * @param {Set<AgentName>} [seen=new Set<AgentName>()] - Set of seen agent names to prevent infinite recursion, defaults to an empty set.
+   * @returns {IMetaNode} The created meta node with child nodes for dependencies only.
    */
   public makeAgentNodeCommon = (
     agentName: AgentName,
@@ -158,9 +225,12 @@ export class AgentMetaService {
   };
 
   /**
-   * Converts the meta nodes of the given agent to UML format.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {string} The UML representation of the agent's meta nodes.
+   * Converts the meta nodes of the given agent to UML format, optionally including a full subtree.
+   * Uses makeAgentNode to build the tree and serialize to generate the UML string, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Called by DocService (e.g., writeAgentDoc) to produce UML diagrams (e.g., agent_schema_[agentName].svg), enhancing agent visualization.
+   * @param {AgentName} agentName - The name of the agent to convert to UML, sourced from Agent.interface.
+   * @param {boolean} [withSubtree=false] - Whether to include the full subtree (dependencies, states, etc.) or limit recursion, defaults to false.
+   * @returns {string} The UML representation of the agent’s meta nodes, formatted as YAML for PlantUML rendering.
    */
   public toUML = (agentName: AgentName, withSubtree = false) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -176,4 +246,9 @@ export class AgentMetaService {
   };
 }
 
+/**
+ * Default export of the AgentMetaService class.
+ * Provides the primary interface for managing agent metadata and UML generation in the swarm system, integrating with ClientAgent, PerfService, and DocService.
+ * @type {typeof AgentMetaService}
+ */
 export default AgentMetaService;

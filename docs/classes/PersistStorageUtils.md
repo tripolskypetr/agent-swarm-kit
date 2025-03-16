@@ -2,7 +2,8 @@
 
 Implements `IPersistStorageControl`
 
-Utility class for managing storage persistence
+Utility class for managing storage persistence per client and storage name.
+Provides methods to get/set storage data with a customizable persistence adapter.
 
 ## Constructor
 
@@ -24,7 +25,8 @@ PersistStorageFactory: any
 getPersistStorage: any
 ```
 
-Memoized function to get storage for a specific storage name
+Memoized function to create or retrieve storage for a specific storage name.
+Ensures a single instance per storage name.
 
 ### getData
 
@@ -32,7 +34,7 @@ Memoized function to get storage for a specific storage name
 getData: <T extends IStorageData = IStorageData>(clientId: string, storageName: string, defaultValue: T[]) => Promise<T[]>
 ```
 
-Gets the data for a client from a specific storage
+Retrieves the data for a client from a specific storage, falling back to a default if not set.
 
 ### setData
 
@@ -40,7 +42,8 @@ Gets the data for a client from a specific storage
 setData: <T extends IStorageData = IStorageData>(data: T[], clientId: string, storageName: string) => Promise<void>
 ```
 
-Sets the data for a client in a specific storage
+Sets the data for a client in a specific storage.
+Persists the data wrapped in an IPersistStorageData structure.
 
 ## Methods
 
@@ -50,4 +53,4 @@ Sets the data for a client in a specific storage
 usePersistStorageAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>): void;
 ```
 
-Sets the factory for storage persistence
+Sets a custom constructor for storage persistence, overriding the default PersistBase.

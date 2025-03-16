@@ -1,6 +1,7 @@
 # IStorageParams
 
-Interface representing the parameters for storage.
+Interface representing the runtime parameters for storage management.
+Extends the storage schema with client-specific and embedding-related dependencies.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Interface representing the parameters for storage.
 clientId: string
 ```
 
-The client ID.
+The unique ID of the client associated with the storage instance.
 
 ### calculateSimilarity
 
@@ -18,7 +19,8 @@ The client ID.
 calculateSimilarity: (a: Embeddings, b: Embeddings) => Promise<number>
 ```
 
-Function to calculate similarity.
+Function to calculate similarity between embeddings, inherited from the embedding schema.
+Used for search operations.
 
 ### createEmbedding
 
@@ -26,7 +28,8 @@ Function to calculate similarity.
 createEmbedding: (text: string) => Promise<Embeddings>
 ```
 
-Function to create an embedding.
+Function to create an embedding for storage items, inherited from the embedding schema.
+Used for indexing.
 
 ### storageName
 
@@ -34,7 +37,7 @@ Function to create an embedding.
 storageName: string
 ```
 
-The name of the storage.
+The unique name of the storage within the swarm (redundant with schema but included for clarity).
 
 ### logger
 
@@ -42,7 +45,7 @@ The name of the storage.
 logger: ILogger
 ```
 
-Logger instance.
+The logger instance for recording storage-related activity and errors.
 
 ### bus
 
@@ -50,4 +53,4 @@ Logger instance.
 bus: IBus
 ```
 
-The bus instance.
+The bus instance for event communication within the swarm.

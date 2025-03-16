@@ -1,6 +1,7 @@
 # ICompletionSchema
 
-Schema for a completion.
+Interface representing the schema for configuring a completion mechanism.
+Defines how completions are generated within the swarm.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Schema for a completion.
 completionName: string
 ```
 
-Name of the completion.
+The unique name of the completion mechanism within the swarm.
 
 ### callbacks
 
@@ -18,7 +19,7 @@ Name of the completion.
 callbacks: Partial<ICompletionCallbacks>
 ```
 
-Completion lifecycle callbacks
+Optional partial set of callbacks for completion events, allowing customization of post-completion behavior.
 
 ## Methods
 
@@ -28,4 +29,5 @@ Completion lifecycle callbacks
 getCompletion: (args: ICompletionArgs) => Promise<IModelMessage>
 ```
 
-Method to get a completion.
+Retrieves a completion based on the provided arguments.
+Generates a model response using the given context and tools.

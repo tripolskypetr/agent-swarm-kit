@@ -1,5 +1,8 @@
 # ISwarmSessionCallbacks
 
+Interface representing callbacks for session-related events within a swarm.
+Provides hooks for connection, execution, and emission events.
+
 ## Properties
 
 ### onConnect
@@ -8,7 +11,8 @@
 onConnect: (clientId: string, swarmName: string) => void
 ```
 
-Callback triggered when a client connects.
+Optional callback triggered when a client connects to the swarm.
+Useful for logging or initialization tasks.
 
 ### onExecute
 
@@ -16,7 +20,7 @@ Callback triggered when a client connects.
 onExecute: (clientId: string, swarmName: string, content: string, mode: ExecutionMode) => void
 ```
 
-Callback triggered when a command is executed.
+Optional callback triggered when a command is executed within the swarm.
 
 ### onRun
 
@@ -24,7 +28,7 @@ Callback triggered when a command is executed.
 onRun: (clientId: string, swarmName: string, content: string) => void
 ```
 
-Callback triggered when a stateless completion run executed
+Optional callback triggered when a stateless completion run is executed.
 
 ### onEmit
 
@@ -32,7 +36,7 @@ Callback triggered when a stateless completion run executed
 onEmit: (clientId: string, swarmName: string, message: string) => void
 ```
 
-Callback triggered when a message is emitted.
+Optional callback triggered when a message is emitted from the swarm.
 
 ### onInit
 
@@ -40,7 +44,7 @@ Callback triggered when a message is emitted.
 onInit: (clientId: string, swarmName: string) => void
 ```
 
-Callback triggered when a session being connected
+Optional callback triggered when a session is initialized within the swarm.
 
 ### onDispose
 
@@ -48,4 +52,5 @@ Callback triggered when a session being connected
 onDispose: (clientId: string, swarmName: string) => void
 ```
 
-Callback triggered when a session being disponnected
+Optional callback triggered when a session is disconnected or disposed of.
+Note: "disponnected" in original comment corrected to "disconnected".

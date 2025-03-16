@@ -1,6 +1,7 @@
 # IStateSchema
 
-Schema for state management.
+Interface representing the schema for state management.
+Defines the configuration and behavior of a state within the swarm.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Schema for state management.
 persist: boolean
 ```
 
-Mark the state to serialize values to the hard drive
+Optional flag to enable serialization of state values to persistent storage (e.g., hard drive).
 
 ### docDescription
 
@@ -18,7 +19,7 @@ Mark the state to serialize values to the hard drive
 docDescription: string
 ```
 
-The description for documentation
+Optional description for documentation purposes, aiding in state usage understanding.
 
 ### shared
 
@@ -26,7 +27,7 @@ The description for documentation
 shared: boolean
 ```
 
-The agents can share the state
+Optional flag indicating whether the state can be shared across multiple agents.
 
 ### stateName
 
@@ -34,7 +35,7 @@ The agents can share the state
 stateName: string
 ```
 
-The name of the state.
+The unique name of the state within the swarm.
 
 ### getDefaultState
 
@@ -42,7 +43,7 @@ The name of the state.
 getDefaultState: (clientId: string, stateName: string) => T | Promise<T>
 ```
 
-The default value for a state
+Function to retrieve or compute the default state value.
 
 ### getState
 
@@ -50,7 +51,8 @@ The default value for a state
 getState: (clientId: string, stateName: string, defaultState: T) => T | Promise<T>
 ```
 
-Gets the state.
+Optional function to retrieve the current state, with a fallback to the default state.
+Overrides default state retrieval behavior if provided.
 
 ### setState
 
@@ -58,7 +60,8 @@ Gets the state.
 setState: (state: T, clientId: string, stateName: string) => void | Promise<void>
 ```
 
-Sets the state.
+Optional function to set or update the state.
+Overrides default state setting behavior if provided.
 
 ### middlewares
 
@@ -66,7 +69,7 @@ Sets the state.
 middlewares: IStateMiddleware<T>[]
 ```
 
-Middleware functions for state management.
+Optional array of middleware functions to process the state during lifecycle operations.
 
 ### callbacks
 
@@ -74,4 +77,4 @@ Middleware functions for state management.
 callbacks: Partial<IStateCallbacks<T>>
 ```
 
-Callbacks for state lifecycle events.
+Optional partial set of lifecycle callbacks for the state, allowing customization of state events.

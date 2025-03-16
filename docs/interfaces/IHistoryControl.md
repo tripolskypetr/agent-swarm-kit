@@ -1,6 +1,6 @@
 # IHistoryControl
 
-Interface for History Control
+Interface defining control methods for configuring history behavior.
 
 ## Properties
 
@@ -10,7 +10,7 @@ Interface for History Control
 useHistoryCallbacks: (Callbacks: Partial<IHistoryInstanceCallbacks>) => void
 ```
 
-Use history lifecycle callbacks.
+Configures lifecycle callbacks for history instances.
 
 ## Methods
 
@@ -20,4 +20,4 @@ Use history lifecycle callbacks.
 useHistoryAdapter: (Ctor: THistoryInstanceCtor) => void
 ```
 
-Use a custom history adapter.
+Sets a custom history instance constructor for the adapter.

@@ -1,6 +1,7 @@
 # IStateCallbacks
 
-Callbacks for state lifecycle events.
+Interface representing callbacks for state lifecycle events.
+Provides hooks for initialization, disposal, and state transitions.
 
 ## Properties
 
@@ -10,7 +11,8 @@ Callbacks for state lifecycle events.
 onInit: (clientId: string, stateName: string) => void
 ```
 
-Called when the state is initialized.
+Callback triggered when the state is initialized.
+Useful for setup or logging.
 
 ### onDispose
 
@@ -18,7 +20,8 @@ Called when the state is initialized.
 onDispose: (clientId: string, stateName: string) => void
 ```
 
-Called when the state is disposed.
+Callback triggered when the state is disposed of.
+Useful for cleanup or logging.
 
 ### onLoad
 
@@ -26,7 +29,7 @@ Called when the state is disposed.
 onLoad: (state: T, clientId: string, stateName: string) => void
 ```
 
-Called when the state is loaded.
+Callback triggered when the state is loaded from storage or initialized.
 
 ### onRead
 
@@ -34,7 +37,8 @@ Called when the state is loaded.
 onRead: (state: T, clientId: string, stateName: string) => void
 ```
 
-Called when the state is read.
+Callback triggered when the state is read.
+Useful for monitoring or logging read operations.
 
 ### onWrite
 
@@ -42,4 +46,5 @@ Called when the state is read.
 onWrite: (state: T, clientId: string, stateName: string) => void
 ```
 
-Called when the state is written.
+Callback triggered when the state is written or updated.
+Useful for tracking changes or triggering side effects.

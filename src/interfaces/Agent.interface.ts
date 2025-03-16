@@ -11,20 +11,26 @@ import { StorageName } from "./Storage.interface";
 import { StateName } from "./State.interface";
 import { IBus } from "./Bus.interface";
 
+/**
+ * Type representing possible values for tool parameters.
+ * @typedef {string | number | boolean | null} ToolValue
+ */
 export type ToolValue = string | number | boolean | null;
 
 /**
- * Interface representing lifecycle callbacks of a tool
- * @template T - The type of the parameters for the tool.
+ * Interface representing lifecycle callbacks for an agent tool.
+ * Provides hooks for pre- and post-execution, validation, and error handling.
+ * @template T - The type of the parameters for the tool, defaults to a record of ToolValue.
  */
 export interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
   /**
-   * Callback triggered before the tool is called.
-   * @param toolId - The `tool_call_id` for openai history
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param params - The parameters for the tool.
-   * @returns A promise that resolves when the tool call is complete.
+   * Optional callback triggered before the tool is executed.
+   * Useful for logging, pre-processing, or setup tasks.
+   * @param {string} toolId - The unique `tool_call_id` for tracking in OpenAI-style history.
+   * @param {string} clientId - The ID of the client invoking the tool.
+   * @param {AgentName} agentName - The name of the agent using the tool.
+   * @param {T} params - The parameters passed to the tool.
+   * @returns {Promise<void>} A promise that resolves when pre-call actions are complete.
    */
   onBeforeCall?: (
     toolId: string,
@@ -32,13 +38,15 @@ export interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
     agentName: AgentName,
     params: T
   ) => Promise<void>;
+
   /**
-   * Callback triggered after the tool is called.
-   * @param toolId - The `tool_call_id` for openai history
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param params - The parameters for the tool.
-   * @returns A promise that resolves when the tool call is complete.
+   * Optional callback triggered after the tool is executed.
+   * Useful for cleanup, logging, or post-processing.
+   * @param {string} toolId - The unique `tool_call_id` for tracking in OpenAI-style history.
+   * @param {string} clientId - The ID of the client invoking the tool.
+   * @param {AgentName} agentName - The name of the agent using the tool.
+   * @param {T} params - The parameters passed to the tool.
+   * @returns {Promise<void>} A promise that resolves when post-call actions are complete.
    */
   onAfterCall?: (
     toolId: string,
@@ -46,24 +54,30 @@ export interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
     agentName: AgentName,
     params: T
   ) => Promise<void>;
+
   /**
-   * Callback triggered when the tool parameters are validated.
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param params - The parameters for the tool.
-   * @returns A promise that resolves to a boolean indicating whether the parameters are valid.
+   * Optional callback triggered to validate tool parameters before execution.
+   * Allows custom validation logic specific to the tool.
+   * @param {string} clientId - The ID of the client invoking the tool.
+   * @param {AgentName} agentName - The name of the agent using the tool.
+   * @param {T} params - The parameters to validate.
+   * @returns {Promise<boolean>} A promise resolving to true if parameters are valid, false otherwise.
    */
   onValidate?: (
     clientId: string,
     agentName: AgentName,
     params: T
   ) => Promise<boolean>;
+
   /**
-   * Callback triggered when the tool fails to execute
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param params - The parameters for the tool.
-   * @returns A promise that resolves to a boolean indicating whether the parameters are valid.
+   * Optional callback triggered when the tool execution fails.
+   * Useful for error logging or recovery actions.
+   * @param {string} toolId - The unique `tool_call_id` for tracking in OpenAI-style history.
+   * @param {string} clientId - The ID of the client invoking the tool.
+   * @param {AgentName} agentName - The name of the agent using the tool.
+   * @param {T} params - The parameters passed to the tool.
+   * @param {Error} error - The error that caused the failure.
+   * @returns {Promise<void>} A promise that resolves when error handling is complete.
    */
   onCallError?: (
     toolId: string,
@@ -75,21 +89,29 @@ export interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
 }
 
 /**
- * Interface representing a tool used by an agent.
- * @template T - The type of the parameters for the tool.
+ * Interface representing a tool used by an agent, extending the base ITool interface.
+ * Defines the tool's execution and validation logic, with optional lifecycle callbacks.
+ * @template T - The type of the parameters for the tool, defaults to a record of ToolValue.
+ * @extends {ITool}
  */
 export interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
-  /** The description for documentation */
+  /** Optional description for documentation purposes, aiding in tool usage understanding. */
   docNote?: string;
-  /** The name of the tool. */
+
+  /** The unique name of the tool, used for identification within the agent swarm. */
   toolName: ToolName;
+
   /**
-   * Calls the tool with the specified parameters.
-   * @param toolId - The `tool_call_id` for openai history
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param params - The parameters for the tool.
-   * @returns A promise that resolves when the tool call is complete.
+   * Executes the tool with the specified parameters and context.
+   * @param {Object} dto - The data transfer object containing execution details.
+   * @param {string} dto.toolId - The unique `tool_call_id` for tracking in OpenAI-style history.
+   * @param {string} dto.clientId - The ID of the client invoking the tool.
+   * @param {AgentName} dto.agentName - The name of the agent using the tool.
+   * @param {T} dto.params - The parameters for the tool execution.
+   * @param {IToolCall[]} dto.toolCalls - The list of tool calls in the current execution context.
+   * @param {boolean} dto.isLast - Indicates if this is the last tool call in a sequence.
+   * @returns {Promise<void>} A promise that resolves when the tool execution is complete.
+   * @throws {Error} If the tool execution fails or parameters are invalid.
    */
   call(dto: {
     toolId: string;
@@ -99,12 +121,16 @@ export interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
     toolCalls: IToolCall[];
     isLast: boolean;
   }): Promise<void>;
+
   /**
-   * Validates the parameters for the tool.
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param params - The parameters for the tool.
-   * @returns A promise that resolves to a boolean indicating whether the parameters are valid, or a boolean.
+   * Validates the tool parameters before execution.
+   * Can return synchronously or asynchronously based on validation complexity.
+   * @param {Object} dto - The data transfer object containing validation details.
+   * @param {string} dto.clientId - The ID of the client invoking the tool.
+   * @param {AgentName} dto.agentName - The name of the agent using the tool.
+   * @param {IToolCall[]} dto.toolCalls - The list of tool calls in the current execution context.
+   * @param {T} dto.params - The parameters to validate.
+   * @returns {Promise<boolean> | boolean} True if parameters are valid, false otherwise.
    */
   validate(dto: {
     clientId: string;
@@ -112,12 +138,16 @@ export interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
     toolCalls: IToolCall[];
     params: T;
   }): Promise<boolean> | boolean;
-  /** The name of the tool. */
+
+  /** Optional lifecycle callbacks for the tool, allowing customization of execution flow. */
   callbacks?: Partial<IAgentToolCallbacks>;
 }
 
 /**
- * Interface representing the parameters for an agent.
+ * Interface representing the runtime parameters for an agent.
+ * Combines schema properties (excluding certain fields) with callbacks and runtime dependencies.
+ * @extends {Omit<IAgentSchema, "tools" | "completion" | "validate">}
+ * @extends {IAgentSchemaCallbacks}
  */
 export interface IAgentParams
   extends Omit<
@@ -129,44 +159,51 @@ export interface IAgentParams
       }
     >,
     IAgentSchemaCallbacks {
-  /** The ID of the client. */
+  /** The ID of the client interacting with the agent. */
   clientId: string;
-  /** The logger instance. */
+
+  /** The logger instance for recording agent activity and errors. */
   logger: ILogger;
-  /** The bus instance. */
+
+  /** The bus instance for event communication within the swarm. */
   bus: IBus;
-  /** The history instance. */
+
+  /** The history instance for tracking agent interactions. */
   history: IHistory;
-  /** The completion instance. */
+
+  /** The completion instance for generating responses or outputs. */
   completion: ICompletion;
-  /** The tools used by the agent. */
+
+  /** Optional array of tools available to the agent for execution. */
   tools?: IAgentTool[];
+
   /**
-   * Validates the output.
-   * @param output - The output to validate.
-   * @returns A promise that resolves to a string or null.
+   * Validates the agent's output before finalization.
+   * @param {string} output - The output string to validate.
+   * @returns {Promise<string | null>} A promise resolving to the validated output or null if invalid.
    */
   validate: (output: string) => Promise<string | null>;
 }
 
 /**
- * Interface representing the lifecycle callbacks of an agent
+ * Interface representing lifecycle callbacks for an agent.
+ * Provides hooks for various stages of agent execution and interaction.
  */
 export interface IAgentSchemaCallbacks {
   /**
-   * Callback triggered when the agent run stateless.
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param input - The input to execute.
-   * @param mode - The source of execution: tool or user.
+   * Optional callback triggered when the agent runs statelessly (without history updates).
+   * @param {string} clientId - The ID of the client invoking the agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @param {string} input - The input provided to the agent.
    */
   onRun?: (clientId: string, agentName: AgentName, input: string) => void;
+
   /**
-   * Callback triggered when the agent executes.
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param input - The input to execute.
-   * @param mode - The source of execution: tool or user.
+   * Optional callback triggered when the agent begins execution.
+   * @param {string} clientId - The ID of the client invoking the agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @param {string} input - The input provided to the agent.
+   * @param {ExecutionMode} mode - The execution source (e.g., "tool" or "user").
    */
   onExecute?: (
     clientId: string,
@@ -174,12 +211,13 @@ export interface IAgentSchemaCallbacks {
     input: string,
     mode: ExecutionMode
   ) => void;
+
   /**
-   * Callback triggered when there is tool output.
-   * @param toolId - The `tool_call_id` for openai history
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param content - The content of the tool output.
+   * Optional callback triggered when a tool produces output.
+   * @param {string} toolId - The unique `tool_call_id` for tracking in OpenAI-style history.
+   * @param {string} clientId - The ID of the client invoking the agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @param {string} content - The output content from the tool.
    */
   onToolOutput?: (
     toolId: string,
@@ -187,58 +225,65 @@ export interface IAgentSchemaCallbacks {
     agentName: AgentName,
     content: string
   ) => void;
+
   /**
-   * Callback triggered when there is a system message.
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param message - The system message.
+   * Optional callback triggered when a system message is generated.
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @param {string} message - The system message content.
    */
   onSystemMessage?: (
     clientId: string,
     agentName: AgentName,
     message: string
   ) => void;
+
   /**
-   * Callback triggered when there is a committed assistant message.
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param message - The system message.
+   * Optional callback triggered when an assistant message is committed.
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @param {string} message - The assistant message content.
    */
   onAssistantMessage?: (
     clientId: string,
     agentName: AgentName,
     message: string
   ) => void;
+
   /**
-   * Callback triggered when there is a user message.
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param message - The user message.
+   * Optional callback triggered when a user message is received.
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @param {string} message - The user message content.
    */
   onUserMessage?: (
     clientId: string,
     agentName: AgentName,
     message: string
   ) => void;
+
   /**
-   * Callback triggered when the agent history is flushed.
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
+   * Optional callback triggered when the agent's history is flushed.
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent.
    */
   onFlush?: (clientId: string, agentName: AgentName) => void;
+
   /**
-   * Callback triggered when there is output.
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param output - The output string.
+   * Optional callback triggered when the agent produces output.
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * W
+   * @param {string} output - The output string generated by the agent.
    */
   onOutput?: (clientId: string, agentName: AgentName, output: string) => void;
+
   /**
-   * Callback triggered when the agent is resurrected.
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param mode - The source of execution: tool or user.
-   * @param reason - The reason for the resurrection.
+   * Optional callback triggered when the agent is resurrected after a pause or failure.
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @param {ExecutionMode} mode - The execution source (e.g., "tool" or "user").
+   * @param {string} [reason] - Optional reason for the resurrection.
    */
   onResurrect?: (
     clientId: string,
@@ -246,23 +291,26 @@ export interface IAgentSchemaCallbacks {
     mode: ExecutionMode,
     reason?: string
   ) => void;
+
   /**
-   * Callback triggered when agent is initialized
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
+   * Optional callback triggered when the agent is initialized.
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent.
    */
   onInit?: (clientId: string, agentName: AgentName) => void;
+
   /**
-   * Callback triggered when agent is disposed
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
+   * Optional callback triggered when the agent is disposed of.
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent.
    */
   onDispose?: (clientId: string, agentName: AgentName) => void;
+
   /**
-   * Callback triggered after all tools are called
-   * @param clientId - The ID of the client.
-   * @param agentName - The name of the agent.
-   * @param toolCalls - The array of tool calls
+   * Optional callback triggered after all tool calls in a sequence are completed.
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @param {IToolCall[]} toolCalls - The array of tool calls executed.
    */
   onAfterToolCalls?: (
     clientId: string,
@@ -272,128 +320,183 @@ export interface IAgentSchemaCallbacks {
 }
 
 /**
- * Interface representing the schema for an agent.
+ * Interface representing the configuration schema for an agent.
+ * Defines the agent's properties, tools, and lifecycle behavior.
  */
 export interface IAgentSchema {
-  /** The map function to filter unwanted tool calls */
+  /**
+   * Optional function to filter or modify tool calls before execution.
+   * @param {IToolCall[]} tool - The array of tool calls to process.
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {IToolCall[] | Promise<IToolCall[]>} The filtered or modified tool calls.
+   */
   mapToolCalls?: (
     tool: IToolCall[],
     clientId: string,
     agentName: AgentName
   ) => IToolCall[] | Promise<IToolCall[]>;
-  /** The maximum quantity of tool calls per complete */
+
+  /** Optional maximum number of tool calls allowed per completion cycle. */
   maxToolCalls?: number;
-  /** The description for documentation */
+
+  /** Optional description for documentation purposes, aiding in agent usage understanding. */
   docDescription?: string;
-  /** The name of the agent. */
+
+  /** The unique name of the agent within the swarm. */
   agentName: AgentName;
-  /** The name of the completion. */
+
+  /** The name of the completion mechanism used by the agent. */
   completion: CompletionName;
-  /** The prompt for the agent. */
+
+  /** The primary prompt guiding the agent's behavior. */
   prompt: string;
-  /** The system prompt. Usually used for tool calling protocol. */
+
+  /** Optional array of system prompts, typically used for tool-calling protocols. */
   system?: string[];
-  /** The names of the tools used by the agent. */
+
+  /** Optional array of tool names available to the agent. */
   tools?: ToolName[];
-  /** The names of the storages used by the agent. */
+
+  /** Optional array of storage names utilized by the agent. */
   storages?: StorageName[];
-  /** The names of the states used by the agent. */
+
+  /** Optional array of state names managed by the agent. */
   states?: StateName[];
-  /** The list of dependencies for changeToAgent */
+
+  /** Optional array of agent names this agent depends on for transitions (e.g., via changeToAgent). */
   dependsOn?: AgentName[];
+
   /**
-   * Validates the output.
-   * @param output - The output to validate.
-   * @returns A promise that resolves to a string or null.
+   * Optional function to validate the agent's output before finalization.
+   * @param {string} output - The output string to validate.
+   * @returns {Promise<string | null>} A promise resolving to the validated output or null if invalid.
    */
   validate?: (output: string) => Promise<string | null>;
-  /** The transform function for model output */
+
+  /**
+   * Optional function to transform the model's output before further processing.
+   * @param {string} input - The raw input from the model.
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<string> | string} The transformed output string.
+   */
   transform?: (
     input: string,
     clientId: string,
     agentName: AgentName
   ) => Promise<string> | string;
-  /** The map function for assistant messages. Use to transform json to tool_call for deepseek r1 on ollama*/
+
+  /**
+   * Optional function to map assistant messages, e.g., converting JSON to tool calls for specific models.
+   * @param {IModelMessage} message - The assistant message to process.
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent.
+   * @returns {Promise<IModelMessage> | IModelMessage} The transformed assistant message.
+   */
   map?: (
     message: IModelMessage,
     clientId: string,
     agentName: AgentName
   ) => Promise<IModelMessage> | IModelMessage;
-  /** The lifecycle calbacks of the agent. */
+
+  /** Optional lifecycle callbacks for the agent, allowing customization of execution flow. */
   callbacks?: Partial<IAgentSchemaCallbacks>;
 }
 
 /**
- * Interface representing an agent.
+ * Interface representing an agent's runtime behavior and interaction methods.
+ * Defines how the agent processes inputs, commits messages, and manages its lifecycle.
  */
 export interface IAgent {
   /**
-   * Run the complete stateless without write to the chat history
-   * @param input - The input to run.
-   * @returns A promise that resolves when the run is complete.
+   * Runs the agent statelessly without modifying chat history.
+   * Useful for one-off computations or previews.
+   * @param {string} input - The input string to process.
+   * @returns {Promise<string>} A promise resolving to the agent's output.
+   * @throws {Error} If execution fails due to invalid input or internal errors.
    */
   run: (input: string) => Promise<string>;
+
   /**
-   * Executes the agent with the given input.
-   * @param input - The input to execute.
-   * @param mode - The source of execution: tool or user.
-   * @returns A promise that resolves when the execution is complete.
+   * Executes the agent with the given input, potentially updating history based on mode.
+   * @param {string} input - The input string to process.
+   * @param {ExecutionMode} mode - The execution source (e.g., "tool" or "user").
+   * @returns {Promise<void>} A promise that resolves when execution is complete.
+   * @throws {Error} If execution fails due to invalid input, tools, or internal errors.
    */
   execute: (input: string, mode: ExecutionMode) => Promise<void>;
+
   /**
-   * Waits for the output from the agent.
-   * @returns A promise that resolves to the output string.
+   * Waits for and retrieves the agent's output after execution.
+   * @returns {Promise<string>} A promise resolving to the output string.
+   * @throws {Error} If no output is available or waiting times out.
    */
   waitForOutput: () => Promise<string>;
+
   /**
-   * Commits the tool output.
-   * @param {string} toolId - The `tool_call_id` for openai history
-   * @param content - The content of the tool output.
-   * @returns A promise that resolves when the tool output is committed.
+   * Commits tool output to the agent's history or state.
+   * @param {string} toolId - The unique `tool_call_id` for tracking in OpenAI-style history.
+   * @param {string} content - The output content from the tool.
+   * @returns {Promise<void>} A promise that resolves when the output is committed.
+   * @throws {Error} If the tool ID is invalid or committing fails.
    */
   commitToolOutput(toolId: string, content: string): Promise<void>;
+
   /**
-   * Commits a system message.
-   * @param message - The system message to commit.
-   * @returns A promise that resolves when the system message is committed.
+   * Commits a system message to the agent's history or state.
+   * @param {string} message - The system message content to commit.
+   * @returns {Promise<void>} A promise that resolves when the message is committed.
+   * @throws {Error} If committing the message fails.
    */
   commitSystemMessage(message: string): Promise<void>;
+
   /**
-   * Commits a user message without answer.
-   * @param message - The message to commit.
-   * @returns A promise that resolves when the message is committed.
+   * Commits a user message to the agent's history without triggering a response.
+   * @param {string} message - The user message content to commit.
+   * @returns {Promise<void>} A promise that resolves when the message is committed.
+   * @throws {Error} If committing the message fails.
    */
   commitUserMessage(message: string): Promise<void>;
+
   /**
-   * Commits an assistant message without answer.
-   * @param message - The message to commit.
-   * @returns A promise that resolves when the message is committed.
+   * Commits an assistant message to the agent's history without triggering a response.
+   * @param {string} message - The assistant message content to commit.
+   * @returns {Promise<void>} A promise that resolves when the message is committed.
+   * @throws {Error} If committing the message fails.
    */
   commitAssistantMessage(message: string): Promise<void>;
+
   /**
-   * Clears the history for the agent.
-   * @returns A promise that resolves when the flush is committed.
+   * Clears the agent's history, resetting it to an initial state.
+   * @returns {Promise<void>} A promise that resolves when the history is flushed.
+   * @throws {Error} If flushing the history fails.
    */
   commitFlush(): Promise<void>;
+
   /**
-   * Prevent the next tool from being executed
-   * @returns A promise that resolves when the tool stop is committed.
+   * Prevents the next tool in the execution sequence from running and stops further tool calls.
+   * @returns {Promise<void>} A promise that resolves when the stop is committed.
+   * @throws {Error} If stopping the tools fails.
    */
   commitStopTools(): Promise<void>;
+
   /**
-   * Unlock the queue on agent change. Stop the next tool execution
-   * @returns A promise that resolves when the agent change is committed.
+   * Unlocks the execution queue and signals an agent change, stopping subsequent tool executions.
+   * @returns {Promise<void>} A promise that resolves when the agent change is committed.
+   * @throws {Error} If committing the agent change fails.
    */
   commitAgentChange(): Promise<void>;
-  /**
-   * Prevent the next tool from execution
-   * @returns A promise that resolves when the tool stop is committed.
-   */
-  commitStopTools(): Promise<void>;
 }
 
-/** Type representing the name of an agent. */
+/**
+ * Type representing the unique name of an agent within the swarm.
+ * @typedef {string} AgentName
+ */
 export type AgentName = string;
 
-/** Type representing the name of a tool. */
+/**
+ * Type representing the unique name of a tool within the swarm.
+ * @typedef {string} ToolName
+ */
 export type ToolName = string;

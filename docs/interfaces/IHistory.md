@@ -1,6 +1,7 @@
 # IHistory
 
-Interface representing the history of model messages.
+Interface representing the history of model messages within the swarm.
+Provides methods to manage and retrieve a sequence of messages for an agent or raw usage.
 
 ## Methods
 
@@ -10,7 +11,8 @@ Interface representing the history of model messages.
 push: (message: IModelMessage) => Promise<void>
 ```
 
-Pushes a message to the history.
+Adds a message to the end of the history.
+Updates the history store asynchronously.
 
 ### pop
 
@@ -18,7 +20,7 @@ Pushes a message to the history.
 pop: () => Promise<IModelMessage>
 ```
 
-Pop the last message from a history
+Removes and returns the last message from the history.
 
 ### toArrayForAgent
 
@@ -26,7 +28,8 @@ Pop the last message from a history
 toArrayForAgent: (prompt: string, system?: string[]) => Promise<IModelMessage[]>
 ```
 
-Converts the history to an array of messages for a specific agent.
+Converts the history into an array of messages tailored for a specific agent.
+Filters or formats messages based on the provided prompt and optional system prompts.
 
 ### toArrayForRaw
 
@@ -34,4 +37,5 @@ Converts the history to an array of messages for a specific agent.
 toArrayForRaw: () => Promise<IModelMessage[]>
 ```
 
-Converts the history to an array of raw messages.
+Converts the entire history into an array of raw model messages.
+Retrieves all messages without agent-specific filtering or formatting.

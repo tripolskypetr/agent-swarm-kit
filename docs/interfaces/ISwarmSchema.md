@@ -1,6 +1,7 @@
 # ISwarmSchema
 
-Schema for defining a swarm.
+Interface representing the schema for defining a swarm.
+Configures the swarm's behavior, navigation, and agent management.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Schema for defining a swarm.
 persist: boolean
 ```
 
-Mark the swarm to serialize it navigation and active agent state to the hard drive
+Optional flag to enable serialization of navigation stack and active agent state to persistent storage (e.g., hard drive).
 
 ### docDescription
 
@@ -18,7 +19,7 @@ Mark the swarm to serialize it navigation and active agent state to the hard dri
 docDescription: string
 ```
 
-The description for documentation
+Optional description for documentation purposes, aiding in swarm usage understanding.
 
 ### policies
 
@@ -26,7 +27,7 @@ The description for documentation
 policies: string[]
 ```
 
-The banhammer policies
+Optional array of policy names defining banhammer or access control rules for the swarm.
 
 ### getNavigationStack
 
@@ -34,7 +35,7 @@ The banhammer policies
 getNavigationStack: (clientId: string, swarmName: string) => string[] | Promise<string[]>
 ```
 
-Get the current navigation stack after init
+Optional function to retrieve the initial navigation stack after swarm initialization.
 
 ### setNavigationStack
 
@@ -42,7 +43,7 @@ Get the current navigation stack after init
 setNavigationStack: (clientId: string, navigationStack: string[], swarmName: string) => Promise<void>
 ```
 
-Upload the current navigation stack after change
+Optional function to persist the navigation stack after a change.
 
 ### getActiveAgent
 
@@ -50,7 +51,7 @@ Upload the current navigation stack after change
 getActiveAgent: (clientId: string, swarmName: string, defaultAgent: string) => string | Promise<string>
 ```
 
-Fetch the active agent on init
+Optional function to fetch the active agent upon swarm initialization.
 
 ### setActiveAgent
 
@@ -58,7 +59,7 @@ Fetch the active agent on init
 setActiveAgent: (clientId: string, agentName: string, swarmName: string) => void | Promise<void>
 ```
 
-Update the active agent after navigation
+Optional function to update the active agent after navigation changes.
 
 ### defaultAgent
 
@@ -66,7 +67,7 @@ Update the active agent after navigation
 defaultAgent: string
 ```
 
-Default agent name
+The default agent name to use when no active agent is specified.
 
 ### swarmName
 
@@ -74,7 +75,7 @@ Default agent name
 swarmName: string
 ```
 
-Name of the swarm
+The unique name of the swarm within the system.
 
 ### agentList
 
@@ -82,7 +83,7 @@ Name of the swarm
 agentList: string[]
 ```
 
-List of agent names
+The list of agent names available within the swarm.
 
 ### callbacks
 
@@ -90,4 +91,4 @@ List of agent names
 callbacks: Partial<ISwarmCallbacks>
 ```
 
-Lifecycle callbacks
+Optional partial set of lifecycle callbacks for the swarm, allowing customization of events.

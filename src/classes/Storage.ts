@@ -8,27 +8,53 @@ import { AgentName } from "../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import beginContext from "../utils/beginContext";
 
+/**
+ * Type definition for a storage object, mapping IStorage keys to unknown values.
+ * @typedef {{ [key in keyof IStorage]: unknown }} TStorage
+ */
 type TStorage = {
   [key in keyof IStorage]: unknown;
 };
 
+/** @private Constant for logging the take method in StorageUtils */
 const METHOD_NAME_TAKE = "StorageUtils.take";
+
+/** @private Constant for logging the upsert method in StorageUtils */
 const METHOD_NAME_UPSERT = "StorageUtils.upsert";
+
+/** @private Constant for logging the remove method in StorageUtils */
 const METHOD_NAME_REMOVE = "StorageUtils.remove";
+
+/** @private Constant for logging the get method in StorageUtils */
 const METHOD_NAME_GET = "StorageUtils.get";
+
+/** @private Constant for logging the list method in StorageUtils */
 const METHOD_NAME_LIST = "StorageUtils.list";
+
+/** @private Constant for logging the clear method in StorageUtils */
 const METHOD_NAME_CLEAR = "StorageUtils.clear";
 
+/**
+ * Utility class for managing client-specific storage within an agent swarm.
+ * Provides methods to manipulate and query storage data for specific clients, agents, and storage names,
+ * interfacing with the swarm's storage service and enforcing agent-storage registration.
+ * @implements {TStorage}
+ */
 export class StorageUtils implements TStorage {
   /**
-   * Takes items from the storage.
-   * @param {string} search - The search query.
-   * @param {number} total - The total number of items to take.
-   * @param {string} clientId - The client ID.
-   * @param {AgentName} agentName - The agent name.
-   * @param {StorageName} storageName - The storage name.
-   * @returns {Promise<T[]>} - A promise that resolves to an array of items.
-   * @template T
+   * Retrieves a specified number of items from storage matching a search query for a given client and agent.
+   * Validates the client session, storage name, and agent-storage registration before querying the storage service.
+   * Executes within a context for logging.
+   * @template T - The type of the storage data items, defaults to IStorageData.
+   * @param {Object} payload - The payload containing search, client, agent, and storage details.
+   * @param {string} payload.search - The search query to filter items.
+   * @param {number} payload.total - The maximum number of items to retrieve.
+   * @param {string} payload.clientId - The ID of the client whose storage is being queried.
+   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+   * @param {StorageName} payload.storageName - The name of the storage to query.
+   * @param {number} [payload.score] - Optional relevance score threshold for filtering items.
+   * @returns {Promise<T[]>} A promise resolving to an array of matching storage items.
+   * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public take = beginContext(
     async (payload: {
@@ -84,13 +110,17 @@ export class StorageUtils implements TStorage {
   }) => Promise<T[]>;
 
   /**
-   * Upserts an item in the storage.
-   * @param {T} item - The item to upsert.
-   * @param {string} clientId - The client ID.
-   * @param {AgentName} agentName - The agent name.
-   * @param {StorageName} storageName - The storage name.
-   * @returns {Promise<void>} - A promise that resolves when the operation is complete.
-   * @template T
+   * Inserts or updates an item in the storage for a given client and agent.
+   * Validates the client session, storage name, and agent-storage registration before updating via the storage service.
+   * Executes within a context for logging.
+   * @template T - The type of the storage data item, defaults to IStorageData.
+   * @param {Object} payload - The payload containing item, client, agent, and storage details.
+   * @param {T} payload.item - The item to upsert into the storage.
+   * @param {string} payload.clientId - The ID of the client whose storage is being updated.
+   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+   * @param {StorageName} payload.storageName - The name of the storage to update.
+   * @returns {Promise<void>} A promise that resolves when the upsert operation is complete.
+   * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public upsert = beginContext(
     async (payload: {
@@ -138,12 +168,16 @@ export class StorageUtils implements TStorage {
   }) => Promise<void>;
 
   /**
-   * Removes an item from the storage.
-   * @param {IStorageData["id"]} itemId - The ID of the item to remove.
-   * @param {string} clientId - The client ID.
-   * @param {AgentName} agentName - The agent name.
-   * @param {StorageName} storageName - The storage name.
-   * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+   * Removes an item from the storage by its ID for a given client and agent.
+   * Validates the client session, storage name, and agent-storage registration before removing via the storage service.
+   * Executes within a context for logging.
+   * @param {Object} payload - The payload containing item ID, client, agent, and storage details.
+   * @param {IStorageData["id"]} payload.itemId - The ID of the item to remove.
+   * @param {string} payload.clientId - The ID of the client whose storage is being modified.
+   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+   * @param {StorageName} payload.storageName - The name of the storage to modify.
+   * @returns {Promise<void>} A promise that resolves when the removal operation is complete.
+   * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public remove = beginContext(
     async (payload: {
@@ -186,13 +220,17 @@ export class StorageUtils implements TStorage {
   );
 
   /**
-   * Gets an item from the storage.
-   * @param {IStorageData["id"]} itemId - The ID of the item to get.
-   * @param {string} clientId - The client ID.
-   * @param {AgentName} agentName - The agent name.
-   * @param {StorageName} storageName - The storage name.
-   * @returns {Promise<T | null>} - A promise that resolves to the item or null if not found.
-   * @template T
+   * Retrieves an item from the storage by its ID for a given client and agent.
+   * Validates the storage name and agent-storage registration before querying the storage service.
+   * Executes within a context for logging.
+   * @template T - The type of the storage data item, defaults to IStorageData.
+   * @param {Object} payload - The payload containing item ID, client, agent, and storage details.
+   * @param {IStorageData["id"]} payload.itemId - The ID of the item to retrieve.
+   * @param {string} payload.clientId - The ID of the client whose storage is being queried.
+   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+   * @param {StorageName} payload.storageName - The name of the storage to query.
+   * @returns {Promise<T | null>} A promise resolving to the item if found, or null if not found.
+   * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public get = beginContext(
     async (payload: {
@@ -236,13 +274,17 @@ export class StorageUtils implements TStorage {
   }) => Promise<T | null>;
 
   /**
-   * Lists items from the storage.
-   * @param {string} clientId - The client ID.
-   * @param {AgentName} agentName - The agent name.
-   * @param {StorageName} storageName - The storage name.
-   * @param {(item: T) => boolean} [filter] - Optional filter function.
-   * @returns {Promise<T[]>} - A promise that resolves to an array of items.
-   * @template T
+   * Lists all items in the storage for a given client and agent, optionally filtered by a predicate.
+   * Validates the storage name and agent-storage registration before querying the storage service.
+   * Executes within a context for logging.
+   * @template T - The type of the storage data items, defaults to IStorageData.
+   * @param {Object} payload - The payload containing client, agent, and storage details.
+   * @param {string} payload.clientId - The ID of the client whose storage is being queried.
+   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+   * @param {StorageName} payload.storageName - The name of the storage to query.
+   * @param {(item: T) => boolean} [payload.filter] - Optional function to filter items; only items returning true are included.
+   * @returns {Promise<T[]>} A promise resolving to an array of storage items.
+   * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public list = beginContext(
     async (payload: {
@@ -285,11 +327,15 @@ export class StorageUtils implements TStorage {
   }) => Promise<T[]>;
 
   /**
-   * Clears the storage.
-   * @param {string} clientId - The client ID.
-   * @param {AgentName} agentName - The agent name.
-   * @param {StorageName} storageName - The storage name.
-   * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+   * Clears all items from the storage for a given client and agent.
+   * Validates the storage name and agent-storage registration before clearing via the storage service.
+   * Executes within a context for logging.
+   * @param {Object} payload - The payload containing client, agent, and storage details.
+   * @param {string} payload.clientId - The ID of the client whose storage is being cleared.
+   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+   * @param {StorageName} payload.storageName - The name of the storage to clear.
+   * @returns {Promise<void>} A promise that resolves when the clear operation is complete.
+   * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public clear = beginContext(
     async (payload: {
@@ -329,6 +375,10 @@ export class StorageUtils implements TStorage {
   }) => Promise<void>;
 }
 
+/**
+ * Singleton instance of StorageUtils for managing client-specific storage operations.
+ * @type {StorageUtils}
+ */
 export const Storage = new StorageUtils();
 
 export default Storage;

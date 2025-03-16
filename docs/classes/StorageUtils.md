@@ -2,6 +2,10 @@
 
 Implements `TStorage`
 
+Utility class for managing client-specific storage within an agent swarm.
+Provides methods to manipulate and query storage data for specific clients, agents, and storage names,
+interfacing with the swarm's storage service and enforcing agent-storage registration.
+
 ## Constructor
 
 ```ts
@@ -16,7 +20,9 @@ constructor();
 take: <T extends IStorageData = IStorageData>(payload: { search: string; total: number; clientId: string; agentName: string; storageName: string; score?: number; }) => Promise<T[]>
 ```
 
-Takes items from the storage.
+Retrieves a specified number of items from storage matching a search query for a given client and agent.
+Validates the client session, storage name, and agent-storage registration before querying the storage service.
+Executes within a context for logging.
 
 ### upsert
 
@@ -24,7 +30,9 @@ Takes items from the storage.
 upsert: <T extends IStorageData = IStorageData>(payload: { item: T; clientId: string; agentName: string; storageName: string; }) => Promise<void>
 ```
 
-Upserts an item in the storage.
+Inserts or updates an item in the storage for a given client and agent.
+Validates the client session, storage name, and agent-storage registration before updating via the storage service.
+Executes within a context for logging.
 
 ### remove
 
@@ -32,7 +40,9 @@ Upserts an item in the storage.
 remove: (payload: { itemId: StorageId; clientId: string; agentName: string; storageName: string; }) => Promise<void>
 ```
 
-Removes an item from the storage.
+Removes an item from the storage by its ID for a given client and agent.
+Validates the client session, storage name, and agent-storage registration before removing via the storage service.
+Executes within a context for logging.
 
 ### get
 
@@ -40,7 +50,9 @@ Removes an item from the storage.
 get: <T extends IStorageData = IStorageData>(payload: { itemId: StorageId; clientId: string; agentName: string; storageName: string; }) => Promise<T>
 ```
 
-Gets an item from the storage.
+Retrieves an item from the storage by its ID for a given client and agent.
+Validates the storage name and agent-storage registration before querying the storage service.
+Executes within a context for logging.
 
 ### list
 
@@ -48,7 +60,9 @@ Gets an item from the storage.
 list: <T extends IStorageData = IStorageData>(payload: { clientId: string; agentName: string; storageName: string; filter?: (item: T) => boolean; }) => Promise<T[]>
 ```
 
-Lists items from the storage.
+Lists all items in the storage for a given client and agent, optionally filtered by a predicate.
+Validates the storage name and agent-storage registration before querying the storage service.
+Executes within a context for logging.
 
 ### clear
 
@@ -56,4 +70,6 @@ Lists items from the storage.
 clear: (payload: { clientId: string; agentName: string; storageName: string; }) => Promise<void>
 ```
 
-Clears the storage.
+Clears all items from the storage for a given client and agent.
+Validates the storage name and agent-storage registration before clearing via the storage service.
+Executes within a context for logging.

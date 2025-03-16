@@ -1,6 +1,7 @@
 # IPersistStateData
 
-Interface for state data persistence
+Interface for state data persistence.
+Wraps state data for storage in a structured format.
 
 ## Properties
 
@@ -9,3 +10,5 @@ Interface for state data persistence
 ```ts
 state: T
 ```
+
+The state data to persist

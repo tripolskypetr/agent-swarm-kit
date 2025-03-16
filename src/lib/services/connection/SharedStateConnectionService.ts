@@ -15,28 +15,62 @@ import BusService from "../base/BusService";
 import { PersistStateAdapter } from "../../../classes/Persist";
 
 /**
- * Service for managing shared state connections.
- * @template T - The type of state data.
+ * Service class for managing shared state connections and operations in the swarm system.
+ * Implements IState with a generic type T extending IStateData, providing an interface for shared state instance management, state manipulation, and state access, scoped to stateName across all clients (using a fixed clientId of "shared").
+ * Integrates with ClientAgent (shared state in agent execution), StatePublicService (client-specific state counterpart), SharedStatePublicService (public shared state API), AgentConnectionService (state initialization), and PerfService (tracking via BusService).
+ * Uses memoization via functools-kit’s memoize to cache ClientState instances by stateName, and queued to serialize state updates, ensuring efficient reuse and thread-safe modifications.
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), and coordinates with StateSchemaService for state configuration, applying persistence via PersistStateAdapter or defaults from GLOBAL_CONFIG.
+ * @template T - The type of state data, extending IStateData, defining the structure of the shared state.
  * @implements {IState<T>}
  */
 export class SharedStateConnectionService<T extends IStateData = IStateData>
   implements IState<T>
 {
+  /**
+   * Logger service instance, injected via DI, for logging shared state operations.
+   * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SharedStatePublicService and PerfService logging patterns.
+   * @type {LoggerService}
+   * @private
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+
+  /**
+   * Bus service instance, injected via DI, for emitting state-related events.
+   * Passed to ClientState for event propagation (e.g., state updates), aligning with BusService’s event system in AgentConnectionService.
+   * @type {BusService}
+   * @private
+   */
   private readonly busService = inject<BusService>(TYPES.busService);
+
+  /**
+   * Method context service instance, injected via DI, for accessing execution context.
+   * Used to retrieve stateName in method calls, integrating with MethodContextService’s scoping in SharedStatePublicService.
+   * @type {TMethodContextService}
+   * @private
+   */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
 
+  /**
+   * State schema service instance, injected via DI, for retrieving state configurations.
+   * Provides configuration (e.g., persist, getState, setState) to ClientState in getStateRef, aligning with AgentMetaService’s schema management.
+   * @type {StateSchemaService}
+   * @private
+   */
   private readonly stateSchemaService = inject<StateSchemaService>(
     TYPES.stateSchemaService
   );
 
   /**
-   * Memoized function to get a shared state reference.
-   * @param {string} clientId - The client ID.
-   * @param {StateName} stateName - The state name.
-   * @returns {ClientState} The client state.
+   * Retrieves or creates a memoized ClientState instance for a given shared state name.
+   * Uses functools-kit’s memoize to cache instances by stateName, ensuring a single shared instance across all clients (fixed clientId: "shared").
+   * Configures the state with schema data from StateSchemaService, applying persistence via PersistStateAdapter or defaults from GLOBAL_CONFIG, and enforces shared=true via an error check.
+   * Serializes setState operations with queued if setState is provided, ensuring thread-safe updates.
+   * Supports ClientAgent (shared state in EXECUTE_FN), AgentConnectionService (state initialization), and SharedStatePublicService (public API).
+   * @param {StateName} stateName - The name of the shared state, sourced from State.interface, used in StateSchemaService lookups.
+   * @returns {ClientState} The memoized ClientState instance configured for the shared state.
+   * @throws {Error} If the state is not marked as shared in the schema.
    */
   public getStateRef = memoize(
     ([stateName]) => `${stateName}`,
@@ -76,9 +110,11 @@ export class SharedStateConnectionService<T extends IStateData = IStateData>
   );
 
   /**
-   * Sets the state.
-   * @param {function(T): Promise<T>} dispatchFn - The function to dispatch the new state.
-   * @returns {Promise<T>} The new state.
+   * Sets the shared state using a dispatch function that transforms the previous state.
+   * Delegates to ClientState.setState after awaiting initialization, using context from MethodContextService to identify the state, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SharedStatePublicService’s setState, supporting ClientAgent’s state updates with serialized execution via queued in getStateRef.
+   * @param {(prevState: T) => Promise<T>} dispatchFn - The function to dispatch the new state, taking the previous state and returning the updated state.
+   * @returns {Promise<T>} A promise resolving to the new state after the update.
    */
   public setState = async (
     dispatchFn: (prevState: T) => Promise<T>
@@ -91,8 +127,10 @@ export class SharedStateConnectionService<T extends IStateData = IStateData>
   };
 
   /**
-   * Set the state to initial value
-   * @returns {Promise<T>} The new state.
+   * Clears the shared state, resetting it to its initial value.
+   * Delegates to ClientState.clearState after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SharedStatePublicService’s clearState, supporting ClientAgent’s state reset with serialized execution.
+   * @returns {Promise<T>} A promise resolving to the initial state after clearing.
    */
   public clearState = async (): Promise<T> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -103,8 +141,10 @@ export class SharedStateConnectionService<T extends IStateData = IStateData>
   };
 
   /**
-   * Gets the state.
-   * @returns {Promise<T>} The current state.
+   * Retrieves the current shared state.
+   * Delegates to ClientState.getState after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SharedStatePublicService’s getState, supporting ClientAgent’s state access.
+   * @returns {Promise<T>} A promise resolving to the current shared state.
    */
   public getState = async (): Promise<T> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -115,4 +155,9 @@ export class SharedStateConnectionService<T extends IStateData = IStateData>
   };
 }
 
+/**
+ * Default export of the SharedStateConnectionService class.
+ * Provides the primary service for managing shared state connections in the swarm system, integrating with ClientAgent, StatePublicService, SharedStatePublicService, AgentConnectionService, and PerfService, with memoized and queued state management.
+ * @type {typeof SharedStateConnectionService}
+ */
 export default SharedStateConnectionService;

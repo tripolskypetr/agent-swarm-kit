@@ -1,6 +1,7 @@
 # ICompletionArgs
 
-Arguments required to get a completion.
+Interface representing the arguments required to request a completion.
+Encapsulates context and inputs for generating a model response.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Arguments required to get a completion.
 clientId: string
 ```
 
-Client ID.
+The unique ID of the client requesting the completion.
 
 ### agentName
 
@@ -18,7 +19,7 @@ Client ID.
 agentName: string
 ```
 
-Name of the agent.
+The unique name of the agent associated with the completion request.
 
 ### mode
 
@@ -26,7 +27,7 @@ Name of the agent.
 mode: ExecutionMode
 ```
 
-The source of the last message: tool or user
+The source of the last message, indicating whether it originated from a tool or user.
 
 ### messages
 
@@ -34,7 +35,7 @@ The source of the last message: tool or user
 messages: IModelMessage[]
 ```
 
-Array of model messages.
+An array of model messages providing the conversation history or context for the completion.
 
 ### tools
 
@@ -42,4 +43,4 @@ Array of model messages.
 tools: ITool[]
 ```
 
-Optional array of tools.
+Optional array of tools available for the completion process (e.g., for tool calls).

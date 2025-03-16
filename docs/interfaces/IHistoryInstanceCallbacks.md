@@ -1,6 +1,6 @@
 # IHistoryInstanceCallbacks
 
-Interface for History Adapter Callbacks
+Callbacks for managing history instance lifecycle and message handling.
 
 ## Properties
 
@@ -10,7 +10,7 @@ Interface for History Adapter Callbacks
 getSystemPrompt: (clientId: string, agentName: string) => string[] | Promise<string[]>
 ```
 
-Callback for compute of dynamic system prompt
+Retrieves dynamic system prompt messages for an agent.
 
 ### filterCondition
 
@@ -18,7 +18,7 @@ Callback for compute of dynamic system prompt
 filterCondition: (message: IModelMessage, clientId: string, agentName: string) => boolean | Promise<boolean>
 ```
 
-Filter condition for history messages.
+Determines whether a message should be included in the history iteration.
 
 ### getData
 
@@ -26,7 +26,7 @@ Filter condition for history messages.
 getData: (clientId: string, agentName: string) => IModelMessage[] | Promise<IModelMessage[]>
 ```
 
-Get data for the history.
+Fetches initial history data for an agent.
 
 ### onChange
 
@@ -34,7 +34,7 @@ Get data for the history.
 onChange: (data: IModelMessage[], clientId: string, agentName: string) => void
 ```
 
-Callback for when the history changes.
+Called when the history array changes (e.g., after push or pop).
 
 ### onPush
 
@@ -42,7 +42,7 @@ Callback for when the history changes.
 onPush: (data: IModelMessage, clientId: string, agentName: string) => void
 ```
 
-Callback for when the history get the new message
+Called when a new message is pushed to the history.
 
 ### onPop
 
@@ -50,7 +50,7 @@ Callback for when the history get the new message
 onPop: (data: IModelMessage, clientId: string, agentName: string) => void
 ```
 
-Callback for when the history pop the last message
+Called when the last message is popped from the history.
 
 ### onRead
 
@@ -58,7 +58,7 @@ Callback for when the history pop the last message
 onRead: (message: IModelMessage, clientId: string, agentName: string) => void
 ```
 
-Callback for when the history is read. Will be called for each message
+Called for each message during iteration when reading.
 
 ### onReadBegin
 
@@ -66,7 +66,7 @@ Callback for when the history is read. Will be called for each message
 onReadBegin: (clientId: string, agentName: string) => void
 ```
 
-Callback for when the read is begin
+Called at the start of a history read operation.
 
 ### onReadEnd
 
@@ -74,7 +74,7 @@ Callback for when the read is begin
 onReadEnd: (clientId: string, agentName: string) => void
 ```
 
-Callback for when the read is end
+Called at the end of a history read operation.
 
 ### onDispose
 
@@ -82,7 +82,7 @@ Callback for when the read is end
 onDispose: (clientId: string) => void
 ```
 
-Callback for when the history is disposed.
+Called when the history instance is disposed.
 
 ### onInit
 
@@ -90,7 +90,7 @@ Callback for when the history is disposed.
 onInit: (clientId: string) => void
 ```
 
-Callback for when the history is initialized.
+Called when the history instance is initialized.
 
 ### onRef
 
@@ -98,4 +98,4 @@ Callback for when the history is initialized.
 onRef: (history: IHistoryInstance) => void
 ```
 
-Callback to obtain history ref
+Provides a reference to the history instance after creation.

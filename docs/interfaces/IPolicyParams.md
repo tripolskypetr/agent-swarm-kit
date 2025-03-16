@@ -1,6 +1,7 @@
 # IPolicyParams
 
-Interface for policy parameters.
+Interface representing the parameters required to initialize a policy.
+Extends the policy schema with runtime dependencies and full callback support.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Interface for policy parameters.
 logger: ILogger
 ```
 
-The logger instance.
+The logger instance for recording policy-related activity and errors.
 
 ### bus
 
@@ -18,4 +19,4 @@ The logger instance.
 bus: IBus
 ```
 
-The bus instance.
+The bus instance for event communication within the swarm.

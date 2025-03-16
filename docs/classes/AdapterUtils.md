@@ -1,5 +1,7 @@
 # AdapterUtils
 
+Utility class providing adapter functions for interacting with various AI completion providers.
+
 ## Constructor
 
 ```ts
@@ -11,23 +13,23 @@ constructor();
 ### fromOpenAI
 
 ```ts
-fromOpenAI: (openai: any, model?: string, response_format?: { type: string; }) => ({ agentName, messages: rawMessages, mode, tools, clientId, }: ICompletionArgs) => Promise<{ content: any; mode: ExecutionMode; agentName: string; role: any; tool_calls: any; }>
+fromOpenAI: (openai: any, model?: string, response_format?: { type: string; }) => TCompleteFn
 ```
 
-Creates a function to interact with OpenAI's chat completions.
+Creates a function to interact with OpenAI's chat completions API.
 
 ### fromLMStudio
 
 ```ts
-fromLMStudio: (openai: any, model?: string, response_format?: { type: string; }) => ({ agentName, messages: rawMessages, mode, tools, clientId, }: ICompletionArgs) => Promise<{ content: any; mode: ExecutionMode; agentName: string; role: any; tool_calls: any; }>
+fromLMStudio: (openai: any, model?: string, response_format?: { type: string; }) => TCompleteFn
 ```
 
-Creates a function to interact with LMStudio's chat completions.
+Creates a function to interact with LMStudio's chat completions API.
 
 ### fromOllama
 
 ```ts
-fromOllama: (ollama: any, model?: string, tool_call_protocol?: string) => ({ agentName, messages: rawMessages, mode, tools, clientId, }: ICompletionArgs) => Promise<any>
+fromOllama: (ollama: any, model?: string, tool_call_protocol?: string) => TCompleteFn
 ```
 
-Creates a function to interact with Ollama's chat completions.
+Creates a function to interact with Ollama's chat completions API.

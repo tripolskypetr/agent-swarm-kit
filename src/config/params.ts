@@ -10,32 +10,21 @@ import { randomString, str } from "functools-kit";
 import { IToolCall } from "../model/Tool.model";
 import { StateName } from "../interfaces/State.interface";
 import { IStorageData, StorageName } from "../interfaces/Storage.interface";
+import { IGlobalConfig } from "../model/GlobalConfig.model";
 
-/**
- * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
- */
 const CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT = "Start the conversation";
 
-/**
- * @description fix for invalid tool calls on IlyaGusev/saiga_yandexgpt_8b_gguf (LMStudio, appear time to time)
- */
 const CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT = str.newline(
   "Please analyze the last tool call message and identify any errors in its syntax or parameters.",
   "Then, provide a corrected version of the tool call that properly follows the required format and includes all necessary parameters with appropriate values.",
   "Include a brief explanation of what was fixed as a text content of a new message with correct tool calls request"
 );
 
-/**
- * @description custom function to fix the model
- */
 const CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (
   clientId: string,
   agentName: AgentName
 ) => Promise<IModelMessage | null> = () => Promise.resolve(null);
 
-/**
- * @description When the model output is empty just say hello to the customer
- */
 const CC_EMPTY_OUTPUT_PLACEHOLDERS = [
   "Sorry, I missed that. Could you say it again?",
   "I couldn't catch that. Would you mind repeating?",
@@ -121,11 +110,15 @@ const CC_AGENT_OUTPUT_MAP = (
 const CC_AGENT_SYSTEM_PROMPT: string[] | undefined = undefined;
 
 const CC_STORAGE_SEARCH_SIMILARITY = 0.65;
+
 const CC_STORAGE_SEARCH_POOL = 5;
 
 const CC_LOGGER_ENABLE_INFO = false;
+
 const CC_LOGGER_ENABLE_DEBUG = false;
+
 const CC_LOGGER_ENABLE_LOG = true;
+
 const CC_LOGGER_ENABLE_CONSOLE = false;
 
 let CC_RESQUE_STRATEGY: "flush" | "recomplete" | "custom";
@@ -135,6 +128,7 @@ const CC_DEFAULT_STATE_SET: <T = any>(
   clientId: string,
   stateName: StateName
 ) => Promise<void> = () => Promise.resolve();
+
 const CC_DEFAULT_STATE_GET: <T = any>(
   clientId: string,
   stateName: StateName,
@@ -146,6 +140,7 @@ const CC_DEFAULT_STORAGE_GET: <T extends IStorageData = IStorageData>(
   storageName: StorageName,
   defaultValue: T[]
 ) => Promise<T[]> = ({}, {}, defaultValue) => Promise.resolve(defaultValue);
+
 const CC_DEFAULT_STORAGE_SET: <T extends IStorageData = IStorageData>(
   data: T[],
   clientId: string,
@@ -162,11 +157,14 @@ const CC_PROCESS_UUID = randomString();
 const CC_BANHAMMER_PLACEHOLDER = "I am not going to discuss it!";
 
 const CC_PERSIST_ENABLED_BY_DEFAULT = true;
+
+const CC_PERSIST_MEMORY_STORAGE = true;
+
 const CC_AUTOBAN_ENABLED_BY_DEFAULT = false;
 
 const CC_SKIP_POSIX_RENAME = false;
 
-const GLOBAL_CONFIG = {
+const GLOBAL_CONFIG: IGlobalConfig = {
   CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
   CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
   CC_EMPTY_OUTPUT_PLACEHOLDERS,
@@ -205,11 +203,12 @@ const GLOBAL_CONFIG = {
   CC_DEFAULT_STORAGE_GET,
   CC_DEFAULT_STORAGE_SET,
   CC_SKIP_POSIX_RENAME,
+  CC_PERSIST_MEMORY_STORAGE,
 };
 
 GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";
 
-export const setConfig = (config: Partial<typeof GLOBAL_CONFIG>) => {
+export const setConfig = (config: Partial<IGlobalConfig>) => {
   Object.assign(GLOBAL_CONFIG, config);
 };
 

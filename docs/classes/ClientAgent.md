@@ -2,7 +2,10 @@
 
 Implements `IAgent`
 
-Represents a client agent that interacts with the system.
+Represents a client-side agent in the swarm system, implementing the IAgent interface.
+Manages message execution, tool calls, history updates, and event emissions, with queued execution to prevent overlap.
+Integrates with AgentConnectionService (instantiation), HistoryConnectionService (history), ToolSchemaService (tools), CompletionSchemaService (completions), SwarmConnectionService (swarm coordination), and BusService (events).
+Uses Subjects from functools-kit for asynchronous state management (e.g., tool errors, agent changes).
 
 ## Constructor
 
@@ -24,11 +27,15 @@ params: IAgentParams
 _agentChangeSubject: Subject<unique symbol>
 ```
 
+Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.
+
 ### _resqueSubject
 
 ```ts
 _resqueSubject: Subject<unique symbol>
 ```
+
+Subject for signaling model resurrection events, triggered by _resurrectModel during error recovery.
 
 ### _toolErrorSubject
 
@@ -36,11 +43,15 @@ _resqueSubject: Subject<unique symbol>
 _toolErrorSubject: Subject<unique symbol>
 ```
 
+Subject for signaling tool execution errors, emitted by createToolCall on failure.
+
 ### _toolStopSubject
 
 ```ts
 _toolStopSubject: Subject<unique symbol>
 ```
+
+Subject for signaling tool execution stops, triggered by commitStopTools.
 
 ### _toolCommitSubject
 
@@ -48,11 +59,15 @@ _toolStopSubject: Subject<unique symbol>
 _toolCommitSubject: Subject<void>
 ```
 
+Subject for signaling tool output commitments, triggered by commitToolOutput.
+
 ### _outputSubject
 
 ```ts
 _outputSubject: Subject<string>
 ```
+
+Subject for emitting transformed outputs, used by _emitOutput and waitForOutput.
 
 ### execute
 
@@ -60,7 +75,8 @@ _outputSubject: Subject<string>
 execute: (input: string, mode: ExecutionMode) => Promise<void>
 ```
 
-Executes the incoming message and processes tool calls if any.
+Executes the incoming message and processes tool calls if present, queued to prevent overlapping executions.
+Implements IAgent.execute, delegating to EXECUTE_FN with queuing via functools-kit’s queued decorator.
 
 ### run
 
@@ -68,7 +84,8 @@ Executes the incoming message and processes tool calls if any.
 run: (input: string) => Promise<string>
 ```
 
-Run the completion stateless and return the output
+Runs a stateless completion for the incoming message, queued to prevent overlapping executions.
+Implements IAgent.run, delegating to RUN_FN with queuing via functools-kit’s queued decorator.
 
 ## Methods
 
@@ -78,7 +95,9 @@ Run the completion stateless and return the output
 _emitOutput(mode: ExecutionMode, rawResult: string): Promise<void>;
 ```
 
-Emits the output result after validation.
+Emits the transformed output after validation, invoking callbacks and emitting events via BusService.
+Attempts model resurrection via _resurrectModel if validation fails, throwing an error if unrecoverable.
+Supports SwarmConnectionService by broadcasting agent outputs within the swarm.
 
 ### _resurrectModel
 
@@ -86,7 +105,9 @@ Emits the output result after validation.
 _resurrectModel(mode: ExecutionMode, reason?: string): Promise<string>;
 ```
 
-Resurrects the model based on the given reason.
+Resurrects the model in case of failures using configured strategies (flush, recomplete, custom).
+Updates history with failure details and returns a placeholder or transformed result, signaling via _resqueSubject.
+Supports error recovery for CompletionSchemaService’s getCompletion calls.
 
 ### waitForOutput
 
@@ -94,7 +115,8 @@ Resurrects the model based on the given reason.
 waitForOutput(): Promise<string>;
 ```
 
-Waits for the output to be available.
+Waits for the next output to be emitted via _outputSubject, typically after execute or run.
+Useful for external consumers (e.g., SwarmConnectionService) awaiting agent responses.
 
 ### getCompletion
 
@@ -102,7 +124,8 @@ Waits for the output to be available.
 getCompletion(mode: ExecutionMode): Promise<IModelMessage>;
 ```
 
-Gets the completion message from the model.
+Retrieves a completion message from the model using the current history and tools.
+Applies validation and resurrection strategies (via _resurrectModel) if needed, integrating with CompletionSchemaService.
 
 ### commitUserMessage
 
@@ -110,7 +133,8 @@ Gets the completion message from the model.
 commitUserMessage(message: string): Promise<void>;
 ```
 
-Commits a user message to the history without answer.
+Commits a user message to the history without triggering a response, notifying the system via BusService.
+Supports SessionConnectionService by logging user interactions within a session.
 
 ### commitFlush
 
@@ -118,7 +142,8 @@ Commits a user message to the history without answer.
 commitFlush(): Promise<void>;
 ```
 
-Commits flush of agent history
+Commits a flush of the agent’s history, clearing it and notifying the system via BusService.
+Useful for resetting agent state, coordinated with HistoryConnectionService.
 
 ### commitAgentChange
 
@@ -126,7 +151,8 @@ Commits flush of agent history
 commitAgentChange(): Promise<void>;
 ```
 
-Commits change of agent to prevent the next tool execution from being called.
+Signals an agent change to halt subsequent tool executions, emitting an event via _agentChangeSubject and BusService.
+Supports SwarmConnectionService by allowing dynamic agent switching within a swarm.
 
 ### commitStopTools
 
@@ -134,7 +160,8 @@ Commits change of agent to prevent the next tool execution from being called.
 commitStopTools(): Promise<void>;
 ```
 
-Commits change of agent to prevent the next tool execution from being called.
+Signals a stop to prevent further tool executions, emitting an event via _toolStopSubject and BusService.
+Used to interrupt tool call chains, coordinated with ToolSchemaService tools.
 
 ### commitSystemMessage
 
@@ -142,7 +169,8 @@ Commits change of agent to prevent the next tool execution from being called.
 commitSystemMessage(message: string): Promise<void>;
 ```
 
-Commits a system message to the history.
+Commits a system message to the history, notifying the system via BusService without triggering execution.
+Supports system-level updates, coordinated with SessionConnectionService.
 
 ### commitAssistantMessage
 
@@ -150,7 +178,8 @@ Commits a system message to the history.
 commitAssistantMessage(message: string): Promise<void>;
 ```
 
-Commits an assistant message to the history without execute.
+Commits an assistant message to the history without triggering execution, notifying the system via BusService.
+Useful for logging assistant responses, coordinated with HistoryConnectionService.
 
 ### commitToolOutput
 
@@ -158,7 +187,8 @@ Commits an assistant message to the history without execute.
 commitToolOutput(toolId: string, content: string): Promise<void>;
 ```
 
-Commits the tool output to the history.
+Commits tool output to the history, signaling completion via _toolCommitSubject and notifying the system via BusService.
+Integrates with ToolSchemaService by linking tool output to tool calls.
 
 ### dispose
 
@@ -166,4 +196,5 @@ Commits the tool output to the history.
 dispose(): Promise<void>;
 ```
 
-Should call on agent dispose
+Disposes of the agent, performing cleanup and invoking the onDispose callback.
+Logs the disposal if debugging is enabled, supporting AgentConnectionService cleanup.

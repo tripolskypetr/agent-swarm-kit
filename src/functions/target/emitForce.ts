@@ -1,26 +1,34 @@
-import beginContext from "../..//utils/beginContext";
+import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
 const METHOD_NAME = "function.target.emitForce";
 
 /**
- * Emits a string constant as the model output without executing incoming message and checking active agent
- * Works only for `makeConnection`
+ * Emits a string as model output without executing an incoming message or checking the active agent.
  *
- * @param {string} content - The content to be emitted.
- * @param {string} clientId - The client ID of the session.
- * @param {AgentName} agentName - The name of the agent to emit the content to.
- * @throws Will throw an error if the session mode is not "makeConnection".
+ * This function directly emits a provided string as output from the swarm session, bypassing message execution and agent activity checks.
+ * It is designed exclusively for sessions established via `makeConnection`, ensuring compatibility with its connection model.
+ * The execution is wrapped in `beginContext` for a clean environment, validates the session and swarm, and throws an error if the session mode
+ * is not "makeConnection". The operation is logged if enabled, and resolves when the content is successfully emitted.
+ *
+ * @param {string} content - The content to be emitted as the model output.
+ * @param {string} clientId - The unique identifier of the client session emitting the content.
  * @returns {Promise<void>} A promise that resolves when the content is emitted.
+ * @throws {Error} If the session mode is not "makeConnection", or if session or swarm validation fails.
+ * @example
+ * await emitForce("Direct output", "client-123"); // Emits "Direct output" in a makeConnection session
  */
 export const emitForce = beginContext(
   async (content: string, clientId: string) => {
+    // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         content,
         clientId,
       });
+
+    // Check if the session mode is "makeConnection"
     if (
       swarm.sessionValidationService.getSessionMode(clientId) !==
       "makeConnection"
@@ -29,9 +37,13 @@ export const emitForce = beginContext(
         `agent-swarm-kit emitForce session is not makeConnection clientId=${clientId}`
       );
     }
+
+    // Validate the session and swarm
     swarm.sessionValidationService.validate(clientId, METHOD_NAME);
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
     swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
+
+    // Emit the content directly via the session public service
     return await swarm.sessionPublicService.emit(
       content,
       METHOD_NAME,

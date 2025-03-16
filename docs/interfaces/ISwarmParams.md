@@ -1,6 +1,7 @@
 # ISwarmParams
 
-Parameters for initializing a swarm.
+Interface representing the parameters required to initialize a swarm.
+Extends the swarm schema (excluding certain fields) with runtime dependencies.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Parameters for initializing a swarm.
 clientId: string
 ```
 
-Client identifier
+The unique identifier of the client initializing the swarm.
 
 ### logger
 
@@ -18,7 +19,7 @@ Client identifier
 logger: ILogger
 ```
 
-Logger instance
+The logger instance for recording swarm-related activity and errors.
 
 ### bus
 
@@ -26,7 +27,7 @@ Logger instance
 bus: IBus
 ```
 
-The bus instance.
+The bus instance for event communication within the swarm.
 
 ### agentMap
 
@@ -34,4 +35,4 @@ The bus instance.
 agentMap: Record<string, IAgent>
 ```
 
-Map of agent names to agent instances
+A map of agent names to their corresponding agent instances for runtime access.

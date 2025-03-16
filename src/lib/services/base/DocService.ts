@@ -21,10 +21,26 @@ import { getMomentStamp, getTimeStamp } from "get-moment-stamp";
 import PolicySchemaService from "../schema/PolicySchemaService";
 import { writeFileAtomic } from "../../../utils/writeFileAtomic";
 
+/**
+ * Maximum number of concurrent threads for documentation generation tasks.
+ * Used by execpool in writeSwarmDoc and writeAgentDoc to limit parallel execution, balancing performance and resource usage.
+ * @type {number}
+ */
 const THREAD_POOL_SIZE = 5;
 
+/**
+ * List of subdirectories created for organizing documentation output.
+ * Includes "agent" for agent Markdown files and "image" for UML diagrams, used in dumpDocs to structure the output directory.
+ * @type {string[]}
+ */
 const SUBDIR_LIST = ["agent", "image"];
 
+/**
+ * Utility function to check if a file or directory exists, wrapped in trycatch for error handling.
+ * Returns true if the path is accessible, false otherwise, used in dumpDocs and dumpPerfomance to ensure directories exist before writing.
+ * @param {string} filePath - The file or directory path to check.
+ * @returns {Promise<boolean>} A promise resolving to true if the path exists, false if access fails.
+ */
 const exists = trycatch(
   async (filePath: string) => {
     await access(filePath);
@@ -34,50 +50,136 @@ const exists = trycatch(
 );
 
 /**
- * Service for generating documentation for swarms and agents.
- * @class
+ * Service class for generating and writing documentation for swarms, agents, and performance data in the swarm system.
+ * Produces Markdown files for swarm (ISwarmSchema) and agent (IAgentSchema) schemas, including UML diagrams via CC_FN_PLANTUML, and JSON files for performance metrics via PerfService.
+ * Integrates indirectly with ClientAgent by documenting its schema (e.g., tools, prompts) and performance (e.g., via PerfService), using LoggerService for logging gated by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+ * Manages concurrent tasks with a thread pool (THREAD_POOL_SIZE) and organizes output in a directory structure (SUBDIR_LIST), enhancing developer understanding of the system.
  */
 export class DocService {
+  /**
+   * Logger service instance for logging documentation generation activities, injected via dependency injection.
+   * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO, used in methods like dumpDocs, writeSwarmDoc, and writeAgentDoc for info-level logging.
+   * @type {LoggerService}
+   * @private
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
+  /**
+   * Performance service instance for retrieving system and client performance data, injected via DI.
+   * Used in dumpPerfomance and dumpClientPerfomance to serialize IPerformanceRecord and IClientPerfomanceRecord data into JSON files.
+   * @type {PerfService}
+   * @private
+   */
   private readonly perfService = inject<PerfService>(TYPES.perfService);
+
+  /**
+   * Swarm validation service instance, injected via DI.
+   * Provides the list of swarm names for dumpDocs, ensuring only valid swarms are documented.
+   * @type {SwarmValidationService}
+   * @private
+   */
   private readonly swarmValidationService = inject<SwarmValidationService>(
     TYPES.swarmValidationService
   );
+
+  /**
+   * Agent validation service instance, injected via DI.
+   * Provides the list of agent names for dumpDocs, ensuring only valid agents are documented.
+   * @type {AgentValidationService}
+   * @private
+   */
   private readonly agentValidationService = inject<AgentValidationService>(
     TYPES.agentValidationService
   );
+
+  /**
+   * Swarm schema service instance, injected via DI.
+   * Retrieves ISwarmSchema objects for writeSwarmDoc, supplying swarm details like agents and policies.
+   * @type {SwarmSchemaService}
+   * @private
+   */
   private readonly swarmSchemaService = inject<SwarmSchemaService>(
     TYPES.swarmSchemaService
   );
+
+  /**
+   * Agent schema service instance, injected via DI.
+   * Retrieves IAgentSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
+   * @type {AgentSchemaService}
+   * @private
+   */
   private readonly agentSchemaService = inject<AgentSchemaService>(
     TYPES.agentSchemaService
   );
+
+  /**
+   * Policy schema service instance, injected via DI.
+   * Supplies policy descriptions for writeSwarmDoc, documenting banhammer policies associated with swarms.
+   * @type {PolicySchemaService}
+   * @private
+   */
   private readonly policySchemaService = inject<PolicySchemaService>(
     TYPES.policySchemaService
   );
+
+  /**
+   * Tool schema service instance, injected via DI.
+   * Provides tool details (e.g., function, callbacks) for writeAgentDoc, documenting tools used by agents (e.g., ClientAgent tools).
+   * @type {ToolSchemaService}
+   * @private
+   */
   private readonly toolSchemaService = inject<ToolSchemaService>(
     TYPES.toolSchemaService
   );
+
+  /**
+   * Storage schema service instance, injected via DI.
+   * Supplies storage details for writeAgentDoc, documenting storage resources used by agents.
+   * @type {StorageSchemaService}
+   * @private
+   */
   private readonly storageSchemaService = inject<StorageSchemaService>(
     TYPES.storageSchemaService
   );
+
+  /**
+   * State schema service instance, injected via DI.
+   * Provides state details for writeAgentDoc, documenting state resources used by agents.
+   * @type {StateSchemaService}
+   * @private
+   */
   private readonly stateSchemaService = inject<StateSchemaService>(
     TYPES.stateSchemaService
   );
 
+  /**
+   * Agent meta service instance, injected via DI.
+   * Generates UML diagrams for agents in writeAgentDoc, enhancing documentation with visual schema representations.
+   * @type {AgentMetaService}
+   * @private
+   */
   private readonly agentMetaService = inject<AgentMetaService>(
     TYPES.agentMetaService
   );
+
+  /**
+   * Swarm meta service instance, injected via DI.
+   * Generates UML diagrams for swarms in writeSwarmDoc, enhancing documentation with visual schema representations.
+   * @type {SwarmMetaService}
+   * @private
+   */
   private readonly swarmMetaService = inject<SwarmMetaService>(
     TYPES.swarmMetaService
   );
 
   /**
-   * Writes documentation for a swarm schema.
-   * @param {ISwarmSchema} swarmSchema - The swarm schema to document.
-   * @param {string} dirName - The directory to write the documentation to.
-   * @returns {Promise<void>}
+   * Writes Markdown documentation for a swarm schema, detailing its name, description, UML diagram, agents, policies, and callbacks.
+   * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+   * Outputs to dirName/[swarmName].md, with UML images in dirName/image, and links to agent docs in dirName/agent, sourced from swarmSchemaService.
+   * @param {ISwarmSchema} swarmSchema - The swarm schema to document, including properties like defaultAgent and policies.
+   * @param {string} dirName - The base directory for documentation output.
+   * @returns {Promise<void>} A promise resolving when the swarm documentation file is written.
+   * @private
    */
   private writeSwarmDoc = execpool(
     async (swarmSchema: ISwarmSchema, dirName: string) => {
@@ -190,10 +292,13 @@ export class DocService {
   );
 
   /**
-   * Writes documentation for an agent schema.
-   * @param {IAgentSchema} agentSchema - The agent schema to document.
-   * @param {string} dirName - The directory to write the documentation to.
-   * @returns {Promise<void>}
+   * Writes Markdown documentation for an agent schema, detailing its name, description, UML diagram, prompts, tools, storages, states, and callbacks.
+   * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+   * Outputs to dirName/agent/[agentName].md, with UML images in dirName/image, sourced from agentSchemaService and related services (e.g., toolSchemaService).
+   * @param {IAgentSchema} agentSchema - The agent schema to document, including properties like tools and prompts (e.g., ClientAgent configuration).
+   * @param {string} dirName - The base directory for documentation output.
+   * @returns {Promise<void>} A promise resolving when the agent documentation file is written.
+   * @private
    */
   private writeAgentDoc = execpool(
     async (agentSchema: IAgentSchema, dirName: string) => {
@@ -449,9 +554,11 @@ export class DocService {
   );
 
   /**
-   * Dumps the documentation for all swarms and agents.
-   * @param {string} [dirName=join(process.cwd(), "docs/chat")] - The directory to write the documentation to.
-   * @returns {Promise<void>}
+   * Generates and writes documentation for all swarms and agents in the system.
+   * Creates subdirectories (SUBDIR_LIST), then concurrently writes swarm and agent docs using writeSwarmDoc and writeAgentDoc, logging progress if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+   * Outputs to a directory structure rooted at dirName (default: "docs/chat"), integrating with ClientAgent by documenting its schema.
+   * @param {string} [dirName=join(process.cwd(), "docs/chat")] - The base directory for documentation output, defaults to "docs/chat" in the current working directory.
+   * @returns {Promise<void>} A promise resolving when all documentation files are written.
    */
   public dumpDocs = async (dirName = join(process.cwd(), "docs/chat")) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -483,9 +590,11 @@ export class DocService {
   };
 
   /**
-   * Dumps the performance data to a file.
-   * @param {string} [dirName=join(process.cwd(), "docs/meta")] - The directory to write the performance data to.
-   * @returns {Promise<void>}
+   * Dumps system-wide performance data to a JSON file using PerfService.toRecord.
+   * Ensures the output directory exists, then writes a timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+   * Outputs to dirName/[momentStamp].[timeStamp].json (default: "logs/meta"), providing a snapshot of system performance (e.g., tied to ClientAgent executions).
+   * @param {string} [dirName=join(process.cwd(), "logs/meta")] - The directory for performance data output, defaults to "logs/meta" in the current working directory.
+   * @returns {Promise<void>} A promise resolving when the performance data file is written.
    */
   public dumpPerfomance = async (
     dirName = join(process.cwd(), "logs/meta")
@@ -504,10 +613,12 @@ export class DocService {
   };
 
   /**
-   * Dumps the client performance data to a file.
-   * @param {string} clientId - The session id to dump the data
-   * @param {string} [dirName=join(process.cwd(), "docs/meta")] - The directory to write the performance data to.
-   * @returns {Promise<void>}
+   * Dumps performance data for a specific client to a JSON file using PerfService.toClientRecord.
+   * Ensures the output directory exists, then writes a client-specific timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+   * Outputs to dirName/[clientId].[momentStamp].json (default: "logs/client"), documenting client-specific metrics (e.g., ClientAgent session performance).
+   * @param {string} clientId - The unique identifier of the client session to document.
+   * @param {string} [dirName=join(process.cwd(), "logs/client")] - The directory for client performance data output, defaults to "logs/client" in the current working directory.
+   * @returns {Promise<void>} A promise resolving when the client performance data file is written.
    */
   public dumpClientPerfomance = async (
     clientId: string,
@@ -527,4 +638,9 @@ export class DocService {
   };
 }
 
+/**
+ * Default export of the DocService class.
+ * Provides the primary interface for generating documentation and performance dumps in the swarm system.
+ * @type {typeof DocService}
+ */
 export default DocService;

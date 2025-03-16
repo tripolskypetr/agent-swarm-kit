@@ -1,6 +1,7 @@
 # ISession
 
-Interface for a session.
+Interface representing a session within the swarm.
+Defines methods for message emission, execution, and state management.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Interface for a session.
 commitUserMessage: (message: string) => Promise<void>
 ```
 
-Commit user message without answer
+Commits a user message to the session's history without triggering a response.
 
 ### commitFlush
 
@@ -18,7 +19,8 @@ Commit user message without answer
 commitFlush: () => Promise<void>
 ```
 
-Commit flush of agent history
+Commits a flush operation to clear the session's agent history.
+Resets the history to an initial state.
 
 ### commitStopTools
 
@@ -26,7 +28,8 @@ Commit flush of agent history
 commitStopTools: () => Promise<void>
 ```
 
-Prevent the next tool from being executed
+Prevents the next tool in the execution sequence from running.
+Stops further tool calls within the session.
 
 ## Methods
 
@@ -36,7 +39,7 @@ Prevent the next tool from being executed
 emit: (message: string) => Promise<void>
 ```
 
-Emit a message.
+Emits a message to the session's communication channel.
 
 ### run
 
@@ -44,7 +47,8 @@ Emit a message.
 run: (content: string) => Promise<string>
 ```
 
-Run the complete stateless without modifying chat history
+Runs a stateless completion without modifying the session's chat history.
+Useful for one-off computations or previews.
 
 ### execute
 
@@ -52,7 +56,7 @@ Run the complete stateless without modifying chat history
 execute: (content: string, mode: ExecutionMode) => Promise<string>
 ```
 
-Execute a command.
+Executes a command within the session, potentially updating history based on mode.
 
 ### connect
 
@@ -60,7 +64,8 @@ Execute a command.
 connect: (connector: SendMessageFn$1<void>, ...args: unknown[]) => ReceiveMessageFn<string>
 ```
 
-Connect to a message sender.
+Connects the session to a message sender and returns a receiver function.
+Establishes a bidirectional communication channel.
 
 ### commitToolOutput
 
@@ -68,7 +73,7 @@ Connect to a message sender.
 commitToolOutput: (toolId: string, content: string) => Promise<void>
 ```
 
-Commit tool output.
+Commits tool output to the session's history or state.
 
 ### commitAssistantMessage
 
@@ -76,7 +81,7 @@ Commit tool output.
 commitAssistantMessage: (message: string) => Promise<void>
 ```
 
-Commit assistant message without answer
+Commits an assistant message to the session's history without triggering a response.
 
 ### commitSystemMessage
 
@@ -84,4 +89,4 @@ Commit assistant message without answer
 commitSystemMessage: (message: string) => Promise<void>
 ```
 
-Commit a system message.
+Commits a system message to the session's history or state.

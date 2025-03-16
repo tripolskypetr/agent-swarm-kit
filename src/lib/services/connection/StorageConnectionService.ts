@@ -18,40 +18,99 @@ import SharedStorageConnectionService from "./SharedStorageConnectionService";
 import { PersistStorageAdapter } from "../../../classes/Persist";
 
 /**
- * Service for managing storage connections.
+ * Service class for managing storage connections and operations in the swarm system.
+ * Implements IStorage to provide an interface for storage instance management, data manipulation, and lifecycle operations, scoped to clientId and storageName.
+ * Handles both client-specific storage and delegates to SharedStorageConnectionService for shared storage, tracked via a _sharedStorageSet.
+ * Integrates with ClientAgent (storage in agent execution), StoragePublicService (public storage API), SharedStorageConnectionService (shared storage delegation), AgentConnectionService (storage initialization), and PerfService (tracking via BusService).
+ * Uses memoization via functools-kit’s memoize to cache ClientStorage instances by a composite key (clientId-storageName), ensuring efficient reuse across calls.
+ * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), and coordinates with StorageSchemaService for storage configuration, EmbeddingSchemaService for embedding functionality, SessionValidationService for usage tracking, and SharedStorageConnectionService for shared storage handling.
  * @implements {IStorage}
  */
 export class StorageConnectionService implements IStorage {
+  /**
+   * Logger service instance, injected via DI, for logging storage operations.
+   * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StoragePublicService and PerfService logging patterns.
+   * @type {LoggerService}
+   * @private
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+
+  /**
+   * Bus service instance, injected via DI, for emitting storage-related events.
+   * Passed to ClientStorage for event propagation (e.g., storage updates), aligning with BusService’s event system in AgentConnectionService.
+   * @type {BusService}
+   * @private
+   */
   private readonly busService = inject<BusService>(TYPES.busService);
+
+  /**
+   * Method context service instance, injected via DI, for accessing execution context.
+   * Used to retrieve clientId and storageName in method calls, integrating with MethodContextService’s scoping in StoragePublicService.
+   * @type {TMethodContextService}
+   * @private
+   */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
 
+  /**
+   * Storage schema service instance, injected via DI, for retrieving storage configurations.
+   * Provides configuration (e.g., persist, getData, embedding) to ClientStorage in getStorage, aligning with AgentMetaService’s schema management.
+   * @type {StorageSchemaService}
+   * @private
+   */
   private readonly storageSchemaService = inject<StorageSchemaService>(
     TYPES.storageSchemaService
   );
 
+  /**
+   * Session validation service instance, injected via DI, for tracking storage usage.
+   * Used in getStorage and dispose to manage storage lifecycle, supporting SessionPublicService’s validation needs.
+   * @type {SessionValidationService}
+   * @private
+   */
   private readonly sessionValidationService = inject<SessionValidationService>(
     TYPES.sessionValidationService
   );
 
+  /**
+   * Embedding schema service instance, injected via DI, for retrieving embedding configurations.
+   * Provides embedding logic (e.g., calculateSimilarity, createEmbedding) to ClientStorage in getStorage, supporting similarity-based retrieval in take.
+   * @type {EmbeddingSchemaService}
+   * @private
+   */
   private readonly embeddingSchemaService = inject<EmbeddingSchemaService>(
     TYPES.embeddingSchemaService
   );
 
+  /**
+   * Shared storage connection service instance, injected via DI, for delegating shared storage operations.
+   * Used in getStorage to retrieve shared storage instances, integrating with SharedStorageConnectionService’s global storage management.
+   * @type {SharedStorageConnectionService}
+   * @private
+   */
   private readonly sharedStorageConnectionService =
     inject<SharedStorageConnectionService>(
       TYPES.sharedStorageConnectionService
     );
 
+  /**
+   * Set of storage names marked as shared, used to track delegation to SharedStorageConnectionService.
+   * Populated in getStorage and checked in dispose to avoid disposing shared storage.
+   * @type {Set<StorageName>}
+   * @private
+   */
   private _sharedStorageSet = new Set<StorageName>();
 
   /**
-   * Retrieves a storage instance based on client ID and storage name.
-   * @param {string} clientId - The client ID.
-   * @param {string} storageName - The storage name.
-   * @returns {ClientStorage} The client storage instance.
+   * Retrieves or creates a memoized ClientStorage instance for a given client and storage name.
+   * Uses functools-kit’s memoize to cache instances by a composite key (clientId-storageName), ensuring efficient reuse across calls.
+   * Configures client-specific storage with schema data from StorageSchemaService, embedding logic from EmbeddingSchemaService, and persistence via PersistStorageAdapter or defaults from GLOBAL_CONFIG.
+   * Delegates to SharedStorageConnectionService for shared storage (shared=true), tracking them in _sharedStorageSet.
+   * Supports ClientAgent (storage in EXECUTE_FN), AgentConnectionService (storage initialization), and StoragePublicService (public API).
+   * @param {string} clientId - The client ID, scoping the storage to a specific client, tied to Session.interface and PerfService tracking.
+   * @param {StorageName} storageName - The name of the storage, sourced from Storage.interface, used in StorageSchemaService lookups.
+   * @returns {ClientStorage} The memoized ClientStorage instance, either client-specific or shared via SharedStorageConnectionService.
    */
   public getStorage = memoize(
     ([clientId, storageName]) => `${clientId}-${storageName}`,
@@ -100,10 +159,13 @@ export class StorageConnectionService implements IStorage {
   );
 
   /**
-   * Retrieves a list of storage data based on a search query and total number of items.
-   * @param {string} search - The search query.
-   * @param {number} total - The total number of items to retrieve.
-   * @returns {Promise<IStorageData[]>} The list of storage data.
+   * Retrieves a list of storage data items based on a search query, total count, and optional similarity score.
+   * Delegates to ClientStorage.take after awaiting initialization, using context from MethodContextService to identify the storage, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors StoragePublicService’s take, supporting ClientAgent’s similarity-based data retrieval with embedding support from EmbeddingSchemaService.
+   * @param {string} search - The search query to filter storage items.
+   * @param {number} total - The maximum number of items to retrieve.
+   * @param {number} [score] - The optional similarity score threshold for filtering.
+   * @returns {Promise<IStorageData[]>} A promise resolving to an array of storage data items matching the query.
    */
   public take = async (
     search: string,
@@ -125,9 +187,11 @@ export class StorageConnectionService implements IStorage {
   };
 
   /**
-   * Upserts an item in the storage.
-   * @param {IStorageData} item - The item to upsert.
-   * @returns {Promise<void>}
+   * Upserts an item into the storage, inserting or updating based on its ID.
+   * Delegates to ClientStorage.upsert after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors StoragePublicService’s upsert, supporting ClientAgent’s data persistence.
+   * @param {IStorageData} item - The item to upsert, sourced from Storage.interface, containing id and data.
+   * @returns {Promise<void>} A promise resolving when the item is upserted.
    */
   public upsert = async (item: IStorageData): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -143,9 +207,11 @@ export class StorageConnectionService implements IStorage {
   };
 
   /**
-   * Removes an item from the storage.
-   * @param {IStorageData["id"]} itemId - The ID of the item to remove.
-   * @returns {Promise<void>}
+   * Removes an item from the storage by its ID.
+   * Delegates to ClientStorage.remove after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors StoragePublicService’s remove, supporting ClientAgent’s data deletion.
+   * @param {IStorageData["id"]} itemId - The ID of the item to remove, sourced from Storage.interface.
+   * @returns {Promise<void>} A promise resolving when the item is removed.
    */
   public remove = async (itemId: IStorageData["id"]): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -162,8 +228,10 @@ export class StorageConnectionService implements IStorage {
 
   /**
    * Retrieves an item from the storage by its ID.
-   * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
-   * @returns {Promise<IStorageData>} The retrieved item.
+   * Delegates to ClientStorage.get after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors StoragePublicService’s get, supporting ClientAgent’s data access, returning null if the item is not found.
+   * @param {IStorageData["id"]} itemId - The ID of the item to retrieve, sourced from Storage.interface.
+   * @returns {Promise<IStorageData | null>} A promise resolving to the retrieved item or null if not found.
    */
   public get = async (
     itemId: IStorageData["id"]
@@ -182,8 +250,10 @@ export class StorageConnectionService implements IStorage {
 
   /**
    * Retrieves a list of items from the storage, optionally filtered by a predicate function.
-   * @param {function(IStorageData): boolean} [filter] - The optional filter function.
-   * @returns {Promise<IStorageData[]>} The list of items.
+   * Delegates to ClientStorage.list after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors StoragePublicService’s list, supporting ClientAgent’s bulk data access.
+   * @param {(item: IStorageData) => boolean} [filter] - The optional filter function to apply to the storage items.
+   * @returns {Promise<IStorageData[]>} A promise resolving to an array of storage data items, filtered if a predicate is provided.
    */
   public list = async (
     filter?: (item: IStorageData) => boolean
@@ -199,8 +269,10 @@ export class StorageConnectionService implements IStorage {
   };
 
   /**
-   * Clears all items from the storage.
-   * @returns {Promise<void>}
+   * Clears all items from the storage, resetting it to its default state.
+   * Delegates to ClientStorage.clear after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors StoragePublicService’s clear, supporting ClientAgent’s storage reset.
+   * @returns {Promise<void>} A promise resolving when the storage is cleared.
    */
   public clear = async (): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -214,8 +286,11 @@ export class StorageConnectionService implements IStorage {
   };
 
   /**
-   * Disposes of the storage connection.
-   * @returns {Promise<void>}
+   * Disposes of the storage connection, cleaning up resources and clearing the memoized instance for client-specific storage.
+   * Checks if the storage exists in the memoization cache and is not shared (via _sharedStorageSet) before calling ClientStorage.dispose, then clears the cache and updates SessionValidationService.
+   * Logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligns with StoragePublicService’s dispose and PerfService’s cleanup.
+   * Shared storage is not disposed here, as it is managed by SharedStorageConnectionService.
+   * @returns {Promise<void>} A promise resolving when the storage connection is disposed (for client-specific storage).
    */
   public dispose = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -242,4 +317,9 @@ export class StorageConnectionService implements IStorage {
   };
 }
 
+/**
+ * Default export of the StorageConnectionService class.
+ * Provides the primary service for managing storage connections in the swarm system, integrating with ClientAgent, StoragePublicService, SharedStorageConnectionService, AgentConnectionService, and PerfService, with memoized storage management.
+ * @type {typeof StorageConnectionService}
+ */
 export default StorageConnectionService;

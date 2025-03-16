@@ -2,7 +2,8 @@
 
 Implements `IPersistBase`
 
-Base class for persistent storage of entities in a file system
+Base class for persistent storage of entities in the file system.
+Provides methods for reading, writing, and managing entities as JSON files.
 
 ## Constructor
 
@@ -30,15 +31,13 @@ baseDir: string
 _directory: string
 ```
 
-The directory path where entity files are stored
-
-### __@BASE_WAIT_FOR_INIT_SYMBOL@482
+### __@BASE_WAIT_FOR_INIT_SYMBOL@481
 
 ```ts
-__@BASE_WAIT_FOR_INIT_SYMBOL@482: any
+__@BASE_WAIT_FOR_INIT_SYMBOL@481: any
 ```
 
-Initializes the storage directory
+Memoized initialization function ensuring it runs only once per instance.
 
 ## Methods
 
@@ -48,7 +47,7 @@ Initializes the storage directory
 _getFilePath(entityId: EntityId): string;
 ```
 
-Gets the file path for an entity
+Computes the file path for an entity based on its ID.
 
 ### waitForInit
 
@@ -56,7 +55,8 @@ Gets the file path for an entity
 waitForInit(initial: boolean): Promise<void>;
 ```
 
-Waits for initialization to complete
+Initializes the storage directory, creating it if it doesn’t exist and validating existing entities.
+Invalid entities are removed during this process.
 
 ### getCount
 
@@ -64,7 +64,8 @@ Waits for initialization to complete
 getCount(): Promise<number>;
 ```
 
-Gets the count of entities in the storage
+Retrieves the number of entities stored in the directory.
+Counts only files with a `.json` extension.
 
 ### readValue
 
@@ -72,7 +73,7 @@ Gets the count of entities in the storage
 readValue<T extends IEntity = IEntity>(entityId: EntityId): Promise<T>;
 ```
 
-Reads an entity from storage
+Reads an entity from storage by its ID, parsing it from JSON.
 
 ### hasValue
 
@@ -80,7 +81,7 @@ Reads an entity from storage
 hasValue(entityId: EntityId): Promise<boolean>;
 ```
 
-Checks if an entity exists in storage
+Checks if an entity exists in storage by its ID.
 
 ### writeValue
 
@@ -88,7 +89,8 @@ Checks if an entity exists in storage
 writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
 ```
 
-Writes an entity to storage
+Writes an entity to storage with the specified ID, serializing it to JSON.
+Uses atomic file writing to ensure data integrity.
 
 ### removeValue
 
@@ -96,7 +98,7 @@ Writes an entity to storage
 removeValue(entityId: EntityId): Promise<void>;
 ```
 
-Removes an entity from storage
+Removes an entity from storage by its ID.
 
 ### removeAll
 
@@ -104,7 +106,8 @@ Removes an entity from storage
 removeAll(): Promise<void>;
 ```
 
-Removes all entities from storage
+Removes all entities from storage under this entity name.
+Deletes all `.json` files in the directory.
 
 ### values
 
@@ -112,7 +115,8 @@ Removes all entities from storage
 values<T extends IEntity = IEntity>(): AsyncGenerator<T>;
 ```
 
-Iterates over all entities in storage
+Iterates over all entities in storage, sorted numerically by ID.
+Yields entities in ascending order based on their IDs.
 
 ### keys
 
@@ -120,15 +124,17 @@ Iterates over all entities in storage
 keys(): AsyncGenerator<EntityId>;
 ```
 
-Iterates over all entity IDs in storage
+Iterates over all entity IDs in storage, sorted numerically.
+Yields IDs in ascending order.
 
-### __@asyncIterator@483
+### __@asyncIterator@482
 
 ```ts
 [Symbol.asyncIterator](): AsyncIterableIterator<any>;
 ```
 
-Implements the Symbol.asyncIterator protocol
+Implements the async iterator protocol for iterating over entities.
+Delegates to the `values` method for iteration.
 
 ### filter
 
@@ -136,7 +142,8 @@ Implements the Symbol.asyncIterator protocol
 filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<T>;
 ```
 
-Filters entities based on a predicate
+Filters entities based on a predicate function.
+Yields only entities that pass the predicate test.
 
 ### take
 
@@ -144,4 +151,5 @@ Filters entities based on a predicate
 take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<T>;
 ```
 
-Takes a limited number of entities, optionally filtered
+Takes a limited number of entities, optionally filtered by a predicate.
+Stops yielding after reaching the specified total.

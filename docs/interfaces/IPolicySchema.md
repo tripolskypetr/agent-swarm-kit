@@ -1,6 +1,7 @@
 # IPolicySchema
 
-Interface for a policy schema.
+Interface representing the schema for configuring a policy.
+Defines how policies enforce rules and manage bans within the swarm.
 
 ## Properties
 
@@ -10,7 +11,7 @@ Interface for a policy schema.
 docDescription: string
 ```
 
-The description for documentation
+Optional description for documentation purposes, aiding in policy usage understanding.
 
 ### policyName
 
@@ -18,7 +19,7 @@ The description for documentation
 policyName: string
 ```
 
-The name of the policy
+The unique name of the policy within the swarm.
 
 ### banMessage
 
@@ -26,7 +27,7 @@ The name of the policy
 banMessage: string
 ```
 
-The message to display when a client is banned
+Optional default message to display when a client is banned, overridden by getBanMessage if provided.
 
 ### autoBan
 
@@ -34,7 +35,7 @@ The message to display when a client is banned
 autoBan: boolean
 ```
 
-Ban immediately after failed validation
+Optional flag to automatically ban a client immediately after failed validation.
 
 ### getBanMessage
 
@@ -42,7 +43,8 @@ Ban immediately after failed validation
 getBanMessage: (clientId: string, policyName: string, swarmName: string) => string | Promise<string>
 ```
 
-Gets the ban message for a client.
+Optional function to retrieve a custom ban message for a client.
+Overrides the default banMessage if provided.
 
 ### getBannedClients
 
@@ -50,7 +52,7 @@ Gets the ban message for a client.
 getBannedClients: (policyName: string, swarmName: string) => string[] | Promise<string[]>
 ```
 
-Gets the list of banned clients.
+Retrieves the list of currently banned clients under this policy.
 
 ### setBannedClients
 
@@ -58,7 +60,8 @@ Gets the list of banned clients.
 setBannedClients: (clientIds: string[], policyName: string, swarmName: string) => void | Promise<void>
 ```
 
-Sets the list of banned clients.
+Optional function to set the list of banned clients.
+Overrides default ban list management if provided.
 
 ### validateInput
 
@@ -66,7 +69,8 @@ Sets the list of banned clients.
 validateInput: (incoming: string, clientId: string, policyName: string, swarmName: string) => boolean | Promise<boolean>
 ```
 
-Validates the input.
+Optional function to validate incoming messages against custom policy rules.
+Overrides default validation if provided.
 
 ### validateOutput
 
@@ -74,7 +78,8 @@ Validates the input.
 validateOutput: (outgoing: string, clientId: string, policyName: string, swarmName: string) => boolean | Promise<boolean>
 ```
 
-Validates the output.
+Optional function to validate outgoing messages against custom policy rules.
+Overrides default validation if provided.
 
 ### callbacks
 
@@ -82,4 +87,4 @@ Validates the output.
 callbacks: IPolicyCallbacks
 ```
 
-The callbacks for the policy
+Optional set of callbacks for policy events, allowing customization of validation and ban actions.

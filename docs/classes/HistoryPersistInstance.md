@@ -2,9 +2,7 @@
 
 Implements `IHistoryInstance`
 
-Class representing a persistent history instance.
-This class implements the IHistoryInstance interface and provides methods
-to manage and persist history messages.
+Manages a persistent history of messages, storing them in memory and on disk.
 
 ## Constructor
 
@@ -38,13 +36,13 @@ _array: IModelMessage[]
 _persistStorage: PersistList<string>
 ```
 
-### __@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@718
+### __@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@742
 
 ```ts
-__@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@718: any
+__@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@742: any
 ```
 
-Makes the singleshot for initialization
+Memoized initialization function to ensure it runs only once per agent.
 
 ## Methods
 
@@ -54,7 +52,7 @@ Makes the singleshot for initialization
 waitForInit(agentName: AgentName): Promise<void>;
 ```
 
-Wait for the history to initialize.
+Initializes the history for an agent, loading data from persistent storage if needed.
 
 ### iterate
 
@@ -62,7 +60,8 @@ Wait for the history to initialize.
 iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
 ```
 
-Iterate over the history messages for a given agent.
+Iterates over history messages, applying filters and system prompts if configured.
+Invokes onRead callbacks during iteration if provided.
 
 ### push
 
@@ -70,15 +69,17 @@ Iterate over the history messages for a given agent.
 push(value: IModelMessage, agentName: AgentName): Promise<void>;
 ```
 
-Push a new message to the history for a given agent.
+Adds a new message to the history, persisting it to storage.
+Invokes onPush and onChange callbacks if provided.
 
 ### pop
 
 ```ts
-pop(agentName: AgentName): Promise<IModelMessage>;
+pop(agentName: AgentName): Promise<IModelMessage | null>;
 ```
 
-Pop the last message from the history for a given agent.
+Removes and returns the last message from the history, updating persistent storage.
+Invokes onPop and onChange callbacks if provided.
 
 ### dispose
 
@@ -86,4 +87,5 @@ Pop the last message from the history for a given agent.
 dispose(agentName: AgentName | null): Promise<void>;
 ```
 
-Dispose of the history for a given agent.
+Disposes of the history, clearing all data if agentName is null.
+Invokes onDispose callback if provided.

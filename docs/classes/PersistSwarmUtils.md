@@ -2,7 +2,8 @@
 
 Implements `IPersistSwarmControl`
 
-Utility class for managing swarm-related persistence
+Utility class for managing swarm-related persistence, including active agents and navigation stacks.
+Provides methods to get/set active agents and navigation stacks per client and swarm.
 
 ## Constructor
 
@@ -30,7 +31,8 @@ PersistNavigationStackFactory: any
 getActiveAgentStorage: any
 ```
 
-Memoized function to get storage for active agents
+Memoized function to create or retrieve storage for active agents.
+Ensures a single instance per swarm name.
 
 ### getNavigationStackStorage
 
@@ -38,7 +40,8 @@ Memoized function to get storage for active agents
 getNavigationStackStorage: any
 ```
 
-Memoized function to get storage for navigation stacks
+Memoized function to create or retrieve storage for navigation stacks.
+Ensures a single instance per swarm name.
 
 ### getActiveAgent
 
@@ -46,7 +49,7 @@ Memoized function to get storage for navigation stacks
 getActiveAgent: (clientId: string, swarmName: string, defaultAgent: string) => Promise<string>
 ```
 
-Gets the active agent for a client in a swarm
+Retrieves the active agent for a client within a swarm, falling back to a default if not set.
 
 ### setActiveAgent
 
@@ -54,7 +57,7 @@ Gets the active agent for a client in a swarm
 setActiveAgent: (clientId: string, agentName: string, swarmName: string) => Promise<void>
 ```
 
-Sets the active agent for a client in a swarm
+Sets the active agent for a client within a swarm.
 
 ### getNavigationStack
 
@@ -62,7 +65,8 @@ Sets the active agent for a client in a swarm
 getNavigationStack: (clientId: string, swarmName: string) => Promise<string[]>
 ```
 
-Gets the navigation stack for a client in a swarm
+Retrieves the navigation stack for a client within a swarm.
+Returns an empty array if no stack is set.
 
 ### setNavigationStack
 
@@ -70,7 +74,7 @@ Gets the navigation stack for a client in a swarm
 setNavigationStack: (clientId: string, agentStack: string[], swarmName: string) => Promise<void>
 ```
 
-Sets the navigation stack for a client in a swarm
+Sets the navigation stack for a client within a swarm.
 
 ## Methods
 
@@ -80,7 +84,7 @@ Sets the navigation stack for a client in a swarm
 usePersistActiveAgentAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>): void;
 ```
 
-Sets the factory for active agent persistence
+Sets a custom constructor for active agent persistence, overriding the default PersistBase.
 
 ### usePersistNavigationStackAdapter
 
@@ -88,4 +92,4 @@ Sets the factory for active agent persistence
 usePersistNavigationStackAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>): void;
 ```
 
-Sets the factory for navigation stack persistence
+Sets a custom constructor for navigation stack persistence, overriding the default PersistBase.

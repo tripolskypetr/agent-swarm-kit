@@ -4,26 +4,36 @@ import { AgentName } from "../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import beginContext from "../utils/beginContext";
 
+/**
+ * Type definition for a shared state object, mapping IState keys to unknown values.
+ * @typedef {{ [key in keyof IState]: unknown }} TSharedState
+ */
 type TSharedState = {
   [key in keyof IState]: unknown;
 };
 
+/** @private Constant for logging the getState method in SharedStateUtils */
 const METHOD_NAME_GET = "SharedStateUtils.getSharedState";
+
+/** @private Constant for logging the setState method in SharedStateUtils */
 const METHOD_NAME_SET = "SharedStateUtils.setSharedState";
+
+/** @private Constant for logging the clearState method in SharedStateUtils */
 const METHOD_NAME_CLEAR = "SharedStateUtils.clearSharedState";
 
 /**
- * Utility class for managing state in the agent swarm.
+ * Utility class for managing shared state within an agent swarm.
+ * Provides methods to get, set, and clear state data for specific state names, interfacing with the swarm's shared state service.
  * @implements {TSharedState}
  */
 export class SharedStateUtils implements TSharedState {
   /**
-   * Retrieves the state for a given client and state name.
-   * @template T
-   * @param {Object} payload - The payload containing client and state information.
-   * @param {StateName} payload.stateName - The state name.
-   * @returns {Promise<T>} The state data.
-   * @throws Will throw an error if the state is not registered in the agent.
+   * Retrieves the shared state data for a given state name.
+   * Executes within a context for logging and delegates to the shared state service.
+   * @template T - The type of the state data to retrieve, defaults to any.
+   * @param {StateName} stateName - The name of the state to retrieve.
+   * @returns {Promise<T>} A promise resolving to the state data associated with the state name.
+   * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
    */
   public getState = beginContext(async (stateName: StateName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -37,12 +47,14 @@ export class SharedStateUtils implements TSharedState {
   }) as <T extends unknown = any>(stateName: StateName) => Promise<T>;
 
   /**
-   * Sets the state for a given client and state name.
-   * @template T
-   * @param {T | ((prevSharedState: T) => Promise<T>)} dispatchFn - The new state or a function that returns the new state.
-   * @param {StateName} stateName - The state name.
-   * @returns {Promise<void>}
-   * @throws Will throw an error if the state is not registered in the agent.
+   * Sets the shared state data for a given state name.
+   * Accepts either a direct value or a function that computes the new state based on the previous state.
+   * Executes within a context for logging and delegates to the shared state service.
+   * @template T - The type of the state data to set, defaults to any.
+   * @param {T | ((prevSharedState: T) => Promise<T>)} dispatchFn - The new state value or an async function that takes the previous state and returns the new state.
+   * @param {StateName} stateName - The name of the state to update.
+   * @returns {Promise<void>} A promise that resolves when the state is successfully updated.
+   * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
    */
   public setState = beginContext(
     async (
@@ -74,15 +86,16 @@ export class SharedStateUtils implements TSharedState {
   ) => Promise<void>;
 
   /**
-   * Set the state to initial value
-   * @template T
-   * @param {StateName} payload.stateName - The state name.
-   * @returns {Promise<void>}
-   * @throws Will throw an error if the state is not registered in the agent.
+   * Clears the shared state for a given state name, resetting it to its initial value.
+   * Executes within a context for logging and delegates to the shared state service.
+   * @template T - The type of the state data, defaults to any (unused in return).
+   * @param {StateName} stateName - The name of the state to clear.
+   * @returns {Promise<void>} A promise that resolves when the state is successfully cleared.
+   * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
    */
   public clearState = beginContext(async (stateName: StateName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_SET, {
+      swarm.loggerService.log(METHOD_NAME_CLEAR, {
         stateName,
       });
     return await swarm.sharedStatePublicService.clearState(
@@ -93,7 +106,7 @@ export class SharedStateUtils implements TSharedState {
 }
 
 /**
- * Instance of SharedStateUtils for managing state.
+ * Singleton instance of SharedStateUtils for managing shared state operations.
  * @type {SharedStateUtils}
  */
 export const SharedState = new SharedStateUtils();
