@@ -58,7 +58,7 @@ Sets a custom constructor for memory persistence, overriding the default Persist
 ### dispose
 
 ```ts
-dispose(clientId: string): Promise<void>;
+dispose(clientId: string): void;
 ```
 
 Disposes of the memory storage for a client by clearing its memoized instance.

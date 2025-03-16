@@ -125,10 +125,13 @@ const output = [];
     }
     for (const classPath of classList) {
         const className = basename(classPath, extname(classPath));
-        output.push(`## Class ${className}`);
-        output.push("");
-        output.push(await generateDescription(classPath, GPT_CLASS_PROMPT))
-        output.push("");
+        const content = await generateDescription(classPath, GPT_CLASS_PROMPT);
+        if (content.trim()) {
+            output.push(`## Class ${className}`);
+            output.push("");
+            output.push(content)
+            output.push("");
+        }
         fs.writeFileSync(outputPath, output.join("\n"));
     }
 }
@@ -142,10 +145,13 @@ const output = [];
     }
     for (const interfacePath of interfaceList) {
         const interfaceName = basename(interfacePath, extname(interfacePath));
-        output.push(`## Interface ${interfaceName}`);
-        output.push("");
-        output.push(await generateDescription(interfacePath, GPT_INTERFACE_PROMPT))
-        output.push("");
+        const content = await generateDescription(interfacePath, GPT_INTERFACE_PROMPT);
+        if (content.trim()) {
+            output.push(`## Interface ${interfaceName}`);
+            output.push("");
+            output.push(content)
+            output.push("");
+        }
         fs.writeFileSync(outputPath, output.join("\n"));
     }
 }

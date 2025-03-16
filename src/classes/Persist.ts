@@ -1473,12 +1473,11 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
   /**
    * Disposes of the memory storage for a client by clearing its memoized instance.
    * @param {string} clientId - The identifier of the client (session ID).
-   * @returns {Promise<void>} A promise that resolves when the disposal is complete.
    * @example
    * await PersistMemoryAdapter.dispose("client1");
    * // Clears the memory storage instance for "client1"
    */
-  public async dispose(clientId: string): Promise<void> {
+  public dispose(clientId: string) {
     this.getMemoryStorage.clear(clientId);
   }
 }
