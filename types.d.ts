@@ -4946,98 +4946,115 @@ declare class StorageSchemaService {
 }
 
 /**
- * Type representing possible storage actions.
+ * Type representing possible storage actions for ClientStorage operations.
+ * Used in dispatch to determine the action type (upsert, remove, or clear).
+ * @typedef {"upsert" | "remove" | "clear"} Action
  */
-type Action = "upsert" | "remove" | "clear";
+type Action$1 = "upsert" | "remove" | "clear";
 /**
- * Type representing the payload for storage actions.
- * @template T - The type of storage data, extending IStorageData.
+ * Type representing the payload for storage actions in ClientStorage.
+ * Defines the structure for upsert and remove operations, with optional fields based on action type.
+ * @template T - The type of storage data, extending IStorageData from Storage.interface.
+ * @typedef {Object} Payload
+ * @property {IStorageData["id"]} itemId - The ID of the item, required for remove actions.
+ * @property {T} item - The item data to upsert, required for upsert actions.
  */
 type Payload<T extends IStorageData = IStorageData> = {
-    /** The ID of the item. */
     itemId: IStorageData["id"];
-    /** The item data to upsert. */
     item: T;
 };
 /**
- * Class managing storage operations with embedding-based search capabilities.
- * Supports upserting, removing, and searching items with similarity scoring.
- * @template T - The type of storage data, extending IStorageData.
+ * Class managing storage operations with embedding-based search capabilities in the swarm system.
+ * Implements IStorage, supporting upsert, remove, clear, and similarity-based search with queued operations and event-driven updates.
+ * Integrates with StorageConnectionService (instantiation), EmbeddingSchemaService (embeddings), ClientAgent (data storage),
+ * SwarmConnectionService (swarm-level storage), and BusService (event emission).
+ * @template T - The type of storage data, extending IStorageData from Storage.interface.
  * @implements {IStorage<T>}
  */
 declare class ClientStorage<T extends IStorageData = IStorageData> implements IStorage<T> {
     readonly params: IStorageParams<T>;
-    /** Internal map to store items by their IDs. */
+    /**
+     * Internal map to store items by their IDs, used for fast retrieval and updates.
+     * Populated during initialization (waitForInit) and modified by upsert, remove, and clear operations.
+     * @type {Map<IStorageData["id"], T>}
+     */
     _itemMap: Map<string | number, T>;
     /**
-     * Creates an instance of ClientStorage.
-     * Invokes the onInit callback if provided.
-     * @param {IStorageParams<T>} params - The storage parameters, including client ID, storage name, and callback functions.
+     * Constructs a ClientStorage instance with the provided parameters.
+     * Invokes the onInit callback if provided and logs construction if debugging is enabled.
+     * @param {IStorageParams<T>} params - The storage parameters, including clientId, storageName, createEmbedding, getData, etc.
      */
     constructor(params: IStorageParams<T>);
     /**
-     * Dispatches a storage action (upsert, remove, or clear) in a queued manner.
+     * Dispatches a storage action (upsert, remove, or clear) in a queued manner, delegating to DISPATCH_FN.
+     * Ensures sequential execution of storage operations, supporting thread-safe updates from ClientAgent or tools.
      * @param {Action} action - The action to perform ("upsert", "remove", or "clear").
-     * @param {Partial<Payload<T>>} payload - The payload for the action (item or itemId).
-     * @returns {Promise<void>} A promise that resolves when the action is complete.
+     * @param {Partial<Payload<T>>} payload - The payload for the action (item or itemId), partial based on action type.
+     * @returns {Promise<void>} Resolves when the action is queued and processed.
      */
-    dispatch: (action: Action, payload: Partial<Payload<T>>) => Promise<void>;
+    dispatch: (action: Action$1, payload: Partial<Payload<T>>) => Promise<void>;
     /**
-     * Creates embeddings for the given item, memoized by item ID to avoid redundant calculations.
-     * @param {T} item - The item to create embeddings for.
-     * @returns {Promise<readonly [any, any]>} A tuple of embeddings and index.
+     * Creates embeddings for the given item, memoized by item ID to avoid redundant calculations via CREATE_EMBEDDING_FN.
+     * Caches results for efficiency, cleared on upsert/remove to ensure freshness, supporting EmbeddingSchemaService.
+     * @param {T} item - The item to create embeddings for, containing data to be indexed.
+     * @returns {Promise<readonly [Embeddings, string]>} A tuple of embeddings (from Embedding.interface) and index string.
      * @private
      */
     _createEmbedding: ((item: T) => Promise<readonly [Embeddings, string]>) & functools_kit.IClearableMemoize<string | number> & functools_kit.IControlMemoize<string | number, Promise<readonly [Embeddings, string]>>;
     /**
-     * Waits for the initialization of the storage, loading initial data and creating embeddings.
-     * Ensures initialization happens only once using singleshot.
-     * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     * Waits for the initialization of the storage, loading initial data and creating embeddings via WAIT_FOR_INIT_FN.
+     * Ensures initialization happens only once using singleshot, supporting StorageConnectionService’s lifecycle.
+     * @returns {Promise<void>} Resolves when initialization is complete and items are loaded into _itemMap.
      */
     waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable;
     /**
-     * Retrieves a specified number of items based on similarity to a search string.
-     * Uses embeddings and similarity scoring to sort and filter results.
+     * Retrieves a specified number of items based on similarity to a search string, using embeddings and SortedArray.
+     * Executes similarity calculations concurrently via execpool, respecting GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL, and filters by score.
+     * Emits an event via BusService, supporting ClientAgent’s search-driven tool execution.
      * @param {string} search - The search string to compare against stored items.
      * @param {number} total - The maximum number of items to return.
-     * @param {number} [score=GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY] - The minimum similarity score for items to be included (defaults to global config).
-     * @returns {Promise<T[]>} An array of items sorted by similarity, limited to the specified total and score threshold.
+     * @param {number} [score=GLOBAL_CONFIG.CC_STORAGE_SEARCH_SIMILARITY] - The minimum similarity score (default from global config).
+     * @returns {Promise<T[]>} An array of items sorted by similarity, limited to total and score threshold.
      */
     take(search: string, total: number, score?: number): Promise<T[]>;
     /**
-     * Upserts an item into the storage via the dispatch queue.
-     * @param {T} item - The item to upsert.
-     * @returns {Promise<void>} A promise that resolves when the upsert operation is complete.
+     * Upserts an item into the storage via the dispatch queue, delegating to UPSERT_FN.
+     * Schedules the operation for sequential execution, supporting ClientAgent’s data persistence needs.
+     * @param {T} item - The item to upsert, containing the data and ID.
+     * @returns {Promise<void>} Resolves when the upsert operation is queued and processed.
      */
     upsert(item: T): Promise<void>;
     /**
-     * Removes an item from the storage by its ID via the dispatch queue.
-     * @param {IStorageData["id"]} itemId - The ID of the item to remove.
-     * @returns {Promise<void>} A promise that resolves when the remove operation is complete.
+     * Removes an item from the storage by its ID via the dispatch queue, delegating to REMOVE_FN.
+     * Schedules the operation for sequential execution, supporting ClientAgent’s data management.
+     * @param {IStorageData["id"]} itemId - The ID of the item to remove, sourced from Storage.interface.
+     * @returns {Promise<void>} Resolves when the remove operation is queued and processed.
      */
     remove(itemId: IStorageData["id"]): Promise<void>;
     /**
-     * Clears all items from the storage via the dispatch queue.
-     * @returns {Promise<void>} A promise that resolves when the clear operation is complete.
+     * Clears all items from the storage via the dispatch queue, delegating to CLEAR_FN.
+     * Schedules the operation for sequential execution, supporting storage reset operations.
+     * @returns {Promise<void>} Resolves when the clear operation is queued and processed.
      */
     clear(): Promise<void>;
     /**
-     * Retrieves an item from the storage by its ID.
-     * Emits an event with the result.
-     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve.
-     * @returns {Promise<T | null>} The item if found, or null if not found.
+     * Retrieves an item from the storage by its ID directly from _itemMap.
+     * Emits an event via BusService with the result, supporting quick lookups by ClientAgent or tools.
+     * @param {IStorageData["id"]} itemId - The ID of the item to retrieve, sourced from Storage.interface.
+     * @returns {Promise<T | null>} The item if found in _itemMap, or null if not found.
      */
     get(itemId: IStorageData["id"]): Promise<T | null>;
     /**
-     * Lists all items in the storage, optionally filtered by a predicate.
-     * Emits an event with the filtered result if a filter is provided.
-     * @param {(item: T) => boolean} [filter] - An optional predicate to filter items.
+     * Lists all items in the storage from _itemMap, optionally filtered by a predicate.
+     * Emits an event via BusService with the filtered result if a filter is provided, supporting ClientAgent’s data enumeration.
+     * @param {(item: T) => boolean} [filter] - An optional predicate to filter items; if omitted, returns all items.
      * @returns {Promise<T[]>} An array of items, filtered if a predicate is provided.
      */
     list(filter?: (item: T) => boolean): Promise<T[]>;
     /**
-     * Disposes of the storage instance, invoking the onDispose callback if provided.
-     * @returns {Promise<void>} A promise that resolves when disposal is complete.
+     * Disposes of the storage instance, invoking the onDispose callback if provided and logging via BusService.
+     * Ensures proper cleanup with StorageConnectionService when the storage is no longer needed.
+     * @returns {Promise<void>} Resolves when disposal is complete and logged.
      */
     dispose(): Promise<void>;
 }
@@ -5348,59 +5365,79 @@ declare class EmbeddingValidationService {
     validate: (embeddingName: EmbeddingName, source: string) => void;
 }
 
+/**
+ * Type representing a dispatch function for updating the state in ClientState.
+ * Takes the previous state and returns a promise resolving to the updated state.
+ * @template State - The type of the state data, extending IStateData from State.interface.
+ * @typedef {(prevState: State) => Promise<State>} DispatchFn
+ */
 type DispatchFn<State extends IStateData = IStateData> = (prevState: State) => Promise<State>;
 /**
- * Class representing the client state, managing state data with read/write operations.
- * @template State - The type of the state data, extending IStateData.
+ * Type representing possible actions for ClientState operations.
+ * Used in dispatch to determine whether to read or write the state.
+ * @typedef {"read" | "write"} Action
+ */
+type Action = "read" | "write";
+/**
+ * Class representing the client state in the swarm system, implementing the IState interface.
+ * Manages a single state object with queued read/write operations, middleware support, and event-driven updates via BusService.
+ * Integrates with StateConnectionService (state instantiation), ClientAgent (state-driven behavior),
+ * SwarmConnectionService (swarm-level state), and BusService (event emission).
+ * @template State - The type of the state data, extending IStateData from State.interface.
  * @implements {IState<State>}
  */
 declare class ClientState<State extends IStateData = IStateData> implements IState<State> {
     readonly params: IStateParams<State>;
     /**
      * The current state data, initialized as null and set during waitForInit.
+     * Updated by setState and clearState, persisted via params.setState if provided.
+     * @type {State}
      */
     _state: State;
     /**
-     * Queued dispatch function to read or write the state.
-     * @param {string} action - The action to perform ("read" or "write").
-     * @param {DispatchFn<State>} [payload] - The function to update the state (required for "write").
-     * @returns {Promise<State>} The current or updated state.
+     * Queued dispatch function to read or write the state, delegating to DISPATCH_FN.
+     * Ensures thread-safe state operations, supporting concurrent access from ClientAgent or tools.
+     * @param {Action} action - The action to perform ("read" or "write").
+     * @param {DispatchFn<State>} [payload] - The function to update the state, required for "write".
+     * @returns {Promise<State>} The current state for "read" or the updated state for "write".
      */
-    dispatch: (action: string, payload?: DispatchFn<State>) => Promise<State>;
+    dispatch: (action: Action, payload?: DispatchFn<State>) => Promise<State>;
     /**
-     * Creates an instance of ClientState.
-     * Invokes the onInit callback if provided.
-     * @param {IStateParams<State>} params - The parameters for initializing the state.
+     * Constructs a ClientState instance with the provided parameters.
+     * Invokes the onInit callback if provided and logs construction if debugging is enabled.
+     * @param {IStateParams<State>} params - The parameters for initializing the state, including clientId, stateName, getState, etc.
      */
     constructor(params: IStateParams<State>);
     /**
-     * Waits for the state to initialize, ensuring it’s only called once.
-     * Uses singleshot to prevent multiple initializations.
-     * @returns {Promise<void>}
+     * Waits for the state to initialize via WAIT_FOR_INIT_FN, ensuring it’s only called once using singleshot.
+     * Loads the initial state into _state, supporting StateConnectionService’s lifecycle management.
+     * @returns {Promise<void>} Resolves when the state is initialized and loaded.
      */
     waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable;
     /**
-     * Sets the state using the provided dispatch function, applying middlewares and persisting the result.
-     * Invokes the onWrite callback and emits an event if configured.
-     * @param {DispatchFn<State>} dispatchFn - The function to update the state.
-     * @returns {Promise<State>} The updated state.
+     * Sets the state using the provided dispatch function, applying middlewares and persisting via params.setState.
+     * Invokes the onWrite callback and emits an event via BusService, supporting ClientAgent’s state updates.
+     * @param {DispatchFn<State>} dispatchFn - The function to update the state, taking the previous state as input.
+     * @returns {Promise<State>} The updated state after applying dispatchFn and middlewares.
      */
     setState(dispatchFn: DispatchFn<State>): Promise<State>;
     /**
-     * Resets the state to its initial value as determined by getState and getDefaultState.
-     * Persists the result and invokes the onWrite callback if configured.
-     * @returns {Promise<State>} The reset state.
+     * Resets the state to its initial value as determined by params.getState and params.getDefaultState.
+     * Persists the result via params.setState, invokes the onWrite callback, and emits an event via BusService.
+     * Supports resetting state for ClientAgent or swarm-level operations.
+     * @returns {Promise<State>} The reset state after reinitialization.
      */
     clearState(): Promise<State>;
     /**
-     * Retrieves the current state.
-     * Invokes the onRead callback and emits an event if configured.
-     * @returns {Promise<State>} The current state.
+     * Retrieves the current state from _state via the dispatch queue.
+     * Invokes the onRead callback and emits an event via BusService, supporting ClientAgent’s state queries.
+     * @returns {Promise<State>} The current state as stored in _state.
      */
     getState(): Promise<State>;
     /**
-     * Disposes of the state, performing cleanup and invoking the onDispose callback if provided.
-     * @returns {Promise<void>}
+     * Disposes of the state instance, performing cleanup and invoking the onDispose callback if provided.
+     * Ensures proper resource release with StateConnectionService when the state is no longer needed.
+     * @returns {Promise<void>} Resolves when disposal is complete and logged.
      */
     dispose(): Promise<void>;
 }

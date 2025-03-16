@@ -7,18 +7,30 @@ import {
 import { IBusEvent } from "../model/Event.model";
 import { GLOBAL_CONFIG } from "../config/params";
 
+/**
+ * Type representing a dispatch function for updating the state in ClientState.
+ * Takes the previous state and returns a promise resolving to the updated state.
+ * @template State - The type of the state data, extending IStateData from State.interface.
+ * @typedef {(prevState: State) => Promise<State>} DispatchFn
+ */
 type DispatchFn<State extends IStateData = IStateData> = (
   prevState: State
 ) => Promise<State>;
 
+/**
+ * Type representing possible actions for ClientState operations.
+ * Used in dispatch to determine whether to read or write the state.
+ * @typedef {"read" | "write"} Action
+ */
 type Action = "read" | "write";
 
 /**
- * Dispatches an action to read or write the state.
- * @template State - The type of the state data.
+ * Dispatches an action to read or write the state, used internally by ClientState’s dispatch method.
+ * Ensures thread-safe state access and updates, supporting queued operations.
+ * @template State - The type of the state data, extending IStateData from State.interface.
  * @param {Action} action - The action to perform ("read" or "write").
- * @param {ClientState} self - The instance of ClientState.
- * @param {DispatchFn<State>} [payload] - The function to update the state (required for "write").
+ * @param {ClientState} self - The ClientState instance managing the state.
+ * @param {DispatchFn<State>} [payload] - The function to update the state, required for "write" actions.
  * @returns {Promise<State>} The current state for "read" or the updated state for "write".
  * @throws {Error} If the action is neither "read" nor "write", or if payload is missing for "write".
  * @private
@@ -42,10 +54,10 @@ const DISPATCH_FN = async <State extends IStateData = IStateData>(
 };
 
 /**
- * Initializes the state by fetching it or using the default state.
- * Invokes the onLoad callback if provided.
- * @param {ClientState} self - The instance of ClientState.
- * @returns {Promise<void>}
+ * Initializes the state by fetching it via params.getState or using the default state from params.getDefaultState.
+ * Invokes the onLoad callback if provided, supporting StateConnectionService’s initialization process.
+ * @param {ClientState} self - The ClientState instance to initialize.
+ * @returns {Promise<void>} Resolves when the state is loaded into _state and logged.
  * @private
  */
 const WAIT_FOR_INIT_FN = async (self: ClientState): Promise<void> => {
@@ -76,8 +88,11 @@ const WAIT_FOR_INIT_FN = async (self: ClientState): Promise<void> => {
 };
 
 /**
- * Class representing the client state, managing state data with read/write operations.
- * @template State - The type of the state data, extending IStateData.
+ * Class representing the client state in the swarm system, implementing the IState interface.
+ * Manages a single state object with queued read/write operations, middleware support, and event-driven updates via BusService.
+ * Integrates with StateConnectionService (state instantiation), ClientAgent (state-driven behavior),
+ * SwarmConnectionService (swarm-level state), and BusService (event emission).
+ * @template State - The type of the state data, extending IStateData from State.interface.
  * @implements {IState<State>}
  */
 export class ClientState<State extends IStateData = IStateData>
@@ -85,24 +100,27 @@ export class ClientState<State extends IStateData = IStateData>
 {
   /**
    * The current state data, initialized as null and set during waitForInit.
+   * Updated by setState and clearState, persisted via params.setState if provided.
+   * @type {State}
    */
   _state: State = null as State;
 
   /**
-   * Queued dispatch function to read or write the state.
-   * @param {string} action - The action to perform ("read" or "write").
-   * @param {DispatchFn<State>} [payload] - The function to update the state (required for "write").
-   * @returns {Promise<State>} The current or updated state.
+   * Queued dispatch function to read or write the state, delegating to DISPATCH_FN.
+   * Ensures thread-safe state operations, supporting concurrent access from ClientAgent or tools.
+   * @param {Action} action - The action to perform ("read" or "write").
+   * @param {DispatchFn<State>} [payload] - The function to update the state, required for "write".
+   * @returns {Promise<State>} The current state for "read" or the updated state for "write".
    */
   dispatch = queued(
     async (action: Action, payload) =>
       await DISPATCH_FN<State>(action, this, payload)
-  ) as (action: string, payload?: DispatchFn<State>) => Promise<State>;
+  ) as (action: Action, payload?: DispatchFn<State>) => Promise<State>;
 
   /**
-   * Creates an instance of ClientState.
-   * Invokes the onInit callback if provided.
-   * @param {IStateParams<State>} params - The parameters for initializing the state.
+   * Constructs a ClientState instance with the provided parameters.
+   * Invokes the onInit callback if provided and logs construction if debugging is enabled.
+   * @param {IStateParams<State>} params - The parameters for initializing the state, including clientId, stateName, getState, etc.
    */
   constructor(readonly params: IStateParams<State>) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -118,17 +136,17 @@ export class ClientState<State extends IStateData = IStateData>
   }
 
   /**
-   * Waits for the state to initialize, ensuring it’s only called once.
-   * Uses singleshot to prevent multiple initializations.
-   * @returns {Promise<void>}
+   * Waits for the state to initialize via WAIT_FOR_INIT_FN, ensuring it’s only called once using singleshot.
+   * Loads the initial state into _state, supporting StateConnectionService’s lifecycle management.
+   * @returns {Promise<void>} Resolves when the state is initialized and loaded.
    */
   waitForInit = singleshot(async (): Promise<void> => await WAIT_FOR_INIT_FN(this));
 
   /**
-   * Sets the state using the provided dispatch function, applying middlewares and persisting the result.
-   * Invokes the onWrite callback and emits an event if configured.
-   * @param {DispatchFn<State>} dispatchFn - The function to update the state.
-   * @returns {Promise<State>} The updated state.
+   * Sets the state using the provided dispatch function, applying middlewares and persisting via params.setState.
+   * Invokes the onWrite callback and emits an event via BusService, supporting ClientAgent’s state updates.
+   * @param {DispatchFn<State>} dispatchFn - The function to update the state, taking the previous state as input.
+   * @returns {Promise<State>} The updated state after applying dispatchFn and middlewares.
    */
   async setState(dispatchFn: DispatchFn<State>): Promise<State> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -180,9 +198,10 @@ export class ClientState<State extends IStateData = IStateData>
   }
 
   /**
-   * Resets the state to its initial value as determined by getState and getDefaultState.
-   * Persists the result and invokes the onWrite callback if configured.
-   * @returns {Promise<State>} The reset state.
+   * Resets the state to its initial value as determined by params.getState and params.getDefaultState.
+   * Persists the result via params.setState, invokes the onWrite callback, and emits an event via BusService.
+   * Supports resetting state for ClientAgent or swarm-level operations.
+   * @returns {Promise<State>} The reset state after reinitialization.
    */
   async clearState(): Promise<State> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -233,9 +252,9 @@ export class ClientState<State extends IStateData = IStateData>
   }
 
   /**
-   * Retrieves the current state.
-   * Invokes the onRead callback and emits an event if configured.
-   * @returns {Promise<State>} The current state.
+   * Retrieves the current state from _state via the dispatch queue.
+   * Invokes the onRead callback and emits an event via BusService, supporting ClientAgent’s state queries.
+   * @returns {Promise<State>} The current state as stored in _state.
    */
   async getState(): Promise<State> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -266,8 +285,9 @@ export class ClientState<State extends IStateData = IStateData>
   }
 
   /**
-   * Disposes of the state, performing cleanup and invoking the onDispose callback if provided.
-   * @returns {Promise<void>}
+   * Disposes of the state instance, performing cleanup and invoking the onDispose callback if provided.
+   * Ensures proper resource release with StateConnectionService when the state is no longer needed.
+   * @returns {Promise<void>} Resolves when disposal is complete and logged.
    */
   async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -283,4 +303,11 @@ export class ClientState<State extends IStateData = IStateData>
   }
 }
 
+/**
+ * Default export of the ClientState class.
+ * Provides the primary implementation of the IState interface for managing client state in the swarm system,
+ * integrating with StateConnectionService, ClientAgent, SwarmConnectionService, and BusService,
+ * with queued read/write operations, middleware support, and event-driven updates.
+ * @type {typeof ClientState}
+ */
 export default ClientState;
