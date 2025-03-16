@@ -1,0 +1,24 @@
+{
+  "name": "repl-phone-seller",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun ./src/index.ts",
+    "start:debug": "bun --inspect-brk ./src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs-backend-wasm": "^4.22.0",
+    "@tensorflow/tfjs-core": "^4.22.0",
+    "agent-swarm-kit": "^1.0.165",
+    "functools-kit": "^1.0.75",
+    "ollama": "^0.5.14",
+    "openai": "^4.86.2",
+    "pinolog": "^1.0.4"
+  }
+}

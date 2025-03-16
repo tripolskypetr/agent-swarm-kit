@@ -1,0 +1,92 @@
+[
+  {
+    "id": 0,
+    "title": "iPhone X",
+    "description": "Безрамочный смартфон с OLED-дисплеем 5,8 дюймов,, Face ID для разблокировки, двойной камерой 12 Мп, процессором A11 Bionic и беспроводной зарядкой.",
+    "diagonal": 5.8
+  },
+  {
+    "id": 1,
+    "title": "Samsung Galaxy S21",
+    "description": "Флагманский смартфон с 6,2 дюймов, Dynamic AMOLED-дисплеем, процессором Exynos 2100, тройной камерой 64 Мп, 8 ГБ RAM и батареей 4000 мАч.",
+    "diagonal": 6.2
+  },
+  {
+    "id": 2,
+    "title": "Google Pixel 6",
+    "description": "Смартфон с чистым Android, 6,4 дюймов, OLED-экраном, процессором Google Tensor, двойной камерой 50 Мп и передовыми ИИ-функциями.",
+    "diagonal": 6.4
+  },
+  {
+    "id": 3,
+    "title": "Xiaomi Mi 11",
+    "description": "Производительный смартфон с 6,81 дюймов, AMOLED-дисплеем 120 Гц, Snapdragon 888, тройной камерой 108 Мп и быстрой зарядкой 55 Вт.",
+    "diagonal": 6.81
+  },
+  {
+    "id": 4,
+    "title": "OnePlus 9 Pro",
+    "description": "Премиальный смартфон с 6,7 дюймов, Fluid AMOLED-дисплеем, Snapdragon 888, камерами Hasselblad 48 Мп и Warp Charge 65T.",
+    "diagonal": 6.7
+  },
+  {
+    "id": 5,
+    "title": "iPhone 13",
+    "description": "Усовершенствованный смартфон с 6,1 дюймов, Super Retina XDR, чипом A15 Bionic, двойной камерой 12 Мп, режимом киносъемки и MagSafe.",
+    "diagonal": 6.1
+  },
+  {
+    "id": 6,
+    "title": "Huawei P40 Pro",
+    "description": "Мощный камерофон с 6,58 дюймов, OLED-экраном, процессором Kirin 990, системой камер Leica 50 Мп и сверхбыстрой зарядкой.",
+    "diagonal": 6.58
+  },
+  {
+    "id": 7,
+    "title": "Sony Xperia 5 III",
+    "description": "Компактный флагман с 6,1 дюймов, HDR OLED-дисплеем 120 Гц, Snapdragon 888, тройной камерой с переменным фокусным расстоянием.",
+    "diagonal": 6.1
+  },
+  {
+    "id": 8,
+    "title": "Motorola Edge 20 Pro",
+    "description": "Тонкий смартфон с 6,7 дюймов, OLED-дисплеем 144 Гц, Snapdragon 870, камерой 108 Мп с 5-кратным оптическим зумом и батареей 4500 мАч.",
+    "diagonal": 6.7
+  },
+  {
+    "id": 9,
+    "title": "Realme GT",
+    "description": "Доступный флагман с 6,43 дюймов, Super AMOLED-экраном, Snapdragon 888, тройной камерой 64 Мп, 8 ГБ RAM и зарядкой 65 Вт.",
+    "diagonal": 6.43
+  },
+  {
+    "id": 10,
+    "title": "Samsung Galaxy Tab S7+",
+    "description": "Премиальный планшет с 10,5 дюймов, Super AMOLED-дисплеем 120 Гц, Snapdragon 865+, четырьмя динамиками, поддержкой S Pen и DeX.",
+    "diagonal": 10.5
+  },
+  {
+    "id": 11,
+    "title": "Huawei MatePad Pro",
+    "description": "Мощный планшет с 10,8 дюймов, IPS-дисплеем 2К, процессором Kirin 990, четырьмя динамиками Harman Kardon и стилусом M-Pencil.",
+    "diagonal": 10.8
+  },
+  {
+    "id": 12,
+    "title": "Lenovo Tab P11 Pro",
+    "description": "Бизнес-планшет с 10,1 дюймов, OLED-экраном 2К, Snapdragon 730G, четырьмя JBL-динамиками, поддержкой стилуса и клавиатуры.",
+    "diagonal": 10.1
+  },
+  {
+    "id": 13,
+    "title": "Xiaomi Pad 5",
+    "description": "Универсальный планшет с 10,9 дюймов, IPS-дисплеем 120 Гц, Snapdragon 860, четырьмя динамиками с Dolby Atmos и батареей 8720 мАч.",
+    "diagonal": 10.9
+  },
+  {
+    "id": 14,
+    "title": "Nokia T20",
+    "description": "Надежный планшет с 10,4 дюймов, 2K-дисплеем, чипом Unisoc T610, стереодинамиками, батареей 8200 мАч и чистым Android.",
+    "diagonal": 10.4
+  }
+]
