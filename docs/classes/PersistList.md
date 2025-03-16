@@ -3,6 +3,7 @@
 Extends `PersistBase<EntityName>`
 
 Extends PersistBase to provide a persistent list structure with push/pop operations.
+Manages entities with numeric keys for ordered access.
 
 ## Constructor
 
@@ -52,7 +53,7 @@ Ensures atomic pop operations under concurrent calls.
 push<T extends IEntity = IEntity>(entity: T): Promise<void>;
 ```
 
-Adds an entity to the end of the persistent list with a new unique key.
+Adds an entity to the end of the persistent list with a new unique numeric key.
 
 ### pop
 

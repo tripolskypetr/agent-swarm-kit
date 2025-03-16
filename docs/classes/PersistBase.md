@@ -3,6 +3,7 @@
 Implements `IPersistBase`
 
 Base class for persistent storage of entities in the file system.
+Provides methods for reading, writing, and managing entities as JSON files.
 
 ## Constructor
 
@@ -36,7 +37,7 @@ _directory: string
 __@BASE_WAIT_FOR_INIT_SYMBOL@481: any
 ```
 
-Memoized initialization function to ensure it runs only once.
+Memoized initialization function ensuring it runs only once per instance.
 
 ## Methods
 
@@ -54,8 +55,8 @@ Computes the file path for an entity based on its ID.
 waitForInit(initial: boolean): Promise<void>;
 ```
 
-Initializes the storage directory and validates existing entities.
-Creates the directory if it doesn't exist and removes invalid files.
+Initializes the storage directory, creating it if it doesn’t exist and validating existing entities.
+Invalid entities are removed during this process.
 
 ### getCount
 
@@ -64,6 +65,7 @@ getCount(): Promise<number>;
 ```
 
 Retrieves the number of entities stored in the directory.
+Counts only files with a `.json` extension.
 
 ### readValue
 
@@ -71,7 +73,7 @@ Retrieves the number of entities stored in the directory.
 readValue<T extends IEntity = IEntity>(entityId: EntityId): Promise<T>;
 ```
 
-Reads an entity from storage by its ID.
+Reads an entity from storage by its ID, parsing it from JSON.
 
 ### hasValue
 
@@ -87,7 +89,8 @@ Checks if an entity exists in storage by its ID.
 writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
 ```
 
-Writes an entity to storage with the specified ID.
+Writes an entity to storage with the specified ID, serializing it to JSON.
+Uses atomic file writing to ensure data integrity.
 
 ### removeValue
 
@@ -103,7 +106,8 @@ Removes an entity from storage by its ID.
 removeAll(): Promise<void>;
 ```
 
-Removes all entities from storage.
+Removes all entities from storage under this entity name.
+Deletes all `.json` files in the directory.
 
 ### values
 
@@ -112,6 +116,7 @@ values<T extends IEntity = IEntity>(): AsyncGenerator<T>;
 ```
 
 Iterates over all entities in storage, sorted numerically by ID.
+Yields entities in ascending order based on their IDs.
 
 ### keys
 
@@ -120,6 +125,7 @@ keys(): AsyncGenerator<EntityId>;
 ```
 
 Iterates over all entity IDs in storage, sorted numerically.
+Yields IDs in ascending order.
 
 ### __@asyncIterator@482
 
@@ -128,6 +134,7 @@ Iterates over all entity IDs in storage, sorted numerically.
 ```
 
 Implements the async iterator protocol for iterating over entities.
+Delegates to the `values` method for iteration.
 
 ### filter
 
@@ -136,6 +143,7 @@ filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGene
 ```
 
 Filters entities based on a predicate function.
+Yields only entities that pass the predicate test.
 
 ### take
 
@@ -144,3 +152,4 @@ take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boole
 ```
 
 Takes a limited number of entities, optionally filtered by a predicate.
+Stops yielding after reaching the specified total.

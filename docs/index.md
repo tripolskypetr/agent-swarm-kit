@@ -7,6 +7,7 @@
 - [PersistSwarmUtils](classes/PersistSwarmUtils.md)
 - [PersistStateUtils](classes/PersistStateUtils.md)
 - [PersistStorageUtils](classes/PersistStorageUtils.md)
+- [PersistMemoryUtils](classes/PersistMemoryUtils.md)
 - [HistoryPersistInstance](classes/HistoryPersistInstance.md)
 - [HistoryMemoryInstance](classes/HistoryMemoryInstance.md)
 - [LoggerService](classes/LoggerService.md)
@@ -119,6 +120,8 @@
 - [IPersistStateControl](interfaces/IPersistStateControl.md)
 - [IPersistStorageData](interfaces/IPersistStorageData.md)
 - [IPersistStorageControl](interfaces/IPersistStorageControl.md)
+- [IPersistMemoryData](interfaces/IPersistMemoryData.md)
+- [IPersistMemoryControl](interfaces/IPersistMemoryControl.md)
 - [IHistoryInstanceCallbacks](interfaces/IHistoryInstanceCallbacks.md)
 - [IHistoryAdapter](interfaces/IHistoryAdapter.md)
 - [IHistoryControl](interfaces/IHistoryControl.md)
@@ -158,6 +161,7 @@
 - [ILoggerInstance](interfaces/ILoggerInstance.md)
 - [ILoggerAdapter](interfaces/ILoggerAdapter.md)
 - [ILoggerControl](interfaces/ILoggerControl.md)
+- [IGlobalConfig](interfaces/IGlobalConfig.md)
 
 ## Types
 

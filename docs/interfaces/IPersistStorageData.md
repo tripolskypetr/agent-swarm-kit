@@ -1,6 +1,7 @@
 # IPersistStorageData
 
 Interface for storage data persistence.
+Wraps an array of storage data for persistence.
 
 ## Properties
 

@@ -1,6 +1,7 @@
 # IPersistStorageControl
 
 Interface defining control methods for storage persistence operations.
+Allows customization of the persistence adapter for storage.
 
 ## Methods
 

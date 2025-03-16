@@ -1,6 +1,7 @@
 # IPersistSwarmControl
 
 Interface defining control methods for swarm persistence operations.
+Allows customization of persistence adapters for active agents and navigation stacks.
 
 ## Methods
 

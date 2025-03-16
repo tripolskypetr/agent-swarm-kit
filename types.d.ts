@@ -1467,40 +1467,41 @@ declare const LIST_GET_LAST_KEY_SYMBOL: unique symbol;
 declare const LIST_POP_SYMBOL: unique symbol;
 /**
  * Interface defining methods for persistent storage operations.
- * @template Entity - The type of entity, defaults to IEntity.
+ * @template Entity - The type of entity stored, defaults to IEntity.
  */
 interface IPersistBase<Entity extends IEntity = IEntity> {
     /**
-     * Initializes the storage, creating directories and validating existing data.
-     * @param {boolean} initial - Whether this is the initial setup (affects caching behavior).
+     * Initializes the storage directory, creating it if needed and validating existing data by removing invalid entities.
+     * @param {boolean} initial - Indicates if this is the initial setup; affects memoization behavior in some implementations.
      * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     * @throws {Error} If directory creation or validation fails.
      */
     waitForInit(initial: boolean): Promise<void>;
     /**
      * Reads an entity from storage by its ID.
-     * @param {EntityId} entityId - The ID of the entity to read.
-     * @returns {Promise<Entity>} A promise resolving to the entity.
-     * @throws {Error} If the entity is not found or reading fails.
+     * @param {EntityId} entityId - The identifier of the entity to read.
+     * @returns {Promise<Entity>} A promise resolving to the entity data.
+     * @throws {Error} If the entity is not found or reading/parsing fails.
      */
     readValue(entityId: EntityId): Promise<Entity>;
     /**
-     * Checks if an entity exists in storage.
-     * @param {EntityId} entityId - The ID of the entity to check.
+     * Checks if an entity exists in storage by its ID.
+     * @param {EntityId} entityId - The identifier of the entity to check.
      * @returns {Promise<boolean>} A promise resolving to true if the entity exists, false otherwise.
-     * @throws {Error} If checking existence fails (other than not found).
+     * @throws {Error} If checking existence fails for reasons other than the entity not existing.
      */
     hasValue(entityId: EntityId): Promise<boolean>;
     /**
      * Writes an entity to storage with the specified ID.
-     * @param {EntityId} entityId - The ID of the entity to write.
-     * @param {Entity} entity - The entity data to write.
-     * @returns {Promise<void>} A promise that resolves when writing is complete.
-     * @throws {Error} If writing fails.
+     * @param {EntityId} entityId - The identifier for the entity.
+     * @param {Entity} entity - The entity data to persist.
+     * @returns {Promise<void>} A promise that resolves when the write operation is complete.
+     * @throws {Error} If writing to the file system fails.
      */
     writeValue(entityId: EntityId, entity: Entity): Promise<void>;
 }
 /**
- * Constructor type for creating PersistBase instances.
+ * Constructor type for creating PersistBase instances, parameterized by entity name and entity type.
  * @template EntityName - The type of entity name, defaults to string.
  * @template Entity - The type of entity, defaults to IEntity.
  * @typedef {new (entityName: EntityName, baseDir: string) => IPersistBase<Entity>} TPersistBaseCtor
@@ -1508,6 +1509,7 @@ interface IPersistBase<Entity extends IEntity = IEntity> {
 type TPersistBaseCtor<EntityName extends string = string, Entity extends IEntity = IEntity> = new (entityName: EntityName, baseDir: string) => IPersistBase<Entity>;
 /**
  * Base class for persistent storage of entities in the file system.
+ * Provides methods for reading, writing, and managing entities as JSON files.
  * @template EntityName - The type of entity name, defaults to string.
  * @implements {IPersistBase}
  */
@@ -1517,110 +1519,166 @@ declare class PersistBase<EntityName extends string = string> implements IPersis
     /** @private The directory path where entity files are stored */
     _directory: string;
     /**
-     * Creates a new PersistBase instance for managing persistent storage.
-     * @param {EntityName} entityName - The name of the entity type (used as a subdirectory).
+     * Creates a new PersistBase instance for managing persistent storage of entities.
+     * @param {EntityName} entityName - The name of the entity type, used as a subdirectory for storage.
      * @param {string} [baseDir=join(process.cwd(), "logs/data")] - The base directory for storing entity files.
+     * @example
+     * const storage = new PersistBase("sessions");
+     * // Creates a storage instance for "sessions" in "./logs/data/sessions"
      */
     constructor(entityName: EntityName, baseDir?: string);
     /**
      * Computes the file path for an entity based on its ID.
-     * @param {EntityId} entityId - The ID of the entity.
-     * @returns {string} The full file path for the entity (e.g., `<baseDir>/<entityName>/<entityId>.json`).
+     * @param {EntityId} entityId - The identifier of the entity.
+     * @returns {string} The full file path (e.g., `<baseDir>/<entityName>/<entityId>.json`).
      * @private
      */
     _getFilePath(entityId: EntityId): string;
     /**
-     * Memoized initialization function to ensure it runs only once.
+     * Memoized initialization function ensuring it runs only once per instance.
      * @returns {Promise<void>} A promise that resolves when initialization is complete.
      * @private
      */
     private [BASE_WAIT_FOR_INIT_SYMBOL];
     /**
-     * Initializes the storage directory and validates existing entities.
-     * Creates the directory if it doesn't exist and removes invalid files.
-     * @param {boolean} initial - Whether this is the initial setup (unused in this implementation).
+     * Initializes the storage directory, creating it if it doesn’t exist and validating existing entities.
+     * Invalid entities are removed during this process.
+     * @param {boolean} initial - Indicates if this is the initial setup; currently unused but reserved for future caching logic.
      * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     * @throws {Error} If directory creation or entity validation fails.
+     * @example
+     * await storage.waitForInit(true);
+     * // Ensures the storage directory is ready and clean
      */
     waitForInit(initial: boolean): Promise<void>;
     /**
      * Retrieves the number of entities stored in the directory.
-     * @returns {Promise<number>} A promise resolving to the count of `.json` files.
+     * Counts only files with a `.json` extension.
+     * @returns {Promise<number>} A promise resolving to the count of stored entities.
      * @throws {Error} If reading the directory fails.
+     * @example
+     * const count = await storage.getCount();
+     * console.log(count); // Outputs the number of entities
      */
     getCount(): Promise<number>;
     /**
-     * Reads an entity from storage by its ID.
-     * @template T - The type of the entity, defaults to IEntity.
-     * @param {EntityId} entityId - The ID of the entity to read.
-     * @returns {Promise<T>} A promise resolving to the entity data.
+     * Reads an entity from storage by its ID, parsing it from JSON.
+     * @template T - The specific type of the entity, defaults to IEntity.
+     * @param {EntityId} entityId - The identifier of the entity to read.
+     * @returns {Promise<T>} A promise resolving to the parsed entity data.
      * @throws {Error} If the file is not found (`ENOENT`) or parsing fails.
+     * @example
+     * const entity = await storage.readValue("123");
+     * console.log(entity); // Outputs the entity data
      */
     readValue<T extends IEntity = IEntity>(entityId: EntityId): Promise<T>;
     /**
      * Checks if an entity exists in storage by its ID.
-     * @param {EntityId} entityId - The ID of the entity to check.
-     * @returns {Promise<boolean>} A promise resolving to true if the entity exists, false otherwise.
-     * @throws {Error} If checking existence fails (other than not found).
+     * @param {EntityId} entityId - The identifier of the entity to check.
+     * @returns {Promise<boolean>} A promise resolving to true if the entity exists, false if not.
+     * @throws {Error} If checking existence fails for reasons other than the file not existing.
+     * @example
+     * const exists = await storage.hasValue("123");
+     * console.log(exists); // true or false
      */
     hasValue(entityId: EntityId): Promise<boolean>;
     /**
-     * Writes an entity to storage with the specified ID.
-     * @template T - The type of the entity, defaults to IEntity.
-     * @param {EntityId} entityId - The ID of the entity to write.
-     * @param {T} entity - The entity data to write.
-     * @returns {Promise<void>} A promise that resolves when writing is complete.
-     * @throws {Error} If writing to the file fails.
+     * Writes an entity to storage with the specified ID, serializing it to JSON.
+     * Uses atomic file writing to ensure data integrity.
+     * @template T - The specific type of the entity, defaults to IEntity.
+     * @param {EntityId} entityId - The identifier for the entity.
+     * @param {T} entity - The entity data to persist.
+     * @returns {Promise<void>} A promise that resolves when the write operation is complete.
+     * @throws {Error} If writing to the file system fails.
+     * @example
+     * await storage.writeValue("123", { data: "example" });
+     * // Persists the entity to "123.json"
      */
     writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
     /**
      * Removes an entity from storage by its ID.
-     * @param {EntityId} entityId - The ID of the entity to remove.
-     * @returns {Promise<void>} A promise that resolves when removal is complete.
-     * @throws {Error} If the entity is not found or removal fails.
+     * @param {EntityId} entityId - The identifier of the entity to remove.
+     * @returns {Promise<void>} A promise that resolves when the entity is deleted.
+     * @throws {Error} If the entity is not found or deletion fails.
+     * @example
+     * await storage.removeValue("123");
+     * // Deletes "123.json" from storage
      */
     removeValue(entityId: EntityId): Promise<void>;
     /**
-     * Removes all entities from storage.
+     * Removes all entities from storage under this entity name.
+     * Deletes all `.json` files in the directory.
      * @returns {Promise<void>} A promise that resolves when all entities are removed.
-     * @throws {Error} If reading the directory or removing files fails.
+     * @throws {Error} If reading the directory or deleting files fails.
+     * @example
+     * await storage.removeAll();
+     * // Clears all entities from the storage directory
      */
     removeAll(): Promise<void>;
     /**
      * Iterates over all entities in storage, sorted numerically by ID.
-     * @template T - The type of the entities, defaults to IEntity.
-     * @returns {AsyncGenerator<T>} An async generator yielding entities.
+     * Yields entities in ascending order based on their IDs.
+     * @template T - The specific type of the entities, defaults to IEntity.
+     * @returns {AsyncGenerator<T>} An async generator yielding each entity.
      * @throws {Error} If reading the directory or entity files fails.
+     * @example
+     * for await (const entity of storage.values()) {
+     *   console.log(entity);
+     * }
      */
     values<T extends IEntity = IEntity>(): AsyncGenerator<T>;
     /**
      * Iterates over all entity IDs in storage, sorted numerically.
-     * @returns {AsyncGenerator<EntityId>} An async generator yielding entity IDs.
+     * Yields IDs in ascending order.
+     * @returns {AsyncGenerator<EntityId>} An async generator yielding each entity ID.
      * @throws {Error} If reading the directory fails.
+     * @example
+     * for await (const id of storage.keys()) {
+     *   console.log(id);
+     * }
      */
     keys(): AsyncGenerator<EntityId>;
     /**
      * Implements the async iterator protocol for iterating over entities.
+     * Delegates to the `values` method for iteration.
      * @returns {AsyncIterableIterator<any>} An async iterator yielding entities.
+     * @example
+     * for await (const entity of storage) {
+     *   console.log(entity);
+     * }
      */
     [Symbol.asyncIterator](): AsyncIterableIterator<any>;
     /**
      * Filters entities based on a predicate function.
-     * @template T - The type of the entities, defaults to IEntity.
+     * Yields only entities that pass the predicate test.
+     * @template T - The specific type of the entities, defaults to IEntity.
      * @param {(value: T) => boolean} predicate - A function to test each entity.
-     * @returns {AsyncGenerator<T>} An async generator yielding entities that pass the predicate.
+     * @returns {AsyncGenerator<T>} An async generator yielding filtered entities.
+     * @throws {Error} If reading entities fails during iteration.
+     * @example
+     * for await (const entity of storage.filter(e => e.active)) {
+     *   console.log(entity);
+     * }
      */
     filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<T>;
     /**
      * Takes a limited number of entities, optionally filtered by a predicate.
-     * @template T - The type of the entities, defaults to IEntity.
+     * Stops yielding after reaching the specified total.
+     * @template T - The specific type of the entities, defaults to IEntity.
      * @param {number} total - The maximum number of entities to yield.
-     * @param {(value: T) => boolean} [predicate] - Optional function to filter entities.
+     * @param {(value: T) => boolean} [predicate] - Optional function to filter entities before counting.
      * @returns {AsyncGenerator<T>} An async generator yielding up to `total` entities.
+     * @throws {Error} If reading entities fails during iteration.
+     * @example
+     * for await (const entity of storage.take(5)) {
+     *   console.log(entity);
+     * }
      */
     take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<T>;
 }
 /**
  * Extends PersistBase to provide a persistent list structure with push/pop operations.
+ * Manages entities with numeric keys for ordered access.
  * @template EntityName - The type of entity name, defaults to string.
  * @extends {PersistBase<EntityName>}
  */
@@ -1628,50 +1686,63 @@ declare class PersistList<EntityName extends string = string> extends PersistBas
     /** @private Tracks the last used numeric key for the list, null until initialized */
     _lastCount: number | null;
     /**
-     * Creates a new PersistList instance for managing a persistent list.
-     * @param {EntityName} entityName - The name of the entity type (used as a subdirectory).
-     * @param {string} [baseDir] - The base directory for storing list files (defaults to parent class).
+     * Creates a new PersistList instance for managing a persistent list of entities.
+     * @param {EntityName} entityName - The name of the entity type, used as a subdirectory for storage.
+     * @param {string} [baseDir] - The base directory for storing list files; defaults to parent class if omitted.
+     * @example
+     * const list = new PersistList("queue");
+     * // Creates a persistent list for "queue" in "./logs/data/queue"
      */
     constructor(entityName: EntityName, baseDir?: string);
     /**
      * Queued function to create a new unique key for a list item.
      * Ensures sequential key generation even under concurrent calls.
      * @returns {Promise<string>} A promise resolving to the new key as a string.
+     * @throws {Error} If key generation fails due to underlying storage issues.
      * @private
      */
     private [LIST_CREATE_KEY_SYMBOL];
     /**
      * Retrieves the key of the last item in the list.
      * @returns {Promise<string | null>} A promise resolving to the last key or null if the list is empty.
+     * @throws {Error} If key retrieval fails due to underlying storage issues.
      * @private
      */
     private [LIST_GET_LAST_KEY_SYMBOL];
     /**
      * Queued function to remove and return the last item in the list.
      * Ensures atomic pop operations under concurrent calls.
-     * @template T - The type of the entity, defaults to IEntity.
+     * @template T - The specific type of the entity, defaults to IEntity.
      * @returns {Promise<T | null>} A promise resolving to the removed item or null if the list is empty.
+     * @throws {Error} If reading or removing the item fails.
      * @private
      */
     private [LIST_POP_SYMBOL];
     /**
-     * Adds an entity to the end of the persistent list with a new unique key.
-     * @template T - The type of the entity, defaults to IEntity.
-     * @param {T} entity - The entity to add to the list.
+     * Adds an entity to the end of the persistent list with a new unique numeric key.
+     * @template T - The specific type of the entity, defaults to IEntity.
+     * @param {T} entity - The entity to append to the list.
      * @returns {Promise<void>} A promise that resolves when the entity is written.
-     * @throws {Error} If writing to the file fails.
+     * @throws {Error} If writing to the file system fails.
+     * @example
+     * await list.push({ task: "example" });
+     * // Adds the entity to the list with the next numeric key
      */
     push<T extends IEntity = IEntity>(entity: T): Promise<void>;
     /**
      * Removes and returns the last entity from the persistent list.
-     * @template T - The type of the entity, defaults to IEntity.
+     * @template T - The specific type of the entity, defaults to IEntity.
      * @returns {Promise<T | null>} A promise resolving to the removed entity or null if the list is empty.
      * @throws {Error} If reading or removing the entity fails.
+     * @example
+     * const entity = await list.pop();
+     * console.log(entity); // Outputs the last entity or null
      */
     pop<T extends IEntity = IEntity>(): Promise<T | null>;
 }
 /**
  * Interface for data stored in active agent persistence.
+ * @interface IPersistActiveAgentData
  */
 interface IPersistActiveAgentData {
     /** The name of the active agent */
@@ -1679,6 +1750,7 @@ interface IPersistActiveAgentData {
 }
 /**
  * Interface for data stored in navigation stack persistence.
+ * @interface IPersistNavigationStackData
  */
 interface IPersistNavigationStackData {
     /** The stack of agent names representing navigation history */
@@ -1686,21 +1758,28 @@ interface IPersistNavigationStackData {
 }
 /**
  * Interface defining control methods for swarm persistence operations.
+ * Allows customization of persistence adapters for active agents and navigation stacks.
+ * @interface IPersistSwarmControl
  */
 interface IPersistSwarmControl {
     /**
      * Sets a custom persistence adapter for active agent storage.
-     * @param {TPersistBaseCtor<SwarmName, IPersistActiveAgentData>} Ctor - The constructor for active agent persistence.
+     * @param {TPersistBaseCtor<SwarmName, IPersistActiveAgentData>} Ctor - The constructor for the active agent persistence adapter.
+     * @example
+     * PersistSwarm.usePersistActiveAgentAdapter(CustomPersistBase);
      */
     usePersistActiveAgentAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>): void;
     /**
      * Sets a custom persistence adapter for navigation stack storage.
-     * @param {TPersistBaseCtor<SwarmName, IPersistNavigationStackData>} Ctor - The constructor for navigation stack persistence.
+     * @param {TPersistBaseCtor<SwarmName, IPersistNavigationStackData>} Ctor - The constructor for the navigation stack persistence adapter.
+     * @example
+     * PersistSwarm.usePersistNavigationStackAdapter(CustomPersistBase);
      */
     usePersistNavigationStackAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>): void;
 }
 /**
- * Utility class for managing swarm-related persistence (active agents and navigation stacks).
+ * Utility class for managing swarm-related persistence, including active agents and navigation stacks.
+ * Provides methods to get/set active agents and navigation stacks per client and swarm.
  * @implements {IPersistSwarmControl}
  */
 declare class PersistSwarmUtils implements IPersistSwarmControl {
@@ -1710,72 +1789,96 @@ declare class PersistSwarmUtils implements IPersistSwarmControl {
     private PersistNavigationStackFactory;
     /**
      * Memoized function to create or retrieve storage for active agents.
+     * Ensures a single instance per swarm name.
      * @param {SwarmName} swarmName - The name of the swarm.
      * @returns {IPersistBase<IPersistActiveAgentData>} A persistence instance for active agents.
      * @private
      */
     private getActiveAgentStorage;
     /**
-     * Sets a custom constructor for active agent persistence.
-     * @param {TPersistBaseCtor<SwarmName, IPersistActiveAgentData>} Ctor - The constructor to use.
+     * Sets a custom constructor for active agent persistence, overriding the default PersistBase.
+     * @param {TPersistBaseCtor<SwarmName, IPersistActiveAgentData>} Ctor - The constructor to use for active agent storage.
+     * @example
+     * const utils = new PersistSwarmUtils();
+     * utils.usePersistActiveAgentAdapter(CustomPersistBase);
      */
     usePersistActiveAgentAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>): void;
     /**
-     * Sets a custom constructor for navigation stack persistence.
-     * @param {TPersistBaseCtor<SwarmName, IPersistNavigationStackData>} Ctor - The constructor to use.
+     * Sets a custom constructor for navigation stack persistence, overriding the default PersistBase.
+     * @param {TPersistBaseCtor<SwarmName, IPersistNavigationStackData>} Ctor - The constructor to use for navigation stack storage.
+     * @example
+     * const utils = new PersistSwarmUtils();
+     * utils.usePersistNavigationStackAdapter(CustomPersistBase);
      */
     usePersistNavigationStackAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>): void;
     /**
      * Memoized function to create or retrieve storage for navigation stacks.
+     * Ensures a single instance per swarm name.
      * @param {SwarmName} swarmName - The name of the swarm.
      * @returns {IPersistBase<IPersistNavigationStackData>} A persistence instance for navigation stacks.
      * @private
      */
     private getNavigationStackStorage;
     /**
-     * Retrieves the active agent for a client in a swarm.
-     * @param {string} clientId - The client identifier.
+     * Retrieves the active agent for a client within a swarm, falling back to a default if not set.
+     * @param {string} clientId - The identifier of the client.
      * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {AgentName} defaultAgent - The default agent name to return if none is set.
-     * @returns {Promise<AgentName>} A promise resolving to the active agent name.
+     * @param {AgentName} defaultAgent - The default agent name to return if no active agent is found.
+     * @returns {Promise<AgentName>} A promise resolving to the active agent’s name.
      * @throws {Error} If reading from storage fails.
+     * @example
+     * const agent = await PersistSwarmAdapter.getActiveAgent("client1", "swarm1", "defaultAgent");
+     * console.log(agent); // Outputs the active agent or "defaultAgent"
      */
     getActiveAgent: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
     /**
-     * Sets the active agent for a client in a swarm.
-     * @param {string} clientId - The client identifier.
+     * Sets the active agent for a client within a swarm.
+     * @param {string} clientId - The identifier of the client.
      * @param {AgentName} agentName - The name of the agent to set as active.
      * @param {SwarmName} swarmName - The name of the swarm.
-     * @returns {Promise<void>} A promise that resolves when the active agent is written.
+     * @returns {Promise<void>} A promise that resolves when the active agent is persisted.
      * @throws {Error} If writing to storage fails.
+     * @example
+     * await PersistSwarmAdapter.setActiveAgent("client1", "agent1", "swarm1");
+     * // Sets "agent1" as the active agent for "client1" in "swarm1"
      */
     setActiveAgent: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
     /**
-     * Retrieves the navigation stack for a client in a swarm.
-     * @param {string} clientId - The client identifier.
+     * Retrieves the navigation stack for a client within a swarm.
+     * Returns an empty array if no stack is set.
+     * @param {string} clientId - The identifier of the client.
      * @param {SwarmName} swarmName - The name of the swarm.
      * @returns {Promise<AgentName[]>} A promise resolving to the navigation stack (array of agent names).
      * @throws {Error} If reading from storage fails.
+     * @example
+     * const stack = await PersistSwarmAdapter.getNavigationStack("client1", "swarm1");
+     * console.log(stack); // Outputs the navigation stack or []
      */
     getNavigationStack: (clientId: string, swarmName: SwarmName) => Promise<AgentName[]>;
     /**
-     * Sets the navigation stack for a client in a swarm.
-     * @param {string} clientId - The client identifier.
-     * @param {AgentName[]} agentStack - The navigation stack (array of agent names) to set.
+     * Sets the navigation stack for a client within a swarm.
+     * @param {string} clientId - The identifier of the client.
+     * @param {AgentName[]} agentStack - The navigation stack (array of agent names) to persist.
      * @param {SwarmName} swarmName - The name of the swarm.
-     * @returns {Promise<void>} A promise that resolves when the navigation stack is written.
+     * @returns {Promise<void>} A promise that resolves when the navigation stack is persisted.
      * @throws {Error} If writing to storage fails.
+     * @example
+     * await PersistSwarmAdapter.setNavigationStack("client1", ["agent1", "agent2"], "swarm1");
+     * // Sets the navigation stack for "client1" in "swarm1"
      */
     setNavigationStack: (clientId: string, agentStack: AgentName[], swarmName: SwarmName) => Promise<void>;
 }
 /**
  * Exported singleton for swarm persistence operations, cast as the control interface.
+ * Provides a global point of access for swarm persistence utilities.
  * @type {IPersistSwarmControl}
  */
 declare const PersistSwarm: IPersistSwarmControl;
 /**
  * Interface for state data persistence.
+ * Wraps state data for storage in a structured format.
  * @template T - The type of the state data, defaults to unknown.
+ * @interface IPersistStateData
  */
 interface IPersistStateData<T = unknown> {
     /** The state data to persist */
@@ -1783,16 +1886,21 @@ interface IPersistStateData<T = unknown> {
 }
 /**
  * Interface defining control methods for state persistence operations.
+ * Allows customization of the persistence adapter for states.
+ * @interface IPersistStateControl
  */
 interface IPersistStateControl {
     /**
      * Sets a custom persistence adapter for state storage.
-     * @param {TPersistBaseCtor<StorageName, IPersistStateData>} Ctor - The constructor for state persistence.
+     * @param {TPersistBaseCtor<StorageName, IPersistStateData>} Ctor - The constructor for the state persistence adapter.
+     * @example
+     * PersistState.usePersistStateAdapter(CustomPersistBase);
      */
     usePersistStateAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStateData>): void;
 }
 /**
- * Utility class for managing state persistence.
+ * Utility class for managing state persistence per client and state name.
+ * Provides methods to get/set state data with a customizable persistence adapter.
  * @implements {IPersistStateControl}
  */
 declare class PersistStateUtils implements IPersistStateControl {
@@ -1800,45 +1908,59 @@ declare class PersistStateUtils implements IPersistStateControl {
     private PersistStateFactory;
     /**
      * Memoized function to create or retrieve storage for a specific state.
+     * Ensures a single instance per state name.
      * @param {StateName} stateName - The name of the state.
      * @returns {IPersistBase<IPersistStateData>} A persistence instance for the state.
      * @private
      */
     private getStateStorage;
     /**
-     * Sets a custom constructor for state persistence.
-     * @param {TPersistBaseCtor<StorageName, IPersistStateData>} Ctor - The constructor to use.
+     * Sets a custom constructor for state persistence, overriding the default PersistBase.
+     * @param {TPersistBaseCtor<StorageName, IPersistStateData>} Ctor - The constructor to use for state storage.
+     * @example
+     * const utils = new PersistStateUtils();
+     * utils.usePersistStateAdapter(CustomPersistBase);
      */
     usePersistStateAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStateData>): void;
     /**
      * Sets the state for a client under a specific state name.
-     * @template T - The type of the state data, defaults to unknown.
+     * Persists the state data wrapped in an IPersistStateData structure.
+     * @template T - The specific type of the state data, defaults to unknown.
      * @param {T} state - The state data to persist.
-     * @param {string} clientId - The client identifier.
+     * @param {string} clientId - The identifier of the client.
      * @param {StateName} stateName - The name of the state.
-     * @returns {Promise<void>} A promise that resolves when the state is written.
+     * @returns {Promise<void>} A promise that resolves when the state is persisted.
      * @throws {Error} If writing to storage fails.
+     * @example
+     * await PersistStateAdapter.setState({ count: 1 }, "client1", "counter");
+     * // Persists the state for "client1" under "counter"
      */
     setState: <T = unknown>(state: T, clientId: string, stateName: StateName) => Promise<void>;
     /**
-     * Retrieves the state for a client under a specific state name.
-     * @template T - The type of the state data, defaults to unknown.
-     * @param {string} clientId - The client identifier.
+     * Retrieves the state for a client under a specific state name, falling back to a default if not set.
+     * @template T - The specific type of the state data, defaults to unknown.
+     * @param {string} clientId - The identifier of the client.
      * @param {StateName} stateName - The name of the state.
-     * @param {T} defaultState - The default state to return if none is set.
+     * @param {T} defaultState - The default state to return if no state is found.
      * @returns {Promise<T>} A promise resolving to the state data.
      * @throws {Error} If reading from storage fails.
+     * @example
+     * const state = await PersistStateAdapter.getState("client1", "counter", { count: 0 });
+     * console.log(state); // Outputs the state or { count: 0 }
      */
     getState: <T = unknown>(clientId: string, stateName: StateName, defaultState: T) => Promise<T>;
 }
 /**
  * Exported singleton for state persistence operations, cast as the control interface.
+ * Provides a global point of access for state persistence utilities.
  * @type {IPersistStateControl}
  */
 declare const PersistState: IPersistStateControl;
 /**
  * Interface for storage data persistence.
+ * Wraps an array of storage data for persistence.
  * @template T - The type of storage data, defaults to IStorageData.
+ * @interface IPersistStorageData
  */
 interface IPersistStorageData<T extends IStorageData = IStorageData> {
     /** The array of storage data to persist */
@@ -1846,16 +1968,21 @@ interface IPersistStorageData<T extends IStorageData = IStorageData> {
 }
 /**
  * Interface defining control methods for storage persistence operations.
+ * Allows customization of the persistence adapter for storage.
+ * @interface IPersistStorageControl
  */
 interface IPersistStorageControl {
     /**
      * Sets a custom persistence adapter for storage.
-     * @param {TPersistBaseCtor<StorageName, IPersistStorageData>} Ctor - The constructor for storage persistence.
+     * @param {TPersistBaseCtor<StorageName, IPersistStorageData>} Ctor - The constructor for the storage persistence adapter.
+     * @example
+     * PersistStorage.usePersistStorageAdapter(CustomPersistBase);
      */
     usePersistStorageAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>): void;
 }
 /**
- * Utility class for managing storage persistence.
+ * Utility class for managing storage persistence per client and storage name.
+ * Provides methods to get/set storage data with a customizable persistence adapter.
  * @implements {IPersistStorageControl}
  */
 declare class PersistStorageUtils implements IPersistStorageControl {
@@ -1863,57 +1990,142 @@ declare class PersistStorageUtils implements IPersistStorageControl {
     private PersistStorageFactory;
     /**
      * Memoized function to create or retrieve storage for a specific storage name.
+     * Ensures a single instance per storage name.
      * @param {StorageName} storageName - The name of the storage.
      * @returns {IPersistBase<IPersistStorageData>} A persistence instance for the storage.
      * @private
      */
     private getPersistStorage;
     /**
-     * Sets a custom constructor for storage persistence.
-     * @param {TPersistBaseCtor<StorageName, IPersistStorageData>} Ctor - The constructor to use.
+     * Sets a custom constructor for storage persistence, overriding the default PersistBase.
+     * @param {TPersistBaseCtor<StorageName, IPersistStorageData>} Ctor - The constructor to use for storage.
+     * @example
+     * const utils = new PersistStorageUtils();
+     * utils.usePersistStorageAdapter(CustomPersistBase);
      */
     usePersistStorageAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>): void;
     /**
-     * Retrieves the data for a client from a specific storage.
-     * @template T - The type of the storage data, defaults to IStorageData.
-     * @param {string} clientId - The client identifier.
+     * Retrieves the data for a client from a specific storage, falling back to a default if not set.
+     * @template T - The specific type of the storage data, defaults to IStorageData.
+     * @param {string} clientId - The identifier of the client.
      * @param {StorageName} storageName - The name of the storage.
-     * @param {T[]} defaultValue - The default value to return if no data is set.
+     * @param {T[]} defaultValue - The default value to return if no data is found.
      * @returns {Promise<T[]>} A promise resolving to the storage data array.
      * @throws {Error} If reading from storage fails.
+     * @example
+     * const data = await PersistStorageAdapter.getData("client1", "logs", []);
+     * console.log(data); // Outputs the stored data or []
      */
     getData: <T extends IStorageData = IStorageData>(clientId: string, storageName: StorageName, defaultValue: T[]) => Promise<T[]>;
     /**
      * Sets the data for a client in a specific storage.
-     * @template T - The type of the storage data, defaults to IStorageData.
+     * Persists the data wrapped in an IPersistStorageData structure.
+     * @template T - The specific type of the storage data, defaults to IStorageData.
      * @param {T[]} data - The array of data to persist.
-     * @param {string} clientId - The client identifier.
+     * @param {string} clientId - The identifier of the client.
      * @param {StorageName} storageName - The name of the storage.
-     * @returns {Promise<void>} A promise that resolves when the data is written.
+     * @returns {Promise<void>} A promise that resolves when the data is persisted.
      * @throws {Error} If writing to storage fails.
+     * @example
+     * await PersistStorageAdapter.setData([{ id: 1 }], "client1", "logs");
+     * // Persists the data for "client1" under "logs"
      */
     setData: <T extends IStorageData = IStorageData>(data: T[], clientId: string, storageName: StorageName) => Promise<void>;
 }
 /**
  * Exported singleton for storage persistence operations, cast as the control interface.
+ * Provides a global point of access for storage persistence utilities.
  * @type {IPersistStorageControl}
  */
 declare const PersistStorage: IPersistStorageControl;
+/**
+ * Interface for memory data persistence.
+ * Wraps memory data for storage in a structured format.
+ * @template T - The type of the memory data, defaults to unknown.
+ * @interface IPersistMemoryData
+ */
 interface IPersistMemoryData<T = unknown> {
-    /** The state data to persist */
+    /** The memory data to persist */
     data: T;
 }
+/**
+ * Interface defining control methods for memory persistence operations.
+ * Allows customization of the persistence adapter for memory.
+ * @interface IPersistMemoryControl
+ */
 interface IPersistMemoryControl {
+    /**
+     * Sets a custom persistence adapter for memory storage.
+     * @param {TPersistBaseCtor<StorageName, IPersistMemoryData>} Ctor - The constructor for the memory persistence adapter.
+     * @example
+     * PersistMemory.usePersistMemoryAdapter(CustomPersistBase);
+     */
     usePersistMemoryAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistMemoryData>): void;
 }
+/**
+ * Utility class for managing memory persistence per client.
+ * Provides methods to get/set memory data with a customizable persistence adapter.
+ * @implements {IPersistMemoryControl}
+ */
 declare class PersistMemoryUtils implements IPersistMemoryControl {
+    /** @private Default constructor for memory persistence, defaults to PersistBase */
     private PersistMemoryFactory;
+    /**
+     * Memoized function to create or retrieve storage for a specific client’s memory.
+     * Ensures a single instance per client ID.
+     * @param {SessionId} clientId - The identifier of the client (session ID).
+     * @returns {IPersistBase<IPersistMemoryData>} A persistence instance for the memory.
+     * @private
+     */
     private getMemoryStorage;
+    /**
+     * Sets a custom constructor for memory persistence, overriding the default PersistBase.
+     * @param {TPersistBaseCtor<SessionId, IPersistMemoryData>} Ctor - The constructor to use for memory storage.
+     * @example
+     * const utils = new PersistMemoryUtils();
+     * utils.usePersistMemoryAdapter(CustomPersistBase);
+     */
     usePersistMemoryAdapter(Ctor: TPersistBaseCtor<SessionId, IPersistMemoryData>): void;
+    /**
+     * Sets the memory data for a client.
+     * Persists the data wrapped in an IPersistMemoryData structure.
+     * @template T - The specific type of the memory data, defaults to unknown.
+     * @param {T} data - The memory data to persist.
+     * @param {string} clientId - The identifier of the client (session ID).
+     * @returns {Promise<void>} A promise that resolves when the memory is persisted.
+     * @throws {Error} If writing to storage fails.
+     * @example
+     * await PersistMemoryAdapter.setMemory({ key: "value" }, "client1");
+     * // Persists memory for "client1"
+     */
     setMemory: <T = unknown>(data: T, clientId: string) => Promise<void>;
+    /**
+     * Retrieves the memory data for a client, falling back to a default if not set.
+     * @template T - The specific type of the memory data, defaults to unknown.
+     * @param {string} clientId - The identifier of the client (session ID).
+     * @param {T} defaultState - The default memory data to return if none is found.
+     * @returns {Promise<T>} A promise resolving to the memory data.
+     * @throws {Error} If reading from storage fails.
+     * @example
+     * const memory = await PersistMemoryAdapter.getMemory("client1", {});
+     * console.log(memory); // Outputs the memory data or {}
+     */
     getMemory: <T = unknown>(clientId: string, defaultState: T) => Promise<T>;
+    /**
+     * Disposes of the memory storage for a client by clearing its memoized instance.
+     * @param {string} clientId - The identifier of the client (session ID).
+     * @returns {Promise<void>} A promise that resolves when the disposal is complete.
+     * @example
+     * await PersistMemoryAdapter.dispose("client1");
+     * // Clears the memory storage instance for "client1"
+     */
     dispose(clientId: string): Promise<void>;
 }
+/**
+ * Exported singleton for memory persistence operations, cast as the control interface.
+ * Provides a global point of access for memory persistence utilities.
+ * @type {IPersistMemoryControl}
+ */
 declare const PersistMemory: IPersistMemoryControl;
 
 /**
@@ -9215,61 +9427,357 @@ declare class LoggerInstance implements ILoggerInstance {
 declare const Logger: ILoggerControl;
 
 /**
- * Global configuration object defining default settings and behaviors for the swarm system.
- * Centralizes constants and functions used across components like ClientAgent (e.g., tool handling, logging, history), customizable via setConfig.
- * Influences workflows such as message processing (e.g., CC_EMPTY_OUTPUT_PLACEHOLDERS in RUN_FN), tool call recovery (e.g., CC_RESQUE_STRATEGY in _resurrectModel), and logging (e.g., CC_LOGGER_ENABLE_DEBUG).
- * @type {typeof GLOBAL_CONFIG}
+ * Interface defining the global configuration settings and behaviors for the swarm system.
+ * Centralizes constants and functions used across components like `ClientAgent` (e.g., tool handling, logging, history).
+ * Influences workflows such as message processing (`CC_EMPTY_OUTPUT_PLACEHOLDERS` in `RUN_FN`), tool call recovery (`CC_RESQUE_STRATEGY` in `_resurrectModel`), and logging (`CC_LOGGER_ENABLE_DEBUG`).
+ * Customizable via `setConfig` to adapt system behavior dynamically.
  */
-declare const GLOBAL_CONFIG: {
+interface IGlobalConfig {
+    /**
+     * A prompt used to flush the conversation when tool call exceptions occur, specifically for troubleshooting in `llama3.1:8b` models.
+     * Applied in `ClientAgent._resurrectModel` with the "flush" strategy to reset the conversation state. Requires `CC_OLLAMA_EMIT_TOOL_PROTOCOL` to be disabled.
+     * @type {string}
+     */
     CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT: string;
+    /**
+     * A multi-line prompt to recomplete invalid tool calls, designed as a fix for intermittent issues in `IlyaGusev/saiga_yandexgpt_8b_gguf` (LMStudio).
+     * Used in `ClientAgent.getCompletion` with the "recomplete" strategy, instructing the model to analyze, correct, and explain tool call errors.
+     * @type {string}
+     */
     CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT: string;
+    /**
+     * An array of placeholder responses for empty model outputs, used in `ClientAgent.createPlaceholder` to greet or prompt the user.
+     * Randomly selected in `ClientAgent._resurrectModel` or `RUN_FN` when output is empty, enhancing user experience by avoiding silent failures.
+     * @type {string[]}
+     */
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
+    /**
+     * Maximum number of messages to retain in history, used indirectly in `ClientAgent.history` management.
+     * Limits history to 15 messages, though not explicitly enforced in provided `ClientAgent` code.
+     * @type {number}
+     */
     CC_KEEP_MESSAGES: number;
+    /**
+     * Maximum number of tool calls allowed per execution, used in `ClientAgent.EXECUTE_FN` to cap `toolCalls`.
+     * Limits to 1 tool call by default, preventing excessive tool invocation loops in a single run.
+     * @type {number}
+     */
     CC_MAX_TOOL_CALLS: number;
+    /**
+     * Function to map tool calls for an agent, used in `ClientAgent.mapToolCalls` (e.g., `EXECUTE_FN`).
+     * Default implementation returns tools unchanged, allowing customization of `IToolCall` processing via `setConfig`.
+     * @param {IToolCall[]} tool - The array of tool calls from the model.
+     * @param {string} clientId - The client ID invoking the tools.
+     * @param {AgentName} agentName - The agent name processing the tools.
+     * @returns {IToolCall[] | Promise<IToolCall[]>} The mapped tool calls, synchronously or asynchronously.
+     * @example
+     * setConfig({
+     *   CC_AGENT_MAP_TOOLS: async (tools, clientId, agentName) => tools.map(t => ({ ...t, clientId }))
+     * });
+     */
     CC_AGENT_MAP_TOOLS: (tool: IToolCall[], clientId: string, agentName: AgentName) => IToolCall[] | Promise<IToolCall[]>;
+    /**
+     * Factory function to provide a history adapter for an agent, used in `ClientAgent.history` (e.g., `getCompletion`).
+     * Returns `HistoryAdapter` by default, implementing `IHistoryAdapter` for message storage and retrieval.
+     * @param {string} clientId - The client ID needing history.
+     * @param {AgentName} agentName - The agent name requiring history.
+     * @returns {IHistoryAdapter} The history adapter instance.
+     * @example
+     * setConfig({
+     *   CC_GET_AGENT_HISTORY_ADAPTER: () => CustomHistoryAdapter
+     * });
+     */
     CC_GET_AGENT_HISTORY_ADAPTER: (clientId: string, agentName: AgentName) => IHistoryAdapter;
+    /**
+     * Factory function to provide a logger adapter for clients, used in `ClientAgent.logger` (e.g., debug logging).
+     * Returns `LoggerAdapter` by default, implementing `ILoggerAdapter` for logging control across the system.
+     * @returns {ILoggerAdapter} The logger adapter instance.
+     * @example
+     * setConfig({
+     *   CC_GET_CLIENT_LOGGER_ADAPTER: () => CustomLoggerAdapter
+     * });
+     */
     CC_GET_CLIENT_LOGGER_ADAPTER: () => ILoggerAdapter;
+    /**
+     * Callback function triggered when the active agent changes in a swarm, used in swarm-related logic (e.g., `ISwarmParams`).
+     * Default implementation is a no-op, observed indirectly in `ClientAgent.commitAgentChange` via `IBus.emit "commit-agent-change"`.
+     * @param {string} clientId - The client ID affected by the change.
+     * @param {AgentName} agentName - The new active agent’s name.
+     * @param {SwarmName} swarmName - The swarm where the change occurs.
+     * @returns {Promise<void>} A promise resolving when the change is processed.
+     * @example
+     * setConfig({
+     *   CC_SWARM_AGENT_CHANGED: async (clientId, agentName, swarmName) => {
+     *     console.log(`${agentName} is now active for ${clientId} in ${swarmName}`);
+     *   }
+     * });
+     */
     CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Function to determine the default agent for a swarm, used in swarm initialization (e.g., `ISwarmParams`).
+     * Default implementation returns the provided `defaultAgent`, aligning with swarm-agent hierarchy logic, though not directly observed in `ClientAgent`.
+     * @param {string} clientId - The client ID requesting the default agent.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @param {AgentName} defaultAgent - The fallback agent name.
+     * @returns {Promise<AgentName>} A promise resolving to the default agent’s name.
+     * @example
+     * setConfig({
+     *   CC_SWARM_DEFAULT_AGENT: async (clientId, swarmName) => "customAgent"
+     * });
+     */
     CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
+    /**
+     * Function to provide the default navigation stack for a swarm, used in `ISwarmParams` initialization.
+     * Default implementation returns an empty array, part of swarm navigation setup, though not directly used in `ClientAgent`.
+     * @param {string} clientId - The client ID requesting the stack.
+     * @param {SwarmName} swarmName - The swarm name.
+     * @returns {Promise<AgentName[]>} A promise resolving to the default stack (empty by default).
+     * @example
+     * setConfig({
+     *   CC_SWARM_DEFAULT_STACK: async () => ["initialAgent"]
+     * });
+     */
     CC_SWARM_DEFAULT_STACK: (clientId: string, swarmName: SwarmName) => Promise<AgentName[]>;
+    /**
+     * Callback function triggered when the navigation stack changes in a swarm, used in `ISwarmParams` (e.g., `navigationPop`).
+     * Default implementation is a no-op, indirectly related to `ClientAgent.commitAgentChange` for stack updates.
+     * @param {string} clientId - The client ID affected by the stack change.
+     * @param {AgentName[]} navigationStack - The updated stack of agent names.
+     * @param {SwarmName} swarmName - The swarm where the change occurs.
+     * @returns {Promise<void>} A promise resolving when the stack update is processed.
+     * @example
+     * setConfig({
+     *   CC_SWARM_STACK_CHANGED: async (clientId, stack, swarmName) => {
+     *     console.log(`Stack updated for ${clientId} in ${swarmName}: ${stack}`);
+     *   }
+     * });
+     */
     CC_SWARM_STACK_CHANGED: (clientId: string, navigationStack: AgentName[], swarmName: SwarmName) => Promise<void>;
-    CC_AGENT_DEFAULT_VALIDATION: (output: string) => Promise<string | null>;
+    /**
+     * Default validation function for agent outputs, used in `ClientAgent.validate` (e.g., `RUN_FN`, `EXECUTE_FN`).
+     * Imported from `validateDefault`, returns null if valid or an error string if invalid, ensuring output correctness.
+     * @type {typeof validateDefault}
+     */
+    CC_AGENT_DEFAULT_VALIDATION: (output: string) => string | null | Promise<string | null>;
+    /**
+     * Filter function for agent history, used in `ClientAgent.history.toArrayForAgent` to scope messages.
+     * Ensures only relevant messages (e.g., matching `agentName` for "tool" or `tool_calls`) are included in completions.
+     * @param {AgentName} agentName - The agent name to filter by.
+     * @returns {(message: IModelMessage) => boolean} A predicate function to filter `IModelMessage` objects.
+     * @example
+     * const filter = CC_AGENT_HISTORY_FILTER("agent1");
+     * const isRelevant = filter({ role: "tool", agentName: "agent1" }); // true
+     */
     CC_AGENT_HISTORY_FILTER: (agentName: AgentName) => (message: IModelMessage) => boolean;
-    CC_AGENT_OUTPUT_TRANSFORM: (input: string) => string;
+    /**
+     * Default transformation function for agent outputs, used in `ClientAgent.transform` (e.g., `RUN_FN`, `_emitOutput`).
+     * Removes XML tags via `removeXmlTags` based on `CC_AGENT_DISALLOWED_TAGS` to clean responses for consistency.
+     * @type {typeof removeXmlTags}
+     */
+    CC_AGENT_OUTPUT_TRANSFORM: (input: string, clientId: string, agentName: AgentName) => Promise<string> | string;
+    /**
+     * Function to map model messages for agent output, used in `ClientAgent.map` (e.g., `RUN_FN`, `EXECUTE_FN`).
+     * Default implementation returns the message unchanged, allowing customization of `IModelMessage` via `setConfig`.
+     * @param {IModelMessage} message - The raw model message to map.
+     * @returns {IModelMessage | Promise<IModelMessage>} The mapped message, synchronously or asynchronously.
+     * @example
+     * setConfig({
+     *   CC_AGENT_OUTPUT_MAP: async (msg) => ({ ...msg, content: msg.content.toUpperCase() })
+     * });
+     */
     CC_AGENT_OUTPUT_MAP: (message: IModelMessage) => IModelMessage | Promise<IModelMessage>;
-    CC_AGENT_SYSTEM_PROMPT: string[];
+    /**
+     * Optional system prompt for agents, used in `ClientAgent.history.toArrayForAgent` (e.g., `getCompletion`).
+     * Undefined by default, allowing optional agent-specific instructions to be added to history via `setConfig`.
+     * @type {string[] | undefined}
+     */
+    CC_AGENT_SYSTEM_PROMPT: string[] | undefined;
+    /**
+     * Array of XML tags disallowed in agent outputs, used with `CC_AGENT_OUTPUT_TRANSFORM` in `ClientAgent.transform`.
+     * Filters out tags like "tool_call" via `removeXmlTags` in `RUN_FN` to clean responses for downstream processing.
+     * @type {string[]}
+     */
     CC_AGENT_DISALLOWED_TAGS: string[];
+    /**
+     * Array of symbols disallowed in agent outputs, potentially used in validation or transformation logic.
+     * Includes curly braces, suggesting filtering of JSON-like structures, though not directly observed in `ClientAgent`.
+     * @type {string[]}
+     */
     CC_AGENT_DISALLOWED_SYMBOLS: string[];
+    /**
+     * Similarity threshold for storage searches, used in `IStorage.take` for similarity-based retrieval.
+     * Set to 0.65, defining the minimum similarity score for search results, though not directly in `ClientAgent`.
+     * @type {number}
+     */
     CC_STORAGE_SEARCH_SIMILARITY: number;
+    /**
+     * Maximum number of results for storage searches, used in `IStorage.take` to limit retrieval.
+     * Caps search pool at 5 items by default, though not directly observed in `ClientAgent`.
+     * @type {number}
+     */
     CC_STORAGE_SEARCH_POOL: number;
+    /**
+     * Flag to enable info-level logging, used in `ClientAgent.logger` for informational logs.
+     * Disabled by default (false), controlling verbosity of `ILoggerAdapter` logs.
+     * @type {boolean}
+     */
     CC_LOGGER_ENABLE_INFO: boolean;
+    /**
+     * Flag to enable debug-level logging, used extensively in `ClientAgent.logger.debug` (e.g., `RUN_FN`, `EXECUTE_FN`).
+     * Disabled by default (false), gating detailed debug output in `ILoggerAdapter`.
+     * @type {boolean}
+     */
     CC_LOGGER_ENABLE_DEBUG: boolean;
+    /**
+     * Flag to enable general logging, used in `ClientAgent.logger` for basic log output.
+     * Enabled by default (true), ensuring core logging functionality in `ILoggerAdapter`.
+     * @type {boolean}
+     */
     CC_LOGGER_ENABLE_LOG: boolean;
+    /**
+     * Flag to enable console logging, used in `ClientAgent.logger` for direct console output.
+     * Disabled by default (false), allowing logs to be redirected via `ILoggerAdapter`.
+     * @type {boolean}
+     */
     CC_LOGGER_ENABLE_CONSOLE: boolean;
+    /**
+     * Strategy for handling model resurrection, used in `ClientAgent._resurrectModel` and `getCompletion`.
+     * Options: "flush" (reset conversation), "recomplete" (retry tool calls), "custom" (user-defined); determines recovery approach for invalid outputs or tool calls.
+     * @type {"flush" | "recomplete" | "custom"}
+     */
     CC_RESQUE_STRATEGY: "flush" | "recomplete" | "custom";
+    /**
+     * Utility function to convert names to title case, used for UI or logging readability.
+     * Imported from `nameToTitle`, enhancing presentation of agent or swarm names, though not directly in `ClientAgent`.
+     * @type {typeof nameToTitle}
+     */
     CC_NAME_TO_TITLE: (name: string) => string;
+    /**
+     * Function to process PlantUML diagrams, potentially for visualization purposes.
+     * Default returns an empty string, allowing custom UML rendering logic via `setConfig`, though not directly in `ClientAgent`.
+     * @param {string} uml - The UML string to process.
+     * @returns {Promise<string>} A promise resolving to the processed UML output.
+     * @example
+     * setConfig({
+     *   CC_FN_PLANTUML: async (uml) => `Processed: ${uml}`
+     * });
+     */
     CC_FN_PLANTUML: (uml: string) => Promise<string>;
+    /**
+     * Unique identifier for the current process, used system-wide for tracking or logging.
+     * Generated via `randomString`, providing a process-specific UUID, though not directly in `ClientAgent`.
+     * @type {string}
+     */
     CC_PROCESS_UUID: string;
+    /**
+     * Placeholder response for banned topics or actions, used in `IPolicy.banClient` enforcement.
+     * Indicates refusal to engage, enhancing policy messaging, though not directly in `ClientAgent`.
+     * @type {string}
+     */
     CC_BANHAMMER_PLACEHOLDER: string;
+    /**
+     * A custom function to handle tool call exceptions by returning a model message or null, used in `ClientAgent.getCompletion` with the "custom" `CC_RESQUE_STRATEGY`.
+     * Default implementation returns null, allowing override via `setConfig` to implement specific recovery logic tailored to the application.
+     * @param {string} clientId - The client ID experiencing the exception.
+     * @param {AgentName} agentName - The name of the agent encountering the issue.
+     * @returns {Promise<IModelMessage | null>} A promise resolving to a corrected message or null if unhandled.
+     * @example
+     * setConfig({
+     *   CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: async (clientId, agentName) => ({
+     *     role: "system",
+     *     content: "Tool call corrected for " + agentName
+     *   })
+     * });
+     */
     CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: AgentName) => Promise<IModelMessage | null>;
+    /**
+     * Flag to enable persistence by default, used in `IStorage` or `IState` initialization.
+     * Enabled (true) by default, suggesting data retention unless overridden, though not directly in `ClientAgent`.
+     * @type {boolean}
+     */
     CC_PERSIST_ENABLED_BY_DEFAULT: boolean;
+    /**
+     * Flag to enable autobanning by default, used in `IPolicy` for automatic ban enforcement.
+     * Disabled (false) by default, allowing manual ban control unless overridden, though not directly in `ClientAgent`.
+     * @type {boolean}
+     */
     CC_AUTOBAN_ENABLED_BY_DEFAULT: boolean;
+    /**
+     * Default function to set state values, used in `IState.setState` for state persistence.
+     * No-op by default, allowing state updates to be customized via `setConfig`, though not directly in `ClientAgent`.
+     * @template T - The type of state data.
+     * @param {T} state - The state value to set.
+     * @param {string} clientId - The client ID owning the state.
+     * @param {StateName} stateName - The state identifier.
+     * @returns {Promise<void>} A promise resolving when the state is set.
+     * @example
+     * setConfig({
+     *   CC_DEFAULT_STATE_SET: async (state, clientId, stateName) => {
+     *     console.log(`Setting ${stateName} for ${clientId}:`, state);
+     *   }
+     * });
+     */
     CC_DEFAULT_STATE_SET: <T = any>(state: T, clientId: string, stateName: StateName) => Promise<void>;
+    /**
+     * Default function to get state values, used in `IState.getState` for state retrieval.
+     * Returns `defaultState` by default, allowing state retrieval to be customized via `setConfig`, though not directly in `ClientAgent`.
+     * @template T - The type of state data.
+     * @param {string} clientId - The client ID requesting the state.
+     * @param {StateName} stateName - The state identifier.
+     * @param {T} defaultState - The fallback state value.
+     * @returns {Promise<T>} A promise resolving to the state value.
+     * @example
+     * setConfig({
+     *   CC_DEFAULT_STATE_GET: async () => ({ count: 0 })
+     * });
+     */
     CC_DEFAULT_STATE_GET: <T = any>(clientId: string, stateName: StateName, defaultState: T) => Promise<T>;
+    /**
+     * Default function to get storage data, used in `IStorage.take` for storage retrieval.
+     * Returns `defaultValue` by default, allowing storage retrieval to be customized via `setConfig`, though not directly in `ClientAgent`.
+     * @template T - The type of storage data extending `IStorageData`.
+     * @param {string} clientId - The client ID requesting the data.
+     * @param {StorageName} storageName - The storage identifier.
+     * @param {T[]} defaultValue - The fallback storage data.
+     * @returns {Promise<T[]>} A promise resolving to the storage data.
+     * @example
+     * setConfig({
+     *   CC_DEFAULT_STORAGE_GET: async () => [{ id: 1 }]
+     * });
+     */
     CC_DEFAULT_STORAGE_GET: <T extends IStorageData = IStorageData>(clientId: string, storageName: StorageName, defaultValue: T[]) => Promise<T[]>;
+    /**
+     * Default function to set storage data, used in `IStorage.upsert` for storage persistence.
+     * No-op by default, allowing storage updates to be customized via `setConfig`, though not directly in `ClientAgent`.
+     * @template T - The type of storage data extending `IStorageData`.
+     * @param {T[]} data - The storage data to set.
+     * @param {string} clientId - The client ID owning the storage.
+     * @param {StorageName} storageName - The storage identifier.
+     * @returns {Promise<void>} A promise resolving when the storage is set.
+     * @example
+     * setConfig({
+     *   CC_DEFAULT_STORAGE_SET: async (data, clientId, storageName) => {
+     *     console.log(`Setting ${storageName} for ${clientId}:`, data);
+     *   }
+     * });
+     */
     CC_DEFAULT_STORAGE_SET: <T extends IStorageData = IStorageData>(data: T[], clientId: string, storageName: StorageName) => Promise<void>;
+    /**
+     * Flag to skip POSIX-style renaming, potentially for file operations in persistence layers.
+     * Disabled (false) by default, ensuring standard renaming unless overridden, though not directly in `ClientAgent`.
+     * @type {boolean}
+     */
     CC_SKIP_POSIX_RENAME: boolean;
+    /**
+     * Flag to enable persistent storage for `Schema.readValue` and `Schema.writeValue`, separate from general persistence.
+     * Enabled (true) by default, ensuring memory storage persistence unless overridden.
+     * @type {boolean}
+     */
     CC_PERSIST_MEMORY_STORAGE: boolean;
-};
-/**
- * Function to update the GLOBAL_CONFIG object with custom settings at runtime.
- * Merges provided config overrides into GLOBAL_CONFIG, allowing dynamic adjustment of system behavior (e.g., enabling CC_LOGGER_ENABLE_DEBUG for ClientAgent).
- * @param {Partial<typeof GLOBAL_CONFIG>} config - The partial configuration object to apply.
- * @returns {void}
- * @example
- * setConfig({ CC_LOGGER_ENABLE_DEBUG: true }); // Enables debug logging
- */
-declare const setConfig: (config: Partial<typeof GLOBAL_CONFIG>) => void;
+}
+
+declare const GLOBAL_CONFIG: IGlobalConfig;
+declare const setConfig: (config: Partial<IGlobalConfig>) => void;
 
 /**
  * Utility class providing methods to manage client bans within a swarm policy context.
@@ -9685,7 +10193,7 @@ declare class SchemaUtils {
      * @returns {T} The value written to the session memory, as returned by the memory schema service.
      * @throws {Error} If session validation fails or the memory schema service encounters an error.
      */
-    writeSessionMemory: <T extends object = object>(clientId: string, value: T) => T;
+    writeSessionMemory: <T extends object = object>(clientId: string, value: T) => Promise<T>;
     /**
      * Reads a value from the session memory for a given client.
      * Executes within a context for logging and validation, ensuring the client session is valid.
@@ -9694,7 +10202,7 @@ declare class SchemaUtils {
      * @returns {T} The value read from the session memory, as returned by the memory schema service.
      * @throws {Error} If session validation fails or the memory schema service encounters an error.
      */
-    readSessionMemory: <T extends object = object>(clientId: string) => T;
+    readSessionMemory: <T extends object = object>(clientId: string) => Promise<T>;
     /**
      * Serializes an object or array of objects into a formatted string.
      * Flattens nested objects and applies optional key/value mapping functions for formatting.
@@ -9788,4 +10296,4 @@ declare const Utils: {
     PersistMemoryUtils: typeof PersistMemoryUtils;
 };
 
-export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistBase, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PersistBase, PersistList, PersistMemory, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type TPersistBaseCtor, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistBase, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PersistBase, PersistList, PersistMemory, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type TPersistBaseCtor, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };

@@ -1,6 +1,7 @@
 # IPersistStateControl
 
 Interface defining control methods for state persistence operations.
+Allows customization of the persistence adapter for states.
 
 ## Methods
 

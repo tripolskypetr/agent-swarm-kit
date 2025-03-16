@@ -10,7 +10,7 @@ Interface defining methods for persistent storage operations.
 waitForInit: (initial: boolean) => Promise<void>
 ```
 
-Initializes the storage, creating directories and validating existing data.
+Initializes the storage directory, creating it if needed and validating existing data by removing invalid entities.
 
 ### readValue
 
@@ -26,7 +26,7 @@ Reads an entity from storage by its ID.
 hasValue: (entityId: EntityId) => Promise<boolean>
 ```
 
-Checks if an entity exists in storage.
+Checks if an entity exists in storage by its ID.
 
 ### writeValue
 

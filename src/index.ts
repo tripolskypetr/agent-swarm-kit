@@ -97,6 +97,8 @@ export { IModelMessage } from "./model/ModelMessage.model";
 export { IIncomingMessage, IOutgoingMessage } from "./model/EmitMessage.model";
 export { ITool, IToolCall } from "./model/Tool.model";
 
+export { IGlobalConfig } from "./model/GlobalConfig.model"
+
 export {
   SendMessageFn,
   ReceiveMessageFn,

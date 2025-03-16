@@ -26,10 +26,10 @@ clientId: string
 callbacks: Partial<ILoggerInstanceCallbacks>
 ```
 
-### __@LOGGER_INSTANCE_WAIT_FOR_INIT@2410
+### __@LOGGER_INSTANCE_WAIT_FOR_INIT@2433
 
 ```ts
-__@LOGGER_INSTANCE_WAIT_FOR_INIT@2410: any
+__@LOGGER_INSTANCE_WAIT_FOR_INIT@2433: any
 ```
 
 Memoized initialization function to ensure it runs only once using singleshot.

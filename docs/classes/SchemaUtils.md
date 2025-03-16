@@ -14,7 +14,7 @@ constructor();
 ### writeSessionMemory
 
 ```ts
-writeSessionMemory: <T extends object = object>(clientId: string, value: T) => T
+writeSessionMemory: <T extends object = object>(clientId: string, value: T) => Promise<T>
 ```
 
 Writes a value to the session memory for a given client.
@@ -23,7 +23,7 @@ Executes within a context for logging and validation, ensuring the client sessio
 ### readSessionMemory
 
 ```ts
-readSessionMemory: <T extends object = object>(clientId: string) => T
+readSessionMemory: <T extends object = object>(clientId: string) => Promise<T>
 ```
 
 Reads a value from the session memory for a given client.

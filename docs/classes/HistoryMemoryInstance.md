@@ -30,10 +30,10 @@ callbacks: Partial<IHistoryInstanceCallbacks>
 _array: IModelMessage[]
 ```
 
-### __@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@738
+### __@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@761
 
 ```ts
-__@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@738: any
+__@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@761: any
 ```
 
 Memoized initialization function to ensure it runs only once per agent.
