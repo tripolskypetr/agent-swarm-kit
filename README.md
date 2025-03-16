@@ -201,7 +201,7 @@ complete("I need a refund!").then(console.log);
 - **`addSwarm`**: Group agents into a coordinated network.
 - **`session`**: Start a client session with real-time message handling.
 - **`addTool`**: Create reusable tools with validation and execution logic.
-- **`Storage.take`**: Search and retrieve data using embeddings (e.g., vector search).
+- **`Storage.take`**: Search and retrieve data using embeddings (e.g., vector search, RAG).
 
 Check out the **[API Reference](https://agent-swarm.github.io/documents/agent-swarm-kit.html)** for more!
 
@@ -209,7 +209,7 @@ Check out the **[API Reference](https://agent-swarm.github.io/documents/agent-sw
 
 ## 🛠 Advanced Example: Vector Search with Embeddings
 
-Integrate vector search with embeddings for smarter agents:
+Integrate vector search with embeddings (RAG) for smarter agents:
 
 ```typescript
 import { addAgent, addSwarm, addStorage, addEmbedding, session, Storage } from "agent-swarm-kit";
