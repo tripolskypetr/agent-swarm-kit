@@ -3,7 +3,7 @@ import fs from "fs";
 
 const octokit = new Octokit();
 
-const { data: releaseList } = await octokit.request('GET /repos/react-declarative/react-declarative/releases', {
+const { data: releaseList } = await octokit.request('GET /repos/tripolskypetr/agent-swarm-kit/releases', {
     owner: 'OWNER',
     repo: 'REPO',
     per_page: 99999999,
