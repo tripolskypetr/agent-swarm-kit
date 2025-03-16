@@ -23,7 +23,7 @@ const GPT_INTERFACE_PROMPT =
     "Please write a summary for that Typescript API Reference of AI agent swarm orchestration framework with several sentences in more human way";
 
 const GPT_TOTAL_PROMPT =
-    "Please write a summary for the whole swarm orchestration framework based on API Reference with several sentences in more human way";
+    "Please write a summary for the whole swarm orchestration framework based on API Reference with several sentences in more human way. Describe the core parts like Validation services, Schema services, Connection services, Public services, bus and method context. Describe the IAgent, ISwarm, IAgentTool. Skip the callbacks and lifecycle";
 
 console.log("Loading model");
 
@@ -44,10 +44,11 @@ const generateDescription = retry(async (filePath, prompt) => {
         {
             content: str.newline(
                 'Do not write the header like "Okay, here’s a human-friendly summary".',
+                'Do not write the header like "Okay, this is a comprehensive overview".',
                 'Write the countent only like you are writing doc file directly.',
                 `Write the human text only without markdown symbols epecially like: ${DISALLOWED_TEXT.map((v) => `"${v}"`).join(', ')}`,
                 `You still can use lists and new lines if need`,
-                'Do not write any headers started with #'
+                'Do not write any headers started with #',
             ),
             role: 'system',
         },
@@ -149,12 +150,10 @@ const output = [];
 }
 
 {
-    output.shift();
-    output.shift();
     output.unshift("");
     output.unshift(await generateDescription(outputPath, GPT_TOTAL_PROMPT));
     output.unshift("");
-    output.unshift(`# ${MODULE_NAME}`);
+    output.unshift(`# ${MODULE_NAME} api reference`);
     fs.writeFileSync(outputPath, output.join("\n"));
 }
 

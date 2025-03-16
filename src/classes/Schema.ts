@@ -2,6 +2,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 import objectFlat from "../utils/objectFlat";
 import swarm from "../lib";
 import beginContext from "../utils/beginContext";
+import { PersistMemoryAdapter } from "./Persist";
 
 /** @private Constant for logging the serialize method in SchemaUtils */
 const METHOD_NAME_SERIALIZE = "SchemaUtils.serialize";
@@ -27,16 +28,22 @@ export class SchemaUtils {
    * @throws {Error} If session validation fails or the memory schema service encounters an error.
    */
   public writeSessionMemory = beginContext(
-    (clientId: string, value: object) => {
+    async (clientId: string, value: object) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
         swarm.loggerService.log(METHOD_NAME_WRITE, {
           clientId,
           value,
         });
       swarm.sessionValidationService.validate(clientId, METHOD_NAME_WRITE);
+      if (GLOBAL_CONFIG.CC_PERSIST_MEMORY_STORAGE) {
+        return await PersistMemoryAdapter.setMemory(
+          swarm.memorySchemaService.writeValue(clientId, value),
+          clientId
+        );
+      }
       return swarm.memorySchemaService.writeValue(clientId, value);
     }
-  ) as <T extends object = object>(clientId: string, value: T) => T;
+  ) as <T extends object = object>(clientId: string, value: T) => Promise<T>;
 
   /**
    * Reads a value from the session memory for a given client.
@@ -46,14 +53,22 @@ export class SchemaUtils {
    * @returns {T} The value read from the session memory, as returned by the memory schema service.
    * @throws {Error} If session validation fails or the memory schema service encounters an error.
    */
-  public readSessionMemory = beginContext((clientId: string): object => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME_READ, {
-        clientId,
-      });
-    swarm.sessionValidationService.validate(clientId, METHOD_NAME_READ);
-    return swarm.memorySchemaService.readValue(clientId);
-  }) as <T extends object = object>(clientId: string) => T;
+  public readSessionMemory = beginContext(
+    async (clientId: string): Promise<object> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_READ, {
+          clientId,
+        });
+      swarm.sessionValidationService.validate(clientId, METHOD_NAME_READ);
+      if (GLOBAL_CONFIG.CC_PERSIST_MEMORY_STORAGE) {
+        return await PersistMemoryAdapter.getMemory(
+          clientId,
+          swarm.memorySchemaService.readValue(clientId)
+        );
+      }
+      return swarm.memorySchemaService.readValue(clientId);
+    }
+  ) as <T extends object = object>(clientId: string) => Promise<T>;
 
   /**
    * Serializes an object or array of objects into a formatted string.

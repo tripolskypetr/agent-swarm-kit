@@ -375,6 +375,12 @@ const CC_BANHAMMER_PLACEHOLDER = "I am not going to discuss it!";
 const CC_PERSIST_ENABLED_BY_DEFAULT = true;
 
 /**
+ * Schema.readValue and Schema.writeValue is being persistant by separate flag
+ * @type {boolean}
+ */
+const CC_PERSIST_MEMORY_STORAGE = true;
+
+/**
  * Flag to enable autobanning by default, potentially used in IPolicy (not directly in ClientAgent).
  * Disabled (false) by default, allowing manual ban control unless overridden.
  * @type {boolean}
@@ -433,6 +439,7 @@ const GLOBAL_CONFIG = {
   CC_DEFAULT_STORAGE_GET,
   CC_DEFAULT_STORAGE_SET,
   CC_SKIP_POSIX_RENAME,
+  CC_PERSIST_MEMORY_STORAGE,
 };
 
 /**

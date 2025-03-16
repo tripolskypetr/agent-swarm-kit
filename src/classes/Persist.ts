@@ -8,6 +8,7 @@ import { IStorageData, StorageName } from "../interfaces/Storage.interface";
 import { writeFileAtomic } from "../utils/writeFileAtomic";
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
+import { SessionId } from "../interfaces/Session.interface";
 
 /**
  * Identifier for an entity, can be a string or number.
@@ -89,6 +90,13 @@ const PERSIST_STATE_UTILS_METHOD_NAME_USE_PERSIST_STATE_ADAPTER =
 const PERSIST_STATE_UTILS_METHOD_NAME_SET_STATE = "PersistStateUtils.setState";
 /** @private Constant for logging the getState method in PersistStateUtils */
 const PERSIST_STATE_UTILS_METHOD_NAME_GET_STATE = "PersistStateUtils.getState";
+
+const PERSIST_MEMORY_UTILS_METHOD_NAME_USE_PERSIST_MEMORY_ADAPTER =
+  "PersistMemoryUtils.usePersistMemoryAdapter";
+const PERSIST_MEMORY_UTILS_METHOD_NAME_SET_MEMORY =
+  "PersistMemoryUtils.setMemory";
+const PERSIST_MEMORY_UTILS_METHOD_NAME_GET_MEMORY =
+  "PersistMemoryUtils.getMemory";
 
 // Logging method names for PersistStorageUtils
 /** @private Constant for logging the usePersistStorageAdapter method in PersistStorageUtils */
@@ -249,7 +257,9 @@ const LIST_POP_FN = async (self: PersistList): Promise<any | null> => {
  * @returns {Promise<string | null>} A promise resolving to the last key or null if the list is empty.
  * @private
  */
-const LIST_GET_LAST_KEY_FN = async (self: PersistList): Promise<string | null> => {
+const LIST_GET_LAST_KEY_FN = async (
+  self: PersistList
+): Promise<string | null> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     swarm.loggerService.debug(LIST_GET_LAST_KEY_FN_METHOD_NAME, {
       entityName: self.entityName,
@@ -451,7 +461,9 @@ export class PersistBase<EntityName extends string = string>
         );
       }
       throw new Error(
-        `Failed to remove entity ${this.entityName}:${entityId}: ${getErrorMessage(error)}`
+        `Failed to remove entity ${
+          this.entityName
+        }:${entityId}: ${getErrorMessage(error)}`
       );
     }
   }
@@ -1181,3 +1193,77 @@ export const PersistStorageAdapter = new PersistStorageUtils();
  * @type {IPersistStorageControl}
  */
 export const PersistStorage = PersistStorageAdapter as IPersistStorageControl;
+
+interface IPersistMemoryData<T = unknown> {
+  /** The state data to persist */
+  data: T;
+}
+
+interface IPersistMemoryControl {
+  usePersistMemoryAdapter(
+    Ctor: TPersistBaseCtor<StorageName, IPersistMemoryData>
+  ): void;
+}
+
+export class PersistMemoryUtils implements IPersistMemoryControl {
+  private PersistMemoryFactory: TPersistBaseCtor<
+    SessionId,
+    IPersistMemoryData
+  > = PersistBase;
+
+  private getMemoryStorage = memoize(
+    ([clientId]: [SessionId]): string => `${clientId}`,
+    (clientId: SessionId): IPersistBase<IPersistMemoryData> =>
+      new this.PersistMemoryFactory(clientId, `./logs/data/memory/`)
+  );
+
+  public usePersistMemoryAdapter(
+    Ctor: TPersistBaseCtor<SessionId, IPersistMemoryData>
+  ): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_MEMORY_UTILS_METHOD_NAME_USE_PERSIST_MEMORY_ADAPTER
+      );
+    this.PersistMemoryFactory = Ctor;
+  }
+
+  public setMemory = async <T = unknown>(
+    data: T,
+    clientId: string
+  ): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(PERSIST_MEMORY_UTILS_METHOD_NAME_SET_MEMORY, {
+        clientId,
+      });
+    const isInitial = this.getMemoryStorage.has(clientId);
+    const stateStorage = this.getMemoryStorage(clientId);
+    await stateStorage.waitForInit(isInitial);
+    await stateStorage.writeValue(clientId, { data });
+  };
+
+  public getMemory = async <T = unknown>(
+    clientId: string,
+    defaultState: T
+  ): Promise<T> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(PERSIST_MEMORY_UTILS_METHOD_NAME_GET_MEMORY, {
+        clientId,
+      });
+    const isInitial = this.getMemoryStorage.has(clientId);
+    const stateStorage = this.getMemoryStorage(clientId);
+    await stateStorage.waitForInit(isInitial);
+    if (await stateStorage.hasValue(clientId)) {
+      const { data } = await stateStorage.readValue(clientId);
+      return data as T;
+    }
+    return defaultState;
+  };
+
+  public async dispose(clientId: string) {
+    this.getMemoryStorage.clear(clientId);
+  }
+}
+
+export const PersistMemoryAdapter = new PersistMemoryUtils();
+
+export const PersistMemory = PersistMemoryAdapter as IPersistMemoryControl;

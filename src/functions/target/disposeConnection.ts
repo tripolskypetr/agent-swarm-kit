@@ -7,6 +7,7 @@ import { AgentName } from "../../interfaces/Agent.interface";
 import { StorageName } from "../../interfaces/Storage.interface";
 import { StateName } from "../../interfaces/State.interface";
 import beginContext from "../../utils/beginContext";
+import { PersistMemoryAdapter } from "../../classes/Persist";
 
 const METHOD_NAME = "function.target.disposeConnection";
 
@@ -126,5 +127,6 @@ export const disposeConnection = beginContext(
       swarm.perfService.dispose(clientId);
     }
     swarm.sessionValidationService.removeSession(clientId);
+    PersistMemoryAdapter.dispose(clientId);
   }
 );
