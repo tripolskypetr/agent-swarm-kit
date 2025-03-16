@@ -4,7 +4,7 @@
 
 Unleash the power of collaborative AI with `agent-swarm-kit`! This library empowers you to create intelligent, modular agent networks that work together seamlessly—perfect for automating workflows, solving complex problems, or designing next-gen AI systems. With a simple API, robust validation, and flexible architecture, it’s your toolkit for building smarter solutions, faster.
 
-📚 **[Full Documentation](https://github.com/tripolskypetr/agent-swarm-kit/tree/master/docs)** | 🌟 **[Try It Now](#getting-started)**
+📚 **[Full Documentation](https://agent-swarm.github.io/documents/agent-swarm-kit.html)** | 🌟 **[Try It Now](#quick-example)**
 
 ![Agent Swarm Schema](https://raw.githubusercontent.com/tripolskypetr/agent-swarm-kit/master/schema.png)
 
@@ -14,7 +14,7 @@ Unleash the power of collaborative AI with `agent-swarm-kit`! This library empow
 
 - **Multi-Agent Collaboration**: Orchestrate multiple AI agents, each with unique roles—like triage, sales, or refunds—working as a team.
 - **Lightweight & Flexible**: Unlike bulky frameworks, our API is simple and delegates prompt engineering to your team.
-- **Framework-Agnostic**: Works with any AI model—OpenAI, Ollama, Mistral, Nemotron, you name it!
+- **Framework-Agnostic**: Works with any AI provider—OpenAI, Ollama, LMStudio, Claude, Grok, YandexGPT, Gemini, you name it!
 - **Robust Validation**: Built-in checks ensure tools, agents, and outputs are always on point.
 - **Real-Time Interaction**: Supports message scheduling and WebSocket channels for dynamic user input.
 
@@ -170,6 +170,8 @@ addSwarm({
 });
 
 const { complete, dispose } = session(clientId, SwarmName.TestSwarm)
+
+complete("I need a refund!").then(console.log);
 ```
 
 ---
