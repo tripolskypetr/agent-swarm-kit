@@ -43,6 +43,7 @@ import {
   changeAgent,
   execute,
   session,
+  Adapter
 } from "agent-swarm-kit";
 
 const NAVIGATE_TOOL = addTool({
@@ -79,14 +80,7 @@ const MOCK_COMPLETION = addCompletion({
    * 
    * @see https://github.com/tripolskypetr/agent-swarm-kit/tree/master/test
    */
-  getCompletion: async ({ messages, tools }) => {
-    return await ollama.chat({
-      model: CC_OLLAMA_CHAT_MODEL,
-      keep_alive: "1h",
-      messages,
-      tools,
-    })
-  },
+  getCompletion: Adapter.fromOllama(ollama, "tripolskypetr/gemma3-tools:4b"), // "nemotron-mini:4b"
 });
 
 const TRIAGE_AGENT = addAgent({
@@ -268,7 +262,7 @@ const TEST_SWARM = addSwarm({
   defaultAgent: TEST_AGENT,
 });
 
-// Search with a client session
+// Talk with a client
 const { complete } = session("client-123", TEST_SWARM);
 complete("I need a refund!").then(console.log);
 
