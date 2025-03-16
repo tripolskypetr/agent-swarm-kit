@@ -8627,130 +8627,354 @@ declare const changeToPrevAgent: (clientId: string) => Promise<void>;
 declare const changeToDefaultAgent: (clientId: string) => Promise<void>;
 
 /**
- * Hook to subscribe to agent events for a specific client.
+ * Subscribes to agent-specific events on the swarm bus service for a specific client and executes a callback for each event.
  *
- * @param {string} clientId - The ID of the client to subscribe to events for.
- * @param {function} fn - The callback function to handle the event.
+ * This function sets up a listener for events on the "agent-bus" topic associated with a given client ID, invoking the provided callback with the
+ * event data whenever an agent event is received. It is wrapped in `beginContext` for a clean execution environment and logs the operation via
+ * `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing of events. The function supports a wildcard client
+ * ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop listening.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to agent events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute when an agent event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the agent event listener.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenAgentEvent("client-123", (event) => console.log(event));
+ * // Logs each agent event for "client-123"
+ * unsubscribe(); // Stops listening
  */
 declare const listenAgentEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to history events for a specific client.
+ * Subscribes to history-specific events on the swarm bus service for a specific client and executes a callback for each event.
  *
- * @param {string} clientId - The ID of the client to subscribe to.
- * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
+ * This function sets up a listener for events on the "history-bus" topic associated with a given client ID, invoking the provided callback with
+ * the event data whenever a history event is received. It is wrapped in `beginContext` for a clean execution environment and logs the operation
+ * via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing of events. The function supports a wildcard
+ * client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop listening.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to history events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute when a history event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the history event listener.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenHistoryEvent("client-123", (event) => console.log(event));
+ * // Logs each history event for "client-123"
+ * unsubscribe(); // Stops listening
  */
 declare const listenHistoryEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to session events for a specific client.
+ * Subscribes to session-specific events on the swarm bus service for a specific client and executes a callback for each event.
  *
- * @param {string} clientId - The ID of the client to subscribe to session events for.
- * @param {function} fn - The callback function to handle the session events.
+ * This function sets up a listener for events on the "session-bus" topic associated with a given client ID, invoking the provided callback with
+ * the event data whenever a session event is received. It is wrapped in `beginContext` for a clean execution environment and logs the operation
+ * via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing of events. The function supports a wildcard
+ * client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop listening.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to session events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute when a session event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the session event listener.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenSessionEvent("client-123", (event) => console.log(event));
+ * // Logs each session event for "client-123"
+ * unsubscribe(); // Stops listening
  */
 declare const listenSessionEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to state events for a specific client.
+ * Subscribes to state-specific events on the swarm bus service for a specific client and executes a callback for each event.
  *
- * @param {string} clientId - The ID of the client to subscribe to.
- * @param {function} fn - The callback function to handle the event.
+ * This function sets up a listener for events on the "state-bus" topic associated with a given client ID, invoking the provided callback with
+ * the event data whenever a state event is received. It is wrapped in `beginContext` for a clean execution environment and logs the operation
+ * via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing of events. The function supports a wildcard
+ * client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop listening.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to state events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute when a state event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the state event listener.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenStateEvent("client-123", (event) => console.log(event));
+ * // Logs each state event for "client-123"
+ * unsubscribe(); // Stops listening
  */
 declare const listenStateEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to storage events for a specific client.
+ * Subscribes to storage-specific events on the swarm bus service for a specific client and executes a callback for each event.
  *
- * @param {string} clientId - The ID of the client to subscribe to storage events for.
- * @param {function} fn - The callback function to handle the storage event.
+ * This function sets up a listener for events on the "storage-bus" topic associated with a given client ID, invoking the provided callback with
+ * the event data whenever a storage event is received. It is wrapped in `beginContext` for a clean execution environment and logs the operation
+ * via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing of events. The function supports a wildcard
+ * client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop listening.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to storage events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute when a storage event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the storage event listener.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenStorageEvent("client-123", (event) => console.log(event));
+ * // Logs each storage event for "client-123"
+ * unsubscribe(); // Stops listening
  */
 declare const listenStorageEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to swarm events for a specific client.
+ * Subscribes to swarm-specific events on the swarm bus service for a specific client and executes a callback for each event.
  *
- * @param {string} clientId - The ID of the client to subscribe to events for.
- * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
+ * This function sets up a listener for events on the "swarm-bus" topic associated with a given client ID, invoking the provided callback with
+ * the event data whenever a swarm event is received. It is wrapped in `beginContext` for a clean execution environment and logs the operation
+ * via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing of events. The function supports a wildcard
+ * client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop listening.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to swarm events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute when a swarm event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the swarm event listener.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenSwarmEvent("client-123", (event) => console.log(event));
+ * // Logs each swarm event for "client-123"
+ * unsubscribe(); // Stops listening
  */
 declare const listenSwarmEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to execution events for a specific client.
+ * Subscribes to execution-specific events on the swarm bus service for a specific client and executes a callback for each event.
  *
- * @param {string} clientId - The ID of the client to subscribe to events for.
- * @param {function} fn - The callback function to handle the event.
+ * This function sets up a listener for events on the "execution-bus" topic associated with a given client ID, invoking the provided callback with
+ * the event data whenever an execution event is received. It is wrapped in `beginContext` for a clean execution environment and logs the operation
+ * via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing of events. The function supports a wildcard
+ * client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop listening.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to execution events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute when an execution event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the execution event listener.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenExecutionEvent("client-123", (event) => console.log(event));
+ * // Logs each execution event for "client-123"
+ * unsubscribe(); // Stops listening
  */
 declare const listenExecutionEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to swarm events for a specific client.
+ * Subscribes to policy-specific events on the swarm bus service for a specific client and executes a callback for each event.
  *
- * @param {string} clientId - The ID of the client to subscribe to events for.
- * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
+ * This function sets up a listener for events on the "policy-bus" topic associated with a given client ID, invoking the provided callback with
+ * the event data whenever a policy event is received. It is wrapped in `beginContext` for a clean execution environment and logs the operation
+ * via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing of events. The function supports a wildcard
+ * client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop listening.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to policy events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute when a policy event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the policy event listener.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenPolicyEvent("client-123", (event) => console.log(event));
+ * // Logs each policy event for "client-123"
+ * unsubscribe(); // Stops listening
  */
 declare const listenPolicyEvent: (clientId: string, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to agent events for a specific client.
+ * Subscribes to a single agent-specific event on the swarm bus service for a specific client, executing a callback when the event matches a filter.
  *
- * @param {string} clientId - The ID of the client to subscribe to events for.
- * @param {function} fn - The callback function to handle the event.
+ * This function sets up a one-time listener for events on the "agent-bus" topic associated with a given client ID, invoking the provided callback
+ * with the event data when an event is received and passes the filter condition. It is wrapped in `beginContext` for a clean execution environment
+ * and logs the operation via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing, and the listener
+ * unsubscribes after the first matching event. The function supports a wildcard client ID ("*") for listening to all clients or validates a specific
+ * client session. It returns an unsubscribe function to cancel the listener prematurely.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to agent events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute once when a matching agent event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the agent event listener before it triggers.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenAgentEventOnce(
+ *   "client-123",
+ *   (event) => event.type === "update",
+ *   (event) => console.log(event)
+ * );
+ * // Logs the first "update" agent event for "client-123"
+ * unsubscribe(); // Cancels listener if not yet triggered
  */
 declare const listenAgentEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to history events for a specific client.
+ * Subscribes to a single history-specific event on the swarm bus service for a specific client, executing a callback when the event matches a filter.
  *
- * @param {string} clientId - The ID of the client to subscribe to.
- * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
+ * This function sets up a one-time listener for events on the "history-bus" topic associated with a given client ID, invoking the provided callback
+ * with the event data when an event is received and passes the filter condition. It is wrapped in `beginContext` for a clean execution environment
+ * and logs the operation via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing, and the listener
+ * unsubscribes after the first matching event. The function supports a wildcard client ID ("*") for listening to all clients or validates a specific
+ * client session. It returns an unsubscribe function to cancel the listener prematurely.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to history events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute once when a matching history event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the history event listener before it triggers.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenHistoryEventOnce(
+ *   "client-123",
+ *   (event) => event.type === "update",
+ *   (event) => console.log(event)
+ * );
+ * // Logs the first "update" history event for "client-123"
+ * unsubscribe(); // Cancels listener if not yet triggered
  */
 declare const listenHistoryEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to session events for a specific client.
+ * Subscribes to a single session-specific event on the swarm bus service for a specific client, executing a callback when the event matches a filter.
  *
- * @param {string} clientId - The ID of the client to subscribe to session events for.
- * @param {function} fn - The callback function to handle the session events.
+ * This function sets up a one-time listener for events on the "session-bus" topic associated with a given client ID, invoking the provided callback
+ * with the event data when an event is received and passes the filter condition. It is wrapped in `beginContext` for a clean execution environment
+ * and logs the operation via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing, and the listener
+ * unsubscribes after the first matching event. The function supports a wildcard client ID ("*") for listening to all clients or validates a specific
+ * client session. It returns an unsubscribe function to cancel the listener prematurely.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to session events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute once when a matching session event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the session event listener before it triggers.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenSessionEventOnce(
+ *   "client-123",
+ *   (event) => event.type === "start",
+ *   (event) => console.log(event)
+ * );
+ * // Logs the first "start" session event for "client-123"
+ * unsubscribe(); // Cancels listener if not yet triggered
  */
 declare const listenSessionEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to state events for a specific client.
+ * Subscribes to a single state-specific event on the swarm bus service for a specific client, executing a callback when the event matches a filter.
  *
- * @param {string} clientId - The ID of the client to subscribe to.
- * @param {function} fn - The callback function to handle the event.
+ * This function sets up a one-time listener for events on the "state-bus" topic associated with a given client ID, invoking the provided callback
+ * with the event data when an event is received and passes the filter condition. It is wrapped in `beginContext` for a clean execution environment
+ * and logs the operation via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing, and the listener
+ * unsubscribes after the first matching event. The function supports a wildcard client ID ("*") for listening to all clients or validates a specific
+ * client session. It returns an unsubscribe function to cancel the listener prematurely.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to state events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute once when a matching state event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the state event listener before it triggers.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenStateEventOnce(
+ *   "client-123",
+ *   (event) => event.type === "change",
+ *   (event) => console.log(event)
+ * );
+ * // Logs the first "change" state event for "client-123"
+ * unsubscribe(); // Cancels listener if not yet triggered
  */
 declare const listenStateEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to storage events for a specific client.
+ * Subscribes to a single storage-specific event on the swarm bus service for a specific client, executing a callback when the event matches a filter.
  *
- * @param {string} clientId - The ID of the client to subscribe to storage events for.
- * @param {function} fn - The callback function to handle the storage event.
+ * This function sets up a one-time listener for events on the "storage-bus" topic associated with a given client ID, invoking the provided callback
+ * with the event data when an event is received and passes the filter condition. It is wrapped in `beginContext` for a clean execution environment
+ * and logs the operation via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing, and the listener
+ * unsubscribes after the first matching event. The function supports a wildcard client ID ("*") for listening to all clients or validates a specific
+ * client session. It returns an unsubscribe function to cancel the listener prematurely.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to storage events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute once when a matching storage event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the storage event listener before it triggers.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenStorageEventOnce(
+ *   "client-123",
+ *   (event) => event.type === "update",
+ *   (event) => console.log(event)
+ * );
+ * // Logs the first "update" storage event for "client-123"
+ * unsubscribe(); // Cancels listener if not yet triggered
  */
 declare const listenStorageEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to swarm events for a specific client.
+ * Subscribes to a single swarm-specific event on the swarm bus service for a specific client, executing a callback when the event matches a filter.
  *
- * @param {string} clientId - The ID of the client to subscribe to events for.
- * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
+ * This function sets up a one-time listener for events on the "swarm-bus" topic associated with a given client ID, invoking the provided callback
+ * with the event data when an event is received and passes the filter condition. It is wrapped in `beginContext` for a clean execution environment
+ * and logs the operation via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing, and the listener
+ * unsubscribes after the first matching event. The function supports a wildcard client ID ("*") for listening to all clients or validates a specific
+ * client session. It returns an unsubscribe function to cancel the listener prematurely.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to swarm events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute once when a matching swarm event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the swarm event listener before it triggers.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenSwarmEventOnce(
+ *   "client-123",
+ *   (event) => event.type === "sync",
+ *   (event) => console.log(event)
+ * );
+ * // Logs the first "sync" swarm event for "client-123"
+ * unsubscribe(); // Cancels listener if not yet triggered
  */
 declare const listenSwarmEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to execution events for a specific client.
+ * Subscribes to a single execution-specific event on the swarm bus service for a specific client, executing a callback when the event matches a filter.
  *
- * @param {string} clientId - The ID of the client to subscribe to events for.
- * @param {function} fn - The callback function to handle the event.
+ * This function sets up a one-time listener for events on the "execution-bus" topic associated with a given client ID, invoking the provided callback
+ * with the event data when an event is received and passes the filter condition. It is wrapped in `beginContext` for a clean execution environment
+ * and logs the operation via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing, and the listener
+ * unsubscribes after the first matching event. The function supports a wildcard client ID ("*") for listening to all clients or validates a specific
+ * client session. It returns an unsubscribe function to cancel the listener prematurely.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to execution events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute once when a matching execution event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the execution event listener before it triggers.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenExecutionEventOnce(
+ *   "client-123",
+ *   (event) => event.type === "complete",
+ *   (event) => console.log(event)
+ * );
+ * // Logs the first "complete" execution event for "client-123"
+ * unsubscribe(); // Cancels listener if not yet triggered
  */
 declare const listenExecutionEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 
 /**
- * Hook to subscribe to swarm events for a specific client.
+ * Subscribes to a single policy-specific event on the swarm bus service for a specific client, executing a callback when the event matches a filter.
  *
- * @param {string} clientId - The ID of the client to subscribe to events for.
- * @param {(event: IBusEvent) => void} fn - The callback function to handle the event.
+ * This function sets up a one-time listener for events on the "policy-bus" topic associated with a given client ID, invoking the provided callback
+ * with the event data when an event is received and passes the filter condition. It is wrapped in `beginContext` for a clean execution environment
+ * and logs the operation via `loggerService`. The callback is queued using `functools-kit` to ensure sequential processing, and the listener
+ * unsubscribes after the first matching event. The function supports a wildcard client ID ("*") for listening to all clients or validates a specific
+ * client session. It returns an unsubscribe function to cancel the listener prematurely.
+ *
+ * @param {string} clientId - The ID of the client to subscribe to policy events for, or "*" to listen to all clients.
+ * @param {(event: IBusEvent) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event.
+ * @param {(event: IBusEvent) => void} fn - The callback function to execute once when a matching policy event is received, passed the event object.
+ * @returns {() => void} A function to unsubscribe from the policy event listener before it triggers.
+ * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
+ * @example
+ * const unsubscribe = listenPolicyEventOnce(
+ *   "client-123",
+ *   (event) => event.type === "enforce",
+ *   (event) => console.log(event)
+ * );
+ * // Logs the first "enforce" policy event for "client-123"
+ * unsubscribe(); // Cancels listener if not yet triggered
  */
 declare const listenPolicyEventOnce: (clientId: string, filterFn: (event: IBusEvent) => boolean, fn: (event: IBusEvent) => void) => () => void;
 

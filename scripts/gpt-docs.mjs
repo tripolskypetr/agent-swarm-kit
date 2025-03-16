@@ -1,11 +1,14 @@
 import { globSync } from "glob";
 import { basename, join, extname, resolve } from "path";
+import { str, retry } from "functools-kit";
 
-import { createCompletion, loadModel } from "gpt4all";
+import { Ollama } from "ollama";
 
 import fs from "fs";
 
 const MODULE_NAME = "agent-swarm-kit";
+
+const ollama = new Ollama({ host: "http://127.0.0.1:11434" })
 
 const DISALLOWED_TEXT = [
     "Summary:",
@@ -24,29 +27,88 @@ const GPT_TOTAL_PROMPT =
 
 console.log("Loading model");
 
-const model = await loadModel("Nous-Hermes-2-Mistral-7B-DPO.Q4_0.gguf", {
-    verbose: true,
+await ollama.pull({
+    model: "tripolskypetr/gemma3-tools:4b",
 });
 
-const generateDescription = async (filePath, prompt) => {
+const generateDescription = retry(async (filePath, prompt) => {
     console.log(`Generating content for ${resolve(filePath)}`);
-    console.time("EXECUTE");
+
     const data = fs.readFileSync(filePath).toString();
-    const chat = await model.createChatSession({
-        temperature: 0,
-        systemPrompt: `### System:\n${prompt}.\n\n`,
-    });
-    const result = await createCompletion(chat, data, {
-        contextErase: 0,
-    });
-    console.timeEnd("EXECUTE");
-    const content = result.choices[0].message.content;
-    if (DISALLOWED_TEXT.some((text) => content.toLowerCase().includes(text.toLowerCase()))) {
-        console.warn(`Regenerating ${filePath} due to the disallowed text`);
-        return await generateDescription(filePath, prompt);
+
+    const messages = [
+        {
+            content: prompt,
+            role: 'system',
+        },
+        {
+            content: str.newline(
+                'Do not write the header like "Okay, here’s a human-friendly summary".',
+                'Write the countent only like you are writing doc file directly.',
+                `Write the human text only without markdown symbols epecially like: ${DISALLOWED_TEXT.map((v) => `"${v}"`).join(', ')}`,
+                `You still can use lists and new lines if need`,
+                'Do not write any headers started with #'
+            ),
+            role: 'system',
+        },
+        {
+            content: data,
+            role: 'user'
+        }
+    ];
+
+    let content;
+    console.time("EXECUTE");
+    try {
+        const { message: { content: c } } = await ollama.chat({
+            model: "tripolskypetr/gemma3-tools:4b",
+            keep_alive: "8h",
+            messages,
+        })
+        content = c;
+    } catch (error) {
+        console.error(`Caught an error for ${filePath}`);
+        throw error;
+    } finally {
+        console.timeEnd("EXECUTE");
     }
+
+    if (DISALLOWED_TEXT.some((text) => content.toLowerCase().includes(text.toLowerCase()))) {
+        console.warn(`Found disallowed symbols for ${filePath}`)
+        let result;
+        console.time("EXECUTE");
+        try {
+            const { message: { content: r } } = await ollama.chat({
+                model: "tripolskypetr/gemma3-tools:4b",
+                keep_alive: "8h",
+                options: {
+                    seed: 0,
+                    temperature: 0,
+                },
+                messages: [
+                    ...messages,
+                    {
+                        content,
+                        role: 'assistant'
+                    },
+                    {
+                        content: 'I found dissalowed symbols in the output. Write the result correct',
+                        role: 'user'
+                    }
+                ],
+            })
+            result = r;
+        } catch (error) {
+            console.error(`Caught an error for ${filePath} (fix attempt)`);
+            throw error;
+        } finally {
+            console.timeEnd("EXECUTE");
+        }
+        return result;
+    }
+
     return content;
-}
+}, 5, 5_000);
 
 
 const outputPath = join(process.cwd(), 'docs', `${MODULE_NAME}.md`);
@@ -86,7 +148,7 @@ const output = [];
     }
 }
 
-if (false) {
+{
     output.shift();
     output.shift();
     output.unshift("");
