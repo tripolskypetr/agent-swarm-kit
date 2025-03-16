@@ -49,7 +49,9 @@ const generateDescription = retry(async (filePath, prompt) => {
                 `Write the human text only without markdown symbols epecially like: ${DISALLOWED_TEXT.map((v) => `"${v}"`).join(', ')}`,
                 `You still can use lists and new lines if need`,
                 'Do not write any headers started with #',
-                'Never recomment anything else like "Would you like me to:"',
+                'Never recommend anything else like "Would you like me to:"',
+                "Never ask me about any information",
+                "Never say ok or confirm you doing something"
             ),
             role: 'system',
         },
