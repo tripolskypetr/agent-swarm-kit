@@ -628,7 +628,7 @@ export class DocService {
       this.loggerService.info("docService dumpPerfomance", {
         dirName,
       });
-    if (!(await not(exists(dirName)))) {
+    if (await not(exists(dirName))) {
       await mkdir(dirName, { recursive: true });
     }
     await writeFileAtomic(

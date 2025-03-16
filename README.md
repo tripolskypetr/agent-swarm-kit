@@ -4,7 +4,7 @@
 
 Unleash the power of collaborative AI with `agent-swarm-kit`! This library empowers you to create intelligent, modular agent networks that work together seamlessly—perfect for automating workflows, solving complex problems, or designing next-gen AI systems. With a simple API, robust validation, and flexible architecture, it’s your toolkit for building smarter solutions, faster.
 
-📚 **[Full Documentation](https://agent-swarm.github.io/documents/agent-swarm-kit.html)** | 🌟 **[Try It Now](#quick-example)**
+📚 **[Full Documentation](https://agent-swarm.github.io/documents/agent-swarm-kit.html)** | 🌟 **[Try It Now](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/demo/repl-phone-seller/src/logic/agent/sales.agent.ts)**
 
 ![Agent Swarm Schema](https://raw.githubusercontent.com/tripolskypetr/agent-swarm-kit/master/schema.png)
 
@@ -21,6 +21,8 @@ Unleash the power of collaborative AI with `agent-swarm-kit`! This library empow
 ---
 
 ## 🚀 Getting Started
+
+**Want a real-world demo?** Check out our **[REPL Phone Seller App](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/demo/repl-phone-seller/src/logic/agent/sales.agent.ts)**—a practical example of a sales agent in action!
 
 ### Installation
 
@@ -80,7 +82,7 @@ const MOCK_COMPLETION = addCompletion({
    * 
    * @see https://github.com/tripolskypetr/agent-swarm-kit/tree/master/test
    */
-  getCompletion: Adapter.fromOllama(ollama, "tripolskypetr/gemma3-tools:4b"), // "nemotron-mini:4b"
+  getCompletion: Adapter.fromOllama(ollama, "nemotron-mini:4b"), // "tripolskypetr/gemma3-tools:4b"
 });
 
 const TRIAGE_AGENT = addAgent({
