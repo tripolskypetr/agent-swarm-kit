@@ -2,10 +2,14 @@ import { EventSource, ICustomEvent } from "../../model/Event.model";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 import { queued } from "functools-kit";
-import beginContext from "../..//utils/beginContext";
+import beginContext from "../../utils/beginContext";
 
 const METHOD_NAME = "function.event.listenEvent";
 
+/**
+ * Set of reserved event source names that cannot be used for custom event topics.
+ * @constant {Set<EventSource>}
+ */
 const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
   "agent-bus",
   "history-bus",
@@ -17,6 +21,12 @@ const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
   "policy-bus",
 ]);
 
+/**
+ * Validates the client ID for event listening, allowing wildcard "*" or checking for an active session.
+ *
+ * @param {string} clientId - The client ID to validate.
+ * @throws {Error} If the client ID is not "*" and no active session exists for it.
+ */
 const validateClientId = (clientId: string) => {
   if (clientId === "*") {
     return;
@@ -29,24 +39,44 @@ const validateClientId = (clientId: string) => {
 };
 
 /**
- * Listens for an event on the swarm bus service and executes a callback function when the event is received.
+ * Subscribes to a custom event on the swarm bus service and executes a callback when the event is received.
  *
- * @template T - The type of the data payload.
- * @param {string} clientId - The ID of the client to listen for events from.
- * @param {(data: T) => void} fn - The callback function to execute when the event is received. The data payload is passed as an argument to this function.
+ * This function sets up a listener for events with a specified topic on the swarm's bus service, invoking the provided callback with the event's
+ * payload when triggered. It is wrapped in `beginContext` for a clean execution environment, logs the operation if enabled, and enforces restrictions
+ * on reserved topic names (defined in `DISALLOWED_EVENT_SOURCE_LIST`). The callback is queued to ensure sequential processing of events. The function
+ * supports a wildcard client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop
+ * listening.
+ *
+ * @template T - The type of the payload data, defaulting to `any` if unspecified.
+ * @param {string} clientId - The ID of the client to listen for events from, or "*" to listen to all clients.
+ * @param {string} topicName - The name of the event topic to subscribe to (must not be a reserved source).
+ * @param {(data: T) => void} fn - The callback function to execute when the event is received, passed the event payload.
+ * @returns {() => void} A function to unsubscribe from the event listener.
+ * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus"), or if the `clientId` is not "*" and no session exists.
+ * @example
+ * const unsubscribe = listenEvent("client-123", "custom-topic", (data) => console.log(data));
+ * // Logs payload when "custom-topic" event is received for "client-123"
+ * unsubscribe(); // Stops listening
  */
 export const listenEvent = beginContext(
   (clientId: string, topicName: string, fn: (data: object) => void) => {
+    // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         clientId,
       });
+
+    // Check if the topic name is reserved
     if (DISALLOWED_EVENT_SOURCE_LIST.has(topicName)) {
       throw new Error(
         `agent-swarm listenEvent topic is reserved topicName=${topicName}`
       );
     }
+
+    // Validate the client ID
     validateClientId(clientId);
+
+    // Subscribe to the event with a queued callback
     return swarm.busService.subscribe<ICustomEvent<object>>(
       clientId,
       topicName,

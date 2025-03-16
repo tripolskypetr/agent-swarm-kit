@@ -7,14 +7,20 @@ import fs from "fs";
 
 const MODULE_NAME = "agent-swarm-kit";
 
+const DISALLOWED_TEXT = [
+    "Summary:",
+    "System:",
+    "#"
+];
+
 const GPT_CLASS_PROMPT =
-  "Please write a summary for that Typescript API Reference of AI agent swarm orchestration framework with several sentences in more human way";
+    "Please write a summary for that Typescript API Reference of AI agent swarm orchestration framework with several sentences in more human way";
 
 const GPT_INTERFACE_PROMPT =
-  "Please write a summary for that Typescript API Reference of AI agent swarm orchestration framework with several sentences in more human way";
+    "Please write a summary for that Typescript API Reference of AI agent swarm orchestration framework with several sentences in more human way";
 
 const GPT_TOTAL_PROMPT =
-  "Please write a summary for the whole swarm orchestration framework based on API Reference with several sentences in more human way";
+    "Please write a summary for the whole swarm orchestration framework based on API Reference with several sentences in more human way";
 
 console.log("Loading model");
 
@@ -27,12 +33,19 @@ const generateDescription = async (filePath, prompt) => {
     console.time("EXECUTE");
     const data = fs.readFileSync(filePath).toString();
     const chat = await model.createChatSession({
-        temperature: 0.8,
+        temperature: 0,
         systemPrompt: `### System:\n${prompt}.\n\n`,
     });
-    const result = await createCompletion(chat, data);
+    const result = await createCompletion(chat, data, {
+        contextErase: 0,
+    });
     console.timeEnd("EXECUTE");
-    return result.choices[0].message.content;
+    const content = result.choices[0].message.content;
+    if (DISALLOWED_TEXT.some((text) => content.toLowerCase().includes(text.toLowerCase()))) {
+        console.warn(`Regenerating ${filePath} due to the disallowed text`);
+        return await generateDescription(filePath, prompt);
+    }
+    return content;
 }
 
 

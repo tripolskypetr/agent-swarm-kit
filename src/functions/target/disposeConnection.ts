@@ -6,30 +6,44 @@ import LoggerAdapter from "../../classes/Logger";
 import { AgentName } from "../../interfaces/Agent.interface";
 import { StorageName } from "../../interfaces/Storage.interface";
 import { StateName } from "../../interfaces/State.interface";
-import beginContext from "../..//utils/beginContext";
+import beginContext from "../../utils/beginContext";
 
 const METHOD_NAME = "function.target.disposeConnection";
 
 /**
- * Disposes the session for a given client with all related swarms and agents.
+ * Disposes of a client session and all related resources within a swarm.
  *
- * @param {string} clientId - The ID of the client.
- * @param {SwarmName} swarmName - The name of the swarm.
- * @returns {Promise<void>} A promise that resolves when the connection is disposed.
+ * This function terminates a client session, cleaning up associated swarm, agent, storage, state, and auxiliary resources (e.g., history, logs, performance metrics).
+ * It ensures that all dependencies are properly disposed of to prevent resource leaks, using sets to avoid redundant disposal of shared resources.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ * The function logs the operation if enabled and resolves when all disposal tasks are complete.
+ *
+ * @param {string} clientId - The unique identifier of the client session to dispose of.
+ * @param {SwarmName} swarmName - The name of the swarm associated with the session.
+ * @param {string} [methodName="function.target.disposeConnection"] - The name of the method invoking the disposal (defaults to `METHOD_NAME`).
+ * @returns {Promise<void>} A promise that resolves when the session and all related resources are fully disposed.
+ * @throws {Error} If session or swarm validation fails, or if any disposal operation encounters an error.
+ * @example
+ * await disposeConnection("client-123", "TaskSwarm");
  */
 export const disposeConnection = beginContext(
   async (clientId: string, swarmName: SwarmName, methodName = METHOD_NAME) => {
+    // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         clientId,
         swarmName,
       });
 
+    // Validate the session and swarm
     swarm.sessionValidationService.validate(clientId, methodName);
     swarm.swarmValidationService.validate(swarmName, methodName);
+
+    // Dispose of session and swarm resources
     await swarm.sessionPublicService.dispose(methodName, clientId, swarmName);
     await swarm.swarmPublicService.dispose(methodName, clientId, swarmName);
 
+    // Dispose of agent-related resources (agents and their histories)
     {
       const agentDisposeSet = new Set<AgentName>();
       await Promise.all(
@@ -54,6 +68,7 @@ export const disposeConnection = beginContext(
       );
     }
 
+    // Dispose of storage resources associated with agents
     {
       const storageDisposeSet = new Set<StorageName>();
       await Promise.all(
@@ -77,6 +92,7 @@ export const disposeConnection = beginContext(
       );
     }
 
+    // Dispose of state resources associated with agents
     {
       const stateDisposeSet = new Set<StateName>();
       await Promise.all(
@@ -100,6 +116,7 @@ export const disposeConnection = beginContext(
       );
     }
 
+    // Dispose of auxiliary services and remove the session
     await History.dispose(clientId, null);
     await LoggerAdapter.dispose(clientId);
     {

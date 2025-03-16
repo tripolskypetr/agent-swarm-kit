@@ -1,29 +1,46 @@
-import beginContext from "../..//utils/beginContext";
+import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
+/** @private Constant defining the method name for logging and validation context */
 const METHOD_NAME = "function.commit.commitSystemMessage";
 
 /**
- * Commits a system message to the active agent in the swarm.
+ * Commits a system-generated message to the active agent in the swarm system.
+ * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before committing the message.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
+ * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (message committing),
+ * and LoggerService (logging). Complements functions like commitAssistantMessage by handling system messages (e.g., configuration or control messages)
+ * rather than assistant-generated responses.
  *
- * @param {string} content - The content of the system message.
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ * @param {string} content - The content of the system message to commit, typically related to system state or control instructions.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent to commit the message for, validated against registered agents.
+ * @returns {Promise<void>} A promise that resolves when the message is committed or skipped (e.g., agent mismatch).
+ * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 export const commitSystemMessage = beginContext(
-  async (content: string, clientId: string, agentName: string) => {
+  async (content: string, clientId: string, agentName: string): Promise<void> => {
+    // Log the commit attempt if enabled
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         content,
         clientId,
         agentName,
       });
+
+    // Validate the agent exists
     swarm.agentValidationService.validate(agentName, METHOD_NAME);
+
+    // Validate the session exists and retrieve the associated swarm
     swarm.sessionValidationService.validate(clientId, METHOD_NAME);
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
+
+    // Validate the swarm configuration
     swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
+
+    // Check if the current agent matches the provided agent
     const currentAgentName = await swarm.swarmPublicService.getAgentName(
       METHOD_NAME,
       clientId,
@@ -41,6 +58,8 @@ export const commitSystemMessage = beginContext(
         );
       return;
     }
+
+    // Commit the system message via SessionPublicService
     await swarm.sessionPublicService.commitSystemMessage(
       content,
       METHOD_NAME,

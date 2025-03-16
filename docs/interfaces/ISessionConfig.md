@@ -1,6 +1,6 @@
 # ISessionConfig
 
-Configuration options for a scheduled session.
+Configuration interface for scheduled or rate-limited sessions.
 
 ## Properties
 

@@ -7625,483 +7625,771 @@ declare const dumpClientPerformance: {
 };
 
 /**
- * Adds a new agent to the agent registry. The swarm takes only those agents which was registered
+ * Adds a new agent to the agent registry for use within the swarm system.
  *
- * @param {IAgentSchema} agentSchema - The schema of the agent to be added.
- * @returns {string} The name of the added agent.
+ * This function registers a new agent by adding it to the agent validation and schema services, making it available for swarm operations.
+ * Only agents registered through this function can be utilized by the swarm. The execution is wrapped in `beginContext` to ensure it runs
+ * outside of existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled
+ * and returns the agent's name upon successful registration.
+ *
+ * @param {IAgentSchema} agentSchema - The schema defining the agent's properties, including its name (`agentName`) and other configuration details.
+ * @returns {string} The name of the newly added agent (`agentSchema.agentName`), confirming its registration.
+ * @throws {Error} If the agent schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate agent name).
+ * @example
+ * const agentSchema = { agentName: "AgentX", prompt: "Handle tasks" };
+ * const agentName = addAgent(agentSchema);
+ * console.log(agentName); // Outputs "AgentX"
  */
 declare const addAgent: (agentSchema: IAgentSchema) => string;
 
 /**
- * Adds a completion engine for agents. Agents could use different models and
- * framewords for completion like: mock, gpt4all, ollama, openai
+ * Adds a completion engine to the registry for use by agents in the swarm system.
  *
- * @param {ICompletionSchema} completionSchema - The completion schema to be added.
- * @returns {string} The name of the completion that was added.
+ * This function registers a completion engine, enabling agents to utilize various models and frameworks (e.g., mock, GPT4All, Ollama, OpenAI)
+ * for generating completions. The completion schema is added to the validation and schema services, making it available for agent operations.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ * The function logs the operation if enabled and returns the completion's name upon successful registration.
+ *
+ * @param {ICompletionSchema} completionSchema - The schema defining the completion engine's properties, including its name (`completionName`) and configuration details.
+ * @returns {string} The name of the newly added completion (`completionSchema.completionName`), confirming its registration.
+ * @throws {Error} If the completion schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate completion name).
+ * @example
+ * const completionSchema = { completionName: "OpenAI", model: "gpt-3.5-turbo" };
+ * const completionName = addCompletion(completionSchema);
+ * console.log(completionName); // Outputs "OpenAI"
  */
 declare const addCompletion: (completionSchema: ICompletionSchema) => string;
 
 /**
- * Adds a new swarm to the system. The swarm is a root for starting client session
+ * Adds a new swarm to the system for managing client sessions.
  *
- * @param {ISwarmSchema} swarmSchema - The schema of the swarm to be added.
- * @returns {string} The name of the added swarm.
+ * This function registers a new swarm, which serves as the root entity for initiating and managing client sessions within the system.
+ * The swarm defines the structure and behavior of agent interactions and session workflows. Only swarms registered through this function
+ * are recognized by the system. The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts,
+ * providing a clean execution environment. The function logs the operation if enabled and returns the swarm's name upon successful registration.
+ *
+ * @param {ISwarmSchema} swarmSchema - The schema defining the swarm's properties, including its name (`swarmName`), default agent, and other configuration details.
+ * @returns {string} The name of the newly added swarm (`swarmSchema.swarmName`), confirming its registration.
+ * @throws {Error} If the swarm schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate swarm name).
+ * @example
+ * const swarmSchema = { swarmName: "TaskSwarm", defaultAgent: "AgentX" };
+ * const swarmName = addSwarm(swarmSchema);
+ * console.log(swarmName); // Outputs "TaskSwarm"
  */
 declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
 
 /**
- * Adds a new tool for agents in a swarm. Tool should be registered in `addAgent`
- * declaration
+ * Adds a new tool to the tool registry for use by agents in the swarm system.
  *
- * @param {IAgentTool} toolSchema - The schema of the tool to be added.
- * @returns {string} The name of the tool that was added.
+ * This function registers a new tool, enabling agents within the swarm to utilize it for performing specific tasks or operations.
+ * Tools must be registered through this function to be recognized by the swarm, though the original comment suggests an association with
+ * `addAgent`, likely intending that tools are linked to agent capabilities. The execution is wrapped in `beginContext` to ensure it runs
+ * outside of existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled
+ * and returns the tool's name upon successful registration.
+ *
+ * @template T - The type of the tool's input/output data, defaulting to a record of string keys and `ToolValue` values if unspecified.
+ * @param {IAgentTool<T>} toolSchema - The schema defining the tool's properties, including its name (`toolName`) and other configuration details (e.g., function, description).
+ * @returns {string} The name of the newly added tool (`toolSchema.toolName`), confirming its registration.
+ * @throws {Error} If the tool schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate tool name).
+ * @example
+ * const toolSchema = { toolName: "Calculator", fn: (x: number) => x * 2, description: "Doubles a number" };
+ * const toolName = addTool(toolSchema);
+ * console.log(toolName); // Outputs "Calculator"
  */
-declare const addTool: <T extends any = Record<string, ToolValue>>(storageSchema: IAgentTool<T>) => string;
+declare const addTool: <T extends any = Record<string, ToolValue>>(toolSchema: IAgentTool<T>) => string;
 
 /**
- * Adds a new state to the state registry. The swarm takes only those states which was registered
+ * Adds a new state to the state registry for use within the swarm system.
  *
- * @param {IStateSchema} stateSchema - The schema of the state to be added.
- * @returns {string} The name of the added state.
+ * This function registers a new state, enabling the swarm to manage and utilize it for agent operations or shared data persistence.
+ * Only states registered through this function are recognized by the swarm. If the state is marked as shared, it initializes a connection
+ * to the shared state service and waits for its initialization. The execution is wrapped in `beginContext` to ensure it runs outside of
+ * existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled and returns
+ * the state's name upon successful registration.
+ *
+ * @template T - The type of data stored in the state (defaults to `any` if unspecified).
+ * @param {IStateSchema<T>} stateSchema - The schema defining the state's properties, including its name (`stateName`), shared status (`shared`), and other configuration details.
+ * @returns {string} The name of the newly added state (`stateSchema.stateName`), confirming its registration.
+ * @throws {Error} If the state schema is invalid, registration fails (e.g., duplicate state name), or shared state initialization encounters an error.
+ * @example
+ * const stateSchema = { stateName: "UserPrefs", shared: true, initialValue: { theme: "dark" } };
+ * const stateName = addState(stateSchema);
+ * console.log(stateName); // Outputs "UserPrefs"
  */
-declare const addState: <T extends unknown = any>(storageSchema: IStateSchema<T>) => string;
+declare const addState: <T extends unknown = any>(stateSchema: IStateSchema<T>) => string;
 
 /**
- * Adds a new embedding to the embedding registry. The swarm takes only those embeddings which was registered
+ * Adds a new embedding engine to the embedding registry for use within the swarm system.
  *
- * @param {IEmbeddingSchema} embeddingSchema - The schema of the embedding to be added.
- * @returns {string} The name of the added embedding.
+ * This function registers a new embedding engine, enabling the swarm to utilize it for tasks such as vector generation or similarity comparisons.
+ * Only embeddings registered through this function are recognized by the swarm. The execution is wrapped in `beginContext` to ensure it runs
+ * outside of existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled
+ * and returns the embedding's name upon successful registration.
+ *
+ * @param {IEmbeddingSchema} embeddingSchema - The schema defining the embedding engine's properties, including its name (`embeddingName`) and configuration details.
+ * @returns {string} The name of the newly added embedding (`embeddingSchema.embeddingName`), confirming its registration.
+ * @throws {Error} If the embedding schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate embedding name).
+ * @example
+ * const embeddingSchema = { embeddingName: "TextEmbedder", model: "bert-base" };
+ * const embeddingName = addEmbedding(embeddingSchema);
+ * console.log(embeddingName); // Outputs "TextEmbedder"
  */
 declare const addEmbedding: (embeddingSchema: IEmbeddingSchema) => string;
 
 /**
- * Adds a new storage to the storage registry. The swarm takes only those storages which was registered
+ * Adds a new storage engine to the storage registry for use within the swarm system.
  *
- * @param {IStorageSchema} storageSchema - The schema of the storage to be added.
- * @returns {string} The name of the added storage.
+ * This function registers a new storage engine, enabling the swarm to manage and utilize it for persistent data storage across agents or sessions.
+ * Only storages registered through this function are recognized by the swarm. If the storage is marked as shared, it initializes a connection to the
+ * shared storage service and waits for its initialization. The execution is wrapped in `beginContext` to ensure it runs outside of existing method
+ * and execution contexts, providing a clean execution environment. The function logs the operation if enabled and returns the storage's name upon
+ * successful registration.
+ *
+ * @template T - The type of data stored in the storage, extending `IStorageData` (defaults to `IStorageData` if unspecified).
+ * @param {IStorageSchema<T>} storageSchema - The schema defining the storage engine's properties, including its name (`storageName`), shared status (`shared`), and other configuration details.
+ * @returns {string} The name of the newly added storage (`storageSchema.storageName`), confirming its registration.
+ * @throws {Error} If the storage schema is invalid, registration fails (e.g., duplicate storage name), or shared storage initialization encounters an error.
+ * @example
+ * const storageSchema = { storageName: "UserData", shared: true, type: "key-value" };
+ * const storageName = addStorage(storageSchema);
+ * console.log(storageName); // Outputs "UserData"
  */
 declare const addStorage: <T extends IStorageData = IStorageData>(storageSchema: IStorageSchema<T>) => string;
 
 /**
- * Adds a new policy for agents in a swarm. Policy should be registered in `addPolicy`
- * declaration
+ * Adds a new policy for agents in the swarm system by registering it with validation and schema services.
+ * Registers the policy with PolicyValidationService for runtime validation and PolicySchemaService for schema management.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with PolicyValidationService (policy registration and validation), PolicySchemaService (schema registration),
+ * and LoggerService (logging). Part of the swarm setup process, enabling policies to govern agent behavior,
+ * complementing runtime functions like commitAssistantMessage by defining operational rules upfront.
  *
- * @param {IPolicySchema} policySchema - The schema of the policy to be added.
- * @returns {string} The name of the policy that was added.
+ * @param {IPolicySchema} policySchema - The schema of the policy to be added, including policyName and other configuration details.
+ * @returns {string} The name of the policy that was added, as specified in policySchema.policyName.
+ * @throws {Error} If policy registration fails due to validation errors in PolicyValidationService or PolicySchemaService.
  */
 declare const addPolicy: (policySchema: IPolicySchema) => string;
 
 /**
- * Commits the tool output to the active agent in a swarm session
+ * Commits the output of a tool execution to the active agent in a swarm session.
  *
- * @param {string} content - The content to be committed.
- * @param {string} clientId - The client ID associated with the session.
- * @param {AgentName} agentName - The name of the agent committing the output.
- * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ * This function ensures that the tool output is committed only if the specified agent is still the active agent in the swarm session.
+ * It performs validation checks on the agent, session, and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ *
+ * @param {string} toolId - The unique identifier of the tool whose output is being committed.
+ * @param {string} content - The content or result of the tool execution to be committed.
+ * @param {string} clientId - The unique identifier of the client session associated with the operation.
+ * @param {AgentName} agentName - The name of the agent committing the tool output.
+ * @returns {Promise<void>} A promise that resolves when the tool output is successfully committed, or immediately if the operation is skipped due to an agent change.
+ * @throws {Error} If validation fails (e.g., invalid agent, session, or swarm) or if the session public service encounters an error during the commit operation.
+ * @example
+ * await commitToolOutput("tool-123", "Tool execution result", "client-456", "AgentX");
  */
 declare const commitToolOutput: (toolId: string, content: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
- * Commits a system message to the active agent in the swarm.
+ * Commits a system-generated message to the active agent in the swarm system.
+ * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before committing the message.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
+ * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (message committing),
+ * and LoggerService (logging). Complements functions like commitAssistantMessage by handling system messages (e.g., configuration or control messages)
+ * rather than assistant-generated responses.
  *
- * @param {string} content - The content of the system message.
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ * @param {string} content - The content of the system message to commit, typically related to system state or control instructions.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent to commit the message for, validated against registered agents.
+ * @returns {Promise<void>} A promise that resolves when the message is committed or skipped (e.g., agent mismatch).
+ * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 declare const commitSystemMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
- * Commits flush of agent history
+ * Commits a flush of agent history for a specific client and agent in the swarm system.
+ * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before flushing the history.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
+ * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (history flush),
+ * and LoggerService (logging). Complements functions like commitAssistantMessage by clearing agent history rather than adding messages.
  *
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent whose history is to be flushed, validated against registered agents.
+ * @returns {Promise<void>} A promise that resolves when the history flush is committed or skipped (e.g., agent mismatch).
+ * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 declare const commitFlush: (clientId: string, agentName: string) => Promise<void>;
 
 /**
- * Commits a user message to the active agent history in as swarm without answer.
+ * Commits a user message to the active agent's history in a swarm session without triggering a response.
  *
- * @param {string} content - The content of the message.
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ * This function commits a user message to the history of the specified agent, ensuring the agent is still active in the swarm session.
+ * It performs validation checks on the agent, session, and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ *
+ * @param {string} content - The content of the user message to be committed.
+ * @param {string} clientId - The unique identifier of the client session associated with the operation.
+ * @param {string} agentName - The name of the agent to whose history the message will be committed.
+ * @returns {Promise<void>} A promise that resolves when the message is successfully committed, or immediately if the operation is skipped due to an agent change.
+ * @throws {Error} If validation fails (e.g., invalid agent, session, or swarm) or if the session public service encounters an error during the commit operation.
+ * @example
+ * await commitUserMessage("User input message", "client-123", "AgentX");
  */
 declare const commitUserMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
- * Commits the tool output to the active agent in a swarm session without checking active agent
+ * Commits the output of a tool execution to the active agent in a swarm session without checking the active agent.
  *
- * @param {string} content - The content to be committed.
- * @param {string} clientId - The client ID associated with the session.
- * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ * This function forcefully commits the tool output to the session, bypassing the check for whether the agent is still active in the swarm session.
+ * It performs validation on the session and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ *
+ * @param {string} toolId - The unique identifier of the tool whose output is being committed.
+ * @param {string} content - The content or result of the tool execution to be committed.
+ * @param {string} clientId - The unique identifier of the client session associated with the operation.
+ * @returns {Promise<void>} A promise that resolves when the tool output is successfully committed.
+ * @throws {Error} If validation fails (e.g., invalid session or swarm) or if the session public service encounters an error during the commit operation.
+ * @example
+ * await commitToolOutputForce("tool-123", "Tool execution result", "client-456");
  */
 declare const commitToolOutputForce: (toolId: string, content: string, clientId: string) => Promise<void>;
 
 /**
- * Commits a system message to the active agent in as swarm without checking active agent.
+ * Forcefully commits a system-generated message to a session in the swarm system, without checking the active agent.
+ * Validates the session and swarm, then proceeds with committing the message regardless of the current agent state.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
+ * SessionPublicService (message committing), and LoggerService (logging).
+ * Unlike commitSystemMessage, this function skips agent validation and active agent checks, providing a more aggressive commit mechanism,
+ * analogous to commitAssistantMessageForce vs. commitAssistantMessage.
  *
- * @param {string} content - The content of the system message.
- * @param {string} clientId - The ID of the client.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ * @param {string} content - The content of the system message to commit, typically related to system state or control instructions.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with commitSystemMessage).
+ * @returns {Promise<void>} A promise that resolves when the message is committed.
+ * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 declare const commitSystemMessageForce: (content: string, clientId: string) => Promise<void>;
 
 /**
- * Commits flush of agent history without active agent check
+ * Forcefully commits a flush of agent history for a specific client in the swarm system, without checking the active agent.
+ * Validates the session and swarm, then proceeds with flushing the history regardless of the current agent state.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
+ * SessionPublicService (history flush), and LoggerService (logging).
+ * Unlike commitFlush, this function skips agent validation and active agent checks, providing a more aggressive flush mechanism,
+ * analogous to commitAssistantMessageForce vs. commitAssistantMessage.
  *
- * @param {string} clientId - The ID of the client.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with commitFlush).
+ * @returns {Promise<void>} A promise that resolves when the history flush is committed.
+ * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 declare const commitFlushForce: (clientId: string) => Promise<void>;
 
 /**
- * Commits a user message to the active agent history in as swarm without answer and checking active agent
+ * Commits a user message to the active agent's history in a swarm session without triggering a response and without checking the active agent.
  *
- * @param {string} content - The content of the message.
- * @param {string} clientId - The ID of the client.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ * This function forcefully commits a user message to the history of the active agent in the specified swarm session, bypassing the check for whether the agent is still active.
+ * It performs validation on the session and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ *
+ * @param {string} content - The content of the user message to be committed.
+ * @param {string} clientId - The unique identifier of the client session associated with the operation.
+ * @returns {Promise<void>} A promise that resolves when the message is successfully committed.
+ * @throws {Error} If validation fails (e.g., invalid session or swarm) or if the session public service encounters an error during the commit operation.
+ * @example
+ * await commitUserMessageForce("User input message", "client-123");
  */
 declare const commitUserMessageForce: (content: string, clientId: string) => Promise<void>;
 
 /**
- * Commits an assistant message to the active agent in the swarm.
+ * Commits an assistant-generated message to the active agent in the swarm system.
+ * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before committing the message.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
+ * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (message committing),
+ * and LoggerService (logging). Complements functions like cancelOutput by persisting assistant messages rather than canceling output.
  *
- * @param {string} content - The content of the assistant message.
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ * @param {string} content - The content of the assistant message to commit, typically generated by the agent.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent to commit the message for, validated against registered agents.
+ * @returns {Promise<void>} A promise that resolves when the message is committed or skipped (e.g., agent mismatch).
+ * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 declare const commitAssistantMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
- * Commits an assistant message to the active agent in as swarm without checking active agent.
+ * Forcefully commits an assistant-generated message to a session in the swarm system, without checking the active agent.
+ * Validates the session and swarm, then proceeds with committing the message regardless of the current agent state.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
+ * SessionPublicService (message committing), and LoggerService (logging).
+ * Unlike commitAssistantMessage, this function skips agent validation and active agent checks, providing a more aggressive commit mechanism,
+ * analogous to cancelOutputForce vs. cancelOutput.
  *
- * @param {string} content - The content of the assistant message.
- * @param {string} clientId - The ID of the client.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ * @param {string} content - The content of the assistant message to commit, typically generated by an agent.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with commitAssistantMessage).
+ * @returns {Promise<void>} A promise that resolves when the message is committed.
+ * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 declare const commitAssistantMessageForce: (content: string, clientId: string) => Promise<void>;
 
 /**
- * Cancel the await of output by emit of empty string
+ * Cancels the awaited output for a specific client and agent by emitting an empty string.
+ * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before cancellation.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
+ * SwarmValidationService (swarm validation), and SwarmPublicService (agent retrieval and output cancellation).
  *
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the output is canceled
+ * @param {string} clientId - The ID of the client whose output is to be canceled, validated against active sessions.
+ * @param {string} agentName - The name of the agent for which the output is canceled, validated against registered agents.
+ * @returns {Promise<void>} A promise that resolves when the output cancellation is complete or skipped (e.g., agent mismatch).
+ * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 declare const cancelOutput: (clientId: string, agentName: string) => Promise<void>;
 
 /**
- * Cancel the await of output by emit of empty string without checking active agent
+ * Forcefully cancels the awaited output for a specific client by emitting an empty string, without checking the active agent.
+ * Validates the session and swarm, then proceeds with cancellation regardless of the current agent state.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
+ * SwarmPublicService (output cancellation), and LoggerService (logging).
+ * Unlike cancelOutput, this function skips agent validation and active agent checks, providing a more aggressive cancellation mechanism.
  *
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the output is canceled
+ * @param {string} clientId - The ID of the client whose output is to be canceled, validated against active sessions.
+ * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with cancelOutput).
+ * @returns {Promise<void>} A promise that resolves when the output cancellation is complete.
+ * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 declare const cancelOutputForce: (clientId: string) => Promise<void>;
 
 /**
- * Prevent the next tool from being executed
+ * Prevents the next tool from being executed for a specific client and agent in the swarm system.
+ * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before stopping tool execution.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
+ * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (tool execution stop),
+ * ToolValidationService (tool context), and LoggerService (logging). Complements functions like commitFlush by controlling tool flow rather than clearing history.
  *
- * @param {string} clientId - The ID of the client.
- * @param {string} agentName - The name of the agent.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent whose next tool execution is to be stopped, validated against registered agents.
+ * @returns {Promise<void>} A promise that resolves when the tool stop is committed or skipped (e.g., agent mismatch).
+ * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 declare const commitStopTools: (clientId: string, agentName: string) => Promise<void>;
 
 /**
- * Prevent the next tool from being executed without active agent check
+ * Forcefully prevents the next tool from being executed for a specific client in the swarm system, without checking the active agent.
+ * Validates the session and swarm, then proceeds with stopping tool execution regardless of the current agent state.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
+ * SessionPublicService (tool execution stop), ToolValidationService (tool context), and LoggerService (logging).
+ * Unlike commitStopTools, this function skips agent validation and active agent checks, providing a more aggressive stop mechanism,
+ * analogous to commitFlushForce vs. commitFlush.
  *
- * @param {string} clientId - The ID of the client.
- * @returns {Promise<void>} - A promise that resolves when the message is committed.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with commitStopTools).
+ * @returns {Promise<void>} A promise that resolves when the tool stop is committed.
+ * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 declare const commitStopToolsForce: (clientId: string) => Promise<void>;
 
 /**
- * Emits a string constant as the model output without executing incoming message and checking active agent
- * Works only for `makeConnection`
+ * Emits a string as model output without executing an incoming message or checking the active agent.
  *
- * @param {string} content - The content to be emitted.
- * @param {string} clientId - The client ID of the session.
- * @param {AgentName} agentName - The name of the agent to emit the content to.
- * @throws Will throw an error if the session mode is not "makeConnection".
+ * This function directly emits a provided string as output from the swarm session, bypassing message execution and agent activity checks.
+ * It is designed exclusively for sessions established via `makeConnection`, ensuring compatibility with its connection model.
+ * The execution is wrapped in `beginContext` for a clean environment, validates the session and swarm, and throws an error if the session mode
+ * is not "makeConnection". The operation is logged if enabled, and resolves when the content is successfully emitted.
+ *
+ * @param {string} content - The content to be emitted as the model output.
+ * @param {string} clientId - The unique identifier of the client session emitting the content.
  * @returns {Promise<void>} A promise that resolves when the content is emitted.
+ * @throws {Error} If the session mode is not "makeConnection", or if session or swarm validation fails.
+ * @example
+ * await emitForce("Direct output", "client-123"); // Emits "Direct output" in a makeConnection session
  */
 declare const emitForce: (content: string, clientId: string) => Promise<void>;
 
 /**
- * Send the message to the active agent in the swarm content like it income from client side
- * Should be used to review tool output and initiate conversation from the model side to client
+ * Sends a message to the active agent in a swarm session as if it originated from the client side, forcing execution regardless of agent activity.
  *
- * Will execute even if the agent is inactive
+ * This function executes a command or message on behalf of the active agent within a swarm session, designed for scenarios like reviewing tool output
+ * or initiating a model-to-client conversation. Unlike `execute`, it does not check if the agent is currently active, ensuring execution even if the
+ * agent has changed or is inactive. It validates the session and swarm, executes the content with performance tracking and event bus notifications,
+ * and is wrapped in `beginContext` for a clean environment and `ExecutionContextService` for metadata tracking.
  *
- * @param {string} content - The content to be executed.
- * @param {string} clientId - The ID of the client requesting execution.
- * @returns {Promise<void>} - A promise that resolves when the execution is complete.
+ * @param {string} content - The content or command to be executed by the active agent.
+ * @param {string} clientId - The unique identifier of the client session requesting the execution.
+ * @returns {Promise<string>} A promise that resolves to the result of the execution.
+ * @throws {Error} If session or swarm validation fails, or if the execution process encounters an error.
+ * @example
+ * const result = await executeForce("Force this execution", "client-123");
+ * console.log(result); // Outputs the agent's response regardless of its active state
  */
 declare const executeForce: (content: string, clientId: string) => Promise<string>;
 
 /**
  * Interface for the parameters of the makeAutoDispose function.
+ * @interface IMakeDisposeParams
+ * @property {number} timeoutSeconds - Timeout in seconds before auto-dispose is triggered.
+ * @property {(clientId: string, swarmName: SwarmName) => void} [onDestroy] - Optional callback invoked when the session is closed.
  */
 interface IMakeDisposeParams {
-    /**
-     * Timeout in seconds before auto-dispose is triggered.
-     */
     timeoutSeconds: number;
-    /**
-     * Callback when session is closed
-     */
     onDestroy?: (clientId: string, swarmName: SwarmName) => void;
 }
 /**
- * Creates an auto-dispose mechanism for a client in a swarm.
+ * Creates an auto-dispose mechanism for a client session in a swarm.
  *
- * @param {string} clientId - The ID of the client.
- * @param {SwarmName} swarmName - The name of the swarm.
- * @param {Partial<IMakeDisposeParams>} [params={}] - Optional parameters for auto-dispose.
- * @returns {Object} An object with tick and stop methods to control the auto-dispose.
+ * This function establishes a timer-based auto-dispose system that monitors client activity in a swarm session. If no activity
+ * is detected (via the `tick` method) within the specified timeout period, the session is automatically disposed using `disposeConnection`.
+ * The mechanism uses a `Source` from `functools-kit` to manage the timer, which can be reset or stopped manually. The execution is wrapped
+ * in `beginContext` for a clean environment, and an optional callback (`onDestroy`) can be provided to handle post-disposal actions.
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm associated with the session.
+ * @param {Partial<IMakeDisposeParams>} [params={}] - Optional parameters for configuring the auto-dispose behavior, including timeout and callback.
+ * @returns {{ tick: () => void, destroy: () => void }} An object with `tick` to signal activity and `destroy` to stop the auto-dispose mechanism.
+ * @throws {Error} If disposal via `disposeConnection` fails when triggered automatically.
+ * @example
+ * const { tick, destroy } = makeAutoDispose("client-123", "TaskSwarm", {
+ *   timeoutSeconds: 30,
+ *   onDestroy: (id, name) => console.log(`Session ${id} in ${name} closed`)
+ * });
+ * tick(); // Reset timer
+ * setInterval(tick, 10000); // Keep alive every 10 seconds
+ * destroy(); // Stop manually
  */
 declare const makeAutoDispose: (clientId: string, swarmName: string, args_2?: Partial<IMakeDisposeParams>) => {
-    /**
-     * Signals that the client is active, resetting the auto-dispose timer.
-     */
     tick(): void;
-    /**
-     * Stops the auto-dispose mechanism.
-     */
     destroy(): void;
 };
 
 /**
- * Send the message to the active agent in the swarm content like it income from client side
- * Should be used to review tool output and initiate conversation from the model side to client
+ * Sends a message to the active agent in a swarm session as if it originated from the client side.
  *
- * @param {string} content - The content to be executed.
- * @param {string} clientId - The ID of the client requesting execution.
- * @param {AgentName} agentName - The name of the agent executing the command.
- * @returns {Promise<void>} - A promise that resolves when the execution is complete.
+ * This function executes a command or message on behalf of the specified agent within a swarm session, designed for scenarios like reviewing tool output
+ * or initiating a model-to-client conversation. It validates the agent and session, checks if the specified agent is still active, and executes the content
+ * with performance tracking and event bus notifications. The execution is wrapped in `beginContext` for a clean environment and runs within an
+ * `ExecutionContextService` context for metadata tracking. If the active agent has changed, the operation is skipped.
+ *
+ * @param {string} content - The content or command to be executed by the agent.
+ * @param {string} clientId - The unique identifier of the client session requesting the execution.
+ * @param {AgentName} agentName - The name of the agent intended to execute the command.
+ * @returns {Promise<string>} A promise that resolves to the result of the execution, or an empty string if skipped due to an agent change.
+ * @throws {Error} If agent, session, or swarm validation fails, or if the execution process encounters an error.
+ * @example
+ * const result = await execute("Review this output", "client-123", "AgentX");
+ * console.log(result); // Outputs the agent's response or "" if skipped
  */
 declare const execute: (content: string, clientId: string, agentName: string) => Promise<string>;
 
 /**
- * Emits a string constant as the model output without executing incoming message
- * Works only for `makeConnection`
+ * Emits a string as model output without executing an incoming message, with agent activity validation.
  *
- * @param {string} content - The content to be emitted.
- * @param {string} clientId - The client ID of the session.
- * @param {AgentName} agentName - The name of the agent to emit the content to.
- * @throws Will throw an error if the session mode is not "makeConnection".
- * @returns {Promise<void>} A promise that resolves when the content is emitted.
+ * This function directly emits a provided string as output from the swarm session, bypassing message execution, and is designed exclusively
+ * for sessions established via `makeConnection`. It validates the session, swarm, and specified agent, ensuring the agent is still active
+ * before emitting. If the active agent has changed, the operation is skipped. The execution is wrapped in `beginContext` for a clean environment,
+ * logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
+ *
+ * @param {string} content - The content to be emitted as the model output.
+ * @param {string} clientId - The unique identifier of the client session emitting the content.
+ * @param {AgentName} agentName - The name of the agent intended to emit the content.
+ * @returns {Promise<void>} A promise that resolves when the content is emitted, or resolves early if skipped due to an agent change.
+ * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
+ * @example
+ * await emit("Direct output", "client-123", "AgentX"); // Emits "Direct output" if AgentX is active
  */
 declare const emit: (content: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
- * Complete the message stateless without append to the chat history
- * Use to prevent model from history overflow while handling storage output
+ * Executes a message statelessly with an agent in a swarm session, bypassing chat history.
  *
- * @param {string} content - The content to be runned.
- * @param {string} clientId - The ID of the client requesting run.
- * @param {AgentName} agentName - The name of the agent running the command.
- * @returns {Promise<string>} - A promise that resolves the run result
+ * This function processes a command or message using the specified agent without appending it to the chat history, designed to prevent
+ * model history overflow when handling storage output or one-off tasks. It validates the agent, session, and swarm, checks if the specified
+ * agent is still active, and executes the content with performance tracking and event bus notifications. The execution is wrapped in
+ * `beginContext` for a clean environment and `ExecutionContextService` for metadata tracking. If the active agent has changed, the operation
+ * is skipped, returning an empty string.
+ *
+ * @param {string} content - The content or command to be executed statelessly by the agent.
+ * @param {string} clientId - The unique identifier of the client session requesting the execution.
+ * @param {AgentName} agentName - The name of the agent intended to execute the command.
+ * @returns {Promise<string>} A promise that resolves to the result of the execution, or an empty string if skipped due to an agent change.
+ * @throws {Error} If agent, session, or swarm validation fails, or if the execution process encounters an error.
+ * @example
+ * const result = await runStateless("Process this data", "client-123", "AgentX");
+ * console.log(result); // Outputs the agent's response without affecting history
  */
 declare const runStateless: (content: string, clientId: string, agentName: string) => Promise<string>;
 
 /**
- * Complete the message stateless without append to the chat history
- * Use to prevent model from history overflow while handling storage output
+ * Executes a message statelessly with the active agent in a swarm session, bypassing chat history and forcing execution regardless of agent activity.
  *
- * Will run even if the agent is inactive
+ * This function processes a command or message using the active agent without appending it to the chat history, designed to prevent model history
+ * overflow when handling storage output or one-off tasks. Unlike `runStateless`, it does not check if the agent is currently active, ensuring execution
+ * even if the agent has changed or is inactive. It validates the session and swarm, executes the content with performance tracking and event bus
+ * notifications, and is wrapped in `beginContext` for a clean environment and `ExecutionContextService` for metadata tracking.
  *
- * @param {string} content - The content to be runned.
- * @param {string} clientId - The ID of the client requesting run.
- * @returns {Promise<string>} - A promise that resolves the run result
+ * @param {string} content - The content or command to be executed statelessly by the active agent.
+ * @param {string} clientId - The unique identifier of the client session requesting the execution.
+ * @returns {Promise<string>} A promise that resolves to the result of the execution.
+ * @throws {Error} If session or swarm validation fails, or if the execution process encounters an error.
+ * @example
+ * const result = await runStatelessForce("Process this data forcefully", "client-123");
+ * console.log(result); // Outputs the agent's response without affecting history
  */
 declare const runStatelessForce: (content: string, clientId: string) => Promise<string>;
 
+/**
+ * Type definition for the send message function returned by connection factories.
+ * @typedef {Function} SendMessageFn
+ * @param {string} outgoing - The message content to send to the swarm.
+ * @returns {Promise<void>} A promise that resolves when the message is sent.
+ */
 type SendMessageFn = (outgoing: string) => Promise<void>;
 /**
- * A connection factory for a client to a swarm and returns a function to send messages.
+ * A connection factory for establishing a client connection to a swarm, returning a function to send messages.
  *
- * @param {ReceiveMessageFn} connector - The function to receive messages.
- * @param {string} clientId - The unique identifier of the client.
- * @param {SwarmName} swarmName - The name of the swarm.
- * @returns {SendMessageFn} - A function to send messages to the swarm.
+ * This factory creates a queued connection to the swarm, allowing the client to send messages to the active agent.
+ * It is designed for real-time communication, leveraging the session public service for message handling.
+ *
+ * @param {ReceiveMessageFn} connector - The function to receive incoming messages from the swarm.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm to connect to.
+ * @returns {SendMessageFn} A function to send messages to the swarm.
+ * @throws {Error} If swarm or session validation fails, or if the connection process encounters an error.
+ * @example
+ * const sendMessage = makeConnection((msg) => console.log(msg), "client-123", "TaskSwarm");
+ * await sendMessage("Hello, swarm!");
  */
 declare const makeConnection: {
     (connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName): SendMessageFn;
     /**
-     * A scheduled connection factory for a client to a swarm and returns a function to send messages.
+     * A scheduled connection factory for a client to a swarm, returning a function to send delayed messages.
      *
-     * @param {ReceiveMessageFn} connector - The function to receive messages.
-     * @param {string} clientId - The unique identifier of the client.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {Partial<IMakeConnectionConfig>} [config] - The configuration for scheduling.
-     * @returns {SendMessageFn} - A function to send scheduled messages to the swarm.
+     * This factory extends `makeConnection` by adding scheduling capabilities, delaying message sends based on the configured delay.
+     * It commits messages to the agent's history immediately via `commitUserMessage` and sends them after the delay if the session remains active.
+     *
+     * @param {ReceiveMessageFn} connector - The function to receive incoming messages from the swarm.
+     * @param {string} clientId - The unique identifier of the client session.
+     * @param {SwarmName} swarmName - The name of the swarm to connect to.
+     * @param {Partial<IMakeConnectionConfig>} [config] - Configuration object with an optional delay (defaults to `SCHEDULED_DELAY`).
+     * @returns {SendMessageFn} A function to send scheduled messages to the swarm.
+     * @throws {Error} If swarm or session validation fails, or if the scheduled send process encounters an error.
+     * @example
+     * const sendScheduled = makeConnection.scheduled((msg) => console.log(msg), "client-123", "TaskSwarm", { delay: 2000 });
+     * await sendScheduled("Delayed message"); // Sent after 2 seconds
      */
     scheduled: (connector: ReceiveMessageFn, clientId: string, swarmName: string, args_3?: Partial<IMakeConnectionConfig>) => (content: string) => Promise<void>;
     /**
-     * A rate-limited connection factory for a client to a swarm and returns a function to send messages.
+     * A rate-limited connection factory for a client to a swarm, returning a function to send throttled messages.
      *
-     * @param {ReceiveMessageFn} connector - The function to receive messages.
-     * @param {string} clientId - The unique identifier of the client.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {Partial<IMakeConnectionConfig>} [config] - The configuration for rate limiting.
-     * @param {number} [config.delay=RATE_DELAY] - The delay in milliseconds for rate limiting messages.
-     * @returns {SendMessageFn} - A function to send rate-limited messages to the swarm.
+     * This factory extends `makeConnection` by adding rate-limiting capabilities, throttling message sends based on the configured delay.
+     * If the rate limit is exceeded, it warns and returns an empty result instead of throwing an error.
+     *
+     * @param {ReceiveMessageFn} connector - The function to receive incoming messages from the swarm.
+     * @param {string} clientId - The unique identifier of the client session.
+     * @param {SwarmName} swarmName - The name of the swarm to connect to.
+     * @param {Partial<IMakeConnectionConfig>} [config] - Configuration object with an optional delay (defaults to `RATE_DELAY`).
+     * @returns {SendMessageFn} A function to send rate-limited messages to the swarm.
+     * @throws {Error} If swarm or session validation fails, or if the send process encounters a non-rate-limit error.
+     * @example
+     * const sendRateLimited = makeConnection.rate((msg) => console.log(msg), "client-123", "TaskSwarm", { delay: 5000 });
+     * await sendRateLimited("Throttled message"); // Limited to one send every 5 seconds
      */
     rate: (connector: ReceiveMessageFn, clientId: string, swarmName: string, args_3?: Partial<IMakeConnectionConfig>) => (content: string) => Promise<void | "">;
 };
 /**
- * Configuration for scheduling messages.
+ * Configuration interface for scheduling or rate-limiting messages.
  *
  * @interface IMakeConnectionConfig
- * @property {number} [delay] - The delay in milliseconds for scheduling messages.
+ * @property {number} [delay] - The delay in milliseconds for scheduling or rate-limiting messages (optional).
  */
 interface IMakeConnectionConfig {
     delay?: number;
 }
 
 /**
- * The complete function will create a swarm, execute single command and dispose it
- * Best for developer needs like troubleshooting tool execution
+ * Executes a single command in a swarm session and disposes of it, optimized for developer troubleshooting.
  *
- * @param {string} content - The content to process.
- * @param {string} clientId - The client ID.
- * @param {SwarmName} swarmName - The swarm name.
- * @returns {Promise<string>} The result of the complete function.
+ * This function creates a temporary swarm session, executes a provided command, and disposes of the session upon completion.
+ * It is designed for developer needs, such as testing tool execution or troubleshooting, with performance tracking and event bus notifications.
+ * The execution is wrapped in `beginContext` for a clean environment and runs within an `ExecutionContextService` context for metadata tracking.
+ * The operation is TTL-limited and queued to manage resource usage efficiently.
+ *
+ * @param {string} content - The content or command to process in the swarm session.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm in which the command is executed.
+ * @returns {Promise<string>} A promise that resolves to the result of the command execution.
+ * @throws {Error} If swarm or session validation fails, execution encounters an error, or disposal fails.
+ * @example
+ * const result = await complete("Calculate 2 + 2", "client-123", "MathSwarm");
+ * console.log(result); // Outputs "4"
  */
 declare const complete: (content: string, clientId: string, swarmName: string) => Promise<string>;
 
+/**
+ * Type definition for the complete function used in session objects.
+ * @typedef {Function} TComplete
+ * @param {string} content - The content to process in the session.
+ * @returns {Promise<string>} A promise that resolves with the result of the session execution.
+ */
 type TComplete = (content: string) => Promise<string>;
 /**
- * Creates a session for the given client and swarm.
+ * Creates a session for a client and swarm, providing methods to complete and dispose of it.
  *
- * @param {string} clientId - The ID of the client.
- * @param {SwarmName} swarmName - The name of the swarm.
- * @returns {Object} An object containing the session methods.
- * @returns {TComplete} complete - A function to complete the session with content.
- * @returns {Function} dispose - A function to dispose of the session.
+ * This factory establishes a session in "session" mode, allowing content execution with queuing for sequential processing.
+ * It returns an object with `complete` to process content and `dispose` to clean up the session.
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm to connect to.
+ * @returns {{ complete: TComplete, dispose: () => Promise<void> }} An object with `complete` and `dispose` methods.
+ * @throws {Error} If swarm or session validation fails, or if execution/disposal encounters an error.
+ * @example
+ * const { complete, dispose } = session("client-123", "TaskSwarm");
+ * const result = await complete("Hello, swarm!");
+ * console.log(result); // Outputs the swarm's response
+ * await dispose();
  */
 declare const session: {
     (clientId: string, swarmName: SwarmName): {
-        /**
-         * Completes the session with the given content.
-         *
-         * @param {string} content - The content to complete the session with.
-         * @returns {Promise<string>} A promise that resolves with the result of the session execution.
-         */
         complete: TComplete;
-        /**
-         * Disposes of the session.
-         *
-         * @returns {Promise<void>} A promise that resolves when the session is disposed.
-         */
         dispose: () => Promise<void>;
     };
     /**
-     * Creates a scheduled session for the given client and swarm.
+     * Creates a scheduled session for a client and swarm, delaying content execution.
      *
-     * @param {string} clientId - The ID of the client.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {Partial<ISessionConfig>} [config] - The configuration for the scheduled session.
-     * @param {number} [config.delay] - The delay for the scheduled session.
-     * @returns {Object} An object containing the scheduled session methods.
-     * @returns {TComplete} complete - A function to complete the session with content.
-     * @returns {Function} dispose - A function to dispose of the session.
+     * This factory extends `session` by adding scheduling capabilities, delaying `complete` calls based on the configured delay.
+     * It commits messages to the agent's history immediately via `commitUserMessage` and executes them after the delay if the session remains active.
+     *
+     * @param {string} clientId - The unique identifier of the client session.
+     * @param {SwarmName} swarmName - The name of the swarm to connect to.
+     * @param {Partial<ISessionConfig>} [config] - Configuration object with an optional delay (defaults to `SCHEDULED_DELAY`).
+     * @returns {{ complete: TComplete, dispose: () => Promise<void> }} An object with scheduled `complete` and `dispose` methods.
+     * @throws {Error} If swarm or session validation fails, or if execution/disposal encounters an error.
+     * @example
+     * const { complete, dispose } = session.scheduled("client-123", "TaskSwarm", { delay: 2000 });
+     * const result = await complete("Delayed message"); // Executed after 2 seconds
+     * console.log(result);
+     * await dispose();
      */
     scheduled(clientId: string, swarmName: SwarmName, { delay }?: Partial<ISessionConfig>): {
-        /**
-         * Completes the scheduled session with the given content.
-         *
-         * @param {string} content - The content to complete the session with.
-         * @returns {Promise<string>} A promise that resolves with the result of the session execution.
-         */
         complete(content: string): Promise<string>;
-        /**
-         * Disposes of the scheduled session.
-         *
-         * @returns {Promise<void>} A promise that resolves when the session is disposed.
-         */
         dispose(): Promise<void>;
     };
     /**
-     * A rate-limited connection factory for a client to a swarm and returns a function to send messages.
+     * Creates a rate-limited session for a client and swarm, throttling content execution.
      *
-     * @param {string} clientId - The unique identifier of the client.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {Partial<ISessionConfig>} [config] - The configuration for rate limiting.
-     * @param {number} [config.delay=SCHEDULED_DELAY] - The delay in milliseconds for rate limiting messages.
+     * This factory extends `session` by adding rate-limiting capabilities, throttling `complete` calls based on the configured delay.
+     * If the rate limit is exceeded, it warns and returns an empty string instead of throwing an error.
+     *
+     * @param {string} clientId - The unique identifier of the client session.
+     * @param {SwarmName} swarmName - The name of the swarm to connect to.
+     * @param {Partial<ISessionConfig>} [config] - Configuration object with an optional delay (defaults to `SCHEDULED_DELAY`).
+     * @returns {{ complete: TComplete, dispose: () => Promise<void> }} An object with rate-limited `complete` and `dispose` methods.
+     * @throws {Error} If swarm or session validation fails, or if execution/disposal encounters a non-rate-limit error.
+     * @example
+     * const { complete, dispose } = session.rate("client-123", "TaskSwarm", { delay: 5000 });
+     * const result = await complete("Throttled message"); // Limited to one execution every 5 seconds
+     * console.log(result);
+     * await dispose();
      */
     rate(clientId: string, swarmName: SwarmName, { delay }?: Partial<ISessionConfig>): {
-        /**
-         * Completes the scheduled session with the given content.
-         *
-         * @param {string} content - The content to complete the session with.
-         * @returns {Promise<string>} A promise that resolves with the result of the session execution.
-         */
         complete(content: string): Promise<string>;
-        /**
-         * Disposes of the scheduled session.
-         *
-         * @returns {Promise<void>} A promise that resolves when the session is disposed.
-         */
         dispose(): Promise<void>;
     };
 };
 /**
- * Configuration options for a scheduled session.
+ * Configuration interface for scheduled or rate-limited sessions.
  *
  * @interface ISessionConfig
- * @property {number} [delay] - The delay for the scheduled session in milliseconds.
+ * @property {number} [delay] - The delay in milliseconds for scheduling or rate-limiting session completions (optional).
  */
 interface ISessionConfig {
     delay?: number;
 }
 
 /**
- * Disposes the session for a given client with all related swarms and agents.
+ * Disposes of a client session and all related resources within a swarm.
  *
- * @param {string} clientId - The ID of the client.
- * @param {SwarmName} swarmName - The name of the swarm.
- * @returns {Promise<void>} A promise that resolves when the connection is disposed.
+ * This function terminates a client session, cleaning up associated swarm, agent, storage, state, and auxiliary resources (e.g., history, logs, performance metrics).
+ * It ensures that all dependencies are properly disposed of to prevent resource leaks, using sets to avoid redundant disposal of shared resources.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ * The function logs the operation if enabled and resolves when all disposal tasks are complete.
+ *
+ * @param {string} clientId - The unique identifier of the client session to dispose of.
+ * @param {SwarmName} swarmName - The name of the swarm associated with the session.
+ * @param {string} [methodName="function.target.disposeConnection"] - The name of the method invoking the disposal (defaults to `METHOD_NAME`).
+ * @returns {Promise<void>} A promise that resolves when the session and all related resources are fully disposed.
+ * @throws {Error} If session or swarm validation fails, or if any disposal operation encounters an error.
+ * @example
+ * await disposeConnection("client-123", "TaskSwarm");
  */
 declare const disposeConnection: (clientId: string, swarmName: string, methodName?: any) => Promise<void>;
 
 /**
- * Retrieves the agent name for a given client ID.
+ * Retrieves the name of the active agent for a given client session in a swarm.
  *
- * @param {string} clientId - The ID of the client.
- * @returns {Promise<string>} The name of the agent.
- * @throws Will throw an error if the client ID is invalid or if the swarm validation fails.
+ * This function fetches the name of the currently active agent associated with the specified client session within a swarm.
+ * It validates the client session and swarm, logs the operation if enabled, and delegates the retrieval to the swarm public service.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ *
+ * @param {string} clientId - The unique identifier of the client session whose active agent name is being retrieved.
+ * @returns {Promise<string>} A promise that resolves to the name of the active agent (`AgentName`) associated with the client session.
+ * @throws {Error} If the client session is invalid, the swarm validation fails, or the swarm public service encounters an error during retrieval.
+ * @example
+ * const agentName = await getAgentName("client-123");
+ * console.log(agentName); // Outputs "AgentX"
  */
 declare const getAgentName: (clientId: string) => Promise<string>;
 
 /**
- * Retrieves the history prepared for a specific agent with resque algorithm tweaks
+ * Retrieves the history prepared for a specific agent, incorporating rescue algorithm tweaks.
  *
- * @param {string} clientId - The ID of the client.
- * @param {AgentName} agentName - The name of the agent.
- * @returns {Promise<Array>} - A promise that resolves to an array containing the agent's history.
+ * This function fetches the history tailored for a specified agent within a swarm session, applying any rescue strategies defined in the system (e.g., `CC_RESQUE_STRATEGY` from `GLOBAL_CONFIG`).
+ * It validates the client session and agent, logs the operation if enabled, and retrieves the history using the agent's prompt configuration via the history public service.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ *
+ * @param {string} clientId - The unique identifier of the client session requesting the history.
+ * @param {AgentName} agentName - The name of the agent whose history is being retrieved.
+ * @returns {Promise<IModelMessage[]>} A promise that resolves to an array of history messages (`IModelMessage[]`) prepared for the agent, including any rescue algorithm adjustments.
+ * @throws {Error} If validation fails (e.g., invalid session or agent) or if the history public service encounters an error during retrieval.
+ * @example
+ * const history = await getAgentHistory("client-123", "AgentX");
+ * console.log(history); // Outputs array of IModelMessage objects
  */
 declare const getAgentHistory: (clientId: string, agentName: string) => Promise<IModelMessage[]>;
 
 /**
- * Return the session mode (`"session" | "makeConnection" | "complete"`) for clientId
+ * Retrieves the session mode for a given client session in a swarm.
  *
- * @param {string} clientId - The client ID of the session.
+ * This function returns the current mode of the specified client session, which can be one of `"session"`, `"makeConnection"`, or `"complete"`.
+ * It validates the client session and associated swarm, logs the operation if enabled, and fetches the session mode using the session validation service.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ *
+ * @param {string} clientId - The unique identifier of the client session whose mode is being retrieved.
+ * @returns {Promise<"session" | "makeConnection" | "complete">} A promise that resolves to the session mode, indicating the current state of the session.
+ * @throws {Error} If the client session is invalid, the swarm validation fails, or the session validation service encounters an error during mode retrieval.
+ * @example
+ * const mode = await getSessionMode("client-123");
+ * console.log(mode); // Outputs "session", "makeConnection", or "complete"
  */
 declare const getSessionMode: (clientId: string) => Promise<SessionMode>;
 
 /**
- * Represents the session context.
+ * Represents the session context, encapsulating client, method, and execution metadata.
+ *
+ * This interface defines the structure of the session context returned by `getSessionContext`, providing information about the client session,
+ * the current method context (if available), and the execution context (if available) within the swarm system.
  *
  * @interface ISessionContext
- * @property {string | null} clientId - The client id, or null if not available.
- * @property {IMethodContext | null} methodContext - The method context, or null if not available.
- * @property {IExecutionContext | null} executionContext - The execution context, or null if not available.
+ * @property {string | null} clientId - The unique identifier of the client session, or null if not available from either context.
+ * @property {string} processId - The unique identifier of the process, sourced from `GLOBAL_CONFIG.CC_PROCESS_UUID`.
+ * @property {IMethodContext | null} methodContext - The current method context, or null if no method context is active.
+ * @property {IExecutionContext | null} executionContext - The current execution context, or null if no execution context is active.
  */
 interface ISessionContext {
     clientId: string | null;
@@ -8110,114 +8398,231 @@ interface ISessionContext {
     executionContext: IExecutionContext | null;
 }
 /**
- * Retrieves the session context for a given client ID.
+ * Retrieves the session context for the current execution environment.
  *
- * @param {string} clientId - The ID of the client.
- * @returns {Promise<ISessionContext>} A promise that resolves to the session context.
+ * This function constructs and returns the session context, including the client ID, process ID, and available method and execution contexts.
+ * It logs the operation if enabled, checks for active contexts using the `MethodContextService` and `ExecutionContextService`, and derives the client ID from either context if available.
+ * Unlike other functions, it does not perform explicit validation or require a `clientId` parameter, as it relies on the current execution environment's state.
+ *
+ * @returns {Promise<ISessionContext>} A promise that resolves to an object containing the session context, including `clientId`, `processId`, `methodContext`, and `executionContext`.
+ * @throws {Error} If an unexpected error occurs while accessing the method or execution context services (though typically none are thrown in this implementation).
+ * @example
+ * const context = await getSessionContext();
+ * console.log(context); // Outputs { clientId: "client-123", processId: "uuid-xyz", methodContext: {...}, executionContext: {...} }
  */
 declare const getSessionContext: () => Promise<ISessionContext>;
 
 /**
- * Retrieves the last message sent by the user from the client's message history.
+ * Retrieves the content of the most recent user message from a client's session history.
  *
- * @param {string} clientId - The ID of the client whose message history is being retrieved.
- * @returns {Promise<string | null>} - The content of the last user message, or null if no user message is found.
+ * This function fetches the raw history for a specified client using `getRawHistory` and finds the last entry where the role is "user" and the mode
+ * is "user". It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The result is
+ * the content of the last user message as a string, or `null` if no matching user message exists in the history.
+ *
+ * @param {string} clientId - The unique identifier of the client session whose last user message is to be retrieved.
+ * @returns {Promise<string | null>} A promise that resolves to the content of the last user message, or `null` if none is found.
+ * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
+ * @example
+ * const lastMessage = await getLastUserMessage("client-123");
+ * console.log(lastMessage); // Outputs the last user message or null
  */
 declare const getLastUserMessage: (clientId: string) => Promise<string>;
 
 /**
- * Retrieves the user history for a given client ID.
+ * Retrieves the user-specific history entries for a given client session.
  *
- * @param {string} clientId - The ID of the client whose history is to be retrieved.
- * @returns {Promise<Array>} A promise that resolves to an array of history objects filtered by user role.
+ * This function fetches the raw history for a specified client using `getRawHistory` and filters it to include only entries where both the role
+ * and mode are "user". It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`.
+ * The result is an array of history objects representing the user’s contributions in the session.
+ *
+ * @param {string} clientId - The unique identifier of the client session whose user history is to be retrieved.
+ * @returns {Promise<object[]>} A promise that resolves to an array of history objects filtered by user role and mode.
+ * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
+ * @example
+ * const userHistory = await getUserHistory("client-123");
+ * console.log(userHistory); // Outputs array of user history entries
  */
 declare const getUserHistory: (clientId: string) => Promise<IModelMessage[]>;
 
 /**
- * Retrieves the assistant's history for a given client.
+ * Retrieves the assistant's history entries for a given client session.
  *
- * @param {string} clientId - The ID of the client.
- * @returns {Promise<Array>} - A promise that resolves to an array of history objects where the role is "assistant".
+ * This function fetches the raw history for a specified client using `getRawHistory` and filters it to include only entries where the role is
+ * "assistant". It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The result
+ * is an array of history objects representing the assistant's contributions in the session.
+ *
+ * @param {string} clientId - The unique identifier of the client session whose assistant history is to be retrieved.
+ * @returns {Promise<object[]>} A promise that resolves to an array of history objects with the role "assistant".
+ * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
+ * @example
+ * const assistantHistory = await getAssistantHistory("client-123");
+ * console.log(assistantHistory); // Outputs array of assistant history entries
  */
 declare const getAssistantHistory: (clientId: string) => Promise<IModelMessage[]>;
 
 /**
- * Retrieves the last message sent by the assistant from the client's message history.
+ * Retrieves the content of the most recent assistant message from a client's session history.
  *
- * @param {string} clientId - The ID of the client whose message history is being retrieved.
- * @returns {Promise<string | null>} - The content of the last assistant message, or null if no user message is found.
+ * This function fetches the raw history for a specified client using `getRawHistory` and finds the last entry where the role is "assistant".
+ * It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The result is the content
+ * of the last assistant message as a string, or `null` if no assistant message exists in the history.
+ *
+ * @param {string} clientId - The unique identifier of the client session whose last assistant message is to be retrieved.
+ * @returns {Promise<string | null>} A promise that resolves to the content of the last assistant message, or `null` if none is found.
+ * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
+ * @example
+ * const lastMessage = await getLastAssistantMessage("client-123");
+ * console.log(lastMessage); // Outputs the last assistant message or null
  */
 declare const getLastAssistantMessage: (clientId: string) => Promise<string>;
 
 /**
- * Retrieves the last message sent by the system from the client's message history.
+ * Retrieves the content of the most recent system message from a client's session history.
  *
- * @param {string} clientId - The ID of the client whose message history is being retrieved.
- * @returns {Promise<string | null>} - The content of the last system message, or null if no user message is found.
+ * This function fetches the raw history for a specified client using `getRawHistory` and finds the last entry where the role is "system".
+ * It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The result is the content
+ * of the last system message as a string, or `null` if no system message exists in the history.
+ *
+ * @param {string} clientId - The unique identifier of the client session whose last system message is to be retrieved.
+ * @returns {Promise<string | null>} A promise that resolves to the content of the last system message, or `null` if none is found.
+ * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
+ * @example
+ * const lastMessage = await getLastSystemMessage("client-123");
+ * console.log(lastMessage); // Outputs the last system message or null
  */
 declare const getLastSystemMessage: (clientId: string) => Promise<string>;
 
 /**
- * Retrieves the raw history as it is for a given client ID without any modifications.
+ * Retrieves the raw, unmodified history for a given client session.
  *
- * @param {string} clientId - The ID of the client whose history is to be retrieved.
- * @returns {Promise<Array>} A promise that resolves to an array containing the raw history.
+ * This function fetches the complete history associated with a client’s active agent in a swarm session, without any filtering or modifications.
+ * It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The function validates
+ * the session and swarm, retrieves the current agent, and uses `historyPublicService.toArrayForRaw` to obtain the raw history as an array.
+ * The result is a fresh copy of the history array.
+ *
+ * @param {string} clientId - The unique identifier of the client session whose raw history is to be retrieved.
+ * @param {string} [methodName="function.history.getRawHistory"] - The name of the calling method, used for validation and logging (defaults to `METHOD_NAME`).
+ * @returns {Promise<object[]>} A promise that resolves to an array containing the raw history entries.
+ * @throws {Error} If session or swarm validation fails, or if history retrieval encounters an issue.
+ * @example
+ * const rawHistory = await getRawHistory("client-123");
+ * console.log(rawHistory); // Outputs the full raw history array
  */
 declare const getRawHistory: (clientId: string, methodName?: any) => Promise<IModelMessage[]>;
 
 /**
- * Emits an event to the swarm bus service.
+ * Emits a custom event to the swarm bus service.
  *
- * @template T - The type of the payload.
- * @param {string} clientId - The ID of the client emitting the event.
- * @param {T} payload - The payload of the event.
- * @returns {boolean} - Returns true if the event was successfully emitted.
+ * This function sends a custom event with a specified topic and payload to the swarm's bus service, allowing clients to broadcast messages
+ * for other components to listen to. It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled.
+ * The function enforces a restriction on reserved topic names (defined in `DISALLOWED_EVENT_SOURCE_LIST`), throwing an error if a reserved
+ * topic is used. The event is structured as an `ICustomEvent` with the provided `clientId`, `topicName` as the source, and `payload`.
+ *
+ * @template T - The type of the payload, defaulting to `any` if unspecified.
+ * @param {string} clientId - The unique identifier of the client emitting the event.
+ * @param {string} topicName - The name of the event topic (must not be a reserved source).
+ * @param {T} payload - The payload data to be included in the event.
+ * @returns {Promise<void>} A promise that resolves when the event is successfully emitted.
+ * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus", "session-bus").
+ * @example
+ * await event("client-123", "custom-topic", { message: "Hello, swarm!" });
+ * // Emits an event with topic "custom-topic" and payload { message: "Hello, swarm!" }
  */
 declare const event: <T extends unknown = any>(clientId: string, topicName: string, payload: T) => Promise<void>;
 
 /**
- * Listens for an event on the swarm bus service and executes a callback function when the event is received.
+ * Subscribes to a custom event on the swarm bus service and executes a callback when the event is received.
  *
- * @template T - The type of the data payload.
- * @param {string} clientId - The ID of the client to listen for events from.
- * @param {(data: T) => void} fn - The callback function to execute when the event is received. The data payload is passed as an argument to this function.
+ * This function sets up a listener for events with a specified topic on the swarm's bus service, invoking the provided callback with the event's
+ * payload when triggered. It is wrapped in `beginContext` for a clean execution environment, logs the operation if enabled, and enforces restrictions
+ * on reserved topic names (defined in `DISALLOWED_EVENT_SOURCE_LIST`). The callback is queued to ensure sequential processing of events. The function
+ * supports a wildcard client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop
+ * listening.
+ *
+ * @template T - The type of the payload data, defaulting to `any` if unspecified.
+ * @param {string} clientId - The ID of the client to listen for events from, or "*" to listen to all clients.
+ * @param {string} topicName - The name of the event topic to subscribe to (must not be a reserved source).
+ * @param {(data: T) => void} fn - The callback function to execute when the event is received, passed the event payload.
+ * @returns {() => void} A function to unsubscribe from the event listener.
+ * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus"), or if the `clientId` is not "*" and no session exists.
+ * @example
+ * const unsubscribe = listenEvent("client-123", "custom-topic", (data) => console.log(data));
+ * // Logs payload when "custom-topic" event is received for "client-123"
+ * unsubscribe(); // Stops listening
  */
 declare const listenEvent: <T extends unknown = any>(clientId: string, topicName: string, fn: (data: T) => void) => () => void;
 
 /**
- * Listens for an event on the swarm bus service and executes a callback function when the event is received.
+ * Subscribes to a custom event on the swarm bus service for a single occurrence, executing a callback when the event matches a filter.
  *
- * @template T - The type of the data payload.
- * @param {string} clientId - The ID of the client to listen for events from.
- * @param {(data: T) => void} fn - The callback function to execute when the event is received. The data payload is passed as an argument to this function.
+ * This function sets up a one-time listener for events with a specified topic on the swarm's bus service, invoking the provided callback with the
+ * event's payload when the event is received and passes the filter condition. It is wrapped in `beginContext` for a clean execution environment,
+ * logs the operation if enabled, and enforces restrictions on reserved topic names (defined in `DISALLOWED_EVENT_SOURCE_LIST`). The callback is
+ * queued to ensure sequential processing, and the listener unsubscribes after the first matching event. The function supports a wildcard client ID
+ * ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to cancel the listener prematurely.
+ *
+ * @template T - The type of the payload data, defaulting to `any` if unspecified.
+ * @param {string} clientId - The ID of the client to listen for events from, or "*" to listen to all clients.
+ * @param {string} topicName - The name of the event topic to subscribe to (must not be a reserved source).
+ * @param {(event: T) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event's payload.
+ * @param {(data: T) => void} fn - The callback function to execute once when a matching event is received, passed the event payload.
+ * @returns {() => void} A function to unsubscribe from the event listener before it triggers.
+ * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus"), or if the `clientId` is not "*" and no session exists.
+ * @example
+ * const unsubscribe = listenEventOnce(
+ *   "client-123",
+ *   "custom-topic",
+ *   (data) => data.value > 0,
+ *   (data) => console.log(data)
+ * );
+ * // Logs payload once when "custom-topic" event with value > 0 is received
+ * unsubscribe(); // Cancels listener if not yet triggered
  */
 declare const listenEventOnce: <T extends unknown = any>(clientId: string, topicName: string, filterFn: (event: T) => boolean, fn: (data: T) => void) => () => void;
 
 /**
- * Changes the agent for a given client session in swarm.
- * @async
- * @function
- * @param {AgentName} agentName - The name of the agent.
- * @param {string} clientId - The client ID.
- * @returns {Promise<void>} - A promise that resolves when the agent is changed.
+ * Changes the active agent for a given client session in a swarm.
+ *
+ * This function facilitates switching the active agent in a swarm session, validating the session and agent dependencies,
+ * logging the operation if enabled, and executing the change using a TTL-limited, queued runner.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
+ *
+ * @param {AgentName} agentName - The name of the agent to switch to.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @returns {Promise<void>} A promise that resolves when the agent change is complete.
+ * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
+ * @example
+ * await changeToAgent("AgentX", "client-123");
  */
 declare const changeToAgent: (agentName: string, clientId: string) => Promise<void>;
 
 /**
- * Navigates back to the previous or default agent
- * @async
- * @function
- * @param {string} clientId - The client ID.
- * @returns {Promise<void>} - A promise that resolves when the agent is changed.
+ * Navigates back to the previous or default agent for a given client session in a swarm.
+ *
+ * This function switches the active agent to the previous agent in the navigation stack, or the default agent if no previous agent exists,
+ * as determined by the `navigationPop` method. It validates the session and agent, logs the operation if enabled, and executes the change using a TTL-limited, queued runner.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @returns {Promise<void>} A promise that resolves when the agent change is complete.
+ * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
+ * @example
+ * await changeToPrevAgent("client-123");
  */
 declare const changeToPrevAgent: (clientId: string) => Promise<void>;
 
 /**
- * Navigates back to the default agent
- * @async
- * @function
- * @param {string} clientId - The client ID.
- * @returns {Promise<void>} - A promise that resolves when the agent is changed.
+ * Navigates back to the default agent for a given client session in a swarm.
+ *
+ * This function switches the active agent to the default agent defined in the swarm schema for the specified client session.
+ * It validates the session and default agent, logs the operation if enabled, and executes the change using a TTL-limited, queued runner.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @returns {Promise<void>} A promise that resolves when the default agent change is complete.
+ * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
+ * @example
+ * await changeToDefaultAgent("client-123");
  */
 declare const changeToDefaultAgent: (clientId: string) => Promise<void>;
 

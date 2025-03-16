@@ -5,32 +5,63 @@ import { SwarmName } from "../../interfaces/Swarm.interface";
 import swarm from "../../lib";
 import { commitUserMessage } from "../commit/commitUserMessage";
 import { getAgentName } from "../common/getAgentName";
-import beginContext from "../..//utils/beginContext";
+import beginContext from "../../utils/beginContext";
 
+/**
+ * Type definition for the send message function returned by connection factories.
+ * @typedef {Function} SendMessageFn
+ * @param {string} outgoing - The message content to send to the swarm.
+ * @returns {Promise<void>} A promise that resolves when the message is sent.
+ */
 type SendMessageFn = (outgoing: string) => Promise<void>;
 
+/**
+ * Delay in milliseconds for scheduled message sending.
+ * @constant {number}
+ */
 const SCHEDULED_DELAY = 1_000;
+
+/**
+ * Delay in milliseconds for rate-limited message sending.
+ * @constant {number}
+ */
 const RATE_DELAY = 10_000;
 
 const METHOD_NAME = "function.target.makeConnection";
 
+/**
+ * Internal implementation of the connection factory for a client to a swarm.
+ *
+ * Creates a queued connection to the swarm session, validating the swarm and initializing the session in "makeConnection" mode.
+ * Returns a function to send messages, wrapped in `beginContext` for isolated execution.
+ *
+ * @param {ReceiveMessageFn} connector - The function to receive incoming messages from the swarm.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm to connect to.
+ * @returns {SendMessageFn} A function to send messages to the swarm.
+ */
 const makeConnectionInternal = beginContext(
   (
     connector: ReceiveMessageFn,
     clientId: string,
     swarmName: SwarmName
   ): SendMessageFn => {
+    // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         clientId,
         swarmName,
       });
+
+    // Validate the swarm and initialize the session
     swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
     swarm.sessionValidationService.addSession(
       clientId,
       swarmName,
       "makeConnection"
     );
+
+    // Create a queued send function using the session public service
     const send = queued(
       swarm.sessionPublicService.connect(
         connector,
@@ -39,6 +70,8 @@ const makeConnectionInternal = beginContext(
         swarmName
       )
     );
+
+    // Return a wrapped send function with validation and agent context
     return beginContext(async (outgoing) => {
       swarm.sessionValidationService.validate(clientId, METHOD_NAME);
       return await send({
@@ -55,12 +88,19 @@ const makeConnectionInternal = beginContext(
 );
 
 /**
- * A connection factory for a client to a swarm and returns a function to send messages.
+ * A connection factory for establishing a client connection to a swarm, returning a function to send messages.
  *
- * @param {ReceiveMessageFn} connector - The function to receive messages.
- * @param {string} clientId - The unique identifier of the client.
- * @param {SwarmName} swarmName - The name of the swarm.
- * @returns {SendMessageFn} - A function to send messages to the swarm.
+ * This factory creates a queued connection to the swarm, allowing the client to send messages to the active agent.
+ * It is designed for real-time communication, leveraging the session public service for message handling.
+ *
+ * @param {ReceiveMessageFn} connector - The function to receive incoming messages from the swarm.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm to connect to.
+ * @returns {SendMessageFn} A function to send messages to the swarm.
+ * @throws {Error} If swarm or session validation fails, or if the connection process encounters an error.
+ * @example
+ * const sendMessage = makeConnection((msg) => console.log(msg), "client-123", "TaskSwarm");
+ * await sendMessage("Hello, swarm!");
  */
 const makeConnection = (
   connector: ReceiveMessageFn,
@@ -69,23 +109,30 @@ const makeConnection = (
 ): SendMessageFn => makeConnectionInternal(connector, clientId, swarmName);
 
 /**
- * Configuration for scheduling messages.
+ * Configuration interface for scheduling or rate-limiting messages.
  *
  * @interface IMakeConnectionConfig
- * @property {number} [delay] - The delay in milliseconds for scheduling messages.
+ * @property {number} [delay] - The delay in milliseconds for scheduling or rate-limiting messages (optional).
  */
 export interface IMakeConnectionConfig {
   delay?: number;
 }
 
 /**
- * A scheduled connection factory for a client to a swarm and returns a function to send messages.
+ * A scheduled connection factory for a client to a swarm, returning a function to send delayed messages.
  *
- * @param {ReceiveMessageFn} connector - The function to receive messages.
- * @param {string} clientId - The unique identifier of the client.
- * @param {SwarmName} swarmName - The name of the swarm.
- * @param {Partial<IMakeConnectionConfig>} [config] - The configuration for scheduling.
- * @returns {SendMessageFn} - A function to send scheduled messages to the swarm.
+ * This factory extends `makeConnection` by adding scheduling capabilities, delaying message sends based on the configured delay.
+ * It commits messages to the agent's history immediately via `commitUserMessage` and sends them after the delay if the session remains active.
+ *
+ * @param {ReceiveMessageFn} connector - The function to receive incoming messages from the swarm.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm to connect to.
+ * @param {Partial<IMakeConnectionConfig>} [config] - Configuration object with an optional delay (defaults to `SCHEDULED_DELAY`).
+ * @returns {SendMessageFn} A function to send scheduled messages to the swarm.
+ * @throws {Error} If swarm or session validation fails, or if the scheduled send process encounters an error.
+ * @example
+ * const sendScheduled = makeConnection.scheduled((msg) => console.log(msg), "client-123", "TaskSwarm", { delay: 2000 });
+ * await sendScheduled("Delayed message"); // Sent after 2 seconds
  */
 makeConnection.scheduled = beginContext(
   (
@@ -96,12 +143,6 @@ makeConnection.scheduled = beginContext(
   ) => {
     const send = makeConnection(connector, clientId, swarmName);
 
-    /**
-     * A wrapped send function that schedules the message sending.
-     *
-     * @param {string} content - The message content to be sent.
-     * @returns {Promise<void>} - A promise that resolves when the message is sent.
-     */
     const wrappedSend: typeof send = schedule(
       beginContext(async (content: string) => {
         if (!swarm.sessionValidationService.hasSession(clientId)) {
@@ -110,12 +151,6 @@ makeConnection.scheduled = beginContext(
         return await send(content);
       }),
       {
-        /**
-         * A function that is called when a message is scheduled.
-         *
-         * @param {[string]} content - The message content to be scheduled.
-         * @returns {Promise<void>} - A promise that resolves when the message is committed.
-         */
         onSchedule: beginContext(async ([content]) => {
           if (!swarm.sessionValidationService.hasSession(clientId)) {
             return;
@@ -126,19 +161,10 @@ makeConnection.scheduled = beginContext(
             await getAgentName(clientId)
           );
         }),
-        /**
-         * The delay for message scheduler
-         */
         delay,
       }
     );
 
-    /**
-     * A function to send scheduled messages.
-     *
-     * @param {string} content - The message content to be sent.
-     * @returns {Promise<void>} - A promise that resolves when the message is sent.
-     */
     return async (content: string) => {
       return await wrappedSend(content);
     };
@@ -146,14 +172,20 @@ makeConnection.scheduled = beginContext(
 );
 
 /**
- * A rate-limited connection factory for a client to a swarm and returns a function to send messages.
+ * A rate-limited connection factory for a client to a swarm, returning a function to send throttled messages.
  *
- * @param {ReceiveMessageFn} connector - The function to receive messages.
- * @param {string} clientId - The unique identifier of the client.
- * @param {SwarmName} swarmName - The name of the swarm.
- * @param {Partial<IMakeConnectionConfig>} [config] - The configuration for rate limiting.
- * @param {number} [config.delay=RATE_DELAY] - The delay in milliseconds for rate limiting messages.
- * @returns {SendMessageFn} - A function to send rate-limited messages to the swarm.
+ * This factory extends `makeConnection` by adding rate-limiting capabilities, throttling message sends based on the configured delay.
+ * If the rate limit is exceeded, it warns and returns an empty result instead of throwing an error.
+ *
+ * @param {ReceiveMessageFn} connector - The function to receive incoming messages from the swarm.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm to connect to.
+ * @param {Partial<IMakeConnectionConfig>} [config] - Configuration object with an optional delay (defaults to `RATE_DELAY`).
+ * @returns {SendMessageFn} A function to send rate-limited messages to the swarm.
+ * @throws {Error} If swarm or session validation fails, or if the send process encounters a non-rate-limit error.
+ * @example
+ * const sendRateLimited = makeConnection.rate((msg) => console.log(msg), "client-123", "TaskSwarm", { delay: 5000 });
+ * await sendRateLimited("Throttled message"); // Limited to one send every 5 seconds
  */
 makeConnection.rate = beginContext(
   (
@@ -164,12 +196,6 @@ makeConnection.rate = beginContext(
   ) => {
     const send = makeConnection(connector, clientId, swarmName);
 
-    /**
-     * A wrapped send function that rate limits the message sending.
-     *
-     * @param {string} content - The message content to be sent.
-     * @returns {Promise<void>} - A promise that resolves when the message is sent.
-     */
     const wrappedSend: typeof send = rate(
       beginContext(async (content: string) => {
         if (!swarm.sessionValidationService.hasSession(clientId)) {
@@ -184,12 +210,6 @@ makeConnection.rate = beginContext(
       }
     );
 
-    /**
-     * A function to send rate-limited messages.
-     *
-     * @param {string} content - The message content to be sent.
-     * @returns {Promise<void>} - A promise that resolves when the message is sent.
-     */
     return async (content: string) => {
       try {
         return await wrappedSend(content);
