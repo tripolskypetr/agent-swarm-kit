@@ -10,26 +10,52 @@ import EmbeddingValidationService from "./EmbeddingValidationService";
 import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
- * Service for validating storages within the storage swarm.
+ * Service for validating storage configurations within the swarm system.
+ * Manages a map of registered storages, ensuring their uniqueness, existence, and valid embedding configurations.
+ * Integrates with StorageSchemaService (storage registration), ClientStorage (storage operations),
+ * AgentValidationService (validating agent storages), EmbeddingValidationService (embedding validation),
+ * and LoggerService (logging).
+ * Uses dependency injection for services and memoization for efficient validation checks.
  */
 export class StorageValidationService {
+  /**
+   * Logger service instance for logging validation operations and errors.
+   * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+   * @type {LoggerService}
+   * @private
+   * @readonly
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
+  /**
+   * Embedding validation service instance for validating embeddings associated with storages.
+   * Injected via DI, used in validate method to check storage.embedding.
+   * @type {EmbeddingValidationService}
+   * @private
+   * @readonly
+   */
   private readonly embeddingValidationService =
     inject<EmbeddingValidationService>(TYPES.embeddingValidationService);
 
+  /**
+   * Map of storage names to their schemas, used to track and validate storages.
+   * Populated by addStorage, queried by validate.
+   * @type {Map<StorageName, IStorageSchema>}
+   * @private
+   */
   private _storageMap = new Map<StorageName, IStorageSchema>();
 
   /**
-   * Adds a new storage to the validation service.
-   * @param {StorageName} storageName - The name of the storage.
-   * @param {IStorageSchema} storageSchema - The schema of the storage.
-   * @throws {Error} If the storage already exists.
+   * Registers a new storage with its schema in the validation service.
+   * Logs the operation and ensures uniqueness, supporting StorageSchemaService’s registration process.
+   * @param {StorageName} storageName - The name of the storage to add, sourced from Storage.interface.
+   * @param {IStorageSchema} storageSchema - The schema defining the storage’s configuration (e.g., embedding), sourced from Storage.interface.
+   * @throws {Error} If the storage name already exists in _storageMap.
    */
   public addStorage = (
     storageName: StorageName,
     storageSchema: IStorageSchema
-  ) => {
+  ): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("storageValidationService addStorage", {
         storageName,
@@ -42,14 +68,15 @@ export class StorageValidationService {
   };
 
   /**
-   * Validates an storage by its name and source.
-   * @param {StorageName} storageName - The name of the storage.
-   * @param {string} source - The source of the validation request.
-   * @throws {Error} If the storage is not found.
+   * Validates a storage by its name and source, memoized by storageName for performance.
+   * Checks storage existence and validates its embedding, supporting ClientStorage’s operational integrity.
+   * @param {StorageName} storageName - The name of the storage to validate, sourced from Storage.interface.
+   * @param {string} source - The source of the validation request (e.g., "agent-validate"), for error context.
+   * @throws {Error} If the storage is not found in _storageMap or its embedding is invalid.
    */
   public validate = memoize(
     ([storageName]) => storageName,
-    (storageName: StorageName, source: string) => {
+    (storageName: StorageName, source: string): void => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
         this.loggerService.info("storageValidationService validate", {
           storageName,
@@ -62,9 +89,16 @@ export class StorageValidationService {
         );
       }
       this.embeddingValidationService.validate(storage.embedding, source);
-      return {} as unknown as void;
     }
   ) as (storageName: StorageName, source: string) => void;
 }
 
+/**
+ * Default export of the StorageValidationService class.
+ * Provides a service for validating storage configurations in the swarm system,
+ * integrating with StorageSchemaService, ClientStorage, AgentValidationService,
+ * EmbeddingValidationService, and LoggerService,
+ * with memoized validation and embedding consistency checks.
+ * @type {typeof StorageValidationService}
+ */
 export default StorageValidationService;

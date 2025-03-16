@@ -1,6 +1,10 @@
 # PolicyValidationService
 
-Service for validating policys within the agent-swarm.
+Service for validating policies within the swarm system.
+Manages a map of registered policies, ensuring their uniqueness and existence during validation.
+Integrates with PolicySchemaService (policy registration), ClientPolicy (policy enforcement),
+AgentValidationService (potential policy validation for agents), and LoggerService (logging).
+Uses dependency injection for the logger and memoization for efficient validation checks.
 
 ## Constructor
 
@@ -16,11 +20,17 @@ constructor();
 loggerService: any
 ```
 
+Logger service instance for logging validation operations and errors.
+Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+
 ### _policyMap
 
 ```ts
 _policyMap: any
 ```
+
+Map of policy names to their schemas, used to track and validate policies.
+Populated by addPolicy, queried by validate.
 
 ### addPolicy
 
@@ -28,7 +38,8 @@ _policyMap: any
 addPolicy: (policyName: string, policySchema: IPolicySchema) => void
 ```
 
-Adds a new policy to the validation service.
+Registers a new policy with its schema in the validation service.
+Logs the operation and ensures uniqueness, supporting PolicySchemaService’s registration process.
 
 ### validate
 
@@ -36,4 +47,5 @@ Adds a new policy to the validation service.
 validate: (policyName: string, source: string) => void
 ```
 
-Validates if a policy exists in the validation service.
+Validates if a policy name exists in the registered map, memoized by policyName for performance.
+Logs the operation and checks existence, supporting ClientPolicy’s policy enforcement validation.

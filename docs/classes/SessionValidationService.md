@@ -1,6 +1,12 @@
 # SessionValidationService
 
-Service for validating and managing sessions.
+Service for managing and validating sessions within the swarm system.
+Tracks session associations with swarms, modes, agents, histories, storages, and states,
+ensuring session existence and resource usage consistency.
+Integrates with SessionConnectionService (session management), ClientSession (session lifecycle),
+ClientAgent (agent usage), ClientStorage (storage usage), ClientState (state usage),
+SwarmSchemaService (swarm association), and LoggerService (logging).
+Uses dependency injection for the logger and memoization for efficient validation checks.
 
 ## Constructor
 
@@ -16,11 +22,17 @@ constructor();
 loggerService: any
 ```
 
+Logger service instance for logging session operations and errors.
+Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+
 ### _storageSwarmMap
 
 ```ts
 _storageSwarmMap: any
 ```
+
+Map of session IDs to their associated storage names, tracking storage usage per session.
+Populated by addStorageUsage, modified by removeStorageUsage.
 
 ### _historySwarmMap
 
@@ -28,11 +40,17 @@ _storageSwarmMap: any
 _historySwarmMap: any
 ```
 
+Map of session IDs to their associated agent names for history tracking.
+Populated by addHistoryUsage, modified by removeHistoryUsage.
+
 ### _agentSwarmMap
 
 ```ts
 _agentSwarmMap: any
 ```
+
+Map of session IDs to their associated agent names for active usage.
+Populated by addAgentUsage, modified by removeAgentUsage.
 
 ### _stateSwarmMap
 
@@ -40,11 +58,17 @@ _agentSwarmMap: any
 _stateSwarmMap: any
 ```
 
+Map of session IDs to their associated state names, tracking state usage per session.
+Populated by addStateUsage, modified by removeStateUsage.
+
 ### _sessionSwarmMap
 
 ```ts
 _sessionSwarmMap: any
 ```
+
+Map of session IDs to their associated swarm names, defining session-swarm relationships.
+Populated by addSession, removed by removeSession.
 
 ### _sessionModeMap
 
@@ -52,13 +76,17 @@ _sessionSwarmMap: any
 _sessionModeMap: any
 ```
 
+Map of session IDs to their modes, defining session behavior.
+Populated by addSession, removed by removeSession.
+
 ### addSession
 
 ```ts
 addSession: (clientId: string, swarmName: string, sessionMode: SessionMode) => void
 ```
 
-Adds a new session.
+Registers a new session with its swarm and mode.
+Logs the operation and ensures uniqueness, supporting SessionConnectionService’s session creation.
 
 ### addAgentUsage
 
@@ -66,7 +94,8 @@ Adds a new session.
 addAgentUsage: (sessionId: string, agentName: string) => void
 ```
 
-Adds an agent usage to a session.
+Tracks an agent’s usage within a session, adding it to the session’s agent list.
+Logs the operation, supporting ClientAgent’s session-specific activity tracking.
 
 ### addHistoryUsage
 
@@ -74,7 +103,8 @@ Adds an agent usage to a session.
 addHistoryUsage: (sessionId: string, agentName: string) => void
 ```
 
-Adds a history usage to a session.
+Tracks an agent’s history usage within a session, adding it to the session’s history list.
+Logs the operation, supporting ClientHistory’s session-specific history tracking.
 
 ### addStorageUsage
 
@@ -82,7 +112,8 @@ Adds a history usage to a session.
 addStorageUsage: (sessionId: string, storageName: string) => void
 ```
 
-Adds a storage usage to a session.
+Tracks a storage’s usage within a session, adding it to the session’s storage list.
+Logs the operation, supporting ClientStorage’s session-specific storage tracking.
 
 ### addStateUsage
 
@@ -90,7 +121,8 @@ Adds a storage usage to a session.
 addStateUsage: (sessionId: string, stateName: string) => void
 ```
 
-Adds a state usage to a session.
+Tracks a state’s usage within a session, adding it to the session’s state list.
+Logs the operation, supporting ClientState’s session-specific state tracking.
 
 ### removeAgentUsage
 
@@ -98,7 +130,8 @@ Adds a state usage to a session.
 removeAgentUsage: (sessionId: string, agentName: string) => void
 ```
 
-Removes an agent usage from a session.
+Removes an agent from a session’s agent usage list.
+Logs the operation and cleans up if the list becomes empty, supporting ClientAgent’s session cleanup.
 
 ### removeHistoryUsage
 
@@ -106,7 +139,8 @@ Removes an agent usage from a session.
 removeHistoryUsage: (sessionId: string, agentName: string) => void
 ```
 
-Removes a history usage from a session.
+Removes an agent from a session’s history usage list.
+Logs the operation and cleans up if the list becomes empty, supporting ClientHistory’s session cleanup.
 
 ### removeStorageUsage
 
@@ -114,7 +148,8 @@ Removes a history usage from a session.
 removeStorageUsage: (sessionId: string, storageName: string) => void
 ```
 
-Removes a storage usage from a session.
+Removes a storage from a session’s storage usage list.
+Logs the operation and cleans up if the list becomes empty, supporting ClientStorage’s session cleanup.
 
 ### removeStateUsage
 
@@ -122,7 +157,8 @@ Removes a storage usage from a session.
 removeStateUsage: (sessionId: string, stateName: string) => void
 ```
 
-Removes a state usage from a session.
+Removes a state from a session’s state usage list.
+Logs the operation and cleans up if the list becomes empty, supporting ClientState’s session cleanup.
 
 ### getSessionMode
 
@@ -130,7 +166,8 @@ Removes a state usage from a session.
 getSessionMode: (clientId: string) => SessionMode
 ```
 
-Gets the mode of a session.
+Retrieves the mode of a session.
+Logs the operation and validates session existence, supporting ClientSession’s mode-based behavior.
 
 ### hasSession
 
@@ -138,7 +175,8 @@ Gets the mode of a session.
 hasSession: (clientId: string) => boolean
 ```
 
-Ensures session is exist
+Checks if a session exists.
+Logs the operation, supporting quick existence checks for SessionConnectionService.
 
 ### getSessionList
 
@@ -146,7 +184,8 @@ Ensures session is exist
 getSessionList: () => string[]
 ```
 
-Gets the list of all session IDs.
+Retrieves the list of all registered session IDs.
+Logs the operation, supporting SessionConnectionService’s session enumeration.
 
 ### getSessionAgentList
 
@@ -154,7 +193,8 @@ Gets the list of all session IDs.
 getSessionAgentList: (clientId: string) => string[]
 ```
 
-Gets the list of agents for a session.
+Retrieves the list of agents associated with a session.
+Logs the operation, supporting ClientAgent’s session-specific agent queries.
 
 ### getSessionHistoryList
 
@@ -162,7 +202,8 @@ Gets the list of agents for a session.
 getSessionHistoryList: (clientId: string) => string[]
 ```
 
-Gets the history list of agents for a session.
+Retrieves the list of agents in a session’s history.
+Logs the operation, supporting ClientHistory’s session-specific history queries.
 
 ### getSwarm
 
@@ -170,7 +211,8 @@ Gets the history list of agents for a session.
 getSwarm: (clientId: string) => string
 ```
 
-Gets the swarm name for a session.
+Retrieves the swarm name associated with a session.
+Logs the operation and validates session existence, supporting SwarmSchemaService’s session-swarm mapping.
 
 ### validate
 
@@ -178,7 +220,8 @@ Gets the swarm name for a session.
 validate: ((clientId: string, source: string) => void) & IClearableMemoize<string> & IControlMemoize<string, void>
 ```
 
-Validates if a session exists.
+Validates if a session exists, memoized by clientId for performance.
+Logs the operation and checks existence, supporting ClientSession’s session validation needs.
 
 ### removeSession
 
@@ -186,7 +229,8 @@ Validates if a session exists.
 removeSession: (clientId: string) => void
 ```
 
-Removes a session.
+Removes a session and its associated mode, clearing validation cache.
+Logs the operation, supporting SessionConnectionService’s session cleanup.
 
 ### dispose
 
@@ -194,4 +238,5 @@ Removes a session.
 dispose: (clientId: string) => void
 ```
 
-Dispose a session validation cache.
+Clears the validation cache for a specific session.
+Logs the operation, supporting resource cleanup without removing session data.

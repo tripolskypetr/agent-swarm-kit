@@ -1,6 +1,11 @@
 # AgentValidationService
 
-Service for validating agents within the agent swarm.
+Service for validating agents within the swarm system, managing agent schemas and dependencies.
+Provides methods to register agents, validate their configurations, and query associated resources (storages, states, dependencies).
+Integrates with AgentSchemaService (agent schema validation), SwarmSchemaService (swarm-level agent management),
+ToolValidationService (tool validation), CompletionValidationService (completion validation),
+StorageValidationService (storage validation), and LoggerService (logging).
+Uses dependency injection for service dependencies and memoization for efficient validation checks.
 
 ## Constructor
 
@@ -16,11 +21,17 @@ constructor();
 loggerService: any
 ```
 
+Logger service instance for logging validation operations and errors.
+Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+
 ### toolValidationService
 
 ```ts
 toolValidationService: any
 ```
+
+Tool validation service instance for validating tools associated with agents.
+Injected via DI, used in validate method to check agent tools.
 
 ### completionValidationService
 
@@ -28,11 +39,17 @@ toolValidationService: any
 completionValidationService: any
 ```
 
+Completion validation service instance for validating completion configurations of agents.
+Injected via DI, used in validate method to check agent completion.
+
 ### storageValidationService
 
 ```ts
 storageValidationService: any
 ```
+
+Storage validation service instance for validating storages associated with agents.
+Injected via DI, used in validate method to check agent storages.
 
 ### _agentMap
 
@@ -40,11 +57,17 @@ storageValidationService: any
 _agentMap: any
 ```
 
+Map of agent names to their schemas, used for validation and resource queries.
+Populated by addAgent, queried by validate, getStorageList, getStateList, etc.
+
 ### _agentDepsMap
 
 ```ts
 _agentDepsMap: any
 ```
+
+Map of agent names to their dependency lists, tracking inter-agent dependencies.
+Populated by addAgent when dependsOn is present, queried by hasDependency.
 
 ### getAgentList
 
@@ -52,13 +75,17 @@ _agentDepsMap: any
 getAgentList: () => string[]
 ```
 
+Retrieves the list of registered agent names.
+Logs the operation if info-level logging is enabled, supporting SwarmSchemaService’s agent enumeration.
+
 ### getStorageList
 
 ```ts
 getStorageList: (agentName: string) => string[]
 ```
 
-Retrieves the storages used by the agent
+Retrieves the list of storage names associated with a given agent.
+Logs the operation and validates agent existence, supporting ClientStorage integration.
 
 ### getStateList
 
@@ -66,7 +93,8 @@ Retrieves the storages used by the agent
 getStateList: (agentName: string) => string[]
 ```
 
-Retrieves the states used by the agent
+Retrieves the list of state names associated with a given agent.
+Logs the operation and validates agent existence, supporting ClientState integration.
 
 ### addAgent
 
@@ -74,7 +102,8 @@ Retrieves the states used by the agent
 addAgent: (agentName: string, agentSchema: IAgentSchema) => void
 ```
 
-Adds a new agent to the validation service.
+Registers a new agent with its schema in the validation service.
+Logs the operation and updates _agentMap and _agentDepsMap, supporting AgentSchemaService’s agent registration.
 
 ### hasStorage
 
@@ -82,7 +111,8 @@ Adds a new agent to the validation service.
 hasStorage: ((agentName: string, storageName: string) => boolean) & IClearableMemoize<string> & IControlMemoize<string, boolean>
 ```
 
-Check if agent got registered storage
+Checks if an agent has a registered storage, memoized for performance.
+Logs the operation and validates agent existence, supporting ClientStorage validation.
 
 ### hasDependency
 
@@ -90,7 +120,8 @@ Check if agent got registered storage
 hasDependency: ((targetAgentName: string, depAgentName: string) => boolean) & IClearableMemoize<string> & IControlMemoize<string, boolean>
 ```
 
-Check if agent got registered dependency
+Checks if an agent has a registered dependency on another agent, memoized for performance.
+Logs the operation, supporting inter-agent dependency validation within SwarmSchemaService.
 
 ### hasState
 
@@ -98,7 +129,8 @@ Check if agent got registered dependency
 hasState: ((agentName: string, stateName: string) => boolean) & IClearableMemoize<string> & IControlMemoize<string, boolean>
 ```
 
-Check if agent got registered state
+Checks if an agent has a registered state, memoized for performance.
+Logs the operation and validates agent existence, supporting ClientState validation.
 
 ### validate
 
@@ -106,4 +138,6 @@ Check if agent got registered state
 validate: (agentName: string, source: string) => void
 ```
 
-Validates an agent by its name and source.
+Validates an agent’s configuration by its name and source, memoized by agentName for performance.
+Checks the agent’s existence, completion, tools, and storages, delegating to respective validation services.
+Logs the operation, supporting AgentSchemaService’s validation workflow within SwarmSchemaService.

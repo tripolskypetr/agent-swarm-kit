@@ -1,6 +1,7 @@
 # ILoggerAdapter
 
 Interface defining methods for interacting with a logger adapter.
+Implemented by LoggerUtils to provide client-specific logging operations.
 
 ## Methods
 
@@ -10,7 +11,8 @@ Interface defining methods for interacting with a logger adapter.
 log: (clientId: string, topic: string, ...args: any[]) => Promise<void>
 ```
 
-Logs a message for a client.
+Logs a message for a client using the client-specific logger instance.
+Ensures session validation and initialization before logging.
 
 ### debug
 
@@ -18,7 +20,8 @@ Logs a message for a client.
 debug: (clientId: string, topic: string, ...args: any[]) => Promise<void>
 ```
 
-Logs a debug message for a client.
+Logs a debug message for a client using the client-specific logger instance.
+Ensures session validation and initialization before logging.
 
 ### info
 
@@ -26,7 +29,8 @@ Logs a debug message for a client.
 info: (clientId: string, topic: string, ...args: any[]) => Promise<void>
 ```
 
-Logs an info message for a client.
+Logs an info message for a client using the client-specific logger instance.
+Ensures session validation and initialization before logging.
 
 ### dispose
 
@@ -34,4 +38,5 @@ Logs an info message for a client.
 dispose: (clientId: string) => Promise<void>
 ```
 
-Disposes of the logger instance for a client.
+Disposes of the logger instance for a client, clearing it from the cache.
+Ensures initialization before disposal.

@@ -4572,266 +4572,479 @@ declare class SwarmPublicService implements TSwarmConnectionService {
 }
 
 /**
- * Service for validating agents within the agent swarm.
+ * Service for validating agents within the swarm system, managing agent schemas and dependencies.
+ * Provides methods to register agents, validate their configurations, and query associated resources (storages, states, dependencies).
+ * Integrates with AgentSchemaService (agent schema validation), SwarmSchemaService (swarm-level agent management),
+ * ToolValidationService (tool validation), CompletionValidationService (completion validation),
+ * StorageValidationService (storage validation), and LoggerService (logging).
+ * Uses dependency injection for service dependencies and memoization for efficient validation checks.
  */
 declare class AgentValidationService {
+    /**
+     * Logger service instance for logging validation operations and errors.
+     * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+     * @type {LoggerService}
+     * @private
+     * @readonly
+     */
     private readonly loggerService;
+    /**
+     * Tool validation service instance for validating tools associated with agents.
+     * Injected via DI, used in validate method to check agent tools.
+     * @type {ToolValidationService}
+     * @private
+     * @readonly
+     */
     private readonly toolValidationService;
+    /**
+     * Completion validation service instance for validating completion configurations of agents.
+     * Injected via DI, used in validate method to check agent completion.
+     * @type {CompletionValidationService}
+     * @private
+     * @readonly
+     */
     private readonly completionValidationService;
+    /**
+     * Storage validation service instance for validating storages associated with agents.
+     * Injected via DI, used in validate method to check agent storages.
+     * @type {StorageValidationService}
+     * @private
+     * @readonly
+     */
     private readonly storageValidationService;
+    /**
+     * Map of agent names to their schemas, used for validation and resource queries.
+     * Populated by addAgent, queried by validate, getStorageList, getStateList, etc.
+     * @type {Map<AgentName, IAgentSchema>}
+     * @private
+     */
     private _agentMap;
+    /**
+     * Map of agent names to their dependency lists, tracking inter-agent dependencies.
+     * Populated by addAgent when dependsOn is present, queried by hasDependency.
+     * @type {Map<AgentName, AgentName[]>}
+     * @private
+     */
     private _agentDepsMap;
-    getAgentList: () => string[];
     /**
-     * Retrieves the storages used by the agent
-     * @param {agentName} agentName - The name of the swarm.
-     * @returns {string[]} The list of storage names.
-     * @throws Will throw an error if the swarm is not found.
+     * Retrieves the list of registered agent names.
+     * Logs the operation if info-level logging is enabled, supporting SwarmSchemaService’s agent enumeration.
+     * @returns {AgentName[]} An array of all registered agent names from _agentMap.
      */
-    getStorageList: (agentName: string) => string[];
+    getAgentList: () => AgentName[];
     /**
-     * Retrieves the states used by the agent
-     * @param {agentName} agentName - The name of the swarm.
-     * @returns {string[]} The list of state names.
-     * @throws Will throw an error if the swarm is not found.
+     * Retrieves the list of storage names associated with a given agent.
+     * Logs the operation and validates agent existence, supporting ClientStorage integration.
+     * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
+     * @returns {StorageName[]} An array of storage names from the agent’s schema.
+     * @throws {Error} If the agent is not found in _agentMap.
      */
-    getStateList: (agentName: string) => string[];
+    getStorageList: (agentName: AgentName) => StorageName[];
     /**
-     * Adds a new agent to the validation service.
-     * @param {AgentName} agentName - The name of the agent.
-     * @param {IAgentSchema} agentSchema - The schema of the agent.
-     * @throws {Error} If the agent already exists.
+     * Retrieves the list of state names associated with a given agent.
+     * Logs the operation and validates agent existence, supporting ClientState integration.
+     * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
+     * @returns {StateName[]} An array of state names from the agent’s schema.
+     * @throws {Error} If the agent is not found in _agentMap.
+     */
+    getStateList: (agentName: AgentName) => StateName[];
+    /**
+     * Registers a new agent with its schema in the validation service.
+     * Logs the operation and updates _agentMap and _agentDepsMap, supporting AgentSchemaService’s agent registration.
+     * @param {AgentName} agentName - The name of the agent to add, sourced from Agent.interface.
+     * @param {IAgentSchema} agentSchema - The schema defining the agent’s configuration (tools, storages, states, etc.).
+     * @throws {Error} If the agent already exists in _agentMap.
      */
     addAgent: (agentName: AgentName, agentSchema: IAgentSchema) => void;
     /**
-     * Check if agent got registered storage
+     * Checks if an agent has a registered storage, memoized for performance.
+     * Logs the operation and validates agent existence, supporting ClientStorage validation.
+     * @param {AgentName} agentName - The name of the agent to check, sourced from Agent.interface.
+     * @param {StorageName} storageName - The name of the storage to verify, sourced from Storage.interface.
+     * @returns {boolean} True if the storage is registered in the agent’s schema, false otherwise.
+     * @throws {Error} If the agent is not found in _agentMap.
      */
     hasStorage: ((agentName: AgentName, storageName: StorageName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
-     * Check if agent got registered dependency
+     * Checks if an agent has a registered dependency on another agent, memoized for performance.
+     * Logs the operation, supporting inter-agent dependency validation within SwarmSchemaService.
+     * @param {AgentName} targetAgentName - The name of the agent to check, sourced from Agent.interface.
+     * @param {AgentName} depAgentName - The name of the dependency agent to verify, sourced from Agent.interface.
+     * @returns {boolean} True if the dependency is registered in the agent’s dependsOn list, false otherwise.
      */
-    hasDependency: ((targetAgentName: AgentName, depAgentName: StorageName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
+    hasDependency: ((targetAgentName: AgentName, depAgentName: AgentName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
-     * Check if agent got registered state
+     * Checks if an agent has a registered state, memoized for performance.
+     * Logs the operation and validates agent existence, supporting ClientState validation.
+     * @param {AgentName} agentName - The name of the agent to check, sourced from Agent.interface.
+     * @param {StateName} stateName - The name of the state to verify, sourced from State.interface.
+     * @returns {boolean} True if the state is registered in the agent’s schema, false otherwise.
+     * @throws {Error} If the agent is not found in _agentMap.
      */
     hasState: ((agentName: AgentName, stateName: StateName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
-     * Validates an agent by its name and source.
-     * @param {AgentName} agentName - The name of the agent.
-     * @param {string} source - The source of the validation request.
-     * @throws {Error} If the agent is not found.
+     * Validates an agent’s configuration by its name and source, memoized by agentName for performance.
+     * Checks the agent’s existence, completion, tools, and storages, delegating to respective validation services.
+     * Logs the operation, supporting AgentSchemaService’s validation workflow within SwarmSchemaService.
+     * @param {AgentName} agentName - The name of the agent to validate, sourced from Agent.interface.
+     * @param {string} source - The source of the validation request (e.g., "swarm-init"), for error context.
+     * @throws {Error} If the agent is not found, or if its completion, tools, or storages are invalid.
      */
     validate: (agentName: AgentName, source: string) => void;
 }
 
 /**
- * Service for validating tools within the agent-swarm.
+ * Service for validating tool configurations within the swarm system.
+ * Manages a map of registered tools, ensuring their uniqueness and existence during validation.
+ * Integrates with ToolSchemaService (tool registration), AgentValidationService (validating agent tools),
+ * ClientAgent (tool usage), and LoggerService (logging).
+ * Uses dependency injection for the logger and memoization for efficient validation checks.
  */
 declare class ToolValidationService {
+    /**
+     * Logger service instance for logging validation operations and errors.
+     * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+     * @type {LoggerService}
+     * @private
+     * @readonly
+     */
     private readonly loggerService;
+    /**
+     * Map of tool names to their schemas, used to track and validate tools.
+     * Populated by addTool, queried by validate.
+     * @type {Map<ToolName, IAgentTool>}
+     * @private
+     */
     private _toolMap;
     /**
-     * Adds a new tool to the validation service.
-     * @param {ToolName} toolName - The name of the tool to add.
-     * @param {IAgentTool} toolSchema - The schema of the tool to add.
-     * @throws Will throw an error if the tool already exists.
+     * Registers a new tool with its schema in the validation service.
+     * Logs the operation and ensures uniqueness, supporting ToolSchemaService’s registration process.
+     * @param {ToolName} toolName - The name of the tool to add, sourced from Agent.interface.
+     * @param {IAgentTool} toolSchema - The schema defining the tool’s configuration, sourced from Agent.interface.
+     * @throws {Error} If the tool name already exists in _toolMap.
      */
     addTool: (toolName: ToolName, toolSchema: IAgentTool) => void;
     /**
-     * Validates if a tool exists in the validation service.
-     * @param {ToolName} toolName - The name of the tool to validate.
-     * @param {string} source - The source of the validation request.
-     * @throws Will throw an error if the tool is not found.
+     * Validates if a tool name exists in the registered map, memoized by toolName for performance.
+     * Logs the operation and checks existence, supporting AgentValidationService’s validation of agent tools.
+     * @param {ToolName} toolName - The name of the tool to validate, sourced from Agent.interface.
+     * @param {string} source - The source of the validation request (e.g., "agent-validate"), for error context.
+     * @throws {Error} If the tool name is not found in _toolMap.
      */
     validate: (toolName: ToolName, source: string) => void;
 }
 
 /**
- * Service for validating and managing sessions.
+ * Service for managing and validating sessions within the swarm system.
+ * Tracks session associations with swarms, modes, agents, histories, storages, and states,
+ * ensuring session existence and resource usage consistency.
+ * Integrates with SessionConnectionService (session management), ClientSession (session lifecycle),
+ * ClientAgent (agent usage), ClientStorage (storage usage), ClientState (state usage),
+ * SwarmSchemaService (swarm association), and LoggerService (logging).
+ * Uses dependency injection for the logger and memoization for efficient validation checks.
  */
 declare class SessionValidationService {
+    /**
+     * Logger service instance for logging session operations and errors.
+     * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+     * @type {LoggerService}
+     * @private
+     * @readonly
+     */
     private readonly loggerService;
+    /**
+     * Map of session IDs to their associated storage names, tracking storage usage per session.
+     * Populated by addStorageUsage, modified by removeStorageUsage.
+     * @type {Map<SessionId, StorageName[]>}
+     * @private
+     */
     private _storageSwarmMap;
+    /**
+     * Map of session IDs to their associated agent names for history tracking.
+     * Populated by addHistoryUsage, modified by removeHistoryUsage.
+     * @type {Map<SessionId, AgentName[]>}
+     * @private
+     */
     private _historySwarmMap;
+    /**
+     * Map of session IDs to their associated agent names for active usage.
+     * Populated by addAgentUsage, modified by removeAgentUsage.
+     * @type {Map<SessionId, AgentName[]>}
+     * @private
+     */
     private _agentSwarmMap;
+    /**
+     * Map of session IDs to their associated state names, tracking state usage per session.
+     * Populated by addStateUsage, modified by removeStateUsage.
+     * @type {Map<SessionId, StateName[]>}
+     * @private
+     */
     private _stateSwarmMap;
+    /**
+     * Map of session IDs to their associated swarm names, defining session-swarm relationships.
+     * Populated by addSession, removed by removeSession.
+     * @type {Map<SessionId, SwarmName>}
+     * @private
+     */
     private _sessionSwarmMap;
+    /**
+     * Map of session IDs to their modes, defining session behavior.
+     * Populated by addSession, removed by removeSession.
+     * @type {Map<SessionId, SessionMode>}
+     * @private
+     */
     private _sessionModeMap;
     /**
-     * Adds a new session.
-     * @param {SessionId} clientId - The ID of the client.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {SessionMode} sessionMode - The mode of the session.
-     * @throws Will throw an error if the session already exists.
+     * Registers a new session with its swarm and mode.
+     * Logs the operation and ensures uniqueness, supporting SessionConnectionService’s session creation.
+     * @param {SessionId} clientId - The ID of the session (client ID), sourced from Session.interface.
+     * @param {SwarmName} swarmName - The name of the associated swarm, sourced from Swarm.interface.
+     * @param {SessionMode} sessionMode - The mode of the session (e.g., "active", "passive"), sourced from Session.interface.
+     * @throws {Error} If the session already exists in _sessionSwarmMap.
      */
     addSession: (clientId: SessionId, swarmName: SwarmName, sessionMode: SessionMode) => void;
     /**
-     * Adds an agent usage to a session.
-     * @param {SessionId} sessionId - The ID of the session.
-     * @param {AgentName} agentName - The name of the agent.
+     * Tracks an agent’s usage within a session, adding it to the session’s agent list.
+     * Logs the operation, supporting ClientAgent’s session-specific activity tracking.
+     * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
+     * @param {AgentName} agentName - The name of the agent to add, sourced from Agent.interface.
      */
     addAgentUsage: (sessionId: SessionId, agentName: AgentName) => void;
     /**
-     * Adds a history usage to a session.
-     * @param {SessionId} sessionId - The ID of the session.
-     * @param {AgentName} agentName - The name of the agent.
+     * Tracks an agent’s history usage within a session, adding it to the session’s history list.
+     * Logs the operation, supporting ClientHistory’s session-specific history tracking.
+     * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
+     * @param {AgentName} agentName - The name of the agent to add, sourced from Agent.interface.
      */
     addHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
     /**
-     * Adds a storage usage to a session.
-     * @param {SessionId} sessionId - The ID of the session.
-     * @param {StorageName} storageName - The name of the storage.
+     * Tracks a storage’s usage within a session, adding it to the session’s storage list.
+     * Logs the operation, supporting ClientStorage’s session-specific storage tracking.
+     * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
+     * @param {StorageName} storageName - The name of the storage to add, sourced from Storage.interface.
      */
     addStorageUsage: (sessionId: SessionId, storageName: StorageName) => void;
     /**
-     * Adds a state usage to a session.
-     * @param {SessionId} sessionId - The ID of the session.
-     * @param {StateName} stateName - The name of the state.
+     * Tracks a state’s usage within a session, adding it to the session’s state list.
+     * Logs the operation, supporting ClientState’s session-specific state tracking.
+     * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
+     * @param {StateName} stateName - The name of the state to add, sourced from State.interface.
      */
     addStateUsage: (sessionId: SessionId, stateName: StateName) => void;
     /**
-     * Removes an agent usage from a session.
-     * @param {SessionId} sessionId - The ID of the session.
-     * @param {AgentName} agentName - The name of the agent.
-     * @throws Will throw an error if no agents are found for the session.
+     * Removes an agent from a session’s agent usage list.
+     * Logs the operation and cleans up if the list becomes empty, supporting ClientAgent’s session cleanup.
+     * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
+     * @param {AgentName} agentName - The name of the agent to remove, sourced from Agent.interface.
+     * @throws {Error} If no agents are found for the session in _agentSwarmMap.
      */
     removeAgentUsage: (sessionId: SessionId, agentName: AgentName) => void;
     /**
-     * Removes a history usage from a session.
-     * @param {SessionId} sessionId - The ID of the session.
-     * @param {AgentName} agentName - The name of the agent.
-     * @throws Will throw an error if no agents are found for the session.
+     * Removes an agent from a session’s history usage list.
+     * Logs the operation and cleans up if the list becomes empty, supporting ClientHistory’s session cleanup.
+     * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
+     * @param {AgentName} agentName - The name of the agent to remove, sourced from Agent.interface.
+     * @throws {Error} If no agents are found for the session in _historySwarmMap.
      */
     removeHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
     /**
-     * Removes a storage usage from a session.
-     * @param {SessionId} sessionId - The ID of the session.
-     * @param {StorageName} storageName - The name of the storage.
-     * @throws Will throw an error if no storages are found for the session.
+     * Removes a storage from a session’s storage usage list.
+     * Logs the operation and cleans up if the list becomes empty, supporting ClientStorage’s session cleanup.
+     * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
+     * @param {StorageName} storageName - The name of the storage to remove, sourced from Storage.interface.
+     * @throws {Error} If no storages are found for the session in _storageSwarmMap.
      */
     removeStorageUsage: (sessionId: SessionId, storageName: StorageName) => void;
     /**
-     * Removes a state usage from a session.
-     * @param {SessionId} sessionId - The ID of the session.
-     * @param {StateName} stateName - The name of the state.
-     * @throws Will throw an error if no states are found for the session.
+     * Removes a state from a session’s state usage list.
+     * Logs the operation and cleans up if the list becomes empty, supporting ClientState’s session cleanup.
+     * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
+     * @param {StateName} stateName - The name of the state to remove, sourced from State.interface.
+     * @throws {Error} If no states are found for the session in _stateSwarmMap.
      */
     removeStateUsage: (sessionId: SessionId, stateName: StateName) => void;
     /**
-     * Gets the mode of a session.
-     * @param {SessionId} clientId - The ID of the client.
-     * @returns {SessionMode} The mode of the session.
-     * @throws Will throw an error if the session does not exist.
+     * Retrieves the mode of a session.
+     * Logs the operation and validates session existence, supporting ClientSession’s mode-based behavior.
+     * @param {SessionId} clientId - The ID of the session (client ID), sourced from Session.interface.
+     * @returns {SessionMode} The mode of the session (e.g., "active", "passive").
+     * @throws {Error} If the session does not exist in _sessionModeMap.
      */
     getSessionMode: (clientId: SessionId) => SessionMode;
     /**
-     * Ensures session is exist
-     * @returns {boolean}
+     * Checks if a session exists.
+     * Logs the operation, supporting quick existence checks for SessionConnectionService.
+     * @param {SessionId} clientId - The ID of the session (client ID), sourced from Session.interface.
+     * @returns {boolean} True if the session exists in _sessionSwarmMap, false otherwise.
      */
     hasSession: (clientId: SessionId) => boolean;
     /**
-     * Gets the list of all session IDs.
-     * @returns {SessionId[]} The list of session IDs.
+     * Retrieves the list of all registered session IDs.
+     * Logs the operation, supporting SessionConnectionService’s session enumeration.
+     * @returns {SessionId[]} An array of all session IDs from _sessionSwarmMap.
      */
-    getSessionList: () => string[];
+    getSessionList: () => SessionId[];
     /**
-     * Gets the list of agents for a session.
-     * @param {string} clientId - The ID of the client.
-     * @returns {AgentName[]} The list of agent names.
+     * Retrieves the list of agents associated with a session.
+     * Logs the operation, supporting ClientAgent’s session-specific agent queries.
+     * @param {SessionId} clientId - The ID of the session (client ID), sourced from Session.interface.
+     * @returns {AgentName[]} An array of agent names from _agentSwarmMap, or empty array if none.
      */
-    getSessionAgentList: (clientId: string) => string[];
+    getSessionAgentList: (clientId: SessionId) => AgentName[];
     /**
-     * Gets the history list of agents for a session.
-     * @param {string} clientId - The ID of the client.
-     * @returns {AgentName[]} The list of agent names.
+     * Retrieves the list of agents in a session’s history.
+     * Logs the operation, supporting ClientHistory’s session-specific history queries.
+     * @param {SessionId} clientId - The ID of the session (client ID), sourced from Session.interface.
+     * @returns {AgentName[]} An array of agent names from _historySwarmMap, or empty array if none.
      */
-    getSessionHistoryList: (clientId: string) => string[];
+    getSessionHistoryList: (clientId: SessionId) => AgentName[];
     /**
-     * Gets the swarm name for a session.
-     * @param {SessionId} clientId - The ID of the client.
-     * @returns {SwarmName} The name of the swarm.
-     * @throws Will throw an error if the session does not exist.
+     * Retrieves the swarm name associated with a session.
+     * Logs the operation and validates session existence, supporting SwarmSchemaService’s session-swarm mapping.
+     * @param {SessionId} clientId - The ID of the session (client ID), sourced from Session.interface.
+     * @returns {SwarmName} The name of the associated swarm from _sessionSwarmMap.
+     * @throws {Error} If the session does not exist in _sessionSwarmMap.
      */
-    getSwarm: (clientId: SessionId) => string;
+    getSwarm: (clientId: SessionId) => SwarmName;
     /**
-     * Validates if a session exists.
-     * @param {SessionId} clientId - The ID of the client.
-     * @param {string} source - The source of the validation request.
-     * @throws Will throw an error if the session does not exist.
+     * Validates if a session exists, memoized by clientId for performance.
+     * Logs the operation and checks existence, supporting ClientSession’s session validation needs.
+     * @param {SessionId} clientId - The ID of the session (client ID), sourced from Session.interface.
+     * @param {string} source - The source of the validation request (e.g., "session-init"), for error context.
+     * @throws {Error} If the clientId is missing or the session does not exist in _sessionSwarmMap.
      */
     validate: ((clientId: SessionId, source: string) => void) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, void>;
     /**
-     * Removes a session.
-     * @param {SessionId} clientId - The ID of the client.
+     * Removes a session and its associated mode, clearing validation cache.
+     * Logs the operation, supporting SessionConnectionService’s session cleanup.
+     * @param {SessionId} clientId - The ID of the session (client ID), sourced from Session.interface.
      */
     removeSession: (clientId: SessionId) => void;
     /**
-     * Dispose a session validation cache.
-     * @param {SessionId} clientId - The ID of the client.
+     * Clears the validation cache for a specific session.
+     * Logs the operation, supporting resource cleanup without removing session data.
+     * @param {SessionId} clientId - The ID of the session (client ID), sourced from Session.interface.
      */
-    dispose: (clientId: string) => void;
+    dispose: (clientId: SessionId) => void;
 }
 
 /**
- * Service for validating swarms and their agents.
+ * Service for validating swarm configurations within the swarm system.
+ * Manages a map of registered swarms, ensuring their uniqueness, existence, valid agent lists, default agents, and policies.
+ * Integrates with SwarmSchemaService (swarm registration), ClientSwarm (swarm operations),
+ * AgentValidationService (agent validation), PolicyValidationService (policy validation),
+ * SessionValidationService (session-swarm mapping), and LoggerService (logging).
+ * Uses dependency injection for services and memoization for efficient validation checks.
  */
 declare class SwarmValidationService {
+    /**
+     * Logger service instance for logging validation operations and errors.
+     * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+     * @type {LoggerService}
+     * @private
+     * @readonly
+     */
     private readonly loggerService;
+    /**
+     * Agent validation service instance for validating agents associated with swarms.
+     * Injected via DI, used in validate method to check swarm.agentList.
+     * @type {AgentValidationService}
+     * @private
+     * @readonly
+     */
     private readonly agentValidationService;
+    /**
+     * Policy validation service instance for validating policies associated with swarms.
+     * Injected via DI, used in validate method to check swarm.policies.
+     * @type {PolicyValidationService}
+     * @private
+     * @readonly
+     */
     private readonly policyValidationService;
+    /**
+     * Map of swarm names to their schemas, used to track and validate swarms.
+     * Populated by addSwarm, queried by getAgentList, getPolicyList, and validate.
+     * @type {Map<SwarmName, ISwarmSchema>}
+     * @private
+     */
     private _swarmMap;
     /**
-     * Adds a new swarm to the swarm map.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {ISwarmSchema} swarmSchema - The schema of the swarm.
-     * @throws Will throw an error if the swarm already exists.
+     * Registers a new swarm with its schema in the validation service.
+     * Logs the operation and ensures uniqueness, supporting SwarmSchemaService’s registration process.
+     * @param {SwarmName} swarmName - The name of the swarm to add, sourced from Swarm.interface.
+     * @param {ISwarmSchema} swarmSchema - The schema defining the swarm’s configuration (e.g., agentList, defaultAgent, policies), sourced from Swarm.interface.
+     * @throws {Error} If the swarm name already exists in _swarmMap.
      */
     addSwarm: (swarmName: SwarmName, swarmSchema: ISwarmSchema) => void;
     /**
-     * Retrieves the list of agents for a given swarm.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @returns {string[]} The list of agent names.
-     * @throws Will throw an error if the swarm is not found.
+     * Retrieves the list of agent names associated with a given swarm.
+     * Logs the operation and validates swarm existence, supporting ClientSwarm’s agent management.
+     * @param {SwarmName} swarmName - The name of the swarm to query, sourced from Swarm.interface.
+     * @returns {string[]} An array of agent names from the swarm’s schema.
+     * @throws {Error} If the swarm is not found in _swarmMap.
      */
     getAgentList: (swarmName: SwarmName) => string[];
     /**
-     * Retrieves the list of ban policies for a given swarm.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @returns {string[]} The list of policy names.
-     * @throws Will throw an error if the swarm is not found.
+     * Retrieves the list of policy names associated with a given swarm.
+     * Logs the operation and validates swarm existence, supporting ClientSwarm’s policy enforcement.
+     * @param {SwarmName} swarmName - The name of the swarm to query, sourced from Swarm.interface.
+     * @returns {string[]} An array of policy names from the swarm’s schema, or empty array if none.
+     * @throws {Error} If the swarm is not found in _swarmMap.
      */
     getPolicyList: (swarmName: SwarmName) => string[];
     /**
-     * Retrieves the list of swarms
-     * @returns {string[]} The list of swarm names
+     * Retrieves the list of all registered swarm names.
+     * Logs the operation, supporting SwarmSchemaService’s swarm enumeration.
+     * @returns {string[]} An array of all swarm names from _swarmMap.
      */
     getSwarmList: () => string[];
     /**
-     * Validates a swarm and its agents.
-     * @param {SwarmName} swarmName - The name of the swarm.
-     * @param {string} source - The source of the validation request.
-     * @throws Will throw an error if the swarm is not found or if the default agent is not in the agent list.
+     * Validates a swarm by its name and source, memoized by swarmName for performance.
+     * Checks swarm existence, default agent inclusion, and validates all agents and policies.
+     * Logs the operation, supporting ClientSwarm’s operational integrity.
+     * @param {SwarmName} swarmName - The name of the swarm to validate, sourced from Swarm.interface.
+     * @param {string} source - The source of the validation request (e.g., "swarm-init"), for error context.
+     * @throws {Error} If the swarm is not found, the default agent is not in the agent list, or any agent/policy validation fails.
      */
     validate: (swarmName: SwarmName, source: string) => void;
 }
 
 /**
- * Service for validating completion names.
+ * Service for validating completion names within the swarm system.
+ * Manages a set of registered completion names, ensuring their uniqueness and existence during validation.
+ * Integrates with CompletionSchemaService (completion registration), AgentValidationService (agent completion validation),
+ * ClientAgent (completion usage), and LoggerService (logging).
+ * Uses dependency injection for the logger and memoization for efficient validation checks.
  */
 declare class CompletionValidationService {
+    /**
+     * Logger service instance for logging validation operations and errors.
+     * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+     * @type {LoggerService}
+     * @private
+     * @readonly
+     */
     private readonly loggerService;
+    /**
+     * Set of registered completion names, used to track and validate completions.
+     * Populated by addCompletion, queried by validate.
+     * @type {Set<CompletionName>}
+     * @private
+     */
     private _completionSet;
     /**
-     * Adds a new completion name to the set.
-     * @param {CompletionName} completionName - The name of the completion to add.
-     * @throws Will throw an error if the completion name already exists.
+     * Registers a new completion name in the validation service.
+     * Logs the operation and ensures uniqueness, supporting CompletionSchemaService’s registration process.
+     * @param {CompletionName} completionName - The name of the completion to add, sourced from Completion.interface.
+     * @throws {Error} If the completion name already exists in _completionSet.
      */
     addCompletion: (completionName: CompletionName) => void;
     /**
-     * Validates if a completion name exists in the set.
-     * @param {CompletionName} completionName - The name of the completion to validate.
-     * @param {string} source - The source of the validation request.
-     * @throws Will throw an error if the completion name is not found.
+     * Validates if a completion name exists in the registered set, memoized by completionName for performance.
+     * Logs the operation and checks existence, supporting AgentValidationService’s validation of agent completions.
+     * @param {CompletionName} completionName - The name of the completion to validate, sourced from Completion.interface.
+     * @param {string} source - The source of the validation request (e.g., "agent-validate"), for error context.
+     * @throws {Error} If the completion name is not found in _completionSet.
      */
     validate: (completionName: CompletionName, source: string) => void;
 }
@@ -5321,46 +5534,92 @@ declare class StoragePublicService implements TStorageConnectionService {
 }
 
 /**
- * Service for validating storages within the storage swarm.
+ * Service for validating storage configurations within the swarm system.
+ * Manages a map of registered storages, ensuring their uniqueness, existence, and valid embedding configurations.
+ * Integrates with StorageSchemaService (storage registration), ClientStorage (storage operations),
+ * AgentValidationService (validating agent storages), EmbeddingValidationService (embedding validation),
+ * and LoggerService (logging).
+ * Uses dependency injection for services and memoization for efficient validation checks.
  */
 declare class StorageValidationService {
+    /**
+     * Logger service instance for logging validation operations and errors.
+     * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+     * @type {LoggerService}
+     * @private
+     * @readonly
+     */
     private readonly loggerService;
+    /**
+     * Embedding validation service instance for validating embeddings associated with storages.
+     * Injected via DI, used in validate method to check storage.embedding.
+     * @type {EmbeddingValidationService}
+     * @private
+     * @readonly
+     */
     private readonly embeddingValidationService;
+    /**
+     * Map of storage names to their schemas, used to track and validate storages.
+     * Populated by addStorage, queried by validate.
+     * @type {Map<StorageName, IStorageSchema>}
+     * @private
+     */
     private _storageMap;
     /**
-     * Adds a new storage to the validation service.
-     * @param {StorageName} storageName - The name of the storage.
-     * @param {IStorageSchema} storageSchema - The schema of the storage.
-     * @throws {Error} If the storage already exists.
+     * Registers a new storage with its schema in the validation service.
+     * Logs the operation and ensures uniqueness, supporting StorageSchemaService’s registration process.
+     * @param {StorageName} storageName - The name of the storage to add, sourced from Storage.interface.
+     * @param {IStorageSchema} storageSchema - The schema defining the storage’s configuration (e.g., embedding), sourced from Storage.interface.
+     * @throws {Error} If the storage name already exists in _storageMap.
      */
     addStorage: (storageName: StorageName, storageSchema: IStorageSchema) => void;
     /**
-     * Validates an storage by its name and source.
-     * @param {StorageName} storageName - The name of the storage.
-     * @param {string} source - The source of the validation request.
-     * @throws {Error} If the storage is not found.
+     * Validates a storage by its name and source, memoized by storageName for performance.
+     * Checks storage existence and validates its embedding, supporting ClientStorage’s operational integrity.
+     * @param {StorageName} storageName - The name of the storage to validate, sourced from Storage.interface.
+     * @param {string} source - The source of the validation request (e.g., "agent-validate"), for error context.
+     * @throws {Error} If the storage is not found in _storageMap or its embedding is invalid.
      */
     validate: (storageName: StorageName, source: string) => void;
 }
 
 /**
- * Service for validating embeddings within the agent-swarm.
+ * Service for validating embedding names within the swarm system.
+ * Manages a map of registered embeddings, ensuring their uniqueness and existence during validation.
+ * Integrates with EmbeddingSchemaService (embedding registration), ClientStorage (embedding usage in similarity search),
+ * AgentValidationService (potential embedding validation for agents), and LoggerService (logging).
+ * Uses dependency injection for the logger and memoization for efficient validation checks.
  */
 declare class EmbeddingValidationService {
+    /**
+     * Logger service instance for logging validation operations and errors.
+     * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+     * @type {LoggerService}
+     * @private
+     * @readonly
+     */
     private readonly loggerService;
+    /**
+     * Map of embedding names to their schemas, used to track and validate embeddings.
+     * Populated by addEmbedding, queried by validate.
+     * @type {Map<EmbeddingName, IEmbeddingSchema>}
+     * @private
+     */
     private _embeddingMap;
     /**
-     * Adds a new embedding to the validation service.
-     * @param {EmbeddingName} embeddingName - The name of the embedding to add.
-     * @param {IAgentEmbedding} embeddingSchema - The schema of the embedding to add.
-     * @throws Will throw an error if the embedding already exists.
+     * Registers a new embedding with its schema in the validation service.
+     * Logs the operation and ensures uniqueness, supporting EmbeddingSchemaService’s registration process.
+     * @param {EmbeddingName} embeddingName - The name of the embedding to add, sourced from Embedding.interface.
+     * @param {IEmbeddingSchema} embeddingSchema - The schema defining the embedding’s configuration, sourced from Embedding.interface.
+     * @throws {Error} If the embedding name already exists in _embeddingMap.
      */
     addEmbedding: (embeddingName: EmbeddingName, embeddingSchema: IEmbeddingSchema) => void;
     /**
-     * Validates if a embedding exists in the validation service.
-     * @param {EmbeddingName} embeddingName - The name of the embedding to validate.
-     * @param {string} source - The source of the validation request.
-     * @throws Will throw an error if the embedding is not found.
+     * Validates if an embedding name exists in the registered map, memoized by embeddingName for performance.
+     * Logs the operation and checks existence, supporting ClientStorage’s embedding-based search validation.
+     * @param {EmbeddingName} embeddingName - The name of the embedding to validate, sourced from Embedding.interface.
+     * @param {string} source - The source of the validation request (e.g., "storage-validate"), for error context.
+     * @throws {Error} If the embedding name is not found in _embeddingMap.
      */
     validate: (embeddingName: EmbeddingName, source: string) => void;
 }
@@ -6907,23 +7166,42 @@ declare class PolicySchemaService {
 }
 
 /**
- * Service for validating policys within the agent-swarm.
+ * Service for validating policies within the swarm system.
+ * Manages a map of registered policies, ensuring their uniqueness and existence during validation.
+ * Integrates with PolicySchemaService (policy registration), ClientPolicy (policy enforcement),
+ * AgentValidationService (potential policy validation for agents), and LoggerService (logging).
+ * Uses dependency injection for the logger and memoization for efficient validation checks.
  */
 declare class PolicyValidationService {
+    /**
+     * Logger service instance for logging validation operations and errors.
+     * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+     * @type {LoggerService}
+     * @private
+     * @readonly
+     */
     private readonly loggerService;
+    /**
+     * Map of policy names to their schemas, used to track and validate policies.
+     * Populated by addPolicy, queried by validate.
+     * @type {Map<PolicyName, IPolicySchema>}
+     * @private
+     */
     private _policyMap;
     /**
-     * Adds a new policy to the validation service.
-     * @param {PolicyName} policyName - The name of the policy to add.
-     * @param {IPolicySchema} policySchema - The schema of the policy to add.
-     * @throws Will throw an error if the policy already exists.
+     * Registers a new policy with its schema in the validation service.
+     * Logs the operation and ensures uniqueness, supporting PolicySchemaService’s registration process.
+     * @param {PolicyName} policyName - The name of the policy to add, sourced from Policy.interface.
+     * @param {IPolicySchema} policySchema - The schema defining the policy’s configuration, sourced from Policy.interface.
+     * @throws {Error} If the policy name already exists in _policyMap.
      */
     addPolicy: (policyName: PolicyName, policySchema: IPolicySchema) => void;
     /**
-     * Validates if a policy exists in the validation service.
-     * @param {PolicyName} policyName - The name of the policy to validate.
-     * @param {string} source - The source of the validation request.
-     * @throws Will throw an error if the policy is not found.
+     * Validates if a policy name exists in the registered map, memoized by policyName for performance.
+     * Logs the operation and checks existence, supporting ClientPolicy’s policy enforcement validation.
+     * @param {PolicyName} policyName - The name of the policy to validate, sourced from Policy.interface.
+     * @param {string} source - The source of the validation request (e.g., "agent-validate"), for error context.
+     * @throws {Error} If the policy name is not found in _policyMap.
      */
     validate: (policyName: PolicyName, source: string) => void;
 }
@@ -8075,192 +8353,218 @@ declare const listenPolicyEventOnce: (clientId: string, filterFn: (event: IBusEv
 declare const LOGGER_INSTANCE_WAIT_FOR_INIT: unique symbol;
 /**
  * Callbacks for managing logger instance lifecycle and log events.
+ * Used by LoggerInstance to hook into initialization, disposal, and logging operations.
  */
 interface ILoggerInstanceCallbacks {
     /**
-     * Called when the logger instance is initialized.
-     * @param {string} clientId - The client ID.
+     * Called when the logger instance is initialized, typically during waitForInit.
+     * @param {string} clientId - The client ID associated with the logger instance.
      */
     onInit(clientId: string): void;
     /**
-     * Called when the logger instance is disposed.
-     * @param {string} clientId - The client ID.
+     * Called when the logger instance is disposed, cleaning up resources.
+     * @param {string} clientId - The client ID associated with the logger instance.
      */
     onDispose(clientId: string): void;
     /**
-     * Called when a log message is recorded.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The log topic.
-     * @param {...any[]} args - Additional log arguments.
+     * Called when a log message is recorded via the log method.
+     * @param {string} clientId - The client ID associated with the logger instance.
+     * @param {string} topic - The log topic or category.
+     * @param {...any[]} args - Additional arguments to log.
      */
     onLog(clientId: string, topic: string, ...args: any[]): void;
     /**
-     * Called when a debug message is recorded.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The debug topic.
-     * @param {...any[]} args - Additional debug arguments.
+     * Called when a debug message is recorded via the debug method.
+     * @param {string} clientId - The client ID associated with the logger instance.
+     * @param {string} topic - The debug topic or category.
+     * @param {...any[]} args - Additional arguments to debug log.
      */
     onDebug(clientId: string, topic: string, ...args: any[]): void;
     /**
-     * Called when an info message is recorded.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The info topic.
-     * @param {...any[]} args - Additional info arguments.
+     * Called when an info message is recorded via the info method.
+     * @param {string} clientId - The client ID associated with the logger instance.
+     * @param {string} topic - The info topic or category.
+     * @param {...any[]} args - Additional arguments to info log.
      */
     onInfo(clientId: string, topic: string, ...args: any[]): void;
 }
 /**
  * Interface for logger instances, extending the base ILogger with lifecycle methods.
+ * Implemented by LoggerInstance for client-specific logging with initialization and disposal support.
  * @extends {ILogger}
  */
 interface ILoggerInstance extends ILogger {
     /**
-     * Initializes the logger instance, optionally waiting for setup.
-     * @param {boolean} initial - Whether this is the initial setup (affects caching behavior).
-     * @returns {Promise<void> | void} A promise that resolves when initialization is complete, or void if synchronous.
+     * Initializes the logger instance, invoking the onInit callback if provided.
+     * Ensures initialization is performed only once, supporting asynchronous setup.
+     * @param {boolean} initial - Whether this is the initial setup (affects caching behavior in LoggerUtils).
+     * @returns {Promise<void> | void} A promise if initialization is asynchronous, or void if synchronous.
      */
     waitForInit(initial: boolean): Promise<void> | void;
     /**
-     * Disposes of the logger instance, cleaning up resources.
-     * @returns {Promise<void> | void} A promise that resolves when disposal is complete, or void if synchronous.
+     * Disposes of the logger instance, invoking the onDispose callback if provided.
+     * Cleans up resources associated with the client ID.
+     * @returns {Promise<void> | void} A promise if disposal is asynchronous, or void if synchronous.
      */
     dispose(): Promise<void> | void;
 }
 /**
  * Interface defining methods for interacting with a logger adapter.
+ * Implemented by LoggerUtils to provide client-specific logging operations.
  */
 interface ILoggerAdapter {
     /**
-     * Logs a message for a client.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The log topic.
-     * @param {...any[]} args - Additional log arguments.
+     * Logs a message for a client using the client-specific logger instance.
+     * Ensures session validation and initialization before logging.
+     * @param {string} clientId - The client ID associated with the log.
+     * @param {string} topic - The log topic or category.
+     * @param {...any[]} args - Additional arguments to log.
      * @returns {Promise<void>} A promise that resolves when the log is recorded.
      */
     log(clientId: string, topic: string, ...args: any[]): Promise<void>;
     /**
-     * Logs a debug message for a client.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The debug topic.
-     * @param {...any[]} args - Additional debug arguments.
+     * Logs a debug message for a client using the client-specific logger instance.
+     * Ensures session validation and initialization before logging.
+     * @param {string} clientId - The client ID associated with the debug log.
+     * @param {string} topic - The debug topic or category.
+     * @param {...any[]} args - Additional arguments to debug log.
      * @returns {Promise<void>} A promise that resolves when the debug message is recorded.
      */
     debug(clientId: string, topic: string, ...args: any[]): Promise<void>;
     /**
-     * Logs an info message for a client.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The info topic.
-     * @param {...any[]} args - Additional info arguments.
+     * Logs an info message for a client using the client-specific logger instance.
+     * Ensures session validation and initialization before logging.
+     * @param {string} clientId - The client ID associated with the info log.
+     * @param {string} topic - The info topic or category.
+     * @param {...any[]} args - Additional arguments to info log.
      * @returns {Promise<void>} A promise that resolves when the info message is recorded.
      */
     info(clientId: string, topic: string, ...args: any[]): Promise<void>;
     /**
-     * Disposes of the logger instance for a client.
-     * @param {string} clientId - The client ID.
+     * Disposes of the logger instance for a client, clearing it from the cache.
+     * Ensures initialization before disposal.
+     * @param {string} clientId - The client ID to dispose.
      * @returns {Promise<void>} A promise that resolves when disposal is complete.
      */
     dispose(clientId: string): Promise<void>;
 }
 /**
  * Interface defining control methods for configuring logger behavior.
+ * Implemented by LoggerUtils to manage common adapters, callbacks, and custom constructors.
  */
 interface ILoggerControl {
     /**
-     * Sets a common logger adapter for all logging operations.
-     * @param {ILogger} logger - The logger instance to use.
+     * Sets a common logger adapter for all logging operations via swarm.loggerService.
+     * Overrides the default logger service behavior for centralized logging.
+     * @param {ILogger} logger - The logger instance to set as the common adapter.
      */
     useCommonAdapter(logger: ILogger): void;
     /**
      * Configures client-specific lifecycle callbacks for logger instances.
-     * @param {Partial<ILoggerInstanceCallbacks>} Callbacks - The callbacks to apply.
+     * Applies to all instances created by LoggerUtils’ LoggerFactory.
+     * @param {Partial<ILoggerInstanceCallbacks>} Callbacks - The callbacks to configure.
      */
     useClientCallbacks(Callbacks: Partial<ILoggerInstanceCallbacks>): void;
     /**
      * Sets a custom logger instance constructor for client-specific logging.
+     * Replaces the default LoggerInstance with a user-defined constructor.
      * @param {TLoggerInstanceCtor} Ctor - The constructor for creating logger instances.
      */
     useClientAdapter(Ctor: TLoggerInstanceCtor): void;
     /**
-     * Logs a message for a specific client using the common adapter.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The log topic.
-     * @param {...any[]} args - Additional log arguments.
+     * Logs a message for a specific client using the common adapter (swarm.loggerService).
+     * Includes session validation and method context tracking.
+     * @param {string} clientId - The client ID associated with the log.
+     * @param {string} topic - The log topic or category.
+     * @param {...any[]} args - Additional arguments to log.
      * @returns {Promise<void>} A promise that resolves when the log is recorded.
      */
     logClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
     /**
-     * Logs an info message for a specific client using the common adapter.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The info topic.
-     * @param {...any[]} args - Additional info arguments.
+     * Logs an info message for a specific client using the common adapter (swarm.loggerService).
+     * Includes session validation and method context tracking.
+     * @param {string} clientId - The client ID associated with the info log.
+     * @param {string} topic - The info topic or category.
+     * @param {...any[]} args - Additional arguments to info log.
      * @returns {Promise<void>} A promise that resolves when the info message is recorded.
      */
     infoClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
     /**
-     * Logs a debug message for a specific client using the common adapter.
-     * @param {string} clientId - The client ID.
-     * @param {string} topic - The debug topic.
-     * @param {...any[]} args - Additional debug arguments.
+     * Logs a debug message for a specific client using the common adapter (swarm.loggerService).
+     * Includes session validation and method context tracking.
+     * @param {string} clientId - The client ID associated with the debug log.
+     * @param {string} topic - The debug topic or category.
+     * @param {...any[]} args - Additional arguments to debug log.
      * @returns {Promise<void>} A promise that resolves when the debug message is recorded.
      */
     debugClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
 }
 /**
  * Constructor type for creating logger instances.
+ * Used by LoggerUtils to instantiate custom or default LoggerInstance objects.
  * @typedef {new (clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>) => ILoggerInstance} TLoggerInstanceCtor
  */
 type TLoggerInstanceCtor = new (clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>) => ILoggerInstance;
 /**
- * Manages logging operations for a specific client, with customizable callbacks.
+ * Manages logging operations for a specific client, with customizable callbacks and console output.
+ * Implements ILoggerInstance for client-specific logging with lifecycle management.
+ * Integrates with GLOBAL_CONFIG for console logging control and callbacks for custom behavior.
  * @implements {ILoggerInstance}
  */
 declare class LoggerInstance implements ILoggerInstance {
     readonly clientId: string;
     readonly callbacks: Partial<ILoggerInstanceCallbacks>;
     /**
-     * Creates a new logger instance.
-     * @param {string} clientId - The client ID associated with this logger.
-     * @param {Partial<ILoggerInstanceCallbacks>} callbacks - Optional lifecycle callbacks.
+     * Creates a new logger instance for a specific client.
+     * @param {string} clientId - The client ID associated with this logger instance, used in log prefixes.
+     * @param {Partial<ILoggerInstanceCallbacks>} callbacks - Optional lifecycle callbacks for initialization, disposal, and logging.
      */
     constructor(clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>);
     /**
-     * Memoized initialization function to ensure it runs only once.
+     * Memoized initialization function to ensure it runs only once using singleshot.
+     * Invokes LOGGER_INSTANCE_WAIT_FOR_FN to handle onInit callback execution.
      * @returns {Promise<void>} A promise that resolves when initialization is complete.
      * @private
      */
     private [LOGGER_INSTANCE_WAIT_FOR_INIT];
     /**
      * Initializes the logger instance, invoking the onInit callback if provided.
-     * @param {boolean} [initial] - Whether this is the initial setup (unused in this implementation).
+     * Ensures initialization is performed only once, memoized via singleshot.
+     * @param {boolean} [initial] - Whether this is the initial setup (unused here but required by ILoggerInstance).
      * @returns {Promise<void>} A promise that resolves when initialization is complete.
      */
     waitForInit(): Promise<void>;
     /**
-     * Logs a message to the console (if enabled) and invokes the onLog callback.
-     * @param {string} topic - The topic of the log message.
-     * @param {...any[]} args - Additional arguments to log.
+     * Logs a message to the console (if enabled) and invokes the onLog callback if provided.
+     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+     * @param {string} topic - The topic or category of the log message.
+     * @param {...any[]} args - Additional arguments to include in the log.
      */
     log(topic: string, ...args: any[]): void;
     /**
-     * Logs a debug message to the console (if enabled) and invokes the onDebug callback.
-     * @param {string} topic - The topic of the debug message.
-     * @param {...any[]} args - Additional arguments to debug log.
+     * Logs a debug message to the console (if enabled) and invokes the onDebug callback if provided.
+     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+     * @param {string} topic - The topic or category of the debug message.
+     * @param {...any[]} args - Additional arguments to include in the debug log.
      */
     debug(topic: string, ...args: any[]): void;
     /**
-     * Logs an info message to the console (if enabled) and invokes the onInfo callback.
-     * @param {string} topic - The topic of the info message.
-     * @param {...any[]} args - Additional arguments to info log.
+     * Logs an info message to the console (if enabled) and invokes the onInfo callback if provided.
+     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+     * @param {string} topic - The topic or category of the info message.
+     * @param {...any[]} args - Additional arguments to include in the info log.
      */
     info(topic: string, ...args: any[]): void;
     /**
      * Disposes of the logger instance, invoking the onDispose callback if provided.
-     * @returns {void} Synchronous operation with no return value.
+     * Performs synchronous cleanup without additional resource management.
+     * @returns {void} No return value, operation is synchronous.
      */
     dispose(): void;
 }
 /**
  * Exported Logger Control interface for configuring logger behavior.
+ * Exposes LoggerUtils’ control methods (useCommonAdapter, useClientCallbacks, useClientAdapter, etc.).
  * @type {ILoggerControl}
  */
 declare const Logger: ILoggerControl;

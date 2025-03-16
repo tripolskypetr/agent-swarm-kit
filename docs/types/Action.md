@@ -1,7 +1,7 @@
 # Action
 
 ```ts
-type Action = "upsert" | "remove" | "clear";
+type Action = "read" | "write";
 ```
 
-Type representing possible storage actions.
+

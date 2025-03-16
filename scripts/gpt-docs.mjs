@@ -8,13 +8,13 @@ import fs from "fs";
 const MODULE_NAME = "agent-swarm-kit";
 
 const GPT_CLASS_PROMPT =
-  "Please write a summary for that Typescript API Reference with several sentences in more human way";
+  "Please write a summary for that Typescript API Reference of AI agent swarm orchestration framework with several sentences in more human way";
 
 const GPT_INTERFACE_PROMPT =
-  "Please write a summary for that Typescript API Reference with several sentences in more human way";
+  "Please write a summary for that Typescript API Reference of AI agent swarm orchestration framework with several sentences in more human way";
 
 const GPT_TOTAL_PROMPT =
-  "Please write a summary for the whole system based on API Reference with several sentences in more human way";
+  "Please write a summary for the whole swarm orchestration framework based on API Reference with several sentences in more human way";
 
 console.log("Loading model");
 
@@ -73,7 +73,7 @@ const output = [];
     }
 }
 
-{
+if (false) {
     output.shift();
     output.shift();
     output.unshift("");

@@ -6,19 +6,37 @@ import { memoize } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
- * Service for validating completion names.
+ * Service for validating completion names within the swarm system.
+ * Manages a set of registered completion names, ensuring their uniqueness and existence during validation.
+ * Integrates with CompletionSchemaService (completion registration), AgentValidationService (agent completion validation),
+ * ClientAgent (completion usage), and LoggerService (logging).
+ * Uses dependency injection for the logger and memoization for efficient validation checks.
  */
 export class CompletionValidationService {
+  /**
+   * Logger service instance for logging validation operations and errors.
+   * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
+   * @type {LoggerService}
+   * @private
+   * @readonly
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
+  /**
+   * Set of registered completion names, used to track and validate completions.
+   * Populated by addCompletion, queried by validate.
+   * @type {Set<CompletionName>}
+   * @private
+   */
   private _completionSet = new Set<CompletionName>();
 
   /**
-   * Adds a new completion name to the set.
-   * @param {CompletionName} completionName - The name of the completion to add.
-   * @throws Will throw an error if the completion name already exists.
+   * Registers a new completion name in the validation service.
+   * Logs the operation and ensures uniqueness, supporting CompletionSchemaService’s registration process.
+   * @param {CompletionName} completionName - The name of the completion to add, sourced from Completion.interface.
+   * @throws {Error} If the completion name already exists in _completionSet.
    */
-  public addCompletion = (completionName: CompletionName) => {
+  public addCompletion = (completionName: CompletionName): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("completionValidationService addCompletion", {
         completionName,
@@ -30,14 +48,15 @@ export class CompletionValidationService {
   };
 
   /**
-   * Validates if a completion name exists in the set.
-   * @param {CompletionName} completionName - The name of the completion to validate.
-   * @param {string} source - The source of the validation request.
-   * @throws Will throw an error if the completion name is not found.
+   * Validates if a completion name exists in the registered set, memoized by completionName for performance.
+   * Logs the operation and checks existence, supporting AgentValidationService’s validation of agent completions.
+   * @param {CompletionName} completionName - The name of the completion to validate, sourced from Completion.interface.
+   * @param {string} source - The source of the validation request (e.g., "agent-validate"), for error context.
+   * @throws {Error} If the completion name is not found in _completionSet.
    */
   public validate = memoize(
     ([completionName]) => completionName,
-    (completionName: CompletionName, source: string) => {
+    (completionName: CompletionName, source: string): void => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
         this.loggerService.info("completionValidationService validate", {
           completionName,
@@ -48,9 +67,15 @@ export class CompletionValidationService {
           `agent-swarm completion ${completionName} not found source=${source}`
         );
       }
-      return {} as unknown as void;
     }
   ) as (completionName: CompletionName, source: string) => void;
 }
 
+/**
+ * Default export of the CompletionValidationService class.
+ * Provides a service for validating completion names in the swarm system,
+ * integrating with CompletionSchemaService, AgentValidationService, ClientAgent, and LoggerService,
+ * with memoized validation and uniqueness enforcement.
+ * @type {typeof CompletionValidationService}
+ */
 export default CompletionValidationService;

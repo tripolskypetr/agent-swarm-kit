@@ -7,4 +7,4 @@ type Payload<T extends IStorageData = IStorageData> = {
 };
 ```
 
-Type representing the payload for storage actions.
+
