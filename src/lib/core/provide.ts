@@ -43,6 +43,7 @@ import PolicySchemaService from "../services/schema/PolicySchemaService";
 import PolicyValidationService from "../services/validation/PolicyValidationService";
 import PolicyPublicService from "../services/public/PolicyPublicService";
 import PolicyConnectionService from "../services/connection/PolicyConnectionService";
+import PayloadContextService from "../services/context/PayloadContextService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -53,6 +54,7 @@ import PolicyConnectionService from "../services/connection/PolicyConnectionServ
 
 {
     provide(TYPES.methodContextService, () => new MethodContextService());
+    provide(TYPES.payloadContextService, () => new PayloadContextService());
     provide(TYPES.executionContextService, () => new ExecutionContextService());
 }
 

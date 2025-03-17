@@ -7,6 +7,7 @@ const baseServices = {
 
 const contextServices = {
     methodContextService: Symbol('methodContextService'),
+    payloadContextService: Symbol('payloadContextService'),
     executionContextService: Symbol('executionContextService'),
 };
 

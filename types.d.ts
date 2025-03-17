@@ -39,6 +39,17 @@ declare const ExecutionContextService: (new () => {
 }, "prototype"> & di_scoped.IScopedClassRun<[context: IExecutionContext]>;
 
 /**
+ * Interface defining the structure of a payload context, used to encapsulate execution metadata and payload data.
+ * @template Payload - The type of the payload object, defaults to a generic object.
+ */
+interface IPayloadContext<Payload extends object = object> {
+    /** The unique identifier of the client associated with this context. */
+    clientId: string;
+    /** The payload data carried by this context, typed according to the Payload generic. */
+    payload: Payload;
+}
+
+/**
  * Interface representing an incoming message received by the swarm system.
  * Encapsulates a message entering the system, typically from a client (e.g., user input), processed by agents (e.g., ClientAgent.execute) or sessions (e.g., ISession.connect).
  * Used to convey data from an external source to an agent, potentially triggering actions like history updates (e.g., IHistory.push) or event emissions (e.g., IBus.emit "commit-user-message").
@@ -1436,6 +1447,7 @@ interface IModelMessage {
      * @type {IToolCall[] | undefined}
      */
     tool_calls?: IToolCall[];
+    images?: Uint8Array[] | string[];
     /**
      * Optional identifier of the tool call this message responds to, linking tool outputs to their requests.
      * Set in tool-related messages (e.g., commitToolOutput in ClientAgent) to correlate with a prior tool_calls entry.
@@ -7757,6 +7769,9 @@ declare const swarm: {
     methodContextService: {
         readonly context: IMethodContext;
     };
+    payloadContextService: {
+        readonly context: IPayloadContext;
+    };
     executionContextService: {
         readonly context: IExecutionContext;
     };
@@ -8378,7 +8393,7 @@ type SendMessageFn = (outgoing: string) => Promise<void>;
  * await sendMessage("Hello, swarm!");
  */
 declare const makeConnection: {
-    (connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName): SendMessageFn;
+    <Payload extends object = object>(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName): SendMessageFn;
     /**
      * A scheduled connection factory for a client to a swarm, returning a function to send delayed messages.
      *
@@ -8395,7 +8410,7 @@ declare const makeConnection: {
      * const sendScheduled = makeConnection.scheduled((msg) => console.log(msg), "client-123", "TaskSwarm", { delay: 2000 });
      * await sendScheduled("Delayed message"); // Sent after 2 seconds
      */
-    scheduled: (connector: ReceiveMessageFn, clientId: string, swarmName: string, args_3?: Partial<IMakeConnectionConfig>) => (content: string) => Promise<void>;
+    scheduled<Payload extends object = object>(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName, { delay }?: Partial<IMakeConnectionConfig>): (content: string, payload?: Payload) => Promise<void>;
     /**
      * A rate-limited connection factory for a client to a swarm, returning a function to send throttled messages.
      *
@@ -8412,7 +8427,7 @@ declare const makeConnection: {
      * const sendRateLimited = makeConnection.rate((msg) => console.log(msg), "client-123", "TaskSwarm", { delay: 5000 });
      * await sendRateLimited("Throttled message"); // Limited to one send every 5 seconds
      */
-    rate: (connector: ReceiveMessageFn, clientId: string, swarmName: string, args_3?: Partial<IMakeConnectionConfig>) => (content: string) => Promise<void | "">;
+    rate<Payload extends object = object>(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName, { delay }?: Partial<IMakeConnectionConfig>): (content: string, payload?: Payload) => Promise<void | "">;
 };
 /**
  * Configuration interface for scheduling or rate-limiting messages.
@@ -8441,15 +8456,8 @@ interface IMakeConnectionConfig {
  * const result = await complete("Calculate 2 + 2", "client-123", "MathSwarm");
  * console.log(result); // Outputs "4"
  */
-declare const complete: (content: string, clientId: string, swarmName: string) => Promise<string>;
+declare const complete: <Payload extends object = object>(content: string, clientId: string, swarmName: SwarmName, payload?: Payload) => Promise<string>;
 
-/**
- * Type definition for the complete function used in session objects.
- * @typedef {Function} TComplete
- * @param {string} content - The content to process in the session.
- * @returns {Promise<string>} A promise that resolves with the result of the session execution.
- */
-type TComplete = (content: string) => Promise<string>;
 /**
  * Creates a session for a client and swarm, providing methods to complete and dispose of it.
  *
@@ -8467,8 +8475,8 @@ type TComplete = (content: string) => Promise<string>;
  * await dispose();
  */
 declare const session: {
-    (clientId: string, swarmName: SwarmName): {
-        complete: TComplete;
+    <Payload extends object = object>(clientId: string, swarmName: SwarmName): {
+        complete: (content: string, payload?: Payload) => Promise<string>;
         dispose: () => Promise<void>;
     };
     /**
@@ -8488,9 +8496,9 @@ declare const session: {
      * console.log(result);
      * await dispose();
      */
-    scheduled(clientId: string, swarmName: SwarmName, { delay }?: Partial<ISessionConfig>): {
-        complete(content: string): Promise<string>;
-        dispose(): Promise<void>;
+    scheduled<Payload extends object = object>(clientId: string, swarmName: SwarmName, { delay }?: Partial<ISessionConfig>): {
+        complete: (content: string, payload?: Payload) => Promise<string>;
+        dispose: () => Promise<void>;
     };
     /**
      * Creates a rate-limited session for a client and swarm, throttling content execution.
@@ -8509,9 +8517,9 @@ declare const session: {
      * console.log(result);
      * await dispose();
      */
-    rate(clientId: string, swarmName: SwarmName, { delay }?: Partial<ISessionConfig>): {
-        complete(content: string): Promise<string>;
-        dispose(): Promise<void>;
+    rate<Payload extends object = object>(clientId: string, swarmName: SwarmName, { delay }?: Partial<ISessionConfig>): {
+        complete(content: string, payload?: Payload): Promise<string>;
+        dispose: () => Promise<void>;
     };
 };
 /**
@@ -8541,6 +8549,17 @@ interface ISessionConfig {
  * await disposeConnection("client-123", "TaskSwarm");
  */
 declare const disposeConnection: (clientId: string, swarmName: string, methodName?: any) => Promise<void>;
+
+/**
+ * Retrieves the payload from the current PayloadContextService context.
+ * Returns null if no context is available. Logs the operation if logging is enabled.
+ * @template Payload - The type of the payload object, defaults to a generic object.
+ * @returns A promise resolving to the payload data from the context, or null if no context exists.
+ * @example
+ * const payload = await getPayload<{ id: number }>();
+ * console.log(payload); // { id: number } or {}
+ */
+declare const getPayload: <Payload extends object = object>() => Promise<Payload | null>;
 
 /**
  * Retrieves the name of the active agent for a given client session in a swarm.
@@ -10299,4 +10318,4 @@ declare const Utils: {
     PersistMemoryUtils: typeof PersistMemoryUtils;
 };
 
-export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistBase, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PersistBase, PersistList, PersistMemory, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistBase, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PersistBase, PersistList, PersistMemory, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };

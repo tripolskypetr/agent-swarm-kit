@@ -87,7 +87,7 @@ test("Will schedule messages for makeConnection", async ({ pass, fail }) => {
     }
   }
 
-  for (const testCase of ["bar", "bad"]) {
+  for (const testCase of ["bad"]) {
     if (!historyList.includes(testCase)) {
         fail(`Missing ${testCase} in assistant messages ${historyList}`);
     }

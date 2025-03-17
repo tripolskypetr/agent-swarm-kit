@@ -48,6 +48,7 @@ import PolicySchemaService from "./services/schema/PolicySchemaService";
 import PolicyValidationService from "./services/validation/PolicyValidationService";
 import PolicyPublicService from "./services/public/PolicyPublicService";
 import PolicyConnectionService from "./services/connection/PolicyConnectionService";
+import { TPayloadContextService } from "./services/context/PayloadContextService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -59,6 +60,9 @@ const baseServices = {
 const contextServices = {
   methodContextService: inject<TMethodContextService>(
     TYPES.methodContextService
+  ),
+  payloadContextService: inject<TPayloadContextService>(
+    TYPES.payloadContextService
   ),
   executionContextService: inject<TExecutionContextService>(
     TYPES.executionContextService

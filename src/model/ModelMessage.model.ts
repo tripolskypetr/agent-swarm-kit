@@ -59,6 +59,15 @@ export interface IModelMessage {
    */
   tool_calls?: IToolCall[];
 
+  /*
+   * Optional array of images associated with the message, represented as binary data or base64 strings.
+   * Likely used for messages involving visual content (e.g., user-uploaded images or tool-generated visuals).
+   * Supports `Uint8Array` for raw binary data or `string` for encoded formats (e.g., base64).
+   * Undefined if no images are included in the message.
+   * @type {Uint8Array[] | string[] | undefined}
+   */
+  images?: Uint8Array[] | string[];
+
   /**
    * Optional identifier of the tool call this message responds to, linking tool outputs to their requests.
    * Set in tool-related messages (e.g., commitToolOutput in ClientAgent) to correlate with a prior tool_calls entry.
