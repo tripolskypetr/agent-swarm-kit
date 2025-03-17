@@ -10,9 +10,9 @@ const LOGGER_INSTANCE_WAIT_FOR_INIT = Symbol("wait-for-init");
 /**
  * Initializes the logger instance by invoking the onInit callback if provided.
  * Ensures initialization runs asynchronously and is executed only once via singleshot.
- * @param {TLoggerInstance} self - The logger instance to initialize.
- * @returns {Promise<void>} A promise that resolves when initialization is complete.
  * @private
+ * @param self - The logger instance to initialize.
+ * @returns A promise that resolves when initialization is complete.
  */
 const LOGGER_INSTANCE_WAIT_FOR_FN = async (
   self: TLoggerInstance
@@ -29,37 +29,37 @@ const LOGGER_INSTANCE_WAIT_FOR_FN = async (
 export interface ILoggerInstanceCallbacks {
   /**
    * Called when the logger instance is initialized, typically during waitForInit.
-   * @param {string} clientId - The client ID associated with the logger instance.
+   * @param clientId - The client ID associated with the logger instance.
    */
   onInit(clientId: string): void;
 
   /**
    * Called when the logger instance is disposed, cleaning up resources.
-   * @param {string} clientId - The client ID associated with the logger instance.
+   * @param clientId - The client ID associated with the logger instance.
    */
   onDispose(clientId: string): void;
 
   /**
    * Called when a log message is recorded via the log method.
-   * @param {string} clientId - The client ID associated with the logger instance.
-   * @param {string} topic - The log topic or category.
-   * @param {...any[]} args - Additional arguments to log.
+   * @param clientId - The client ID associated with the logger instance.
+   * @param topic - The log topic or category.
+   * @param args - Additional arguments to log.
    */
   onLog(clientId: string, topic: string, ...args: any[]): void;
 
   /**
    * Called when a debug message is recorded via the debug method.
-   * @param {string} clientId - The client ID associated with the logger instance.
-   * @param {string} topic - The debug topic or category.
-   * @param {...any[]} args - Additional arguments to debug log.
+   * @param clientId - The client ID associated with the logger instance.
+   * @param topic - The debug topic or category.
+   * @param args - Additional arguments to debug log.
    */
   onDebug(clientId: string, topic: string, ...args: any[]): void;
 
   /**
    * Called when an info message is recorded via the info method.
-   * @param {string} clientId - The client ID associated with the logger instance.
-   * @param {string} topic - The info topic or category.
-   * @param {...any[]} args - Additional arguments to info log.
+   * @param clientId - The client ID associated with the logger instance.
+   * @param topic - The info topic or category.
+   * @param args - Additional arguments to info log.
    */
   onInfo(clientId: string, topic: string, ...args: any[]): void;
 }
@@ -73,15 +73,15 @@ export interface ILoggerInstance extends ILogger {
   /**
    * Initializes the logger instance, invoking the onInit callback if provided.
    * Ensures initialization is performed only once, supporting asynchronous setup.
-   * @param {boolean} initial - Whether this is the initial setup (affects caching behavior in LoggerUtils).
-   * @returns {Promise<void> | void} A promise if initialization is asynchronous, or void if synchronous.
+   * @param initial - Whether this is the initial setup (affects caching behavior in LoggerUtils).
+   * @returns A promise if initialization is asynchronous, or void if synchronous.
    */
   waitForInit(initial: boolean): Promise<void> | void;
 
   /**
    * Disposes of the logger instance, invoking the onDispose callback if provided.
    * Cleans up resources associated with the client ID.
-   * @returns {Promise<void> | void} A promise if disposal is asynchronous, or void if synchronous.
+   * @returns A promise if disposal is asynchronous, or void if synchronous.
    */
   dispose(): Promise<void> | void;
 }
@@ -94,38 +94,38 @@ export interface ILoggerAdapter {
   /**
    * Logs a message for a client using the client-specific logger instance.
    * Ensures session validation and initialization before logging.
-   * @param {string} clientId - The client ID associated with the log.
-   * @param {string} topic - The log topic or category.
-   * @param {...any[]} args - Additional arguments to log.
-   * @returns {Promise<void>} A promise that resolves when the log is recorded.
+   * @param clientId - The client ID associated with the log.
+   * @param topic - The log topic or category.
+   * @param args - Additional arguments to log.
+   * @returns A promise that resolves when the log is recorded.
    */
   log(clientId: string, topic: string, ...args: any[]): Promise<void>;
 
   /**
    * Logs a debug message for a client using the client-specific logger instance.
    * Ensures session validation and initialization before logging.
-   * @param {string} clientId - The client ID associated with the debug log.
-   * @param {string} topic - The debug topic or category.
-   * @param {...any[]} args - Additional arguments to debug log.
-   * @returns {Promise<void>} A promise that resolves when the debug message is recorded.
+   * @param clientId - The client ID associated with the debug log.
+   * @param topic - The debug topic or category.
+   * @param args - Additional arguments to debug log.
+   * @returns A promise that resolves when the debug message is recorded.
    */
   debug(clientId: string, topic: string, ...args: any[]): Promise<void>;
 
   /**
    * Logs an info message for a client using the client-specific logger instance.
    * Ensures session validation and initialization before logging.
-   * @param {string} clientId - The client ID associated with the info log.
-   * @param {string} topic - The info topic or category.
-   * @param {...any[]} args - Additional arguments to info log.
-   * @returns {Promise<void>} A promise that resolves when the info message is recorded.
+   * @param clientId - The client ID associated with the info log.
+   * @param topic - The info topic or category.
+   * @param args - Additional arguments to info log.
+   * @returns A promise that resolves when the info message is recorded.
    */
   info(clientId: string, topic: string, ...args: any[]): Promise<void>;
 
   /**
    * Disposes of the logger instance for a client, clearing it from the cache.
    * Ensures initialization before disposal.
-   * @param {string} clientId - The client ID to dispose.
-   * @returns {Promise<void>} A promise that resolves when disposal is complete.
+   * @param clientId - The client ID to dispose.
+   * @returns A promise that resolves when disposal is complete.
    */
   dispose(clientId: string): Promise<void>;
 }
@@ -138,51 +138,51 @@ export interface ILoggerControl {
   /**
    * Sets a common logger adapter for all logging operations via swarm.loggerService.
    * Overrides the default logger service behavior for centralized logging.
-   * @param {ILogger} logger - The logger instance to set as the common adapter.
+   * @param logger - The logger instance to set as the common adapter.
    */
   useCommonAdapter(logger: ILogger): void;
 
   /**
    * Configures client-specific lifecycle callbacks for logger instances.
-   * Applies to all instances created by LoggerUtils’ LoggerFactory.
-   * @param {Partial<ILoggerInstanceCallbacks>} Callbacks - The callbacks to configure.
+   * Applies to all instances created by LoggerUtils' LoggerFactory.
+   * @param Callbacks - The callbacks to configure.
    */
   useClientCallbacks(Callbacks: Partial<ILoggerInstanceCallbacks>): void;
 
   /**
    * Sets a custom logger instance constructor for client-specific logging.
    * Replaces the default LoggerInstance with a user-defined constructor.
-   * @param {TLoggerInstanceCtor} Ctor - The constructor for creating logger instances.
+   * @param Ctor - The constructor for creating logger instances.
    */
   useClientAdapter(Ctor: TLoggerInstanceCtor): void;
 
   /**
    * Logs a message for a specific client using the common adapter (swarm.loggerService).
    * Includes session validation and method context tracking.
-   * @param {string} clientId - The client ID associated with the log.
-   * @param {string} topic - The log topic or category.
-   * @param {...any[]} args - Additional arguments to log.
-   * @returns {Promise<void>} A promise that resolves when the log is recorded.
+   * @param clientId - The client ID associated with the log.
+   * @param topic - The log topic or category.
+   * @param args - Additional arguments to log.
+   * @returns A promise that resolves when the log is recorded.
    */
   logClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
 
   /**
    * Logs an info message for a specific client using the common adapter (swarm.loggerService).
    * Includes session validation and method context tracking.
-   * @param {string} clientId - The client ID associated with the info log.
-   * @param {string} topic - The info topic or category.
-   * @param {...any[]} args - Additional arguments to info log.
-   * @returns {Promise<void>} A promise that resolves when the info message is recorded.
+   * @param clientId - The client ID associated with the info log.
+   * @param topic - The info topic or category.
+   * @param args - Additional arguments to info log.
+   * @returns A promise that resolves when the info message is recorded.
    */
   infoClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
 
   /**
    * Logs a debug message for a specific client using the common adapter (swarm.loggerService).
    * Includes session validation and method context tracking.
-   * @param {string} clientId - The client ID associated with the debug log.
-   * @param {string} topic - The debug topic or category.
-   * @param {...any[]} args - Additional arguments to debug log.
-   * @returns {Promise<void>} A promise that resolves when the debug message is recorded.
+   * @param clientId - The client ID associated with the debug log.
+   * @param topic - The debug topic or category.
+   * @param args - Additional arguments to debug log.
+   * @returns A promise that resolves when the debug message is recorded.
    */
   debugClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
 }
@@ -190,9 +190,8 @@ export interface ILoggerControl {
 /**
  * Constructor type for creating logger instances.
  * Used by LoggerUtils to instantiate custom or default LoggerInstance objects.
- * @typedef {new (clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>) => ILoggerInstance} TLoggerInstanceCtor
  */
-type TLoggerInstanceCtor = new (
+export type TLoggerInstanceCtor = new (
   clientId: string,
   callbacks: Partial<ILoggerInstanceCallbacks>
 ) => ILoggerInstance;
@@ -203,91 +202,96 @@ type TLoggerInstanceCtor = new (
  * Integrates with GLOBAL_CONFIG for console logging control and callbacks for custom behavior.
  * @implements {ILoggerInstance}
  */
-export const LoggerInstance = makeExtendable(class implements ILoggerInstance {
-  /**
-   * Creates a new logger instance for a specific client.
-   * @param {string} clientId - The client ID associated with this logger instance, used in log prefixes.
-   * @param {Partial<ILoggerInstanceCallbacks>} callbacks - Optional lifecycle callbacks for initialization, disposal, and logging.
-   */
-  constructor(
-    readonly clientId: string,
-    readonly callbacks: Partial<ILoggerInstanceCallbacks>
-  ) {}
+export const LoggerInstance = makeExtendable(
+  class implements ILoggerInstance {
+    /**
+     * Creates a new logger instance for a specific client.
+     * @param clientId - The client ID associated with this logger instance, used in log prefixes.
+     * @param callbacks - Optional lifecycle callbacks for initialization, disposal, and logging.
+     */
+    constructor(
+      readonly clientId: string,
+      readonly callbacks: Partial<ILoggerInstanceCallbacks>
+    ) {}
 
-  /**
-   * Memoized initialization function to ensure it runs only once using singleshot.
-   * Invokes LOGGER_INSTANCE_WAIT_FOR_FN to handle onInit callback execution.
-   * @returns {Promise<void>} A promise that resolves when initialization is complete.
-   * @private
-   */
-  [LOGGER_INSTANCE_WAIT_FOR_INIT] = singleshot(
-    async (): Promise<void> => await LOGGER_INSTANCE_WAIT_FOR_FN(this)
-  );
+    /**
+     * Memoized initialization function to ensure it runs only once using singleshot.
+     * Invokes LOGGER_INSTANCE_WAIT_FOR_FN to handle onInit callback execution.
+     * @private
+     * @returns A promise that resolves when initialization is complete.
+     */
+    [LOGGER_INSTANCE_WAIT_FOR_INIT] = singleshot(
+      async (): Promise<void> => await LOGGER_INSTANCE_WAIT_FOR_FN(this)
+    );
 
-  /**
-   * Initializes the logger instance, invoking the onInit callback if provided.
-   * Ensures initialization is performed only once, memoized via singleshot.
-   * @param {boolean} [initial] - Whether this is the initial setup (unused here but required by ILoggerInstance).
-   * @returns {Promise<void>} A promise that resolves when initialization is complete.
-   */
-  async waitForInit(): Promise<void> {
-    return await this[LOGGER_INSTANCE_WAIT_FOR_INIT]();
-  }
+    /**
+     * Initializes the logger instance, invoking the onInit callback if provided.
+     * Ensures initialization is performed only once, memoized via singleshot.
+     * @param initial - Whether this is the initial setup (unused here but required by ILoggerInstance).
+     * @returns A promise that resolves when initialization is complete.
+     */
+    async waitForInit(): Promise<void> {
+      return await this[LOGGER_INSTANCE_WAIT_FOR_INIT]();
+    }
 
-  /**
-   * Logs a message to the console (if enabled) and invokes the onLog callback if provided.
-   * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
-   * @param {string} topic - The topic or category of the log message.
-   * @param {...any[]} args - Additional arguments to include in the log.
-   */
-  log(topic: string, ...args: any[]): void {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
-      console.log(`[clientId=${this.clientId}]`, topic, ...args);
-    if (this.callbacks.onLog) {
-      this.callbacks.onLog(this.clientId, topic, ...args);
+    /**
+     * Logs a message to the console (if enabled) and invokes the onLog callback if provided.
+     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+     * @param topic - The topic or category of the log message.
+     * @param args - Additional arguments to include in the log.
+     */
+    log(topic: string, ...args: any[]): void {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
+        console.log(`[clientId=${this.clientId}]`, topic, ...args);
+      if (this.callbacks.onLog) {
+        this.callbacks.onLog(this.clientId, topic, ...args);
+      }
+    }
+
+    /**
+     * Logs a debug message to the console (if enabled) and invokes the onDebug callback if provided.
+     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+     * @param topic - The topic or category of the debug message.
+     * @param args - Additional arguments to include in the debug log.
+     */
+    debug(topic: string, ...args: any[]): void {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
+        console.debug(`[clientId=${this.clientId}]`, topic, ...args);
+      if (this.callbacks.onDebug) {
+        this.callbacks.onDebug(this.clientId, topic, ...args);
+      }
+    }
+
+    /**
+     * Logs an info message to the console (if enabled) and invokes the onInfo callback if provided.
+     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+     * @param topic - The topic or category of the info message.
+     * @param args - Additional arguments to include in the info log.
+     */
+    info(topic: string, ...args: any[]): void {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
+        console.info(`[clientId=${this.clientId}]`, topic, ...args);
+      if (this.callbacks.onInfo) {
+        this.callbacks.onInfo(this.clientId, topic, ...args);
+      }
+    }
+
+    /**
+     * Disposes of the logger instance, invoking the onDispose callback if provided.
+     * Performs synchronous cleanup without additional resource management.
+     * @returns No return value, operation is synchronous.
+     */
+    dispose(): void {
+      if (this.callbacks.onDispose) {
+        this.callbacks.onDispose(this.clientId);
+      }
     }
   }
+);
 
-  /**
-   * Logs a debug message to the console (if enabled) and invokes the onDebug callback if provided.
-   * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
-   * @param {string} topic - The topic or category of the debug message.
-   * @param {...any[]} args - Additional arguments to include in the debug log.
-   */
-  debug(topic: string, ...args: any[]): void {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
-      console.debug(`[clientId=${this.clientId}]`, topic, ...args);
-    if (this.callbacks.onDebug) {
-      this.callbacks.onDebug(this.clientId, topic, ...args);
-    }
-  }
-
-  /**
-   * Logs an info message to the console (if enabled) and invokes the onInfo callback if provided.
-   * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
-   * @param {string} topic - The topic or category of the info message.
-   * @param {...any[]} args - Additional arguments to include in the info log.
-   */
-  info(topic: string, ...args: any[]): void {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
-      console.info(`[clientId=${this.clientId}]`, topic, ...args);
-    if (this.callbacks.onInfo) {
-      this.callbacks.onInfo(this.clientId, topic, ...args);
-    }
-  }
-
-  /**
-   * Disposes of the logger instance, invoking the onDispose callback if provided.
-   * Performs synchronous cleanup without additional resource management.
-   * @returns {void} No return value, operation is synchronous.
-   */
-  dispose(): void {
-    if (this.callbacks.onDispose) {
-      this.callbacks.onDispose(this.clientId);
-    }
-  }
-})
-
+/**
+ * Type alias for an instance of LoggerInstance.
+ */
 export type TLoggerInstance = InstanceType<typeof LoggerInstance>;
 
 /**
@@ -308,9 +312,9 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Memoized function to create or retrieve a logger instance for a client.
    * Ensures a single instance per clientId, cached for performance.
-   * @param {string} clientId - The client ID to retrieve or create a logger for.
-   * @returns {ILoggerInstance} The logger instance for the specified client.
    * @private
+   * @param clientId - The client ID to retrieve or create a logger for.
+   * @returns The logger instance for the specified client.
    */
   private getLogger = memoize(
     ([clientId]: [string]): string => clientId,
@@ -321,7 +325,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Sets a common logger adapter for all logging operations via swarm.loggerService.
    * Configures the base LoggerService for centralized logging across the swarm system.
-   * @param {ILogger} logger - The logger instance to set as the common adapter.
+   * @param logger - The logger instance to set as the common adapter.
    */
   public useCommonAdapter = (logger: ILogger): void => {
     swarm.loggerService.setLogger(logger);
@@ -330,7 +334,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Configures lifecycle callbacks for all logger instances created by this adapter.
    * Applies to both default (LoggerInstance) and custom constructors set via useClientAdapter.
-   * @param {Partial<ILoggerInstanceCallbacks>} Callbacks - The callbacks to apply to logger instances.
+   * @param Callbacks - The callbacks to apply to logger instances.
    */
   public useClientCallbacks = (
     Callbacks: Partial<ILoggerInstanceCallbacks>
@@ -341,7 +345,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Sets a custom logger instance constructor for client-specific logging.
    * Replaces the default LoggerInstance with a user-defined implementation.
-   * @param {TLoggerInstanceCtor} Ctor - The constructor for creating logger instances.
+   * @param Ctor - The constructor for creating logger instances.
    */
   public useClientAdapter = (Ctor: TLoggerInstanceCtor): void => {
     this.LoggerFactory = Ctor;
@@ -351,10 +355,10 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
    * Logs a message for a specific client using the common adapter (swarm.loggerService).
    * Validates session existence and runs within a MethodContextService context for tracking.
    * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG.
-   * @param {string} clientId - The client ID associated with the log.
-   * @param {string} topic - The topic or category of the log message.
-   * @param {...any[]} args - Additional arguments to log.
-   * @returns {Promise<void>} A promise that resolves when the log is recorded.
+   * @param clientId - The client ID associated with the log.
+   * @param topic - The topic or category of the log message.
+   * @param args - Additional arguments to log.
+   * @returns A promise that resolves when the log is recorded.
    */
   public logClient = beginContext(
     async (clientId: string, topic: string, ...args: any[]): Promise<void> => {
@@ -385,10 +389,10 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
    * Logs an info message for a specific client using the common adapter (swarm.loggerService).
    * Validates session existence and runs within a MethodContextService context for tracking.
    * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
-   * @param {string} clientId - The client ID associated with the info log.
-   * @param {string} topic - The topic or category of the info message.
-   * @param {...any[]} args - Additional arguments to info log.
-   * @returns {Promise<void>} A promise that resolves when the info message is recorded.
+   * @param clientId - The client ID associated with the info log.
+   * @param topic - The topic or category of the info message.
+   * @param args - Additional arguments to info log.
+   * @returns A promise that resolves when the info message is recorded.
    */
   public infoClient = beginContext(
     async (clientId: string, topic: string, ...args: any[]): Promise<void> => {
@@ -419,10 +423,10 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
    * Logs a debug message for a specific client using the common adapter (swarm.loggerService).
    * Validates session existence and runs within a MethodContextService context for tracking.
    * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG.
-   * @param {string} clientId - The client ID associated with the debug log.
-   * @param {string} topic - The topic or category of the debug message.
-   * @param {...any[]} args - Additional arguments to debug log.
-   * @returns {Promise<void>} A promise that resolves when the debug message is recorded.
+   * @param clientId - The client ID associated with the debug log.
+   * @param topic - The topic or category of the debug message.
+   * @param args - Additional arguments to debug log.
+   * @returns A promise that resolves when the debug message is recorded.
    */
   public debugClient = beginContext(
     async (clientId: string, topic: string, ...args: any[]): Promise<void> => {
@@ -452,10 +456,10 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Logs a message for a client using the client-specific logger instance.
    * Ensures session validation and initialization before logging, controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG.
-   * @param {string} clientId - The client ID associated with the log.
-   * @param {string} topic - The topic or category of the log message.
-   * @param {...any[]} args - Additional arguments to log.
-   * @returns {Promise<void>} A promise that resolves when the log is recorded.
+   * @param clientId - The client ID associated with the log.
+   * @param topic - The topic or category of the log message.
+   * @param args - Additional arguments to log.
+   * @returns A promise that resolves when the log is recorded.
    */
   public log = async (
     clientId: string,
@@ -477,10 +481,10 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Logs a debug message for a client using the client-specific logger instance.
    * Ensures session validation and initialization before logging, controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG.
-   * @param {string} clientId - The client ID associated with the debug log.
-   * @param {string} topic - The topic or category of the debug message.
-   * @param {...any[]} args - Additional arguments to debug log.
-   * @returns {Promise<void>} A promise that resolves when the debug message is recorded.
+   * @param clientId - The client ID associated with the debug log.
+   * @param topic - The topic or category of the debug message.
+   * @param args - Additional arguments to debug log.
+   * @returns A promise that resolves when the debug message is recorded.
    */
   public debug = async (
     clientId: string,
@@ -502,10 +506,10 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Logs an info message for a client using the client-specific logger instance.
    * Ensures session validation and initialization before logging, controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
-   * @param {string} clientId - The client ID associated with the info log.
-   * @param {string} topic - The topic or category of the info message.
-   * @param {...any[]} args - Additional arguments to info log.
-   * @returns {Promise<void>} A promise that resolves when the info message is recorded.
+   * @param clientId - The client ID associated with the info log.
+   * @param topic - The topic or category of the info message.
+   * @param args - Additional arguments to info log.
+   * @returns A promise that resolves when the info message is recorded.
    */
   public info = async (
     clientId: string,
@@ -527,8 +531,8 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Disposes of the logger instance for a client, clearing it from the memoized cache.
    * Ensures initialization before disposal to handle any pending onInit callbacks.
-   * @param {string} clientId - The client ID to dispose the logger for.
-   * @returns {Promise<void>} A promise that resolves when disposal is complete.
+   * @param clientId - The client ID to dispose the logger for.
+   * @returns A promise that resolves when disposal is complete.
    */
   public dispose = async (clientId: string): Promise<void> => {
     if (!this.getLogger.has(clientId)) {
@@ -550,7 +554,7 @@ export const LoggerAdapter = new LoggerUtils();
 
 /**
  * Exported Logger Control interface for configuring logger behavior.
- * Exposes LoggerUtils’ control methods (useCommonAdapter, useClientCallbacks, useClientAdapter, etc.).
+ * Exposes LoggerUtils' control methods (useCommonAdapter, useClientCallbacks, useClientAdapter, etc.).
  * @type {ILoggerControl}
  */
 export const Logger = LoggerAdapter as ILoggerControl;
