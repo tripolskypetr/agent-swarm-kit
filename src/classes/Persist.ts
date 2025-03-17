@@ -1,5 +1,5 @@
 import fs from "fs/promises";
-import { getErrorMessage, memoize, queued, singleshot } from "functools-kit";
+import { getErrorMessage, makeExtendable, memoize, queued, singleshot } from "functools-kit";
 import { join } from "path";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import { AgentName } from "../interfaces/Agent.interface";
@@ -181,7 +181,7 @@ export type TPersistBaseCtor<
  * @throws {Error} If directory creation or file validation fails.
  * @private
  */
-const BASE_WAIT_FOR_INIT_FN = async (self: PersistBase): Promise<void> => {
+const BASE_WAIT_FOR_INIT_FN = async (self: TPersistBase): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     swarm.loggerService.debug(BASE_WAIT_FOR_INIT_FN_METHOD_NAME, {
       entityName: self.entityName,
@@ -204,12 +204,12 @@ const BASE_WAIT_FOR_INIT_FN = async (self: PersistBase): Promise<void> => {
 /**
  * Generates a new unique key for a list item by incrementing the last used key.
  * Initializes the last count if not set by scanning existing keys.
- * @param {PersistList} self - The PersistList instance generating the key.
+ * @param {TPersistList} self - The PersistList instance generating the key.
  * @returns {Promise<string>} A promise resolving to the new key as a string.
  * @throws {Error} If key generation fails due to underlying storage issues.
  * @private
  */
-const LIST_CREATE_KEY_FN = async (self: PersistList): Promise<string> => {
+const LIST_CREATE_KEY_FN = async (self: TPersistList): Promise<string> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     swarm.loggerService.debug(LIST_CREATE_KEY_FN_METHOD_NAME, {
       entityName: self.entityName,
@@ -232,12 +232,12 @@ const LIST_CREATE_KEY_FN = async (self: PersistList): Promise<string> => {
 /**
  * Removes and returns the last item from the persistent list.
  * Uses the last key to fetch and delete the item atomically.
- * @param {PersistList} self - The PersistList instance performing the pop operation.
+ * @param {TPersistList} self - The PersistList instance performing the pop operation.
  * @returns {Promise<any | null>} A promise resolving to the removed item or null if the list is empty.
  * @throws {Error} If reading or removing the item fails.
  * @private
  */
-const LIST_POP_FN = async (self: PersistList): Promise<any | null> => {
+const LIST_POP_FN = async (self: TPersistList): Promise<any | null> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     swarm.loggerService.debug(LIST_POP_FN_METHOD_NAME, {
       entityName: self.entityName,
@@ -265,13 +265,13 @@ const LIST_POP_FN = async (self: PersistList): Promise<any | null> => {
 /**
  * Retrieves the key of the last item in the persistent list.
  * Scans all keys to determine the highest numeric value.
- * @param {PersistList} self - The PersistList instance retrieving the key.
+ * @param {TPersistList} self - The PersistList instance retrieving the key.
  * @returns {Promise<string | null>} A promise resolving to the last key or null if the list is empty.
  * @throws {Error} If key retrieval fails due to underlying storage issues.
  * @private
  */
 const LIST_GET_LAST_KEY_FN = async (
-  self: PersistList
+  self: TPersistList
 ): Promise<string | null> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     swarm.loggerService.debug(LIST_GET_LAST_KEY_FN_METHOD_NAME, {
@@ -296,7 +296,7 @@ const LIST_GET_LAST_KEY_FN = async (
  * @template EntityName - The type of entity name, defaults to string.
  * @implements {IPersistBase}
  */
-export class PersistBase<EntityName extends string = string>
+export const PersistBase = makeExtendable(class <EntityName extends string = string>
   implements IPersistBase
 {
   /** @private The directory path where entity files are stored */
@@ -337,7 +337,7 @@ export class PersistBase<EntityName extends string = string>
    * @returns {Promise<void>} A promise that resolves when initialization is complete.
    * @private
    */
-  private [BASE_WAIT_FOR_INIT_SYMBOL] = singleshot(
+  [BASE_WAIT_FOR_INIT_SYMBOL] = singleshot(
     async (): Promise<void> => await BASE_WAIT_FOR_INIT_FN(this)
   );
 
@@ -351,7 +351,7 @@ export class PersistBase<EntityName extends string = string>
    * await storage.waitForInit(true);
    * // Ensures the storage directory is ready and clean
    */
-  public async waitForInit(initial: boolean): Promise<void> {
+  async waitForInit(initial: boolean): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_WAIT_FOR_INIT, {
         entityName: this.entityName,
@@ -369,7 +369,7 @@ export class PersistBase<EntityName extends string = string>
    * const count = await storage.getCount();
    * console.log(count); // Outputs the number of entities
    */
-  public async getCount(): Promise<number> {
+  async getCount(): Promise<number> {
     const files = await fs.readdir(this._directory);
     const { length } = files.filter((file) => file.endsWith(".json"));
     return length;
@@ -385,7 +385,7 @@ export class PersistBase<EntityName extends string = string>
    * const entity = await storage.readValue("123");
    * console.log(entity); // Outputs the entity data
    */
-  public async readValue<T extends IEntity = IEntity>(
+  async readValue<T extends IEntity = IEntity>(
     entityId: EntityId
   ): Promise<T> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -418,7 +418,7 @@ export class PersistBase<EntityName extends string = string>
    * const exists = await storage.hasValue("123");
    * console.log(exists); // true or false
    */
-  public async hasValue(entityId: EntityId): Promise<boolean> {
+  async hasValue(entityId: EntityId): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_HAS_VALUE, {
         entityName: this.entityName,
@@ -452,7 +452,7 @@ export class PersistBase<EntityName extends string = string>
    * await storage.writeValue("123", { data: "example" });
    * // Persists the entity to "123.json"
    */
-  public async writeValue<T extends IEntity = IEntity>(
+  async writeValue<T extends IEntity = IEntity>(
     entityId: EntityId,
     entity: T
   ): Promise<void> {
@@ -483,7 +483,7 @@ export class PersistBase<EntityName extends string = string>
    * await storage.removeValue("123");
    * // Deletes "123.json" from storage
    */
-  public async removeValue(entityId: EntityId): Promise<void> {
+  async removeValue(entityId: EntityId): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_REMOVE_VALUE, {
         entityName: this.entityName,
@@ -515,7 +515,7 @@ export class PersistBase<EntityName extends string = string>
    * await storage.removeAll();
    * // Clears all entities from the storage directory
    */
-  public async removeAll(): Promise<void> {
+  async removeAll(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_REMOVE_ALL, {
         entityName: this.entityName,
@@ -546,7 +546,7 @@ export class PersistBase<EntityName extends string = string>
    *   console.log(entity);
    * }
    */
-  public async *values<T extends IEntity = IEntity>(): AsyncGenerator<T> {
+  async *values<T extends IEntity = IEntity>(): AsyncGenerator<T> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_VALUES, {
         entityName: this.entityName,
@@ -585,7 +585,7 @@ export class PersistBase<EntityName extends string = string>
    *   console.log(id);
    * }
    */
-  public async *keys(): AsyncGenerator<EntityId> {
+  async *keys(): AsyncGenerator<EntityId> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_KEYS, {
         entityName: this.entityName,
@@ -620,7 +620,7 @@ export class PersistBase<EntityName extends string = string>
    *   console.log(entity);
    * }
    */
-  public async *[Symbol.asyncIterator](): AsyncIterableIterator<any> {
+  async *[Symbol.asyncIterator](): AsyncIterableIterator<any> {
     for await (const entity of this.values()) {
       yield entity;
     }
@@ -638,7 +638,7 @@ export class PersistBase<EntityName extends string = string>
    *   console.log(entity);
    * }
    */
-  public async *filter<T extends IEntity = IEntity>(
+  async *filter<T extends IEntity = IEntity>(
     predicate: (value: T) => boolean
   ): AsyncGenerator<T> {
     for await (const entity of this.values<T>()) {
@@ -661,7 +661,7 @@ export class PersistBase<EntityName extends string = string>
    *   console.log(entity);
    * }
    */
-  public async *take<T extends IEntity = IEntity>(
+  async *take<T extends IEntity = IEntity>(
     total: number,
     predicate?: (value: T) => boolean
   ): AsyncGenerator<T> {
@@ -687,7 +687,9 @@ export class PersistBase<EntityName extends string = string>
       }
     }
   }
-}
+});
+
+export type TPersistBase = InstanceType<typeof PersistBase>;
 
 /**
  * Extends PersistBase to provide a persistent list structure with push/pop operations.
@@ -695,7 +697,7 @@ export class PersistBase<EntityName extends string = string>
  * @template EntityName - The type of entity name, defaults to string.
  * @extends {PersistBase<EntityName>}
  */
-export class PersistList<
+export const PersistList = makeExtendable(class <
   EntityName extends string = string
 > extends PersistBase<EntityName> {
   /** @private Tracks the last used numeric key for the list, null until initialized */
@@ -725,7 +727,7 @@ export class PersistList<
    * @throws {Error} If key generation fails due to underlying storage issues.
    * @private
    */
-  private [LIST_CREATE_KEY_SYMBOL] = queued(
+  [LIST_CREATE_KEY_SYMBOL] = queued(
     async (): Promise<string> => await LIST_CREATE_KEY_FN(this)
   ) as () => Promise<string>;
 
@@ -735,7 +737,7 @@ export class PersistList<
    * @throws {Error} If key retrieval fails due to underlying storage issues.
    * @private
    */
-  private [LIST_GET_LAST_KEY_SYMBOL] = async (): Promise<string | null> =>
+  [LIST_GET_LAST_KEY_SYMBOL] = async (): Promise<string | null> =>
     await LIST_GET_LAST_KEY_FN(this);
 
   /**
@@ -746,7 +748,7 @@ export class PersistList<
    * @throws {Error} If reading or removing the item fails.
    * @private
    */
-  private [LIST_POP_SYMBOL] = queued(
+  [LIST_POP_SYMBOL] = queued(
     async (): Promise<any | null> => await LIST_POP_FN(this)
   ) as <T extends IEntity = IEntity>() => Promise<T | null>;
 
@@ -760,7 +762,7 @@ export class PersistList<
    * await list.push({ task: "example" });
    * // Adds the entity to the list with the next numeric key
    */
-  public async push<T extends IEntity = IEntity>(entity: T): Promise<void> {
+  async push<T extends IEntity = IEntity>(entity: T): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(PERSIST_LIST_METHOD_NAME_PUSH, {
         entityName: this.entityName,
@@ -777,14 +779,16 @@ export class PersistList<
    * const entity = await list.pop();
    * console.log(entity); // Outputs the last entity or null
    */
-  public async pop<T extends IEntity = IEntity>(): Promise<T | null> {
+  async pop<T extends IEntity = IEntity>(): Promise<T | null> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(PERSIST_LIST_METHOD_NAME_POP, {
         entityName: this.entityName,
       });
     return await this[LIST_POP_SYMBOL]();
   }
-}
+});
+
+export type TPersistList = InstanceType<typeof PersistList>;
 
 /**
  * Interface for data stored in active agent persistence.

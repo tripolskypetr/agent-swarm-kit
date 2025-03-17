@@ -1,9 +1,9 @@
-import { memoize, singleshot } from "functools-kit";
+import { makeExtendable, memoize, singleshot } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
 import { IModelMessage } from "../model/ModelMessage.model";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
-import { PersistList } from "./Persist";
+import { PersistList, TPersistList } from "./Persist";
 
 /**
  * Callbacks for managing history instance lifecycle and message handling.
@@ -314,13 +314,13 @@ const METHOD_NAME_DISPOSE = "HistoryUtils.dispose";
 /**
  * Initializes the memory-based history instance by loading initial data.
  * @param {AgentName} agentName - The name of the agent.
- * @param {HistoryMemoryInstance} self - The history instance.
+ * @param {THistoryMemoryInstance} self - The history instance.
  * @returns {Promise<void>} A promise that resolves when initialization is complete.
  * @private
  */
 const HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT_FN = async (
   agentName: AgentName,
-  self: HistoryMemoryInstance
+  self: THistoryMemoryInstance
 ): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     swarm.loggerService.debug(
@@ -338,13 +338,13 @@ const HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT_FN = async (
 /**
  * Initializes the persistent history instance by loading data from storage.
  * @param {AgentName} agentName - The name of the agent.
- * @param {HistoryPersistInstance} self - The history instance.
+ * @param {THistoryPersistInstance} self - The history instance.
  * @returns {Promise<void>} A promise that resolves when initialization is complete.
  * @private
  */
 const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT_FN = async (
   agentName: AgentName,
-  self: HistoryPersistInstance
+  self: THistoryPersistInstance
 ): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     swarm.loggerService.debug(
@@ -364,70 +364,102 @@ const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT_FN = async (
  * Manages a persistent history of messages, storing them in memory and on disk.
  * @implements {IHistoryInstance}
  */
-export class HistoryPersistInstance implements IHistoryInstance {
-  /** @private The in-memory array of history messages */
-  _array: IModelMessage[] = [];
+export const HistoryPersistInstance = makeExtendable(
+  class implements IHistoryInstance {
+    /** @private The in-memory array of history messages */
+    _array: IModelMessage[] = [];
 
-  /** @private The persistent storage instance for history messages */
-  _persistStorage: PersistList;
+    /** @private The persistent storage instance for history messages */
+    _persistStorage: TPersistList;
 
-  /**
-   * Memoized initialization function to ensure it runs only once per agent.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {Promise<void>} A promise that resolves when initialization is complete.
-   * @private
-   */
-  private [HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT] = singleshot(
-    async (agentName: AgentName): Promise<void> =>
-      await HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT_FN(agentName, this)
-  );
-
-  /**
-   * Initializes the history for an agent, loading data from persistent storage if needed.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {Promise<void>} A promise that resolves when initialization is complete.
-   */
-  public async waitForInit(agentName: AgentName): Promise<void> {
-    return await this[HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT](agentName);
-  }
-
-  /**
-   * Creates a new persistent history instance.
-   * Invokes onInit and onRef callbacks if provided.
-   * @param {string} clientId - The client ID.
-   * @param {Partial<IHistoryInstanceCallbacks>} callbacks - The lifecycle callbacks.
-   */
-  constructor(
-    readonly clientId: string,
-    readonly callbacks: Partial<IHistoryInstanceCallbacks>
-  ) {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_CTOR, {
-        clientId: this.clientId,
-      });
-    this._persistStorage = new PersistList(
-      this.clientId,
-      `./logs/data/history`
+    /**
+     * Memoized initialization function to ensure it runs only once per agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     * @private
+     */
+    [HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT] = singleshot(
+      async (agentName: AgentName): Promise<void> =>
+        await HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT_FN(agentName, this)
     );
-    if (callbacks.onInit) {
-      callbacks.onInit(clientId);
+
+    /**
+     * Initializes the history for an agent, loading data from persistent storage if needed.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     */
+    async waitForInit(agentName: AgentName): Promise<void> {
+      return await this[HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT](agentName);
     }
-    if (callbacks.onRef) {
-      callbacks.onRef(this);
-    }
-    if (callbacks.filterCondition) {
-      this.iterate = async function* (
-        agentName: AgentName
-      ): AsyncIterableIterator<IModelMessage> {
-        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-          swarm.loggerService.debug(
-            HISTORY_PERSIST_INSTANCE_METHOD_NAME_ITERATE_CONDITION,
-            {
-              clientId: this.clientId,
-              agentName,
+
+    /**
+     * Creates a new persistent history instance.
+     * Invokes onInit and onRef callbacks if provided.
+     * @param {string} clientId - The client ID.
+     * @param {Partial<IHistoryInstanceCallbacks>} callbacks - The lifecycle callbacks.
+     */
+    constructor(
+      readonly clientId: string,
+      readonly callbacks: Partial<IHistoryInstanceCallbacks>
+    ) {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_CTOR, {
+          clientId: this.clientId,
+        });
+      this._persistStorage = new PersistList(
+        this.clientId,
+        `./logs/data/history`
+      );
+      if (callbacks.onInit) {
+        callbacks.onInit(clientId);
+      }
+      if (callbacks.onRef) {
+        callbacks.onRef(this);
+      }
+      if (callbacks.filterCondition) {
+        this.iterate = async function* (
+          agentName: AgentName
+        ): AsyncIterableIterator<IModelMessage> {
+          GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+            swarm.loggerService.debug(
+              HISTORY_PERSIST_INSTANCE_METHOD_NAME_ITERATE_CONDITION,
+              {
+                clientId: this.clientId,
+                agentName,
+              }
+            );
+          if (this.callbacks.onRead) {
+            this.callbacks.onReadBegin &&
+              this.callbacks.onReadBegin(this.clientId, agentName);
+            for (const item of this._array) {
+              if (
+                await this.callbacks.filterCondition(
+                  item,
+                  this.clientId,
+                  agentName
+                )
+              ) {
+                this.callbacks.onRead(item, this.clientId, agentName);
+                yield item;
+              }
             }
-          );
-        if (this.callbacks.onRead) {
+            if (this.callbacks.getSystemPrompt) {
+              for (const content of await this.callbacks.getSystemPrompt(
+                this.clientId,
+                agentName
+              )) {
+                yield {
+                  role: "system",
+                  content,
+                  agentName,
+                  mode: "tool",
+                };
+              }
+            }
+            this.callbacks.onReadEnd &&
+              this.callbacks.onReadEnd(this.clientId, agentName);
+            return;
+          }
           this.callbacks.onReadBegin &&
             this.callbacks.onReadBegin(this.clientId, agentName);
           for (const item of this._array) {
@@ -438,7 +470,6 @@ export class HistoryPersistInstance implements IHistoryInstance {
                 agentName
               )
             ) {
-              this.callbacks.onRead(item, this.clientId, agentName);
               yield item;
             }
           }
@@ -457,206 +488,224 @@ export class HistoryPersistInstance implements IHistoryInstance {
           }
           this.callbacks.onReadEnd &&
             this.callbacks.onReadEnd(this.clientId, agentName);
-          return;
-        }
-        this.callbacks.onReadBegin &&
-          this.callbacks.onReadBegin(this.clientId, agentName);
-        for (const item of this._array) {
-          if (
-            await this.callbacks.filterCondition(item, this.clientId, agentName)
-          ) {
-            yield item;
-          }
-        }
-        if (this.callbacks.getSystemPrompt) {
-          for (const content of await this.callbacks.getSystemPrompt(
-            this.clientId,
-            agentName
-          )) {
-            yield {
-              role: "system",
-              content,
-              agentName,
-              mode: "tool",
-            };
-          }
-        }
-        this.callbacks.onReadEnd &&
-          this.callbacks.onReadEnd(this.clientId, agentName);
-      };
-    }
-  }
-
-  /**
-   * Iterates over history messages, applying filters and system prompts if configured.
-   * Invokes onRead callbacks during iteration if provided.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding filtered messages.
-   */
-  public async *iterate(
-    agentName: AgentName
-  ): AsyncIterableIterator<IModelMessage> {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_ITERATE, {
-        clientId: this.clientId,
-        agentName,
-      });
-    if (this.callbacks.onRead) {
-      this.callbacks.onReadBegin &&
-        this.callbacks.onReadBegin(this.clientId, agentName);
-      for (const item of this._array) {
-        this.callbacks.onRead(item, this.clientId, agentName);
-        yield item;
-      }
-      this.callbacks.onReadEnd &&
-        this.callbacks.onReadEnd(this.clientId, agentName);
-      return;
-    }
-    this.callbacks.onReadBegin &&
-      this.callbacks.onReadBegin(this.clientId, agentName);
-    for (const item of this._array) {
-      yield item;
-    }
-    if (this.callbacks.getSystemPrompt) {
-      for (const content of await this.callbacks.getSystemPrompt(
-        this.clientId,
-        agentName
-      )) {
-        yield {
-          role: "system",
-          content,
-          agentName,
-          mode: "tool",
         };
       }
     }
-    this.callbacks.onReadEnd &&
-      this.callbacks.onReadEnd(this.clientId, agentName);
-  }
 
-  /**
-   * Adds a new message to the history, persisting it to storage.
-   * Invokes onPush and onChange callbacks if provided.
-   * @param {IModelMessage} value - The message to add.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {Promise<void>} A promise that resolves when the message is persisted.
-   */
-  public async push(value: IModelMessage, agentName: AgentName): Promise<void> {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_PUSH, {
-        clientId: this.clientId,
-        agentName,
-      });
-    this.callbacks.onPush &&
-      this.callbacks.onPush(value, this.clientId, agentName);
-    this._array.push(value);
-    this.callbacks.onChange &&
-      this.callbacks.onChange(this._array, this.clientId, agentName);
-    await this._persistStorage.push(value);
-  }
-
-  /**
-   * Removes and returns the last message from the history, updating persistent storage.
-   * Invokes onPop and onChange callbacks if provided.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
-   */
-  public async pop(agentName: AgentName): Promise<IModelMessage | null> {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_POP, {
-        clientId: this.clientId,
-        agentName,
-      });
-    const value = this._array.pop() ?? null;
-    this.callbacks.onPop &&
-      this.callbacks.onPop(value, this.clientId, agentName);
-    this.callbacks.onChange &&
-      this.callbacks.onChange(this._array, this.clientId, agentName);
-    await this._persistStorage.pop();
-    return value;
-  }
-
-  /**
-   * Disposes of the history, clearing all data if agentName is null.
-   * Invokes onDispose callback if provided.
-   * @param {AgentName | null} agentName - The name of the agent, or null to clear all data.
-   * @returns {Promise<void>} A promise that resolves when disposal is complete.
-   */
-  public async dispose(agentName: AgentName | null): Promise<void> {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_DISPOSE, {
-        clientId: this.clientId,
-        agentName,
-      });
-    if (agentName === null) {
-      this.callbacks.onDispose && this.callbacks.onDispose(this.clientId);
-      this._array = [];
+    /**
+     * Iterates over history messages, applying filters and system prompts if configured.
+     * Invokes onRead callbacks during iteration if provided.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding filtered messages.
+     */
+    async *iterate(
+      agentName: AgentName
+    ): AsyncIterableIterator<IModelMessage> {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        swarm.loggerService.debug(
+          HISTORY_PERSIST_INSTANCE_METHOD_NAME_ITERATE,
+          {
+            clientId: this.clientId,
+            agentName,
+          }
+        );
+      if (this.callbacks.onRead) {
+        this.callbacks.onReadBegin &&
+          this.callbacks.onReadBegin(this.clientId, agentName);
+        for (const item of this._array) {
+          this.callbacks.onRead(item, this.clientId, agentName);
+          yield item;
+        }
+        this.callbacks.onReadEnd &&
+          this.callbacks.onReadEnd(this.clientId, agentName);
+        return;
+      }
+      this.callbacks.onReadBegin &&
+        this.callbacks.onReadBegin(this.clientId, agentName);
+      for (const item of this._array) {
+        yield item;
+      }
+      if (this.callbacks.getSystemPrompt) {
+        for (const content of await this.callbacks.getSystemPrompt(
+          this.clientId,
+          agentName
+        )) {
+          yield {
+            role: "system",
+            content,
+            agentName,
+            mode: "tool",
+          };
+        }
+      }
+      this.callbacks.onReadEnd &&
+        this.callbacks.onReadEnd(this.clientId, agentName);
     }
-    return;
+
+    /**
+     * Adds a new message to the history, persisting it to storage.
+     * Invokes onPush and onChange callbacks if provided.
+     * @param {IModelMessage} value - The message to add.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when the message is persisted.
+     */
+    async push(
+      value: IModelMessage,
+      agentName: AgentName
+    ): Promise<void> {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_PUSH, {
+          clientId: this.clientId,
+          agentName,
+        });
+      this.callbacks.onPush &&
+        this.callbacks.onPush(value, this.clientId, agentName);
+      this._array.push(value);
+      this.callbacks.onChange &&
+        this.callbacks.onChange(this._array, this.clientId, agentName);
+      await this._persistStorage.push(value);
+    }
+
+    /**
+     * Removes and returns the last message from the history, updating persistent storage.
+     * Invokes onPop and onChange callbacks if provided.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
+     */
+    async pop(agentName: AgentName): Promise<IModelMessage | null> {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_POP, {
+          clientId: this.clientId,
+          agentName,
+        });
+      const value = this._array.pop() ?? null;
+      this.callbacks.onPop &&
+        this.callbacks.onPop(value, this.clientId, agentName);
+      this.callbacks.onChange &&
+        this.callbacks.onChange(this._array, this.clientId, agentName);
+      await this._persistStorage.pop();
+      return value;
+    }
+
+    /**
+     * Disposes of the history, clearing all data if agentName is null.
+     * Invokes onDispose callback if provided.
+     * @param {AgentName | null} agentName - The name of the agent, or null to clear all data.
+     * @returns {Promise<void>} A promise that resolves when disposal is complete.
+     */
+    async dispose(agentName: AgentName | null): Promise<void> {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        swarm.loggerService.debug(
+          HISTORY_PERSIST_INSTANCE_METHOD_NAME_DISPOSE,
+          {
+            clientId: this.clientId,
+            agentName,
+          }
+        );
+      if (agentName === null) {
+        this.callbacks.onDispose && this.callbacks.onDispose(this.clientId);
+        this._array = [];
+      }
+      return;
+    }
   }
-}
+);
+
+export type THistoryPersistInstance = InstanceType<typeof HistoryPersistInstance>;
 
 /**
  * Manages an in-memory history of messages without persistence.
  * @implements {IHistoryInstance}
  */
-export class HistoryMemoryInstance implements IHistoryInstance {
-  /** @private The in-memory array of history messages */
-  _array: IModelMessage[] = [];
+export const HistoryMemoryInstance = makeExtendable(
+  class implements IHistoryInstance {
+    /** @private The in-memory array of history messages */
+    _array: IModelMessage[] = [];
 
-  /**
-   * Memoized initialization function to ensure it runs only once per agent.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {Promise<void>} A promise that resolves when initialization is complete.
-   * @private
-   */
-  private [HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT] = singleshot(
-    async (agentName: AgentName): Promise<void> =>
-      await HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT_FN(agentName, this)
-  );
+    /**
+     * Memoized initialization function to ensure it runs only once per agent.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     * @private
+     */
+    [HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT] = singleshot(
+      async (agentName: AgentName): Promise<void> =>
+        await HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT_FN(agentName, this)
+    );
 
-  /**
-   * Initializes the history for an agent, loading initial data if needed.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {Promise<void>} A promise that resolves when initialization is complete.
-   */
-  public async waitForInit(agentName: AgentName): Promise<void> {
-    return await this[HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT](agentName);
-  }
-
-  /**
-   * Creates a new in-memory history instance.
-   * Invokes onInit and onRef callbacks if provided.
-   * @param {string} clientId - The client ID.
-   * @param {Partial<IHistoryInstanceCallbacks>} callbacks - The lifecycle callbacks.
-   */
-  constructor(
-    readonly clientId: string,
-    readonly callbacks: Partial<IHistoryInstanceCallbacks>
-  ) {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_CTOR, {
-        clientId: this.clientId,
-      });
-    if (callbacks.onInit) {
-      callbacks.onInit(clientId);
+    /**
+     * Initializes the history for an agent, loading initial data if needed.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     */
+    async waitForInit(agentName: AgentName): Promise<void> {
+      return await this[HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT](agentName);
     }
-    if (callbacks.onRef) {
-      callbacks.onRef(this);
-    }
-    if (callbacks.filterCondition) {
-      this.iterate = async function* (
-        agentName: AgentName
-      ): AsyncIterableIterator<IModelMessage> {
-        GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-          swarm.loggerService.debug(
-            HISTORY_MEMORY_INSTANCE_METHOD_NAME_ITERATE_CONDITION,
-            {
-              clientId: this.clientId,
-              agentName,
+
+    /**
+     * Creates a new in-memory history instance.
+     * Invokes onInit and onRef callbacks if provided.
+     * @param {string} clientId - The client ID.
+     * @param {Partial<IHistoryInstanceCallbacks>} callbacks - The lifecycle callbacks.
+     */
+    constructor(
+      readonly clientId: string,
+      readonly callbacks: Partial<IHistoryInstanceCallbacks>
+    ) {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_CTOR, {
+          clientId: this.clientId,
+        });
+      if (callbacks.onInit) {
+        callbacks.onInit(clientId);
+      }
+      if (callbacks.onRef) {
+        callbacks.onRef(this);
+      }
+      if (callbacks.filterCondition) {
+        this.iterate = async function* (
+          agentName: AgentName
+        ): AsyncIterableIterator<IModelMessage> {
+          GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+            swarm.loggerService.debug(
+              HISTORY_MEMORY_INSTANCE_METHOD_NAME_ITERATE_CONDITION,
+              {
+                clientId: this.clientId,
+                agentName,
+              }
+            );
+          if (this.callbacks.onRead) {
+            this.callbacks.onReadBegin &&
+              this.callbacks.onReadBegin(this.clientId, agentName);
+            for (const item of this._array) {
+              if (
+                await this.callbacks.filterCondition(
+                  item,
+                  this.clientId,
+                  agentName
+                )
+              ) {
+                this.callbacks.onRead(item, this.clientId, agentName);
+                yield item;
+              }
             }
-          );
-        if (this.callbacks.onRead) {
+            if (this.callbacks.getSystemPrompt) {
+              for (const content of await this.callbacks.getSystemPrompt(
+                this.clientId,
+                agentName
+              )) {
+                yield {
+                  role: "system",
+                  content,
+                  agentName,
+                  mode: "tool",
+                };
+              }
+            }
+            this.callbacks.onReadEnd &&
+              this.callbacks.onReadEnd(this.clientId, agentName);
+            return;
+          }
           this.callbacks.onReadBegin &&
             this.callbacks.onReadBegin(this.clientId, agentName);
           for (const item of this._array) {
@@ -667,7 +716,6 @@ export class HistoryMemoryInstance implements IHistoryInstance {
                 agentName
               )
             ) {
-              this.callbacks.onRead(item, this.clientId, agentName);
               yield item;
             }
           }
@@ -686,143 +734,123 @@ export class HistoryMemoryInstance implements IHistoryInstance {
           }
           this.callbacks.onReadEnd &&
             this.callbacks.onReadEnd(this.clientId, agentName);
-          return;
-        }
-        this.callbacks.onReadBegin &&
-          this.callbacks.onReadBegin(this.clientId, agentName);
-        for (const item of this._array) {
-          if (
-            await this.callbacks.filterCondition(item, this.clientId, agentName)
-          ) {
-            yield item;
-          }
-        }
-        if (this.callbacks.getSystemPrompt) {
-          for (const content of await this.callbacks.getSystemPrompt(
-            this.clientId,
-            agentName
-          )) {
-            yield {
-              role: "system",
-              content,
-              agentName,
-              mode: "tool",
-            };
-          }
-        }
-        this.callbacks.onReadEnd &&
-          this.callbacks.onReadEnd(this.clientId, agentName);
-      };
-    }
-  }
-
-  /**
-   * Iterates over history messages, applying filters and system prompts if configured.
-   * Invokes onRead callbacks during iteration if provided.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding filtered messages.
-   */
-  public async *iterate(
-    agentName: AgentName
-  ): AsyncIterableIterator<IModelMessage> {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_ITERATE, {
-        clientId: this.clientId,
-        agentName,
-      });
-    if (this.callbacks.onRead) {
-      this.callbacks.onReadBegin &&
-        this.callbacks.onReadBegin(this.clientId, agentName);
-      for (const item of this._array) {
-        this.callbacks.onRead(item, this.clientId, agentName);
-        yield item;
-      }
-      this.callbacks.onReadEnd &&
-        this.callbacks.onReadEnd(this.clientId, agentName);
-      return;
-    }
-    this.callbacks.onReadBegin &&
-      this.callbacks.onReadBegin(this.clientId, agentName);
-    for (const item of this._array) {
-      yield item;
-    }
-    if (this.callbacks.getSystemPrompt) {
-      for (const content of await this.callbacks.getSystemPrompt(
-        this.clientId,
-        agentName
-      )) {
-        yield {
-          role: "system",
-          content,
-          agentName,
-          mode: "tool",
         };
       }
     }
-    this.callbacks.onReadEnd &&
-      this.callbacks.onReadEnd(this.clientId, agentName);
-  }
 
-  /**
-   * Adds a new message to the in-memory history.
-   * Invokes onPush and onChange callbacks if provided.
-   * @param {IModelMessage} value - The message to add.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {Promise<void>} A promise that resolves when the message is added.
-   */
-  public async push(value: IModelMessage, agentName: AgentName): Promise<void> {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_PUSH, {
-        clientId: this.clientId,
-        agentName,
-      });
-    this.callbacks.onPush &&
-      this.callbacks.onPush(value, this.clientId, agentName);
-    this._array.push(value);
-    this.callbacks.onChange &&
-      this.callbacks.onChange(this._array, this.clientId, agentName);
-    return Promise.resolve();
-  }
-
-  /**
-   * Removes and returns the last message from the in-memory history.
-   * Invokes onPop and onChange callbacks if provided.
-   * @param {AgentName} agentName - The name of the agent.
-   * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
-   */
-  public async pop(agentName: AgentName): Promise<IModelMessage | null> {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_POP, {
-        clientId: this.clientId,
-        agentName,
-      });
-    const value = this._array.pop() ?? null;
-    this.callbacks.onPop &&
-      this.callbacks.onPop(value, this.clientId, agentName);
-    this.callbacks.onChange &&
-      this.callbacks.onChange(this._array, this.clientId, agentName);
-    return Promise.resolve(value);
-  }
-
-  /**
-   * Disposes of the history, clearing all data if agentName is null.
-   * Invokes onDispose callback if provided.
-   * @param {AgentName | null} agentName - The name of the agent, or null to clear all data.
-   * @returns {Promise<void>} A promise that resolves when disposal is complete.
-   */
-  public async dispose(agentName: AgentName | null): Promise<void> {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_DISPOSE, {
-        clientId: this.clientId,
-        agentName,
-      });
-    if (agentName === null) {
-      this.callbacks.onDispose && this.callbacks.onDispose(this.clientId);
-      this._array = [];
+    /**
+     * Iterates over history messages, applying filters and system prompts if configured.
+     * Invokes onRead callbacks during iteration if provided.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding filtered messages.
+     */
+    async *iterate(
+      agentName: AgentName
+    ): AsyncIterableIterator<IModelMessage> {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_ITERATE, {
+          clientId: this.clientId,
+          agentName,
+        });
+      if (this.callbacks.onRead) {
+        this.callbacks.onReadBegin &&
+          this.callbacks.onReadBegin(this.clientId, agentName);
+        for (const item of this._array) {
+          this.callbacks.onRead(item, this.clientId, agentName);
+          yield item;
+        }
+        this.callbacks.onReadEnd &&
+          this.callbacks.onReadEnd(this.clientId, agentName);
+        return;
+      }
+      this.callbacks.onReadBegin &&
+        this.callbacks.onReadBegin(this.clientId, agentName);
+      for (const item of this._array) {
+        yield item;
+      }
+      if (this.callbacks.getSystemPrompt) {
+        for (const content of await this.callbacks.getSystemPrompt(
+          this.clientId,
+          agentName
+        )) {
+          yield {
+            role: "system",
+            content,
+            agentName,
+            mode: "tool",
+          };
+        }
+      }
+      this.callbacks.onReadEnd &&
+        this.callbacks.onReadEnd(this.clientId, agentName);
     }
-    return Promise.resolve();
+
+    /**
+     * Adds a new message to the in-memory history.
+     * Invokes onPush and onChange callbacks if provided.
+     * @param {IModelMessage} value - The message to add.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<void>} A promise that resolves when the message is added.
+     */
+    async push(
+      value: IModelMessage,
+      agentName: AgentName
+    ): Promise<void> {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_PUSH, {
+          clientId: this.clientId,
+          agentName,
+        });
+      this.callbacks.onPush &&
+        this.callbacks.onPush(value, this.clientId, agentName);
+      this._array.push(value);
+      this.callbacks.onChange &&
+        this.callbacks.onChange(this._array, this.clientId, agentName);
+      return Promise.resolve();
+    }
+
+    /**
+     * Removes and returns the last message from the in-memory history.
+     * Invokes onPop and onChange callbacks if provided.
+     * @param {AgentName} agentName - The name of the agent.
+     * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
+     */
+    async pop(agentName: AgentName): Promise<IModelMessage | null> {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_POP, {
+          clientId: this.clientId,
+          agentName,
+        });
+      const value = this._array.pop() ?? null;
+      this.callbacks.onPop &&
+        this.callbacks.onPop(value, this.clientId, agentName);
+      this.callbacks.onChange &&
+        this.callbacks.onChange(this._array, this.clientId, agentName);
+      return Promise.resolve(value);
+    }
+
+    /**
+     * Disposes of the history, clearing all data if agentName is null.
+     * Invokes onDispose callback if provided.
+     * @param {AgentName | null} agentName - The name of the agent, or null to clear all data.
+     * @returns {Promise<void>} A promise that resolves when disposal is complete.
+     */
+    async dispose(agentName: AgentName | null): Promise<void> {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_DISPOSE, {
+          clientId: this.clientId,
+          agentName,
+        });
+      if (agentName === null) {
+        this.callbacks.onDispose && this.callbacks.onDispose(this.clientId);
+        this._array = [];
+      }
+      return Promise.resolve();
+    }
   }
-}
+);
+
+export type THistoryMemoryInstance = InstanceType<typeof HistoryMemoryInstance>;
 
 /**
  * Provides utilities for managing history instances, supporting both memory and persistent storage.

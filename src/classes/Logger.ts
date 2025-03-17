@@ -1,7 +1,7 @@
 import { ILogger } from "../interfaces/Logger.interface";
 import swarm, { MethodContextService } from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
-import { memoize, singleshot } from "functools-kit";
+import { makeExtendable, memoize, singleshot } from "functools-kit";
 import beginContext from "../utils/beginContext";
 
 /** @private Symbol for memoizing the waitForInit method in LoggerInstance */
@@ -10,12 +10,12 @@ const LOGGER_INSTANCE_WAIT_FOR_INIT = Symbol("wait-for-init");
 /**
  * Initializes the logger instance by invoking the onInit callback if provided.
  * Ensures initialization runs asynchronously and is executed only once via singleshot.
- * @param {LoggerInstance} self - The logger instance to initialize.
+ * @param {TLoggerInstance} self - The logger instance to initialize.
  * @returns {Promise<void>} A promise that resolves when initialization is complete.
  * @private
  */
 const LOGGER_INSTANCE_WAIT_FOR_FN = async (
-  self: LoggerInstance
+  self: TLoggerInstance
 ): Promise<void> => {
   if (self.callbacks.onInit) {
     self.callbacks.onInit(self.clientId);
@@ -203,7 +203,7 @@ type TLoggerInstanceCtor = new (
  * Integrates with GLOBAL_CONFIG for console logging control and callbacks for custom behavior.
  * @implements {ILoggerInstance}
  */
-export class LoggerInstance implements ILoggerInstance {
+export const LoggerInstance = makeExtendable(class implements ILoggerInstance {
   /**
    * Creates a new logger instance for a specific client.
    * @param {string} clientId - The client ID associated with this logger instance, used in log prefixes.
@@ -220,7 +220,7 @@ export class LoggerInstance implements ILoggerInstance {
    * @returns {Promise<void>} A promise that resolves when initialization is complete.
    * @private
    */
-  private [LOGGER_INSTANCE_WAIT_FOR_INIT] = singleshot(
+  [LOGGER_INSTANCE_WAIT_FOR_INIT] = singleshot(
     async (): Promise<void> => await LOGGER_INSTANCE_WAIT_FOR_FN(this)
   );
 
@@ -230,7 +230,7 @@ export class LoggerInstance implements ILoggerInstance {
    * @param {boolean} [initial] - Whether this is the initial setup (unused here but required by ILoggerInstance).
    * @returns {Promise<void>} A promise that resolves when initialization is complete.
    */
-  public async waitForInit(): Promise<void> {
+  async waitForInit(): Promise<void> {
     return await this[LOGGER_INSTANCE_WAIT_FOR_INIT]();
   }
 
@@ -240,7 +240,7 @@ export class LoggerInstance implements ILoggerInstance {
    * @param {string} topic - The topic or category of the log message.
    * @param {...any[]} args - Additional arguments to include in the log.
    */
-  public log(topic: string, ...args: any[]): void {
+  log(topic: string, ...args: any[]): void {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
       console.log(`[clientId=${this.clientId}]`, topic, ...args);
     if (this.callbacks.onLog) {
@@ -254,7 +254,7 @@ export class LoggerInstance implements ILoggerInstance {
    * @param {string} topic - The topic or category of the debug message.
    * @param {...any[]} args - Additional arguments to include in the debug log.
    */
-  public debug(topic: string, ...args: any[]): void {
+  debug(topic: string, ...args: any[]): void {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
       console.debug(`[clientId=${this.clientId}]`, topic, ...args);
     if (this.callbacks.onDebug) {
@@ -268,7 +268,7 @@ export class LoggerInstance implements ILoggerInstance {
    * @param {string} topic - The topic or category of the info message.
    * @param {...any[]} args - Additional arguments to include in the info log.
    */
-  public info(topic: string, ...args: any[]): void {
+  info(topic: string, ...args: any[]): void {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
       console.info(`[clientId=${this.clientId}]`, topic, ...args);
     if (this.callbacks.onInfo) {
@@ -281,12 +281,14 @@ export class LoggerInstance implements ILoggerInstance {
    * Performs synchronous cleanup without additional resource management.
    * @returns {void} No return value, operation is synchronous.
    */
-  public dispose(): void {
+  dispose(): void {
     if (this.callbacks.onDispose) {
       this.callbacks.onDispose(this.clientId);
     }
   }
-}
+})
+
+export type TLoggerInstance = InstanceType<typeof LoggerInstance>;
 
 /**
  * Provides utilities for managing logger instances and common logging operations.

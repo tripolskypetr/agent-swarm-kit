@@ -1513,233 +1513,373 @@ type TPersistBaseCtor<EntityName extends string = string, Entity extends IEntity
  * @template EntityName - The type of entity name, defaults to string.
  * @implements {IPersistBase}
  */
-declare class PersistBase<EntityName extends string = string> implements IPersistBase {
-    readonly entityName: EntityName;
-    readonly baseDir: string;
-    /** @private The directory path where entity files are stored */
-    _directory: string;
-    /**
-     * Creates a new PersistBase instance for managing persistent storage of entities.
-     * @param {EntityName} entityName - The name of the entity type, used as a subdirectory for storage.
-     * @param {string} [baseDir=join(process.cwd(), "logs/data")] - The base directory for storing entity files.
-     * @example
-     * const storage = new PersistBase("sessions");
-     * // Creates a storage instance for "sessions" in "./logs/data/sessions"
-     */
-    constructor(entityName: EntityName, baseDir?: string);
-    /**
-     * Computes the file path for an entity based on its ID.
-     * @param {EntityId} entityId - The identifier of the entity.
-     * @returns {string} The full file path (e.g., `<baseDir>/<entityName>/<entityId>.json`).
-     * @private
-     */
-    _getFilePath(entityId: EntityId): string;
-    /**
-     * Memoized initialization function ensuring it runs only once per instance.
-     * @returns {Promise<void>} A promise that resolves when initialization is complete.
-     * @private
-     */
-    private [BASE_WAIT_FOR_INIT_SYMBOL];
-    /**
-     * Initializes the storage directory, creating it if it doesn’t exist and validating existing entities.
-     * Invalid entities are removed during this process.
-     * @param {boolean} initial - Indicates if this is the initial setup; currently unused but reserved for future caching logic.
-     * @returns {Promise<void>} A promise that resolves when initialization is complete.
-     * @throws {Error} If directory creation or entity validation fails.
-     * @example
-     * await storage.waitForInit(true);
-     * // Ensures the storage directory is ready and clean
-     */
-    waitForInit(initial: boolean): Promise<void>;
-    /**
-     * Retrieves the number of entities stored in the directory.
-     * Counts only files with a `.json` extension.
-     * @returns {Promise<number>} A promise resolving to the count of stored entities.
-     * @throws {Error} If reading the directory fails.
-     * @example
-     * const count = await storage.getCount();
-     * console.log(count); // Outputs the number of entities
-     */
-    getCount(): Promise<number>;
-    /**
-     * Reads an entity from storage by its ID, parsing it from JSON.
-     * @template T - The specific type of the entity, defaults to IEntity.
-     * @param {EntityId} entityId - The identifier of the entity to read.
-     * @returns {Promise<T>} A promise resolving to the parsed entity data.
-     * @throws {Error} If the file is not found (`ENOENT`) or parsing fails.
-     * @example
-     * const entity = await storage.readValue("123");
-     * console.log(entity); // Outputs the entity data
-     */
-    readValue<T extends IEntity = IEntity>(entityId: EntityId): Promise<T>;
-    /**
-     * Checks if an entity exists in storage by its ID.
-     * @param {EntityId} entityId - The identifier of the entity to check.
-     * @returns {Promise<boolean>} A promise resolving to true if the entity exists, false if not.
-     * @throws {Error} If checking existence fails for reasons other than the file not existing.
-     * @example
-     * const exists = await storage.hasValue("123");
-     * console.log(exists); // true or false
-     */
-    hasValue(entityId: EntityId): Promise<boolean>;
-    /**
-     * Writes an entity to storage with the specified ID, serializing it to JSON.
-     * Uses atomic file writing to ensure data integrity.
-     * @template T - The specific type of the entity, defaults to IEntity.
-     * @param {EntityId} entityId - The identifier for the entity.
-     * @param {T} entity - The entity data to persist.
-     * @returns {Promise<void>} A promise that resolves when the write operation is complete.
-     * @throws {Error} If writing to the file system fails.
-     * @example
-     * await storage.writeValue("123", { data: "example" });
-     * // Persists the entity to "123.json"
-     */
-    writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
-    /**
-     * Removes an entity from storage by its ID.
-     * @param {EntityId} entityId - The identifier of the entity to remove.
-     * @returns {Promise<void>} A promise that resolves when the entity is deleted.
-     * @throws {Error} If the entity is not found or deletion fails.
-     * @example
-     * await storage.removeValue("123");
-     * // Deletes "123.json" from storage
-     */
-    removeValue(entityId: EntityId): Promise<void>;
-    /**
-     * Removes all entities from storage under this entity name.
-     * Deletes all `.json` files in the directory.
-     * @returns {Promise<void>} A promise that resolves when all entities are removed.
-     * @throws {Error} If reading the directory or deleting files fails.
-     * @example
-     * await storage.removeAll();
-     * // Clears all entities from the storage directory
-     */
-    removeAll(): Promise<void>;
-    /**
-     * Iterates over all entities in storage, sorted numerically by ID.
-     * Yields entities in ascending order based on their IDs.
-     * @template T - The specific type of the entities, defaults to IEntity.
-     * @returns {AsyncGenerator<T>} An async generator yielding each entity.
-     * @throws {Error} If reading the directory or entity files fails.
-     * @example
-     * for await (const entity of storage.values()) {
-     *   console.log(entity);
-     * }
-     */
-    values<T extends IEntity = IEntity>(): AsyncGenerator<T>;
-    /**
-     * Iterates over all entity IDs in storage, sorted numerically.
-     * Yields IDs in ascending order.
-     * @returns {AsyncGenerator<EntityId>} An async generator yielding each entity ID.
-     * @throws {Error} If reading the directory fails.
-     * @example
-     * for await (const id of storage.keys()) {
-     *   console.log(id);
-     * }
-     */
-    keys(): AsyncGenerator<EntityId>;
-    /**
-     * Implements the async iterator protocol for iterating over entities.
-     * Delegates to the `values` method for iteration.
-     * @returns {AsyncIterableIterator<any>} An async iterator yielding entities.
-     * @example
-     * for await (const entity of storage) {
-     *   console.log(entity);
-     * }
-     */
-    [Symbol.asyncIterator](): AsyncIterableIterator<any>;
-    /**
-     * Filters entities based on a predicate function.
-     * Yields only entities that pass the predicate test.
-     * @template T - The specific type of the entities, defaults to IEntity.
-     * @param {(value: T) => boolean} predicate - A function to test each entity.
-     * @returns {AsyncGenerator<T>} An async generator yielding filtered entities.
-     * @throws {Error} If reading entities fails during iteration.
-     * @example
-     * for await (const entity of storage.filter(e => e.active)) {
-     *   console.log(entity);
-     * }
-     */
-    filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<T>;
-    /**
-     * Takes a limited number of entities, optionally filtered by a predicate.
-     * Stops yielding after reaching the specified total.
-     * @template T - The specific type of the entities, defaults to IEntity.
-     * @param {number} total - The maximum number of entities to yield.
-     * @param {(value: T) => boolean} [predicate] - Optional function to filter entities before counting.
-     * @returns {AsyncGenerator<T>} An async generator yielding up to `total` entities.
-     * @throws {Error} If reading entities fails during iteration.
-     * @example
-     * for await (const entity of storage.take(5)) {
-     *   console.log(entity);
-     * }
-     */
-    take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<T>;
-}
+declare const PersistBase: {
+    new <EntityName extends string = string>(entityName: EntityName, baseDir?: string): {
+        /** @private The directory path where entity files are stored */
+        _directory: string;
+        readonly entityName: EntityName;
+        readonly baseDir: string;
+        /**
+         * Computes the file path for an entity based on its ID.
+         * @param {EntityId} entityId - The identifier of the entity.
+         * @returns {string} The full file path (e.g., `<baseDir>/<entityName>/<entityId>.json`).
+         * @private
+         */
+        _getFilePath(entityId: EntityId): string;
+        /**
+         * Initializes the storage directory, creating it if it doesn’t exist and validating existing entities.
+         * Invalid entities are removed during this process.
+         * @param {boolean} initial - Indicates if this is the initial setup; currently unused but reserved for future caching logic.
+         * @returns {Promise<void>} A promise that resolves when initialization is complete.
+         * @throws {Error} If directory creation or entity validation fails.
+         * @example
+         * await storage.waitForInit(true);
+         * // Ensures the storage directory is ready and clean
+         */
+        waitForInit(initial: boolean): Promise<void>;
+        /**
+         * Retrieves the number of entities stored in the directory.
+         * Counts only files with a `.json` extension.
+         * @returns {Promise<number>} A promise resolving to the count of stored entities.
+         * @throws {Error} If reading the directory fails.
+         * @example
+         * const count = await storage.getCount();
+         * console.log(count); // Outputs the number of entities
+         */
+        getCount(): Promise<number>;
+        /**
+         * Reads an entity from storage by its ID, parsing it from JSON.
+         * @template T - The specific type of the entity, defaults to IEntity.
+         * @param {EntityId} entityId - The identifier of the entity to read.
+         * @returns {Promise<T>} A promise resolving to the parsed entity data.
+         * @throws {Error} If the file is not found (`ENOENT`) or parsing fails.
+         * @example
+         * const entity = await storage.readValue("123");
+         * console.log(entity); // Outputs the entity data
+         */
+        readValue<T extends IEntity = IEntity>(entityId: EntityId): Promise<T>;
+        /**
+         * Checks if an entity exists in storage by its ID.
+         * @param {EntityId} entityId - The identifier of the entity to check.
+         * @returns {Promise<boolean>} A promise resolving to true if the entity exists, false if not.
+         * @throws {Error} If checking existence fails for reasons other than the file not existing.
+         * @example
+         * const exists = await storage.hasValue("123");
+         * console.log(exists); // true or false
+         */
+        hasValue(entityId: EntityId): Promise<boolean>;
+        /**
+         * Writes an entity to storage with the specified ID, serializing it to JSON.
+         * Uses atomic file writing to ensure data integrity.
+         * @template T - The specific type of the entity, defaults to IEntity.
+         * @param {EntityId} entityId - The identifier for the entity.
+         * @param {T} entity - The entity data to persist.
+         * @returns {Promise<void>} A promise that resolves when the write operation is complete.
+         * @throws {Error} If writing to the file system fails.
+         * @example
+         * await storage.writeValue("123", { data: "example" });
+         * // Persists the entity to "123.json"
+         */
+        writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
+        /**
+         * Removes an entity from storage by its ID.
+         * @param {EntityId} entityId - The identifier of the entity to remove.
+         * @returns {Promise<void>} A promise that resolves when the entity is deleted.
+         * @throws {Error} If the entity is not found or deletion fails.
+         * @example
+         * await storage.removeValue("123");
+         * // Deletes "123.json" from storage
+         */
+        removeValue(entityId: EntityId): Promise<void>;
+        /**
+         * Removes all entities from storage under this entity name.
+         * Deletes all `.json` files in the directory.
+         * @returns {Promise<void>} A promise that resolves when all entities are removed.
+         * @throws {Error} If reading the directory or deleting files fails.
+         * @example
+         * await storage.removeAll();
+         * // Clears all entities from the storage directory
+         */
+        removeAll(): Promise<void>;
+        /**
+         * Iterates over all entities in storage, sorted numerically by ID.
+         * Yields entities in ascending order based on their IDs.
+         * @template T - The specific type of the entities, defaults to IEntity.
+         * @returns {AsyncGenerator<T>} An async generator yielding each entity.
+         * @throws {Error} If reading the directory or entity files fails.
+         * @example
+         * for await (const entity of storage.values()) {
+         *   console.log(entity);
+         * }
+         */
+        values<T extends IEntity = IEntity>(): AsyncGenerator<T>;
+        /**
+         * Iterates over all entity IDs in storage, sorted numerically.
+         * Yields IDs in ascending order.
+         * @returns {AsyncGenerator<EntityId>} An async generator yielding each entity ID.
+         * @throws {Error} If reading the directory fails.
+         * @example
+         * for await (const id of storage.keys()) {
+         *   console.log(id);
+         * }
+         */
+        keys(): AsyncGenerator<EntityId>;
+        /**
+         * Filters entities based on a predicate function.
+         * Yields only entities that pass the predicate test.
+         * @template T - The specific type of the entities, defaults to IEntity.
+         * @param {(value: T) => boolean} predicate - A function to test each entity.
+         * @returns {AsyncGenerator<T>} An async generator yielding filtered entities.
+         * @throws {Error} If reading entities fails during iteration.
+         * @example
+         * for await (const entity of storage.filter(e => e.active)) {
+         *   console.log(entity);
+         * }
+         */
+        filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<T>;
+        /**
+         * Takes a limited number of entities, optionally filtered by a predicate.
+         * Stops yielding after reaching the specified total.
+         * @template T - The specific type of the entities, defaults to IEntity.
+         * @param {number} total - The maximum number of entities to yield.
+         * @param {(value: T) => boolean} [predicate] - Optional function to filter entities before counting.
+         * @returns {AsyncGenerator<T>} An async generator yielding up to `total` entities.
+         * @throws {Error} If reading entities fails during iteration.
+         * @example
+         * for await (const entity of storage.take(5)) {
+         *   console.log(entity);
+         * }
+         */
+        take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<T>;
+        /**
+         * Memoized initialization function ensuring it runs only once per instance.
+         * @returns {Promise<void>} A promise that resolves when initialization is complete.
+         * @private
+         */
+        [BASE_WAIT_FOR_INIT_SYMBOL]: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+        /**
+         * Implements the async iterator protocol for iterating over entities.
+         * Delegates to the `values` method for iteration.
+         * @returns {AsyncIterableIterator<any>} An async iterator yielding entities.
+         * @example
+         * for await (const entity of storage) {
+         *   console.log(entity);
+         * }
+         */
+        [Symbol.asyncIterator](): AsyncIterableIterator<any>;
+    };
+};
+type TPersistBase = InstanceType<typeof PersistBase>;
 /**
  * Extends PersistBase to provide a persistent list structure with push/pop operations.
  * Manages entities with numeric keys for ordered access.
  * @template EntityName - The type of entity name, defaults to string.
  * @extends {PersistBase<EntityName>}
  */
-declare class PersistList<EntityName extends string = string> extends PersistBase<EntityName> {
-    /** @private Tracks the last used numeric key for the list, null until initialized */
-    _lastCount: number | null;
-    /**
-     * Creates a new PersistList instance for managing a persistent list of entities.
-     * @param {EntityName} entityName - The name of the entity type, used as a subdirectory for storage.
-     * @param {string} [baseDir] - The base directory for storing list files; defaults to parent class if omitted.
-     * @example
-     * const list = new PersistList("queue");
-     * // Creates a persistent list for "queue" in "./logs/data/queue"
-     */
-    constructor(entityName: EntityName, baseDir?: string);
-    /**
-     * Queued function to create a new unique key for a list item.
-     * Ensures sequential key generation even under concurrent calls.
-     * @returns {Promise<string>} A promise resolving to the new key as a string.
-     * @throws {Error} If key generation fails due to underlying storage issues.
-     * @private
-     */
-    private [LIST_CREATE_KEY_SYMBOL];
-    /**
-     * Retrieves the key of the last item in the list.
-     * @returns {Promise<string | null>} A promise resolving to the last key or null if the list is empty.
-     * @throws {Error} If key retrieval fails due to underlying storage issues.
-     * @private
-     */
-    private [LIST_GET_LAST_KEY_SYMBOL];
-    /**
-     * Queued function to remove and return the last item in the list.
-     * Ensures atomic pop operations under concurrent calls.
-     * @template T - The specific type of the entity, defaults to IEntity.
-     * @returns {Promise<T | null>} A promise resolving to the removed item or null if the list is empty.
-     * @throws {Error} If reading or removing the item fails.
-     * @private
-     */
-    private [LIST_POP_SYMBOL];
-    /**
-     * Adds an entity to the end of the persistent list with a new unique numeric key.
-     * @template T - The specific type of the entity, defaults to IEntity.
-     * @param {T} entity - The entity to append to the list.
-     * @returns {Promise<void>} A promise that resolves when the entity is written.
-     * @throws {Error} If writing to the file system fails.
-     * @example
-     * await list.push({ task: "example" });
-     * // Adds the entity to the list with the next numeric key
-     */
-    push<T extends IEntity = IEntity>(entity: T): Promise<void>;
-    /**
-     * Removes and returns the last entity from the persistent list.
-     * @template T - The specific type of the entity, defaults to IEntity.
-     * @returns {Promise<T | null>} A promise resolving to the removed entity or null if the list is empty.
-     * @throws {Error} If reading or removing the entity fails.
-     * @example
-     * const entity = await list.pop();
-     * console.log(entity); // Outputs the last entity or null
-     */
-    pop<T extends IEntity = IEntity>(): Promise<T | null>;
-}
+declare const PersistList: {
+    new <EntityName extends string = string>(entityName: EntityName, baseDir?: string): {
+        /** @private Tracks the last used numeric key for the list, null until initialized */
+        _lastCount: number | null;
+        /**
+         * Adds an entity to the end of the persistent list with a new unique numeric key.
+         * @template T - The specific type of the entity, defaults to IEntity.
+         * @param {T} entity - The entity to append to the list.
+         * @returns {Promise<void>} A promise that resolves when the entity is written.
+         * @throws {Error} If writing to the file system fails.
+         * @example
+         * await list.push({ task: "example" });
+         * // Adds the entity to the list with the next numeric key
+         */
+        push<T extends IEntity = IEntity>(entity: T): Promise<void>;
+        /**
+         * Removes and returns the last entity from the persistent list.
+         * @template T - The specific type of the entity, defaults to IEntity.
+         * @returns {Promise<T | null>} A promise resolving to the removed entity or null if the list is empty.
+         * @throws {Error} If reading or removing the entity fails.
+         * @example
+         * const entity = await list.pop();
+         * console.log(entity); // Outputs the last entity or null
+         */
+        pop<T extends IEntity = IEntity>(): Promise<T | null>;
+        /**
+         * Queued function to create a new unique key for a list item.
+         * Ensures sequential key generation even under concurrent calls.
+         * @returns {Promise<string>} A promise resolving to the new key as a string.
+         * @throws {Error} If key generation fails due to underlying storage issues.
+         * @private
+         */
+        [LIST_CREATE_KEY_SYMBOL]: () => Promise<string>;
+        /**
+         * Retrieves the key of the last item in the list.
+         * @returns {Promise<string | null>} A promise resolving to the last key or null if the list is empty.
+         * @throws {Error} If key retrieval fails due to underlying storage issues.
+         * @private
+         */
+        [LIST_GET_LAST_KEY_SYMBOL]: () => Promise<string | null>;
+        /**
+         * Queued function to remove and return the last item in the list.
+         * Ensures atomic pop operations under concurrent calls.
+         * @template T - The specific type of the entity, defaults to IEntity.
+         * @returns {Promise<T | null>} A promise resolving to the removed item or null if the list is empty.
+         * @throws {Error} If reading or removing the item fails.
+         * @private
+         */
+        [LIST_POP_SYMBOL]: <T extends IEntity = IEntity>() => Promise<T | null>;
+        /** @private The directory path where entity files are stored */
+        _directory: string;
+        readonly entityName: EntityName;
+        readonly baseDir: string;
+        /**
+         * Computes the file path for an entity based on its ID.
+         * @param {EntityId} entityId - The identifier of the entity.
+         * @returns {string} The full file path (e.g., `<baseDir>/<entityName>/<entityId>.json`).
+         * @private
+         */
+        _getFilePath(entityId: EntityId): string;
+        /**
+         * Initializes the storage directory, creating it if it doesn’t exist and validating existing entities.
+         * Invalid entities are removed during this process.
+         * @param {boolean} initial - Indicates if this is the initial setup; currently unused but reserved for future caching logic.
+         * @returns {Promise<void>} A promise that resolves when initialization is complete.
+         * @throws {Error} If directory creation or entity validation fails.
+         * @example
+         * await storage.waitForInit(true);
+         * // Ensures the storage directory is ready and clean
+         */
+        waitForInit(initial: boolean): Promise<void>;
+        /**
+         * Retrieves the number of entities stored in the directory.
+         * Counts only files with a `.json` extension.
+         * @returns {Promise<number>} A promise resolving to the count of stored entities.
+         * @throws {Error} If reading the directory fails.
+         * @example
+         * const count = await storage.getCount();
+         * console.log(count); // Outputs the number of entities
+         */
+        getCount(): Promise<number>;
+        /**
+         * Reads an entity from storage by its ID, parsing it from JSON.
+         * @template T - The specific type of the entity, defaults to IEntity.
+         * @param {EntityId} entityId - The identifier of the entity to read.
+         * @returns {Promise<T>} A promise resolving to the parsed entity data.
+         * @throws {Error} If the file is not found (`ENOENT`) or parsing fails.
+         * @example
+         * const entity = await storage.readValue("123");
+         * console.log(entity); // Outputs the entity data
+         */
+        readValue<T extends IEntity = IEntity>(entityId: EntityId): Promise<T>;
+        /**
+         * Checks if an entity exists in storage by its ID.
+         * @param {EntityId} entityId - The identifier of the entity to check.
+         * @returns {Promise<boolean>} A promise resolving to true if the entity exists, false if not.
+         * @throws {Error} If checking existence fails for reasons other than the file not existing.
+         * @example
+         * const exists = await storage.hasValue("123");
+         * console.log(exists); // true or false
+         */
+        hasValue(entityId: EntityId): Promise<boolean>;
+        /**
+         * Writes an entity to storage with the specified ID, serializing it to JSON.
+         * Uses atomic file writing to ensure data integrity.
+         * @template T - The specific type of the entity, defaults to IEntity.
+         * @param {EntityId} entityId - The identifier for the entity.
+         * @param {T} entity - The entity data to persist.
+         * @returns {Promise<void>} A promise that resolves when the write operation is complete.
+         * @throws {Error} If writing to the file system fails.
+         * @example
+         * await storage.writeValue("123", { data: "example" });
+         * // Persists the entity to "123.json"
+         */
+        writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
+        /**
+         * Removes an entity from storage by its ID.
+         * @param {EntityId} entityId - The identifier of the entity to remove.
+         * @returns {Promise<void>} A promise that resolves when the entity is deleted.
+         * @throws {Error} If the entity is not found or deletion fails.
+         * @example
+         * await storage.removeValue("123");
+         * // Deletes "123.json" from storage
+         */
+        removeValue(entityId: EntityId): Promise<void>;
+        /**
+         * Removes all entities from storage under this entity name.
+         * Deletes all `.json` files in the directory.
+         * @returns {Promise<void>} A promise that resolves when all entities are removed.
+         * @throws {Error} If reading the directory or deleting files fails.
+         * @example
+         * await storage.removeAll();
+         * // Clears all entities from the storage directory
+         */
+        removeAll(): Promise<void>;
+        /**
+         * Iterates over all entities in storage, sorted numerically by ID.
+         * Yields entities in ascending order based on their IDs.
+         * @template T - The specific type of the entities, defaults to IEntity.
+         * @returns {AsyncGenerator<T>} An async generator yielding each entity.
+         * @throws {Error} If reading the directory or entity files fails.
+         * @example
+         * for await (const entity of storage.values()) {
+         *   console.log(entity);
+         * }
+         */
+        values<T extends IEntity = IEntity>(): AsyncGenerator<T>;
+        /**
+         * Iterates over all entity IDs in storage, sorted numerically.
+         * Yields IDs in ascending order.
+         * @returns {AsyncGenerator<EntityId>} An async generator yielding each entity ID.
+         * @throws {Error} If reading the directory fails.
+         * @example
+         * for await (const id of storage.keys()) {
+         *   console.log(id);
+         * }
+         */
+        keys(): AsyncGenerator<EntityId>;
+        /**
+         * Filters entities based on a predicate function.
+         * Yields only entities that pass the predicate test.
+         * @template T - The specific type of the entities, defaults to IEntity.
+         * @param {(value: T) => boolean} predicate - A function to test each entity.
+         * @returns {AsyncGenerator<T>} An async generator yielding filtered entities.
+         * @throws {Error} If reading entities fails during iteration.
+         * @example
+         * for await (const entity of storage.filter(e => e.active)) {
+         *   console.log(entity);
+         * }
+         */
+        filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<T>;
+        /**
+         * Takes a limited number of entities, optionally filtered by a predicate.
+         * Stops yielding after reaching the specified total.
+         * @template T - The specific type of the entities, defaults to IEntity.
+         * @param {number} total - The maximum number of entities to yield.
+         * @param {(value: T) => boolean} [predicate] - Optional function to filter entities before counting.
+         * @returns {AsyncGenerator<T>} An async generator yielding up to `total` entities.
+         * @throws {Error} If reading entities fails during iteration.
+         * @example
+         * for await (const entity of storage.take(5)) {
+         *   console.log(entity);
+         * }
+         */
+        take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<T>;
+        /**
+         * Memoized initialization function ensuring it runs only once per instance.
+         * @returns {Promise<void>} A promise that resolves when initialization is complete.
+         * @private
+         */
+        [BASE_WAIT_FOR_INIT_SYMBOL]: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+        /**
+         * Implements the async iterator protocol for iterating over entities.
+         * Delegates to the `values` method for iteration.
+         * @returns {AsyncIterableIterator<any>} An async iterator yielding entities.
+         * @example
+         * for await (const entity of storage) {
+         *   console.log(entity);
+         * }
+         */
+        [Symbol.asyncIterator](): AsyncIterableIterator<any>;
+    };
+};
+type TPersistList = InstanceType<typeof PersistList>;
 /**
  * Interface for data stored in active agent persistence.
  * @interface IPersistActiveAgentData
@@ -2308,122 +2448,114 @@ declare const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT: unique symbol;
  * Manages a persistent history of messages, storing them in memory and on disk.
  * @implements {IHistoryInstance}
  */
-declare class HistoryPersistInstance implements IHistoryInstance {
-    readonly clientId: string;
-    readonly callbacks: Partial<IHistoryInstanceCallbacks>;
-    /** @private The in-memory array of history messages */
-    _array: IModelMessage[];
-    /** @private The persistent storage instance for history messages */
-    _persistStorage: PersistList;
-    /**
-     * Memoized initialization function to ensure it runs only once per agent.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<void>} A promise that resolves when initialization is complete.
-     * @private
-     */
-    private [HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT];
-    /**
-     * Initializes the history for an agent, loading data from persistent storage if needed.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<void>} A promise that resolves when initialization is complete.
-     */
-    waitForInit(agentName: AgentName): Promise<void>;
-    /**
-     * Creates a new persistent history instance.
-     * Invokes onInit and onRef callbacks if provided.
-     * @param {string} clientId - The client ID.
-     * @param {Partial<IHistoryInstanceCallbacks>} callbacks - The lifecycle callbacks.
-     */
-    constructor(clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>);
-    /**
-     * Iterates over history messages, applying filters and system prompts if configured.
-     * Invokes onRead callbacks during iteration if provided.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding filtered messages.
-     */
-    iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
-    /**
-     * Adds a new message to the history, persisting it to storage.
-     * Invokes onPush and onChange callbacks if provided.
-     * @param {IModelMessage} value - The message to add.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<void>} A promise that resolves when the message is persisted.
-     */
-    push(value: IModelMessage, agentName: AgentName): Promise<void>;
-    /**
-     * Removes and returns the last message from the history, updating persistent storage.
-     * Invokes onPop and onChange callbacks if provided.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
-     */
-    pop(agentName: AgentName): Promise<IModelMessage | null>;
-    /**
-     * Disposes of the history, clearing all data if agentName is null.
-     * Invokes onDispose callback if provided.
-     * @param {AgentName | null} agentName - The name of the agent, or null to clear all data.
-     * @returns {Promise<void>} A promise that resolves when disposal is complete.
-     */
-    dispose(agentName: AgentName | null): Promise<void>;
-}
+declare const HistoryPersistInstance: {
+    new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>): {
+        /** @private The in-memory array of history messages */
+        _array: IModelMessage[];
+        /** @private The persistent storage instance for history messages */
+        _persistStorage: TPersistList;
+        /**
+         * Initializes the history for an agent, loading data from persistent storage if needed.
+         * @param {AgentName} agentName - The name of the agent.
+         * @returns {Promise<void>} A promise that resolves when initialization is complete.
+         */
+        waitForInit(agentName: AgentName): Promise<void>;
+        readonly clientId: string;
+        readonly callbacks: Partial<IHistoryInstanceCallbacks>;
+        /**
+         * Iterates over history messages, applying filters and system prompts if configured.
+         * Invokes onRead callbacks during iteration if provided.
+         * @param {AgentName} agentName - The name of the agent.
+         * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding filtered messages.
+         */
+        iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+        /**
+         * Adds a new message to the history, persisting it to storage.
+         * Invokes onPush and onChange callbacks if provided.
+         * @param {IModelMessage} value - The message to add.
+         * @param {AgentName} agentName - The name of the agent.
+         * @returns {Promise<void>} A promise that resolves when the message is persisted.
+         */
+        push(value: IModelMessage, agentName: AgentName): Promise<void>;
+        /**
+         * Removes and returns the last message from the history, updating persistent storage.
+         * Invokes onPop and onChange callbacks if provided.
+         * @param {AgentName} agentName - The name of the agent.
+         * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
+         */
+        pop(agentName: AgentName): Promise<IModelMessage | null>;
+        /**
+         * Disposes of the history, clearing all data if agentName is null.
+         * Invokes onDispose callback if provided.
+         * @param {AgentName | null} agentName - The name of the agent, or null to clear all data.
+         * @returns {Promise<void>} A promise that resolves when disposal is complete.
+         */
+        dispose(agentName: AgentName | null): Promise<void>;
+        /**
+         * Memoized initialization function to ensure it runs only once per agent.
+         * @param {AgentName} agentName - The name of the agent.
+         * @returns {Promise<void>} A promise that resolves when initialization is complete.
+         * @private
+         */
+        [HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT]: ((agentName: AgentName) => Promise<void>) & functools_kit.ISingleshotClearable;
+    };
+};
+type THistoryPersistInstance = InstanceType<typeof HistoryPersistInstance>;
 /**
  * Manages an in-memory history of messages without persistence.
  * @implements {IHistoryInstance}
  */
-declare class HistoryMemoryInstance implements IHistoryInstance {
-    readonly clientId: string;
-    readonly callbacks: Partial<IHistoryInstanceCallbacks>;
-    /** @private The in-memory array of history messages */
-    _array: IModelMessage[];
-    /**
-     * Memoized initialization function to ensure it runs only once per agent.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<void>} A promise that resolves when initialization is complete.
-     * @private
-     */
-    private [HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT];
-    /**
-     * Initializes the history for an agent, loading initial data if needed.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<void>} A promise that resolves when initialization is complete.
-     */
-    waitForInit(agentName: AgentName): Promise<void>;
-    /**
-     * Creates a new in-memory history instance.
-     * Invokes onInit and onRef callbacks if provided.
-     * @param {string} clientId - The client ID.
-     * @param {Partial<IHistoryInstanceCallbacks>} callbacks - The lifecycle callbacks.
-     */
-    constructor(clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>);
-    /**
-     * Iterates over history messages, applying filters and system prompts if configured.
-     * Invokes onRead callbacks during iteration if provided.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding filtered messages.
-     */
-    iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
-    /**
-     * Adds a new message to the in-memory history.
-     * Invokes onPush and onChange callbacks if provided.
-     * @param {IModelMessage} value - The message to add.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<void>} A promise that resolves when the message is added.
-     */
-    push(value: IModelMessage, agentName: AgentName): Promise<void>;
-    /**
-     * Removes and returns the last message from the in-memory history.
-     * Invokes onPop and onChange callbacks if provided.
-     * @param {AgentName} agentName - The name of the agent.
-     * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
-     */
-    pop(agentName: AgentName): Promise<IModelMessage | null>;
-    /**
-     * Disposes of the history, clearing all data if agentName is null.
-     * Invokes onDispose callback if provided.
-     * @param {AgentName | null} agentName - The name of the agent, or null to clear all data.
-     * @returns {Promise<void>} A promise that resolves when disposal is complete.
-     */
-    dispose(agentName: AgentName | null): Promise<void>;
-}
+declare const HistoryMemoryInstance: {
+    new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>): {
+        /** @private The in-memory array of history messages */
+        _array: IModelMessage[];
+        /**
+         * Initializes the history for an agent, loading initial data if needed.
+         * @param {AgentName} agentName - The name of the agent.
+         * @returns {Promise<void>} A promise that resolves when initialization is complete.
+         */
+        waitForInit(agentName: AgentName): Promise<void>;
+        readonly clientId: string;
+        readonly callbacks: Partial<IHistoryInstanceCallbacks>;
+        /**
+         * Iterates over history messages, applying filters and system prompts if configured.
+         * Invokes onRead callbacks during iteration if provided.
+         * @param {AgentName} agentName - The name of the agent.
+         * @returns {AsyncIterableIterator<IModelMessage>} An async iterator yielding filtered messages.
+         */
+        iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+        /**
+         * Adds a new message to the in-memory history.
+         * Invokes onPush and onChange callbacks if provided.
+         * @param {IModelMessage} value - The message to add.
+         * @param {AgentName} agentName - The name of the agent.
+         * @returns {Promise<void>} A promise that resolves when the message is added.
+         */
+        push(value: IModelMessage, agentName: AgentName): Promise<void>;
+        /**
+         * Removes and returns the last message from the in-memory history.
+         * Invokes onPop and onChange callbacks if provided.
+         * @param {AgentName} agentName - The name of the agent.
+         * @returns {Promise<IModelMessage | null>} The last message, or null if the history is empty.
+         */
+        pop(agentName: AgentName): Promise<IModelMessage | null>;
+        /**
+         * Disposes of the history, clearing all data if agentName is null.
+         * Invokes onDispose callback if provided.
+         * @param {AgentName | null} agentName - The name of the agent, or null to clear all data.
+         * @returns {Promise<void>} A promise that resolves when disposal is complete.
+         */
+        dispose(agentName: AgentName | null): Promise<void>;
+        /**
+         * Memoized initialization function to ensure it runs only once per agent.
+         * @param {AgentName} agentName - The name of the agent.
+         * @returns {Promise<void>} A promise that resolves when initialization is complete.
+         * @private
+         */
+        [HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT]: ((agentName: AgentName) => Promise<void>) & functools_kit.ISingleshotClearable;
+    };
+};
+type THistoryMemoryInstance = InstanceType<typeof HistoryMemoryInstance>;
 /**
  * Exported History Control interface for configuring history behavior.
  * @type {IHistoryControl}
@@ -9367,57 +9499,54 @@ type TLoggerInstanceCtor = new (clientId: string, callbacks: Partial<ILoggerInst
  * Integrates with GLOBAL_CONFIG for console logging control and callbacks for custom behavior.
  * @implements {ILoggerInstance}
  */
-declare class LoggerInstance implements ILoggerInstance {
-    readonly clientId: string;
-    readonly callbacks: Partial<ILoggerInstanceCallbacks>;
-    /**
-     * Creates a new logger instance for a specific client.
-     * @param {string} clientId - The client ID associated with this logger instance, used in log prefixes.
-     * @param {Partial<ILoggerInstanceCallbacks>} callbacks - Optional lifecycle callbacks for initialization, disposal, and logging.
-     */
-    constructor(clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>);
-    /**
-     * Memoized initialization function to ensure it runs only once using singleshot.
-     * Invokes LOGGER_INSTANCE_WAIT_FOR_FN to handle onInit callback execution.
-     * @returns {Promise<void>} A promise that resolves when initialization is complete.
-     * @private
-     */
-    private [LOGGER_INSTANCE_WAIT_FOR_INIT];
-    /**
-     * Initializes the logger instance, invoking the onInit callback if provided.
-     * Ensures initialization is performed only once, memoized via singleshot.
-     * @param {boolean} [initial] - Whether this is the initial setup (unused here but required by ILoggerInstance).
-     * @returns {Promise<void>} A promise that resolves when initialization is complete.
-     */
-    waitForInit(): Promise<void>;
-    /**
-     * Logs a message to the console (if enabled) and invokes the onLog callback if provided.
-     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
-     * @param {string} topic - The topic or category of the log message.
-     * @param {...any[]} args - Additional arguments to include in the log.
-     */
-    log(topic: string, ...args: any[]): void;
-    /**
-     * Logs a debug message to the console (if enabled) and invokes the onDebug callback if provided.
-     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
-     * @param {string} topic - The topic or category of the debug message.
-     * @param {...any[]} args - Additional arguments to include in the debug log.
-     */
-    debug(topic: string, ...args: any[]): void;
-    /**
-     * Logs an info message to the console (if enabled) and invokes the onInfo callback if provided.
-     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
-     * @param {string} topic - The topic or category of the info message.
-     * @param {...any[]} args - Additional arguments to include in the info log.
-     */
-    info(topic: string, ...args: any[]): void;
-    /**
-     * Disposes of the logger instance, invoking the onDispose callback if provided.
-     * Performs synchronous cleanup without additional resource management.
-     * @returns {void} No return value, operation is synchronous.
-     */
-    dispose(): void;
-}
+declare const LoggerInstance: {
+    new (clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>): {
+        readonly clientId: string;
+        readonly callbacks: Partial<ILoggerInstanceCallbacks>;
+        /**
+         * Initializes the logger instance, invoking the onInit callback if provided.
+         * Ensures initialization is performed only once, memoized via singleshot.
+         * @param {boolean} [initial] - Whether this is the initial setup (unused here but required by ILoggerInstance).
+         * @returns {Promise<void>} A promise that resolves when initialization is complete.
+         */
+        waitForInit(): Promise<void>;
+        /**
+         * Logs a message to the console (if enabled) and invokes the onLog callback if provided.
+         * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+         * @param {string} topic - The topic or category of the log message.
+         * @param {...any[]} args - Additional arguments to include in the log.
+         */
+        log(topic: string, ...args: any[]): void;
+        /**
+         * Logs a debug message to the console (if enabled) and invokes the onDebug callback if provided.
+         * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+         * @param {string} topic - The topic or category of the debug message.
+         * @param {...any[]} args - Additional arguments to include in the debug log.
+         */
+        debug(topic: string, ...args: any[]): void;
+        /**
+         * Logs an info message to the console (if enabled) and invokes the onInfo callback if provided.
+         * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+         * @param {string} topic - The topic or category of the info message.
+         * @param {...any[]} args - Additional arguments to include in the info log.
+         */
+        info(topic: string, ...args: any[]): void;
+        /**
+         * Disposes of the logger instance, invoking the onDispose callback if provided.
+         * Performs synchronous cleanup without additional resource management.
+         * @returns {void} No return value, operation is synchronous.
+         */
+        dispose(): void;
+        /**
+         * Memoized initialization function to ensure it runs only once using singleshot.
+         * Invokes LOGGER_INSTANCE_WAIT_FOR_FN to handle onInit callback execution.
+         * @returns {Promise<void>} A promise that resolves when initialization is complete.
+         * @private
+         */
+        [LOGGER_INSTANCE_WAIT_FOR_INIT]: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    };
+};
+type TLoggerInstance = InstanceType<typeof LoggerInstance>;
 /**
  * Exported Logger Control interface for configuring logger behavior.
  * Exposes LoggerUtils’ control methods (useCommonAdapter, useClientCallbacks, useClientAdapter, etc.).
@@ -10315,4 +10444,4 @@ declare const Utils: {
     PersistMemoryUtils: typeof PersistMemoryUtils;
 };
 
-export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistBase, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PersistBase, PersistList, PersistMemory, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type TPersistBaseCtor, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistBase, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PersistBase, PersistList, PersistMemory, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };

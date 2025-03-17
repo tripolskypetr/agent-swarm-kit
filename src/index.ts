@@ -118,6 +118,8 @@ export {
   HistoryMemoryInstance,
   HistoryPersistInstance,
   History,
+  THistoryMemoryInstance,
+  THistoryPersistInstance,
   THistoryInstanceCtor,
   IHistoryControl,
   IHistoryAdapter,
@@ -128,6 +130,7 @@ export {
 export {
   Logger,
   LoggerInstance,
+  TLoggerInstance,
   ILoggerAdapter,
   ILoggerInstance,
   ILoggerInstanceCallbacks,
@@ -136,6 +139,8 @@ export {
 export {
   PersistBase,
   PersistList,
+  TPersistBase,
+  TPersistList,
   PersistState,
   PersistStorage,
   PersistSwarm,
