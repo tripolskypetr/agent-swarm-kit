@@ -859,10 +859,10 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
   private getActiveAgentStorage = memoize(
     ([swarmName]: [SwarmName]): string => `${swarmName}`,
     (swarmName: SwarmName): IPersistBase<IPersistActiveAgentData> =>
-      new this.PersistActiveAgentFactory(
+      Reflect.construct(this.PersistActiveAgentFactory, [
         swarmName,
-        `./logs/data/_swarm_active_agent/`
-      )
+        `./logs/data/_swarm_active_agent/`,
+      ])
   );
 
   /**
@@ -909,10 +909,10 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
   private getNavigationStackStorage = memoize(
     ([swarmName]: [SwarmName]): string => `${swarmName}`,
     (swarmName: SwarmName): IPersistBase<IPersistNavigationStackData> =>
-      new this.PersistNavigationStackFactory(
+      Reflect.construct(this.PersistNavigationStackFactory, [
         swarmName,
-        `./logs/data/_swarm_navigation_stack/`
-      )
+        `./logs/data/_swarm_navigation_stack/`,
+      ])
   );
 
   /**
@@ -1105,7 +1105,10 @@ export class PersistStateUtils implements IPersistStateControl {
   private getStateStorage = memoize(
     ([stateName]: [StateName]): string => `${stateName}`,
     (stateName: StateName): IPersistBase<IPersistStateData> =>
-      new this.PersistStateFactory(stateName, `./logs/data/state/`)
+      Reflect.construct(this.PersistStateFactory, [
+        stateName,
+        `./logs/data/state/`,
+      ])
   );
 
   /**
@@ -1250,7 +1253,10 @@ export class PersistStorageUtils implements IPersistStorageControl {
   private getPersistStorage = memoize(
     ([storageName]: [StorageName]): string => `${storageName}`,
     (storageName: StorageName): IPersistBase<IPersistStorageData> =>
-      new this.PersistStorageFactory(storageName, `./logs/data/storage/`)
+      Reflect.construct(this.PersistStorageFactory, [
+        storageName,
+        `./logs/data/storage/`,
+      ])
   );
 
   /**
@@ -1395,7 +1401,10 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
   private getMemoryStorage = memoize(
     ([clientId]: [SessionId]): string => `${clientId}`,
     (clientId: SessionId): IPersistBase<IPersistMemoryData> =>
-      new this.PersistMemoryFactory(clientId, `./logs/data/memory/`)
+      Reflect.construct(this.PersistMemoryFactory, [
+        clientId,
+        `./logs/data/memory/`,
+      ])
   );
 
   /**

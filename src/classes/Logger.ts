@@ -14,7 +14,9 @@ const LOGGER_INSTANCE_WAIT_FOR_INIT = Symbol("wait-for-init");
  * @returns {Promise<void>} A promise that resolves when initialization is complete.
  * @private
  */
-const LOGGER_INSTANCE_WAIT_FOR_FN = async (self: LoggerInstance): Promise<void> => {
+const LOGGER_INSTANCE_WAIT_FOR_FN = async (
+  self: LoggerInstance
+): Promise<void> => {
   if (self.callbacks.onInit) {
     self.callbacks.onInit(self.clientId);
   }
@@ -311,7 +313,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   private getLogger = memoize(
     ([clientId]: [string]): string => clientId,
     (clientId: string): ILoggerInstance =>
-      new this.LoggerFactory(clientId, this.LoggerCallbacks)
+      Reflect.construct(this.LoggerFactory, [clientId, this.LoggerCallbacks])
   );
 
   /**

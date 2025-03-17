@@ -29,7 +29,7 @@ test("Will keep setState order for State", async ({
 
   const TEST_STATE = addState({
     stateName: "test_state",
-    getState: () => "foo",
+    getDefaultState: () => "foo",
   });
 
   const TEST_AGENT = addAgent({
@@ -111,7 +111,7 @@ test("Will use setState middlewares", async ({
 
   const TEST_STATE = addState({
     stateName: "test_state",
-    getState: () => "foo",
+    getDefaultState: () => "foo",
     middlewares: [
       dispatch,
       dispatch,
@@ -173,7 +173,7 @@ test("Will keep separate states for different connections", async ({
 
   const TEST_STATE = addState({
     stateName: "test_state",
-    getState: () => "foo",
+    getDefaultState: () => "foo",
   });
 
   const TEST_AGENT = addAgent({
@@ -248,7 +248,7 @@ test("Will raise an exception if state is not declared in agent", async ({
 
   const TEST_STATE = addState({
     stateName: "test_state",
-    getState: () => "foo",
+    getDefaultState: () => "foo",
   });
 
   const TEST_AGENT = addAgent({
@@ -292,7 +292,7 @@ test("Will keep state order even if not awaited", async ({
 
   const TEST_STATE = addState({
     stateName: "test_state",
-    getState: () => 0,
+    getDefaultState: () => 0,
   });
 
   const TEST_AGENT = addAgent({

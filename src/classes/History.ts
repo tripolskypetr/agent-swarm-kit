@@ -770,10 +770,7 @@ export class HistoryMemoryInstance implements IHistoryInstance {
    * @param {AgentName} agentName - The name of the agent.
    * @returns {Promise<void>} A promise that resolves when the message is added.
    */
-  public async push(
-    value: IModelMessage,
-    agentName: AgentName
-  ): Promise<void> {
+  public async push(value: IModelMessage, agentName: AgentName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_PUSH, {
         clientId: this.clientId,
@@ -850,11 +847,20 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
     ([clientId]: [string]): string => clientId,
     (clientId: string): IHistoryInstance => {
       if (this.HistoryFactory) {
-        return new this.HistoryFactory(clientId, this.HistoryCallbacks);
+        return Reflect.construct(this.HistoryFactory, [
+          clientId,
+          this.HistoryCallbacks,
+        ]);
       }
       return GLOBAL_CONFIG.CC_PERSIST_ENABLED_BY_DEFAULT
-        ? new HistoryPersistInstance(clientId, this.HistoryCallbacks)
-        : new HistoryMemoryInstance(clientId, this.HistoryCallbacks);
+        ? Reflect.construct(HistoryPersistInstance, [
+            clientId,
+            this.HistoryCallbacks,
+          ])
+        : Reflect.construct(HistoryMemoryInstance, [
+            clientId,
+            this.HistoryCallbacks,
+          ]);
     }
   );
 

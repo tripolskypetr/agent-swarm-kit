@@ -51,9 +51,9 @@ export class StateSchemaService {
         `agent-swarm state schema validation failed: missing stateName`
       );
     }
-    if (typeof stateSchema.getState !== "function") {
+    if (typeof stateSchema.getDefaultState !== "function") {
       throw new Error(
-        `agent-swarm state schema validation failed: missing getState for stateName=${stateSchema.stateName}`
+        `agent-swarm state schema validation failed: missing getDefaultState for stateName=${stateSchema.stateName}`
       );
     }
     if (stateSchema.middlewares && !Array.isArray(stateSchema.middlewares)) {
