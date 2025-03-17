@@ -103,7 +103,7 @@ const makeConnection = <Payload extends object = object>(
   connector: ReceiveMessageFn,
   clientId: string,
   swarmName: SwarmName
-): SendMessageFn => {
+) => {
   const send = makeConnectionInternal(connector, clientId, swarmName);
   return beginContext(
     async (content: string, payload: Payload = null as Payload) => {

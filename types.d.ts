@@ -1156,7 +1156,7 @@ interface ISessionSchema {
  * @param {IOutgoingMessage} outgoing - The outgoing message to send.
  * @returns {Promise<T> | T} A promise resolving to the result of the send operation, or the result directly.
  */
-type SendMessageFn$1<T = void> = (outgoing: IOutgoingMessage) => Promise<T>;
+type SendMessageFn<T = void> = (outgoing: IOutgoingMessage) => Promise<T>;
 /**
  * Type representing a function for receiving messages.
  * @template T - The return type of the receive operation, defaults to void.
@@ -1200,7 +1200,7 @@ interface ISession {
      * @returns {ReceiveMessageFn<string>} A function to handle incoming messages, returning a string result.
      * @throws {Error} If the connection fails or the connector is invalid.
      */
-    connect(connector: SendMessageFn$1, ...args: unknown[]): ReceiveMessageFn<string>;
+    connect(connector: SendMessageFn, ...args: unknown[]): ReceiveMessageFn<string>;
     /**
      * Commits tool output to the session's history or state.
      * @param {string} toolId - The unique `tool_call_id` for tracking in OpenAI-style history.
@@ -4052,7 +4052,7 @@ declare class ClientSession implements ISession {
      * @param {SendMessageFn} connector - The function to handle outgoing messages, receiving data, agentName, and clientId.
      * @returns {ReceiveMessageFn<string>} A function to receive incoming messages (IIncomingMessage) and return processed output.
      */
-    connect(connector: SendMessageFn$1): ReceiveMessageFn<string>;
+    connect(connector: SendMessageFn): ReceiveMessageFn<string>;
     /**
      * Disposes of the session, performing cleanup and invoking the onDispose callback if provided.
      * Called when the session is no longer needed, ensuring proper resource release with SessionConnectionService.
@@ -4156,7 +4156,7 @@ declare class SessionConnectionService implements ISession {
      * @param {SwarmName} swarmName - The name of the swarm, scoping the connection to a specific swarm.
      * @returns {ReceiveMessageFn<string>} A function to receive messages from the session, returning strings.
      */
-    connect: (connector: SendMessageFn$1, clientId: string, swarmName: SwarmName) => ReceiveMessageFn<string>;
+    connect: (connector: SendMessageFn, clientId: string, swarmName: SwarmName) => ReceiveMessageFn<string>;
     /**
      * Commits tool output to the session’s history, typically for OpenAI-style tool calls.
      * Delegates to ClientSession.commitToolOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -4588,7 +4588,7 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @param {SwarmName} swarmName - The swarm name for context.
      * @returns {ReceiveMessageFn<string>} A function to receive and process incoming messages, returning execution results.
      */
-    connect: (connector: SendMessageFn$1, methodName: string, clientId: string, swarmName: SwarmName) => ReceiveMessageFn<string>;
+    connect: (connector: SendMessageFn, methodName: string, clientId: string, swarmName: SwarmName) => ReceiveMessageFn<string>;
     /**
      * Commits tool output to the session’s history, typically for OpenAI-style tool calls.
      * Wraps SessionConnectionService.commitToolOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -8371,13 +8371,6 @@ declare const runStateless: (content: string, clientId: string, agentName: strin
 declare const runStatelessForce: (content: string, clientId: string) => Promise<string>;
 
 /**
- * Type definition for the send message function returned by connection factories.
- * @typedef {Function} SendMessageFn
- * @param {string} outgoing - The message content to send to the swarm.
- * @returns {Promise<void>} A promise that resolves when the message is sent.
- */
-type SendMessageFn = (outgoing: string) => Promise<void>;
-/**
  * A connection factory for establishing a client connection to a swarm, returning a function to send messages.
  *
  * This factory creates a queued connection to the swarm, allowing the client to send messages to the active agent.
@@ -8393,7 +8386,7 @@ type SendMessageFn = (outgoing: string) => Promise<void>;
  * await sendMessage("Hello, swarm!");
  */
 declare const makeConnection: {
-    <Payload extends object = object>(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName): SendMessageFn;
+    <Payload extends object = object>(connector: ReceiveMessageFn, clientId: string, swarmName: SwarmName): (content: string, payload?: Payload) => Promise<void>;
     /**
      * A scheduled connection factory for a client to a swarm, returning a function to send delayed messages.
      *
@@ -10318,4 +10311,4 @@ declare const Utils: {
     PersistMemoryUtils: typeof PersistMemoryUtils;
 };
 
-export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistBase, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PersistBase, PersistList, PersistMemory, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn$1 as SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistBase, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PersistBase, PersistList, PersistMemory, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, runStateless, runStatelessForce, session, setConfig, swarm };
