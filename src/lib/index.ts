@@ -48,12 +48,14 @@ import PolicySchemaService from "./services/schema/PolicySchemaService";
 import PolicyValidationService from "./services/validation/PolicyValidationService";
 import PolicyPublicService from "./services/public/PolicyPublicService";
 import PolicyConnectionService from "./services/connection/PolicyConnectionService";
-import { TPayloadContextService } from "./services/context/PayloadContextService";
+import PayloadContextService, { TPayloadContextService } from "./services/context/PayloadContextService";
+import AliveService from "./services/base/AliveService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
   busService: inject<BusService>(TYPES.busService),
   perfService: inject<PerfService>(TYPES.perfService),
+  aliveService: inject<AliveService>(TYPES.aliveService),
   loggerService: inject<LoggerService>(TYPES.loggerService),
 };
 
@@ -184,7 +186,7 @@ export const swarm = {
 init();
 
 export { MethodContextService };
-
+export { PayloadContextService };
 export { ExecutionContextService };
 
 export default swarm;

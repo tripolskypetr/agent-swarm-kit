@@ -1,10 +1,17 @@
-import { queued, randomString, rate, schedule } from "functools-kit";
+import {
+  queued,
+  randomString,
+  rate,
+  schedule,
+  singleshot,
+} from "functools-kit";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { SwarmName } from "../../interfaces/Swarm.interface";
 import swarm, { ExecutionContextService } from "../../lib";
 import { disposeConnection } from "./disposeConnection";
 import beginContext from "../../utils/beginContext";
 import PayloadContextService from "../../lib/services/context/PayloadContextService";
+import { markOnline } from "../other/markOnline";
 
 /**
  * Type definition for the complete function used in session objects.
@@ -113,9 +120,20 @@ const session = <Payload extends object = object>(
   swarmName: SwarmName
 ) => {
   const { complete, dispose } = sessionInternal(clientId, swarmName);
+
+  let isMounted = true;
+
+  const online = singleshot(async () => {
+    await markOnline(clientId, swarmName);
+  });
+
   return {
     complete: beginContext(
       async (content: string, payload: Payload = null as Payload) => {
+        if (!isMounted) {
+          return;
+        }
+        await online();
         if (payload) {
           return await PayloadContextService.runInContext(
             async () => {
@@ -131,6 +149,7 @@ const session = <Payload extends object = object>(
       }
     ),
     dispose: beginContext(async () => {
+      isMounted = false;
       await dispose();
     }),
   };
@@ -171,11 +190,16 @@ session.scheduled = <Payload extends object = object>(
   const { complete, dispose } = sessionInternal(clientId, swarmName);
   let isMounted = true;
 
+  const online = singleshot(async () => {
+    await markOnline(clientId, swarmName);
+  });
+
   const wrappedComplete = schedule(
     beginContext(async (content: string, payload: Payload) => {
       if (!isMounted) {
         return;
       }
+      await online();
       if (payload) {
         return await PayloadContextService.runInContext(
           async () => {
@@ -194,6 +218,7 @@ session.scheduled = <Payload extends object = object>(
         if (!isMounted) {
           return;
         }
+        await online();
         if (payload) {
           return await PayloadContextService.runInContext(
             async () => {
@@ -257,11 +282,16 @@ session.rate = <Payload extends object = object>(
   const { complete, dispose } = sessionInternal(clientId, swarmName);
   let isMounted = true;
 
+  const online = singleshot(async () => {
+    await markOnline(clientId, swarmName);
+  });
+
   const wrappedComplete = rate(
     beginContext(async (content: string, payload: Payload) => {
       if (!isMounted) {
         return;
       }
+      await online();
       if (payload) {
         return await PayloadContextService.runInContext(
           async () => {

@@ -44,11 +44,13 @@ import PolicyValidationService from "../services/validation/PolicyValidationServ
 import PolicyPublicService from "../services/public/PolicyPublicService";
 import PolicyConnectionService from "../services/connection/PolicyConnectionService";
 import PayloadContextService from "../services/context/PayloadContextService";
+import AliveService from "../services/base/AliveService";
 
 {
     provide(TYPES.docService, () => new DocService());
     provide(TYPES.busService, () => new BusService());
     provide(TYPES.perfService, () => new PerfService());
+    provide(TYPES.aliveService, () => new AliveService());
     provide(TYPES.loggerService, () => new LoggerService());
 }
 

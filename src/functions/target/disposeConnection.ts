@@ -7,7 +7,11 @@ import { AgentName } from "../../interfaces/Agent.interface";
 import { StorageName } from "../../interfaces/Storage.interface";
 import { StateName } from "../../interfaces/State.interface";
 import beginContext from "../../utils/beginContext";
-import { PersistMemoryAdapter } from "../../classes/Persist";
+import {
+  PersistAliveAdapter,
+  PersistMemoryAdapter,
+} from "../../classes/Persist";
+import { markOffline } from "../other/markOffline";
 
 const METHOD_NAME = "function.target.disposeConnection";
 
@@ -120,12 +124,17 @@ export const disposeConnection = beginContext(
     // Dispose of auxiliary services and remove the session
     await History.dispose(clientId, null);
     await LoggerAdapter.dispose(clientId);
+
+    // Mark the client offline
+    await markOffline(clientId, swarmName);
+
     {
       swarm.busService.dispose(clientId);
       swarm.sessionValidationService.dispose(clientId);
       swarm.memorySchemaService.dispose(clientId);
       swarm.perfService.dispose(clientId);
     }
+
     swarm.sessionValidationService.removeSession(clientId);
     PersistMemoryAdapter.dispose(clientId);
   }

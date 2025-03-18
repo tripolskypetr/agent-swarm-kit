@@ -20,12 +20,16 @@ import swarm from "../lib";
 import { SessionId } from "../interfaces/Session.interface";
 
 /**
- * Identifier for an entity, can be a string or number.
+ * Represents an identifier for an entity, which can be either a string or a number.
+ * Used across persistence classes to uniquely identify stored entities such as agents, states, or memory records.
+ * @typedef {string | number} EntityId
  */
 export type EntityId = string | number;
 
 /**
- * Base interface for all persistent entities.
+ * Base interface for all persistent entities in the swarm system.
+ * Extended by specific entity types (e.g., `IPersistAliveData`, `IPersistStateData`) to define their structure.
+ * @interface IEntity
  */
 export interface IEntity {}
 
@@ -108,6 +112,22 @@ const PERSIST_MEMORY_UTILS_METHOD_NAME_SET_MEMORY =
 /** @private Constant for logging the getMemory method in PersistMemoryUtils */
 const PERSIST_MEMORY_UTILS_METHOD_NAME_GET_MEMORY =
   "PersistMemoryUtils.getMemory";
+/** @private Constant for logging the dispose method in PersistMemoryUtils */
+const PERSIST_MEMORY_UTILS_METHOD_NAME_DISPOSE = "PersistMemoryUtils.dispose";
+
+// Logging method names for PersistAliveUtils
+/** @private Constant for logging the usePersistAliveAdapter method in PersistAliveUtils */
+const PERSIST_ALIVE_UTILS_METHOD_NAME_USE_PERSIST_ALIVE_ADAPTER =
+  "PersistAliveUtils.usePersistAliveAdapter";
+/** @private Constant for logging the markOnline method in PersistAliveUtils */
+const PERSIST_ALIVE_UTILS_METHOD_NAME_MARK_ONLINE =
+  "PersistAliveUtils.markOnline";
+/** @private Constant for logging the markOffline method in PersistAliveUtils */
+const PERSIST_ALIVE_UTILS_METHOD_NAME_MARK_OFFLINE =
+  "PersistAliveUtils.markOffline";
+/** @private Constant for logging the getOnline method in PersistAliveUtils */
+const PERSIST_ALIVE_UTILS_METHOD_NAME_GET_ONLINE =
+  "PersistAliveUtils.getOnline";
 
 // Logging method names for PersistStorageUtils
 /** @private Constant for logging the usePersistStorageAdapter method in PersistStorageUtils */
@@ -132,52 +152,60 @@ const LIST_GET_LAST_KEY_FN_METHOD_NAME = "PersistList.getLastKeyFn";
 
 /** @private Count of retry attempts for unlink in waitForInit */
 const BASE_UNLINK_RETRY_COUNT = 5;
-/** @private Delay for retry attempts for unlink in waitForInit */
+/** @private Delay for retry attempts for unlink in waitForInit (in milliseconds) */
 const BASE_UNLINK_RETRY_DELAY = 1_000;
 
 /**
- * Interface defining methods for persistent storage operations.
- * @template Entity - The type of entity stored, defaults to IEntity.
+ * Defines the core interface for persistent storage operations in the swarm system.
+ * Provides methods for managing entities stored as JSON files in the file system, used across swarm utilities.
+ * @template Entity - The type of entity stored, defaults to `IEntity` (e.g., `IPersistAliveData`, `IPersistStateData`).
+ * @interface IPersistBase
  */
 export interface IPersistBase<Entity extends IEntity = IEntity> {
   /**
    * Initializes the storage directory, creating it if needed and validating existing data by removing invalid entities.
-   * @param initial - Indicates if this is the initial setup; affects memoization behavior in some implementations.
-   * @returns A promise that resolves when initialization is complete.
-   * @throws If directory creation or validation fails.
+   * Ensures the persistence layer is ready for use, handling corrupt files during setup.
+   * @param {boolean} initial - Indicates if this is the initial setup; affects memoization behavior for efficiency.
+   * @returns {Promise<void>} A promise that resolves when initialization is complete.
+   * @throws {Error} If directory creation, file access, or validation fails.
    */
   waitForInit(initial: boolean): Promise<void>;
 
   /**
-   * Reads an entity from storage by its ID.
-   * @param entityId - The identifier of the entity to read.
-   * @returns A promise resolving to the entity data.
-   * @throws If the entity is not found or reading/parsing fails.
+   * Reads an entity from persistent storage by its ID, parsing it from a JSON file.
+   * Used to retrieve persisted data such as agent states, memory, or alive status.
+   * @param {EntityId} entityId - The identifier of the entity to read (string or number), unique within its storage context.
+   * @returns {Promise<Entity>} A promise resolving to the entity data.
+   * @throws {Error} If the entity is not found (`ENOENT`) or reading/parsing fails (e.g., invalid JSON).
    */
   readValue(entityId: EntityId): Promise<Entity>;
 
   /**
-   * Checks if an entity exists in storage by its ID.
-   * @param entityId - The identifier of the entity to check.
-   * @returns A promise resolving to true if the entity exists, false otherwise.
-   * @throws If checking existence fails for reasons other than the entity not existing.
+   * Checks if an entity exists in persistent storage by its ID.
+   * Useful for conditional operations without reading the full entity (e.g., checking session memory existence).
+   * @param {EntityId} entityId - The identifier of the entity to check (string or number), unique within its storage context.
+   * @returns {Promise<boolean>} A promise resolving to `true` if the entity exists, `false` otherwise.
+   * @throws {Error} If checking existence fails for reasons other than the entity not existing.
    */
   hasValue(entityId: EntityId): Promise<boolean>;
 
   /**
-   * Writes an entity to storage with the specified ID.
-   * @param entityId - The identifier for the entity.
-   * @param entity - The entity data to persist.
-   * @returns A promise that resolves when the write operation is complete.
-   * @throws If writing to the file system fails.
+   * Writes an entity to persistent storage with the specified ID, serializing it to JSON.
+   * Uses atomic writes to ensure data integrity, critical for reliable state persistence across swarm operations.
+   * @param {EntityId} entityId - The identifier for the entity (string or number), unique within its storage context.
+   * @param {Entity} entity - The entity data to persist (e.g., `{ online: true }` for alive status).
+   * @returns {Promise<void>} A promise that resolves when the write operation is complete.
+   * @throws {Error} If writing to the file system fails (e.g., permissions or disk issues).
    */
   writeValue(entityId: EntityId, entity: Entity): Promise<void>;
 }
 
 /**
- * Constructor type for creating PersistBase instances, parameterized by entity name and entity type.
- * @template EntityName - The type of entity name, defaults to string.
- * @template Entity - The type of entity, defaults to IEntity.
+ * Defines a constructor type for creating `PersistBase` instances, parameterized by entity name and type.
+ * Enables customization of persistence behavior through subclassing or adapter injection (e.g., for swarm or state persistence).
+ * @template EntityName - The type of entity name (e.g., `SwarmName`, `SessionId`), defaults to `string`.
+ * @template Entity - The type of entity (e.g., `IPersistAliveData`), defaults to `IEntity`.
+ * @typedef {new (entityName: EntityName, baseDir: string) => IPersistBase<Entity>} TPersistBaseCtor
  */
 export type TPersistBaseCtor<
   EntityName extends string = string,
@@ -185,11 +213,11 @@ export type TPersistBaseCtor<
 > = new (entityName: EntityName, baseDir: string) => IPersistBase<Entity>;
 
 /**
- * Removes the file if invalid JSON found
- *
+ * Attempts to remove a file if invalid JSON is detected during initialization.
+ * Retries the operation multiple times with delays to handle transient errors, ensuring robust setup.
  * @private
- * @param self - The PersistBase instance being initialized.
- * @returns A promise that resolves when initialization is complete.
+ * @param {string} filePath - The path to the file to remove (e.g., `./logs/data/alive/<clientId>.json`).
+ * @returns {Promise<boolean>} A promise resolving to `true` if the file is removed, `false` if removal fails after retries.
  */
 const BASE_WAIT_FOR_INIT_UNLINK_FN = async (filePath: string) =>
   trycatch(
@@ -217,11 +245,11 @@ const BASE_WAIT_FOR_INIT_UNLINK_FN = async (filePath: string) =>
 
 /**
  * Initializes the storage directory and validates existing entities, removing invalid ones.
- * Ensures the directory exists and cleans up corrupted files during initialization.
+ * Ensures the persistence layer is robust by cleaning up corrupted files during setup (e.g., for swarm or session data).
  * @private
- * @param self - The PersistBase instance being initialized.
- * @returns A promise that resolves when initialization is complete.
- * @throws If directory creation or file validation fails.
+ * @param {TPersistBase} self - The `PersistBase` instance being initialized, managing entities like alive status or agent states.
+ * @returns {Promise<void>} A promise that resolves when initialization is complete.
+ * @throws {Error} If directory creation or file validation fails (e.g., permissions or I/O errors).
  */
 const BASE_WAIT_FOR_INIT_FN = async (self: TPersistBase): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -249,11 +277,11 @@ const BASE_WAIT_FOR_INIT_FN = async (self: TPersistBase): Promise<void> => {
 
 /**
  * Generates a new unique key for a list item by incrementing the last used key.
- * Initializes the last count if not set by scanning existing keys.
+ * Initializes the last count by scanning existing keys if not already set, used in `PersistList` for ordered storage.
  * @private
- * @param self - The PersistList instance generating the key.
- * @returns A promise resolving to the new key as a string.
- * @throws If key generation fails due to underlying storage issues.
+ * @param {TPersistList} self - The `PersistList` instance generating the key, managing entities like message logs.
+ * @returns {Promise<string>} A promise resolving to the new key as a string (e.g., "1", "2").
+ * @throws {Error} If key generation fails due to underlying storage issues (e.g., directory access).
  */
 const LIST_CREATE_KEY_FN = async (self: TPersistList): Promise<string> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -277,11 +305,11 @@ const LIST_CREATE_KEY_FN = async (self: TPersistList): Promise<string> => {
 
 /**
  * Removes and returns the last item from the persistent list.
- * Uses the last key to fetch and delete the item atomically.
+ * Uses the last key to fetch and delete the item atomically, ensuring consistency in list operations.
  * @private
- * @param self - The PersistList instance performing the pop operation.
- * @returns A promise resolving to the removed item or null if the list is empty.
- * @throws If reading or removing the item fails.
+ * @param {TPersistList} self - The `PersistList` instance performing the pop operation, managing entities like event logs.
+ * @returns {Promise<any | null>} A promise resolving to the removed item or `null` if the list is empty.
+ * @throws {Error} If reading or removing the item fails (e.g., file not found or permissions).
  */
 const LIST_POP_FN = async (self: TPersistList): Promise<any | null> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -309,12 +337,12 @@ const LIST_POP_FN = async (self: TPersistList): Promise<any | null> => {
 };
 
 /**
- * Retrieves the key of the last item in the persistent list.
- * Scans all keys to determine the highest numeric value.
+ * Retrieves the key of the last item in the persistent list by scanning all keys.
+ * Determines the highest numeric key value for ordered list management (e.g., dequeuing events).
  * @private
- * @param self - The PersistList instance retrieving the key.
- * @returns A promise resolving to the last key or null if the list is empty.
- * @throws If key retrieval fails due to underlying storage issues.
+ * @param {TPersistList} self - The `PersistList` instance retrieving the key, managing entities like history records.
+ * @returns {Promise<string | null>} A promise resolving to the last key as a string (e.g., "5") or `null` if the list is empty.
+ * @throws {Error} If key retrieval fails due to underlying storage issues (e.g., directory access).
  */
 const LIST_GET_LAST_KEY_FN = async (
   self: TPersistList
@@ -337,20 +365,21 @@ const LIST_GET_LAST_KEY_FN = async (
 };
 
 /**
- * Base class for persistent storage of entities in the file system.
- * Provides methods for reading, writing, and managing entities as JSON files.
- * @template EntityName - The type of entity name, defaults to string.
+ * Base class for persistent storage of entities in the swarm system, using the file system.
+ * Provides foundational methods for reading, writing, and managing entities as JSON files, supporting swarm utilities like `PersistAliveUtils`.
+ * @template EntityName - The type of entity name (e.g., `SwarmName`, `SessionId`), defaults to `string`, used as a subdirectory.
  * @implements {IPersistBase}
  */
 export const PersistBase = makeExtendable(
   class<EntityName extends string = string> implements IPersistBase {
-    /** @private The directory path where entity files are stored */
+    /** @private The directory path where entity files are stored (e.g., `./logs/data/alive/` for alive status) */
     _directory: string;
 
     /**
-     * Creates a new PersistBase instance for managing persistent storage of entities.
-     * @param entityName - The name of the entity type, used as a subdirectory for storage.
-     * @param baseDir - The base directory for storing entity files (defaults to "./logs/data").
+     * Creates a new `PersistBase` instance for managing persistent storage of entities.
+     * Sets up the storage directory based on the entity name (e.g., `SwarmName` for swarm-specific data) and base directory.
+     * @param {EntityName} entityName - The name of the entity type (e.g., `SwarmName` for swarm data, `SessionId` for memory), used as a subdirectory.
+     * @param {string} [baseDir=join(process.cwd(), "logs/data")] - The base directory for storing entity files.
      */
     constructor(
       readonly entityName: EntityName,
@@ -365,10 +394,10 @@ export const PersistBase = makeExtendable(
     }
 
     /**
-     * Computes the file path for an entity based on its ID.
+     * Computes the full file path for an entity based on its ID.
      * @private
-     * @param entityId - The identifier of the entity.
-     * @returns The full file path (e.g., `<baseDir>/<entityName>/<entityId>.json`).
+     * @param {EntityId} entityId - The identifier of the entity (string or number), unique within the entity type’s storage.
+     * @returns {string} The full file path (e.g., `./logs/data/alive/<entityId>.json`).
      */
     _getFilePath(entityId: EntityId): string {
       return join(this.baseDir, this.entityName, `${entityId}.json`);
@@ -376,19 +405,20 @@ export const PersistBase = makeExtendable(
 
     /**
      * Memoized initialization function ensuring it runs only once per instance.
+     * Uses `singleshot` to prevent redundant initialization calls, critical for swarm setup efficiency.
      * @private
-     * @returns A promise that resolves when initialization is complete.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
      */
     [BASE_WAIT_FOR_INIT_SYMBOL] = singleshot(
       async (): Promise<void> => await BASE_WAIT_FOR_INIT_FN(this)
     );
 
     /**
-     * Initializes the storage directory, creating it if it doesn’t exist and validating existing entities.
-     * Invalid entities are removed during this process.
-     * @param initial - Indicates if this is the initial setup; currently unused but reserved for future caching logic.
-     * @returns A promise that resolves when initialization is complete.
-     * @throws If directory creation or entity validation fails.
+     * Initializes the storage directory, creating it if it doesn’t exist, and validates existing entities.
+     * Removes invalid JSON files during initialization to ensure data integrity (e.g., for `SwarmName`-based alive status).
+     * @param {boolean} initial - Indicates if this is the initial setup; reserved for future caching or optimization logic.
+     * @returns {Promise<void>} A promise that resolves when initialization is complete.
+     * @throws {Error} If directory creation or entity validation fails (e.g., permissions or I/O errors).
      */
     async waitForInit(initial: boolean): Promise<void> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -401,9 +431,9 @@ export const PersistBase = makeExtendable(
 
     /**
      * Retrieves the number of entities stored in the directory.
-     * Counts only files with a `.json` extension.
-     * @returns A promise resolving to the count of stored entities.
-     * @throws If reading the directory fails.
+     * Counts only files with a `.json` extension, useful for monitoring storage usage (e.g., active sessions).
+     * @returns {Promise<number>} A promise resolving to the count of stored entities.
+     * @throws {Error} If reading the directory fails (e.g., permissions or directory not found).
      */
     async getCount(): Promise<number> {
       const files = await fs.readdir(this._directory);
@@ -412,11 +442,12 @@ export const PersistBase = makeExtendable(
     }
 
     /**
-     * Reads an entity from storage by its ID, parsing it from JSON.
-     * @template T - The specific type of the entity, defaults to IEntity.
-     * @param entityId - The identifier of the entity to read.
-     * @returns A promise resolving to the parsed entity data.
-     * @throws If the file is not found (`ENOENT`) or parsing fails.
+     * Reads an entity from storage by its ID, parsing it from a JSON file.
+     * Core method for retrieving persisted data (e.g., alive status for a `SessionId` in a `SwarmName` context).
+     * @template T - The specific type of the entity (e.g., `IPersistAliveData`), defaults to `IEntity`.
+     * @param {EntityId} entityId - The identifier of the entity to read (string or number), unique within its storage context.
+     * @returns {Promise<T>} A promise resolving to the parsed entity data.
+     * @throws {Error} If the file is not found (`ENOENT`) or parsing fails (e.g., invalid JSON).
      */
     async readValue<T extends IEntity = IEntity>(
       entityId: EntityId
@@ -444,9 +475,10 @@ export const PersistBase = makeExtendable(
 
     /**
      * Checks if an entity exists in storage by its ID.
-     * @param entityId - The identifier of the entity to check.
-     * @returns A promise resolving to true if the entity exists, false if not.
-     * @throws If checking existence fails for reasons other than the file not existing.
+     * Efficiently verifies presence without reading the full entity (e.g., checking if a `SessionId` has memory).
+     * @param {EntityId} entityId - The identifier of the entity to check (string or number), unique within its storage context.
+     * @returns {Promise<boolean>} A promise resolving to `true` if the entity exists, `false` otherwise.
+     * @throws {Error} If checking existence fails for reasons other than the file not existing.
      */
     async hasValue(entityId: EntityId): Promise<boolean> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -472,12 +504,12 @@ export const PersistBase = makeExtendable(
 
     /**
      * Writes an entity to storage with the specified ID, serializing it to JSON.
-     * Uses atomic file writing to ensure data integrity.
-     * @template T - The specific type of the entity, defaults to IEntity.
-     * @param entityId - The identifier for the entity.
-     * @param entity - The entity data to persist.
-     * @returns A promise that resolves when the write operation is complete.
-     * @throws If writing to the file system fails.
+     * Uses atomic file writing via `writeFileAtomic` to ensure data integrity (e.g., persisting `AgentName` for a `SwarmName`).
+     * @template T - The specific type of the entity (e.g., `IPersistActiveAgentData`), defaults to `IEntity`.
+     * @param {EntityId} entityId - The identifier for the entity (string or number), unique within its storage context.
+     * @param {T} entity - The entity data to persist (e.g., `{ agentName: "agent1" }`).
+     * @returns {Promise<void>} A promise that resolves when the write operation is complete.
+     * @throws {Error} If writing to the file system fails (e.g., permissions or disk space).
      */
     async writeValue<T extends IEntity = IEntity>(
       entityId: EntityId,
@@ -503,9 +535,10 @@ export const PersistBase = makeExtendable(
 
     /**
      * Removes an entity from storage by its ID.
-     * @param entityId - The identifier of the entity to remove.
-     * @returns A promise that resolves when the entity is deleted.
-     * @throws If the entity is not found or deletion fails.
+     * Deletes the corresponding JSON file, used for cleanup (e.g., removing a `SessionId`’s memory).
+     * @param {EntityId} entityId - The identifier of the entity to remove (string or number), unique within its storage context.
+     * @returns {Promise<void>} A promise that resolves when the entity is deleted.
+     * @throws {Error} If the entity is not found (`ENOENT`) or deletion fails (e.g., permissions).
      */
     async removeValue(entityId: EntityId): Promise<void> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -532,9 +565,9 @@ export const PersistBase = makeExtendable(
 
     /**
      * Removes all entities from storage under this entity name.
-     * Deletes all `.json` files in the directory.
-     * @returns A promise that resolves when all entities are removed.
-     * @throws If reading the directory or deleting files fails.
+     * Deletes all `.json` files in the directory, useful for resetting persistence (e.g., clearing a `SwarmName`’s data).
+     * @returns {Promise<void>} A promise that resolves when all entities are removed.
+     * @throws {Error} If reading the directory or deleting files fails (e.g., permissions).
      */
     async removeAll(): Promise<void> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -558,10 +591,10 @@ export const PersistBase = makeExtendable(
 
     /**
      * Iterates over all entities in storage, sorted numerically by ID.
-     * Yields entities in ascending order based on their IDs.
-     * @template T - The specific type of the entities, defaults to IEntity.
-     * @returns An async generator yielding each entity.
-     * @throws If reading the directory or entity files fails.
+     * Yields entities in ascending order, useful for batch processing (e.g., listing all `SessionId`s in a `SwarmName`).
+     * @template T - The specific type of the entities (e.g., `IPersistAliveData`), defaults to `IEntity`.
+     * @returns {AsyncGenerator<T>} An async generator yielding each entity in sorted order.
+     * @throws {Error} If reading the directory or entity files fails (e.g., permissions or invalid JSON).
      */
     async *values<T extends IEntity = IEntity>(): AsyncGenerator<T> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -594,9 +627,9 @@ export const PersistBase = makeExtendable(
 
     /**
      * Iterates over all entity IDs in storage, sorted numerically.
-     * Yields IDs in ascending order.
-     * @returns An async generator yielding each entity ID.
-     * @throws If reading the directory fails.
+     * Yields IDs in ascending order, useful for key enumeration (e.g., listing `SessionId`s in a `SwarmName`).
+     * @returns {AsyncGenerator<EntityId>} An async generator yielding each entity ID as a string or number.
+     * @throws {Error} If reading the directory fails (e.g., permissions or directory not found).
      */
     async *keys(): AsyncGenerator<EntityId> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -628,8 +661,8 @@ export const PersistBase = makeExtendable(
 
     /**
      * Implements the async iterator protocol for iterating over entities.
-     * Delegates to the `values` method for iteration.
-     * @returns An async iterator yielding entities.
+     * Delegates to the `values` method for iteration, enabling `for await` loops over entities.
+     * @returns {AsyncIterableIterator<any>} An async iterator yielding entities.
      */
     async *[Symbol.asyncIterator](): AsyncIterableIterator<any> {
       for await (const entity of this.values()) {
@@ -638,12 +671,12 @@ export const PersistBase = makeExtendable(
     }
 
     /**
-     * Filters entities based on a predicate function.
-     * Yields only entities that pass the predicate test.
-     * @template T - The specific type of the entities, defaults to IEntity.
-     * @param predicate - A function to test each entity.
-     * @returns An async generator yielding filtered entities.
-     * @throws If reading entities fails during iteration.
+     * Filters entities based on a predicate function, yielding only matching entities.
+     * Useful for selective retrieval (e.g., finding online `SessionId`s in a `SwarmName`).
+     * @template T - The specific type of the entities (e.g., `IPersistAliveData`), defaults to `IEntity`.
+     * @param {(value: T) => boolean} predicate - A function to test each entity, returning `true` to include it.
+     * @returns {AsyncGenerator<T>} An async generator yielding filtered entities in sorted order.
+     * @throws {Error} If reading entities fails during iteration (e.g., invalid JSON).
      */
     async *filter<T extends IEntity = IEntity>(
       predicate: (value: T) => boolean
@@ -657,12 +690,12 @@ export const PersistBase = makeExtendable(
 
     /**
      * Takes a limited number of entities, optionally filtered by a predicate.
-     * Stops yielding after reaching the specified total.
-     * @template T - The specific type of the entities, defaults to IEntity.
-     * @param total - The maximum number of entities to yield.
-     * @param predicate - Optional function to filter entities before counting.
-     * @returns An async generator yielding up to `total` entities.
-     * @throws If reading entities fails during iteration.
+     * Stops yielding after reaching the specified total, useful for pagination (e.g., sampling `SessionId`s).
+     * @template T - The specific type of the entities (e.g., `IPersistStateData`), defaults to `IEntity`.
+     * @param {number} total - The maximum number of entities to yield.
+     * @param {(value: T) => boolean} [predicate] - Optional function to filter entities before counting.
+     * @returns {AsyncGenerator<T>} An async generator yielding up to `total` entities in sorted order.
+     * @throws {Error} If reading entities fails during iteration (e.g., permissions).
      */
     async *take<T extends IEntity = IEntity>(
       total: number,
@@ -694,25 +727,27 @@ export const PersistBase = makeExtendable(
 );
 
 /**
- * Type alias for an instance of PersistBase.
+ * Type alias for an instance of `PersistBase`, used for type safety in extensions and utilities (e.g., `PersistAliveUtils`).
+ * @typedef {InstanceType<typeof PersistBase>} TPersistBase
  */
 export type TPersistBase = InstanceType<typeof PersistBase>;
 
 /**
- * Extends PersistBase to provide a persistent list structure with push/pop operations.
- * Manages entities with numeric keys for ordered access.
- * @template EntityName - The type of entity name, defaults to string.
+ * Extends `PersistBase` to provide a persistent list structure with push/pop operations.
+ * Manages entities with numeric keys for ordered access, suitable for queues or logs in the swarm system.
+ * @template EntityName - The type of entity name (e.g., `SwarmName`), defaults to `string`, used as a subdirectory.
  * @extends {PersistBase<EntityName>}
  */
 export const PersistList = makeExtendable(
   class<EntityName extends string = string> extends PersistBase<EntityName> {
-    /** @private Tracks the last used numeric key for the list, null until initialized */
+    /** @private Tracks the last used numeric key for the list, initialized to `null` until computed */
     _lastCount: number | null = null;
 
     /**
-     * Creates a new PersistList instance for managing a persistent list of entities.
-     * @param entityName - The name of the entity type, used as a subdirectory for storage.
-     * @param baseDir - The base directory for storing list files; defaults to parent class if omitted.
+     * Creates a new `PersistList` instance for managing a persistent list of entities.
+     * Inherits directory setup from `PersistBase` and adds list-specific functionality (e.g., for `SwarmName`-based event logs).
+     * @param {EntityName} entityName - The name of the entity type (e.g., `SwarmName` for swarm-specific lists), used as a subdirectory.
+     * @param {string} [baseDir] - The base directory for storing list files; defaults to parent class if omitted.
      */
     constructor(entityName: EntityName, baseDir?: string) {
       super(entityName, baseDir);
@@ -725,10 +760,10 @@ export const PersistList = makeExtendable(
 
     /**
      * Queued function to create a new unique key for a list item.
-     * Ensures sequential key generation even under concurrent calls.
+     * Ensures sequential key generation under concurrent calls using `queued` decorator.
      * @private
-     * @returns A promise resolving to the new key as a string.
-     * @throws If key generation fails due to underlying storage issues.
+     * @returns {Promise<string>} A promise resolving to the new key as a string (e.g., "1", "2").
+     * @throws {Error} If key generation fails due to underlying storage issues.
      */
     [LIST_CREATE_KEY_SYMBOL] = queued(
       async (): Promise<string> => await LIST_CREATE_KEY_FN(this)
@@ -736,20 +771,21 @@ export const PersistList = makeExtendable(
 
     /**
      * Retrieves the key of the last item in the list.
+     * Scans all keys to find the highest numeric value, used for pop operations (e.g., dequeuing from a `SwarmName` log).
      * @private
-     * @returns A promise resolving to the last key or null if the list is empty.
-     * @throws If key retrieval fails due to underlying storage issues.
+     * @returns {Promise<string | null>} A promise resolving to the last key as a string or `null` if the list is empty.
+     * @throws {Error} If key retrieval fails due to underlying storage issues.
      */
     [LIST_GET_LAST_KEY_SYMBOL] = async (): Promise<string | null> =>
       await LIST_GET_LAST_KEY_FN(this);
 
     /**
      * Queued function to remove and return the last item in the list.
-     * Ensures atomic pop operations under concurrent calls.
+     * Ensures atomic pop operations under concurrent calls using `queued` decorator.
      * @private
-     * @template T - The specific type of the entity, defaults to IEntity.
-     * @returns A promise resolving to the removed item or null if the list is empty.
-     * @throws If reading or removing the item fails.
+     * @template T - The specific type of the entity (e.g., `IPersistStateData`), defaults to `IEntity`.
+     * @returns {Promise<T | null>} A promise resolving to the removed item or `null` if the list is empty.
+     * @throws {Error} If reading or removing the item fails.
      */
     [LIST_POP_SYMBOL] = queued(
       async (): Promise<any | null> => await LIST_POP_FN(this)
@@ -757,10 +793,11 @@ export const PersistList = makeExtendable(
 
     /**
      * Adds an entity to the end of the persistent list with a new unique numeric key.
-     * @template T - The specific type of the entity, defaults to IEntity.
-     * @param entity - The entity to append to the list.
-     * @returns A promise that resolves when the entity is written.
-     * @throws If writing to the file system fails.
+     * Useful for appending items like messages or events in swarm operations (e.g., within a `SwarmName`).
+     * @template T - The specific type of the entity (e.g., `IPersistStateData`), defaults to `IEntity`.
+     * @param {T} entity - The entity to append to the list (e.g., a state update).
+     * @returns {Promise<void>} A promise that resolves when the entity is written to storage.
+     * @throws {Error} If writing to the file system fails (e.g., permissions or disk space).
      */
     async push<T extends IEntity = IEntity>(entity: T): Promise<void> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -775,9 +812,10 @@ export const PersistList = makeExtendable(
 
     /**
      * Removes and returns the last entity from the persistent list.
-     * @template T - The specific type of the entity, defaults to IEntity.
-     * @returns A promise resolving to the removed entity or null if the list is empty.
-     * @throws If reading or removing the entity fails.
+     * Useful for dequeuing items or retrieving recent entries (e.g., latest event in a `SwarmName` log).
+     * @template T - The specific type of the entity (e.g., `IPersistStateData`), defaults to `IEntity`.
+     * @returns {Promise<T | null>} A promise resolving to the removed entity or `null` if the list is empty.
+     * @throws {Error} If reading or removing the entity fails (e.g., file not found).
      */
     async pop<T extends IEntity = IEntity>(): Promise<T | null> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -790,34 +828,51 @@ export const PersistList = makeExtendable(
 );
 
 /**
- * Type alias for an instance of PersistList.
+ * Type alias for an instance of `PersistList`, used for type safety in list-based operations (e.g., swarm event logs).
+ * @typedef {InstanceType<typeof PersistList>} TPersistList
  */
 export type TPersistList = InstanceType<typeof PersistList>;
 
 /**
- * Interface for data stored in active agent persistence.
+ * Defines the structure for data stored in active agent persistence.
+ * Used by `PersistSwarmUtils` to track the currently active agent per client and swarm.
+ * @interface IPersistActiveAgentData
  */
 export interface IPersistActiveAgentData {
-  /** The name of the active agent */
+  /**
+   * The name of the active agent for a given client within a swarm.
+   * `AgentName` is a string identifier (e.g., "agent1") representing an agent instance in the swarm system,
+   * tied to specific functionality or role within a `SwarmName`.
+   * @type {AgentName}
+   */
   agentName: AgentName;
 }
 
 /**
- * Interface for data stored in navigation stack persistence.
+ * Defines the structure for data stored in navigation stack persistence.
+ * Used by `PersistSwarmUtils` to maintain a stack of agent names for navigation history.
+ * @interface IPersistNavigationStackData
  */
 export interface IPersistNavigationStackData {
-  /** The stack of agent names representing navigation history */
+  /**
+   * The stack of agent names representing navigation history for a client within a swarm.
+   * `AgentName` is a string identifier (e.g., "agent1", "agent2") for agents in the swarm system,
+   * tracking the sequence of active agents for a `SessionId` within a `SwarmName`.
+   * @type {AgentName[]}
+   */
   agentStack: AgentName[];
 }
 
 /**
- * Interface defining control methods for swarm persistence operations.
- * Allows customization of persistence adapters for active agents and navigation stacks.
+ * Defines control methods for customizing swarm persistence operations.
+ * Allows injection of custom persistence adapters for active agents and navigation stacks tied to `SwarmName`.
+ * @interface IPersistSwarmControl
  */
 export interface IPersistSwarmControl {
   /**
    * Sets a custom persistence adapter for active agent storage.
-   * @param Ctor - The constructor for the active agent persistence adapter.
+   * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory storage for `SwarmName`).
+   * @param {TPersistBaseCtor<SwarmName, IPersistActiveAgentData>} Ctor - The constructor for the active agent persistence adapter.
    */
   usePersistActiveAgentAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>
@@ -825,7 +880,8 @@ export interface IPersistSwarmControl {
 
   /**
    * Sets a custom persistence adapter for navigation stack storage.
-   * @param Ctor - The constructor for the navigation stack persistence adapter.
+   * Overrides the default `PersistBase` implementation for specialized behavior (e.g., database storage for `SwarmName`).
+   * @param {TPersistBaseCtor<SwarmName, IPersistNavigationStackData>} Ctor - The constructor for the navigation stack persistence adapter.
    */
   usePersistNavigationStackAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>
@@ -834,17 +890,17 @@ export interface IPersistSwarmControl {
 
 /**
  * Utility class for managing swarm-related persistence, including active agents and navigation stacks.
- * Provides methods to get/set active agents and navigation stacks per client and swarm.
+ * Provides methods to get/set active agents and navigation stacks per client (`SessionId`) and swarm (`SwarmName`), with customizable adapters.
  * @implements {IPersistSwarmControl}
  */
 export class PersistSwarmUtils implements IPersistSwarmControl {
-  /** @private Default constructor for active agent persistence, defaults to PersistBase */
+  /** @private Default constructor for active agent persistence, defaults to `PersistBase` */
   private PersistActiveAgentFactory: TPersistBaseCtor<
     SwarmName,
     IPersistActiveAgentData
   > = PersistBase;
 
-  /** @private Default constructor for navigation stack persistence, defaults to PersistBase */
+  /** @private Default constructor for navigation stack persistence, defaults to `PersistBase` */
   private PersistNavigationStackFactory: TPersistBaseCtor<
     SwarmName,
     IPersistNavigationStackData
@@ -852,23 +908,24 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
 
   /**
    * Memoized function to create or retrieve storage for active agents.
-   * Ensures a single instance per swarm name.
+   * Ensures a single persistence instance per `SwarmName`, improving efficiency.
    * @private
-   * @param swarmName - The name of the swarm.
-   * @returns A persistence instance for active agents.
+   * @param {SwarmName} swarmName - The name of the swarm, a string identifier (e.g., "swarm1") grouping agents and sessions.
+   * @returns {IPersistBase<IPersistActiveAgentData>} A persistence instance for active agents, rooted at `./logs/data/swarm/active_agent/`.
    */
   private getActiveAgentStorage = memoize(
     ([swarmName]: [SwarmName]): string => `${swarmName}`,
     (swarmName: SwarmName): IPersistBase<IPersistActiveAgentData> =>
       Reflect.construct(this.PersistActiveAgentFactory, [
         swarmName,
-        `./logs/data/_swarm_active_agent/`,
+        `./logs/data/swarm/active_agent/`,
       ])
   );
 
   /**
-   * Sets a custom constructor for active agent persistence, overriding the default PersistBase.
-   * @param Ctor - The constructor to use for active agent storage.
+   * Configures a custom constructor for active agent persistence, overriding the default `PersistBase`.
+   * Allows advanced use cases like in-memory storage for `SwarmName`-specific active agents.
+   * @param {TPersistBaseCtor<SwarmName, IPersistActiveAgentData>} Ctor - The constructor to use for active agent storage, implementing `IPersistBase`.
    */
   public usePersistActiveAgentAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>
@@ -881,8 +938,9 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
   }
 
   /**
-   * Sets a custom constructor for navigation stack persistence, overriding the default PersistBase.
-   * @param Ctor - The constructor to use for navigation stack storage.
+   * Configures a custom constructor for navigation stack persistence, overriding the default `PersistBase`.
+   * Enables customization for navigation tracking within a `SwarmName` (e.g., alternative storage backends).
+   * @param {TPersistBaseCtor<SwarmName, IPersistNavigationStackData>} Ctor - The constructor to use for navigation stack storage, implementing `IPersistBase`.
    */
   public usePersistNavigationStackAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>
@@ -896,27 +954,28 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
 
   /**
    * Memoized function to create or retrieve storage for navigation stacks.
-   * Ensures a single instance per swarm name.
+   * Ensures a single persistence instance per `SwarmName`, optimizing resource use.
    * @private
-   * @param swarmName - The name of the swarm.
-   * @returns A persistence instance for navigation stacks.
+   * @param {SwarmName} swarmName - The name of the swarm, a string identifier (e.g., "swarm1") grouping agents and sessions.
+   * @returns {IPersistBase<IPersistNavigationStackData>} A persistence instance for navigation stacks, rooted at `./logs/data/swarm/navigation_stack/`.
    */
   private getNavigationStackStorage = memoize(
     ([swarmName]: [SwarmName]): string => `${swarmName}`,
     (swarmName: SwarmName): IPersistBase<IPersistNavigationStackData> =>
       Reflect.construct(this.PersistNavigationStackFactory, [
         swarmName,
-        `./logs/data/_swarm_navigation_stack/`,
+        `./logs/data/swarm/navigation_stack/`,
       ])
   );
 
   /**
    * Retrieves the active agent for a client within a swarm, falling back to a default if not set.
-   * @param clientId - The identifier of the client.
-   * @param swarmName - The name of the swarm.
-   * @param defaultAgent - The default agent name to return if no active agent is found.
-   * @returns A promise resolving to the active agent’s name.
-   * @throws If reading from storage fails.
+   * Used to determine the current `AgentName` for a `SessionId` in a `SwarmName` context.
+   * @param {string} clientId - The identifier of the client, typically a `SessionId`, a unique string (e.g., "session123") tracking a user session.
+   * @param {SwarmName} swarmName - The name of the swarm, a string identifier (e.g., "swarm1") grouping agents and sessions.
+   * @param {AgentName} defaultAgent - The default agent name (e.g., "defaultAgent") to return if no active agent is persisted.
+   * @returns {Promise<AgentName>} A promise resolving to the active agent’s name, a string identifier (e.g., "agent1").
+   * @throws {Error} If reading from storage fails (e.g., file corruption or permissions).
    */
   public getActiveAgent = async (
     clientId: string,
@@ -942,12 +1001,13 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
   };
 
   /**
-   * Sets the active agent for a client within a swarm.
-   * @param clientId - The identifier of the client.
-   * @param agentName - The name of the agent to set as active.
-   * @param swarmName - The name of the swarm.
-   * @returns A promise that resolves when the active agent is persisted.
-   * @throws If writing to storage fails.
+   * Sets the active agent for a client within a swarm, persisting it for future retrieval.
+   * Links a `SessionId` to an `AgentName` within a `SwarmName` for runtime agent switching.
+   * @param {string} clientId - The identifier of the client, typically a `SessionId`, a unique string (e.g., "session123") tracking a user session.
+   * @param {AgentName} agentName - The name of the agent to set as active, a string identifier (e.g., "agent1") representing an agent instance.
+   * @param {SwarmName} swarmName - The name of the swarm, a string identifier (e.g., "swarm1") grouping agents and sessions.
+   * @returns {Promise<void>} A promise that resolves when the active agent is persisted.
+   * @throws {Error} If writing to storage fails (e.g., disk space or permissions).
    */
   public setActiveAgent = async (
     clientId: string,
@@ -970,12 +1030,12 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
   };
 
   /**
-   * Retrieves the navigation stack for a client within a swarm.
-   * Returns an empty array if no stack is set.
-   * @param clientId - The identifier of the client.
-   * @param swarmName - The name of the swarm.
-   * @returns A promise resolving to the navigation stack (array of agent names).
-   * @throws If reading from storage fails.
+   * Retrieves the navigation stack for a client within a swarm, returning an empty array if unset.
+   * Tracks navigation history as a stack of `AgentName`s for a `SessionId` within a `SwarmName`.
+   * @param {string} clientId - The identifier of the client, typically a `SessionId`, a unique string (e.g., "session123") tracking a user session.
+   * @param {SwarmName} swarmName - The name of the swarm, a string identifier (e.g., "swarm1") grouping agents and sessions.
+   * @returns {Promise<AgentName[]>} A promise resolving to the navigation stack, an array of agent names (e.g., ["agent1", "agent2"]).
+   * @throws {Error} If reading from storage fails (e.g., file corruption).
    */
   public getNavigationStack = async (
     clientId: string,
@@ -1000,12 +1060,13 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
   };
 
   /**
-   * Sets the navigation stack for a client within a swarm.
-   * @param clientId - The identifier of the client.
-   * @param agentStack - The navigation stack (array of agent names) to persist.
-   * @param swarmName - The name of the swarm.
-   * @returns A promise that resolves when the navigation stack is persisted.
-   * @throws If writing to storage fails.
+   * Sets the navigation stack for a client within a swarm, persisting it for future retrieval.
+   * Stores a stack of `AgentName`s for a `SessionId` within a `SwarmName` to track navigation history.
+   * @param {string} clientId - The identifier of the client, typically a `SessionId`, a unique string (e.g., "session123") tracking a user session.
+   * @param {AgentName[]} agentStack - The navigation stack, an array of agent names (e.g., ["agent1", "agent2"]) to persist.
+   * @param {SwarmName} swarmName - The name of the swarm, a string identifier (e.g., "swarm1") grouping agents and sessions.
+   * @returns {Promise<void>} A promise that resolves when the navigation stack is persisted.
+   * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
    */
   public setNavigationStack = async (
     clientId: string,
@@ -1028,58 +1089,61 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
 }
 
 /**
- * Singleton instance of PersistSwarmUtils for managing swarm persistence.
+ * Singleton instance of `PersistSwarmUtils` for managing swarm persistence globally.
  * @type {PersistSwarmUtils}
  */
 export const PersistSwarmAdapter = new PersistSwarmUtils();
 
 /**
  * Exported singleton for swarm persistence operations, cast as the control interface.
- * Provides a global point of access for swarm persistence utilities.
+ * Provides a global point of access for managing active agents and navigation stacks tied to `SwarmName`.
  * @type {IPersistSwarmControl}
  */
 export const PersistSwarm = PersistSwarmAdapter as IPersistSwarmControl;
 
 /**
- * Interface for state data persistence.
- * Wraps state data for storage in a structured format.
- * @template T - The type of the state data, defaults to unknown.
+ * Defines the structure for state data persistence in the swarm system.
+ * Wraps arbitrary state data for storage, used by `PersistStateUtils`.
+ * @template T - The type of the state data, defaults to `unknown`.
+ * @interface IPersistStateData
  */
 export interface IPersistStateData<T = unknown> {
-  /** The state data to persist */
+  /** The state data to persist (e.g., agent configuration or session state) */
   state: T;
 }
 
 /**
- * Interface defining control methods for state persistence operations.
- * Allows customization of the persistence adapter for states.
+ * Defines control methods for customizing state persistence operations.
+ * Allows injection of a custom persistence adapter for states tied to `StateName`.
+ * @interface IPersistStateControl
  */
 export interface IPersistStateControl {
   /**
    * Sets a custom persistence adapter for state storage.
-   * @param Ctor - The constructor for the state persistence adapter.
+   * Overrides the default `PersistBase` implementation for specialized behavior (e.g., database storage for `StateName`).
+   * @param {TPersistBaseCtor<StateName, IPersistStateData>} Ctor - The constructor for the state persistence adapter.
    */
   usePersistStateAdapter(
-    Ctor: TPersistBaseCtor<StorageName, IPersistStateData>
+    Ctor: TPersistBaseCtor<StateName, IPersistStateData>
   ): void;
 }
 
 /**
- * Utility class for managing state persistence per client and state name.
+ * Utility class for managing state persistence per client (`SessionId`) and state name (`StateName`) in the swarm system.
  * Provides methods to get/set state data with a customizable persistence adapter.
  * @implements {IPersistStateControl}
  */
 export class PersistStateUtils implements IPersistStateControl {
-  /** @private Default constructor for state persistence, defaults to PersistBase */
+  /** @private Default constructor for state persistence, defaults to `PersistBase` */
   private PersistStateFactory: TPersistBaseCtor<StateName, IPersistStateData> =
     PersistBase;
 
   /**
    * Memoized function to create or retrieve storage for a specific state.
-   * Ensures a single instance per state name.
+   * Ensures a single persistence instance per `StateName`, optimizing resource use.
    * @private
-   * @param stateName - The name of the state.
-   * @returns A persistence instance for the state.
+   * @param {StateName} stateName - The name of the state, a string identifier (e.g., "config") categorizing state data.
+   * @returns {IPersistBase<IPersistStateData>} A persistence instance for the state, rooted at `./logs/data/state/`.
    */
   private getStateStorage = memoize(
     ([stateName]: [StateName]): string => `${stateName}`,
@@ -1091,11 +1155,12 @@ export class PersistStateUtils implements IPersistStateControl {
   );
 
   /**
-   * Sets a custom constructor for state persistence, overriding the default PersistBase.
-   * @param Ctor - The constructor to use for state storage.
+   * Configures a custom constructor for state persistence, overriding the default `PersistBase`.
+   * Enables advanced state storage for `StateName` (e.g., in-memory or database-backed persistence).
+   * @param {TPersistBaseCtor<StateName, IPersistStateData>} Ctor - The constructor to use for state storage, implementing `IPersistBase`.
    */
   public usePersistStateAdapter(
-    Ctor: TPersistBaseCtor<StorageName, IPersistStateData>
+    Ctor: TPersistBaseCtor<StateName, IPersistStateData>
   ): void {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(
@@ -1105,14 +1170,14 @@ export class PersistStateUtils implements IPersistStateControl {
   }
 
   /**
-   * Sets the state for a client under a specific state name.
-   * Persists the state data wrapped in an IPersistStateData structure.
-   * @template T - The specific type of the state data, defaults to unknown.
-   * @param state - The state data to persist.
-   * @param clientId - The identifier of the client.
-   * @param stateName - The name of the state.
-   * @returns A promise that resolves when the state is persisted.
-   * @throws If writing to storage fails.
+   * Sets the state for a client under a specific state name, persisting it for future retrieval.
+   * Stores state data for a `SessionId` under a `StateName` (e.g., agent variables).
+   * @template T - The specific type of the state data, defaults to `unknown`.
+   * @param {T} state - The state data to persist (e.g., configuration object or context).
+   * @param {string} clientId - The identifier of the client, typically a `SessionId`, a unique string (e.g., "session123") tracking a user session.
+   * @param {StateName} stateName - The name of the state, a string identifier (e.g., "config") categorizing state data.
+   * @returns {Promise<void>} A promise that resolves when the state is persisted.
+   * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
    */
   public setState = async <T = unknown>(
     state: T,
@@ -1131,13 +1196,14 @@ export class PersistStateUtils implements IPersistStateControl {
   };
 
   /**
-   * Retrieves the state for a client under a specific state name, falling back to a default if not set.
-   * @template T - The specific type of the state data, defaults to unknown.
-   * @param clientId - The identifier of the client.
-   * @param stateName - The name of the state.
-   * @param defaultState - The default state to return if no state is found.
-   * @returns A promise resolving to the state data.
-   * @throws If reading from storage fails.
+   * Retrieves the state for a client under a specific state name, falling back to a default if unset.
+   * Restores state for a `SessionId` under a `StateName` (e.g., resuming agent context).
+   * @template T - The specific type of the state data, defaults to `unknown`.
+   * @param {string} clientId - The identifier of the client, typically a `SessionId`, a unique string (e.g., "session123") tracking a user session.
+   * @param {StateName} stateName - The name of the state, a string identifier (e.g., "config") categorizing state data.
+   * @param {T} defaultState - The default state to return if no state is persisted (e.g., an empty object).
+   * @returns {Promise<T>} A promise resolving to the state data.
+   * @throws {Error} If reading from storage fails (e.g., file corruption).
    */
   public getState = async <T = unknown>(
     clientId: string,
@@ -1161,36 +1227,39 @@ export class PersistStateUtils implements IPersistStateControl {
 }
 
 /**
- * Singleton instance of PersistStateUtils for managing state persistence.
+ * Singleton instance of `PersistStateUtils` for managing state persistence globally.
  * @type {PersistStateUtils}
  */
 export const PersistStateAdapter = new PersistStateUtils();
 
 /**
  * Exported singleton for state persistence operations, cast as the control interface.
- * Provides a global point of access for state persistence utilities.
+ * Provides a global point of access for managing state persistence tied to `StateName` and `SessionId`.
  * @type {IPersistStateControl}
  */
 export const PersistState = PersistStateAdapter as IPersistStateControl;
 
 /**
- * Interface for storage data persistence.
- * Wraps an array of storage data for persistence.
- * @template T - The type of storage data, defaults to IStorageData.
+ * Defines the structure for storage data persistence in the swarm system.
+ * Wraps an array of storage data for persistence, used by `PersistStorageUtils`.
+ * @template T - The type of storage data, defaults to `IStorageData`.
+ * @interface IPersistStorageData
  */
 export interface IPersistStorageData<T extends IStorageData = IStorageData> {
-  /** The array of storage data to persist */
+  /** The array of storage data to persist (e.g., key-value pairs or records) */
   data: T[];
 }
 
 /**
- * Interface defining control methods for storage persistence operations.
- * Allows customization of the persistence adapter for storage.
+ * Defines control methods for customizing storage persistence operations.
+ * Allows injection of a custom persistence adapter for storage tied to `StorageName`.
+ * @interface IPersistStorageControl
  */
 export interface IPersistStorageControl {
   /**
    * Sets a custom persistence adapter for storage.
-   * @param Ctor - The constructor for the storage persistence adapter.
+   * Overrides the default `PersistBase` implementation for specialized behavior (e.g., database storage for `StorageName`).
+   * @param {TPersistBaseCtor<StorageName, IPersistStorageData>} Ctor - The constructor for the storage persistence adapter.
    */
   usePersistStorageAdapter(
     Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>
@@ -1198,12 +1267,12 @@ export interface IPersistStorageControl {
 }
 
 /**
- * Utility class for managing storage persistence per client and storage name.
+ * Utility class for managing storage persistence per client (`SessionId`) and storage name (`StorageName`) in the swarm system.
  * Provides methods to get/set storage data with a customizable persistence adapter.
  * @implements {IPersistStorageControl}
  */
 export class PersistStorageUtils implements IPersistStorageControl {
-  /** @private Default constructor for storage persistence, defaults to PersistBase */
+  /** @private Default constructor for storage persistence, defaults to `PersistBase` */
   private PersistStorageFactory: TPersistBaseCtor<
     StorageName,
     IPersistStorageData
@@ -1211,10 +1280,10 @@ export class PersistStorageUtils implements IPersistStorageControl {
 
   /**
    * Memoized function to create or retrieve storage for a specific storage name.
-   * Ensures a single instance per storage name.
+   * Ensures a single persistence instance per `StorageName`, optimizing resource use.
    * @private
-   * @param storageName - The name of the storage.
-   * @returns A persistence instance for the storage.
+   * @param {StorageName} storageName - The name of the storage, a string identifier (e.g., "user_data") categorizing stored data.
+   * @returns {IPersistBase<IPersistStorageData>} A persistence instance for the storage, rooted at `./logs/data/storage/`.
    */
   private getPersistStorage = memoize(
     ([storageName]: [StorageName]): string => `${storageName}`,
@@ -1226,8 +1295,9 @@ export class PersistStorageUtils implements IPersistStorageControl {
   );
 
   /**
-   * Sets a custom constructor for storage persistence, overriding the default PersistBase.
-   * @param Ctor - The constructor to use for storage.
+   * Configures a custom constructor for storage persistence, overriding the default `PersistBase`.
+   * Enables advanced storage options for `StorageName` (e.g., database-backed persistence).
+   * @param {TPersistBaseCtor<StorageName, IPersistStorageData>} Ctor - The constructor to use for storage, implementing `IPersistBase`.
    */
   public usePersistStorageAdapter(
     Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>
@@ -1240,13 +1310,14 @@ export class PersistStorageUtils implements IPersistStorageControl {
   }
 
   /**
-   * Retrieves the data for a client from a specific storage, falling back to a default if not set.
-   * @template T - The specific type of the storage data, defaults to IStorageData.
-   * @param clientId - The identifier of the client.
-   * @param storageName - The name of the storage.
-   * @param defaultValue - The default value to return if no data is found.
-   * @returns A promise resolving to the storage data array.
-   * @throws If reading from storage fails.
+   * Retrieves the data for a client from a specific storage, falling back to a default if unset.
+   * Accesses persistent storage for a `SessionId` under a `StorageName` (e.g., user records).
+   * @template T - The specific type of the storage data, defaults to `IStorageData`.
+   * @param {string} clientId - The identifier of the client, typically a `SessionId`, a unique string (e.g., "session123") tracking a user session.
+   * @param {StorageName} storageName - The name of the storage, a string identifier (e.g., "user_data") categorizing stored data.
+   * @param {T[]} defaultValue - The default value (array) to return if no data is persisted (e.g., an empty array).
+   * @returns {Promise<T[]>} A promise resolving to the storage data array.
+   * @throws {Error} If reading from storage fails (e.g., file corruption).
    */
   public getData = async <T extends IStorageData = IStorageData>(
     clientId: string,
@@ -1269,14 +1340,14 @@ export class PersistStorageUtils implements IPersistStorageControl {
   };
 
   /**
-   * Sets the data for a client in a specific storage.
-   * Persists the data wrapped in an IPersistStorageData structure.
-   * @template T - The specific type of the storage data, defaults to IStorageData.
-   * @param data - The array of data to persist.
-   * @param clientId - The identifier of the client.
-   * @param storageName - The name of the storage.
-   * @returns A promise that resolves when the data is persisted.
-   * @throws If writing to storage fails.
+   * Sets the data for a client in a specific storage, persisting it for future retrieval.
+   * Stores data for a `SessionId` under a `StorageName` (e.g., user logs).
+   * @template T - The specific type of the storage data, defaults to `IStorageData`.
+   * @param {T[]} data - The array of data to persist (e.g., key-value pairs or records).
+   * @param {string} clientId - The identifier of the client, typically a `SessionId`, a unique string (e.g., "session123") tracking a user session.
+   * @param {StorageName} storageName - The name of the storage, a string identifier (e.g., "user_data") categorizing stored data.
+   * @returns {Promise<void>} A promise that resolves when the data is persisted.
+   * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
    */
   public setData = async <T extends IStorageData = IStorageData>(
     data: T[],
@@ -1296,49 +1367,52 @@ export class PersistStorageUtils implements IPersistStorageControl {
 }
 
 /**
- * Singleton instance of PersistStorageUtils for managing storage persistence.
+ * Singleton instance of `PersistStorageUtils` for managing storage persistence globally.
  * @type {PersistStorageUtils}
  */
 export const PersistStorageAdapter = new PersistStorageUtils();
 
 /**
  * Exported singleton for storage persistence operations, cast as the control interface.
- * Provides a global point of access for storage persistence utilities.
+ * Provides a global point of access for managing storage persistence tied to `StorageName` and `SessionId`.
  * @type {IPersistStorageControl}
  */
 export const PersistStorage = PersistStorageAdapter as IPersistStorageControl;
 
 /**
- * Interface for memory data persistence.
- * Wraps memory data for storage in a structured format.
- * @template T - The type of the memory data, defaults to unknown.
+ * Defines the structure for memory data persistence in the swarm system.
+ * Wraps arbitrary memory data for storage, used by `PersistMemoryUtils`.
+ * @template T - The type of the memory data, defaults to `unknown`.
+ * @interface IPersistMemoryData
  */
 export interface IPersistMemoryData<T = unknown> {
-  /** The memory data to persist */
+  /** The memory data to persist (e.g., session context or temporary state) */
   data: T;
 }
 
 /**
- * Interface defining control methods for memory persistence operations.
- * Allows customization of the persistence adapter for memory.
+ * Defines control methods for customizing memory persistence operations.
+ * Allows injection of a custom persistence adapter for memory tied to `SessionId`.
+ * @interface IPersistMemoryControl
  */
 export interface IPersistMemoryControl {
   /**
    * Sets a custom persistence adapter for memory storage.
-   * @param Ctor - The constructor for the memory persistence adapter.
+   * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory storage for `SessionId`).
+   * @param {TPersistBaseCtor<SessionId, IPersistMemoryData>} Ctor - The constructor for the memory persistence adapter.
    */
   usePersistMemoryAdapter(
-    Ctor: TPersistBaseCtor<StorageName, IPersistMemoryData>
+    Ctor: TPersistBaseCtor<SessionId, IPersistMemoryData>
   ): void;
 }
 
 /**
- * Utility class for managing memory persistence per client.
+ * Utility class for managing memory persistence per client (`SessionId`) in the swarm system.
  * Provides methods to get/set memory data with a customizable persistence adapter.
  * @implements {IPersistMemoryControl}
  */
 export class PersistMemoryUtils implements IPersistMemoryControl {
-  /** @private Default constructor for memory persistence, defaults to PersistBase */
+  /** @private Default constructor for memory persistence, defaults to `PersistBase` */
   private PersistMemoryFactory: TPersistBaseCtor<
     SessionId,
     IPersistMemoryData
@@ -1346,10 +1420,10 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
 
   /**
    * Memoized function to create or retrieve storage for a specific client’s memory.
-   * Ensures a single instance per client ID.
+   * Ensures a single persistence instance per `SessionId`, optimizing resource use.
    * @private
-   * @param clientId - The identifier of the client (session ID).
-   * @returns A persistence instance for the memory.
+   * @param {SessionId} clientId - The identifier of the client, a unique string (e.g., "session123") tracking a user session, used as `entityName`.
+   * @returns {IPersistBase<IPersistMemoryData>} A persistence instance for the memory, rooted at `./logs/data/memory/`.
    */
   private getMemoryStorage = memoize(
     ([clientId]: [SessionId]): string => `${clientId}`,
@@ -1361,8 +1435,9 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
   );
 
   /**
-   * Sets a custom constructor for memory persistence, overriding the default PersistBase.
-   * @param Ctor - The constructor to use for memory storage.
+   * Configures a custom constructor for memory persistence, overriding the default `PersistBase`.
+   * Enables advanced memory storage for `SessionId` (e.g., in-memory or database-backed persistence).
+   * @param {TPersistBaseCtor<SessionId, IPersistMemoryData>} Ctor - The constructor to use for memory storage, implementing `IPersistBase`.
    */
   public usePersistMemoryAdapter(
     Ctor: TPersistBaseCtor<SessionId, IPersistMemoryData>
@@ -1375,13 +1450,13 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
   }
 
   /**
-   * Sets the memory data for a client.
-   * Persists the data wrapped in an IPersistMemoryData structure.
-   * @template T - The specific type of the memory data, defaults to unknown.
-   * @param data - The memory data to persist.
-   * @param clientId - The identifier of the client (session ID).
-   * @returns A promise that resolves when the memory is persisted.
-   * @throws If writing to storage fails.
+   * Sets the memory data for a client, persisting it for future retrieval.
+   * Stores session-specific memory for a `SessionId` (e.g., temporary context).
+   * @template T - The specific type of the memory data, defaults to `unknown`.
+   * @param {T} data - The memory data to persist (e.g., context object or variables).
+   * @param {string} clientId - The identifier of the client, a `SessionId`, a unique string (e.g., "session123") tracking a user session.
+   * @returns {Promise<void>} A promise that resolves when the memory is persisted.
+   * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
    */
   public setMemory = async <T = unknown>(
     data: T,
@@ -1398,12 +1473,13 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
   };
 
   /**
-   * Retrieves the memory data for a client, falling back to a default if not set.
-   * @template T - The specific type of the memory data, defaults to unknown.
-   * @param clientId - The identifier of the client (session ID).
-   * @param defaultState - The default memory data to return if none is found.
-   * @returns A promise resolving to the memory data.
-   * @throws If reading from storage fails.
+   * Retrieves the memory data for a client, falling back to a default if unset.
+   * Restores session-specific memory for a `SessionId` (e.g., resuming context).
+   * @template T - The specific type of the memory data, defaults to `unknown`.
+   * @param {string} clientId - The identifier of the client, a `SessionId`, a unique string (e.g., "session123") tracking a user session.
+   * @param {T} defaultState - The default memory data to return if none is persisted (e.g., an empty object).
+   * @returns {Promise<T>} A promise resolving to the memory data.
+   * @throws {Error} If reading from storage fails (e.g., file corruption).
    */
   public getMemory = async <T = unknown>(
     clientId: string,
@@ -1425,22 +1501,175 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
 
   /**
    * Disposes of the memory storage for a client by clearing its memoized instance.
-   * @param clientId - The identifier of the client (session ID).
+   * Useful for cleanup when a `SessionId` ends or memory is no longer needed.
+   * @param {string} clientId - The identifier of the client, a `SessionId`, a unique string (e.g., "session123") tracking a user session.
    */
-  public dispose(clientId: string) {
+  public dispose = (clientId: string) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(PERSIST_MEMORY_UTILS_METHOD_NAME_DISPOSE, {
+        clientId,
+      });
     this.getMemoryStorage.clear(clientId);
-  }
+  };
 }
 
 /**
- * Singleton instance of PersistMemoryUtils for managing memory persistence.
+ * Singleton instance of `PersistMemoryUtils` for managing memory persistence globally.
  * @type {PersistMemoryUtils}
  */
 export const PersistMemoryAdapter = new PersistMemoryUtils();
 
 /**
  * Exported singleton for memory persistence operations, cast as the control interface.
- * Provides a global point of access for memory persistence utilities.
+ * Provides a global point of access for managing memory persistence tied to `SessionId`.
  * @type {IPersistMemoryControl}
  */
 export const PersistMemory = PersistMemoryAdapter as IPersistMemoryControl;
+
+/**
+ * Defines the structure for alive status persistence in the swarm system.
+ * Tracks whether a client (`SessionId`) is online or offline within a `SwarmName`.
+ * @interface IPersistAliveData
+ */
+export interface IPersistAliveData {
+  /** Indicates whether the client is online (`true`) or offline (`false`) */
+  online: boolean;
+}
+
+/**
+ * Defines control methods for customizing alive status persistence operations.
+ * Allows injection of a custom persistence adapter for alive status tied to `SwarmName`.
+ * @interface IPersistAliveControl
+ */
+export interface IPersistAliveControl {
+  /**
+   * Sets a custom persistence adapter for alive status storage.
+   * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory tracking for `SwarmName`).
+   * @param {TPersistBaseCtor<SwarmName, IPersistAliveData>} Ctor - The constructor for the alive status persistence adapter.
+   */
+  usePersistAliveAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistAliveData>
+  ): void;
+}
+
+/**
+ * Utility class for managing alive status persistence per client (`SessionId`) in the swarm system.
+ * Provides methods to mark clients as online/offline and check their status within a `SwarmName`, with a customizable adapter.
+ * @implements {IPersistAliveControl}
+ */
+export class PersistAliveUtils implements IPersistAliveControl {
+  /** @private Default constructor for alive status persistence, defaults to `PersistBase` */
+  private PersistAliveFactory: TPersistBaseCtor<SwarmName, IPersistAliveData> =
+    PersistBase;
+
+  /**
+   * Memoized function to create or retrieve storage for a specific client’s alive status.
+   * Ensures a single persistence instance per client ID, optimizing resource use.
+   * @private
+   * @param clientId - The identifier of the client (session ID, used as `entityName` in `PersistBase`).
+   * @returns A persistence instance for the alive status, rooted at `./logs/data/alive/`.
+   */
+  private getAliveStorage = memoize(
+    ([swarmName]: [SwarmName]): string => `${swarmName}`,
+    (swarmName: SwarmName): IPersistBase<IPersistAliveData> =>
+      Reflect.construct(this.PersistAliveFactory, [
+        swarmName,
+        `./logs/data/alive/`,
+      ])
+  );
+
+  /**
+   * Configures a custom constructor for alive status persistence, overriding the default `PersistBase`.
+   * Enables advanced tracking (e.g., in-memory or database-backed persistence).
+   * @param Ctor - The constructor to use for alive status storage, implementing `IPersistBase`.
+   */
+  public usePersistAliveAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistAliveData>
+  ): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_ALIVE_UTILS_METHOD_NAME_USE_PERSIST_ALIVE_ADAPTER
+      );
+    this.PersistAliveFactory = Ctor;
+  }
+
+  /**
+   * Marks a client as online, persisting the status for future retrieval.
+   * Used to track client availability in swarm operations.
+   * @param clientId - The identifier of the client (session ID).
+   * @returns A promise that resolves when the online status is persisted.
+   * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+   */
+  public markOnline = async (
+    clientId: string,
+    swarmName: SwarmName
+  ): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(PERSIST_ALIVE_UTILS_METHOD_NAME_MARK_ONLINE, {
+        clientId,
+      });
+    const isInitial = this.getAliveStorage.has(swarmName);
+    const stateStorage = this.getAliveStorage(swarmName);
+    await stateStorage.waitForInit(isInitial);
+    await stateStorage.writeValue(clientId, { online: true });
+  };
+
+  /**
+   * Marks a client as offline, persisting the status for future retrieval.
+   * Used to track client availability in swarm operations.
+   * @param clientId - The identifier of the client (session ID).
+   * @returns A promise that resolves when the offline status is persisted.
+   * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+   */
+  public markOffline = async (
+    clientId: string,
+    swarmName: SwarmName
+  ): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(PERSIST_ALIVE_UTILS_METHOD_NAME_MARK_OFFLINE, {
+        clientId,
+      });
+    const isInitial = this.getAliveStorage.has(swarmName);
+    const stateStorage = this.getAliveStorage(swarmName);
+    await stateStorage.waitForInit(isInitial);
+    await stateStorage.writeValue(clientId, { online: false });
+  };
+
+  /**
+   * Retrieves the online status for a client, defaulting to `false` if unset.
+   * Used to check client availability in swarm workflows.
+   * @param clientId - The identifier of the client (session ID).
+   * @returns A promise resolving to `true` if the client is online, `false` otherwise.
+   * @throws {Error} If reading from storage fails (e.g., file corruption).
+   */
+  public getOnline = async (
+    clientId: string,
+    swarmName: SwarmName
+  ): Promise<boolean> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(PERSIST_ALIVE_UTILS_METHOD_NAME_GET_ONLINE, {
+        clientId,
+      });
+    const isInitial = this.getAliveStorage.has(swarmName);
+    const stateStorage = this.getAliveStorage(swarmName);
+    await stateStorage.waitForInit(isInitial);
+    if (await stateStorage.hasValue(clientId)) {
+      const { online } = await stateStorage.readValue(clientId);
+      return online;
+    }
+    return false;
+  };
+}
+
+/**
+ * Singleton instance of `PersistAliveUtils` for managing alive status persistence globally.
+ * @type {PersistAliveUtils}
+ */
+export const PersistAliveAdapter = new PersistAliveUtils();
+
+/**
+ * Exported singleton for alive status persistence operations, cast as the control interface.
+ * Provides a global point of access for managing client online/offline status in the swarm.
+ * @type {IPersistAliveControl}
+ */
+export const PersistAlive = PersistAliveAdapter as IPersistAliveControl;
