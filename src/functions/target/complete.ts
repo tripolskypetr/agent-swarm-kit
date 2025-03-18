@@ -5,6 +5,7 @@ import { disposeConnection } from "./disposeConnection";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
 import PayloadContextService from "../../lib/services/context/PayloadContextService";
+import { markOnline } from "../other/markOnline";
 
 const METHOD_NAME = "function.target.complete";
 
@@ -115,6 +116,8 @@ export const complete = beginContext(
         executionId,
         swarmName,
       });
+
+    await markOnline(clientId, swarmName);
 
     // Set up the TTL-limited, queued execution function and garbage collector
     const run = await createComplete(clientId, swarmName);

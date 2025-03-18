@@ -1,10 +1,11 @@
-import { queued, rate, schedule } from "functools-kit";
+import { queued, rate, schedule, singleshot } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { ReceiveMessageFn } from "../../interfaces/Session.interface";
 import { SwarmName } from "../../interfaces/Swarm.interface";
 import swarm from "../../lib";
 import beginContext from "../../utils/beginContext";
 import PayloadContextService from "../../lib/services/context/PayloadContextService";
+import { markOnline } from "../other/markOnline";
 
 /**
  * Type definition for the send message function returned by connection factories.
@@ -105,8 +106,14 @@ const makeConnection = <Payload extends object = object>(
   swarmName: SwarmName
 ) => {
   const send = makeConnectionInternal(connector, clientId, swarmName);
+
+  const online = singleshot(async () => {
+    await markOnline(clientId, swarmName);
+  });
+
   return beginContext(
     async (content: string, payload: Payload = null as Payload) => {
+      await online();
       if (payload) {
         return await PayloadContextService.runInContext(
           async () => {
@@ -157,11 +164,16 @@ makeConnection.scheduled = <Payload extends object = object>(
 ) => {
   const send = makeConnectionInternal(connector, clientId, swarmName);
 
+  const online = singleshot(async () => {
+    await markOnline(clientId, swarmName);
+  });
+
   const wrappedSend = schedule(
     beginContext(async (content: string, payload: Payload) => {
       if (!swarm.sessionValidationService.hasSession(clientId)) {
         return;
       }
+      await online();
       if (payload) {
         return await PayloadContextService.runInContext(
           async () => {
@@ -180,6 +192,7 @@ makeConnection.scheduled = <Payload extends object = object>(
         if (!swarm.sessionValidationService.hasSession(clientId)) {
           return;
         }
+        await online();
         if (payload) {
           return await PayloadContextService.runInContext(
             async () => {
@@ -236,11 +249,16 @@ makeConnection.rate = <Payload extends object = object>(
 ) => {
   const send = makeConnectionInternal(connector, clientId, swarmName);
 
+  const online = singleshot(async () => {
+    await markOnline(clientId, swarmName);
+  });
+
   const wrappedSend = rate(
     beginContext(async (content: string, payload: Payload) => {
       if (!swarm.sessionValidationService.hasSession(clientId)) {
         return;
       }
+      await online();
       if (payload) {
         return await PayloadContextService.runInContext(
           async () => {

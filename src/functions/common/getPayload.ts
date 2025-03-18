@@ -1,6 +1,6 @@
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
-import PayloadContextService from "src/lib/services/context/PayloadContextService";
+import { PayloadContextService } from "../../lib";
 
 /** @private Constant defining the method name for logging purposes */
 const METHOD_NAME = "function.common.getPayload";

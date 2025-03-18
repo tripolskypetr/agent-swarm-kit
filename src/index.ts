@@ -15,6 +15,9 @@ export * from "./functions/setup/addEmbeding";
 export * from "./functions/setup/addStorage";
 export * from "./functions/setup/addPolicy";
 
+export * from "./functions/other/markOnline";
+export * from "./functions/other/markOffline";
+
 export * from "./functions/commit/commitToolOutput";
 export * from "./functions/commit/commitSystemMessage";
 export * from "./functions/commit/commitFlush";
@@ -146,6 +149,7 @@ export {
   PersistStorage,
   PersistSwarm,
   PersistMemory,
+  PersistAlive,
   IPersistBase,
   TPersistBaseCtor,
 } from "./classes/Persist";
@@ -161,6 +165,7 @@ export { Schema } from "./classes/Schema";
 export { Adapter } from "./classes/Adapter";
 
 export { ExecutionContextService } from "./lib/services/context/ExecutionContextService";
+export { PayloadContextService } from './lib/services/context/PayloadContextService';
 export { MethodContextService } from "./lib/services/context/MethodContextService";
 
 export { beginContext } from "./utils/beginContext";
@@ -170,6 +175,7 @@ import {
   PersistSwarmUtils,
   PersistStorageUtils,
   PersistMemoryUtils,
+  PersistAliveUtils,
 } from "./classes/Persist";
 
 export const Utils = {
@@ -177,4 +183,5 @@ export const Utils = {
   PersistSwarmUtils,
   PersistStorageUtils,
   PersistMemoryUtils,
+  PersistAliveUtils,
 };
