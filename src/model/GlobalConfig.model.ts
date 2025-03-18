@@ -6,6 +6,8 @@ import { ILoggerAdapter } from "../classes/Logger";
 import { IToolCall } from "../model/Tool.model";
 import { StateName } from "../interfaces/State.interface";
 import { IStorageData, StorageName } from "../interfaces/Storage.interface";
+import { PolicyName } from "../interfaces/Policy.interface";
+import { SessionId } from "../interfaces/Session.interface";
 
 /**
  * Interface defining the global configuration settings and behaviors for the swarm system.
@@ -173,7 +175,9 @@ export interface IGlobalConfig {
    * Imported from `validateDefault`, returns null if valid or an error string if invalid, ensuring output correctness.
    * @type {typeof validateDefault}
    */
-  CC_AGENT_DEFAULT_VALIDATION: (output: string) => string | null | Promise<string | null>;
+  CC_AGENT_DEFAULT_VALIDATION: (
+    output: string
+  ) => string | null | Promise<string | null>;
 
   /**
    * Filter function for agent history, used in `ClientAgent.history.toArrayForAgent` to scope messages.
@@ -388,6 +392,46 @@ export interface IGlobalConfig {
     stateName: StateName,
     defaultState: T
   ) => Promise<T>;
+
+  /**
+   * Default function to get banned clients for the policy
+   * @param {PolicyName} policyName - The policy identifier.
+   * @param {SwarmName} swarmName - The swarm identifier.
+   * @example
+   * setConfig({
+   *   CC_DEFAULT_POLICY_GET_BAN_CLIENTS: async () => []
+   * });
+   */
+  CC_DEFAULT_POLICY_GET_BAN_CLIENTS: (
+    policyName: PolicyName,
+    swarmName: SwarmName
+  ) => Promise<SessionId[]> | SessionId[];
+
+  /**
+   * Retrieves the list of currently banned clients under this policy.
+   * @param {PolicyName} policyName - The unique name of the policy.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
+   * @returns {SessionId[] | Promise<SessionId[]>} An array of banned session IDs, synchronously or asynchronously.
+   */
+  CC_DEFAULT_POLICY_GET?: (
+    policyName: PolicyName,
+    swarmName: SwarmName
+  ) => SessionId[] | Promise<SessionId[]>;
+
+  /**
+   * Optional function to set the list of banned clients.
+   * Overrides default ban list management if provided.
+   * @param {SessionId[]} clientIds - An array of session IDs to ban.
+   * @param {PolicyName} policyName - The unique name of the policy.
+   * @param {SwarmName} swarmName - The unique name of the swarm.
+   * @returns {Promise<void> | void} A promise that resolves when the ban list is updated, or void if synchronous.
+   * @throws {Error} If updating the ban list fails (e.g., due to persistence issues).
+   */
+  CC_DEFAULT_POLICY_SET?: (
+    clientIds: SessionId[],
+    policyName: PolicyName,
+    swarmName: SwarmName
+  ) => Promise<void> | void;
 
   /**
    * Default function to get storage data, used in `IStorage.take` for storage retrieval.

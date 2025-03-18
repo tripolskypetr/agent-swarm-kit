@@ -1,6 +1,7 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
+import { PolicyName as PolicyName$1 } from 'src/interfaces/Policy.interface';
 
 /**
  * Interface defining the structure of execution context in the swarm system.
@@ -664,6 +665,8 @@ interface IPolicy {
  * Defines how policies enforce rules and manage bans within the swarm.
  */
 interface IPolicySchema {
+    /** Optional flag to enable serialization of banned clients to persistent storage (e.g., hard drive). */
+    persist?: boolean;
     /** Optional description for documentation purposes, aiding in policy usage understanding. */
     docDescription?: string;
     /** The unique name of the policy within the swarm. */
@@ -687,7 +690,7 @@ interface IPolicySchema {
      * @param {SwarmName} swarmName - The unique name of the swarm.
      * @returns {SessionId[] | Promise<SessionId[]>} An array of banned session IDs, synchronously or asynchronously.
      */
-    getBannedClients: (policyName: PolicyName, swarmName: SwarmName) => SessionId[] | Promise<SessionId[]>;
+    getBannedClients?: (policyName: PolicyName, swarmName: SwarmName) => SessionId[] | Promise<SessionId[]>;
     /**
      * Optional function to set the list of banned clients.
      * Overrides default ban list management if provided.
@@ -2283,6 +2286,77 @@ declare class PersistAliveUtils implements IPersistAliveControl {
  * @type {IPersistAliveControl}
  */
 declare const PersistAlive: IPersistAliveControl;
+/**
+ * Defines the structure for policy data persistence in the swarm system.
+ * Tracks banned clients (`SessionId`) within a `SwarmName` under a specific policy.
+ * @interface IPersistPolicyData
+ */
+interface IPersistPolicyData {
+    /** Array of session IDs that are banned under this policy */
+    bannedClients: SessionId[];
+}
+/**
+ * Defines control methods for customizing policy persistence operations.
+ * Allows injection of a custom persistence adapter for policy data tied to `SwarmName`.
+ * @interface IPersistPolicyControl
+ */
+interface IPersistPolicyControl {
+    /**
+     * Sets a custom persistence adapter for policy data storage.
+     * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory tracking for `SwarmName`).
+     * @param {TPersistBaseCtor<SwarmName, IPersistPolicyData>} Ctor - The constructor for the policy data persistence adapter.
+     */
+    usePersistPolicyAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistPolicyData>): void;
+}
+/**
+ * Utility class for managing policy data persistence in the swarm system.
+ * Provides methods to get and set banned clients within a `SwarmName`, with a customizable adapter.
+ * @implements {IPersistPolicyControl}
+ */
+declare class PersistPolicyUtils implements IPersistPolicyControl {
+    /** @private Default constructor for policy data persistence, defaults to `PersistBase` */
+    private PersistPolicyFactory;
+    /**
+     * Memoized function to create or retrieve storage for a specific policy data.
+     * Ensures a single persistence instance per swarm, optimizing resource use.
+     * @private
+     * @param swarmName - The identifier of the swarm.
+     * @returns A persistence instance for the policy data, rooted at `./logs/data/policy/`.
+     */
+    private getPolicyStorage;
+    /**
+     * Configures a custom constructor for policy data persistence, overriding the default `PersistBase`.
+     * Enables advanced tracking (e.g., in-memory or database-backed persistence).
+     * @param Ctor - The constructor to use for policy data storage, implementing `IPersistBase`.
+     */
+    usePersistPolicyAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistPolicyData>): void;
+    /**
+     * Retrieves the list of banned clients for a specific policy, defaulting to an empty array if unset.
+     * Used to check client ban status in swarm workflows.
+     * @param policyName - The identifier of the policy to check.
+     * @param swarmName - The identifier of the swarm.
+     * @param defaultValue - Optional default value if no banned clients are found.
+     * @returns A promise resolving to an array of banned client session IDs.
+     * @throws {Error} If reading from storage fails (e.g., file corruption).
+     */
+    getBannedClients: (policyName: PolicyName$1, swarmName: SwarmName, defaultValue?: SessionId[]) => Promise<SessionId[]>;
+    /**
+     * Sets the list of banned clients for a specific policy, persisting the status for future retrieval.
+     * Used to manage client bans in swarm operations.
+     * @param bannedClients - Array of session IDs to be banned under this policy.
+     * @param policyName - The identifier of the policy to update.
+     * @param swarmName - The identifier of the swarm.
+     * @returns A promise that resolves when the banned clients list is persisted.
+     * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+     */
+    setBannedClients: (bannedClients: SessionId[], policyName: PolicyName$1, swarmName: SwarmName) => Promise<void>;
+}
+/**
+ * Exported singleton for policy persistence operations, cast as the control interface.
+ * Provides a global point of access for managing client bans in the swarm.
+ * @type {IPersistPolicyControl}
+ */
+declare const PersistPolicy: IPersistPolicyControl;
 
 /**
  * Callbacks for managing history instance lifecycle and message handling.
@@ -9921,6 +9995,33 @@ interface IGlobalConfig {
      */
     CC_DEFAULT_STATE_GET: <T = any>(clientId: string, stateName: StateName, defaultState: T) => Promise<T>;
     /**
+     * Default function to get banned clients for the policy
+     * @param {PolicyName} policyName - The policy identifier.
+     * @param {SwarmName} swarmName - The swarm identifier.
+     * @example
+     * setConfig({
+     *   CC_DEFAULT_POLICY_GET_BAN_CLIENTS: async () => []
+     * });
+     */
+    CC_DEFAULT_POLICY_GET_BAN_CLIENTS: (policyName: PolicyName, swarmName: SwarmName) => Promise<SessionId[]> | SessionId[];
+    /**
+     * Retrieves the list of currently banned clients under this policy.
+     * @param {PolicyName} policyName - The unique name of the policy.
+     * @param {SwarmName} swarmName - The unique name of the swarm.
+     * @returns {SessionId[] | Promise<SessionId[]>} An array of banned session IDs, synchronously or asynchronously.
+     */
+    CC_DEFAULT_POLICY_GET?: (policyName: PolicyName, swarmName: SwarmName) => SessionId[] | Promise<SessionId[]>;
+    /**
+     * Optional function to set the list of banned clients.
+     * Overrides default ban list management if provided.
+     * @param {SessionId[]} clientIds - An array of session IDs to ban.
+     * @param {PolicyName} policyName - The unique name of the policy.
+     * @param {SwarmName} swarmName - The unique name of the swarm.
+     * @returns {Promise<void> | void} A promise that resolves when the ban list is updated, or void if synchronous.
+     * @throws {Error} If updating the ban list fails (e.g., due to persistence issues).
+     */
+    CC_DEFAULT_POLICY_SET?: (clientIds: SessionId[], policyName: PolicyName, swarmName: SwarmName) => Promise<void> | void;
+    /**
      * Default function to get storage data, used in `IStorage.take` for storage retrieval.
      * Returns `defaultValue` by default, allowing storage retrieval to be customized via `setConfig`, though not directly in `ClientAgent`.
      * @template T - The type of storage data extending `IStorageData`.
@@ -10503,6 +10604,7 @@ declare const Utils: {
     PersistStorageUtils: typeof PersistStorageUtils;
     PersistMemoryUtils: typeof PersistMemoryUtils;
     PersistAliveUtils: typeof PersistAliveUtils;
+    PersistPolicyUtils: typeof PersistPolicyUtils;
 };
 
-export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistBase, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PayloadContextService, PersistAlive, PersistBase, PersistList, PersistMemory, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistBase, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PayloadContextService, PersistAlive, PersistBase, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, runStateless, runStatelessForce, session, setConfig, swarm };

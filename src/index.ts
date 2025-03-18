@@ -150,6 +150,7 @@ export {
   PersistSwarm,
   PersistMemory,
   PersistAlive,
+  PersistPolicy,
   IPersistBase,
   TPersistBaseCtor,
 } from "./classes/Persist";
@@ -176,6 +177,7 @@ import {
   PersistStorageUtils,
   PersistMemoryUtils,
   PersistAliveUtils,
+  PersistPolicyUtils,
 } from "./classes/Persist";
 
 export const Utils = {
@@ -184,4 +186,5 @@ export const Utils = {
   PersistStorageUtils,
   PersistMemoryUtils,
   PersistAliveUtils,
+  PersistPolicyUtils,
 };

@@ -135,6 +135,10 @@ const CC_DEFAULT_STATE_GET: <T = any>(
   defaultState: T
 ) => Promise<T> = ({}, {}, defaultState) => Promise.resolve(defaultState);
 
+const CC_DEFAULT_POLICY_GET_BAN_CLIENTS = () => [];
+const CC_DEFAULT_POLICY_GET = () => [];
+const CC_DEFAULT_POLICY_SET = () => Promise.resolve();
+
 const CC_DEFAULT_STORAGE_GET: <T extends IStorageData = IStorageData>(
   clientId: string,
   storageName: StorageName,
@@ -170,6 +174,9 @@ const GLOBAL_CONFIG: IGlobalConfig = {
   CC_EMPTY_OUTPUT_PLACEHOLDERS,
   CC_KEEP_MESSAGES,
   CC_MAX_TOOL_CALLS,
+  CC_DEFAULT_POLICY_GET_BAN_CLIENTS,
+  CC_DEFAULT_POLICY_GET,
+  CC_DEFAULT_POLICY_SET,
   CC_AGENT_MAP_TOOLS,
   CC_GET_AGENT_HISTORY_ADAPTER,
   CC_GET_CLIENT_LOGGER_ADAPTER,

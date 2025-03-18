@@ -147,6 +147,9 @@ export interface IPolicy {
  * Defines how policies enforce rules and manage bans within the swarm.
  */
 export interface IPolicySchema {
+  /** Optional flag to enable serialization of banned clients to persistent storage (e.g., hard drive). */
+  persist?: boolean;
+
   /** Optional description for documentation purposes, aiding in policy usage understanding. */
   docDescription?: string;
 
@@ -179,7 +182,7 @@ export interface IPolicySchema {
    * @param {SwarmName} swarmName - The unique name of the swarm.
    * @returns {SessionId[] | Promise<SessionId[]>} An array of banned session IDs, synchronously or asynchronously.
    */
-  getBannedClients: (
+  getBannedClients?: (
     policyName: PolicyName,
     swarmName: SwarmName
   ) => SessionId[] | Promise<SessionId[]>;

@@ -54,9 +54,12 @@ export class PolicySchemaService {
         `agent-swarm policy schema validation failed: missing policyName`
       );
     }
-    if (typeof policySchema.getBannedClients !== "function") {
+    if (
+      typeof policySchema.validateInput !== "function" &&
+      typeof policySchema.validateOutput !== "function"
+    ) {
       throw new Error(
-        `agent-swarm policy schema validation failed: missing getBannedClients policyName=${policySchema.policyName}`
+        `agent-swarm policy schema validation failed: the validateInput or validateOutput must be provided at least policyName=${policySchema.policyName}`
       );
     }
   };

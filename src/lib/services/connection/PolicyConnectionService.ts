@@ -10,6 +10,7 @@ import BusService from "../base/BusService";
 import PolicySchemaService from "../schema/PolicySchemaService";
 import { SessionId } from "../../../interfaces/Session.interface";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
+import { PersistPolicyAdapter } from "src/classes/Persist";
 
 /**
  * Service class for managing policy connections and operations in the swarm system.
@@ -69,13 +70,23 @@ export class PolicyConnectionService implements IPolicy {
     (policyName: PolicyName) => {
       const {
         autoBan = GLOBAL_CONFIG.CC_AUTOBAN_ENABLED_BY_DEFAULT,
+        banMessage = GLOBAL_CONFIG.CC_BANHAMMER_PLACEHOLDER,
+        persist = GLOBAL_CONFIG.CC_PERSIST_ENABLED_BY_DEFAULT,
+        getBannedClients = persist
+          ? PersistPolicyAdapter.getBannedClients
+          : GLOBAL_CONFIG.CC_DEFAULT_POLICY_GET,
+        setBannedClients = persist
+          ? PersistPolicyAdapter.setBannedClients
+          : GLOBAL_CONFIG.CC_DEFAULT_POLICY_SET,
         ...schema
       } = this.policySchemaService.get(policyName);
       return new ClientPolicy({
         policyName,
         bus: this.busService,
         logger: this.loggerService,
-        autoBan,
+        autoBan,getBannedClients,
+        setBannedClients,
+        banMessage,
         ...schema,
       });
     }

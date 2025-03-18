@@ -18,6 +18,7 @@ import { writeFileAtomic } from "../utils/writeFileAtomic";
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 import { SessionId } from "../interfaces/Session.interface";
+import { PolicyName } from "src/interfaces/Policy.interface";
 
 /**
  * Represents an identifier for an entity, which can be either a string or a number.
@@ -139,6 +140,13 @@ const PERSIST_STORAGE_UTILS_METHOD_NAME_GET_DATA =
 /** @private Constant for logging the setData method in PersistStorageUtils */
 const PERSIST_STORAGE_UTILS_METHOD_NAME_SET_DATA =
   "PersistStorageUtils.setData";
+
+const PERSIST_POLICY_UTILS_METHOD_NAME_USE_PERSIST_POLICY_ADAPTER =
+  "PersistPolicyUtils.usePersistPolicyAdapter";
+const PERSIST_POLICY_UTILS_METHOD_NAME_GET_BANNED_CLIENTS =
+  "PersistPolicyUtils.getBannedClients";
+const PERSIST_POLICY_UTILS_METHOD_NAME_SET_BANNED_CLIENTS =
+  "PersistPolicyUtils.setBannedClients";
 
 // Logging method names for private functions
 /** @private Constant for logging the waitForInitFn function */
@@ -1673,3 +1681,142 @@ export const PersistAliveAdapter = new PersistAliveUtils();
  * @type {IPersistAliveControl}
  */
 export const PersistAlive = PersistAliveAdapter as IPersistAliveControl;
+/**
+ * Defines the structure for policy data persistence in the swarm system.
+ * Tracks banned clients (`SessionId`) within a `SwarmName` under a specific policy.
+ * @interface IPersistPolicyData
+ */
+export interface IPersistPolicyData {
+  /** Array of session IDs that are banned under this policy */
+  bannedClients: SessionId[];
+}
+
+/**
+ * Defines control methods for customizing policy persistence operations.
+ * Allows injection of a custom persistence adapter for policy data tied to `SwarmName`.
+ * @interface IPersistPolicyControl
+ */
+export interface IPersistPolicyControl {
+  /**
+   * Sets a custom persistence adapter for policy data storage.
+   * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory tracking for `SwarmName`).
+   * @param {TPersistBaseCtor<SwarmName, IPersistPolicyData>} Ctor - The constructor for the policy data persistence adapter.
+   */
+  usePersistPolicyAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistPolicyData>
+  ): void;
+}
+
+/**
+ * Utility class for managing policy data persistence in the swarm system.
+ * Provides methods to get and set banned clients within a `SwarmName`, with a customizable adapter.
+ * @implements {IPersistPolicyControl}
+ */
+export class PersistPolicyUtils implements IPersistPolicyControl {
+  /** @private Default constructor for policy data persistence, defaults to `PersistBase` */
+  private PersistPolicyFactory: TPersistBaseCtor<
+    SwarmName,
+    IPersistPolicyData
+  > = PersistBase;
+
+  /**
+   * Memoized function to create or retrieve storage for a specific policy data.
+   * Ensures a single persistence instance per swarm, optimizing resource use.
+   * @private
+   * @param swarmName - The identifier of the swarm.
+   * @returns A persistence instance for the policy data, rooted at `./logs/data/policy/`.
+   */
+  private getPolicyStorage = memoize(
+    ([swarmName]: [SwarmName]): string => `${swarmName}`,
+    (swarmName: SwarmName): IPersistBase<IPersistPolicyData> =>
+      Reflect.construct(this.PersistPolicyFactory, [
+        swarmName,
+        `./logs/data/policy/`,
+      ])
+  );
+
+  /**
+   * Configures a custom constructor for policy data persistence, overriding the default `PersistBase`.
+   * Enables advanced tracking (e.g., in-memory or database-backed persistence).
+   * @param Ctor - The constructor to use for policy data storage, implementing `IPersistBase`.
+   */
+  public usePersistPolicyAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistPolicyData>
+  ): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_POLICY_UTILS_METHOD_NAME_USE_PERSIST_POLICY_ADAPTER
+      );
+    this.PersistPolicyFactory = Ctor;
+  }
+
+  /**
+   * Retrieves the list of banned clients for a specific policy, defaulting to an empty array if unset.
+   * Used to check client ban status in swarm workflows.
+   * @param policyName - The identifier of the policy to check.
+   * @param swarmName - The identifier of the swarm.
+   * @param defaultValue - Optional default value if no banned clients are found.
+   * @returns A promise resolving to an array of banned client session IDs.
+   * @throws {Error} If reading from storage fails (e.g., file corruption).
+   */
+  public getBannedClients = async (
+    policyName: PolicyName,
+    swarmName: SwarmName,
+    defaultValue: SessionId[] = []
+  ): Promise<SessionId[]> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_POLICY_UTILS_METHOD_NAME_GET_BANNED_CLIENTS
+      );
+
+    const isInitial = this.getPolicyStorage.has(swarmName);
+    const stateStorage = this.getPolicyStorage(swarmName);
+    await stateStorage.waitForInit(isInitial);
+
+    if (await stateStorage.hasValue(policyName)) {
+      const { bannedClients } = await stateStorage.readValue(policyName);
+      return bannedClients;
+    }
+
+    return defaultValue;
+  };
+
+  /**
+   * Sets the list of banned clients for a specific policy, persisting the status for future retrieval.
+   * Used to manage client bans in swarm operations.
+   * @param bannedClients - Array of session IDs to be banned under this policy.
+   * @param policyName - The identifier of the policy to update.
+   * @param swarmName - The identifier of the swarm.
+   * @returns A promise that resolves when the banned clients list is persisted.
+   * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+   */
+  public setBannedClients = async (
+    bannedClients: SessionId[],
+    policyName: PolicyName,
+    swarmName: SwarmName
+  ): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_POLICY_UTILS_METHOD_NAME_SET_BANNED_CLIENTS
+      );
+
+    const isInitial = this.getPolicyStorage.has(swarmName);
+    const stateStorage = this.getPolicyStorage(swarmName);
+    await stateStorage.waitForInit(isInitial);
+
+    await stateStorage.writeValue(policyName, { bannedClients });
+  };
+}
+
+/**
+ * Singleton instance of `PersistPolicyUtils` for managing policy data persistence globally.
+ * @type {PersistPolicyUtils}
+ */
+export const PersistPolicyAdapter = new PersistPolicyUtils();
+
+/**
+ * Exported singleton for policy persistence operations, cast as the control interface.
+ * Provides a global point of access for managing client bans in the swarm.
+ * @type {IPersistPolicyControl}
+ */
+export const PersistPolicy = PersistPolicyAdapter as IPersistPolicyControl;
