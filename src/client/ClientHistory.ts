@@ -2,6 +2,7 @@ import { IModelMessage } from "../model/ModelMessage.model";
 import IHistory, { IHistoryParams } from "../interfaces/History.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import { IBusEvent } from "../model/Event.model";
+import { getPayload } from "../functions/common/getPayload";
 
 /**
  * Class representing the history of client messages in the swarm system, implementing the IHistory interface.
@@ -43,12 +44,15 @@ export class ClientHistory implements IHistory {
    * @param {IModelMessage} message - The message to add to the history, sourced from ModelMessage.model.
    * @returns {Promise<void>} Resolves when the message is stored and the event is emitted.
    */
-  async push(message: IModelMessage): Promise<void> {
+  async push<Payload extends object = object>(message: IModelMessage<Payload>): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientHistory agentName=${this.params.agentName} push`,
         { message }
       );
+    if (message.mode === "user" && message.role === "user") {
+      message = { ...message, payload: getPayload<Payload>() };
+    }
     await this.params.items.push(
       message,
       this.params.clientId,

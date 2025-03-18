@@ -3,9 +3,8 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import { ReceiveMessageFn } from "../../interfaces/Session.interface";
 import { SwarmName } from "../../interfaces/Swarm.interface";
 import swarm from "../../lib";
-import { commitUserMessage } from "../commit/commitUserMessage";
-import { getAgentName } from "../common/getAgentName";
 import beginContext from "../../utils/beginContext";
+import PayloadContextService from "../../lib/services/context/PayloadContextService";
 
 /**
  * Type definition for the send message function returned by connection factories.
@@ -40,52 +39,50 @@ const METHOD_NAME = "function.target.makeConnection";
  * @param {SwarmName} swarmName - The name of the swarm to connect to.
  * @returns {SendMessageFn} A function to send messages to the swarm.
  */
-const makeConnectionInternal = beginContext(
-  (
-    connector: ReceiveMessageFn,
-    clientId: string,
-    swarmName: SwarmName
-  ): SendMessageFn => {
-    // Log the operation details if logging is enabled in GLOBAL_CONFIG
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME, {
-        clientId,
-        swarmName,
-      });
-
-    // Validate the swarm and initialize the session
-    swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
-    swarm.sessionValidationService.addSession(
+const makeConnectionInternal = (
+  connector: ReceiveMessageFn,
+  clientId: string,
+  swarmName: SwarmName
+): SendMessageFn => {
+  // Log the operation details if logging is enabled in GLOBAL_CONFIG
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
       clientId,
       swarmName,
-      "makeConnection"
-    );
+    });
 
-    // Create a queued send function using the session public service
-    const send = queued(
-      swarm.sessionPublicService.connect(
-        connector,
+  // Validate the swarm and initialize the session
+  swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
+  swarm.sessionValidationService.addSession(
+    clientId,
+    swarmName,
+    "makeConnection"
+  );
+
+  // Create a queued send function using the session public service
+  const send = queued(
+    swarm.sessionPublicService.connect(
+      connector,
+      METHOD_NAME,
+      clientId,
+      swarmName
+    )
+  );
+
+  // Return a wrapped send function with validation and agent context
+  return (async (outgoing) => {
+    swarm.sessionValidationService.validate(clientId, METHOD_NAME);
+    return await send({
+      data: outgoing,
+      agentName: await swarm.swarmPublicService.getAgentName(
         METHOD_NAME,
         clientId,
         swarmName
-      )
-    );
-
-    // Return a wrapped send function with validation and agent context
-    return beginContext(async (outgoing) => {
-      swarm.sessionValidationService.validate(clientId, METHOD_NAME);
-      return await send({
-        data: outgoing,
-        agentName: await swarm.swarmPublicService.getAgentName(
-          METHOD_NAME,
-          clientId,
-          swarmName
-        ),
-        clientId,
-      });
-    }) as unknown as SendMessageFn;
-  }
-);
+      ),
+      clientId,
+    });
+  }) as unknown as SendMessageFn;
+};
 
 /**
  * A connection factory for establishing a client connection to a swarm, returning a function to send messages.
@@ -102,11 +99,29 @@ const makeConnectionInternal = beginContext(
  * const sendMessage = makeConnection((msg) => console.log(msg), "client-123", "TaskSwarm");
  * await sendMessage("Hello, swarm!");
  */
-const makeConnection = (
+const makeConnection = <Payload extends object = object>(
   connector: ReceiveMessageFn,
   clientId: string,
   swarmName: SwarmName
-): SendMessageFn => makeConnectionInternal(connector, clientId, swarmName);
+) => {
+  const send = makeConnectionInternal(connector, clientId, swarmName);
+  return beginContext(
+    async (content: string, payload: Payload = null as Payload) => {
+      if (payload) {
+        return await PayloadContextService.runInContext(
+          async () => {
+            return await send(content);
+          },
+          {
+            clientId,
+            payload,
+          }
+        );
+      }
+      return await send(content);
+    }
+  );
+};
 
 /**
  * Configuration interface for scheduling or rate-limiting messages.
@@ -134,42 +149,68 @@ export interface IMakeConnectionConfig {
  * const sendScheduled = makeConnection.scheduled((msg) => console.log(msg), "client-123", "TaskSwarm", { delay: 2000 });
  * await sendScheduled("Delayed message"); // Sent after 2 seconds
  */
-makeConnection.scheduled = beginContext(
-  (
-    connector: ReceiveMessageFn,
-    clientId: string,
-    swarmName: SwarmName,
-    { delay = SCHEDULED_DELAY }: Partial<IMakeConnectionConfig> = {}
-  ) => {
-    const send = makeConnection(connector, clientId, swarmName);
+makeConnection.scheduled = <Payload extends object = object>(
+  connector: ReceiveMessageFn,
+  clientId: string,
+  swarmName: SwarmName,
+  { delay = SCHEDULED_DELAY }: Partial<IMakeConnectionConfig> = {}
+) => {
+  const send = makeConnectionInternal(connector, clientId, swarmName);
 
-    const wrappedSend: typeof send = schedule(
-      beginContext(async (content: string) => {
+  const wrappedSend = schedule(
+    beginContext(async (content: string, payload: Payload) => {
+      if (!swarm.sessionValidationService.hasSession(clientId)) {
+        return;
+      }
+      if (payload) {
+        return await PayloadContextService.runInContext(
+          async () => {
+            return await send(content);
+          },
+          {
+            clientId,
+            payload,
+          }
+        );
+      }
+      return await send(content);
+    }),
+    {
+      onSchedule: beginContext(async ([content, payload]) => {
         if (!swarm.sessionValidationService.hasSession(clientId)) {
           return;
         }
-        return await send(content);
-      }),
-      {
-        onSchedule: beginContext(async ([content]) => {
-          if (!swarm.sessionValidationService.hasSession(clientId)) {
-            return;
-          }
-          await commitUserMessage(
-            content,
-            clientId,
-            await getAgentName(clientId)
+        if (payload) {
+          return await PayloadContextService.runInContext(
+            async () => {
+              await swarm.sessionPublicService.commitUserMessage(
+                content,
+                METHOD_NAME,
+                clientId,
+                swarmName
+              );
+            },
+            {
+              clientId,
+              payload,
+            }
           );
-        }),
-        delay,
-      }
-    );
+        }
+        await swarm.sessionPublicService.commitUserMessage(
+          content,
+          METHOD_NAME,
+          clientId,
+          swarmName
+        );
+      }),
+      delay,
+    }
+  );
 
-    return async (content: string) => {
-      return await wrappedSend(content);
-    };
-  }
-);
+  return async (content: string, payload: Payload = null as Payload) => {
+    return await wrappedSend(content, payload);
+  };
+};
 
 /**
  * A rate-limited connection factory for a client to a swarm, returning a function to send throttled messages.
@@ -187,43 +228,52 @@ makeConnection.scheduled = beginContext(
  * const sendRateLimited = makeConnection.rate((msg) => console.log(msg), "client-123", "TaskSwarm", { delay: 5000 });
  * await sendRateLimited("Throttled message"); // Limited to one send every 5 seconds
  */
-makeConnection.rate = beginContext(
-  (
-    connector: ReceiveMessageFn,
-    clientId: string,
-    swarmName: SwarmName,
-    { delay = RATE_DELAY }: Partial<IMakeConnectionConfig> = {}
-  ) => {
-    const send = makeConnection(connector, clientId, swarmName);
+makeConnection.rate = <Payload extends object = object>(
+  connector: ReceiveMessageFn,
+  clientId: string,
+  swarmName: SwarmName,
+  { delay = RATE_DELAY }: Partial<IMakeConnectionConfig> = {}
+) => {
+  const send = makeConnectionInternal(connector, clientId, swarmName);
 
-    const wrappedSend: typeof send = rate(
-      beginContext(async (content: string) => {
-        if (!swarm.sessionValidationService.hasSession(clientId)) {
-          return;
-        }
-        return await send(content);
-      }),
-      {
-        key: () => clientId,
-        rateName: `makeConnection.rate clientId=${clientId}`,
-        delay,
+  const wrappedSend = rate(
+    beginContext(async (content: string, payload: Payload) => {
+      if (!swarm.sessionValidationService.hasSession(clientId)) {
+        return;
       }
-    );
+      if (payload) {
+        return await PayloadContextService.runInContext(
+          async () => {
+            return await send(content);
+          },
+          {
+            clientId,
+            payload,
+          }
+        );
+      }
+      return await send(content);
+    }),
+    {
+      key: () => clientId,
+      rateName: `makeConnection.rate clientId=${clientId}`,
+      delay,
+    }
+  );
 
-    return async (content: string) => {
-      try {
-        return await wrappedSend(content);
-      } catch (error) {
-        if (error?.type === "rate-error") {
-          console.warn(
-            `agent-swarm makeConnection.rate rate limit reached for clientId=${clientId}`
-          );
-          return "";
-        }
-        throw error;
+  return async (content: string, payload: Payload = null as Payload) => {
+    try {
+      return await wrappedSend(content, payload);
+    } catch (error) {
+      if (error?.type === "rate-error") {
+        console.warn(
+          `agent-swarm makeConnection.rate rate limit reached for clientId=${clientId}`
+        );
+        return "";
       }
-    };
-  }
-);
+      throw error;
+    }
+  };
+};
 
 export { makeConnection };

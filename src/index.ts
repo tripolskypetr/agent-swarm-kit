@@ -42,6 +42,7 @@ export * from "./functions/target/complete";
 export * from "./functions/target/session";
 export * from "./functions/target/disposeConnection";
 
+export * from "./functions/common/getPayload";
 export * from "./functions/common/getAgentName";
 export * from "./functions/common/getAgentHistory";
 export * from "./functions/common/getSessionMode";
