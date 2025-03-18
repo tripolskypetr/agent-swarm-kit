@@ -224,6 +224,7 @@ session.scheduled = <Payload extends object = object>(
             async () => {
               return await swarm.sessionPublicService.commitUserMessage(
                 content,
+                "user",
                 METHOD_NAME,
                 clientId,
                 swarmName
@@ -237,6 +238,7 @@ session.scheduled = <Payload extends object = object>(
         }
         return await swarm.sessionPublicService.commitUserMessage(
           content,
+          "user",
           METHOD_NAME,
           clientId,
           swarmName

@@ -852,11 +852,11 @@ export class ClientAgent implements IAgent {
    * @param {string} message - The user message to commit, trimmed before storage.
    * @returns {Promise<void>} Resolves when the message is committed to history and the event is emitted.
    */
-  async commitUserMessage(message: string): Promise<void> {
+  async commitUserMessage(message: string, mode: ExecutionMode): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitUserMessage`,
-        { message }
+        { message, mode }
       );
     this.params.onUserMessage &&
       this.params.onUserMessage(
@@ -867,7 +867,7 @@ export class ClientAgent implements IAgent {
     await this.params.history.push({
       role: "user",
       agentName: this.params.agentName,
-      mode: "user",
+      mode,
       content: message.trim(),
     });
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {

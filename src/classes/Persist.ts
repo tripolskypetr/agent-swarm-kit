@@ -18,7 +18,7 @@ import { writeFileAtomic } from "../utils/writeFileAtomic";
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 import { SessionId } from "../interfaces/Session.interface";
-import { PolicyName } from "src/interfaces/Policy.interface";
+import { PolicyName } from "../interfaces/Policy.interface";
 
 /**
  * Represents an identifier for an entity, which can be either a string or a number.

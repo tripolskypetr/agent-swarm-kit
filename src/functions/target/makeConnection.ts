@@ -198,6 +198,7 @@ makeConnection.scheduled = <Payload extends object = object>(
             async () => {
               await swarm.sessionPublicService.commitUserMessage(
                 content,
+                "user",
                 METHOD_NAME,
                 clientId,
                 swarmName
@@ -211,6 +212,7 @@ makeConnection.scheduled = <Payload extends object = object>(
         }
         await swarm.sessionPublicService.commitUserMessage(
           content,
+          "user",
           METHOD_NAME,
           clientId,
           swarmName

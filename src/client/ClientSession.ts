@@ -266,16 +266,17 @@ export class ClientSession implements ISession {
    * @param {string} message - The user message to commit, typically from client input.
    * @returns {Promise<void>} Resolves when the message is committed and the event is logged.
    */
-  async commitUserMessage(message: string): Promise<void> {
+  async commitUserMessage(message: string, mode: ExecutionMode): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} commitUserMessage`,
         {
           message,
+          mode,
         }
       );
     const agent = await this.params.swarm.getAgent();
-    const result = await agent.commitUserMessage(message);
+    const result = await agent.commitUserMessage(message, mode);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-user-message",
       source: "session-bus",

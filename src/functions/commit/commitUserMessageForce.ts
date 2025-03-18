@@ -1,6 +1,7 @@
 import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
-import swarm from "../../lib";
+import swarm, { PayloadContextService } from "../../lib";
+import { ExecutionMode } from "../../interfaces/Session.interface";
 
 const METHOD_NAME = "function.commit.commitSystemMessage";
 
@@ -19,12 +20,13 @@ const METHOD_NAME = "function.commit.commitSystemMessage";
  * await commitUserMessageForce("User input message", "client-123");
  */
 export const commitUserMessageForce = beginContext(
-  async (content: string, clientId: string) => {
+  async <Payload extends object = object>(content: string, mode: ExecutionMode, clientId: string, payload?: Payload) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         content,
         clientId,
+        mode,
       });
 
     // Validate the session and swarm to ensure they exist and are accessible
@@ -32,12 +34,37 @@ export const commitUserMessageForce = beginContext(
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
     swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
 
+    if (payload) {
+      return await PayloadContextService.runInContext(
+        async () => {
+          await swarm.sessionPublicService.commitUserMessage(
+            content,
+            mode,
+            METHOD_NAME,
+            clientId,
+            swarmName
+          );
+        },
+        {
+          clientId,
+          payload,
+        }
+      );
+    }
+
+
     // Commit the user message to the agent's history via the session public service without checking the active agent
-    await swarm.sessionPublicService.commitUserMessage(
+    return await swarm.sessionPublicService.commitUserMessage(
       content,
+      mode,
       METHOD_NAME,
       clientId,
       swarmName
     );
   }
-);
+) as <Payload extends object = object>(
+  content: string,
+  mode: ExecutionMode,
+  clientId: string,
+  payload?: Payload
+) => Promise<void>;

@@ -347,6 +347,7 @@ export class AgentPublicService implements TAgentConnectionService {
    */
   public commitUserMessage = async (
     message: string,
+    mode: ExecutionMode,
     methodName: string,
     clientId: string,
     agentName: AgentName
@@ -357,10 +358,14 @@ export class AgentPublicService implements TAgentConnectionService {
         message,
         clientId,
         agentName,
+        mode,
       });
     return await MethodContextService.runInContext(
       async () => {
-        return await this.agentConnectionService.commitUserMessage(message);
+        return await this.agentConnectionService.commitUserMessage(
+          message,
+          mode,
+        );
       },
       {
         methodName,

@@ -260,15 +260,16 @@ export class SessionConnectionService implements ISession {
    * @param {string} message - The user message to commit.
    * @returns {Promise<void>} A promise resolving when the user message is committed.
    */
-  public commitUserMessage = async (message: string): Promise<void> => {
+  public commitUserMessage = async (message: string, mode: ExecutionMode): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService commitUserMessage`, {
         message,
+        mode,
       });
     return await this.getSession(
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
-    ).commitUserMessage(message);
+    ).commitUserMessage(message, mode);
   };
 
   /**

@@ -457,7 +457,7 @@ export interface IAgent {
    * @returns {Promise<void>} A promise that resolves when the message is committed.
    * @throws {Error} If committing the message fails.
    */
-  commitUserMessage(message: string): Promise<void>;
+  commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
 
   /**
    * Commits an assistant message to the agent's history without triggering a response.

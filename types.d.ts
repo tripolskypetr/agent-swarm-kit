@@ -1,7 +1,6 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
-import { PolicyName as PolicyName$1 } from 'src/interfaces/Policy.interface';
 
 /**
  * Interface defining the structure of execution context in the swarm system.
@@ -1237,7 +1236,7 @@ interface ISession {
      * @returns {Promise<void>} A promise that resolves when the message is committed.
      * @throws {Error} If committing the message fails.
      */
-    commitUserMessage: (message: string) => Promise<void>;
+    commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>;
     /**
      * Commits a flush operation to clear the session's agent history.
      * Resets the history to an initial state.
@@ -2339,7 +2338,7 @@ declare class PersistPolicyUtils implements IPersistPolicyControl {
      * @returns A promise resolving to an array of banned client session IDs.
      * @throws {Error} If reading from storage fails (e.g., file corruption).
      */
-    getBannedClients: (policyName: PolicyName$1, swarmName: SwarmName, defaultValue?: SessionId[]) => Promise<SessionId[]>;
+    getBannedClients: (policyName: PolicyName, swarmName: SwarmName, defaultValue?: SessionId[]) => Promise<SessionId[]>;
     /**
      * Sets the list of banned clients for a specific policy, persisting the status for future retrieval.
      * Used to manage client bans in swarm operations.
@@ -2349,7 +2348,7 @@ declare class PersistPolicyUtils implements IPersistPolicyControl {
      * @returns A promise that resolves when the banned clients list is persisted.
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
      */
-    setBannedClients: (bannedClients: SessionId[], policyName: PolicyName$1, swarmName: SwarmName) => Promise<void>;
+    setBannedClients: (bannedClients: SessionId[], policyName: PolicyName, swarmName: SwarmName) => Promise<void>;
 }
 /**
  * Exported singleton for policy persistence operations, cast as the control interface.
@@ -3110,7 +3109,7 @@ interface IAgent {
      * @returns {Promise<void>} A promise that resolves when the message is committed.
      * @throws {Error} If committing the message fails.
      */
-    commitUserMessage(message: string): Promise<void>;
+    commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
     /**
      * Commits an assistant message to the agent's history without triggering a response.
      * @param {string} message - The assistant message content to commit.
@@ -3368,7 +3367,7 @@ declare class ClientAgent implements IAgent {
      * @param {string} message - The user message to commit, trimmed before storage.
      * @returns {Promise<void>} Resolves when the message is committed to history and the event is emitted.
      */
-    commitUserMessage(message: string): Promise<void>;
+    commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
     /**
      * Commits a flush of the agent’s history, clearing it and notifying the system via BusService.
      * Useful for resetting agent state, coordinated with HistoryConnectionService.
@@ -3577,7 +3576,7 @@ declare class AgentConnectionService implements IAgent {
      * @param {string} message - The user message to commit.
      * @returns {Promise<any>} A promise resolving to the commit result, type determined by ClientAgent’s implementation.
      */
-    commitUserMessage: (message: string) => Promise<void>;
+    commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>;
     /**
      * Commits an agent change to prevent the next tool execution, altering the execution flow.
      * Delegates to ClientAgent.commitAgentChange, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -4249,7 +4248,7 @@ declare class ClientSession implements ISession {
      * @param {string} message - The user message to commit, typically from client input.
      * @returns {Promise<void>} Resolves when the message is committed and the event is logged.
      */
-    commitUserMessage(message: string): Promise<void>;
+    commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
     /**
      * Commits a flush of the agent’s history via the swarm’s agent (ClientAgent), clearing it and logging via BusService.
      * Useful for resetting session state, coordinated with ClientHistory via ClientAgent.
@@ -4420,7 +4419,7 @@ declare class SessionConnectionService implements ISession {
      * @param {string} message - The user message to commit.
      * @returns {Promise<void>} A promise resolving when the user message is committed.
      */
-    commitUserMessage: (message: string) => Promise<void>;
+    commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>;
     /**
      * Commits a flush of the session’s history, clearing stored data.
      * Delegates to ClientSession.commitFlush, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -4575,7 +4574,7 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @param {AgentName} agentName - The agent name for identification.
      * @returns {Promise<unknown>} A promise resolving to the commit result.
      */
-    commitUserMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
+    commitUserMessage: (message: string, mode: ExecutionMode, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits a flush of the agent’s history, clearing stored data.
      * Wraps AgentConnectionService.commitFlush with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -4864,7 +4863,7 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @param {SwarmName} swarmName - The swarm name for context.
      * @returns {Promise<void>} A promise resolving when the user message is committed.
      */
-    commitUserMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    commitUserMessage: (message: string, mode: ExecutionMode, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits a flush of the session’s history, clearing stored data.
      * Wraps SessionConnectionService.commitFlush with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -8329,7 +8328,7 @@ declare const commitFlush: (clientId: string, agentName: string) => Promise<void
  * @example
  * await commitUserMessage("User input message", "client-123", "AgentX");
  */
-declare const commitUserMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
+declare const commitUserMessage: <Payload extends object = object>(content: string, mode: ExecutionMode, clientId: string, agentName: string, payload?: Payload) => Promise<void>;
 
 /**
  * Commits the output of a tool execution to the active agent in a swarm session without checking the active agent.
@@ -8395,7 +8394,7 @@ declare const commitFlushForce: (clientId: string) => Promise<void>;
  * @example
  * await commitUserMessageForce("User input message", "client-123");
  */
-declare const commitUserMessageForce: (content: string, clientId: string) => Promise<void>;
+declare const commitUserMessageForce: <Payload extends object = object>(content: string, mode: ExecutionMode, clientId: string, payload?: Payload) => Promise<void>;
 
 /**
  * Commits an assistant-generated message to the active agent in the swarm system.

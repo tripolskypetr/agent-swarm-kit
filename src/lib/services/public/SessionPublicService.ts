@@ -406,6 +406,7 @@ export class SessionPublicService implements TSessionConnectionService {
    */
   public commitUserMessage = async (
     message: string,
+    mode: ExecutionMode,
     methodName: string,
     clientId: string,
     swarmName: SwarmName
@@ -416,10 +417,11 @@ export class SessionPublicService implements TSessionConnectionService {
         message,
         clientId,
         swarmName,
+        mode,
       });
     return await MethodContextService.runInContext(
       async () => {
-        return await this.sessionConnectionService.commitUserMessage(message);
+        return await this.sessionConnectionService.commitUserMessage(message, mode);
       },
       {
         methodName,

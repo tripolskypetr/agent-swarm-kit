@@ -10,7 +10,7 @@ import BusService from "../base/BusService";
 import PolicySchemaService from "../schema/PolicySchemaService";
 import { SessionId } from "../../../interfaces/Session.interface";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
-import { PersistPolicyAdapter } from "src/classes/Persist";
+import { PersistPolicyAdapter } from "../../../classes/Persist";
 
 /**
  * Service class for managing policy connections and operations in the swarm system.

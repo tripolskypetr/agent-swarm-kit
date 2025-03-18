@@ -126,7 +126,7 @@ export interface ISession {
    * @returns {Promise<void>} A promise that resolves when the message is committed.
    * @throws {Error} If committing the message fails.
    */
-  commitUserMessage: (message: string) => Promise<void>;
+  commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>;
 
   /**
    * Commits a flush operation to clear the session's agent history.

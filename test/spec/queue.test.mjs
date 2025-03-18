@@ -173,10 +173,10 @@ test("Will commit user message for makeConnection without emit and execution", a
   
   await Promise.all([
     complete("foo"),
-    commitUserMessage("bar", CLIENT_ID, TEST_AGENT),
+    commitUserMessage("bar", "user", CLIENT_ID, TEST_AGENT),
   ]);
 
-  await commitUserMessage("baz", CLIENT_ID, TEST_AGENT);
+  await commitUserMessage("baz", "user", CLIENT_ID, TEST_AGENT);
 
   const lastMessage = await getLastUserMessage(CLIENT_ID);
 

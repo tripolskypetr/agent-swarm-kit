@@ -296,15 +296,16 @@ export class AgentConnectionService implements IAgent {
    * @param {string} message - The user message to commit.
    * @returns {Promise<any>} A promise resolving to the commit result, type determined by ClientAgent’s implementation.
    */
-  public commitUserMessage = async (message: string) => {
+  public commitUserMessage = async (message: string, mode: ExecutionMode) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService commitUserMessage`, {
         message,
+        mode,
       });
     return await this.getAgent(
       this.methodContextService.context.clientId,
       this.methodContextService.context.agentName
-    ).commitUserMessage(message);
+    ).commitUserMessage(message, mode);
   };
 
   /**
