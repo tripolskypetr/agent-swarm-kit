@@ -472,7 +472,7 @@ test("Will event in makeConnection", async ({ pass, fail }) => {
 
 });
 
-test("Will not emit for session", async ({ pass, fail }) => {
+test("Will event for session", async ({ pass, fail }) => {
 
   const CLIENT_ID = randomString();
 
@@ -505,13 +505,17 @@ test("Will not emit for session", async ({ pass, fail }) => {
     TEST_SWARM
   );
 
-  try {
-    await complete("foo");
-    await emit("bar", CLIENT_ID, TEST_AGENT);
-    await complete("baz");
-    fail("Exception not raise")
-  } catch {
-    pass();
+  let isEventRaise = false;
+
+  listenEvent(CLIENT_ID, "test-event", () => {
+    isEventRaise = true;
+  })
+
+  await complete("foo");
+  await event(CLIENT_ID, "test-event", "bar");
+  if (!isEventRaise) {
+    fail("Event should not be raised");
   }
+  pass();
 
 });

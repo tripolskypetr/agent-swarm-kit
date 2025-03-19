@@ -39,7 +39,11 @@ const METHOD_NAME = "function.target.session";
  * @param {SwarmName} swarmName - The name of the swarm to connect to.
  * @returns {Object} An object containing `complete` and `dispose` methods for session management.
  */
-const sessionInternal = (clientId: string, swarmName: SwarmName) => {
+const sessionInternal = (
+  clientId: string,
+  swarmName: SwarmName,
+  { onDispose = () => {} }: Partial<Omit<ISessionConfig, "delay">> = {}
+) => {
   const executionId = randomString();
 
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -94,8 +98,10 @@ const sessionInternal = (clientId: string, swarmName: SwarmName) => {
     complete: (async (content: string) => {
       return await complete(content);
     }) as TComplete,
-    dispose: async () =>
-      await disposeConnection(clientId, swarmName, METHOD_NAME),
+    dispose: async () => {
+      await disposeConnection(clientId, swarmName, METHOD_NAME);
+      await onDispose();
+    },
   };
 };
 
@@ -117,9 +123,12 @@ const sessionInternal = (clientId: string, swarmName: SwarmName) => {
  */
 const session = <Payload extends object = object>(
   clientId: string,
-  swarmName: SwarmName
+  swarmName: SwarmName,
+  { onDispose }: Partial<Omit<ISessionConfig, "delay">> = {}
 ) => {
-  const { complete, dispose } = sessionInternal(clientId, swarmName);
+  const { complete, dispose } = sessionInternal(clientId, swarmName, {
+    onDispose,
+  });
 
   let isMounted = true;
 
@@ -163,6 +172,7 @@ const session = <Payload extends object = object>(
  */
 export interface ISessionConfig {
   delay?: number;
+  onDispose?: () => void;
 }
 
 /**
@@ -185,9 +195,11 @@ export interface ISessionConfig {
 session.scheduled = <Payload extends object = object>(
   clientId: string,
   swarmName: SwarmName,
-  { delay = SCHEDULED_DELAY }: Partial<ISessionConfig> = {}
+  { delay = SCHEDULED_DELAY, onDispose }: Partial<ISessionConfig> = {}
 ) => {
-  const { complete, dispose } = sessionInternal(clientId, swarmName);
+  const { complete, dispose } = sessionInternal(clientId, swarmName, {
+    onDispose,
+  });
   let isMounted = true;
 
   const online = singleshot(async () => {
@@ -279,9 +291,11 @@ session.scheduled = <Payload extends object = object>(
 session.rate = <Payload extends object = object>(
   clientId: string,
   swarmName: SwarmName,
-  { delay = SCHEDULED_DELAY }: Partial<ISessionConfig> = {}
+  { delay = SCHEDULED_DELAY, onDispose }: Partial<ISessionConfig> = {}
 ) => {
-  const { complete, dispose } = sessionInternal(clientId, swarmName);
+  const { complete, dispose } = sessionInternal(clientId, swarmName, {
+    onDispose,
+  });
   let isMounted = true;
 
   const online = singleshot(async () => {

@@ -8768,7 +8768,7 @@ declare const complete: <Payload extends object = object>(content: string, clien
  * await dispose();
  */
 declare const session: {
-    <Payload extends object = object>(clientId: string, swarmName: SwarmName): {
+    <Payload extends object = object>(clientId: string, swarmName: SwarmName, { onDispose }?: Partial<Omit<ISessionConfig, "delay">>): {
         complete: (content: string, payload?: Payload) => Promise<string>;
         dispose: () => Promise<void>;
     };
@@ -8789,7 +8789,7 @@ declare const session: {
      * console.log(result);
      * await dispose();
      */
-    scheduled<Payload extends object = object>(clientId: string, swarmName: SwarmName, { delay }?: Partial<ISessionConfig>): {
+    scheduled<Payload extends object = object>(clientId: string, swarmName: SwarmName, { delay, onDispose }?: Partial<ISessionConfig>): {
         complete: (content: string, payload?: Payload) => Promise<string>;
         dispose: () => Promise<void>;
     };
@@ -8810,7 +8810,7 @@ declare const session: {
      * console.log(result);
      * await dispose();
      */
-    rate<Payload extends object = object>(clientId: string, swarmName: SwarmName, { delay }?: Partial<ISessionConfig>): {
+    rate<Payload extends object = object>(clientId: string, swarmName: SwarmName, { delay, onDispose }?: Partial<ISessionConfig>): {
         complete(content: string, payload?: Payload): Promise<string>;
         dispose: () => Promise<void>;
     };
@@ -8823,6 +8823,7 @@ declare const session: {
  */
 interface ISessionConfig {
     delay?: number;
+    onDispose?: () => void;
 }
 
 /**
