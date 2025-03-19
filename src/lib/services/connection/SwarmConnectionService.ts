@@ -121,6 +121,22 @@ export class SwarmConnectionService implements ISwarm {
   );
 
   /**
+   * Emits a message to the session, typically for asynchronous communication.
+   * Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
+   * @param {string} content - The content to emit to the session.
+   * @returns {Promise<void>} A promise resolving when the message is emitted.
+   */
+  public emit = async (message: string): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`swarmConnectionService emit`, { message });
+    return await this.getSwarm(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
+    ).emit(message);
+  };
+
+  /**
    * Pops the navigation stack or returns the default agent if the stack is empty.
    * Delegates to ClientSwarm.navigationPop, using context from MethodContextService to identify the swarm, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SwarmPublicService’s navigationPop, supporting ClientAgent’s navigation within swarms.

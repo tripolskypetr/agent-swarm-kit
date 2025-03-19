@@ -31,16 +31,6 @@ export const emit = beginContext(
         agentName,
       });
 
-    // Check if the session mode is "makeConnection"
-    if (
-      swarm.sessionValidationService.getSessionMode(clientId) !==
-      "makeConnection"
-    ) {
-      throw new Error(
-        `agent-swarm-kit emit session is not makeConnection clientId=${clientId}`
-      );
-    }
-
     // Validate the agent, session, and swarm
     swarm.agentValidationService.validate(agentName, METHOD_NAME);
     swarm.sessionValidationService.validate(clientId, METHOD_NAME);

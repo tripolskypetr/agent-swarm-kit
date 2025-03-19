@@ -28,16 +28,6 @@ export const emitForce = beginContext(
         clientId,
       });
 
-    // Check if the session mode is "makeConnection"
-    if (
-      swarm.sessionValidationService.getSessionMode(clientId) !==
-      "makeConnection"
-    ) {
-      throw new Error(
-        `agent-swarm-kit emitForce session is not makeConnection clientId=${clientId}`
-      );
-    }
-
     // Validate the session and swarm
     swarm.sessionValidationService.validate(clientId, METHOD_NAME);
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
