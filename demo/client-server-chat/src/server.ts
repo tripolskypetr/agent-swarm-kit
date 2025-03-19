@@ -5,7 +5,7 @@ import {
   addSwarm,
   addTool,
   commitToolOutput,
-  execute,
+  emit,
   getAgentName,
   session,
 } from "agent-swarm-kit";
@@ -20,7 +20,7 @@ const getOllama = singleshot(
 );
 
 const getOpenAI = singleshot(
-  () => new OpenAI({ baseURL: "http://127.0.0.1:1234/v1", apiKey: "noop" })
+  () => new OpenAI({ baseURL: "http://127.0.0.1:12345/v1", apiKey: "noop" })
 );
 
 enum CompletionName {
@@ -52,7 +52,7 @@ addCompletion({
 
 addAgent({
   agentName: AgentName.TestAgent,
-  completion: CompletionName.NemotronMiniCompletion,
+  completion: CompletionName.SaigaYandexGPTCompletion,
   prompt: str.newline(
     "You are the pharma seller agent.",
     "Provide me the consultation about the pharma product"
@@ -74,7 +74,7 @@ addTool({
       clientId,
       agentName
     );
-    await execute(`Tell me the ${params.title} has beed added to cart OK`, clientId, agentName);
+    await emit(`The product ${params.title} has been added to your cart.`, clientId, agentName);
   },
   type: "function",
   function: {
