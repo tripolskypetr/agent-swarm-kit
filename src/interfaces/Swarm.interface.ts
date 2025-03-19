@@ -245,6 +245,14 @@ export interface ISwarm {
    * @throws {Error} If setting the agent fails (e.g., due to persistence issues or invalid name).
    */
   setAgentName(agentName: AgentName): Promise<void>;
+
+  /**
+   * Emits a message to the session's communication channel.
+   * @param {string} message - The message content to emit.
+   * @returns {Promise<void>} A promise that resolves when the message is successfully emitted.
+   * @throws {Error} If the emission fails due to connection issues or invalid message format.
+   */
+  emit(message: string): Promise<void>;
 }
 
 /**

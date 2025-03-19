@@ -1131,6 +1131,13 @@ interface ISwarm {
      * @throws {Error} If setting the agent fails (e.g., due to persistence issues or invalid name).
      */
     setAgentName(agentName: AgentName): Promise<void>;
+    /**
+     * Emits a message to the session's communication channel.
+     * @param {string} message - The message content to emit.
+     * @returns {Promise<void>} A promise that resolves when the message is successfully emitted.
+     * @throws {Error} If the emission fails due to connection issues or invalid message format.
+     */
+    emit(message: string): Promise<void>;
 }
 /**
  * Type representing the unique name of a swarm within the system.
@@ -3895,6 +3902,13 @@ declare class ClientSwarm implements ISwarm {
      */
     _navigationStack: AgentName[] | typeof STACK_NEED_FETCH;
     /**
+     * Subject for emitting output messages to subscribers, used by emit and connect methods.
+     * Provides an asynchronous stream of validated messages, supporting real-time updates to external connectors.
+     * @type {Subject<string>}
+     * @readonly
+     */
+    readonly _emitSubject: Subject<string>;
+    /**
      * Subject that emits to cancel output waiting, providing an empty output string and agent name.
      * Triggered by cancelOutput to interrupt waitForOutput, ensuring responsive cancellation.
      * @type {Subject<{ agentName: string; output: string }>}
@@ -3915,6 +3929,14 @@ declare class ClientSwarm implements ISwarm {
      * @param {ISwarmParams} params - The parameters for initializing the swarm, including clientId, swarmName, agentMap, getActiveAgent, etc.
      */
     constructor(params: ISwarmParams);
+    /**
+     * Emits a message to subscribers via _emitSubject after validating it against the policy (ClientPolicy).
+     * Emits the ban message if validation fails, notifying subscribers and logging via BusService.
+     * Supports SwarmConnectionService by broadcasting session outputs within the swarm.
+     * @param {string} message - The message to emit, typically an agent response or tool output.
+     * @returns {Promise<void>} Resolves when the message (or ban message) is emitted and the event is logged.
+     */
+    emit(message: string): Promise<void>;
     /**
      * Pops the most recent agent from the navigation stack, falling back to the default agent if empty.
      * Updates and persists the stack via params.setNavigationStack, supporting ClientSession’s agent navigation.
@@ -4017,6 +4039,14 @@ declare class SwarmConnectionService implements ISwarm {
      * @returns {ClientSwarm} The memoized ClientSwarm instance configured for the client and swarm.
      */
     getSwarm: ((clientId: string, swarmName: string) => ClientSwarm) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientSwarm>;
+    /**
+     * Emits a message to the session, typically for asynchronous communication.
+     * Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
+     * @param {string} content - The content to emit to the session.
+     * @returns {Promise<void>} A promise resolving when the message is emitted.
+     */
+    emit: (message: string) => Promise<void>;
     /**
      * Pops the navigation stack or returns the default agent if the stack is empty.
      * Delegates to ClientSwarm.navigationPop, using context from MethodContextService to identify the swarm, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -4197,20 +4227,13 @@ declare class CompletionSchemaService {
 declare class ClientSession implements ISession {
     readonly params: ISessionParams;
     /**
-     * Subject for emitting output messages to subscribers, used by emit and connect methods.
-     * Provides an asynchronous stream of validated messages, supporting real-time updates to external connectors.
-     * @type {Subject<string>}
-     * @readonly
-     */
-    readonly _emitSubject: Subject<string>;
-    /**
      * Constructs a new ClientSession instance with the provided parameters.
      * Invokes the onInit callback if defined and logs construction if debugging is enabled.
      * @param {ISessionParams} params - The parameters for initializing the session, including clientId, swarmName, swarm, policy, bus, etc.
      */
     constructor(params: ISessionParams);
     /**
-     * Emits a message to subscribers via _emitSubject after validating it against the policy (ClientPolicy).
+     * Emits a message to subscribers via swarm _emitSubject after validating it against the policy (ClientPolicy).
      * Emits the ban message if validation fails, notifying subscribers and logging via BusService.
      * Supports SwarmConnectionService by broadcasting session outputs within the swarm.
      * @param {string} message - The message to emit, typically an agent response or tool output.
@@ -4940,6 +4963,17 @@ declare class SwarmPublicService implements TSwarmConnectionService {
      * @private
      */
     private readonly swarmConnectionService;
+    /**
+     * Emits a message to the session for a specific client and swarm.
+     * Wraps SessionConnectionService.emit with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., session-level messaging) and AgentPublicService (e.g., swarm context emission).
+     * @param {string} content - The message content to emit to the session.
+     * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+     * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking.
+     * @param {SwarmName} swarmName - The swarm name, sourced from Swarm.interface, used in SwarmMetaService context.
+     * @returns {Promise<void>} A promise resolving when the message is emitted.
+     */
+    emit: (content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Pops the navigation stack or returns the default agent for the swarm, scoped to a client.
      * Wraps SwarmConnectionService.navigationPop with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.

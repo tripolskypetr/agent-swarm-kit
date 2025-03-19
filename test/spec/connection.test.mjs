@@ -14,6 +14,8 @@ import {
   swarm,
   emit,
   setConfig,
+  listenEvent,
+  event,
 } from "../../build/index.mjs";
 import { getErrorMessage, randomString, sleep } from "functools-kit";
 
@@ -408,7 +410,7 @@ test("Will allow server-side emit for makeConnection", async ({
   pass();
 });
 
-test("Will emit in makeConnection", async ({ pass, fail }) => {
+test("Will event in makeConnection", async ({ pass, fail }) => {
 
   const CLIENT_ID = randomString();
 
@@ -416,7 +418,6 @@ test("Will emit in makeConnection", async ({ pass, fail }) => {
     completionName: "navigate-completion",
     getCompletion: async ({ agentName, messages }) => {
       if (!messages.length) {
-
       }
       const [{ content }] = messages.slice(-1);
       return {
@@ -449,8 +450,12 @@ test("Will emit in makeConnection", async ({ pass, fail }) => {
     TEST_SWARM
   );
 
+  listenEvent(CLIENT_ID, "custom-message", async (data) => {
+    outputList.push(data);
+  });
+
   await complete("foo");
-  await emit("bar", CLIENT_ID, TEST_AGENT);
+  await event(CLIENT_ID, "custom-message", "bar");
   await complete("baz");
 
   const history = await getRawHistory(CLIENT_ID);

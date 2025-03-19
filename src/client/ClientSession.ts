@@ -21,14 +21,6 @@ import { GLOBAL_CONFIG } from "../config/params";
  */
 export class ClientSession implements ISession {
   /**
-   * Subject for emitting output messages to subscribers, used by emit and connect methods.
-   * Provides an asynchronous stream of validated messages, supporting real-time updates to external connectors.
-   * @type {Subject<string>}
-   * @readonly
-   */
-  readonly _emitSubject = new Subject<string>();
-
-  /**
    * Constructs a new ClientSession instance with the provided parameters.
    * Invokes the onInit callback if defined and logs construction if debugging is enabled.
    * @param {ISessionParams} params - The parameters for initializing the session, including clientId, swarmName, swarm, policy, bus, etc.
@@ -45,7 +37,7 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Emits a message to subscribers via _emitSubject after validating it against the policy (ClientPolicy).
+   * Emits a message to subscribers via swarm _emitSubject after validating it against the policy (ClientPolicy).
    * Emits the ban message if validation fails, notifying subscribers and logging via BusService.
    * Supports SwarmConnectionService by broadcasting session outputs within the swarm.
    * @param {string} message - The message to emit, typically an agent response or tool output.
@@ -75,7 +67,7 @@ export class ClientSession implements ISession {
             message,
           }
         );
-      await this._emitSubject.next(
+      await this.params.swarm.emit(
         await this.params.policy.getBanMessage(
           this.params.clientId,
           this.params.swarmName
@@ -85,7 +77,7 @@ export class ClientSession implements ISession {
     }
     this.params.onEmit &&
       this.params.onEmit(this.params.clientId, this.params.swarmName, message);
-    await this._emitSubject.next(message);
+    await this.params.swarm.emit(message);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "emit",
       source: "session-bus",
@@ -418,14 +410,6 @@ export class ClientSession implements ISession {
       );
     this.params.onConnect &&
       this.params.onConnect(this.params.clientId, this.params.swarmName);
-    this._emitSubject.subscribe(
-      async (data: string) =>
-        await connector({
-          data,
-          agentName: await this.params.swarm.getAgentName(),
-          clientId: this.params.clientId,
-        })
-    );
     this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "connect",
       source: "session-bus",

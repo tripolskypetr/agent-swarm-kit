@@ -40,6 +40,12 @@ const WAIT_FOR_OUTPUT_FN = async (self: ClientSwarm): Promise<string> => {
             agentName,
             output: await agent.waitForOutput(),
           }))
+          .concat(
+            self._emitSubject.toPromise().then(async (output) => ({
+              agentName: await self.getAgentName(),
+              output,
+            }))
+          )
           .concat(self._cancelOutputSubject.toPromise())
       )
   );
@@ -118,6 +124,14 @@ export class ClientSwarm implements ISwarm {
   _navigationStack: AgentName[] | typeof STACK_NEED_FETCH = STACK_NEED_FETCH;
 
   /**
+   * Subject for emitting output messages to subscribers, used by emit and connect methods.
+   * Provides an asynchronous stream of validated messages, supporting real-time updates to external connectors.
+   * @type {Subject<string>}
+   * @readonly
+   */
+  readonly _emitSubject = new Subject<string>();
+
+  /**
    * Subject that emits to cancel output waiting, providing an empty output string and agent name.
    * Triggered by cancelOutput to interrupt waitForOutput, ensuring responsive cancellation.
    * @type {Subject<{ agentName: string; output: string }>}
@@ -149,6 +163,33 @@ export class ClientSwarm implements ISwarm {
           params,
         }
       );
+  }
+
+  /**
+   * Emits a message to subscribers via _emitSubject after validating it against the policy (ClientPolicy).
+   * Emits the ban message if validation fails, notifying subscribers and logging via BusService.
+   * Supports SwarmConnectionService by broadcasting session outputs within the swarm.
+   * @param {string} message - The message to emit, typically an agent response or tool output.
+   * @returns {Promise<void>} Resolves when the message (or ban message) is emitted and the event is logged.
+   */
+  async emit(message: string): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} emit`
+      );
+    await this._emitSubject.next(message);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "emit",
+      source: "session-bus",
+      input: {
+        message,
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      },
+      clientId: this.params.clientId,
+    });
   }
 
   /**
