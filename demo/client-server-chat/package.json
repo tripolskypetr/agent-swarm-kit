@@ -1,0 +1,22 @@
+{
+  "name": "ollama-redis-chat",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start:client": "bun ./src/client.ts",
+    "start:server": "bun ./src/server.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "agent-swarm-kit": "^1.0.176",
+    "functools-kit": "^1.0.76",
+    "ollama": "^0.5.14",
+    "openai": "^4.87.4"
+  }
+}
