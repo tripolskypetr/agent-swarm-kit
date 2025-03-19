@@ -47,7 +47,7 @@ addCompletion({
 
 addCompletion({
   completionName: CompletionName.SaigaYandexGPTCompletion,
-  getCompletion: Adapter.fromOpenAI(getOpenAI(), "saiga_yandexgpt_8b_gguf"),
+  getCompletion: Adapter.fromLMStudio(getOpenAI(), "saiga_yandexgpt_8b_gguf"),
 });
 
 addAgent({

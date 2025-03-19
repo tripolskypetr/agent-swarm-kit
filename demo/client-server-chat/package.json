@@ -14,7 +14,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "agent-swarm-kit": "^1.0.179",
+    "agent-swarm-kit": "^1.0.180",
     "functools-kit": "^1.0.76",
     "ollama": "^0.5.14",
     "openai": "^4.87.4"

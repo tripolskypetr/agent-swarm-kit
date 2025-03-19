@@ -130,7 +130,7 @@ export class AdapterUtils {
           };
         },
         RETRY_COUNT,
-        RETRY_DELAY,
+        RETRY_DELAY
       ),
       {
         maxExec: EXECPOOL_SIZE,
@@ -176,6 +176,8 @@ export class AdapterUtils {
             JSON.stringify(rawMessages)
           );
 
+          const toolNames = new Set(tools?.map((tool) => tool.function.name));
+
           const messages = rawMessages.map(
             ({ role, tool_call_id, tool_calls, content }) => ({
               role,
@@ -211,13 +213,15 @@ export class AdapterUtils {
             mode,
             agentName,
             role,
-            tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
-              ...rest,
-              function: {
-                name: f.name,
-                arguments: JSON.parse(f.arguments),
-              },
-            })),
+            tool_calls: tool_calls
+              ?.filter(({ function: { name } }) => toolNames.has(name))
+              ?.map(({ function: f, ...rest }) => ({
+                ...rest,
+                function: {
+                  name: f.name,
+                  arguments: JSON.parse(f.arguments),
+                },
+              })),
           };
         },
         RETRY_COUNT,
