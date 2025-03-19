@@ -40,12 +40,7 @@ const WAIT_FOR_OUTPUT_FN = async (self: ClientSwarm): Promise<string> => {
             agentName,
             output: await agent.waitForOutput(),
           }))
-          .concat(
-            self._emitSubject.toPromise().then(async (output) => ({
-              agentName: await self.getAgentName(),
-              output,
-            }))
-          )
+          .concat(self._emitSubject.toPromise())
           .concat(self._cancelOutputSubject.toPromise())
       )
   );
@@ -129,7 +124,10 @@ export class ClientSwarm implements ISwarm {
    * @type {Subject<string>}
    * @readonly
    */
-  readonly _emitSubject = new Subject<string>();
+  readonly _emitSubject = new Subject<{
+    agentName: string;
+    output: string;
+  }>();
 
   /**
    * Subject that emits to cancel output waiting, providing an empty output string and agent name.
@@ -177,7 +175,10 @@ export class ClientSwarm implements ISwarm {
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} emit`
       );
-    await this._emitSubject.next(message);
+    await this._emitSubject.next({
+      agentName: await this.getAgentName(),
+      output: message,
+    });
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "emit",
       source: "session-bus",

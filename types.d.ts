@@ -3907,7 +3907,10 @@ declare class ClientSwarm implements ISwarm {
      * @type {Subject<string>}
      * @readonly
      */
-    readonly _emitSubject: Subject<string>;
+    readonly _emitSubject: Subject<{
+        agentName: string;
+        output: string;
+    }>;
     /**
      * Subject that emits to cancel output waiting, providing an empty output string and agent name.
      * Triggered by cancelOutput to interrupt waitForOutput, ensuring responsive cancellation.
