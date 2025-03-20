@@ -3,7 +3,7 @@ import {
   randomString,
   rate,
   schedule,
-  singleshot,
+  singlerun,
 } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { SwarmName } from "../../interfaces/Swarm.interface";
@@ -132,9 +132,11 @@ const session = <Payload extends object = object>(
 
   let isMounted = true;
 
-  const online = singleshot(async () => {
+  const online = singlerun(async () => {
     await markOnline(clientId, swarmName);
   });
+
+  online();
 
   return {
     complete: beginContext(
@@ -202,9 +204,11 @@ session.scheduled = <Payload extends object = object>(
   });
   let isMounted = true;
 
-  const online = singleshot(async () => {
+  const online = singlerun(async () => {
     await markOnline(clientId, swarmName);
   });
+
+  online();
 
   const wrappedComplete = schedule(
     beginContext(async (content: string, payload: Payload) => {
@@ -298,9 +302,11 @@ session.rate = <Payload extends object = object>(
   });
   let isMounted = true;
 
-  const online = singleshot(async () => {
+  const online = singlerun(async () => {
     await markOnline(clientId, swarmName);
   });
+
+  online();
 
   const wrappedComplete = rate(
     beginContext(async (content: string, payload: Payload) => {

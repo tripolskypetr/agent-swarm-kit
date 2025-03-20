@@ -1,6 +1,5 @@
 {
   "name": "repl-phone-seller",
-  "module": "index.ts",
   "type": "module",
   "scripts": {
     "start": "bun ./src/index.ts",

@@ -1,4 +1,4 @@
-import { queued, rate, schedule, singleshot } from "functools-kit";
+import { queued, rate, schedule, singlerun } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { ReceiveMessageFn } from "../../interfaces/Session.interface";
 import { SwarmName } from "../../interfaces/Swarm.interface";
@@ -107,9 +107,11 @@ const makeConnection = <Payload extends object = object>(
 ) => {
   const send = makeConnectionInternal(connector, clientId, swarmName);
 
-  const online = singleshot(async () => {
+  const online = singlerun(async () => {
     await markOnline(clientId, swarmName);
   });
+
+  online();
 
   return beginContext(
     async (content: string, payload: Payload = null as Payload) => {
@@ -164,9 +166,11 @@ makeConnection.scheduled = <Payload extends object = object>(
 ) => {
   const send = makeConnectionInternal(connector, clientId, swarmName);
 
-  const online = singleshot(async () => {
+  const online = singlerun(async () => {
     await markOnline(clientId, swarmName);
   });
+
+  online();
 
   const wrappedSend = schedule(
     beginContext(async (content: string, payload: Payload) => {
@@ -251,9 +255,11 @@ makeConnection.rate = <Payload extends object = object>(
 ) => {
   const send = makeConnectionInternal(connector, clientId, swarmName);
 
-  const online = singleshot(async () => {
+  const online = singlerun(async () => {
     await markOnline(clientId, swarmName);
   });
+
+  online();
 
   const wrappedSend = rate(
     beginContext(async (content: string, payload: Payload) => {

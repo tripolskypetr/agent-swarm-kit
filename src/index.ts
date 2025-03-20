@@ -101,7 +101,7 @@ export { IModelMessage } from "./model/ModelMessage.model";
 export { IIncomingMessage, IOutgoingMessage } from "./model/EmitMessage.model";
 export { ITool, IToolCall } from "./model/Tool.model";
 
-export { IGlobalConfig } from "./model/GlobalConfig.model"
+export { IGlobalConfig } from "./model/GlobalConfig.model";
 
 export {
   SendMessageFn,
@@ -166,7 +166,7 @@ export { Schema } from "./classes/Schema";
 export { Adapter } from "./classes/Adapter";
 
 export { ExecutionContextService } from "./lib/services/context/ExecutionContextService";
-export { PayloadContextService } from './lib/services/context/PayloadContextService';
+export { PayloadContextService } from "./lib/services/context/PayloadContextService";
 export { MethodContextService } from "./lib/services/context/MethodContextService";
 
 export { beginContext } from "./utils/beginContext";
@@ -179,6 +179,18 @@ import {
   PersistAliveUtils,
   PersistPolicyUtils,
 } from "./classes/Persist";
+
+export {
+  IPersistActiveAgentData,
+  IPersistAliveData,
+  IPersistMemoryData,
+  IPersistNavigationStackData,
+  IPersistStateData,
+  IPersistStorageData,
+  IPersistPolicyData,
+} from "./classes/Persist";
+
+export { IStorageData } from "./interfaces/Storage.interface";
 
 export const Utils = {
   PersistStateUtils,
