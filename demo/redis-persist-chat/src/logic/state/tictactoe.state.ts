@@ -11,13 +11,6 @@ addState({
     winner: null,
     isGameOver: false
   }),
-  getState: (): IGameState => ({
-    board: Array(9).fill(null),
-    currentPlayer: null,
-    user: null,
-    winner: null,
-    isGameOver: false
-  }),
   middlewares: [
     async (state: IGameState) => {
       const winPatterns = [
