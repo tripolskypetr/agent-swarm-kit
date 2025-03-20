@@ -26,6 +26,7 @@ const getOpenAI = singleshot(
 enum CompletionName {
   NemotronMiniCompletion = "nemotron_mini_completion",
   SaigaYandexGPTCompletion = "saiga_yandex_gpt_completion",
+  Gemma3ToolsCompletion = "gemma3_tools_completion",
 }
 
 enum AgentName {
@@ -46,13 +47,18 @@ addCompletion({
 });
 
 addCompletion({
+  completionName: CompletionName.Gemma3ToolsCompletion,
+  getCompletion: Adapter.fromOllama(getOllama(), "tripolskypetr/gemma3-tools", ""),
+})
+
+addCompletion({
   completionName: CompletionName.SaigaYandexGPTCompletion,
   getCompletion: Adapter.fromLMStudio(getOpenAI(), "saiga_yandexgpt_8b_gguf"),
 });
 
 addAgent({
   agentName: AgentName.TestAgent,
-  completion: CompletionName.SaigaYandexGPTCompletion,
+  completion: CompletionName.Gemma3ToolsCompletion,
   prompt: str.newline(
     "You are the pharma seller agent.",
     "Provide me the consultation about the pharma product"
