@@ -489,6 +489,13 @@ export interface IGlobalConfig {
   CC_PERSIST_MEMORY_STORAGE: boolean;
 
   /**
+   * Flag to enable persistent cache for `embeddings`. Will allow to reduce costs while using openai
+   * Disabled (false) by default which faster for ollama local embeddings
+   * @type {boolean}
+   */
+  CC_PERSIST_EMBEDDING_CACHE: boolean
+
+  /**
    * Retrieves the embedding vector for a specific string hash, returning null if not found.
    * Used to check if a precomputed embedding exists in the cache.
    * @param embeddingName - The identifier of the embedding type.

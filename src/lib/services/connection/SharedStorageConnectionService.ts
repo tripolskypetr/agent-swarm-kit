@@ -105,7 +105,7 @@ export class SharedStorageConnectionService implements IStorage {
         );
       }
       const {
-        persist: p = GLOBAL_CONFIG.CC_PERSIST_ENABLED_BY_DEFAULT,
+        persist: p = GLOBAL_CONFIG.CC_PERSIST_EMBEDDING_CACHE,
         writeEmbeddingCache = p
           ? PersistEmbeddingAdapter.writeEmbeddingCache
           : GLOBAL_CONFIG.CC_DEFAULT_WRITE_EMBEDDING_CACHE,
