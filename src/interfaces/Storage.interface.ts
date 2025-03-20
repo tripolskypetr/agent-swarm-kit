@@ -86,7 +86,10 @@ export interface IStorageSchema<T extends IStorageData = IStorageData> {
    * @param {StorageName} storageName - The unique name of the storage.
    * @returns {Promise<T[]> | T[]} The default data array, synchronously or asynchronously.
    */
-  getDefaultData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
+  getDefaultData?: (
+    clientId: string,
+    storageName: StorageName
+  ) => Promise<T[]> | T[];
 }
 
 /**
@@ -153,6 +156,27 @@ export interface IStorageParams<T extends IStorageData = IStorageData>
    * Used for search operations.
    */
   calculateSimilarity: IEmbeddingSchema["calculateSimilarity"];
+
+  /**
+   * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
+   * Used to cache computed embeddings to avoid redundant processing.
+   * @param embeddings - Array of numerical values representing the embedding vector.
+   * @param embeddingName - The identifier of the embedding type.
+   * @param stringHash - The hash of the string for which the embedding was generated.
+   * @returns A promise that resolves when the embedding vector is persisted.
+   * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+   */
+  writeEmbeddingCache: IEmbeddingSchema["writeEmbeddingCache"];
+
+  /**
+   * Retrieves the embedding vector for a specific string hash, returning null if not found.
+   * Used to check if a precomputed embedding exists in the cache.
+   * @param embeddingName - The identifier of the embedding type.
+   * @param stringHash - The hash of the string for which the embedding was generated.
+   * @returns A promise resolving to the embedding vector or null if not cached.
+   * @throws {Error} If reading from storage fails (e.g., file corruption).
+   */
+  readEmbeddingCache: IEmbeddingSchema["readEmbeddingCache"];
 
   /**
    * Function to create an embedding for storage items, inherited from the embedding schema.

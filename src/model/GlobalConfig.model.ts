@@ -8,6 +8,7 @@ import { StateName } from "../interfaces/State.interface";
 import { IStorageData, StorageName } from "../interfaces/Storage.interface";
 import { PolicyName } from "../interfaces/Policy.interface";
 import { SessionId } from "../interfaces/Session.interface";
+import { EmbeddingName } from "../interfaces/Embedding.interface";
 
 /**
  * Interface defining the global configuration settings and behaviors for the swarm system.
@@ -486,4 +487,39 @@ export interface IGlobalConfig {
    * @type {boolean}
    */
   CC_PERSIST_MEMORY_STORAGE: boolean;
+
+  /**
+   * Flag to enable persistent cache for `embeddings`. Will allow to reduce costs while using openai
+   * Disabled (false) by default which faster for ollama local embeddings
+   * @type {boolean}
+   */
+  CC_PERSIST_EMBEDDING_CACHE: boolean
+
+  /**
+   * Retrieves the embedding vector for a specific string hash, returning null if not found.
+   * Used to check if a precomputed embedding exists in the cache.
+   * @param embeddingName - The identifier of the embedding type.
+   * @param stringHash - The hash of the string for which the embedding was generated.
+   * @returns A promise resolving to the embedding vector or null if not cached.
+   * @throws {Error} If reading from storage fails (e.g., file corruption).
+   */
+  CC_DEFAULT_READ_EMBEDDING_CACHE: (
+    embeddingName: EmbeddingName,
+    stringHash: string
+  ) => Promise<number[] | null> | number[] | null;
+
+  /**
+   * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
+   * Used to cache computed embeddings to avoid redundant processing.
+   * @param embeddings - Array of numerical values representing the embedding vector.
+   * @param embeddingName - The identifier of the embedding type.
+   * @param stringHash - The hash of the string for which the embedding was generated.
+   * @returns A promise that resolves when the embedding vector is persisted.
+   * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+   */
+  CC_DEFAULT_WRITE_EMBEDDING_CACHE: (
+    embeddings: number[],
+    embeddingName: EmbeddingName,
+    stringHash: string
+  ) => Promise<void> | void;
 }

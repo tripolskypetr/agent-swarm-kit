@@ -61,6 +61,9 @@ export interface IEmbeddingCallbacks {
  * Defines how embeddings are created and compared within the swarm.
  */
 export interface IEmbeddingSchema {
+  /** Optional flag to enable serialization of navigation stack and active agent state to persistent storage (e.g., hard drive). */
+  persist?: boolean;
+
   /** The unique name of the embedding mechanism within the swarm. */
   embeddingName: EmbeddingName;
 
@@ -71,7 +74,7 @@ export interface IEmbeddingSchema {
    * @returns {Promise<Embeddings>} A promise resolving to the generated embedding as an array of numbers.
    * @throws {Error} If embedding creation fails (e.g., due to invalid text or model errors).
    */
-  createEmbedding(text: string): Promise<Embeddings>;
+  createEmbedding(text: string, embeddingName: EmbeddingName): Promise<Embeddings>;
 
   /**
    * Calculates the similarity between two embeddings.
@@ -82,6 +85,34 @@ export interface IEmbeddingSchema {
    * @throws {Error} If similarity calculation fails (e.g., due to invalid embeddings or computation errors).
    */
   calculateSimilarity(a: Embeddings, b: Embeddings): Promise<number>;
+
+  /**
+   * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
+   * Used to cache computed embeddings to avoid redundant processing.
+   * @param embeddings - Array of numerical values representing the embedding vector.
+   * @param embeddingName - The identifier of the embedding type.
+   * @param stringHash - The hash of the string for which the embedding was generated.
+   * @returns A promise that resolves when the embedding vector is persisted.
+   * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+   */
+  writeEmbeddingCache?: (
+    embeddings: number[],
+    embeddingName: EmbeddingName,
+    stringHash: string
+  ) => Promise<void> | void;
+
+  /**
+   * Retrieves the embedding vector for a specific string hash, returning null if not found.
+   * Used to check if a precomputed embedding exists in the cache.
+   * @param embeddingName - The identifier of the embedding type.
+   * @param stringHash - The hash of the string for which the embedding was generated.
+   * @returns A promise resolving to the embedding vector or null if not cached.
+   * @throws {Error} If reading from storage fails (e.g., file corruption).
+   */
+  readEmbeddingCache?: (
+    embeddingName: EmbeddingName,
+    stringHash: string
+  ) => Promise<number[] | null> | number[] | null;
 
   /** Optional partial set of callbacks for embedding events, allowing customization of creation and comparison. */
   callbacks?: Partial<IEmbeddingCallbacks>;

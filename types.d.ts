@@ -183,6 +183,8 @@ interface IEmbeddingCallbacks {
  * Defines how embeddings are created and compared within the swarm.
  */
 interface IEmbeddingSchema {
+    /** Optional flag to enable serialization of navigation stack and active agent state to persistent storage (e.g., hard drive). */
+    persist?: boolean;
     /** The unique name of the embedding mechanism within the swarm. */
     embeddingName: EmbeddingName;
     /**
@@ -192,7 +194,7 @@ interface IEmbeddingSchema {
      * @returns {Promise<Embeddings>} A promise resolving to the generated embedding as an array of numbers.
      * @throws {Error} If embedding creation fails (e.g., due to invalid text or model errors).
      */
-    createEmbedding(text: string): Promise<Embeddings>;
+    createEmbedding(text: string, embeddingName: EmbeddingName): Promise<Embeddings>;
     /**
      * Calculates the similarity between two embeddings.
      * Commonly used for search or ranking operations (e.g., cosine similarity).
@@ -202,6 +204,25 @@ interface IEmbeddingSchema {
      * @throws {Error} If similarity calculation fails (e.g., due to invalid embeddings or computation errors).
      */
     calculateSimilarity(a: Embeddings, b: Embeddings): Promise<number>;
+    /**
+     * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
+     * Used to cache computed embeddings to avoid redundant processing.
+     * @param embeddings - Array of numerical values representing the embedding vector.
+     * @param embeddingName - The identifier of the embedding type.
+     * @param stringHash - The hash of the string for which the embedding was generated.
+     * @returns A promise that resolves when the embedding vector is persisted.
+     * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+     */
+    writeEmbeddingCache?: (embeddings: number[], embeddingName: EmbeddingName, stringHash: string) => Promise<void> | void;
+    /**
+     * Retrieves the embedding vector for a specific string hash, returning null if not found.
+     * Used to check if a precomputed embedding exists in the cache.
+     * @param embeddingName - The identifier of the embedding type.
+     * @param stringHash - The hash of the string for which the embedding was generated.
+     * @returns A promise resolving to the embedding vector or null if not cached.
+     * @throws {Error} If reading from storage fails (e.g., file corruption).
+     */
+    readEmbeddingCache?: (embeddingName: EmbeddingName, stringHash: string) => Promise<number[] | null> | number[] | null;
     /** Optional partial set of callbacks for embedding events, allowing customization of creation and comparison. */
     callbacks?: Partial<IEmbeddingCallbacks>;
 }
@@ -325,6 +346,25 @@ interface IStorageParams<T extends IStorageData = IStorageData> extends IStorage
      * Used for search operations.
      */
     calculateSimilarity: IEmbeddingSchema["calculateSimilarity"];
+    /**
+     * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
+     * Used to cache computed embeddings to avoid redundant processing.
+     * @param embeddings - Array of numerical values representing the embedding vector.
+     * @param embeddingName - The identifier of the embedding type.
+     * @param stringHash - The hash of the string for which the embedding was generated.
+     * @returns A promise that resolves when the embedding vector is persisted.
+     * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+     */
+    writeEmbeddingCache: IEmbeddingSchema["writeEmbeddingCache"];
+    /**
+     * Retrieves the embedding vector for a specific string hash, returning null if not found.
+     * Used to check if a precomputed embedding exists in the cache.
+     * @param embeddingName - The identifier of the embedding type.
+     * @param stringHash - The hash of the string for which the embedding was generated.
+     * @returns A promise resolving to the embedding vector or null if not cached.
+     * @throws {Error} If reading from storage fails (e.g., file corruption).
+     */
+    readEmbeddingCache: IEmbeddingSchema["readEmbeddingCache"];
     /**
      * Function to create an embedding for storage items, inherited from the embedding schema.
      * Used for indexing.
@@ -2363,6 +2403,76 @@ declare class PersistPolicyUtils implements IPersistPolicyControl {
  * @type {IPersistPolicyControl}
  */
 declare const PersistPolicy: IPersistPolicyControl;
+/**
+ * Defines the structure for embedding data persistence in the swarm system.
+ * Stores numerical embeddings for a `stringHash` within an `EmbeddingName`.
+ * @interface IPersistEmbeddingData
+ */
+interface IPersistEmbeddingData {
+    /** Array of numerical values representing the embedding vector */
+    embeddings: number[];
+}
+/**
+ * Defines control methods for customizing embedding persistence operations.
+ * Allows injection of a custom persistence adapter for embedding data tied to `EmbeddingName`.
+ * @interface IPersistEmbeddingControl
+ */
+interface IPersistEmbeddingControl {
+    /**
+     * Sets a custom persistence adapter for embedding data storage.
+     * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory tracking for `SwarmName`).
+     * @param {TPersistBaseCtor<SwarmName, IPersistEmbeddingData>} Ctor - The constructor for the embedding data persistence adapter.
+     */
+    usePersistEmbeddingAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistEmbeddingData>): void;
+}
+/**
+ * Utility class for managing embedding data persistence in the swarm system.
+ * Provides methods to read and write embedding vectors with a customizable adapter.
+ * @implements {IPersistEmbeddingControl}
+ */
+declare class PersistEmbeddingUtils implements IPersistEmbeddingControl {
+    /** @private Default constructor for embedding data persistence, defaults to `PersistBase` */
+    private PersistEmbeddingFactory;
+    /**
+     * Memoized function to create or retrieve storage for specific embedding data.
+     * Ensures a single persistence instance per embedding name, optimizing resource use.
+     * @private
+     * @param embeddingName - The identifier of the embedding type.
+     * @returns A persistence instance for the embedding data, rooted at `./logs/data/embedding/`.
+     */
+    private getEmbeddingStorage;
+    /**
+     * Configures a custom constructor for embedding data persistence, overriding the default `PersistBase`.
+     * Enables advanced tracking (e.g., in-memory or database-backed persistence).
+     * @param Ctor - The constructor to use for embedding data storage, implementing `IPersistBase`.
+     */
+    usePersistEmbeddingAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistEmbeddingData>): void;
+    /**
+     * Retrieves the embedding vector for a specific string hash, returning null if not found.
+     * Used to check if a precomputed embedding exists in the cache.
+     * @param embeddingName - The identifier of the embedding type.
+     * @param stringHash - The hash of the string for which the embedding was generated.
+     * @returns A promise resolving to the embedding vector or null if not cached.
+     * @throws {Error} If reading from storage fails (e.g., file corruption).
+     */
+    readEmbeddingCache: (embeddingName: EmbeddingName, stringHash: string) => Promise<number[] | null>;
+    /**
+     * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
+     * Used to cache computed embeddings to avoid redundant processing.
+     * @param embeddings - Array of numerical values representing the embedding vector.
+     * @param embeddingName - The identifier of the embedding type.
+     * @param stringHash - The hash of the string for which the embedding was generated.
+     * @returns A promise that resolves when the embedding vector is persisted.
+     * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+     */
+    writeEmbeddingCache: (embeddings: number[], embeddingName: EmbeddingName, stringHash: string) => Promise<void>;
+}
+/**
+ * Exported singleton for embedding persistence operations, cast as the control interface.
+ * Provides a global point of access for managing embedding cache in the system.
+ * @type {IPersistEmbeddingControl}
+ */
+declare const PersistEmbedding: IPersistEmbeddingControl;
 
 /**
  * Callbacks for managing history instance lifecycle and message handling.
@@ -10100,6 +10210,31 @@ interface IGlobalConfig {
      * @type {boolean}
      */
     CC_PERSIST_MEMORY_STORAGE: boolean;
+    /**
+     * Flag to enable persistent cache for `embeddings`. Will allow to reduce costs while using openai
+     * Disabled (false) by default which faster for ollama local embeddings
+     * @type {boolean}
+     */
+    CC_PERSIST_EMBEDDING_CACHE: boolean;
+    /**
+     * Retrieves the embedding vector for a specific string hash, returning null if not found.
+     * Used to check if a precomputed embedding exists in the cache.
+     * @param embeddingName - The identifier of the embedding type.
+     * @param stringHash - The hash of the string for which the embedding was generated.
+     * @returns A promise resolving to the embedding vector or null if not cached.
+     * @throws {Error} If reading from storage fails (e.g., file corruption).
+     */
+    CC_DEFAULT_READ_EMBEDDING_CACHE: (embeddingName: EmbeddingName, stringHash: string) => Promise<number[] | null> | number[] | null;
+    /**
+     * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
+     * Used to cache computed embeddings to avoid redundant processing.
+     * @param embeddings - Array of numerical values representing the embedding vector.
+     * @param embeddingName - The identifier of the embedding type.
+     * @param stringHash - The hash of the string for which the embedding was generated.
+     * @returns A promise that resolves when the embedding vector is persisted.
+     * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+     */
+    CC_DEFAULT_WRITE_EMBEDDING_CACHE: (embeddings: number[], embeddingName: EmbeddingName, stringHash: string) => Promise<void> | void;
 }
 
 declare const GLOBAL_CONFIG: IGlobalConfig;
@@ -10642,6 +10777,7 @@ declare const Utils: {
     PersistMemoryUtils: typeof PersistMemoryUtils;
     PersistAliveUtils: typeof PersistAliveUtils;
     PersistPolicyUtils: typeof PersistPolicyUtils;
+    PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PayloadContextService, PersistAlive, PersistBase, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, runStateless, runStatelessForce, session, setConfig, swarm };

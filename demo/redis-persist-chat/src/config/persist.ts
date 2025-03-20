@@ -5,6 +5,7 @@ import {
   PersistState,
   PersistStorage,
   PersistSwarm,
+  PersistEmbedding,
   History,
   type IHistoryInstance,
   type IModelMessage,
@@ -16,9 +17,15 @@ import {
   type IPersistMemoryData,
   type IPersistPolicyData,
   type IPersistAliveData,
+  type IPersistEmbeddingData,
+  setConfig,
 } from "agent-swarm-kit";
 import { singleshot } from "functools-kit";
 import Redis from "ioredis";
+
+setConfig({
+  CC_PERSIST_EMBEDDING_CACHE: true,
+});
 
 declare function parseInt(s: unknown): number;
 
@@ -339,6 +346,44 @@ PersistAlive.usePersistAliveAdapter(
       }
       await this._redis.set(key, JSON.stringify(entity));
       await this._redis.expire(key, ALIVE_REDIS_TTL);
+    }
+  }
+);
+
+PersistEmbedding.usePersistEmbeddingAdapter(
+  class implements IPersistBase<IPersistEmbeddingData> {
+    private _redis: Redis = null as never;
+
+    constructor(private readonly embeddingName: string) {}
+
+    public waitForInit = singleshot(async () => {
+      this._redis = await getRedis();
+    });
+
+    async readValue(stringHash: string): Promise<IPersistEmbeddingData> {
+      const key = `embedding:${this.embeddingName}:${stringHash}`;
+      const value = await this._redis.get(key);
+      if (!value) {
+        throw new Error(`PersistEmbedding ${stringHash} not found.`);
+      }
+      const buffer = Buffer.from(value, "base64");
+      const embeddings = Array.from(new Float64Array(buffer.buffer));
+      return { embeddings };
+    }
+
+    async hasValue(stringHash: string): Promise<boolean> {
+      const key = `embedding:${this.embeddingName}:${stringHash}`;
+      const exists = await this._redis.exists(key);
+      return exists === 1;
+    }
+
+    async writeValue(
+      stringHash: string,
+      entity: IPersistEmbeddingData
+    ): Promise<void> {
+      const key = `embedding:${this.embeddingName}:${stringHash}`;
+      const buffer = Buffer.from(new Float64Array(entity.embeddings).buffer);
+      await this._redis.set(key, buffer.toString("base64"));
     }
   }
 );

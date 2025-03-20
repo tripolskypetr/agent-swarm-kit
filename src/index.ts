@@ -151,6 +151,7 @@ export {
   PersistMemory,
   PersistAlive,
   PersistPolicy,
+  PersistEmbedding,
   IPersistBase,
   TPersistBaseCtor,
 } from "./classes/Persist";
@@ -178,6 +179,7 @@ import {
   PersistMemoryUtils,
   PersistAliveUtils,
   PersistPolicyUtils,
+  PersistEmbeddingUtils,
 } from "./classes/Persist";
 
 export {
@@ -188,6 +190,7 @@ export {
   IPersistStateData,
   IPersistStorageData,
   IPersistPolicyData,
+  IPersistEmbeddingData,
 } from "./classes/Persist";
 
 export { IStorageData } from "./interfaces/Storage.interface";
@@ -199,4 +202,5 @@ export const Utils = {
   PersistMemoryUtils,
   PersistAliveUtils,
   PersistPolicyUtils,
+  PersistEmbeddingUtils,
 };

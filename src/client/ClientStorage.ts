@@ -13,6 +13,21 @@ import {
 import { GLOBAL_CONFIG } from "../config/params";
 import { IBusEvent } from "../model/Event.model";
 import { Embeddings } from "../interfaces/Embedding.interface";
+import { createHash } from "crypto";
+
+/**
+ * Creates a SHA-256 hash of the provided string.
+ *
+ * @param {string} string - The input string to be hashed.
+ * @returns {string} A hexadecimal representation of the SHA-256 hash.
+ *
+ * @example
+ * // Returns "315f5bdb76d078c43b8ac0064e4a0164612b1fce77c869345bfc94c75894edd3"
+ * createSHA256Hash("Hello, world!");
+ */
+function createSHA256Hash(string: string) {
+  return createHash("sha256").update(string).digest("hex");
+}
 
 /**
  * Type representing possible storage actions for ClientStorage operations.
@@ -55,7 +70,22 @@ const CREATE_EMBEDDING_FN = async <T extends IStorageData = IStorageData>(
       }
     );
   const index = await self.params.createIndex(item);
-  const embeddings = await self.params.createEmbedding(index);
+  const hash = createSHA256Hash(index);
+  let embeddings = await self.params.readEmbeddingCache(
+    self.params.embedding,
+    hash
+  );
+  if (!embeddings) {
+    embeddings = await self.params.createEmbedding(
+      index,
+      self.params.embedding
+    );
+    await self.params.writeEmbeddingCache(
+      embeddings,
+      self.params.embedding,
+      hash
+    );
+  }
   if (self.params.onCreate) {
     self.params.onCreate(
       index,
@@ -162,7 +192,10 @@ const UPSERT_FN = async <T extends IStorageData = IStorageData>(
  * @returns {Promise<void>} Resolves when the item is removed, cache is cleared, and the event is emitted.
  * @private
  */
-const REMOVE_FN = async (itemId: IStorageData["id"], self: ClientStorage): Promise<void> => {
+const REMOVE_FN = async (
+  itemId: IStorageData["id"],
+  self: ClientStorage
+): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
       `ClientStorage storageName=${self.params.storageName} clientId=${self.params.clientId} shared=${self.params.shared} remove`,
@@ -345,7 +378,9 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * Ensures initialization happens only once using singleshot, supporting StorageConnectionService’s lifecycle.
    * @returns {Promise<void>} Resolves when initialization is complete and items are loaded into _itemMap.
    */
-  waitForInit = singleshot(async (): Promise<void> => await WAIT_FOR_INIT_FN(this));
+  waitForInit = singleshot(
+    async (): Promise<void> => await WAIT_FOR_INIT_FN(this)
+  );
 
   /**
    * Retrieves a specified number of items based on similarity to a search string, using embeddings and SortedArray.
@@ -370,7 +405,16 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         }
       );
     const indexed = new SortedArray<T>();
-    const searchEmbeddings = await this.params.createEmbedding(search);
+    let searchEmbeddings = await this.params.readEmbeddingCache(
+      this.params.embedding,
+      createSHA256Hash(search)
+    );
+    if (!searchEmbeddings) {
+      searchEmbeddings = await this.params.createEmbedding(
+        search,
+        this.params.embedding
+      );
+    }
     if (this.params.onCreate) {
       this.params.onCreate(
         search,

@@ -11,6 +11,7 @@ import { IToolCall } from "../model/Tool.model";
 import { StateName } from "../interfaces/State.interface";
 import { IStorageData, StorageName } from "../interfaces/Storage.interface";
 import { IGlobalConfig } from "../model/GlobalConfig.model";
+import { EmbeddingName } from "../interfaces/Embedding.interface";
 
 const CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT = "Start the conversation";
 
@@ -164,9 +165,39 @@ const CC_PERSIST_ENABLED_BY_DEFAULT = true;
 
 const CC_PERSIST_MEMORY_STORAGE = true;
 
+const CC_PERSIST_EMBEDDING_CACHE = false;
+
 const CC_AUTOBAN_ENABLED_BY_DEFAULT = false;
 
 const CC_SKIP_POSIX_RENAME = false;
+
+/**
+ * Retrieves the embedding vector for a specific string hash, returning null if not found.
+ * Used to check if a precomputed embedding exists in the cache.
+ * @param embeddingName - The identifier of the embedding type.
+ * @param stringHash - The hash of the string for which the embedding was generated.
+ * @returns A promise resolving to the embedding vector or null if not cached.
+ * @throws {Error} If reading from storage fails (e.g., file corruption).
+ */
+const CC_DEFAULT_READ_EMBEDDING_CACHE = (
+  embeddingName: EmbeddingName,
+  stringHash: string
+) => Promise.resolve(null);
+
+/**
+ * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
+ * Used to cache computed embeddings to avoid redundant processing.
+ * @param embeddings - Array of numerical values representing the embedding vector.
+ * @param embeddingName - The identifier of the embedding type.
+ * @param stringHash - The hash of the string for which the embedding was generated.
+ * @returns A promise that resolves when the embedding vector is persisted.
+ * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+ */
+const CC_DEFAULT_WRITE_EMBEDDING_CACHE = (
+  embeddings: number[],
+  embeddingName: EmbeddingName,
+  stringHash: string
+) => Promise.resolve();
 
 const GLOBAL_CONFIG: IGlobalConfig = {
   CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
@@ -211,6 +242,9 @@ const GLOBAL_CONFIG: IGlobalConfig = {
   CC_DEFAULT_STORAGE_SET,
   CC_SKIP_POSIX_RENAME,
   CC_PERSIST_MEMORY_STORAGE,
+  CC_DEFAULT_READ_EMBEDDING_CACHE,
+  CC_DEFAULT_WRITE_EMBEDDING_CACHE,
+  CC_PERSIST_EMBEDDING_CACHE,
 };
 
 GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";
