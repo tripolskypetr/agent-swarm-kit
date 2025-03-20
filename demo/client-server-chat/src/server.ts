@@ -58,7 +58,7 @@ addCompletion({
 
 addAgent({
   agentName: AgentName.TestAgent,
-  completion: CompletionName.Gemma3ToolsCompletion,
+  completion: CompletionName.SaigaYandexGPTCompletion,
   prompt: str.newline(
     "You are the pharma seller agent.",
     "Provide me the consultation about the pharma product"
