@@ -29,6 +29,7 @@ setConfig({
 
 declare function parseInt(s: unknown): number;
 
+const EMBEDDING_REDIS_TTL = 604800; // 1 week
 const HISTORY_REDIS_TTL = 86400; // 24 hours
 const ALIVE_REDIS_TTL = 3600; // 1 hour
 
@@ -384,6 +385,7 @@ PersistEmbedding.usePersistEmbeddingAdapter(
       const key = `embedding:${this.embeddingName}:${stringHash}`;
       const buffer = Buffer.from(new Float64Array(entity.embeddings).buffer);
       await this._redis.set(key, buffer.toString("base64"));
+      await this._redis.expire(key, EMBEDDING_REDIS_TTL);
     }
   }
 );
