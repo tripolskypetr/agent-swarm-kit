@@ -1567,8 +1567,17 @@ export interface IPersistAliveControl {
  */
 export class PersistAliveUtils implements IPersistAliveControl {
   /** @private Default constructor for alive status persistence, defaults to `PersistBase` */
-  private PersistAliveFactory: TPersistBaseCtor<SwarmName, IPersistAliveData> =
-    PersistBase;
+  private PersistAliveFactory: TPersistBaseCtor<
+    SwarmName,
+    IPersistAliveData
+  > = class extends PersistBase {
+    public waitForInit = singleshot(async (initial: boolean) => {
+      await super.waitForInit(initial);
+      for await (const entityKey of this.keys()) {
+        await this.writeValue<IPersistAliveData>(entityKey, { online: false });
+      }
+    });
+  };
 
   /**
    * Memoized function to create or retrieve storage for a specific client’s alive status.
