@@ -112,7 +112,7 @@ Optional function to transform the model's output before further processing.
 ### map
 
 ```ts
-map: (message: IModelMessage<object>, clientId: string, agentName: string) => IModelMessage<object> | Promise<IModelMessage<object>>
+map: (message: IModelMessage, clientId: string, agentName: string) => IModelMessage | Promise<IModelMessage>
 ```
 
 Optional function to map assistant messages, e.g., converting JSON to tool calls for specific models.

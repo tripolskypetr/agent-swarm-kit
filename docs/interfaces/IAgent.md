@@ -51,7 +51,7 @@ Commits a system message to the agent's history or state.
 ### commitUserMessage
 
 ```ts
-commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>
+commitUserMessage: (message: string) => Promise<void>
 ```
 
 Commits a user message to the agent's history without triggering a response.

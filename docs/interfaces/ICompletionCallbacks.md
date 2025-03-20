@@ -8,7 +8,7 @@ Provides hooks for post-completion actions.
 ### onComplete
 
 ```ts
-onComplete: (args: ICompletionArgs, output: IModelMessage<object>) => void
+onComplete: (args: ICompletionArgs, output: IModelMessage) => void
 ```
 
 Optional callback triggered after a completion is successfully generated.

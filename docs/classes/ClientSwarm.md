@@ -51,15 +51,6 @@ The navigation stack of agent names, or a symbol indicating it needs to be fetch
 Initialized as STACK_NEED_FETCH, lazily populated by navigationPop via params.getNavigationStack.
 Updated by setAgentName (push) and navigationPop (pop), persisted via params.setNavigationStack.
 
-### _emitSubject
-
-```ts
-_emitSubject: Subject<{ agentName: string; output: string; }>
-```
-
-Subject for emitting output messages to subscribers, used by emit and connect methods.
-Provides an asynchronous stream of validated messages, supporting real-time updates to external connectors.
-
 ### _cancelOutputSubject
 
 ```ts
@@ -79,16 +70,6 @@ Waits for output from the active agent in a queued manner, delegating to WAIT_FO
 Ensures only one wait operation runs at a time, handling cancellation and agent changes, supporting ClientSession’s output retrieval.
 
 ## Methods
-
-### emit
-
-```ts
-emit(message: string): Promise<void>;
-```
-
-Emits a message to subscribers via _emitSubject after validating it against the policy (ClientPolicy).
-Emits the ban message if validation fails, notifying subscribers and logging via BusService.
-Supports SwarmConnectionService by broadcasting session outputs within the swarm.
 
 ### navigationPop
 

@@ -31,7 +31,7 @@ Ensures a single persistence instance per swarm, optimizing resource use.
 ### getBannedClients
 
 ```ts
-getBannedClients: (policyName: string, swarmName: string, defaultValue?: string[]) => Promise<string[]>
+getBannedClients: (policyName: PolicyName$1, swarmName: string, defaultValue?: string[]) => Promise<string[]>
 ```
 
 Retrieves the list of banned clients for a specific policy, defaulting to an empty array if unset.
@@ -40,7 +40,7 @@ Used to check client ban status in swarm workflows.
 ### setBannedClients
 
 ```ts
-setBannedClients: (bannedClients: string[], policyName: string, swarmName: string) => Promise<void>
+setBannedClients: (bannedClients: string[], policyName: PolicyName$1, swarmName: string) => Promise<void>
 ```
 
 Sets the list of banned clients for a specific policy, persisting the status for future retrieval.

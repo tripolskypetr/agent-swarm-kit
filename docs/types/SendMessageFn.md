@@ -1,7 +1,7 @@
 # SendMessageFn
 
 ```ts
-type SendMessageFn<T = void> = (outgoing: IOutgoingMessage) => Promise<T>;
+type SendMessageFn = (outgoing: string) => Promise<void>;
 ```
 
-Type representing a function for sending messages.
+Type definition for the send message function returned by connection factories.

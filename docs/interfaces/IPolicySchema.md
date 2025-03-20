@@ -5,14 +5,6 @@ Defines how policies enforce rules and manage bans within the swarm.
 
 ## Properties
 
-### persist
-
-```ts
-persist: boolean
-```
-
-Optional flag to enable serialization of banned clients to persistent storage (e.g., hard drive).
-
 ### docDescription
 
 ```ts

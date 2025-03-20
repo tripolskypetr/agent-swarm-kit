@@ -7,7 +7,7 @@ Interface defining methods for a history instance implementation.
 ### iterate
 
 ```ts
-iterate: (agentName: string) => AsyncIterableIterator<IModelMessage<object>>
+iterate: (agentName: string) => AsyncIterableIterator<IModelMessage>
 ```
 
 Iterates over history messages for an agent.
@@ -23,7 +23,7 @@ Initializes the history for an agent, loading initial data if needed.
 ### push
 
 ```ts
-push: (value: IModelMessage<object>, agentName: string) => Promise<void>
+push: (value: IModelMessage, agentName: string) => Promise<void>
 ```
 
 Adds a new message to the history for an agent.
@@ -31,7 +31,7 @@ Adds a new message to the history for an agent.
 ### pop
 
 ```ts
-pop: (agentName: string) => Promise<IModelMessage<object>>
+pop: (agentName: string) => Promise<IModelMessage>
 ```
 
 Removes and returns the last message from the history for an agent.

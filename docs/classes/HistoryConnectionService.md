@@ -66,7 +66,7 @@ Supports ClientAgent (history in EXECUTE_FN), AgentConnectionService (history pr
 ### push
 
 ```ts
-push: (message: IModelMessage<object>) => Promise<void>
+push: (message: IModelMessage) => Promise<void>
 ```
 
 Pushes a message to the agent’s history.
@@ -76,7 +76,7 @@ Mirrors HistoryPublicService’s push, supporting ClientAgent’s history update
 ### pop
 
 ```ts
-pop: () => Promise<IModelMessage<object>>
+pop: () => Promise<IModelMessage>
 ```
 
 Pops the most recent message from the agent’s history.
@@ -86,7 +86,7 @@ Mirrors HistoryPublicService’s pop, supporting ClientAgent’s history manipul
 ### toArrayForAgent
 
 ```ts
-toArrayForAgent: (prompt: string) => Promise<IModelMessage<object>[]>
+toArrayForAgent: (prompt: string) => Promise<IModelMessage[]>
 ```
 
 Converts the agent’s history to an array formatted for agent use, incorporating a prompt.
@@ -96,7 +96,7 @@ Mirrors HistoryPublicService’s toArrayForAgent, supporting ClientAgent’s exe
 ### toArrayForRaw
 
 ```ts
-toArrayForRaw: () => Promise<IModelMessage<object>[]>
+toArrayForRaw: () => Promise<IModelMessage[]>
 ```
 
 Converts the agent’s history to a raw array of messages.

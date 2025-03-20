@@ -1,7 +1,7 @@
 # IPersistStateControl
 
-Defines control methods for customizing state persistence operations.
-Allows injection of a custom persistence adapter for states tied to `StateName`.
+Interface defining control methods for state persistence operations.
+Allows customization of the persistence adapter for states.
 
 ## Methods
 
@@ -12,4 +12,3 @@ usePersistStateAdapter: (Ctor: TPersistBaseCtor<string, IPersistStateData<unknow
 ```
 
 Sets a custom persistence adapter for state storage.
-Overrides the default `PersistBase` implementation for specialized behavior (e.g., database storage for `StateName`).

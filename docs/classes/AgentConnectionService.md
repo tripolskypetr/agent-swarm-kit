@@ -180,7 +180,7 @@ Mirrors SessionPublicService’s commitAssistantMessage, supporting ClientAgent�
 ### commitUserMessage
 
 ```ts
-commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>
+commitUserMessage: (message: string) => Promise<void>
 ```
 
 Commits a user message to the agent’s history without triggering a response.

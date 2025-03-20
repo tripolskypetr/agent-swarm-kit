@@ -84,7 +84,7 @@ Mirrors ClientAgent’s RUN_FN at the session level, used for quick completions 
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn<void>, methodName: string, clientId: string, swarmName: string) => ReceiveMessageFn<string>
+connect: (connector: SendMessageFn$1<void>, methodName: string, clientId: string, swarmName: string) => ReceiveMessageFn<string>
 ```
 
 Connects to the session, establishing a messaging channel with performance tracking and event emission.
@@ -124,7 +124,7 @@ Supports ClientAgent’s assistant responses, mirrored in AgentPublicService and
 ### commitUserMessage
 
 ```ts
-commitUserMessage: (message: string, mode: ExecutionMode, methodName: string, clientId: string, swarmName: string) => Promise<void>
+commitUserMessage: (message: string, methodName: string, clientId: string, swarmName: string) => Promise<void>
 ```
 
 Commits a user message to the session’s history without triggering an answer.

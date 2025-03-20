@@ -33,16 +33,6 @@ swarmConnectionService: any
 Swarm connection service instance, injected via DI, for underlying swarm operations.
 Provides core functionality (e.g., navigationPop, getAgent) called by public methods, supporting ClientAgent’s swarm-level needs.
 
-### emit
-
-```ts
-emit: (content: string, methodName: string, clientId: string, swarmName: string) => Promise<void>
-```
-
-Emits a message to the session for a specific client and swarm.
-Wraps SessionConnectionService.emit with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
-Used in ClientAgent (e.g., session-level messaging) and AgentPublicService (e.g., swarm context emission).
-
 ### navigationPop
 
 ```ts

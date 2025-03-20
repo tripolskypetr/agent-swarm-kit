@@ -26,7 +26,7 @@ Optional partial set of callbacks for completion events, allowing customization 
 ### getCompletion
 
 ```ts
-getCompletion: (args: ICompletionArgs) => Promise<IModelMessage<object>>
+getCompletion: (args: ICompletionArgs) => Promise<IModelMessage>
 ```
 
 Retrieves a completion based on the provided arguments.

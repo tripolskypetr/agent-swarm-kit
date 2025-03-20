@@ -32,7 +32,7 @@ The source of the last message, indicating whether it originated from a tool or 
 ### messages
 
 ```ts
-messages: IModelMessage<object>[]
+messages: IModelMessage[]
 ```
 
 An array of model messages providing the conversation history or context for the completion.

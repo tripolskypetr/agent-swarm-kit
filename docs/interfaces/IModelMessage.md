@@ -68,12 +68,6 @@ Populated in getCompletion responses (e.g., ClientAgent EXECUTE_FN), mapped to I
 Example: `{ function: { name: "func", arguments: { key: "value" } }, id: "tool-id" }`.
 Absent in user, system, or tool output messages unless explicitly triggered by the model.
 
-### images
-
-```ts
-images: string[] | Uint8Array[]
-```
-
 ### tool_call_id
 
 ```ts
@@ -84,13 +78,3 @@ Optional identifier of the tool call this message responds to, linking tool outp
 Set in tool-related messages (e.g., commitToolOutput in ClientAgent) to correlate with a prior tool_calls entry.
 Example: `tool_call_id: "tool-id"` ties a tool’s output to its originating call.
 Undefined for non-tool-response messages (e.g., user input, assistant responses without tools).
-
-### payload
-
-```ts
-payload: Payload
-```
-
-Optional payload data attached to the message, providing additional context or metadata.
-Can be an object of any shape or `null` if no payload is needed; undefined if not present.
-Example: `{ image_id: &lt;uuid&gt; }` when user send a message

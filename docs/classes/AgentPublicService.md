@@ -106,7 +106,7 @@ Supports ClientAgent’s assistant responses, tracked by PerfService and documen
 ### commitUserMessage
 
 ```ts
-commitUserMessage: (message: string, mode: ExecutionMode, methodName: string, clientId: string, agentName: string) => Promise<void>
+commitUserMessage: (message: string, methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
 Commits a user message to the agent’s history without triggering an answer.

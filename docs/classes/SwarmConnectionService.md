@@ -72,16 +72,6 @@ Uses functools-kit’s memoize to cache instances by a composite key (clientId-s
 Configures the swarm with schema data from SwarmSchemaService, agent instances from AgentConnectionService, and persistence via PersistSwarmAdapter or defaults from GLOBAL_CONFIG.
 Supports ClientAgent (agent execution within swarms), SessionConnectionService (swarm access in sessions), and SwarmPublicService (public API).
 
-### emit
-
-```ts
-emit: (message: string) => Promise<void>
-```
-
-Emits a message to the session, typically for asynchronous communication.
-Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
-Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
-
 ### navigationPop
 
 ```ts

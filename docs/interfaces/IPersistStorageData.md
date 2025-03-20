@@ -1,7 +1,7 @@
 # IPersistStorageData
 
-Defines the structure for storage data persistence in the swarm system.
-Wraps an array of storage data for persistence, used by `PersistStorageUtils`.
+Interface for storage data persistence.
+Wraps an array of storage data for persistence.
 
 ## Properties
 
@@ -11,4 +11,4 @@ Wraps an array of storage data for persistence, used by `PersistStorageUtils`.
 data: T[]
 ```
 
-The array of storage data to persist (e.g., key-value pairs or records)
+The array of storage data to persist

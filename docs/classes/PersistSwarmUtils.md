@@ -3,7 +3,7 @@
 Implements `IPersistSwarmControl`
 
 Utility class for managing swarm-related persistence, including active agents and navigation stacks.
-Provides methods to get/set active agents and navigation stacks per client (`SessionId`) and swarm (`SwarmName`), with customizable adapters.
+Provides methods to get/set active agents and navigation stacks per client and swarm.
 
 ## Constructor
 
@@ -32,7 +32,7 @@ getActiveAgentStorage: any
 ```
 
 Memoized function to create or retrieve storage for active agents.
-Ensures a single persistence instance per `SwarmName`, improving efficiency.
+Ensures a single instance per swarm name.
 
 ### getNavigationStackStorage
 
@@ -41,7 +41,7 @@ getNavigationStackStorage: any
 ```
 
 Memoized function to create or retrieve storage for navigation stacks.
-Ensures a single persistence instance per `SwarmName`, optimizing resource use.
+Ensures a single instance per swarm name.
 
 ### getActiveAgent
 
@@ -50,7 +50,6 @@ getActiveAgent: (clientId: string, swarmName: string, defaultAgent: string) => P
 ```
 
 Retrieves the active agent for a client within a swarm, falling back to a default if not set.
-Used to determine the current `AgentName` for a `SessionId` in a `SwarmName` context.
 
 ### setActiveAgent
 
@@ -58,8 +57,7 @@ Used to determine the current `AgentName` for a `SessionId` in a `SwarmName` con
 setActiveAgent: (clientId: string, agentName: string, swarmName: string) => Promise<void>
 ```
 
-Sets the active agent for a client within a swarm, persisting it for future retrieval.
-Links a `SessionId` to an `AgentName` within a `SwarmName` for runtime agent switching.
+Sets the active agent for a client within a swarm.
 
 ### getNavigationStack
 
@@ -67,8 +65,8 @@ Links a `SessionId` to an `AgentName` within a `SwarmName` for runtime agent swi
 getNavigationStack: (clientId: string, swarmName: string) => Promise<string[]>
 ```
 
-Retrieves the navigation stack for a client within a swarm, returning an empty array if unset.
-Tracks navigation history as a stack of `AgentName`s for a `SessionId` within a `SwarmName`.
+Retrieves the navigation stack for a client within a swarm.
+Returns an empty array if no stack is set.
 
 ### setNavigationStack
 
@@ -76,8 +74,7 @@ Tracks navigation history as a stack of `AgentName`s for a `SessionId` within a 
 setNavigationStack: (clientId: string, agentStack: string[], swarmName: string) => Promise<void>
 ```
 
-Sets the navigation stack for a client within a swarm, persisting it for future retrieval.
-Stores a stack of `AgentName`s for a `SessionId` within a `SwarmName` to track navigation history.
+Sets the navigation stack for a client within a swarm.
 
 ## Methods
 
@@ -87,8 +84,7 @@ Stores a stack of `AgentName`s for a `SessionId` within a `SwarmName` to track n
 usePersistActiveAgentAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>): void;
 ```
 
-Configures a custom constructor for active agent persistence, overriding the default `PersistBase`.
-Allows advanced use cases like in-memory storage for `SwarmName`-specific active agents.
+Sets a custom constructor for active agent persistence, overriding the default PersistBase.
 
 ### usePersistNavigationStackAdapter
 
@@ -96,5 +92,4 @@ Allows advanced use cases like in-memory storage for `SwarmName`-specific active
 usePersistNavigationStackAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>): void;
 ```
 
-Configures a custom constructor for navigation stack persistence, overriding the default `PersistBase`.
-Enables customization for navigation tracking within a `SwarmName` (e.g., alternative storage backends).
+Sets a custom constructor for navigation stack persistence, overriding the default PersistBase.
