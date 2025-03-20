@@ -15,7 +15,10 @@ import EmbeddingSchemaService from "../schema/EmbeddingSchemaService";
 import SessionValidationService from "../validation/SessionValidationService";
 import BusService from "../base/BusService";
 import SharedStorageConnectionService from "./SharedStorageConnectionService";
-import { PersistStorageAdapter } from "../../../classes/Persist";
+import {
+  PersistEmbeddingAdapter,
+  PersistStorageAdapter,
+} from "../../../classes/Persist";
 
 /**
  * Service class for managing storage connections and operations in the swarm system.
@@ -135,6 +138,13 @@ export class StorageConnectionService implements IStorage {
         return this.sharedStorageConnectionService.getStorage(storageName);
       }
       const {
+        persist: p = GLOBAL_CONFIG.CC_PERSIST_ENABLED_BY_DEFAULT,
+        writeEmbeddingCache = p
+          ? PersistEmbeddingAdapter.writeEmbeddingCache
+          : GLOBAL_CONFIG.CC_DEFAULT_WRITE_EMBEDDING_CACHE,
+        readEmbeddingCache = p
+          ? PersistEmbeddingAdapter.readEmbeddingCache
+          : GLOBAL_CONFIG.CC_DEFAULT_READ_EMBEDDING_CACHE,
         calculateSimilarity,
         createEmbedding,
         callbacks: embedding,
@@ -143,6 +153,8 @@ export class StorageConnectionService implements IStorage {
         clientId,
         storageName,
         embedding: embeddingName,
+        writeEmbeddingCache,
+        readEmbeddingCache,
         calculateSimilarity,
         createEmbedding,
         createIndex,

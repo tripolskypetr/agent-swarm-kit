@@ -1,7 +1,7 @@
 # IPersistMemoryData
 
-Interface for memory data persistence.
-Wraps memory data for storage in a structured format.
+Defines the structure for memory data persistence in the swarm system.
+Wraps arbitrary memory data for storage, used by `PersistMemoryUtils`.
 
 ## Properties
 
@@ -11,4 +11,4 @@ Wraps memory data for storage in a structured format.
 data: T
 ```
 
-The memory data to persist
+The memory data to persist (e.g., session context or temporary state)

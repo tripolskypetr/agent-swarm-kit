@@ -22,10 +22,28 @@ calculateSimilarity: (a: Embeddings, b: Embeddings) => Promise<number>
 Function to calculate similarity between embeddings, inherited from the embedding schema.
 Used for search operations.
 
+### writeEmbeddingCache
+
+```ts
+writeEmbeddingCache: (embeddings: number[], embeddingName: string, stringHash: string) => void | Promise<void>
+```
+
+Stores an embedding vector for a specific string hash, persisting it for future retrieval.
+Used to cache computed embeddings to avoid redundant processing.
+
+### readEmbeddingCache
+
+```ts
+readEmbeddingCache: (embeddingName: string, stringHash: string) => number[] | Promise<number[]>
+```
+
+Retrieves the embedding vector for a specific string hash, returning null if not found.
+Used to check if a precomputed embedding exists in the cache.
+
 ### createEmbedding
 
 ```ts
-createEmbedding: (text: string) => Promise<Embeddings>
+createEmbedding: (text: string, embeddingName: string) => Promise<Embeddings>
 ```
 
 Function to create an embedding for storage items, inherited from the embedding schema.

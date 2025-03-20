@@ -9,3 +9,9 @@ Configuration interface for scheduled or rate-limited sessions.
 ```ts
 delay: number
 ```
+
+### onDispose
+
+```ts
+onDispose: () => void
+```

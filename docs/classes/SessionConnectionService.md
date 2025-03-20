@@ -114,7 +114,7 @@ Mirrors SessionPublicService’s run, supporting ClientAgent’s RUN_FN within a
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn$1<void>, clientId: string, swarmName: string) => ReceiveMessageFn<string>
+connect: (connector: SendMessageFn<void>, clientId: string, swarmName: string) => ReceiveMessageFn<string>
 ```
 
 Connects to the session using a provided send message function, returning a receive message function.
@@ -154,7 +154,7 @@ Mirrors SessionPublicService’s commitAssistantMessage, supporting ClientAgent�
 ### commitUserMessage
 
 ```ts
-commitUserMessage: (message: string) => Promise<void>
+commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>
 ```
 
 Commits a user message to the session’s history without triggering a response.

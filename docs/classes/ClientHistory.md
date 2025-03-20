@@ -25,7 +25,7 @@ params: IHistoryParams
 ### _filterCondition
 
 ```ts
-_filterCondition: (message: IModelMessage) => boolean
+_filterCondition: (message: IModelMessage<object>) => boolean
 ```
 
 Filter condition function for toArrayForAgent, used to filter messages based on agent-specific criteria.
@@ -36,7 +36,7 @@ Initialized from GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER, applied to common messag
 ### push
 
 ```ts
-push(message: IModelMessage): Promise<void>;
+push<Payload extends object = object>(message: IModelMessage<Payload>): Promise<void>;
 ```
 
 Pushes a message into the history and emits a corresponding event via BusService.

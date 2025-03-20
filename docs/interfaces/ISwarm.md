@@ -60,3 +60,11 @@ setAgentName: (agentName: string) => Promise<void>
 ```
 
 Sets the active agent in the swarm by name, updating navigation if applicable.
+
+### emit
+
+```ts
+emit: (message: string) => Promise<void>
+```
+
+Emits a message to the session's communication channel.

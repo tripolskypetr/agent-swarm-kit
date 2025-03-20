@@ -21,7 +21,7 @@ useClientCallbacks: (Callbacks: Partial<ILoggerInstanceCallbacks>) => void
 ```
 
 Configures client-specific lifecycle callbacks for logger instances.
-Applies to all instances created by LoggerUtils’ LoggerFactory.
+Applies to all instances created by LoggerUtils' LoggerFactory.
 
 ### useClientAdapter
 

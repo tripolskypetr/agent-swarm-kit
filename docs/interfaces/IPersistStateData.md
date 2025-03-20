@@ -1,7 +1,7 @@
 # IPersistStateData
 
-Interface for state data persistence.
-Wraps state data for storage in a structured format.
+Defines the structure for state data persistence in the swarm system.
+Wraps arbitrary state data for storage, used by `PersistStateUtils`.
 
 ## Properties
 
@@ -11,4 +11,4 @@ Wraps state data for storage in a structured format.
 state: T
 ```
 
-The state data to persist
+The state data to persist (e.g., agent configuration or session state)

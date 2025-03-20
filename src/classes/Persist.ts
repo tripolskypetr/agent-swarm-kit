@@ -19,6 +19,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 import { SessionId } from "../interfaces/Session.interface";
 import { PolicyName } from "../interfaces/Policy.interface";
+import { EmbeddingName } from "../interfaces/Embedding.interface";
 
 /**
  * Represents an identifier for an entity, which can be either a string or a number.
@@ -102,6 +103,17 @@ const PERSIST_STATE_UTILS_METHOD_NAME_USE_PERSIST_STATE_ADAPTER =
 const PERSIST_STATE_UTILS_METHOD_NAME_SET_STATE = "PersistStateUtils.setState";
 /** @private Constant for logging the getState method in PersistStateUtils */
 const PERSIST_STATE_UTILS_METHOD_NAME_GET_STATE = "PersistStateUtils.getState";
+
+// Logging method names for PersistEmbeddingUtils
+/** @private Constant for logging the usePersistEmbeddingAdapter method in PersistEmbeddingUtils */
+const PERSIST_EMBEDDING_UTILS_METHOD_NAME_USE_PERSIST_EMBEDDING_ADAPTER =
+  "PersistEmbeddingUtils.usePersistEmbeddingAdapter";
+/** @private Constant for logging the readEmbeddingCache method in PersistEmbeddingUtils */
+const PERSIST_EMBEDDING_UTILS_METHOD_NAME_READ_EMBEDDING_CACHE =
+  "PersistEmbeddingUtils.readEmbeddingCache";
+/** @private Constant for logging the writeEmbeddingCache method in PersistEmbeddingUtils */
+const PERSIST_EMBEDDING_UTILS_METHOD_NAME_WRITE_EMBEDDING_CACHE =
+  "PersistEmbeddingUtils.writeEmbeddingCache";
 
 // Logging method names for PersistMemoryUtils
 /** @private Constant for logging the usePersistMemoryAdapter method in PersistMemoryUtils */
@@ -1829,3 +1841,142 @@ export const PersistPolicyAdapter = new PersistPolicyUtils();
  * @type {IPersistPolicyControl}
  */
 export const PersistPolicy = PersistPolicyAdapter as IPersistPolicyControl;
+
+/**
+ * Defines the structure for embedding data persistence in the swarm system.
+ * Stores numerical embeddings for a `stringHash` within an `EmbeddingName`.
+ * @interface IPersistEmbeddingData
+ */
+export interface IPersistEmbeddingData {
+  /** Array of numerical values representing the embedding vector */
+  embeddings: number[];
+}
+
+/**
+ * Defines control methods for customizing embedding persistence operations.
+ * Allows injection of a custom persistence adapter for embedding data tied to `EmbeddingName`.
+ * @interface IPersistEmbeddingControl
+ */
+export interface IPersistEmbeddingControl {
+  /**
+   * Sets a custom persistence adapter for embedding data storage.
+   * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory tracking for `SwarmName`).
+   * @param {TPersistBaseCtor<SwarmName, IPersistEmbeddingData>} Ctor - The constructor for the embedding data persistence adapter.
+   */
+  usePersistEmbeddingAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistEmbeddingData>
+  ): void;
+}
+
+/**
+ * Utility class for managing embedding data persistence in the swarm system.
+ * Provides methods to read and write embedding vectors with a customizable adapter.
+ * @implements {IPersistEmbeddingControl}
+ */
+export class PersistEmbeddingUtils implements IPersistEmbeddingControl {
+  /** @private Default constructor for embedding data persistence, defaults to `PersistBase` */
+  private PersistEmbeddingFactory: TPersistBaseCtor<
+    SwarmName,
+    IPersistEmbeddingData
+  > = PersistBase;
+
+  /**
+   * Memoized function to create or retrieve storage for specific embedding data.
+   * Ensures a single persistence instance per embedding name, optimizing resource use.
+   * @private
+   * @param embeddingName - The identifier of the embedding type.
+   * @returns A persistence instance for the embedding data, rooted at `./logs/data/embedding/`.
+   */
+  private getEmbeddingStorage = memoize(
+    ([embeddingName]: [EmbeddingName]): string => `${embeddingName}`,
+    (embeddingName: SwarmName): IPersistBase<IPersistEmbeddingData> =>
+      Reflect.construct(this.PersistEmbeddingFactory, [
+        embeddingName,
+        `./logs/data/embedding/`,
+      ])
+  );
+
+  /**
+   * Configures a custom constructor for embedding data persistence, overriding the default `PersistBase`.
+   * Enables advanced tracking (e.g., in-memory or database-backed persistence).
+   * @param Ctor - The constructor to use for embedding data storage, implementing `IPersistBase`.
+   */
+  public usePersistEmbeddingAdapter(
+    Ctor: TPersistBaseCtor<SwarmName, IPersistEmbeddingData>
+  ): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_EMBEDDING_UTILS_METHOD_NAME_USE_PERSIST_EMBEDDING_ADAPTER
+      );
+    this.PersistEmbeddingFactory = Ctor;
+  }
+
+  /**
+   * Retrieves the embedding vector for a specific string hash, returning null if not found.
+   * Used to check if a precomputed embedding exists in the cache.
+   * @param embeddingName - The identifier of the embedding type.
+   * @param stringHash - The hash of the string for which the embedding was generated.
+   * @returns A promise resolving to the embedding vector or null if not cached.
+   * @throws {Error} If reading from storage fails (e.g., file corruption).
+   */
+  public readEmbeddingCache = async (
+    embeddingName: EmbeddingName,
+    stringHash: string
+  ): Promise<number[] | null> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_EMBEDDING_UTILS_METHOD_NAME_READ_EMBEDDING_CACHE
+      );
+
+    const isInitial = this.getEmbeddingStorage.has(embeddingName);
+    const stateStorage = this.getEmbeddingStorage(embeddingName);
+    await stateStorage.waitForInit(isInitial);
+
+    if (await stateStorage.hasValue(stringHash)) {
+      const { embeddings } = await stateStorage.readValue(stringHash);
+      return embeddings;
+    }
+
+    return null;
+  };
+
+  /**
+   * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
+   * Used to cache computed embeddings to avoid redundant processing.
+   * @param embeddings - Array of numerical values representing the embedding vector.
+   * @param embeddingName - The identifier of the embedding type.
+   * @param stringHash - The hash of the string for which the embedding was generated.
+   * @returns A promise that resolves when the embedding vector is persisted.
+   * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
+   */
+  public writeEmbeddingCache = async (
+    embeddings: number[],
+    embeddingName: EmbeddingName,
+    stringHash: string
+  ): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(
+        PERSIST_EMBEDDING_UTILS_METHOD_NAME_WRITE_EMBEDDING_CACHE
+      );
+
+    const isInitial = this.getEmbeddingStorage.has(embeddingName);
+    const stateStorage = this.getEmbeddingStorage(embeddingName);
+    await stateStorage.waitForInit(isInitial);
+
+    await stateStorage.writeValue(stringHash, { embeddings });
+  };
+}
+
+/**
+ * Singleton instance of `PersistEmbeddingUtils` for managing embedding data persistence globally.
+ * @type {PersistEmbeddingUtils}
+ */
+export const PersistEmbeddingAdapter = new PersistEmbeddingUtils();
+
+/**
+ * Exported singleton for embedding persistence operations, cast as the control interface.
+ * Provides a global point of access for managing embedding cache in the system.
+ * @type {IPersistEmbeddingControl}
+ */
+export const PersistEmbedding =
+  PersistEmbeddingAdapter as IPersistEmbeddingControl;
