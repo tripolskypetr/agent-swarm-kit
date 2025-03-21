@@ -156,6 +156,8 @@ export {
   TPersistBaseCtor,
 } from "./classes/Persist";
 
+export { RoundRobin } from "./classes/RoundRobin";
+
 export { Policy } from "./classes/Policy";
 export { State } from "./classes/State";
 export { SharedState } from "./classes/SharedState";
