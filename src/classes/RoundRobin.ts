@@ -23,8 +23,6 @@ export class RoundRobin<
   private currentIndex = 0;
 
   private constructor(tokens: Token[], factory: (token: Token) => (...args: A) => T) {
-    if (!tokens.length)
-      throw new Error("RoundRobin requires non-empty tokens array");
     this.tokens = tokens;
     this.instances = new Map(tokens.map((token) => [token, factory(token)]));
   }
@@ -46,17 +44,18 @@ export class RoundRobin<
       swarm.loggerService.log(METHOD_NAME_CREATE, {
         tokenCount: tokens.length,
       });
-    return new RoundRobin<T, Token, A>(tokens, factory).call.bind(
-      new RoundRobin<T, Token, A>(tokens, factory)
-    );
+    return new RoundRobin<T, Token, A>(tokens, factory).call;
   }
 
-  private call(...args: A): T {
+  private call = (...args: A): T => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_CALL, {
         currentIndex: this.currentIndex,
         tokenCount: this.tokens.length,
       });
+    if (!this.tokens.length) {
+      throw new Error("agent-swarm RoundRobin requires non-empty tokens array");
+    }
     const token = this.tokens[this.currentIndex];
     const instance = this.instances.get(token)!;
     const value = instance(...args);
