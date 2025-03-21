@@ -10268,11 +10268,11 @@ declare class RoundRobin<T, Token = string | symbol | {
 }, A extends any[] = any[]> {
     /** @private Array of tokens to cycle through */
     private tokens;
-    /** @private Factory function to create instances */
+    /** @private Factory function that creates instances from tokens and arguments */
     private factory;
-    /** @private Map storing created instances by token */
+    /** @private Map storing created instances with string or symbol keys */
     private instances;
-    /** @private Current position in the token rotation */
+    /** @private Current index position in the token rotation */
     private currentIndex;
     /**
      * Creates a new RoundRobin instance

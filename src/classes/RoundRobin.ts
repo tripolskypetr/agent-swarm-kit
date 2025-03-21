@@ -22,13 +22,13 @@ export class RoundRobin<
   /** @private Array of tokens to cycle through */
   private tokens: Token[];
 
-  /** @private Factory function to create instances */
+  /** @private Factory function that creates instances from tokens and arguments */
   private factory: (token: Token, ...args: A) => T;
 
-  /** @private Map storing created instances by token */
+  /** @private Map storing created instances with string or symbol keys */
   private instances: Map<string | symbol, T>;
 
-  /** @private Current position in the token rotation */
+  /** @private Current index position in the token rotation */
   private currentIndex: number;
 
   /**
@@ -116,4 +116,3 @@ export class RoundRobin<
     return instance;
   }
 }
-
