@@ -1,0 +1,22 @@
+{
+  "name": "cohere-token-rotate",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun ./src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "agent-swarm-kit": "^1.0.192",
+    "cohere-ai": "^7.16.0",
+    "functools-kit": "^1.0.76",
+    "ollama": "^0.5.14",
+    "openai": "^4.89.0"
+  }
+}

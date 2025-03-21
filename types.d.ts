@@ -10257,56 +10257,26 @@ declare const GLOBAL_CONFIG: IGlobalConfig;
 declare const setConfig: (config: Partial<IGlobalConfig>) => void;
 
 /**
- * A generic RoundRobin implementation that distributes calls across a set of tokens
- * using a factory function to create instances.
- * @template T The type of instances created by the factory
- * @template Token The type of tokens to cycle through
- * @template A The type of arguments passed to the factory (extends any[])
+ * A generic RoundRobin implementation that cycles through token-based instance creators.
+ * @template T The type of instances created
+ * @template Token The type of tokens
+ * @template A The type of arguments (extends any[])
  */
 declare class RoundRobin<T, Token = string | symbol | {
     [key: string]: any;
 }, A extends any[] = any[]> {
-    /** @private Array of tokens to cycle through */
     private tokens;
-    /** @private Factory function that creates instances from tokens and arguments */
-    private factory;
-    /** @private Map storing created instances with string or symbol keys */
     private instances;
-    /** @private Current index position in the token rotation */
     private currentIndex;
-    /**
-     * Creates a new RoundRobin instance
-     * @private
-     * @param tokens - Array of tokens to cycle through
-     * @param factory - Function that creates instances given a token and arguments
-     */
     private constructor();
     /**
      * Creates a RoundRobin function that cycles through tokens
-     * @template T The type of instances created by the factory
-     * @template Token The type of tokens to cycle through
-     * @template A The type of arguments passed to the factory
-     * @param tokens - Array of tokens to cycle through
-     * @param factory - Function that creates instances given a token and arguments
-     * @returns A function that returns the next instance in the rotation
      * @example
-     * const rr = RoundRobin.create(['a', 'b'], (token) => ({ id: token }));
-     * const instance1 = rr(); // { id: 'a' }
-     * const instance2 = rr(); // { id: 'b' }
-     * @example
-     * const rr2 = RoundRobin.create<number[]>([[1], [2]], (token) => token[0]);
-     * const num1 = rr2(); // 1
-     * const num2 = rr2(); // 2
+     * const rr = RoundRobin.create(['a', 'b'], (t) => () => ({ id: t }));
      */
     static create<T, Token = string | symbol | {
         [key: string]: any;
-    }, A extends any[] = any[]>(tokens: Token[], factory: (token: Token, ...args: A) => T): (...args: A) => T;
-    /**
-     * Gets the next instance in the rotation, creating it if necessary
-     * @private
-     * @param args - Arguments to pass to the factory function
-     * @returns The next instance in the rotation
-     */
+    }, A extends any[] = any[]>(tokens: Token[], factory: (token: Token) => (...args: A) => T): (...args: A) => T;
     private call;
 }
 

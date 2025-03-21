@@ -4,7 +4,7 @@
     "": {
       "name": "ollama-redis-chat",
       "dependencies": {
-        "agent-swarm-kit": "^1.0.180",
+        "agent-swarm-kit": "^1.0.181",
         "functools-kit": "^1.0.76",
         "ollama": "^0.5.14",
         "openai": "^4.87.4",
@@ -28,7 +28,7 @@
 
     "abort-controller": ["abort-controller@3.0.0", "", { "dependencies": { "event-target-shim": "^5.0.0" } }, "sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg=="],
 
-    "agent-swarm-kit": ["agent-swarm-kit@1.0.180", "", { "dependencies": { "di-kit": "^1.0.14", "di-scoped": "^1.0.16", "functools-kit": "^1.0.76", "get-moment-stamp": "^1.1.1", "lodash-es": "4.17.21", "xml2js": "0.6.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-ZVHur/67OaDBDVZ1lEsHGxD4rctKrogUTy5r7xlMiMkGmYF/6mn9+4eiS4/gCKWpTcfHhK/cVG4H67w0uYzGXg=="],
+    "agent-swarm-kit": ["agent-swarm-kit@1.0.190", "", { "dependencies": { "di-kit": "^1.0.14", "di-scoped": "^1.0.16", "functools-kit": "^1.0.76", "get-moment-stamp": "^1.1.1", "lodash-es": "4.17.21", "xml2js": "0.6.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-czaOgpwiGQTWraWwWWHa44Mbr3LJs5+Oa7BmY+XwfkQm6tADczmgPjzAHrlMSgxjl7hVaApvy9z+wN0SCXPKxQ=="],
 
     "agentkeepalive": ["agentkeepalive@4.6.0", "", { "dependencies": { "humanize-ms": "^1.2.1" } }, "sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ=="],
 
