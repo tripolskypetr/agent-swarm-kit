@@ -13,7 +13,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "agent-swarm-kit": "^1.0.194",
+    "agent-swarm-kit": "^1.0.195",
     "cohere-ai": "^7.16.0",
     "functools-kit": "^1.0.76",
     "ollama": "^0.5.14",

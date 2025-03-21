@@ -10265,7 +10265,7 @@ declare const setConfig: (config: Partial<IGlobalConfig>) => void;
 declare class RoundRobin<T, Token = string | symbol | {
     [key: string]: any;
 }, A extends any[] = any[]> {
-    private tokens;
+    readonly tokens: Token[];
     private instances;
     private currentIndex;
     private constructor();
@@ -10277,6 +10277,15 @@ declare class RoundRobin<T, Token = string | symbol | {
     static create<T, Token = string | symbol | {
         [key: string]: any;
     }, A extends any[] = any[]>(tokens: Token[], factory: (token: Token) => (...args: A) => T): (...args: A) => T;
+    /**
+     * Cycles through the tokens and invokes the corresponding instance creator with the provided arguments.
+     * Logs the current index and token count if logging is enabled.
+     *
+     * @private
+     * @param {...A} args - The arguments to pass to the instance creator.
+     * @returns {T} The result of invoking the instance creator for the current token.
+     * @throws {Error} If the tokens array is empty.
+     */
     private call;
 }
 

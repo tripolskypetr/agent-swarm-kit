@@ -18,12 +18,13 @@ export class RoundRobin<
   Token = string | symbol | { [key: string]: any },
   A extends any[] = any[]
 > {
-  private tokens: Token[];
   private instances: Map<Token, (...args: A) => T>;
   private currentIndex = 0;
 
-  private constructor(tokens: Token[], factory: (token: Token) => (...args: A) => T) {
-    this.tokens = tokens;
+  private constructor(
+    readonly tokens: Token[],
+    factory: (token: Token) => (...args: A) => T
+  ) {
     this.instances = new Map(tokens.map((token) => [token, factory(token)]));
   }
 
@@ -47,6 +48,15 @@ export class RoundRobin<
     return new RoundRobin<T, Token, A>(tokens, factory).call;
   }
 
+  /**
+   * Cycles through the tokens and invokes the corresponding instance creator with the provided arguments.
+   * Logs the current index and token count if logging is enabled.
+   *
+   * @private
+   * @param {...A} args - The arguments to pass to the instance creator.
+   * @returns {T} The result of invoking the instance creator for the current token.
+   * @throws {Error} If the tokens array is empty.
+   */
   private call = (...args: A): T => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_CALL, {
@@ -61,5 +71,5 @@ export class RoundRobin<
     const value = instance(...args);
     this.currentIndex = (this.currentIndex + 1) % this.tokens.length;
     return value;
-  }
+  };
 }
