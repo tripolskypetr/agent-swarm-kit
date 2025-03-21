@@ -1,7 +1,6 @@
 # RoundRobin
 
-A generic RoundRobin implementation that distributes calls across a set of tokens
-using a factory function to create instances.
+A generic RoundRobin implementation that cycles through token-based instance creators.
 
 ## Constructor
 
@@ -14,13 +13,7 @@ constructor();
 ### tokens
 
 ```ts
-tokens: any
-```
-
-### factory
-
-```ts
-factory: any
+tokens: Token[]
 ```
 
 ### instances
@@ -41,7 +34,8 @@ currentIndex: any
 call: any
 ```
 
-Gets the next instance in the rotation, creating it if necessary
+Cycles through the tokens and invokes the corresponding instance creator with the provided arguments.
+Logs the current index and token count if logging is enabled.
 
 ## Methods
 
@@ -50,7 +44,7 @@ Gets the next instance in the rotation, creating it if necessary
 ```ts
 static create<T, Token = string | symbol | {
     [key: string]: any;
-}, A extends any[] = any[]>(tokens: Token[], factory: (token: Token, ...args: A) => T): (...args: A) => T;
+}, A extends any[] = any[]>(tokens: Token[], factory: (token: Token) => (...args: A) => T): (...args: A) => T;
 ```
 
 Creates a RoundRobin function that cycles through tokens
