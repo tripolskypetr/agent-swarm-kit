@@ -493,7 +493,7 @@ export interface IGlobalConfig {
    * Disabled (false) by default which faster for ollama local embeddings
    * @type {boolean}
    */
-  CC_PERSIST_EMBEDDING_CACHE: boolean
+  CC_PERSIST_EMBEDDING_CACHE: boolean;
 
   /**
    * Retrieves the embedding vector for a specific string hash, returning null if not found.
@@ -522,4 +522,21 @@ export interface IGlobalConfig {
     embeddingName: EmbeddingName,
     stringHash: string
   ) => Promise<void> | void;
+
+  /**
+   * Validates the tool parameters before execution.
+   * Can return synchronously or asynchronously based on validation complexity.
+   * @param {Object} dto - The data transfer object containing validation details.
+   * @param {string} dto.clientId - The ID of the client invoking the tool.
+   * @param {AgentName} dto.agentName - The name of the agent using the tool.
+   * @param {IToolCall[]} dto.toolCalls - The list of tool calls in the current execution context.
+   * @param {T} dto.params - The parameters to validate.
+   * @returns {Promise<boolean> | boolean} True if parameters are valid, false otherwise.
+   */
+  CC_DEFAULT_AGENT_TOOL_VALIDATE: (dto: {
+    clientId: string;
+    agentName: AgentName;
+    toolCalls: IToolCall[];
+    params: unknown;
+  }) => Promise<boolean> | boolean;
 }

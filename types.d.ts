@@ -2990,12 +2990,12 @@ interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
      * @param {T} dto.params - The parameters to validate.
      * @returns {Promise<boolean> | boolean} True if parameters are valid, false otherwise.
      */
-    validate(dto: {
+    validate?: (dto: {
         clientId: string;
         agentName: AgentName;
         toolCalls: IToolCall[];
         params: T;
-    }): Promise<boolean> | boolean;
+    }) => Promise<boolean> | boolean;
     /** Optional lifecycle callbacks for the tool, allowing customization of execution flow. */
     callbacks?: Partial<IAgentToolCallbacks>;
 }
@@ -10235,6 +10235,22 @@ interface IGlobalConfig {
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
      */
     CC_DEFAULT_WRITE_EMBEDDING_CACHE: (embeddings: number[], embeddingName: EmbeddingName, stringHash: string) => Promise<void> | void;
+    /**
+     * Validates the tool parameters before execution.
+     * Can return synchronously or asynchronously based on validation complexity.
+     * @param {Object} dto - The data transfer object containing validation details.
+     * @param {string} dto.clientId - The ID of the client invoking the tool.
+     * @param {AgentName} dto.agentName - The name of the agent using the tool.
+     * @param {IToolCall[]} dto.toolCalls - The list of tool calls in the current execution context.
+     * @param {T} dto.params - The parameters to validate.
+     * @returns {Promise<boolean> | boolean} True if parameters are valid, false otherwise.
+     */
+    CC_DEFAULT_AGENT_TOOL_VALIDATE: (dto: {
+        clientId: string;
+        agentName: AgentName;
+        toolCalls: IToolCall[];
+        params: unknown;
+    }) => Promise<boolean> | boolean;
 }
 
 declare const GLOBAL_CONFIG: IGlobalConfig;

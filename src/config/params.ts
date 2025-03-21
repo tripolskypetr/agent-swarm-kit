@@ -171,6 +171,8 @@ const CC_AUTOBAN_ENABLED_BY_DEFAULT = false;
 
 const CC_SKIP_POSIX_RENAME = false;
 
+const CC_DEFAULT_AGENT_TOOL_VALIDATE = () => true;
+
 /**
  * Retrieves the embedding vector for a specific string hash, returning null if not found.
  * Used to check if a precomputed embedding exists in the cache.
@@ -245,6 +247,7 @@ const GLOBAL_CONFIG: IGlobalConfig = {
   CC_DEFAULT_READ_EMBEDDING_CACHE,
   CC_DEFAULT_WRITE_EMBEDDING_CACHE,
   CC_PERSIST_EMBEDDING_CACHE,
+  CC_DEFAULT_AGENT_TOOL_VALIDATE,
 };
 
 GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";

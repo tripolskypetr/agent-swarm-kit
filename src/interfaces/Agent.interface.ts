@@ -132,12 +132,12 @@ export interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
    * @param {T} dto.params - The parameters to validate.
    * @returns {Promise<boolean> | boolean} True if parameters are valid, false otherwise.
    */
-  validate(dto: {
+  validate?: (dto: {
     clientId: string;
     agentName: AgentName;
     toolCalls: IToolCall[];
     params: T;
-  }): Promise<boolean> | boolean;
+  }) => Promise<boolean> | boolean;
 
   /** Optional lifecycle callbacks for the tool, allowing customization of execution flow. */
   callbacks?: Partial<IAgentToolCallbacks>;

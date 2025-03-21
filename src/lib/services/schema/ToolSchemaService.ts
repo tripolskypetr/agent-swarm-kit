@@ -57,7 +57,7 @@ export class ToolSchemaService {
         `agent-swarm tool schema validation failed: missing call for toolName=${toolSchema.toolName}`
       );
     }
-    if (typeof toolSchema.validate !== "function") {
+    if (toolSchema.validate && typeof toolSchema.validate !== "function") {
       throw new Error(
         `agent-swarm tool schema validation failed: missing validate for toolName=${toolSchema.toolName}`
       );
@@ -96,7 +96,14 @@ export class ToolSchemaService {
   public get = (key: ToolName): IAgentTool => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("toolSchemaService get", { key });
-    return this.registry.get(key);
+    const {
+      validate = GLOBAL_CONFIG.CC_DEFAULT_AGENT_TOOL_VALIDATE,
+      ...other
+    } = this.registry.get(key);
+    return {
+      validate,
+      ...other,
+    };
   };
 }
 
