@@ -10713,6 +10713,14 @@ type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
  */
 declare class AdapterUtils {
     /**
+     * Creates a function to interact with CohereClientV2 chat completions API.
+     * @param {any} openai - The CohereClientV2 client instance.
+     * @param {string} [model="gpt-3.5-turbo"] - The model to use for completions (defaults to "gpt-3.5-turbo").
+     * @param {{ type: string }} [response_format] - Optional response format configuration (e.g., `{ type: "json_object" }`).
+     * @returns {TCompleteFn} A function that processes completion arguments and returns a response from CohereClientV2.
+     */
+    fromCohereClientV2: (cohere: any, model?: string) => TCompleteFn;
+    /**
      * Creates a function to interact with OpenAI's chat completions API.
      * @param {any} openai - The OpenAI client instance.
      * @param {string} [model="gpt-3.5-turbo"] - The model to use for completions (defaults to "gpt-3.5-turbo").

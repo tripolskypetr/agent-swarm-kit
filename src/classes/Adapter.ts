@@ -48,6 +48,101 @@ type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
  */
 export class AdapterUtils {
   /**
+   * Creates a function to interact with CohereClientV2 chat completions API.
+   * @param {any} openai - The CohereClientV2 client instance.
+   * @param {string} [model="gpt-3.5-turbo"] - The model to use for completions (defaults to "gpt-3.5-turbo").
+   * @param {{ type: string }} [response_format] - Optional response format configuration (e.g., `{ type: "json_object" }`).
+   * @returns {TCompleteFn} A function that processes completion arguments and returns a response from CohereClientV2.
+   */
+  fromCohereClientV2 = (
+    cohere: any,
+    model = "command-r-08-2024",
+  ) =>
+    /**
+     * Handles a completion request to CohereClientV2, transforming messages and tools into the required format.
+     * Executes requests in a pool to limit concurrency.
+     * @param {ICompletionArgs} args - The arguments for the completion request.
+     * @param {string} args.agentName - The name of the agent making the request.
+     * @param {IModelMessage[]} args.messages - The array of messages to send to CohereClientV2.
+     * @param {string} args.mode - The mode of the completion (e.g., "user" or "tool").
+     * @param {any[]} args.tools - The tools available for the completion, if any.
+     * @param {string} args.clientId - The ID of the client making the request.
+     * @returns {Promise<IModelMessage>} The response from CohereClientV2 in `agent-swarm-kit` format.
+     */
+    execpool(
+      retry(
+        async ({
+          agentName,
+          messages: rawMessages,
+          mode,
+          tools: rawTools,
+          clientId,
+        }: ICompletionArgs): Promise<IModelMessage> => {
+          Logger.logClient(
+            clientId,
+            "AdapterUtils fromCohereClientV2 completion",
+            JSON.stringify(rawMessages)
+          );
+      
+          const messages = rawMessages.map(
+            ({ role, tool_call_id, tool_calls, content }) => ({
+              role: role as any,
+              toolCallId: tool_call_id,
+              content,
+              tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
+                ...rest,
+                function: {
+                  name: f.name,
+                  arguments: JSON.stringify(f.arguments),
+                },
+              })),
+            })
+          );
+      
+          const tools = rawTools?.map(({ type, function: f }) => ({
+            type: type as "function",
+            function: {
+              name: f.name,
+              parameters: f.parameters,
+            },
+          }));
+      
+          const {
+            message: { content, role, toolCalls },
+          } = await cohere.chat({
+            model,
+            messages,
+            tools,
+            seed: 0,
+            temperature: 0,
+          });
+      
+          return {
+            content: content ? content[0].text : "",
+            mode,
+            agentName,
+            role,
+            tool_calls: toolCalls?.map(({ function: f, ...rest }) => ({
+              ...rest,
+              id: rest.id!,
+              type: rest.type!,
+              function: {
+                name: f?.name!,
+                arguments: JSON.parse(f?.arguments!),
+              },
+            })),
+          };
+        },
+        RETRY_COUNT,
+        RETRY_DELAY
+      ),
+      {
+        maxExec: EXECPOOL_SIZE,
+        delay: EXECPOOL_WAIT,
+      }
+    ) as TCompleteFn;
+
+  /**
    * Creates a function to interact with OpenAI's chat completions API.
    * @param {any} openai - The OpenAI client instance.
    * @param {string} [model="gpt-3.5-turbo"] - The model to use for completions (defaults to "gpt-3.5-turbo").
