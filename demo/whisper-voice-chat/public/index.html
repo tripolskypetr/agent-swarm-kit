@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Recorder</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        .button {
+            padding: 20px 40px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .button.recording {
+            background-color: #ff4444;
+        }
+    </style>
+</head>
+<body>
+    <button id="recordButton" class="button">Record</button>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let stream;
+        const recordButton = document.getElementById('recordButton');
+        let isRecording = false;
+
+        recordButton.addEventListener('click', async () => {
+            if (!isRecording) {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = sendAudio;
+                    
+                    mediaRecorder.start();
+                    recordButton.textContent = 'Stop';
+                    recordButton.classList.add('recording');
+                    isRecording = true;
+                } catch (error) {
+                    console.error('Microphone access error:', error);
+                    alert('Failed to access microphone: ' + error.message);
+                }
+            } else {
+                mediaRecorder.stop();
+                stream.getTracks().forEach(track => track.stop());
+                recordButton.textContent = 'Record'; // Already reset here when stopping
+                recordButton.classList.remove('recording');
+                isRecording = false;
+            }
+        });
+
+        async function convertToWav(blob) {
+            return new Promise((resolve) => {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const fileReader = new FileReader();
+
+                fileReader.onload = async function() {
+                    try {
+                        const arrayBuffer = this.result;
+                        const decodedAudio = await audioContext.decodeAudioData(arrayBuffer);
+                        const wavBuffer = audioBufferToWav(decodedAudio);
+                        const wavBlob = new Blob([wavBuffer], { type: 'audio/wav' });
+                        resolve(wavBlob);
+                    } catch (error) {
+                        console.error('Conversion error:', error);
+                        alert('Failed to convert audio: ' + error.message);
+                    }
+                };
+
+                fileReader.readAsArrayBuffer(blob);
+            });
+        }
+
+        function audioBufferToWav(audioBuffer) {
+            const numChannels = audioBuffer.numberOfChannels;
+            const sampleRate = audioBuffer.sampleRate;
+            const length = audioBuffer.length * numChannels * 2 + 44;
+            const buffer = new ArrayBuffer(length);
+            const view = new DataView(buffer);
+
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + audioBuffer.length * numChannels * 2, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numChannels * 2, true);
+            view.setUint16(32, numChannels * 2, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, audioBuffer.length * numChannels * 2, true);
+
+            let offset = 44;
+            for (let i = 0; i < audioBuffer.length; i++) {
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, audioBuffer.getChannelData(channel)[i]));
+                    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+
+            return buffer;
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        async function sendAudio() {
+            const initialBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const wavBlob = await convertToWav(initialBlob);
+            
+            const formData = new FormData();
+            formData.append('audio', wavBlob, 'recording.wav');
+
+            try {
+                const response = await fetch('/api/v1/voice', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const responseText = await response.json();
+                if (response.ok) {
+                    console.log('Upload successful:', responseText);
+                    // Reset button state after successful upload
+                    recordButton.textContent = 'Record';
+                    recordButton.classList.remove('recording');
+                    isRecording = false;
+                } else {
+                    throw new Error(`Server responded with ${response.status}: ${responseText}`);
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Failed to upload audio: ' + error.message);
+                // Optionally reset button on error too
+                recordButton.textContent = 'Record';
+                recordButton.classList.remove('recording');
+                isRecording = false;
+            }
+        }
+    </script>
+</body>
+</html>
