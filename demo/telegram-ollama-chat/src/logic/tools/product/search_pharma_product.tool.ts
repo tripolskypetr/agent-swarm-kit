@@ -38,7 +38,7 @@ export const SEARCH_PHARMA_PRODUCT = addTool({
       search,
       storageName: PHARMA_STORAGE,
       total: 5,
-      score: 0.35,
+      score: 0.55,
     });
     console.log(products)
     if (products.length) {
@@ -46,7 +46,7 @@ export const SEARCH_PHARMA_PRODUCT = addTool({
         toolId,
         str.newline(
           `The next pharma product found in database: ${Schema.serialize(
-            products
+            products.slice(0, 1)
           )}`
         ),
         clientId,
