@@ -1,0 +1,29 @@
+{
+  "name": "telegram-ollama-chat",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start:hono": "bun ./src/index.ts --hono",
+    "start:web": "open-cli http://localhost:1337",
+    "start:repl": "bun ./src/index.ts --repl",
+    "start:telegram": "bun ./src/index.ts --telegram"
+  },
+  "devDependencies": {
+    "open-cli": "^8.0.0",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs-backend-wasm": "^4.22.0",
+    "@tensorflow/tfjs-core": "^4.22.0",
+    "agent-swarm-kit": "^1.0.195",
+    "functools-kit": "^1.0.76",
+    "hono": "^4.7.5",
+    "ollama": "^0.5.14",
+    "pinolog": "^1.0.4",
+    "telegraf": "^4.16.3"
+  }
+}

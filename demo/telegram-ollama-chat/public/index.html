@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>node-ollama-agent-swarm</title>
+    <meta encoding="utf-8" />
+    <style>
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <span></span>
+    <button>Start Listening</button>
+    <pre></pre>
+    <p></p>
+    <script>
+      const pre = document.querySelector("pre");
+      const button = document.querySelector("button");
+      const status = document.querySelector("p");
+      const session = document.querySelector("span");
+
+      function generateUUID() {
+        const str = () =>
+          (
+            "00000000000000000" +
+            (Math.random() * 0xffffffffffffffff).toString(16)
+          ).slice(-16);
+        const a = str();
+        const b = str();
+        return (
+          a.slice(0, 8) +
+          "-" +
+          a.slice(8, 12) +
+          "-4" +
+          a.slice(13) +
+          "-a" +
+          b.slice(1, 4) +
+          "-" +
+          b.slice(4)
+        );
+      }
+
+      function getSessionId() {
+        let sessionId = sessionStorage.getItem("session_id");
+        if (!sessionId) {
+          sessionId = generateUUID();
+          sessionStorage.setItem("session_id", sessionId);
+        }
+        return sessionId;
+      }
+
+      const clientId = generateUUID();
+
+      session.innerText = `clientId=${clientId}`;
+
+      const socket = new WebSocket(`/api/v1/session/${clientId}`);
+      const recognition = new webkitSpeechRecognition();
+
+      socket.addEventListener("message", (event) => {
+        const data = JSON.parse(event.data);
+        pre.innerHTML += `AI said (${data.agentName}): ${data.data}\n\n`;
+        speak(data.data);
+        status.style.visibility = "visible";
+      });
+
+      socket.onopen = () => {
+        console.log("Connected to the server");
+      };
+
+      function getVoices() {
+        return new Promise((resolve) => {
+          let voices = speechSynthesis.getVoices();
+          if (voices.length) {
+            resolve(voices);
+          } else {
+            speechSynthesis.onvoiceschanged = () => {
+              voices = speechSynthesis.getVoices();
+              resolve(voices);
+            };
+          }
+        });
+      }
+
+      async function speak(text) {
+        speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voices = await getVoices();
+        utterance.voice = voices.find(
+          (voice) => voice.name === "Google US English"
+        );
+        utterance.onstart = () => {
+          recognition.stop();
+        };
+        utterance.onend = () => {
+          recognition.start();
+        };
+        speechSynthesis.speak(utterance);
+      }
+
+      async function complete(message) {
+        const response = await fetch("/api/v1/complete", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            clientId: generateUUID(),
+            serviceName: "frontend",
+            requestId: generateUUID(),
+            message,
+          }),
+        });
+        const data = await response.json();
+        console.log(
+          `%cCompletion result:%c\u00A0${data}`,
+          "font-weight: bold; color: green; text-decoration: underline;",
+          "font-size: 12px; color: black;"
+        );
+        return data;
+      }
+
+      const send = (message) => {
+        socket.send(
+          JSON.stringify({
+            clientId,
+            stamp: Date.now().toString(),
+            data: message,
+          })
+        );
+      };
+
+      const main = () => {
+        recognition.lang = "en-US";
+
+        recognition.onstart = () => {
+          status.innerHTML = "Listening...";
+        };
+
+        recognition.onend = () => {
+          status.innerHTML = "";
+          if (!speechSynthesis.speaking) {
+            recognition.start();
+          }
+        };
+
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          pre.innerHTML += `You said: ${transcript}\n\n`;
+          socket.send(
+            JSON.stringify({
+              clientId,
+              stamp: Date.now().toString(),
+              data: transcript,
+            })
+          );
+          status.style.visibility = "hidden";
+        };
+
+        recognition.start();
+
+        {
+          let speakingStartTime = null;
+
+          const MAX_SPEAK_DURATION = 10_000;
+
+          const checkSpeak = () => {
+            if (speechSynthesis.speaking) {
+              if (!speakingStartTime) {
+                speakingStartTime = Date.now();
+              }
+              const elapsedTime = Date.now() - speakingStartTime;
+              if (elapsedTime > MAX_SPEAK_DURATION) {
+                speechSynthesis.cancel();
+                speakingStartTime = null;
+              }
+            } else {
+              speakingStartTime = null;
+              try {
+                recognition.start();
+              } catch {}
+            }
+
+            setTimeout(checkSpeak, 1_000);
+          };
+
+          checkSpeak();
+        }
+
+        button.style.display = "none";
+      };
+
+      button.addEventListener("click", main);
+    </script>
+  </body>
+</html>

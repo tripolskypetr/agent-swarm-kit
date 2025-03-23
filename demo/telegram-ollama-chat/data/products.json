@@ -1,0 +1,354 @@
+[
+  {
+    "id": 0,
+    "description": "Mexidol (ethylmethylhydroxypyridine succinate) is an antioxidant and neuroprotective drug. It is used to treat various neurological disorders, including stroke, head trauma, and cerebrovascular insufficiency. It helps protect brain cells from oxidative stress and improves blood circulation in the brain."
+  },
+  {
+    "id": 1,
+    "description": "Ventolin (albuterol/salbutamol) is a short-acting beta-2 adrenergic receptor agonist used as a rescue inhaler for quick relief of asthma symptoms and bronchospasm. It works by relaxing smooth muscle in the airways, making breathing easier during asthma attacks or episodes of breathlessness."
+  },
+  {
+    "id": 2,
+    "description": "Aspirin is a nonsteroidal anti-inflammatory drug used to reduce pain, fever, or inflammation. It is commonly used to treat conditions such as headaches, muscle pain, arthritis, and minor aches and pains. It also helps prevent blood clots, reducing the risk of heart attacks and strokes."
+  },
+  {
+    "id": 3,
+    "description": "Paracetamol, also known as acetaminophen, is a widely used over the counter medication for relieving mild to moderate pain and reducing fever. It is often used for headaches, muscle aches, colds, and flu like symptoms. Unlike nonsteroidal anti inflammatory drugs, it does not have significant anti inflammatory properties."
+  },
+  {
+    "id": 4,
+    "description": "Ibuprofen is a common nonsteroidal anti inflammatory drug used to treat pain, fever, and inflammation. It is frequently used for conditions such as arthritis, menstrual cramps, migraines, and muscle aches. It works by blocking the production of certain chemicals in the body that cause inflammation and pain."
+  },
+  {
+    "id": 5,
+    "description": "Amoxicillin is a broad spectrum antibiotic belonging to the penicillin class. It is commonly prescribed to treat bacterial infections such as respiratory tract infections, urinary tract infections, ear infections, and skin infections. It works by inhibiting bacterial cell wall synthesis, leading to bacterial death."
+  },
+  {
+    "id": 6,
+    "description": "Metformin is an oral medication used to manage type two diabetes. It helps control blood sugar levels by decreasing glucose production in the liver and improving insulin sensitivity. It is often used as a first line treatment for diabetes and can help prevent complications such as nerve damage and kidney disease."
+  },
+  {
+    "id": 7,
+    "description": "Lisinopril is an angiotensin converting enzyme inhibitor used to treat high blood pressure and heart failure. It helps relax blood vessels, reducing strain on the heart and improving blood flow. It is also prescribed to improve survival rates after a heart attack and to protect kidney function in diabetic patients."
+  },
+  {
+    "id": 8,
+    "description": "Atorvastatin is a statin medication used to lower cholesterol levels and reduce the risk of cardiovascular disease. It works by inhibiting an enzyme involved in cholesterol production in the liver. It is often prescribed to patients at risk of heart attacks, strokes, and other heart related complications."
+  },
+  {
+    "id": 9,
+    "description": "Omeprazole is a proton pump inhibitor used to treat conditions such as gastroesophageal reflux disease, stomach ulcers, and acid reflux. It works by reducing the amount of acid produced in the stomach, relieving symptoms such as heartburn and preventing damage to the esophagus."
+  },
+  {
+    "id": 10,
+    "description": "Cetirizine is a second generation antihistamine used to relieve allergy symptoms such as runny nose, sneezing, itching, and hives. It is commonly used for hay fever and chronic urticaria. Unlike first generation antihistamines, it causes less drowsiness and has a longer duration of action."
+  },
+  {
+    "id": 11,
+    "description": "Losartan is an angiotensin two receptor blocker used to treat high blood pressure and protect kidney function in diabetic patients. It helps relax blood vessels, lowering blood pressure and reducing the risk of strokes and heart attacks."
+  },
+  {
+    "id": 12,
+    "description": "Simvastatin is a cholesterol lowering medication that belongs to the statin class. It helps reduce the risk of heart disease and stroke by lowering bad cholesterol and triglyceride levels while increasing good cholesterol."
+  },
+  {
+    "id": 13,
+    "description": "Furosemide is a loop diuretic used to treat fluid retention associated with conditions such as heart failure, kidney disease, and liver disease. It works by increasing the excretion of sodium and water through urine, helping to reduce swelling and lower blood pressure."
+  },
+  {
+    "id": 14,
+    "description": "Alprazolam is a benzodiazepine used to treat anxiety and panic disorders. It works by enhancing the effects of GABA, a natural calming chemical in the brain."
+  },
+  {
+    "id": 15,
+    "description": "Budesonide is a corticosteroid used in inhalers for asthma and nasal sprays for allergies. It's also used orally for inflammatory bowel diseases like Crohn's disease."
+  },
+  {
+    "id": 16,
+    "description": "Candesartan is an angiotensin receptor blocker used to treat high blood pressure and heart failure. It helps protect the heart, kidneys, and blood vessels."
+  },
+  {
+    "id": 17,
+    "description": "Desvenlafaxine is an SNRI antidepressant used to treat major depressive disorder. It works by increasing the levels of serotonin and norepinephrine in the brain."
+  },
+  {
+    "id": 18,
+    "description": "Empagliflozin is an SGLT2 inhibitor used to treat type 2 diabetes and reduce the risk of cardiovascular death. It works by helping the kidneys remove glucose from the bloodstream."
+  },
+  {
+    "id": 19,
+    "description": "Fexofenadine is an antihistamine used to relieve allergy symptoms such as runny nose, sneezing, and itchy eyes. It's a non-drowsy alternative to older antihistamines."
+  },
+  {
+    "id": 20,
+    "description": "Glimepiride is a sulfonylurea medication used to treat type 2 diabetes. It works by stimulating the release of insulin from the pancreas to lower blood sugar levels."
+  },
+  {
+    "id": 21,
+    "description": "Hydroxyzine is an antihistamine used to treat anxiety, allergic conditions, and as a sleep aid. It can also help with nausea and as a sedative before surgery."
+  },
+  {
+    "id": 22,
+    "description": "Irbesartan is an angiotensin receptor blocker used to treat high blood pressure and protect kidney function in people with type 2 diabetes."
+  },
+  {
+    "id": 23,
+    "description": "Levetiracetam is an anticonvulsant medication used to treat epilepsy and prevent seizures. It can be used alone or in combination with other seizure medications."
+  },
+  {
+    "id": 24,
+    "description": "Mirtazapine is an atypical antidepressant that also helps with sleep and appetite. It's often used when other antidepressants haven't worked or aren't suitable."
+  },
+  {
+    "id": 25,
+    "description": "Naltrexone is used to treat alcohol and opioid dependence. It works by blocking the effects of opioids and reducing the urge to drink alcohol."
+  },
+  {
+    "id": 26,
+    "description": "Oxybutynin is used to treat overactive bladder and reduce urinary urgency. It helps relax the bladder muscles and improve bladder control."
+  },
+  {
+    "id": 27,
+    "description": "Perindopril is an ACE inhibitor used to treat high blood pressure, heart failure, and to prevent heart attacks and strokes. It also helps protect the kidneys."
+  },
+  {
+    "id": 28,
+    "description": "Quetiapine is an atypical antipsychotic used to treat schizophrenia, bipolar disorder, and major depression. It can also help with sleep and anxiety."
+  },
+  {
+    "id": 29,
+    "description": "Rivaroxaban is a direct oral anticoagulant used to prevent blood clots and reduce the risk of stroke in people with atrial fibrillation."
+  },
+  {
+    "id": 30,
+    "description": "Sitagliptin is a DPP-4 inhibitor used to treat type 2 diabetes. It works by increasing insulin production and decreasing glucagon levels."
+  },
+  {
+    "id": 31,
+    "description": "Tadalafil is used to treat erectile dysfunction, benign prostatic hyperplasia, and pulmonary arterial hypertension. It works by relaxing blood vessels and improving blood flow."
+  },
+  {
+    "id": 32,
+    "description": "Valsartan is an angiotensin receptor blocker used to treat high blood pressure, heart failure, and to improve survival after heart attacks."
+  },
+  {
+    "id": 33,
+    "description": "Fluoxetine is a selective serotonin reuptake inhibitor (SSRI) antidepressant used to treat major depressive disorder, bulimia nervosa, obsessive-compulsive disorder, panic disorder, and premenstrual dysphoric disorder."
+  },
+  {
+    "id": 34,
+    "description": "Metoprolol is a beta-blocker that treats high blood pressure, angina, and heart failure. It's also used to prevent heart attacks and reduce migraine headaches."
+  },
+  {
+    "id": 35,
+    "description": "Diazepam is a benzodiazepine used to treat anxiety, alcohol withdrawal, muscle spasms, and seizures. It works by enhancing the effects of GABA in the brain."
+  },
+  {
+    "id": 36,
+    "description": "Citalopram is an SSRI antidepressant used primarily for major depressive disorder and anxiety disorders. It helps improve energy levels, feelings of well-being, and sleep quality."
+  },
+  {
+    "id": 37,
+    "description": "Prednisolone is a corticosteroid used to treat various inflammatory conditions, allergic disorders, and autoimmune diseases. It reduces inflammation and suppresses the immune system."
+  },
+  {
+    "id": 38,
+    "description": "Amlodipine is a calcium channel blocker used to treat high blood pressure and angina. It works by relaxing blood vessels and improving blood flow."
+  },
+  {
+    "id": 39,
+    "description": "Warfarin is an anticoagulant (blood thinner) used to prevent blood clots, heart attacks, and strokes, particularly in people with atrial fibrillation or artificial heart valves."
+  },
+  {
+    "id": 40,
+    "description": "Azithromycin is a macrolide antibiotic used to treat various bacterial infections including respiratory infections, skin infections, ear infections, and sexually transmitted diseases."
+  },
+  {
+    "id": 41,
+    "description": "Bisoprolol is a beta-blocker used to treat high blood pressure and heart failure. It helps reduce the workload on the heart and improve heart function."
+  },
+  {
+    "id": 42,
+    "description": "Ramipril is an ACE inhibitor used to treat high blood pressure, heart failure, and to improve survival after heart attacks. It also helps protect the kidneys in people with diabetes."
+  },
+  {
+    "id": 43,
+    "description": "Fluticasone is a corticosteroid used in nasal sprays and inhalers to treat allergies, asthma, and other respiratory conditions. It reduces inflammation in the airways."
+  },
+  {
+    "id": 44,
+    "description": "Clonazepam is a benzodiazepine anticonvulsant used to prevent and treat seizures, panic disorder, and anxiety. It works by calming the brain and nerves."
+  },
+  {
+    "id": 45,
+    "description": "Esomeprazole is a proton pump inhibitor that reduces stomach acid production. It treats gastroesophageal reflux disease (GERD), ulcers, and other conditions where stomach acid needs to be reduced."
+  },
+  {
+    "id": 46,
+    "description": "Olanzapine is an atypical antipsychotic medication used to treat schizophrenia and bipolar disorder. It can also help with treatment-resistant depression."
+  },
+  {
+    "id": 47,
+    "description": "Carvedilol is a beta-blocker used to treat heart failure and high blood pressure. It also helps prevent further damage after a heart attack."
+  },
+  {
+    "id": 48,
+    "description": "Acarbose is an alpha-glucosidase inhibitor used to treat type 2 diabetes. It works by slowing down the digestion of carbohydrates to help control blood sugar levels after meals."
+  },
+  {
+    "id": 49,
+    "description": "Bupropion is an antidepressant also used for smoking cessation. It works differently from other antidepressants by affecting dopamine and norepinephrine levels."
+  },
+  {
+    "id": 50,
+    "description": "Cyclobenzaprine is a muscle relaxant used to treat muscle spasms and pain. It helps relieve skeletal muscle conditions along with rest and physical therapy."
+  },
+  {
+    "id": 51,
+    "description": "Doxycycline is a tetracycline antibiotic used to treat various bacterial infections, including acne, respiratory infections, and certain sexually transmitted diseases."
+  },
+  {
+    "id": 52,
+    "description": "Ezetimibe is a cholesterol-lowering medication that works by reducing cholesterol absorption in the intestines. It's often used in combination with statins."
+  },
+  {
+    "id": 53,
+    "description": "Famotidine is a histamine-2 blocker that reduces stomach acid production. It's used to treat and prevent ulcers, heartburn, and other digestive conditions."
+  },
+  {
+    "id": 54,
+    "description": "Gliclazide is a sulfonylurea medication used to treat type 2 diabetes. It stimulates the pancreas to produce more insulin and helps the body use insulin more effectively."
+  },
+  {
+    "id": 55,
+    "description": "Hydralazine is a vasodilator used to treat high blood pressure and heart failure. It works by relaxing blood vessels to improve blood flow."
+  },
+  {
+    "id": 56,
+    "description": "Isosorbide is a nitrate medication used to prevent angina (chest pain). It works by relaxing blood vessels to improve blood flow to the heart."
+  },
+  {
+    "id": 57,
+    "description": "Lamotrigine is an anticonvulsant medication used to treat epilepsy and bipolar disorder. It works by stabilizing electrical activity in the brain."
+  },
+  {
+    "id": 58,
+    "description": "Memantine is used to treat moderate to severe Alzheimer's disease. It works by regulating the activity of glutamate, a chemical involved in learning and memory."
+  },
+  {
+    "id": 59,
+    "description": "Nifedipine is a calcium channel blocker used to treat high blood pressure and angina. It helps relax blood vessels and improve blood flow."
+  },
+  {
+    "id": 60,
+    "description": "Ondansetron is an antiemetic medication used to prevent nausea and vomiting caused by chemotherapy, radiation therapy, and surgery."
+  },
+  {
+    "id": 61,
+    "description": "Pioglitazone is a thiazolidinedione medication used to treat type 2 diabetes. It works by improving insulin sensitivity in the body's tissues."
+  },
+  {
+    "id": 62,
+    "description": "Raloxifene is a selective estrogen receptor modulator used to treat and prevent osteoporosis in postmenopausal women. It also reduces the risk of breast cancer."
+  },
+  {
+    "id": 63,
+    "description": "Sumatriptan is a triptan medication used to treat migraine headaches. It works by narrowing blood vessels around the brain and reducing inflammation."
+  },
+  {
+    "id": 64,
+    "description": "Tamsulosin is an alpha-blocker used to treat symptoms of an enlarged prostate (benign prostatic hyperplasia). It helps relax bladder and prostate muscles."
+  },
+  {
+    "id": 65,
+    "description": "Topiramate is an anticonvulsant medication used to prevent seizures and migraine headaches. It's also sometimes used for weight loss and mood disorders."
+  },
+  {
+    "id": 66,
+    "description": "Varenicline is a smoking cessation aid that helps reduce cravings and withdrawal symptoms. It works by partially stimulating nicotine receptors in the brain."
+  },
+  {
+    "id": 67,
+    "description": "Zolpidem is a sedative-hypnotic medication used to treat insomnia. It works by affecting chemicals in the brain that may be unbalanced in people with sleep problems."
+  },
+  {
+    "id": 68,
+    "description": "Adalimumab is a biologic medication used to treat various autoimmune conditions including rheumatoid arthritis, psoriasis, and inflammatory bowel disease. It works by blocking TNF-alpha, reducing inflammation in the body."
+  },
+  {
+    "id": 69,
+    "description": "Baclofen is a muscle relaxant and antispastic agent used to treat muscle spasms, especially those caused by multiple sclerosis and spinal cord injuries."
+  },
+  {
+    "id": 70,
+    "description": "Carbidopa-Levodopa is a combination medication used to treat Parkinson's disease symptoms. Levodopa converts to dopamine while carbidopa prevents the conversion from happening before it reaches the brain."
+  },
+  {
+    "id": 71,
+    "description": "Dabigatran is a direct thrombin inhibitor anticoagulant used to prevent blood clots and reduce stroke risk in people with atrial fibrillation."
+  },
+  {
+    "id": 72,
+    "description": "Exenatide is a GLP-1 receptor agonist used to treat type 2 diabetes. It works by stimulating insulin production, reducing glucagon, and slowing stomach emptying."
+  },
+  {
+    "id": 73,
+    "description": "Finasteride is used to treat male pattern baldness and enlarged prostate. It works by blocking the conversion of testosterone to dihydrotestosterone."
+  },
+  {
+    "id": 74,
+    "description": "Guanfacine is used to treat attention deficit hyperactivity disorder (ADHD) and high blood pressure. It works by affecting certain areas of the brain to improve attention and behavior."
+  },
+  {
+    "id": 75,
+    "description": "Haloperidol is an antipsychotic medication used to treat schizophrenia, acute psychotic states, and severe behavior problems. It can also control tics and vocal utterances in Tourette's syndrome."
+  },
+  {
+    "id": 76,
+    "description": "Ivabradine is used to treat chronic heart failure and inappropriate sinus tachycardia. It works by slowing the heart rate through specific action on the heart's pacemaker activity."
+  },
+  {
+    "id": 77,
+    "description": "Ketamine is used as an anesthetic and for treatment-resistant depression. It works by blocking NMDA receptors in the brain, providing rapid relief from severe depression symptoms."
+  },
+  {
+    "id": 78,
+    "description": "Liraglutide is a GLP-1 receptor agonist used for type 2 diabetes and weight management. It helps control blood sugar levels and reduces appetite."
+  },
+  {
+    "id": 79,
+    "description": "Modafinil is a wakefulness-promoting agent used to treat excessive sleepiness caused by narcolepsy, sleep apnea, and shift work sleep disorder."
+  },
+  {
+    "id": 80,
+    "description": "Nivolumab is an immunotherapy medication used to treat various types of cancer. It works by helping the immune system attack cancer cells."
+  },
+  {
+    "id": 81,
+    "description": "Ozanimod is used to treat multiple sclerosis and ulcerative colitis. It works by preventing immune cells from reaching the brain, spinal cord, and intestines."
+  },
+  {
+    "id": 82,
+    "description": "Paliperidone is an atypical antipsychotic used to treat schizophrenia and schizoaffective disorder. It works by helping to restore the balance of certain natural substances in the brain."
+  },
+  {
+    "id": 83,
+    "description": "Ranolazine is used to treat chronic angina. It works by improving blood flow to help prevent chest pain, but it does not treat an angina attack that has already begun."
+  },
+  {
+    "id": 84,
+    "description": "Sacubitril-Valsartan is a combination medication used to treat heart failure. It works by improving the heart's ability to pump blood and by reducing stress on the heart."
+  },
+  {
+    "id": 85,
+    "description": "Tofacitinib is a JAK inhibitor used to treat rheumatoid arthritis, psoriatic arthritis, and ulcerative colitis. It works by decreasing immune system activity."
+  },
+  {
+    "id": 86,
+    "description": "Umeclidinium is a long-acting anticholinergic medication used to treat chronic obstructive pulmonary disease (COPD). It helps relax and open airways to make breathing easier."
+  },
+  {
+    "id": 87,
+    "description": "Vortioxetine is an antidepressant used to treat major depressive disorder. It works through multiple actions on serotonin receptors and reuptake inhibition."
+  }
+]
