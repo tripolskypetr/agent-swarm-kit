@@ -3,7 +3,12 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "start:server": "bun ./src/index.ts",
+    "start:client": "open-cli http://localhost:1337"
+  },
   "devDependencies": {
+    "open-cli": "^8.0.0",
     "@types/bun": "latest"
   },
   "peerDependencies": {
