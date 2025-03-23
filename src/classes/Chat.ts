@@ -1,14 +1,16 @@
 import { SwarmName } from "../interfaces/Swarm.interface";
-import { session } from "src/functions/target/session";
+import { session } from "../functions/target/session";
 import { singleshot, Subject } from "functools-kit";
-import { SessionId } from "src/interfaces/Session.interface";
-import { GLOBAL_CONFIG } from "src/config/params";
-import swarm from "src/lib";
+import { SessionId } from "../interfaces/Session.interface";
+import { GLOBAL_CONFIG } from "../config/params";
+import swarm from "../lib";
 
 /** @constant {string} */
 const CHAT_UTILS_METHOD_NAME_SEND_MESSAGE = "ChatUtils.sendMessage";
 /** @constant {string} */
 const CHAT_UTILS_METHOD_NAME_LISTEN_DISPOSE = "ChatUtils.listenDispose";
+/** @constant {string} */
+const CHAT_UTILS_METHOD_NAME_DISPOSE = "ChatUtils.dispose";
 
 /** @constant {string} */
 const CHAT_INSTANCE_METHOD_NAME_SEND_MESSAGE = "ChatInstance.sendMessage";
@@ -204,6 +206,26 @@ export class ChatUtils {
         swarmName,
       });
     return this.getChatInstance(clientId, swarmName).listenDispose(fn);
+  };
+
+  /**
+   * Disposes of a specific chat instance for a client
+   * @public
+   * @async
+   * @param {SessionId} clientId - The client identifier for the chat instance to dispose
+   * @param {SwarmName} swarmName - The swarm name associated with the chat instance
+   * @returns {Promise<void>} A promise that resolves when the chat instance has been disposed
+   */
+  public dispose = async (clientId: SessionId, swarmName: SwarmName) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(CHAT_UTILS_METHOD_NAME_DISPOSE, {
+        clientId,
+        swarmName,
+      });
+    if (!this._chats.has(clientId)) {
+      return;
+    }
+    return await this.getChatInstance(clientId, swarmName).dispose();
   };
 }
 

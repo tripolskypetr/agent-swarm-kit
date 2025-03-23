@@ -1,7 +1,6 @@
 import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
-import { SessionId as SessionId$1 } from 'src/interfaces/Session.interface';
 
 /**
  * Interface defining the structure of execution context in the swarm system.
@@ -10500,7 +10499,7 @@ declare class ChatUtils {
      * @param {SwarmName} swarmName - The swarm name
      * @returns {Promise<any>} Result of the message sending
      */
-    sendMessage: (clientId: SessionId$1, message: string, swarmName: SwarmName) => Promise<string>;
+    sendMessage: (clientId: SessionId, message: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Subscribes to disposal events for a specific client
      * @public
@@ -10509,7 +10508,16 @@ declare class ChatUtils {
      * @param {(clientId: SessionId) => void} fn - Callback function for disposal events
      * @returns {any} Subscription object
      */
-    listenDispose: (clientId: SessionId$1, swarmName: SwarmName, fn: (clientId: SessionId$1) => void) => () => void;
+    listenDispose: (clientId: SessionId, swarmName: SwarmName, fn: (clientId: SessionId) => void) => () => void;
+    /**
+     * Disposes of a specific chat instance for a client
+     * @public
+     * @async
+     * @param {SessionId} clientId - The client identifier for the chat instance to dispose
+     * @param {SwarmName} swarmName - The swarm name associated with the chat instance
+     * @returns {Promise<void>} A promise that resolves when the chat instance has been disposed
+     */
+    dispose: (clientId: SessionId, swarmName: SwarmName) => Promise<void>;
 }
 /** @constant {ChatUtils} Singleton instance of ChatUtils */
 declare const Chat: ChatUtils;
