@@ -35,7 +35,7 @@ Gets or creates a chat instance for a client
 ### sendMessage
 
 ```ts
-sendMessage: (clientId: SessionId$1, message: string, swarmName: string) => Promise<string>
+sendMessage: (clientId: string, message: string, swarmName: string) => Promise<string>
 ```
 
 Sends a message for a specific client
@@ -43,7 +43,15 @@ Sends a message for a specific client
 ### listenDispose
 
 ```ts
-listenDispose: (clientId: SessionId$1, swarmName: string, fn: (clientId: SessionId$1) => void) => () => void
+listenDispose: (clientId: string, swarmName: string, fn: (clientId: string) => void) => () => void
 ```
 
 Subscribes to disposal events for a specific client
+
+### dispose
+
+```ts
+dispose: (clientId: string, swarmName: string) => Promise<void>
+```
+
+Disposes of a specific chat instance for a client
