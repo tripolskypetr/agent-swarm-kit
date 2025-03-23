@@ -162,6 +162,7 @@ export { Policy } from "./classes/Policy";
 export { State } from "./classes/State";
 export { SharedState } from "./classes/SharedState";
 
+export { Chat } from './classes/Chat';
 export { Storage } from "./classes/Storage";
 export { SharedStorage } from "./classes/SharedStorage";
 
