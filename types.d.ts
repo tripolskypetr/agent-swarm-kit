@@ -10485,41 +10485,50 @@ declare class ChatUtils {
     /**
      * Gets or creates a chat instance for a client
      * @private
-     * @param {SessionId} clientId - The client identifier
-     * @param {SwarmName} swarmName - The swarm name
-     * @returns {ChatInstance} Chat instance for the client
+     * @param {SessionId} clientId - Unique identifier for the client
+     * @param {SwarmName} swarmName - Name of the swarm
+     * @returns {ChatInstance} Existing or new chat instance for the client
      */
     private getChatInstance;
+    /**
+     * Begins a chat session for a client
+     * @public
+     * @async
+     * @param {SessionId} clientId - Unique identifier for the client
+     * @param {SwarmName} swarmName - Name of the swarm
+     * @returns {Promise<void>} Promise that resolves when chat begins
+     */
+    beginChat: (clientId: SessionId, swarmName: SwarmName) => Promise<void>;
     /**
      * Sends a message for a specific client
      * @public
      * @async
-     * @param {SessionId} clientId - The client identifier
+     * @param {SessionId} clientId - Unique identifier for the client
      * @param {string} message - Message content to send
-     * @param {SwarmName} swarmName - The swarm name
-     * @returns {Promise<any>} Result of the message sending
+     * @param {SwarmName} swarmName - Name of the swarm
+     * @returns {Promise<any>} Result of the message sending operation
      */
     sendMessage: (clientId: SessionId, message: string, swarmName: SwarmName) => Promise<string>;
     /**
-     * Subscribes to disposal events for a specific client
+     * Subscribes to disposal events for a specific client's chat
      * @public
-     * @param {SessionId} clientId - The client identifier
-     * @param {SwarmName} swarmName - The swarm name
+     * @param {SessionId} clientId - Unique identifier for the client
+     * @param {SwarmName} swarmName - Name of the swarm
      * @param {(clientId: SessionId) => void} fn - Callback function for disposal events
-     * @returns {any} Subscription object
+     * @returns {any} Subscription object for managing the subscription
      */
     listenDispose: (clientId: SessionId, swarmName: SwarmName, fn: (clientId: SessionId) => void) => () => void;
     /**
      * Disposes of a specific chat instance for a client
      * @public
      * @async
-     * @param {SessionId} clientId - The client identifier for the chat instance to dispose
-     * @param {SwarmName} swarmName - The swarm name associated with the chat instance
-     * @returns {Promise<void>} A promise that resolves when the chat instance has been disposed
+     * @param {SessionId} clientId - Unique identifier for the client
+     * @param {SwarmName} swarmName - Name of the swarm
+     * @returns {Promise<void>} Promise that resolves when disposal is complete
      */
     dispose: (clientId: SessionId, swarmName: SwarmName) => Promise<void>;
 }
-/** @constant {ChatUtils} Singleton instance of ChatUtils */
+/** @constant {ChatUtils} Singleton instance of ChatUtils for application-wide use */
 declare const Chat: ChatUtils;
 
 /**
