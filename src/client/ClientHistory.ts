@@ -193,7 +193,7 @@ export class ClientHistory implements IHistory {
       .filter(({ content, tool_calls }) => !!content || !!tool_calls?.length);
     const assistantToolCallSet = new Set<string>(
       assistantRawMessages
-        .filter(({ tool_calls }) => !!tool_calls)
+        .filter(({ tool_calls }) => !!tool_calls?.length)
         .flatMap(({ tool_calls }) => tool_calls?.map(({ id }) => id))
     );
     const assistantMessages = assistantRawMessages.filter(

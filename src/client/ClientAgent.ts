@@ -160,7 +160,7 @@ const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
     },
     clientId: self.params.clientId,
   });
-  if (message.tool_calls) {
+  if (message.tool_calls?.length) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       self.params.logger.debug(
         `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} run should not call tools`,
@@ -222,7 +222,7 @@ const EXECUTE_FN = async (
     self.params.clientId,
     self.params.agentName
   );
-  if (message.tool_calls) {
+  if (message.tool_calls?.length) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       self.params.logger.debug(
         `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} tool call begin`
@@ -425,7 +425,7 @@ const EXECUTE_FN = async (
     run(true);
     return;
   }
-  if (!message.tool_calls) {
+  if (!message.tool_calls?.length) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       self.params.logger.debug(
         `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute no tool calls detected`

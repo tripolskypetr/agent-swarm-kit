@@ -79,7 +79,7 @@ const CC_AGENT_HISTORY_FILTER =
     if (message.role === "tool") {
       isOk = isOk && message.agentName === agentName;
     }
-    if (message.tool_calls) {
+    if (message.tool_calls?.length) {
       isOk = isOk && message.agentName === agentName;
     }
     return isOk;

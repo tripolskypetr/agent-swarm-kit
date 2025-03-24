@@ -5,13 +5,15 @@ import {
   type IModelMessage,
 } from "agent-swarm-kit";
 import { CompletionName } from "../enum/CompletionName";
-import { ChatOllama } from "@langchain/ollama";
 import {
+  AIMessage,
   HumanMessage,
+  SystemMessage,
+  ToolMessage,
   type MessageContentText,
 } from "@langchain/core/messages";
 import { randomString } from "functools-kit";
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatOpenAI, OpenAIClient } from "@langchain/openai";
 
 class LMStudioChat extends ChatOpenAI {
   async getNumTokens(content: string) {
@@ -21,24 +23,18 @@ class LMStudioChat extends ChatOpenAI {
     return Math.ceil(content.length / 4);
   }
 }
-/*
+
 const chat = new LMStudioChat({
   configuration: {
     baseURL: "http://127.0.0.1:12345/v1",
     apiKey: "noop",
   },
-  model: "saiga_yandexgpt_8b_gguf", // model: "command_r_gguf",
+  model: "saiga_yandexgpt_8b_gguf",
   streaming: true,
-});
-*/
-
-const chat = new ChatOllama({
-  baseUrl: "http://127.0.0.1:11434",
-  model: "oybekdevuz/command-r",
 });
 
 addCompletion({
-  completionName: CompletionName.LangchainLMStudioCompletion,
+  completionName: CompletionName.LMStudioCompletion,
   getCompletion: async ({
     agentName,
     messages: rawMessages,
@@ -48,41 +44,55 @@ addCompletion({
   }: ICompletionArgs): Promise<IModelMessage> => {
     Logger.logClient(
       clientId,
-      `Using ${CompletionName.LangchainLMStudioCompletion} completion`,
+      `Using ${CompletionName.LMStudioCompletion} completion`,
       JSON.stringify(rawMessages)
     );
 
-    const messages = rawMessages.map(
-      ({ role, tool_call_id, tool_calls, content }) => ({
-        role: role as any,
-        toolCallId: tool_call_id,
-        content,
-        tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
-          ...rest,
-          function: {
-            name: f.name,
-            arguments: JSON.stringify(f.arguments),
-          },
-        })),
+    const tools = rawTools?.map(
+      ({ type, function: f }): OpenAIClient.ChatCompletionTool => ({
+        type: type as "function",
+        function: {
+          name: f.name,
+          parameters: f.parameters,
+        },
       })
     );
 
-    const { content: humanMessage } = messages.findLast(
-      ({ role }) => role === "user"
-    )!;
+    const chatInstance = tools ? chat.bindTools(tools) : chat;
 
-    const tools = rawTools?.map(({ type, function: f }) => ({
-      type: type as "function",
-      function: {
-        name: f.name,
-        parameters: f.parameters,
-      },
-    }));
+    console.log(JSON.stringify(rawMessages, null, 2));
 
-    const { content, tool_calls } = await chat.invoke(
-      [new HumanMessage(humanMessage)],
+    const { content, tool_calls } = await chatInstance.invoke(
+      rawMessages.map(({ role, tool_calls, tool_call_id, content }) => {
+        if (role === "assistant") {
+          return new AIMessage({
+            tool_calls: tool_calls?.map(({ function: f, id }) => ({
+              id: id!,
+              name: f.name,
+              args: f.arguments,
+            })),
+            content,
+          });
+        }
+        if (role === "system") {
+          return new SystemMessage({
+            content,
+          });
+        }
+        if (role === "user") {
+          return new HumanMessage({
+            content,
+          });
+        }
+        if (role === "tool") {
+          return new ToolMessage({
+            tool_call_id: tool_call_id!,
+            content,
+          });
+        }
+        return "";
+      }),
       {
-        tools,
         callbacks: [
           {
             handleLLMNewToken(token: string) {
