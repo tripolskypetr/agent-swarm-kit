@@ -6,16 +6,16 @@
       "dependencies": {
         "@tensorflow/tfjs-backend-wasm": "^4.22.0",
         "@tensorflow/tfjs-core": "^4.22.0",
-        "agent-swarm-kit": "^1.0.195",
+        "agent-swarm-kit": "^1.0.197",
         "functools-kit": "^1.0.76",
         "hono": "^4.7.5",
         "ollama": "^0.5.14",
-        "open-cli": "^8.0.0",
         "pinolog": "^1.0.4",
         "telegraf": "^4.16.3",
       },
       "devDependencies": {
         "@types/bun": "latest",
+        "open-cli": "^8.0.0",
       },
       "peerDependencies": {
         "typescript": "^5",
@@ -51,7 +51,7 @@
 
     "abort-controller": ["abort-controller@3.0.0", "", { "dependencies": { "event-target-shim": "^5.0.0" } }, "sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg=="],
 
-    "agent-swarm-kit": ["agent-swarm-kit@1.0.195", "", { "dependencies": { "di-kit": "^1.0.14", "di-scoped": "^1.0.16", "functools-kit": "^1.0.76", "get-moment-stamp": "^1.1.1", "lodash-es": "4.17.21", "xml2js": "0.6.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-xwXEXM+SJXjnZxWKGnSRb5WPVqCmDqcRodqUdHT9Lo91fm6hyDeXpHMpblf7MnyLAPGnRfiaCzhM6g7RD47fNg=="],
+    "agent-swarm-kit": ["agent-swarm-kit@1.0.197", "", { "dependencies": { "di-kit": "^1.0.14", "di-scoped": "^1.0.16", "functools-kit": "^1.0.76", "get-moment-stamp": "^1.1.1", "lodash-es": "4.17.21", "xml2js": "0.6.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-5+blrRNyhESGh+y5Saa7PubOaXUQ0U/Sh7G3p0vni4BfLsSATuiG0Hvz71zT0sJ/1eOnrSaZt8+1kcOOc+xnCg=="],
 
     "atomic-sleep": ["atomic-sleep@1.0.0", "", {}, "sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ=="],
 
