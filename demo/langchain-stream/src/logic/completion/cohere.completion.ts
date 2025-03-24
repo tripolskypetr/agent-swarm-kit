@@ -1,5 +1,6 @@
 import {
   addCompletion,
+  event,
   Logger,
   type ICompletionArgs,
   type IModelMessage,
@@ -59,8 +60,6 @@ addCompletion({
 
     const chatInstance = tools ? chat.bindTools(tools) : chat;
 
-    console.log("!!", JSON.stringify(rawMessages, null, 2))
-
     const {
       content,
       tool_calls = [],
@@ -104,7 +103,7 @@ addCompletion({
         callbacks: [
           {
             handleLLMNewToken(token: string) {
-              console.log({ token });
+              event(clientId, "llm-new-token", token);
             },
           },
         ],

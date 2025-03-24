@@ -148,9 +148,6 @@ export class ClientHistory implements IHistory {
       this.params.agentName
     )) {
       const message: IModelMessage = content;
-      if (!message.tool_calls?.length && !message.content && !message.payload) {
-        continue;
-      }
       if (message.role === "resque") {
         commonMessagesRaw.splice(0, commonMessagesRaw.length);
         systemMessagesRaw.splice(0, systemMessagesRaw.length);
@@ -159,6 +156,9 @@ export class ClientHistory implements IHistory {
       if (message.role === "flush") {
         commonMessagesRaw.splice(0, commonMessagesRaw.length);
         systemMessagesRaw.splice(0, systemMessagesRaw.length);
+        continue;
+      }
+      if (!message.tool_calls?.length && !message.content && !message.payload) {
         continue;
       }
       if (message.role === "system") {

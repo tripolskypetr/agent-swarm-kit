@@ -8,7 +8,7 @@
         "@langchain/core": "^0.3.43",
         "@langchain/ollama": "^0.2.0",
         "@langchain/openai": "^0.4.8",
-        "agent-swarm-kit": "^1.0.200",
+        "agent-swarm-kit": "^1.0.201",
         "cohere-ai": "^7.16.0",
         "functools-kit": "^1.0.76",
         "ollama": "^0.5.14",
@@ -195,7 +195,7 @@
 
     "abort-controller": ["abort-controller@3.0.0", "", { "dependencies": { "event-target-shim": "^5.0.0" } }, "sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg=="],
 
-    "agent-swarm-kit": ["agent-swarm-kit@1.0.200", "", { "dependencies": { "di-kit": "^1.0.14", "di-scoped": "^1.0.16", "functools-kit": "^1.0.76", "get-moment-stamp": "^1.1.1", "lodash-es": "4.17.21", "xml2js": "0.6.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-Ee10NfWzWaT/bSK3G724n+VYtQWChTBdyuD89lZ/7MKvCWB5H2kbD0r4BP74wfxPp0sNRHe9igKyfJl+vf5maQ=="],
+    "agent-swarm-kit": ["agent-swarm-kit@1.0.201", "", { "dependencies": { "di-kit": "^1.0.14", "di-scoped": "^1.0.16", "functools-kit": "^1.0.76", "get-moment-stamp": "^1.1.1", "lodash-es": "4.17.21", "xml2js": "0.6.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-dYUZZZz8mWEvjxuYdk2NJ1ul0O6ST1BWaA1vhPZavWP1oJv8MJFwPC7JpvZsWKmff9e6NknB2IKc1+YPZvQNXg=="],
 
     "agentkeepalive": ["agentkeepalive@4.6.0", "", { "dependencies": { "humanize-ms": "^1.2.1" } }, "sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ=="],
 

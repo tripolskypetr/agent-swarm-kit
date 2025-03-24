@@ -1,7 +1,7 @@
 import "./logic";
 
 import { randomString } from "functools-kit";
-import { getAgentName, session } from "agent-swarm-kit";
+import { getAgentName, listenEvent, session } from "agent-swarm-kit";
 import readline from "readline";
 import { SwarmName } from "./logic/enum/SwarmName";
 
@@ -22,15 +22,20 @@ const askQuestion = () => {
     }
     console.time("Timing");
     const data = await complete(input);
+    process.stdout.write("\n");
     console.timeEnd("Timing");
 
-    console.log(`[${await getAgentName(CLIENT_ID)}]: ${data}`);
+    process.stdout.write(`[${await getAgentName(CLIENT_ID)}]: ${data}`);
 
     askQuestion();
   });
 };
 
 askQuestion();
+
+listenEvent(CLIENT_ID, "llm-new-token", (token: string) => {
+  process.stdout.write(token);
+});
 
 rl.on("close", () => {
   process.exit(0);

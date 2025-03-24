@@ -1,6 +1,7 @@
 import {
   addCompletion,
   Logger,
+  event,
   type ICompletionArgs,
   type IModelMessage,
 } from "agent-swarm-kit";
@@ -98,7 +99,7 @@ addCompletion({
         callbacks: [
           {
             handleLLMNewToken(token: string) {
-              console.log({ token });
+              event(clientId, "llm-new-token", token);
             },
           },
         ],
