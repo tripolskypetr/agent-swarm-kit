@@ -21,14 +21,20 @@ class LMStudioChat extends ChatOpenAI {
     return Math.ceil(content.length / 4);
   }
 }
-
+/*
 const chat = new LMStudioChat({
   configuration: {
     baseURL: "http://127.0.0.1:12345/v1",
     apiKey: "noop",
   },
-  model: "command_r_gguf",
+  model: "saiga_yandexgpt_8b_gguf", // model: "command_r_gguf",
   streaming: true,
+});
+*/
+
+const chat = new ChatOllama({
+  baseUrl: "http://127.0.0.1:11434",
+  model: "oybekdevuz/command-r",
 });
 
 addCompletion({
