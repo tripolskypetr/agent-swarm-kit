@@ -10,8 +10,8 @@
     "start:telegram": "bun ./src/index.ts --telegram"
   },
   "devDependencies": {
-    "open-cli": "^8.0.0",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "open-cli": "^8.0.0"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -19,7 +19,7 @@
   "dependencies": {
     "@tensorflow/tfjs-backend-wasm": "^4.22.0",
     "@tensorflow/tfjs-core": "^4.22.0",
-    "agent-swarm-kit": "^1.0.195",
+    "agent-swarm-kit": "^1.0.197",
     "functools-kit": "^1.0.76",
     "hono": "^4.7.5",
     "ollama": "^0.5.14",

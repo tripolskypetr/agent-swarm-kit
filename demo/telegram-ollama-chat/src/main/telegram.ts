@@ -1,28 +1,20 @@
-import { memoize } from "functools-kit";
-import { Context, Telegraf } from "telegraf";
+import { Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
-import ClientChat from "../client/ClientChat";
-
-const getChatInstance = memoize(
-  ([, context]) => context.message!.chat.id,
-  (bot: Telegraf, context: Context) => {
-    return new ClientChat(bot, context).beginChat(() => {
-      getChatInstance.clear(context.message!.chat.id);
-    });
-  }
-);
+import { Chat } from "agent-swarm-kit";
+import { ROOT_SWARM } from "../logic";
 
 const main = async () => {
   const bot = new Telegraf(process.env.BOT_TOKEN!);
 
   bot.on(message("text"), async (ctx) => {
-    const chatInstance = getChatInstance(bot, ctx);
-    await chatInstance.sendMessage(ctx.message.text);
+    const answer = await Chat.sendMessage(String(ctx.chat.id), ctx.message.text, ROOT_SWARM);
+    console.log(`Received chat=${ctx.chat.id} message=${ctx.message.text} answer=${answer}`);
+    await ctx.sendMessage(await Chat.sendMessage(String(ctx.chat.id), ctx.message.text, ROOT_SWARM));
   });
 
   await bot.launch();
 };
 
 if (process.argv.includes("--telegram")) {
-    main();
+  main();
 }
