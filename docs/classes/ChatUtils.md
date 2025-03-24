@@ -32,6 +32,14 @@ getChatInstance: any
 
 Gets or creates a chat instance for a client
 
+### beginChat
+
+```ts
+beginChat: (clientId: string, swarmName: string) => Promise<void>
+```
+
+Begins a chat session for a client
+
 ### sendMessage
 
 ```ts
@@ -46,7 +54,7 @@ Sends a message for a specific client
 listenDispose: (clientId: string, swarmName: string, fn: (clientId: string) => void) => () => void
 ```
 
-Subscribes to disposal events for a specific client
+Subscribes to disposal events for a specific client's chat
 
 ### dispose
 
