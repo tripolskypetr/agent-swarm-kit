@@ -212,22 +212,28 @@ export class ClientHistory implements IHistory {
         content: prompt,
         role: "system",
       });
-      GLOBAL_CONFIG.CC_AGENT_SYSTEM_PROMPT?.forEach((content) =>
+      GLOBAL_CONFIG.CC_AGENT_SYSTEM_PROMPT?.forEach((content) => {
+        if (!content) {
+          return;
+        }
         promptMessages.push({
           agentName: this.params.agentName,
           mode: "tool",
           content,
           role: "system",
         })
-      );
-      system?.forEach((content) =>
+      });
+      system?.forEach((content) => {
+        if (!content) {
+          return;
+        }
         promptMessages.push({
           agentName: this.params.agentName,
           mode: "tool",
           content,
           role: "system",
         })
-      );
+      });
     }
     return [...promptMessages, ...systemMessages, ...assistantMessages];
   }
