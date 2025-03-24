@@ -4,3 +4,4 @@ import "./tools/add_to_cart.tool";
 import "./completion/cohere.completion";
 import "./completion/lmstudio.completion";
 import "./completion/ollama.completion";
+import "./completion/langchain.completion";

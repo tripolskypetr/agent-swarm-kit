@@ -44,7 +44,9 @@ export class ClientHistory implements IHistory {
    * @param {IModelMessage} message - The message to add to the history, sourced from ModelMessage.model.
    * @returns {Promise<void>} Resolves when the message is stored and the event is emitted.
    */
-  async push<Payload extends object = object>(message: IModelMessage<Payload>): Promise<void> {
+  async push<Payload extends object = object>(
+    message: IModelMessage<Payload>
+  ): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientHistory agentName=${this.params.agentName} push`,
@@ -146,6 +148,9 @@ export class ClientHistory implements IHistory {
       this.params.agentName
     )) {
       const message: IModelMessage = content;
+      if (!message.tool_calls?.length && !message.content && !message.payload) {
+        continue;
+      }
       if (message.role === "resque") {
         commonMessagesRaw.splice(0, commonMessagesRaw.length);
         systemMessagesRaw.splice(0, systemMessagesRaw.length);
