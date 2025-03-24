@@ -61,8 +61,6 @@ addCompletion({
 
     const chatInstance = tools ? chat.bindTools(tools) : chat;
 
-    console.log(JSON.stringify(rawMessages, null, 2));
-
     const { content, tool_calls } = await chatInstance.invoke(
       rawMessages.map(({ role, tool_calls, tool_call_id, content }) => {
         if (role === "assistant") {
