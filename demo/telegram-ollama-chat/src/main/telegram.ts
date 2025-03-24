@@ -9,7 +9,7 @@ const main = async () => {
   bot.on(message("text"), async (ctx) => {
     const answer = await Chat.sendMessage(String(ctx.chat.id), ctx.message.text, ROOT_SWARM);
     console.log(`Received chat=${ctx.chat.id} message=${ctx.message.text} answer=${answer}`);
-    await ctx.sendMessage(await Chat.sendMessage(String(ctx.chat.id), ctx.message.text, ROOT_SWARM));
+    await ctx.sendMessage(answer);
   });
 
   await bot.launch();
