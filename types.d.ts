@@ -8958,6 +8958,17 @@ interface ISessionConfig {
 declare const disposeConnection: (clientId: string, swarmName: string, methodName?: any) => Promise<void>;
 
 /**
+ * Checks if a session exists for the given client ID.
+ *
+ * This function logs the method name if logging is enabled in the global configuration.
+ * It then delegates the session validation to the `swarm.sessionValidationService`.
+ *
+ * @param {string} clientId - The unique identifier of the client whose session is being validated.
+ * @returns {boolean} `true` if the session exists, otherwise `false`.
+ */
+declare const hasSession: (clientId: string) => boolean;
+
+/**
  * Retrieves the payload from the current PayloadContextService context.
  * Returns null if no context is available. Logs the operation if logging is enabled.
  * @template Payload - The type of the payload object, defaults to a generic object.
@@ -10469,66 +10480,153 @@ declare class SharedStateUtils implements TSharedState {
  */
 declare const SharedState: SharedStateUtils;
 
+/** @typedef {() => void} DisposeFn */
+type DisposeFn = () => void;
 /**
- * Utility class for managing multiple chat instances
- * @class
+ * @interface IChatInstance
+ * @description Interface for chat instance functionality
  */
-declare class ChatUtils {
-    /** @private @type {Map<SessionId, ChatInstance>} Map of active chat instances */
-    private _chats;
+interface IChatInstance {
     /**
-     * Initializes cleanup interval for inactive chats
-     * @private
-     * @returns {void}
+     * Begins a chat session
+     * @returns {Promise<void>}
      */
+    beginChat(): Promise<void>;
+    /**
+     * Checks if the chat has been active within the timeout period
+     * @param {number} now - Current timestamp
+     * @returns {boolean} Whether the chat is still active
+     */
+    checkLastActivity(now: number): Promise<boolean>;
+    /**
+     * Sends a message in the chat
+     * @param {string} content - Message content to send
+     * @returns {Promise<string>} Response from the chat session
+     */
+    sendMessage(content: string): Promise<string>;
+    /**
+     * Disposes of the chat instance
+     * @returns {Promise<void>}
+     */
+    dispose(): Promise<void>;
+    /**
+     * Adds a listener for dispose events
+     * @param {(clientId: SessionId) => void} fn - Callback function to execute on dispose
+     */
+    listenDispose(fn: (clientId: SessionId) => void): void;
+}
+/**
+ * @interface IChatInstanceCallbacks
+ * @description Callback interface for chat instance events
+ */
+interface IChatInstanceCallbacks {
+    /**
+     * Called when checking activity status
+     */
+    onCheckActivity(clientId: string, swarmName: SwarmName, isActive: boolean, lastActivity: number): void;
+    /**
+     * Called when instance is initialized
+     */
+    onInit(clientId: string, swarmName: SwarmName, instance: IChatInstance): void;
+    /**
+     * Called when instance is disposed
+     */
+    onDispose(clientId: string, swarmName: SwarmName, instance: IChatInstance): void;
+    /**
+     * Called when chat begins
+     */
+    onBeginChat(clientId: string, swarmName: SwarmName): void;
+    /**
+     * Called when message is sent
+     */
+    onSendMessage(clientId: string, swarmName: SwarmName, content: string): void;
+}
+/**
+ * @interface IChatControl
+ * @description Interface for controlling chat instances
+ */
+interface IChatControl {
+    /**
+     * Sets the chat instance constructor
+     * @param {TChatInstanceCtor} Ctor - Chat instance constructor
+     */
+    useChatAdapter(Ctor: TChatInstanceCtor): void;
+    /**
+     * Sets chat instance callbacks
+     * @param {Partial<IChatInstanceCallbacks>} Callbacks - Callback implementations
+     */
+    useChatCallbacks(Callbacks: Partial<IChatInstanceCallbacks>): void;
+}
+/**
+ * @typedef {new (clientId: SessionId, swarmName: SwarmName, callbacks: IChatInstanceCallbacks, onDispose: DisposeFn) => IChatInstance} TChatInstanceCtor
+ */
+type TChatInstanceCtor = new (clientId: SessionId, swarmName: SwarmName, onDispose: DisposeFn, callbacks: IChatInstanceCallbacks) => IChatInstance;
+/**
+ * @class ChatUtils
+ * @implements {IChatControl}
+ * @description Utility class for managing multiple chat instances
+ */
+declare class ChatUtils implements IChatControl {
+    /** @private */
+    private ChatInstanceFactory;
+    /** @private */
+    private ChatInstanceCallbacks;
+    /** @private */
+    private _chats;
+    /** @private */
     private initializeCleanup;
     /**
      * Gets or creates a chat instance for a client
      * @private
-     * @param {SessionId} clientId - Unique identifier for the client
+     * @param {SessionId} clientId - Unique client identifier
      * @param {SwarmName} swarmName - Name of the swarm
-     * @returns {ChatInstance} Existing or new chat instance for the client
+     * @returns {IChatInstance} The chat instance for the given client
      */
     private getChatInstance;
     /**
+     * Sets the chat instance constructor
+     * @param {TChatInstanceCtor} Ctor - Chat instance constructor
+     */
+    useChatAdapter(Ctor: TChatInstanceCtor): void;
+    /**
+     * Sets chat instance callbacks
+     * @param {Partial<IChatInstanceCallbacks>} Callbacks - Callback implementations
+     */
+    useChatCallbacks(Callbacks: Partial<IChatInstanceCallbacks>): void;
+    /**
      * Begins a chat session for a client
-     * @public
-     * @async
-     * @param {SessionId} clientId - Unique identifier for the client
+     * @param {SessionId} clientId - Unique client identifier
      * @param {SwarmName} swarmName - Name of the swarm
-     * @returns {Promise<void>} Promise that resolves when chat begins
+     * @returns {Promise<void>}
      */
     beginChat: (clientId: SessionId, swarmName: SwarmName) => Promise<void>;
     /**
-     * Sends a message for a specific client
-     * @public
-     * @async
-     * @param {SessionId} clientId - Unique identifier for the client
-     * @param {string} message - Message content to send
+     * Sends a message for a client
+     * @param {SessionId} clientId - Unique client identifier
+     * @param {string} message - Message content
      * @param {SwarmName} swarmName - Name of the swarm
-     * @returns {Promise<any>} Result of the message sending operation
+     * @returns {Promise<string>}
      */
     sendMessage: (clientId: SessionId, message: string, swarmName: SwarmName) => Promise<string>;
     /**
-     * Subscribes to disposal events for a specific client's chat
-     * @public
-     * @param {SessionId} clientId - Unique identifier for the client
+     * Listens for dispose events for a client
+     * @param {SessionId} clientId - Unique client identifier
      * @param {SwarmName} swarmName - Name of the swarm
-     * @param {(clientId: SessionId) => void} fn - Callback function for disposal events
-     * @returns {any} Subscription object for managing the subscription
+     * @param {(clientId: SessionId) => void} fn - Dispose callback
      */
-    listenDispose: (clientId: SessionId, swarmName: SwarmName, fn: (clientId: SessionId) => void) => () => void;
+    listenDispose: (clientId: SessionId, swarmName: SwarmName, fn: (clientId: SessionId) => void) => void;
     /**
-     * Disposes of a specific chat instance for a client
-     * @public
-     * @async
-     * @param {SessionId} clientId - Unique identifier for the client
+     * Disposes of a chat instance
+     * @param {SessionId} clientId - Unique client identifier
      * @param {SwarmName} swarmName - Name of the swarm
-     * @returns {Promise<void>} Promise that resolves when disposal is complete
+     * @returns {Promise<void>}
      */
     dispose: (clientId: SessionId, swarmName: SwarmName) => Promise<void>;
 }
-/** @constant {ChatUtils} Singleton instance of ChatUtils for application-wide use */
+/**
+ * @constant {ChatUtils} Chat
+ * @description Singleton instance of ChatUtils
+ */
 declare const Chat: ChatUtils;
 
 /**
@@ -10899,4 +10997,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, runStateless, runStatelessForce, session, setConfig, swarm };
