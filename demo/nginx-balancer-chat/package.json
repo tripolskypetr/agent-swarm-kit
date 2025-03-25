@@ -1,0 +1,27 @@
+{
+  "name": "nginx-upstream-chat",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "start:client": "bun ./src/client.ts",
+    "start:pm2": "pm2 start ./config/ecosystem.config.cjs",
+    "start:nginx": "docker-compose up -d",
+    "postinstall": "npm run postinstall:lerna && npm run postinstall:pm2",
+    "postinstall:lerna": "npm list -g lerna || npm install -g lerna",
+    "postinstall:pm2": "npm list -g pm2 || npm install -g pm2"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "agent-swarm-kit": "^1.0.205",
+    "cohere-ai": "^7.16.0",
+    "dotenv": "^16.4.7",
+    "functools-kit": "^1.0.76",
+    "openai": "^4.89.0"
+  }
+}
