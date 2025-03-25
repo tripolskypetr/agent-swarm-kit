@@ -5,159 +5,262 @@ import { SessionId } from "../interfaces/Session.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 
-/** @constant {string} Method name for beginning a chat in ChatUtils */
-const CHAT_UTILS_METHOD_NAME_BEGIN_CHAT = "ChatUtils.beginChat";
-/** @constant {string} Method name for sending a message in ChatUtils */
-const CHAT_UTILS_METHOD_NAME_SEND_MESSAGE = "ChatUtils.sendMessage";
-/** @constant {string} Method name for listening to dispose events in ChatUtils */
-const CHAT_UTILS_METHOD_NAME_LISTEN_DISPOSE = "ChatUtils.listenDispose";
-/** @constant {string} Method name for disposing a chat in ChatUtils */
-const CHAT_UTILS_METHOD_NAME_DISPOSE = "ChatUtils.dispose";
-
-/** @constant {string} Method name for beginning a chat in ChatInstance */
-const CHAT_INSTANCE_METHOD_NAME_BEGIN_CHAT = "ChatInstance.beginChat";
-/** @constant {string} Method name for sending a message in ChatInstance */
-const CHAT_INSTANCE_METHOD_NAME_SEND_MESSAGE = "ChatInstance.sendMessage";
-/** @constant {string} Method name for disposing a chat in ChatInstance */
-const CHAT_INSTANCE_METHOD_NAME_DISPOSE = "ChatInstance.dispose";
-/** @constant {string} Method name for listening to dispose events in ChatInstance */
-const CHAT_INSTANCE_METHOD_NAME_LISTEN_DISPOSE = "ChatInstance.listenDispose";
-
-/** @typedef DisposeFn - Function type for chat instance disposal */
-/** Function for chat instance disposal  */
+/** @typedef {() => void} DisposeFn */
 type DisposeFn = () => void;
 
-/** @constant {number} Time interval in milliseconds for inactivity checks (1 minute) */
+/** @constant {number} INACTIVITY_CHECK - Interval for checking inactivity in milliseconds (1 minute) */
 const INACTIVITY_CHECK = 60 * 1_000;
-/** @constant {number} Time in milliseconds before a chat is considered inactive (15 minutes) */
+/** @constant {number} INACTIVITY_TIMEOUT - Timeout duration for inactivity in milliseconds (15 minutes) */
 const INACTIVITY_TIMEOUT = 15 * 60 * 1000;
 
 /**
- * Represents a single chat instance for a client
- * @class
+ * @interface IChatInstance
+ * @description Interface for chat instance functionality
  */
-class ChatInstance {
-  /** @private @type {Subject<SessionId>} Subject for disposal notifications */
-  private disposeSubject = new Subject<SessionId>();
+export interface IChatInstance {
+  /**
+   * Begins a chat session
+   * @returns {Promise<void>}
+   */
+  beginChat(): Promise<void>;
 
-  /** @type {ReturnType<typeof session>} The chat session instance */
-  readonly chatSession: ReturnType<typeof session>;
+  /**
+   * Checks if the chat has been active within the timeout period
+   * @param {number} now - Current timestamp
+   * @returns {boolean} Whether the chat is still active
+   */
+  checkLastActivity(now: number): Promise<boolean>;
 
-  /** @private @type {number} Timestamp of last activity */
+  /**
+   * Sends a message in the chat
+   * @param {string} content - Message content to send
+   * @returns {Promise<string>} Response from the chat session
+   */
+  sendMessage(content: string): Promise<string>;
+
+  /**
+   * Disposes of the chat instance
+   * @returns {Promise<void>}
+   */
+  dispose(): Promise<void>;
+
+  /**
+   * Adds a listener for dispose events
+   * @param {(clientId: SessionId) => void} fn - Callback function to execute on dispose
+   */
+  listenDispose(fn: (clientId: SessionId) => void): void;
+}
+
+/**
+ * @interface IChatInstanceCallbacks
+ * @description Callback interface for chat instance events
+ */
+export interface IChatInstanceCallbacks {
+  /**
+   * Called when checking activity status
+   */
+  onCheckActivity(
+    clientId: string,
+    swarmName: SwarmName,
+    isActive: boolean,
+    lastActivity: number
+  ): void;
+
+  /**
+   * Called when instance is initialized
+   */
+  onInit(clientId: string, swarmName: SwarmName, instance: IChatInstance): void;
+
+  /**
+   * Called when instance is disposed
+   */
+  onDispose(
+    clientId: string,
+    swarmName: SwarmName,
+    instance: IChatInstance
+  ): void;
+
+  /**
+   * Called when chat begins
+   */
+  onBeginChat(clientId: string, swarmName: SwarmName): void;
+
+  /**
+   * Called when message is sent
+   */
+  onSendMessage(clientId: string, swarmName: SwarmName, content: string): void;
+}
+
+/**
+ * @interface IChatControl
+ * @description Interface for controlling chat instances
+ */
+export interface IChatControl {
+  /**
+   * Sets the chat instance constructor
+   * @param {TChatInstanceCtor} Ctor - Chat instance constructor
+   */
+  useChatAdapter(Ctor: TChatInstanceCtor): void;
+
+  /**
+   * Sets chat instance callbacks
+   * @param {Partial<IChatInstanceCallbacks>} Callbacks - Callback implementations
+   */
+  useChatCallbacks(Callbacks: Partial<IChatInstanceCallbacks>): void;
+}
+
+/**
+ * @typedef {new (clientId: SessionId, swarmName: SwarmName, callbacks: IChatInstanceCallbacks, onDispose: DisposeFn) => IChatInstance} TChatInstanceCtor
+ */
+type TChatInstanceCtor = new (
+  clientId: SessionId,
+  swarmName: SwarmName,
+  onDispose: DisposeFn,
+  callbacks: IChatInstanceCallbacks
+) => IChatInstance;
+
+/**
+ * @class ChatInstance
+ * @implements {IChatInstance}
+ * @description Implementation of a single chat instance
+ */
+class ChatInstance implements IChatInstance {
+  /** @private */
+  private _disposeSubject = new Subject<SessionId>();
+  /** @private */
+  private _chatSession: ReturnType<typeof session>;
+  /** @private */
   private _lastActivity: number = Date.now();
 
   /**
-   * Gets the timestamp of the last activity
-   * @public
-   * @returns {number} Last activity timestamp in milliseconds
-   */
-  public get lastActivity() {
-    return this._lastActivity;
-  }
-
-  /**
-   * Creates a new ChatInstance
    * @constructor
-   * @param {SessionId} clientId - Unique identifier for the client
-   * @param {SwarmName} swarmName - Name of the swarm this chat belongs to
-   * @param {DisposeFn} onDispose - Callback function executed when chat is disposed
+   * @param {SessionId} clientId - Unique client identifier
+   * @param {SwarmName} swarmName - Name of the swarm
+   * @param {Partial<IChatInstanceCallbacks>} callbacks - Event callbacks
+   * @param {DisposeFn} onDispose - Dispose callback function
    */
   constructor(
     private readonly clientId: SessionId,
     private readonly swarmName: SwarmName,
-    private readonly onDispose: DisposeFn
+    private readonly onDispose: DisposeFn,
+    private readonly callbacks: Partial<IChatInstanceCallbacks>
   ) {
-    this.chatSession = session(this.clientId, this.swarmName, {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug("ChatInstance CTOR", {
+        clientId: this.clientId,
+        swarmName: this.swarmName,
+      });
+    this._chatSession = session(this.clientId, this.swarmName, {
       onDispose: this.onDispose,
     });
+    this.callbacks.onInit &&
+      this.callbacks.onInit(this.clientId, this.swarmName, this);
   }
 
   /**
-   * Initiates the chat session
-   * @public
-   * @async
-   * @returns {Promise<void>} Promise that resolves when chat is initiated
+   * Checks if the chat has been active within the timeout period
+   * @param {number} now - Current timestamp
+   * @returns {boolean} Whether the chat is still active
    */
-  public beginChat = () => {
+  public async checkLastActivity(now: number) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(CHAT_INSTANCE_METHOD_NAME_BEGIN_CHAT, {
+      swarm.loggerService.debug("ChatInstance.checkLastActivity", {
         clientId: this.clientId,
         swarmName: this.swarmName,
-        timestamp: new Date().toISOString(),
       });
-    return Promise.resolve();
-  };
+    const isActive = now - this._lastActivity <= INACTIVITY_TIMEOUT;
+    this.callbacks.onCheckActivity &&
+      this.callbacks.onCheckActivity(
+        this.clientId,
+        this.swarmName,
+        isActive,
+        this._lastActivity
+      );
+    return isActive;
+  }
 
   /**
-   * Sends a message through the chat session
-   * @public
-   * @async
-   * @param {string} content - The message content to send
-   * @returns {Promise<any>} Result of the message completion
+   * Begins a chat session
+   * @returns {Promise<void>}
    */
-  public sendMessage = async (content: string) => {
+  public beginChat() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(CHAT_INSTANCE_METHOD_NAME_SEND_MESSAGE, {
+      swarm.loggerService.debug("ChatInstance.beginChat", {
+        clientId: this.clientId,
+        swarmName: this.swarmName,
+      });
+    this.callbacks.onBeginChat &&
+      this.callbacks.onBeginChat(this.clientId, this.swarmName);
+    return Promise.resolve();
+  }
+
+  /**
+   * Sends a message in the chat
+   * @param {string} content - Message content to send
+   * @returns {Promise<string>} Response from the chat session
+   */
+  public async sendMessage(content: string) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug("ChatInstance.sendMessage", {
         content,
         clientId: this.clientId,
         swarmName: this.swarmName,
-        timestamp: new Date().toISOString(),
       });
     this._lastActivity = Date.now();
-    return await this.chatSession.complete(content);
-  };
+    this.callbacks.onSendMessage &&
+      this.callbacks.onSendMessage(this.clientId, this.swarmName, content);
+    return await this._chatSession.complete(content);
+  }
 
   /**
-   * Disposes of the chat instance and cleans up resources
-   * @public
-   * @async
-   * @returns {Promise<void>} Promise that resolves when disposal is complete
+   * Disposes of the chat instance
+   * @returns {Promise<void>}
    */
-  public dispose = async () => {
+  public async dispose() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(CHAT_INSTANCE_METHOD_NAME_DISPOSE, {
-        clientId: this.clientId,
-        swarmName: this.swarmName,
-        timestamp: new Date().toISOString(),
-      });
-    await this.disposeSubject.next(this.clientId);
-    await this.chatSession.dispose();
-  };
-
-  /**
-   * Subscribes to disposal events for this chat instance
-   * @public
-   * @param {(clientId: SessionId) => void} fn - Callback function to execute on disposal
-   * @returns {any} Subscription object for managing the subscription
-   */
-  public listenDispose = (fn: (clientId: SessionId) => void) => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug(CHAT_INSTANCE_METHOD_NAME_LISTEN_DISPOSE, {
+      swarm.loggerService.debug("ChatInstance.dispose", {
         clientId: this.clientId,
         swarmName: this.swarmName,
       });
-    return this.disposeSubject.once(fn);
-  };
+    await this._disposeSubject.next(this.clientId);
+    await this._chatSession.dispose();
+    this.callbacks.onDispose &&
+      this.callbacks.onDispose(this.clientId, this.swarmName, this);
+  }
+
+  /**
+   * Adds a listener for dispose events
+   * @param {(clientId: SessionId) => void} fn - Callback function to execute on dispose
+   */
+  public listenDispose(fn: (clientId: SessionId) => void) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug("ChatInstance.listenDispose", {
+        clientId: this.clientId,
+        swarmName: this.swarmName,
+      });
+    return this._disposeSubject.once(fn);
+  }
 }
 
 /**
- * Utility class for managing multiple chat instances
- * @class
+ * @class ChatUtils
+ * @implements {IChatControl}
+ * @description Utility class for managing multiple chat instances
  */
-export class ChatUtils {
-  /** @private @type {Map<SessionId, ChatInstance>} Map of active chat instances */
-  private _chats: Map<SessionId, ChatInstance> = new Map();
+export class ChatUtils implements IChatControl {
+  /** @private */
+  private ChatInstanceFactory: TChatInstanceCtor = ChatInstance;
+  /** @private */
+  private ChatInstanceCallbacks: Partial<IChatInstanceCallbacks> = {};
+  /** @private */
+  private _chats: Map<SessionId, IChatInstance> = new Map();
 
-  /**
-   * Initializes cleanup interval for inactive chats
-   * @private
-   * @returns {void}
-   */
+  /** @private */
   private initializeCleanup = singleshot(() => {
     const handleCleanup = async () => {
       const now = Date.now();
       for (const chat of this._chats.values()) {
-        if (now - chat.lastActivity >= INACTIVITY_TIMEOUT) {
+        if (!chat.checkLastActivity(now)) {
           await chat.dispose();
         }
       }
@@ -168,9 +271,9 @@ export class ChatUtils {
   /**
    * Gets or creates a chat instance for a client
    * @private
-   * @param {SessionId} clientId - Unique identifier for the client
+   * @param {SessionId} clientId - Unique client identifier
    * @param {SwarmName} swarmName - Name of the swarm
-   * @returns {ChatInstance} Existing or new chat instance for the client
+   * @returns {IChatInstance} The chat instance for the given client
    */
   private getChatInstance = (clientId: SessionId, swarmName: SwarmName) => {
     return this._chats.has(clientId)
@@ -178,24 +281,45 @@ export class ChatUtils {
       : this._chats
           .set(
             clientId,
-            new ChatInstance(clientId, swarmName, () => {
-              this._chats.delete(clientId);
-            })
+            Reflect.construct(this.ChatInstanceFactory, [
+              clientId,
+              swarmName,
+              () => this._chats.delete(clientId),
+              this.ChatInstanceCallbacks,
+            ])
           )
           .get(clientId)!;
   };
 
   /**
+   * Sets the chat instance constructor
+   * @param {TChatInstanceCtor} Ctor - Chat instance constructor
+   */
+  public useChatAdapter(Ctor: TChatInstanceCtor): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log("ChatUtils.useChatAdapter");
+    this.ChatInstanceFactory = Ctor;
+  }
+
+  /**
+   * Sets chat instance callbacks
+   * @param {Partial<IChatInstanceCallbacks>} Callbacks - Callback implementations
+   */
+  public useChatCallbacks(Callbacks: Partial<IChatInstanceCallbacks>): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log("ChatUtils.useChatCallbacks");
+    Object.assign(this.ChatInstanceCallbacks, Callbacks);
+  }
+
+  /**
    * Begins a chat session for a client
-   * @public
-   * @async
-   * @param {SessionId} clientId - Unique identifier for the client
+   * @param {SessionId} clientId - Unique client identifier
    * @param {SwarmName} swarmName - Name of the swarm
-   * @returns {Promise<void>} Promise that resolves when chat begins
+   * @returns {Promise<void>}
    */
   public beginChat = async (clientId: SessionId, swarmName: SwarmName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(CHAT_UTILS_METHOD_NAME_BEGIN_CHAT, {
+      swarm.loggerService.log("ChatUtils.beginChat", {
         clientId,
         swarmName,
       });
@@ -204,13 +328,11 @@ export class ChatUtils {
   };
 
   /**
-   * Sends a message for a specific client
-   * @public
-   * @async
-   * @param {SessionId} clientId - Unique identifier for the client
-   * @param {string} message - Message content to send
+   * Sends a message for a client
+   * @param {SessionId} clientId - Unique client identifier
+   * @param {string} message - Message content
    * @param {SwarmName} swarmName - Name of the swarm
-   * @returns {Promise<any>} Result of the message sending operation
+   * @returns {Promise<string>}
    */
   public sendMessage = async (
     clientId: SessionId,
@@ -218,7 +340,7 @@ export class ChatUtils {
     swarmName: SwarmName
   ) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(CHAT_UTILS_METHOD_NAME_SEND_MESSAGE, {
+      swarm.loggerService.log("ChatUtils.sendMessage", {
         clientId,
         message,
         swarmName,
@@ -228,12 +350,10 @@ export class ChatUtils {
   };
 
   /**
-   * Subscribes to disposal events for a specific client's chat
-   * @public
-   * @param {SessionId} clientId - Unique identifier for the client
+   * Listens for dispose events for a client
+   * @param {SessionId} clientId - Unique client identifier
    * @param {SwarmName} swarmName - Name of the swarm
-   * @param {(clientId: SessionId) => void} fn - Callback function for disposal events
-   * @returns {any} Subscription object for managing the subscription
+   * @param {(clientId: SessionId) => void} fn - Dispose callback
    */
   public listenDispose = (
     clientId: SessionId,
@@ -241,7 +361,7 @@ export class ChatUtils {
     fn: (clientId: SessionId) => void
   ) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(CHAT_UTILS_METHOD_NAME_LISTEN_DISPOSE, {
+      swarm.loggerService.log("ChatUtils.listenDispose", {
         clientId,
         swarmName,
       });
@@ -249,16 +369,14 @@ export class ChatUtils {
   };
 
   /**
-   * Disposes of a specific chat instance for a client
-   * @public
-   * @async
-   * @param {SessionId} clientId - Unique identifier for the client
+   * Disposes of a chat instance
+   * @param {SessionId} clientId - Unique client identifier
    * @param {SwarmName} swarmName - Name of the swarm
-   * @returns {Promise<void>} Promise that resolves when disposal is complete
+   * @returns {Promise<void>}
    */
   public dispose = async (clientId: SessionId, swarmName: SwarmName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(CHAT_UTILS_METHOD_NAME_DISPOSE, {
+      swarm.loggerService.log("ChatUtils.dispose", {
         clientId,
         swarmName,
       });
@@ -269,5 +387,8 @@ export class ChatUtils {
   };
 }
 
-/** @constant {ChatUtils} Singleton instance of ChatUtils for application-wide use */
+/**
+ * @constant {ChatUtils} Chat
+ * @description Singleton instance of ChatUtils
+ */
 export const Chat = new ChatUtils();
