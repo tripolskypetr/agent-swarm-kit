@@ -1,4 +1,4 @@
-import { Adapter, addAgent, addCompletion, addSwarm, addTool, Chat, commitToolOutput, execute, getAgentName, Schema } from "agent-swarm-kit";
+import { Adapter, addAgent, addCompletion, addSwarm, addTool, Chat, commitToolOutput, execute, getAgentName, Schema, History } from "agent-swarm-kit";
 import type { ServerWebSocket } from "bun";
 import { OpenAI } from "openai";
 import { parseArgs } from "util";
@@ -26,39 +26,18 @@ const { values } = parseArgs({
 const COHERE_COMPLETION = addCompletion({
   completionName: "cohere_completion",
   getCompletion: Adapter.fromOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }))
-});
-
-const GET_NUMBER = addTool({
-  toolName: "get_number_tool",
-  type: "function",
-  call: async ({ clientId, agentName, toolId }) => {
-    await commitToolOutput(toolId, `The number is ${SERVER_PORT}`, clientId, agentName);
-    await execute(`Tell me the number is ${SERVER_PORT}`, clientId, agentName);
-  },
-  function: {
-    name: "get_number_tool",
-    description: "Get the number for user request",
-    parameters: {
-      type: "object",
-      properties: {
-        title: {
-          type: "string",
-          description: "The constant value equal to CURRENT",
-          enum: ["CURRENT"],
-        },
-      },
-      required: [],
-    },
-  }
 })
+
+History.useHistoryCallbacks({
+  getSystemPrompt: () => [
+    `The server port is ${SERVER_PORT}. Tell him that port ASAP`
+  ]
+});
 
 const TEST_AGENT = addAgent({
   agentName: "test_agent",
   completion: COHERE_COMPLETION,
-  prompt: `You are a test agent for NGinx Upstream. Call the ${GET_NUMBER} and tell user the output`,
-  tools: [
-    GET_NUMBER
-  ],
+  prompt: `You are a test agent for Nginx Upstream. Tell user the server port from the chat history (system message)`,
 });
 
 const TEST_SWARM = addSwarm({
