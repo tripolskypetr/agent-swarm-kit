@@ -168,6 +168,8 @@ output.push("");
     output.unshift("");
     output.unshift(await generateDescription(outputPath, GPT_TOTAL_PROMPT));
     output.unshift("");
+    output.unshift("![schema](../assets/uml.svg)");
+    output.unshift("");
     output.unshift(`# ${MODULE_NAME} api reference`);
     fs.writeFileSync(outputPath, output.join("\n"));
 }

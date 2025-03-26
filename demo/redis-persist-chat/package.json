@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start:server": "bun ./src/index.ts --server",
-    "start:client": "bun ./src/index.ts --client"
+    "start:client": "bun ./src/index.ts --client",
+    "build:docs": "bun ./src/docs.mjs"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -21,6 +22,7 @@
     "ollama": "^0.5.14",
     "openai": "^4.88.0",
     "pinolog": "^1.0.4",
+    "plantuml": "^0.0.2",
     "zod": "^3.24.2"
   }
 }

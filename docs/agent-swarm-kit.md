@@ -5,6 +5,8 @@ group: docs
 
 # agent-swarm-kit api reference
 
+![schema](../assets/uml.svg)
+
 **Overall Architecture:**
 
 This system built around a distributed, asynchronous architecture. Agents communicate via a message queue, and their interactions are orchestrated through a series of tools and processes. The core concept is to allow agents to perform tasks independently while still being part of a larger, coordinated system.

@@ -24,4 +24,5 @@ addAgent({
   storages: [
     StorageName.FactStorage,
   ],
+  dependsOn: [],
 });
