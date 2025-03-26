@@ -14,6 +14,7 @@ const AGENT_PROMPT = str.newline(
 );
 
 addAgent({
+  docDescription: "This agent, named SalesAgent, operates within the repl-phone-seller project to assist users in adding phones to a cart via a REPL terminal, using the OllamaCompletion for natural interactions, relying on SearchPhoneTool and SearchPhoneByDiagonalTool for phone queries, and employing AddToBacketTool to manage BasketStorage, all while storing phone data in PhoneStorage.",
   agentName: AgentName.SalesAgent,
   prompt: AGENT_PROMPT,
   tools: [
@@ -32,4 +33,5 @@ addAgent({
     StorageName.BasketStorage,
   ],
   completion: CompletionName.OllamaCompletion,
+  dependsOn: [],
 });

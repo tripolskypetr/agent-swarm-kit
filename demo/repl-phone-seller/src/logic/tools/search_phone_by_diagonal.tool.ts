@@ -12,6 +12,7 @@ import { PhoneModel } from "../../model/Phone.model";
 declare function parseFloat(value: unknown): number;
 
 addTool({
+  docNote: "This tool, named SearchPhoneByDiagonalTool, enables users in the repl-phone-seller project to search for phones by diagonal range in a REPL terminal, validating input for diagonal bounds, querying PhoneStorage for matches within a tolerance, logging results, and either reporting 'nothing found' or listing found phones with descriptions while prompting to add to the cart.",
   toolName: ToolName.SearchPhoneByDiagonalTool,
   validate: async ({ params }) => !!params.diagonalFrom || !!params.diagonalTo,
   call: async ({ toolId, clientId, agentName, params }) => {

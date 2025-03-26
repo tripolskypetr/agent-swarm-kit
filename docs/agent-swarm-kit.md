@@ -1,3 +1,8 @@
+---
+title: docs/agent-swarm-kit
+group: docs
+---
+
 # agent-swarm-kit api reference
 
 **Overall Architecture:**

@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "start": "bun ./src/index.ts",
-    "start:debug": "bun --inspect-brk ./src/index.ts"
+    "start:debug": "bun --inspect-brk ./src/index.ts",
+    "build:docs": "bun ./src/docs.mjs"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -18,6 +19,7 @@
     "functools-kit": "^1.0.75",
     "ollama": "^0.5.14",
     "openai": "^4.86.2",
-    "pinolog": "^1.0.4"
+    "pinolog": "^1.0.4",
+    "plantuml": "^0.0.2"
   }
 }

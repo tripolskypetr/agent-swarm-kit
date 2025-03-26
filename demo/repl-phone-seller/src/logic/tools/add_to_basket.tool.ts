@@ -10,6 +10,7 @@ import { StorageName } from "../enum/StorageName";
 import { randomString } from "functools-kit";
 
 addTool({
+  docNote: "This tool, named AddToBacketTool, enables users in the repl-phone-seller project to add a phone to their cart via a REPL terminal by validating the phone title, storing it in BasketStorage with a unique ID, logging the action, confirming success through tool output, and prompting the user to place an order.",
   toolName: ToolName.AddToBacketTool,
   validate: async ({ params }) => !!params.title,
   call: async ({ toolId, clientId, agentName, params }) => {

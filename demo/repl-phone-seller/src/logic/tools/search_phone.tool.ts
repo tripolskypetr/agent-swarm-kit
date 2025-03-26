@@ -10,6 +10,7 @@ import { StorageName } from "../enum/StorageName";
 import { PhoneModel } from "../../model/Phone.model";
 
 addTool({
+  docNote: "This tool, named SearchPhoneTool, enables users in the repl-phone-seller project to search for phones using contextual keywords in a REPL terminal, validating the search input, querying PhoneStorage for up to 15 matches with a similarity score, logging results, and either reporting 'nothing found' or listing found phones with descriptions while prompting to add to the cart.",
   toolName: ToolName.SearchPhoneTool,
   validate: async ({ params }) => !!params.search,
   call: async ({ toolId, clientId, agentName, params }) => {
