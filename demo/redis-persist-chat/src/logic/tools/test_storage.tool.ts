@@ -7,6 +7,7 @@ import { StorageName } from "../../enum/StorageName";
 const PARAMETER_SCHEMA = z.object({}).strict();
 
 addTool({
+  docNote: "This tool, named TestStorageTool, functions within the persist-redis-storage project to test the FactStorage by adding a new test fact entry to the Redis-persisted storage, confirming the action via tool output, and triggering a follow-up message to notify the user of successful testing.",
   toolName: ToolName.TestStorageTool,
   type: "function",
   validate: async ({ clientId, agentName, params }) => {

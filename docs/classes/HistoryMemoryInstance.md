@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/HistoryMemoryInstance
+group: docs
+---
+
 # HistoryMemoryInstance
 
 Implements `IHistoryInstance`

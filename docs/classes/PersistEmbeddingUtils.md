@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/PersistEmbeddingUtils
+group: docs
+---
+
 # PersistEmbeddingUtils
 
 Implements `IPersistEmbeddingControl`

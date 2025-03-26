@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/ToolName
+group: docs
+---
+
 # ToolName
 
 ```ts

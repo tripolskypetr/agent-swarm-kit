@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ICompletion
+group: docs
+---
+
 # ICompletion
 
 Interface representing a completion mechanism.

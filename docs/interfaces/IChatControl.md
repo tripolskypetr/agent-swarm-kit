@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IChatControl
+group: docs
+---
+
 # IChatControl
 
 ## Methods

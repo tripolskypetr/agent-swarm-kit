@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/SwarmMetaService
+group: docs
+---
+
 # SwarmMetaService
 
 Service class for managing swarm metadata and converting it to UML format in the swarm system.

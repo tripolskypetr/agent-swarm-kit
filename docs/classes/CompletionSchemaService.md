@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/CompletionSchemaService
+group: docs
+---
+
 # CompletionSchemaService
 
 Service class for managing completion schemas in the swarm system.

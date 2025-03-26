@@ -8,7 +8,7 @@ import {
   session,
   setConfig,
   swarm,
-} from "../build/index.mjs";
+} from "../../build/index.mjs";
 import { randomString } from "functools-kit";
 import assert from "assert";
 

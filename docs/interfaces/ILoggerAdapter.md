@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ILoggerAdapter
+group: docs
+---
+
 # ILoggerAdapter
 
 Interface defining methods for interacting with a logger adapter.

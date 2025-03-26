@@ -12,6 +12,7 @@ const METHOD_NAME = "cli.dumpDocs";
  * @returns {Promise<void>} - A promise that resolves when the documentation has been dumped.
  */
 export const dumpDocs = beginContext((
+  prefix = "swarm",
   dirName = "./docs/chat",
   PlantUML?: (uml: string) => Promise<string>
 ) => {
@@ -45,5 +46,5 @@ export const dumpDocs = beginContext((
     }
   });
 
-  return swarm.docService.dumpDocs(dirName);
+  return swarm.docService.dumpDocs(prefix, dirName);
 });

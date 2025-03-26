@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IBus
+group: docs
+---
+
 # IBus
 
 Interface representing an event bus for the swarm system.

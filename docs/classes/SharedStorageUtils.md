@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/SharedStorageUtils
+group: docs
+---
+
 # SharedStorageUtils
 
 Implements `TSharedStorage`

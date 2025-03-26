@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IAgent
+group: docs
+---
+
 # IAgent
 
 Interface representing an agent's runtime behavior and interaction methods.
@@ -51,7 +56,7 @@ Commits a system message to the agent's history or state.
 ### commitUserMessage
 
 ```ts
-commitUserMessage: (message: string) => Promise<void>
+commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>
 ```
 
 Commits a user message to the agent's history without triggering a response.

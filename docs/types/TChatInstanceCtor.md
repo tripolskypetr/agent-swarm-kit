@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TChatInstanceCtor
+group: docs
+---
+
 # TChatInstanceCtor
 
 ```ts

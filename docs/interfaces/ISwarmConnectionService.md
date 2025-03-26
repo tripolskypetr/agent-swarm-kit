@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ISwarmConnectionService
+group: docs
+---
+
 # ISwarmConnectionService
 
 Interface extending SwarmConnectionService for type definition purposes.

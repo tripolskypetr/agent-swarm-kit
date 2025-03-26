@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/StorageSchemaService
+group: docs
+---
+
 # StorageSchemaService
 
 Service class for managing storage schemas in the swarm system.

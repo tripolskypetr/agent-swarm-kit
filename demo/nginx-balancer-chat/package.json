@@ -7,6 +7,7 @@
     "@types/bun": "latest"
   },
   "scripts": {
+    "build:docs": "bun ./src/docs.mjs",
     "start:client": "bun ./src/client.ts",
     "start:pm2": "pm2 start ./config/ecosystem.config.cjs",
     "start:nginx": "docker-compose up -d",
@@ -18,10 +19,11 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "agent-swarm-kit": "^1.0.205",
+    "agent-swarm-kit": "^1.0.212",
     "cohere-ai": "^7.16.0",
     "dotenv": "^16.4.7",
     "functools-kit": "^1.0.76",
-    "openai": "^4.89.0"
+    "openai": "^4.89.0",
+    "plantuml": "^0.0.2"
   }
 }

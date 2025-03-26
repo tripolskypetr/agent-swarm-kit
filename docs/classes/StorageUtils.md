@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/StorageUtils
+group: docs
+---
+
 # StorageUtils
 
 Implements `TStorage`

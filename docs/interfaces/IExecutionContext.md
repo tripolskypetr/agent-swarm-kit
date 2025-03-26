@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IExecutionContext
+group: docs
+---
+
 # IExecutionContext
 
 Interface defining the structure of execution context in the swarm system.

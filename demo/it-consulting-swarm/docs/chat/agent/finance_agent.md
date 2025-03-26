@@ -1,3 +1,8 @@
+---
+title: demo/it-consulting-swarm/finance_agent
+group: demo/it-consulting-swarm
+---
+
 # finance_agent
 
 > This agent offers expertise in financial literacy and money management, providing advice on budgeting and investments to enhance users' financial knowledge, and includes an option to return to the Triage Agent for non-financial queries.

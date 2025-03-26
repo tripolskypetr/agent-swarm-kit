@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/AgentValidationService
+group: docs
+---
+
 # AgentValidationService
 
 Service for validating agents within the swarm system, managing agent schemas and dependencies.

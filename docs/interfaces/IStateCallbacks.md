@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IStateCallbacks
+group: docs
+---
+
 # IStateCallbacks
 
 Interface representing callbacks for state lifecycle events.

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IToolCall
+group: docs
+---
+
 # IToolCall
 
 Interface representing a tool call request within the swarm system.

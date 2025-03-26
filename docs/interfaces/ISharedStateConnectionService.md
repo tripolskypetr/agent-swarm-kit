@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ISharedStateConnectionService
+group: docs
+---
+
 # ISharedStateConnectionService
 
 Interface extending SharedStateConnectionService for type definition purposes.

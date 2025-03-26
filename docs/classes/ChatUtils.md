@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/ChatUtils
+group: docs
+---
+
 # ChatUtils
 
 Implements `IChatControl`

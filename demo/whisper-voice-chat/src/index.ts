@@ -1,11 +1,6 @@
 import {
-  addAgent,
-  addCompletion,
-  addSwarm,
   session,
-  Adapter,
 } from "agent-swarm-kit";
-import { Ollama } from "ollama";
 import { Hono, type Context } from "hono";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
@@ -13,6 +8,8 @@ import { pipeline } from "@xenova/transformers";
 import { serve } from "bun";
 import wavefile from "wavefile";
 import { queued, randomString, str } from "functools-kit";
+
+import { TEST_SWARM } from './lib/swarm';
 
 const TASK_NAME = "automatic-speech-recognition";
 const MODEL_NAME = "Xenova/whisper-tiny";
@@ -46,25 +43,6 @@ const getAudioData = async (buffer: Buffer, sampling_rate = 16000) => {
 const app = new Hono({});
 
 app.use("*", cors());
-
-const ollama = new Ollama({ host: "http://127.0.0.1:11434" });
-
-const MOCK_COMPLETION = addCompletion({
-  completionName: "navigate-completion",
-  getCompletion: Adapter.fromOllama(ollama, "nemotron-mini:4b"),
-});
-
-const TEST_AGENT = addAgent({
-  agentName: "test-agent",
-  completion: MOCK_COMPLETION,
-  prompt: "You are the agent of a swarm system. Chat with customer",
-});
-
-const TEST_SWARM = addSwarm({
-  agentList: [TEST_AGENT],
-  defaultAgent: TEST_AGENT,
-  swarmName: "test-swarm",
-});
 
 const CLIENT_ID = randomString();
 

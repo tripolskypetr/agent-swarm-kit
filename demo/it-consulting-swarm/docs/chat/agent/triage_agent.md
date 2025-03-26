@@ -1,3 +1,8 @@
+---
+title: demo/it-consulting-swarm/triage_agent
+group: demo/it-consulting-swarm
+---
+
 # triage_agent
 
 > This agent acts as the central routing hub for incoming user requests, analyzing queries to identify the most suitable specialized agent, ensuring smooth transitions by passing relevant context, and serving as the default starting point equipped with tools to navigate to any specialized agent.

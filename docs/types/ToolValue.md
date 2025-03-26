@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/ToolValue
+group: docs
+---
+
 # ToolValue
 
 ```ts

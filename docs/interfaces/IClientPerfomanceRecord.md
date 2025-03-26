@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IClientPerfomanceRecord
+group: docs
+---
+
 # IClientPerfomanceRecord
 
 Interface representing a performance record for an individual client within a process.

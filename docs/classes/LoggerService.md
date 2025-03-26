@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/LoggerService
+group: docs
+---
+
 # LoggerService
 
 Implements `ILogger`

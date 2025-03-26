@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ISession
+group: docs
+---
+
 # ISession
 
 Interface representing a session within the swarm.
@@ -8,7 +13,7 @@ Defines methods for message emission, execution, and state management.
 ### commitUserMessage
 
 ```ts
-commitUserMessage: (message: string) => Promise<void>
+commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>
 ```
 
 Commits a user message to the session's history without triggering a response.
@@ -61,7 +66,7 @@ Executes a command within the session, potentially updating history based on mod
 ### connect
 
 ```ts
-connect: (connector: SendMessageFn$1<void>, ...args: unknown[]) => ReceiveMessageFn<string>
+connect: (connector: SendMessageFn<void>, ...args: unknown[]) => ReceiveMessageFn<string>
 ```
 
 Connects the session to a message sender and returns a receiver function.

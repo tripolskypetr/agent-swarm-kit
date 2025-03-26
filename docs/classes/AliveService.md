@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/AliveService
+group: docs
+---
+
 # AliveService
 
 Service class for managing the online/offline status of clients within swarms.

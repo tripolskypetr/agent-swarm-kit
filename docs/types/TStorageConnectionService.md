@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TStorageConnectionService
+group: docs
+---
+
 # TStorageConnectionService
 
 ```ts

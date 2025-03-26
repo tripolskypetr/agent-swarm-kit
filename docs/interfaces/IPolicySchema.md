@@ -1,9 +1,22 @@
+---
+title: docs/api-reference/interface/IPolicySchema
+group: docs
+---
+
 # IPolicySchema
 
 Interface representing the schema for configuring a policy.
 Defines how policies enforce rules and manage bans within the swarm.
 
 ## Properties
+
+### persist
+
+```ts
+persist: boolean
+```
+
+Optional flag to enable serialization of banned clients to persistent storage (e.g., hard drive).
 
 ### docDescription
 

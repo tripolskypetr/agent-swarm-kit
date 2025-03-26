@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IPerformanceRecord
+group: docs
+---
+
 # IPerformanceRecord
 
 Interface representing a performance record for a process within the swarm system.

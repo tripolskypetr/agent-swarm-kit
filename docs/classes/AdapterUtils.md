@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/AdapterUtils
+group: docs
+---
+
 # AdapterUtils
 
 Utility class providing adapter functions for interacting with various AI completion providers.
@@ -9,6 +14,14 @@ constructor();
 ```
 
 ## Properties
+
+### fromCohereClientV2
+
+```ts
+fromCohereClientV2: (cohere: any, model?: string) => TCompleteFn
+```
+
+Creates a function to interact with CohereClientV2 chat completions API.
 
 ### fromOpenAI
 

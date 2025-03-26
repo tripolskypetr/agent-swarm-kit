@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IHistoryConnectionService
+group: docs
+---
+
 # IHistoryConnectionService
 
 Interface extending HistoryConnectionService for type definition purposes.

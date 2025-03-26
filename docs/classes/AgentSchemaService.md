@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/AgentSchemaService
+group: docs
+---
+
 # AgentSchemaService
 
 Service class for managing agent schemas in the swarm system.

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/StateSchemaService
+group: docs
+---
+
 # StateSchemaService
 
 Service class for managing state schemas in the swarm system.

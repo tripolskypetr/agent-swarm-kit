@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/AgentMetaService
+group: docs
+---
+
 # AgentMetaService
 
 Service class for managing agent metadata and converting it to UML format in the swarm system.

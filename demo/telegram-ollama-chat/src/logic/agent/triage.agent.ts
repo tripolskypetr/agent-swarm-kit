@@ -17,6 +17,7 @@ It is important not to do navigation when need instead of saying hello
 `;
 
 export const TRIAGE_AGENT = addAgent({
+  docDescription: "This agent, named triage_agent, operates within the telegram-ollama-chat project to route customer requests via Telegram, REPL, or webview, using the OLLAMA_COMPLETION for natural conversations, leveraging NAVIGATE_TO_SALES to transfer to the SALES_AGENT based on chat history from PHARMA_STORAGE, and acting as a human-like intermediary without revealing its internal logic.",
   agentName: "triage_agent",
   prompt: str.newline(AGENT_PROMPT),
   completion: OLLAMA_COMPLETION,

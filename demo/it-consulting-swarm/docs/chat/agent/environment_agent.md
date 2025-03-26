@@ -1,3 +1,8 @@
+---
+title: demo/it-consulting-swarm/environment_agent
+group: demo/it-consulting-swarm
+---
+
 # environment_agent
 
 > This agent is dedicated to promoting environmental awareness and sustainable living, providing guidance on reducing carbon footprints and waste management, offering practical advice for eco-friendly practices, and supporting navigation back to the Triage Agent for unrelated queries.

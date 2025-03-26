@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IStorageCallbacks
+group: docs
+---
+
 # IStorageCallbacks
 
 Interface representing callbacks for storage lifecycle and operational events.

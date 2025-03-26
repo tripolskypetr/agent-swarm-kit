@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/InternalKeys$6
+group: docs
+---
+
 # InternalKeys$6
 
 ```ts

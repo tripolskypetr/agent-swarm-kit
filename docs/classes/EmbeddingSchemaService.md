@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/EmbeddingSchemaService
+group: docs
+---
+
 # EmbeddingSchemaService
 
 Service class for managing embedding schemas in the swarm system.

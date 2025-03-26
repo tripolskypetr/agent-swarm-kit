@@ -20,6 +20,7 @@ const MODEL_TWEAK_PROMPT = str.newline(
 );
 
 export const SALES_AGENT = addAgent({
+  docDescription: "This agent, named sales_agent, functions within the telegram-ollama-chat project to assist customers in purchasing pharma products via Telegram, REPL, or webview, using the OLLAMA_COMPLETION for conversational responses, relying on SEARCH_PHARMA_PRODUCT to fetch product details from PHARMA_STORAGE, and offering NAVIGATE_TO_TRIAGE for redirection while formatting outputs as human-readable text.",
   agentName: "sales_agent",
   completion: OLLAMA_COMPLETION,
   system: [MODEL_TWEAK_PROMPT],
@@ -28,4 +29,5 @@ export const SALES_AGENT = addAgent({
   storages: [
     PHARMA_STORAGE,
   ],
+  dependsOn: [],
 });

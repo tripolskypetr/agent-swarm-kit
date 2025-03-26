@@ -4,7 +4,7 @@
 
 Unleash the power of collaborative AI with `agent-swarm-kit`! This library empowers you to create intelligent, modular agent networks that work together seamlessly—perfect for automating workflows, solving complex problems, or designing next-gen AI systems. With a simple API, robust validation, and flexible architecture, it’s your toolkit for building smarter solutions, faster.
 
-📚 **[Full Documentation](https://agent-swarm.github.io/documents/docs_agent-swarm-kit.html)** | 🌟 **[Try It Now](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/demo/repl-phone-seller/src/logic/agent/sales.agent.ts)**
+📚 **[Full Documentation](https://agent-swarm.github.io/documents/demo_it-consulting-swarm_root_swarm.html)** | 🌟 **[Try It Now](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/demo/repl-phone-seller/src/logic/agent/sales.agent.ts)**
 
 ![Agent Swarm Schema](https://raw.githubusercontent.com/tripolskypetr/agent-swarm-kit/master/schema.png)
 
@@ -205,7 +205,7 @@ complete("I need a refund!").then(console.log);
 - **`addTool`**: Create reusable tools with validation and execution logic.
 - **`Storage.take`**: Search and retrieve data using embeddings (e.g., vector search, RAG).
 
-Check out the **[API Reference](https://agent-swarm.github.io/documents/docs_agent-swarm-kit.html)** for more!
+Check out the **[API Reference](https://agent-swarm.github.io/documents/demo_it-consulting-swarm_root_swarm.html)** for more!
 
 ---
 

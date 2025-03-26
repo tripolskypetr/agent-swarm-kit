@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/PersistBase
+group: docs
+---
+
 # PersistBase
 
 Implements `IPersistBase`

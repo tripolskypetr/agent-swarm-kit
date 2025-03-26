@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ITool
+group: docs
+---
+
 # ITool
 
 Interface representing a tool definition within the swarm system.

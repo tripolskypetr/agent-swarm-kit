@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IPersistPolicyControl
+group: docs
+---
+
 # IPersistPolicyControl
 
 Defines control methods for customizing policy persistence operations.

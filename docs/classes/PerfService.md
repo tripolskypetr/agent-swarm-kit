@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/PerfService
+group: docs
+---
+
 # PerfService
 
 Service class for tracking and logging performance metrics of client sessions in the swarm system.

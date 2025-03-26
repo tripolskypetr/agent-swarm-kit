@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IBaseEvent
+group: docs
+---
+
 # IBaseEvent
 
 Interface representing the base structure of an event in the swarm system.

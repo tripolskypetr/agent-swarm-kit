@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ISwarmSchema
+group: docs
+---
+
 # ISwarmSchema
 
 Interface representing the schema for defining a swarm.

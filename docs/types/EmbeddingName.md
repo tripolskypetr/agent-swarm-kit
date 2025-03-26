@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/EmbeddingName
+group: docs
+---
+
 # EmbeddingName
 
 ```ts

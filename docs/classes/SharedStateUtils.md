@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/SharedStateUtils
+group: docs
+---
+
 # SharedStateUtils
 
 Implements `TSharedState`

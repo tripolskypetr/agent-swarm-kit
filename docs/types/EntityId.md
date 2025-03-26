@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/EntityId
+group: docs
+---
+
 # EntityId
 
 ```ts

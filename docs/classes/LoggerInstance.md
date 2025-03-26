@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/LoggerInstance
+group: docs
+---
+
 # LoggerInstance
 
 Implements `ILoggerInstance`

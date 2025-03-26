@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ILogger
+group: docs
+---
+
 # ILogger
 
 Interface representing a logging mechanism for the swarm system.

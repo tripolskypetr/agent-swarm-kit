@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IStorageConnectionService
+group: docs
+---
+
 # IStorageConnectionService
 
 Interface extending StorageConnectionService for type definition purposes.

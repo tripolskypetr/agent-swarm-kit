@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/THistoryPersistInstance
+group: docs
+---
+
 # THistoryPersistInstance
 
 ```ts

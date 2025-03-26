@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IAgentToolCallbacks
+group: docs
+---
+
 # IAgentToolCallbacks
 
 Interface representing lifecycle callbacks for an agent tool.

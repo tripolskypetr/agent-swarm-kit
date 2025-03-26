@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/StoragePublicService
+group: docs
+---
+
 # StoragePublicService
 
 Implements `TStorageConnectionService`

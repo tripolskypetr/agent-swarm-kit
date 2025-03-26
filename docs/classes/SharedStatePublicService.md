@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/SharedStatePublicService
+group: docs
+---
+
 # SharedStatePublicService
 
 Implements `TSharedStateConnectionService`

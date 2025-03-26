@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IStateSchema
+group: docs
+---
+
 # IStateSchema
 
 Interface representing the schema for state management.

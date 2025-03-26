@@ -1,4 +1,11 @@
+---
+title: docs/agent-swarm-kit
+group: docs
+---
+
 # agent-swarm-kit api reference
+
+![schema](../assets/uml.svg)
 
 **Overall Architecture:**
 

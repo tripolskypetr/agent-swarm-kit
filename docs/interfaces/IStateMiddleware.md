@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IStateMiddleware
+group: docs
+---
+
 # IStateMiddleware
 
 Interface representing a middleware function for state management.

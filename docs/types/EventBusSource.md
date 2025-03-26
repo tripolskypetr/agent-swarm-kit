@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/EventBusSource
+group: docs
+---
+
 # EventBusSource
 
 ```ts

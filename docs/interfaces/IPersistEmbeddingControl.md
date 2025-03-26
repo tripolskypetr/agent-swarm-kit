@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IPersistEmbeddingControl
+group: docs
+---
+
 # IPersistEmbeddingControl
 
 Defines control methods for customizing embedding persistence operations.

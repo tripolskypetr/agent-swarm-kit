@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IPolicyCallbacks
+group: docs
+---
+
 # IPolicyCallbacks
 
 Interface representing callbacks for policy lifecycle and validation events.

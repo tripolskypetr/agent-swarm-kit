@@ -1,7 +1,12 @@
+---
+title: docs/api-reference/interface/IPersistMemoryControl
+group: docs
+---
+
 # IPersistMemoryControl
 
-Interface defining control methods for memory persistence operations.
-Allows customization of the persistence adapter for memory.
+Defines control methods for customizing memory persistence operations.
+Allows injection of a custom persistence adapter for memory tied to `SessionId`.
 
 ## Methods
 
@@ -12,3 +17,4 @@ usePersistMemoryAdapter: (Ctor: TPersistBaseCtor<string, IPersistMemoryData<unkn
 ```
 
 Sets a custom persistence adapter for memory storage.
+Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory storage for `SessionId`).

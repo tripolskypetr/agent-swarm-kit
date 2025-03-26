@@ -1,3 +1,8 @@
+---
+title: demo/it-consulting-swarm/tech_trends_agent
+group: demo/it-consulting-swarm
+---
+
 # tech_trends_agent
 
 > This agent specializes in providing insights into current and emerging technology trends, with expertise in areas like artificial intelligence and blockchain, aiming to deliver actionable, industry-aligned advice for tech enthusiasts and professionals while offering navigation back to the Triage Agent for queries outside its scope.

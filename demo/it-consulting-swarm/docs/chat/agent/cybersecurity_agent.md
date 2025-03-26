@@ -1,3 +1,8 @@
+---
+title: demo/it-consulting-swarm/cybersecurity_agent
+group: demo/it-consulting-swarm
+---
+
 # cybersecurity_agent
 
 > This agent focuses on educating users about online safety and cybersecurity best practices, covering topics like password management and phishing prevention, offering practical tips to enhance digital security, and including navigation to the Triage Agent for broader inquiries.

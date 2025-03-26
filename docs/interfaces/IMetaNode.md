@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IMetaNode
+group: docs
+---
+
 # IMetaNode
 
 Interface defining a metadata node structure for representing agent relationships and resources.

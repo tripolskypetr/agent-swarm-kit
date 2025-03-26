@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IGlobalConfig
+group: docs
+---
+
 # IGlobalConfig
 
 Interface defining the global configuration settings and behaviors for the swarm system.
@@ -127,7 +132,7 @@ Imported from `validateDefault`, returns null if valid or an error string if inv
 ### CC_AGENT_HISTORY_FILTER
 
 ```ts
-CC_AGENT_HISTORY_FILTER: (agentName: string) => (message: IModelMessage) => boolean
+CC_AGENT_HISTORY_FILTER: (agentName: string) => (message: IModelMessage<object>) => boolean
 ```
 
 Filter function for agent history, used in `ClientAgent.history.toArrayForAgent` to scope messages.
@@ -145,7 +150,7 @@ Removes XML tags via `removeXmlTags` based on `CC_AGENT_DISALLOWED_TAGS` to clea
 ### CC_AGENT_OUTPUT_MAP
 
 ```ts
-CC_AGENT_OUTPUT_MAP: (message: IModelMessage) => IModelMessage | Promise<IModelMessage>
+CC_AGENT_OUTPUT_MAP: (message: IModelMessage<object>) => IModelMessage<object> | Promise<IModelMessage<object>>
 ```
 
 Function to map model messages for agent output, used in `ClientAgent.map` (e.g., `RUN_FN`, `EXECUTE_FN`).
@@ -280,7 +285,7 @@ Indicates refusal to engage, enhancing policy messaging, though not directly in 
 ### CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION
 
 ```ts
-CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: string) => Promise<IModelMessage>
+CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: string) => Promise<IModelMessage<object>>
 ```
 
 A custom function to handle tool call exceptions by returning a model message or null, used in `ClientAgent.getCompletion` with the "custom" `CC_RESQUE_STRATEGY`.
@@ -322,6 +327,31 @@ CC_DEFAULT_STATE_GET: <T = any>(clientId: string, stateName: string, defaultStat
 Default function to get state values, used in `IState.getState` for state retrieval.
 Returns `defaultState` by default, allowing state retrieval to be customized via `setConfig`, though not directly in `ClientAgent`.
 
+### CC_DEFAULT_POLICY_GET_BAN_CLIENTS
+
+```ts
+CC_DEFAULT_POLICY_GET_BAN_CLIENTS: (policyName: string, swarmName: string) => string[] | Promise<string[]>
+```
+
+Default function to get banned clients for the policy
+
+### CC_DEFAULT_POLICY_GET
+
+```ts
+CC_DEFAULT_POLICY_GET: (policyName: string, swarmName: string) => string[] | Promise<string[]>
+```
+
+Retrieves the list of currently banned clients under this policy.
+
+### CC_DEFAULT_POLICY_SET
+
+```ts
+CC_DEFAULT_POLICY_SET: (clientIds: string[], policyName: string, swarmName: string) => void | Promise<void>
+```
+
+Optional function to set the list of banned clients.
+Overrides default ban list management if provided.
+
 ### CC_DEFAULT_STORAGE_GET
 
 ```ts
@@ -357,3 +387,39 @@ CC_PERSIST_MEMORY_STORAGE: boolean
 
 Flag to enable persistent storage for `Schema.readValue` and `Schema.writeValue`, separate from general persistence.
 Enabled (true) by default, ensuring memory storage persistence unless overridden.
+
+### CC_PERSIST_EMBEDDING_CACHE
+
+```ts
+CC_PERSIST_EMBEDDING_CACHE: boolean
+```
+
+Flag to enable persistent cache for `embeddings`. Will allow to reduce costs while using openai
+Disabled (false) by default which faster for ollama local embeddings
+
+### CC_DEFAULT_READ_EMBEDDING_CACHE
+
+```ts
+CC_DEFAULT_READ_EMBEDDING_CACHE: (embeddingName: string, stringHash: string) => number[] | Promise<number[]>
+```
+
+Retrieves the embedding vector for a specific string hash, returning null if not found.
+Used to check if a precomputed embedding exists in the cache.
+
+### CC_DEFAULT_WRITE_EMBEDDING_CACHE
+
+```ts
+CC_DEFAULT_WRITE_EMBEDDING_CACHE: (embeddings: number[], embeddingName: string, stringHash: string) => void | Promise<void>
+```
+
+Stores an embedding vector for a specific string hash, persisting it for future retrieval.
+Used to cache computed embeddings to avoid redundant processing.
+
+### CC_DEFAULT_AGENT_TOOL_VALIDATE
+
+```ts
+CC_DEFAULT_AGENT_TOOL_VALIDATE: (dto: { clientId: string; agentName: string; toolCalls: IToolCall[]; params: unknown; }) => boolean | Promise<boolean>
+```
+
+Validates the tool parameters before execution.
+Can return synchronously or asynchronously based on validation complexity.

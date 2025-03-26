@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/PolicySchemaService
+group: docs
+---
+
 # PolicySchemaService
 
 Service class for managing policy schemas in the swarm system.

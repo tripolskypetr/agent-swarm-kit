@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IAgentConnectionService
+group: docs
+---
+
 # IAgentConnectionService
 
 Interface extending AgentConnectionService for type definition purposes.

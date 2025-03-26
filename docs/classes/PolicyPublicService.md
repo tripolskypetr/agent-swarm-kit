@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/PolicyPublicService
+group: docs
+---
+
 # PolicyPublicService
 
 Implements `TPolicyConnectionService`

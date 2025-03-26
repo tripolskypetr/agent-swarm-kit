@@ -10,6 +10,7 @@ import { StorageName } from "../enum/StorageName";
 import { randomString } from "functools-kit";
 
 addTool({
+  docNote: "This tool, named AddToBacketTool, enables users in the repl-phone-seller project to add a phone to their cart via a REPL terminal by validating the phone title, storing it in BasketStorage with a unique ID, logging the action, confirming success through tool output, and prompting the user to place an order.",
   toolName: ToolName.AddToBacketTool,
   validate: async ({ params }) => !!params.title,
   call: async ({ toolId, clientId, agentName, params }) => {
@@ -27,10 +28,10 @@ addTool({
         },
     });
 
-    await commitToolOutput(toolId, `Телефон ${params.title} успешно добавлен в корзину`, clientId, agentName);
+    await commitToolOutput(toolId, `Phone ${params.title} successfully added to the basket`, clientId, agentName);
 
     await execute(
-      "Телефон добавлен успешно. Задай мне вопрос, хочу ли я оформить заказ",
+      "Phone added successfully. Ask me if I want to place an order",
       clientId,
       agentName
     );
@@ -38,13 +39,13 @@ addTool({
   type: "function",
   function: {
     name: ToolName.AddToBacketTool,
-    description: "Добавляет телефон в корзину для покупки",
+    description: "Adds a phone to the basket for purchase",
     parameters: {
       type: "object",
       properties: {
         title: {
           type: "string",
-          description: `Наименование телефона, полученное из ${ToolName.SearchPhoneTool} или ${ToolName.SearchPhoneByDiagonalTool}`,
+          description: `Phone name obtained from ${ToolName.SearchPhoneTool} or ${ToolName.SearchPhoneByDiagonalTool}`,
         },
       },
       required: [],

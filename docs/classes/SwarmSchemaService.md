@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/SwarmSchemaService
+group: docs
+---
+
 # SwarmSchemaService
 
 Service class for managing swarm schemas in the swarm system.

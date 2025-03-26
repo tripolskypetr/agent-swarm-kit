@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ISwarmParams
+group: docs
+---
+
 # ISwarmParams
 
 Interface representing the parameters required to initialize a swarm.

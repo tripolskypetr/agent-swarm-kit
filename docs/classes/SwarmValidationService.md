@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/SwarmValidationService
+group: docs
+---
+
 # SwarmValidationService
 
 Service for validating swarm configurations within the swarm system.

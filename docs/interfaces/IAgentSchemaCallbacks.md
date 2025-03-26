@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IAgentSchemaCallbacks
+group: docs
+---
+
 # IAgentSchemaCallbacks
 
 Interface representing lifecycle callbacks for an agent.

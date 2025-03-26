@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/StatePublicService
+group: docs
+---
+
 # StatePublicService
 
 Implements `TStateConnectionService`

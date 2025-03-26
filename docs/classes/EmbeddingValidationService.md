@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/EmbeddingValidationService
+group: docs
+---
+
 # EmbeddingValidationService
 
 Service for validating embedding names within the swarm system.

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/MemorySchemaService
+group: docs
+---
+
 # MemorySchemaService
 
 Service class for managing in-memory data for different sessions in the swarm system.

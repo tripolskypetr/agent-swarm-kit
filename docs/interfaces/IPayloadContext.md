@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IPayloadContext
+group: docs
+---
+
 # IPayloadContext
 
 Interface defining the structure of a payload context, used to encapsulate execution metadata and payload data.

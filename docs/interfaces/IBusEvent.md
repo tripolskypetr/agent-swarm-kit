@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IBusEvent
+group: docs
+---
+
 # IBusEvent
 
 Interface representing a structured event for the internal bus in the swarm system.

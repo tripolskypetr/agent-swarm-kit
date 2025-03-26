@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/PersistAliveUtils
+group: docs
+---
+
 # PersistAliveUtils
 
 Implements `IPersistAliveControl`

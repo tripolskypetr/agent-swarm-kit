@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/ClientStorage
+group: docs
+---
+
 # ClientStorage
 
 Implements `IStorage<T>`

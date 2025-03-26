@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "start:client": "bun ./src/client.ts",
-    "start:server": "bun ./src/server.ts"
+    "start:server": "bun ./src/server.ts",
+    "build:docs": "bun ./src/docs.mjs"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -14,9 +15,10 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "agent-swarm-kit": "^1.0.181",
+    "agent-swarm-kit": "^1.0.212",
     "functools-kit": "^1.0.76",
     "ollama": "^0.5.14",
-    "openai": "^4.87.4"
+    "openai": "^4.87.4",
+    "plantuml": "^0.0.2"
   }
 }
