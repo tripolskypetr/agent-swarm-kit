@@ -8406,8 +8406,28 @@ declare const addStorage: <T extends IStorageData = IStorageData>(storageSchema:
  */
 declare const addPolicy: (policySchema: IPolicySchema) => string;
 
+/**
+ * Marks a client as online in the specified swarm.
+ *
+ * @param {string} clientId - The unique identifier of the client to mark as online.
+ * @param {SwarmName} swarmName - The name of the swarm where the client is being marked online.
+ * @returns {Promise<void>} A promise that resolves when the client is successfully marked online.
+ * @throws {Error} Throws an error if the swarm validation fails or if the operation fails.
+ */
 declare const markOnline: (clientId: string, swarmName: SwarmName) => Promise<void>;
 
+/**
+ * Marks a client as offline in the specified swarm.
+ *
+ * @param {string} clientId - The unique identifier of the client to mark as offline.
+ * @param {SwarmName} swarmName - The name of the swarm where the client belongs.
+ * @returns {Promise<void>} A promise that resolves when the client is successfully marked as offline.
+ *
+ * @throws {Error} If the swarm validation fails or the operation encounters an issue.
+ *
+ * @example
+ * await markOffline("client123", "exampleSwarm");
+ */
 declare const markOffline: (clientId: string, swarmName: SwarmName) => Promise<void>;
 
 /**
@@ -10265,6 +10285,13 @@ interface IGlobalConfig {
 }
 
 declare const GLOBAL_CONFIG: IGlobalConfig;
+/**
+ * Updates the global configuration object with the provided partial configuration.
+ * This function merges the given configuration into the existing `GLOBAL_CONFIG` object.
+ *
+ * @param {Partial<IGlobalConfig>} config - A partial configuration object containing the properties to update.
+ * Only the specified properties will be updated, leaving the rest of the `GLOBAL_CONFIG` unchanged.
+ */
 declare const setConfig: (config: Partial<IGlobalConfig>) => void;
 
 /**
