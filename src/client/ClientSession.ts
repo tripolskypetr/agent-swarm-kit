@@ -54,6 +54,30 @@ export class ClientSession implements ISession {
           message,
         }
       );
+    if (
+      await not(
+        this.params.policy.validateOutput(
+          message,
+          this.params.clientId,
+          this.params.swarmName
+        )
+      )
+    ) {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientSession clientId=${this.params.clientId} notify method canceled due to the banhammer of a client`,
+          {
+            message,
+          }
+        );
+      await this._notifySubject.next(
+        await this.params.policy.getBanMessage(
+          this.params.clientId,
+          this.params.swarmName
+        )
+      );
+      return;
+    }
     await this._notifySubject.next(message);
   }
 
