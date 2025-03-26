@@ -6893,7 +6893,7 @@ declare class DocService {
      * @param {string} [dirName=join(process.cwd(), "docs/chat")] - The base directory for documentation output, defaults to "docs/chat" in the current working directory.
      * @returns {Promise<void>} A promise resolving when all documentation files are written.
      */
-    dumpDocs: (dirName?: string) => Promise<void>;
+    dumpDocs: (prefix?: string, dirName?: string) => Promise<void>;
     /**
      * Dumps system-wide performance data to a JSON file using PerfService.toRecord.
      * Ensures the output directory exists, then writes a timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
@@ -8197,7 +8197,7 @@ declare const swarm: {
  * @param {function} [PlantUML] - An optional function to process PlantUML diagrams.
  * @returns {Promise<void>} - A promise that resolves when the documentation has been dumped.
  */
-declare const dumpDocs: (dirName?: any, PlantUML?: (uml: string) => Promise<string>) => Promise<void>;
+declare const dumpDocs: (prefix?: any, dirName?: any, PlantUML?: (uml: string) => Promise<string>) => Promise<void>;
 
 /**
  * The config for UML generation

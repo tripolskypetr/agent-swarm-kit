@@ -182,12 +182,20 @@ export class DocService {
    * @private
    */
   private writeSwarmDoc = execpool(
-    async (swarmSchema: ISwarmSchema, dirName: string) => {
+    async (swarmSchema: ISwarmSchema, prefix: string, dirName: string) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
         this.loggerService.info("docService writeSwarmDoc", {
           swarmSchema,
         });
       const result: string[] = [];
+
+      {
+        result.push("---");
+        result.push(`title: ${prefix}/${swarmSchema.swarmName}`);
+        result.push(`group: ${prefix}`)
+        result.push("---");
+        result.push("");
+      }
 
       {
         result.push(`# ${swarmSchema.swarmName}`);
@@ -301,12 +309,20 @@ export class DocService {
    * @private
    */
   private writeAgentDoc = execpool(
-    async (agentSchema: IAgentSchema, dirName: string) => {
+    async (agentSchema: IAgentSchema, prefix: string, dirName: string) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
         this.loggerService.info("docService writeAgentDoc", {
           agentSchema,
         });
       const result: string[] = [];
+
+      {
+        result.push("---");
+        result.push(`title: ${prefix}/${agentSchema.agentName}`);
+        result.push(`group: ${prefix}`)
+        result.push("---");
+        result.push("");
+      }
 
       {
         result.push(`# ${agentSchema.agentName}`);
@@ -560,7 +576,7 @@ export class DocService {
    * @param {string} [dirName=join(process.cwd(), "docs/chat")] - The base directory for documentation output, defaults to "docs/chat" in the current working directory.
    * @returns {Promise<void>} A promise resolving when all documentation files are written.
    */
-  public dumpDocs = async (dirName = join(process.cwd(), "docs/chat")) => {
+  public dumpDocs = async (prefix = "swarm", dirName = join(process.cwd(), "docs/chat")) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("docService dumpDocs", {
         dirName,
@@ -576,7 +592,7 @@ export class DocService {
     await Promise.all(
       this.swarmValidationService.getSwarmList().map(async (swarmName) => {
         const swarmSchema = this.swarmSchemaService.get(swarmName);
-        await this.writeSwarmDoc(swarmSchema, dirName);
+        await this.writeSwarmDoc(swarmSchema, prefix, dirName);
       })
     );
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -584,7 +600,7 @@ export class DocService {
     await Promise.all(
       this.agentValidationService.getAgentList().map(async (agentName) => {
         const agentSchema = this.agentSchemaService.get(agentName);
-        await this.writeAgentDoc(agentSchema, dirName);
+        await this.writeAgentDoc(agentSchema, prefix, dirName);
       })
     );
   };
