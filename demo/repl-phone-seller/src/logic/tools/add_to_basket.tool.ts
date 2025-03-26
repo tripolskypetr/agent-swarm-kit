@@ -27,10 +27,10 @@ addTool({
         },
     });
 
-    await commitToolOutput(toolId, `Телефон ${params.title} успешно добавлен в корзину`, clientId, agentName);
+    await commitToolOutput(toolId, `Phone ${params.title} successfully added to the basket`, clientId, agentName);
 
     await execute(
-      "Телефон добавлен успешно. Задай мне вопрос, хочу ли я оформить заказ",
+      "Phone added successfully. Ask me if I want to place an order",
       clientId,
       agentName
     );
@@ -38,13 +38,13 @@ addTool({
   type: "function",
   function: {
     name: ToolName.AddToBacketTool,
-    description: "Добавляет телефон в корзину для покупки",
+    description: "Adds a phone to the basket for purchase",
     parameters: {
       type: "object",
       properties: {
         title: {
           type: "string",
-          description: `Наименование телефона, полученное из ${ToolName.SearchPhoneTool} или ${ToolName.SearchPhoneByDiagonalTool}`,
+          description: `Phone name obtained from ${ToolName.SearchPhoneTool} or ${ToolName.SearchPhoneByDiagonalTool}`,
         },
       },
       required: [],

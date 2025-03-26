@@ -23,9 +23,9 @@ addTool({
       score: 0.68,
     });
     if (!phones.length) {
-      await commitToolOutput(toolId, "Ничего не найдено", clientId, agentName);
+      await commitToolOutput(toolId, "Nothing found", clientId, agentName);
       await execute(
-        "Телефон не был найден, попроси меня уточнить какой телефон я хочу",
+        "The phone was not found, ask me to clarify which phone I want",
         clientId,
         agentName
       );
@@ -34,7 +34,7 @@ addTool({
     console.log(phoneString);
     await commitToolOutput(toolId, phoneString, clientId, agentName);
     await execute(
-      "Перечисли модели телефонов через запятую, которые были найдены по запросу к базе данных. Кратко опиши. Уточни, готов ли я добавить товар в корзину",
+      "List the phone models found in the database query, separated by commas. Provide a brief description. Ask if I’m ready to add an item to the basket",
       clientId,
       agentName
     );
@@ -42,14 +42,14 @@ addTool({
   type: "function",
   function: {
     name: ToolName.SearchPhoneTool,
-    description: "Позволяет найти телефон, используя контекстный поиск search",
+    description: "Allows finding a phone using contextual search",
     parameters: {
       type: "object",
       properties: {
         search: {
           type: "string",
           description:
-            "Набор ключевых слов для embedding поиска. Пиши запрос на русском языке",
+            "A set of keywords for embedding search. Write the query in Russian",
         },
       },
       required: ["search"],
