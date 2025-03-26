@@ -252,6 +252,13 @@ const GLOBAL_CONFIG: IGlobalConfig = {
 
 GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";
 
+/**
+ * Updates the global configuration object with the provided partial configuration.
+ * This function merges the given configuration into the existing `GLOBAL_CONFIG` object.
+ *
+ * @param {Partial<IGlobalConfig>} config - A partial configuration object containing the properties to update.
+ * Only the specified properties will be updated, leaving the rest of the `GLOBAL_CONFIG` unchanged.
+ */
 export const setConfig = (config: Partial<IGlobalConfig>) => {
   Object.assign(GLOBAL_CONFIG, config);
 };

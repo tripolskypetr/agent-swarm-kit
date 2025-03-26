@@ -1,9 +1,9 @@
 {
-    "entryPoints": ["./src/index.ts"],
+    "entryPoints": ["./types.d.ts"],
     "projectDocuments": ["docs/*", "demo/**/*.md"],
     "name": "agent-swarm-kit",
     "includeVersion": true,
     "logLevel": "Verbose",
     "out": "./docs/wwwroot",
-    "tsconfig": "./tsconfig.json"
+    "tsconfig": "./tsconfig.docs.json"
 }
