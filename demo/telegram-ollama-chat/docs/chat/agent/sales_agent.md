@@ -52,6 +52,10 @@ It is important not to call tools recursive. Execute the search once`
 
 *Required:* [x]
 
+#### Note for developer
+
+*This tool, named search_pharma_product, enables users in the telegram-ollama-chat project to search for pharma products via Telegram, REPL, or webview by querying PHARMA_STORAGE with a description or last user message, returning up to 5 matches with a similarity score, logging results, and either listing a found product in human-readable text or prompting for clarification if none are found, while preventing recursive calls.*
+
 ### 2. navigate_to_triage_tool
 
 #### Name for model
@@ -65,6 +69,10 @@ It is important not to call tools recursive. Execute the search once`
 #### Parameters for model
 
 *Empty parameters*
+
+#### Note for developer
+
+*This tool, named navigate_to_triage_tool, facilitates navigation within the telegram-ollama-chat project by redirecting the user from the current agent to the default triage agent via Telegram, REPL, or webview, confirming the switch with a success message, logging the action, and forcing a greeting from the triage agent.*
 
 ## Used storages
 

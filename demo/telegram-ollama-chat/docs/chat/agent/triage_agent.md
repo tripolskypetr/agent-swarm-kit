@@ -48,6 +48,10 @@ This agent, named sales_agent, functions within the telegram-ollama-chat project
 
 *Empty parameters*
 
+#### Note for developer
+
+*This tool, named navigate_to_sales_tool, enables navigation within the telegram-ollama-chat project by switching the user from the current agent to the SALES_AGENT via Telegram, REPL, or webview, confirming the transition with a success message, logging the action, and prompting the SALES_AGENT to greet the user.*
+
 ## Used storages
 
 ### 1. pharma_storage

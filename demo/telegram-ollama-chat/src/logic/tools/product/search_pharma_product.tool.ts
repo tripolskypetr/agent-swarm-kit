@@ -11,6 +11,7 @@ import { str } from "functools-kit";
 import { PHARMA_STORAGE } from "../../storage/pharma.storage";
 
 export const SEARCH_PHARMA_PRODUCT = addTool({
+  docNote: "This tool, named search_pharma_product, enables users in the telegram-ollama-chat project to search for pharma products via Telegram, REPL, or webview by querying PHARMA_STORAGE with a description or last user message, returning up to 5 matches with a similarity score, logging results, and either listing a found product in human-readable text or prompting for clarification if none are found, while preventing recursive calls.",
   toolName: "search_pharma_product",
   call: async ({ toolId, clientId, agentName, params }) => {
     console.log(SEARCH_PHARMA_PRODUCT, { params });
