@@ -1,10 +1,6 @@
 # finance_agent
 
-> Agent Overview:
-- Offers expertise in financial literacy and personal money management.
-- Provides advice on budgeting, saving strategies, and basic investment principles.
-- Designed to enhance users' financial knowledge and decision-making skills.
-- Includes an option to return to Triage Agent for non-financial queries.
+> This agent offers expertise in financial literacy and money management, providing advice on budgeting and investments to enhance users' financial knowledge, and includes an option to return to the Triage Agent for non-financial queries.
 
 **Completion:** `openai_completion`
 
@@ -69,7 +65,4 @@ Ensure your answer is:
 
 #### Note for developer
 
-*Tool Purpose:
-- Enables returning to the Triage Agent from any specialized agent.
-- Useful for reassessing user requests or redirecting to another agent.
-- Supports passing context or a specific destination reason for improved routing.*
+*This tool enables returning to the Triage Agent from any specialized agent, making it useful for reassessing user requests or redirecting to another agent while supporting context or a specific destination reason for improved routing.*

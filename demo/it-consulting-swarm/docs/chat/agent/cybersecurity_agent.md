@@ -1,10 +1,6 @@
 # cybersecurity_agent
 
-> Agent Overview:
-- Focuses on educating users about online safety and cybersecurity best practices.
-- Covers topics such as password management, phishing prevention, and data protection.
-- Offers practical tips to enhance digital security in personal and professional contexts.
-- Includes navigation to Triage Agent for misrouted or broader inquiries.
+> This agent focuses on educating users about online safety and cybersecurity best practices, covering topics like password management and phishing prevention, offering practical tips to enhance digital security, and including navigation to the Triage Agent for broader inquiries.
 
 **Completion:** `openai_completion`
 
@@ -69,7 +65,4 @@ Ensure your answer is:
 
 #### Note for developer
 
-*Tool Purpose:
-- Enables returning to the Triage Agent from any specialized agent.
-- Useful for reassessing user requests or redirecting to another agent.
-- Supports passing context or a specific destination reason for improved routing.*
+*This tool enables returning to the Triage Agent from any specialized agent, making it useful for reassessing user requests or redirecting to another agent while supporting context or a specific destination reason for improved routing.*

@@ -21,12 +21,7 @@ export const NAVIGATION_PROMPT = str.newline([
 ]);
 
 export const NAVIGATE_TO_TECH_TRENDS = addTool({
-    docNote: str.newline([
-        "Tool Purpose:",
-        "- Facilitates navigation to the Tech Trends Agent.",
-        "- Used when a user query involves emerging technologies or industry innovations.",
-        "- Passes optional context to ensure the agent has relevant background information."
-    ]),
+    docNote: "This tool facilitates navigation to the Tech Trends Agent when a user query involves emerging technologies or industry innovations, passing optional context to ensure the agent has relevant background information for a seamless transition.",
     toolName: "navigate_to_tech_trends_tool",
     type: "function",
     call: async ({ toolId, clientId, params }) => {
@@ -52,12 +47,7 @@ export const NAVIGATE_TO_TECH_TRENDS = addTool({
 });
 
 export const NAVIGATE_TO_TRIAGE = addTool({
-    docNote: str.newline([
-        "Tool Purpose:",
-        "- Enables returning to the Triage Agent from any specialized agent.",
-        "- Useful for reassessing user requests or redirecting to another agent.",
-        "- Supports passing context or a specific destination reason for improved routing."
-    ]),
+    docNote: "This tool enables returning to the Triage Agent from any specialized agent, making it useful for reassessing user requests or redirecting to another agent while supporting context or a specific destination reason for improved routing.",
     toolName: "navigate_to_triage_tool",
     type: "function",
     call: async ({ toolId, clientId, params }) => {
@@ -87,12 +77,7 @@ export const NAVIGATE_TO_TRIAGE = addTool({
 });
 
 export const NAVIGATE_TO_CYBERSECURITY = addTool({
-    docNote: str.newline([
-        "Tool Purpose:",
-        "- Directs the user to the Cybersecurity Agent for security-related inquiries.",
-        "- Ideal for topics like online safety, data breaches, or secure practices.",
-        "- Includes optional context to provide the agent with query-specific details."
-    ]),
+    docNote: "This tool directs the user to the Cybersecurity Agent for security-related inquiries, ideal for topics like online safety or data breaches, and includes optional context to provide the agent with query-specific details for a tailored response.",
     toolName: "navigate_to_cybersecurity_tool",
     type: "function",
     call: async ({ toolId, clientId, params }) => {
@@ -118,12 +103,7 @@ export const NAVIGATE_TO_CYBERSECURITY = addTool({
 });
 
 export const NAVIGATE_TO_ENVIRONMENT = addTool({
-    docNote: str.newline([
-        "Tool Purpose:",
-        "- Routes queries to the Environmental Awareness Agent.",
-        "- Designed for discussions on sustainability, eco-friendly practices, or conservation efforts.",
-        "- Allows passing context to tailor the agent's response to the user's needs."
-    ]),
+    docNote: "This tool routes queries to the Environmental Awareness Agent, designed for discussions on sustainability or conservation efforts, allowing context to be passed to tailor the agent's response to the user's specific environmental needs.",
     toolName: "navigate_to_environment_tool",
     type: "function",
     call: async ({ toolId, clientId, params }) => {
@@ -149,12 +129,7 @@ export const NAVIGATE_TO_ENVIRONMENT = addTool({
 });
 
 export const NAVIGATE_TO_HEALTH = addTool({
-    docNote: str.newline([
-        "Tool Purpose:",
-        "- Navigates to the Health Agent for wellness and health-related topics.",
-        "- Suitable for queries on fitness, mental health, or nutrition advice.",
-        "- Context can be passed to ensure the response aligns with the user's specific inquiry."
-    ]),
+    docNote: "This tool navigates to the Health Agent for wellness and health-related topics like fitness or nutrition, with context optionally passed to ensure the response aligns with the user's specific inquiry for a more personalized interaction.",
     toolName: "navigate_to_health_tool",
     type: "function",
     call: async ({ toolId, clientId, params }) => {
@@ -180,12 +155,7 @@ export const NAVIGATE_TO_HEALTH = addTool({
 });
 
 export const NAVIGATE_TO_FINANCE = addTool({
-    docNote: str.newline([
-        "Tool Purpose:",
-        "- Directs users to the Financial Literacy Agent for financial guidance.",
-        "- Covers topics like budgeting, investment options, or money management.",
-        "- Supports context passing to provide the agent with relevant user details."
-    ]),
+    docNote: "This tool directs users to the Financial Literacy Agent for guidance on budgeting or investments, supporting context passing to provide the agent with relevant details for effective financial advice tailored to the user's needs.",
     toolName: "navigate_to_finance_tool",
     type: "function",
     call: async ({ toolId, clientId, params }) => {
@@ -211,13 +181,7 @@ export const NAVIGATE_TO_FINANCE = addTool({
 });
 
 export const TECH_TRENDS_AGENT = addAgent({
-    docDescription: str.newline([
-        "Agent Overview:",
-        "- Specializes in providing insights into current and emerging technology trends.",
-        "- Expertise includes artificial intelligence, blockchain, Internet of Things (IoT), and more.",
-        "- Aims to deliver actionable, industry-aligned advice for tech enthusiasts and professionals.",
-        "- Can navigate back to Triage Agent if the query falls outside its scope."
-    ]),
+    docDescription: "This agent specializes in providing insights into current and emerging technology trends, with expertise in areas like artificial intelligence and blockchain, aiming to deliver actionable, industry-aligned advice for tech enthusiasts and professionals while offering navigation back to the Triage Agent for queries outside its scope.",
     agentName: "tech_trends_agent",
     completion: OPENAI_COMPLETION,
     system: [
@@ -242,13 +206,7 @@ export const TECH_TRENDS_AGENT = addAgent({
 });
 
 export const CYBERSECURITY_AGENT = addAgent({
-    docDescription: str.newline([
-        "Agent Overview:",
-        "- Focuses on educating users about online safety and cybersecurity best practices.",
-        "- Covers topics such as password management, phishing prevention, and data protection.",
-        "- Offers practical tips to enhance digital security in personal and professional contexts.",
-        "- Includes navigation to Triage Agent for misrouted or broader inquiries."
-    ]),
+    docDescription: "This agent focuses on educating users about online safety and cybersecurity best practices, covering topics like password management and phishing prevention, offering practical tips to enhance digital security, and including navigation to the Triage Agent for broader inquiries.",
     agentName: "cybersecurity_agent",
     completion: OPENAI_COMPLETION,
     system: [
@@ -273,13 +231,7 @@ export const CYBERSECURITY_AGENT = addAgent({
 });
 
 export const ENVIRONMENT_AGENT = addAgent({
-    docDescription: str.newline([
-        "Agent Overview:",
-        "- Dedicated to promoting environmental awareness and sustainable living.",
-        "- Provides guidance on reducing carbon footprints, waste management, and green technologies.",
-        "- Offers practical advice for individuals and organizations to adopt eco-friendly practices.",
-        "- Supports navigation back to Triage Agent for unrelated queries."
-    ]),
+    docDescription: "This agent is dedicated to promoting environmental awareness and sustainable living, providing guidance on reducing carbon footprints and waste management, offering practical advice for eco-friendly practices, and supporting navigation back to the Triage Agent for unrelated queries.",
     agentName: "environment_agent",
     completion: OPENAI_COMPLETION,
     system: [
@@ -304,13 +256,7 @@ export const ENVIRONMENT_AGENT = addAgent({
 });
 
 export const HEALTH_AGENT = addAgent({
-    docDescription: str.newline([
-        "Agent Overview:",
-        "- Specializes in health and wellness, offering general advice for well-being.",
-        "- Topics include physical fitness, mental health strategies, and nutritional guidance.",
-        "- Aims to provide actionable steps for improving personal health in daily life.",
-        "- Can redirect to Triage Agent if the query requires a different expertise."
-    ]),
+    docDescription: "This agent specializes in health and wellness, offering general advice on topics like fitness and nutrition, aiming to provide actionable steps for improving personal health, and capable of redirecting to the Triage Agent if a different expertise is required.",
     agentName: "health_agent",
     completion: OPENAI_COMPLETION,
     system: [
@@ -335,13 +281,7 @@ export const HEALTH_AGENT = addAgent({
 });
 
 export const FINANCE_AGENT = addAgent({
-    docDescription: str.newline([
-        "Agent Overview:",
-        "- Offers expertise in financial literacy and personal money management.",
-        "- Provides advice on budgeting, saving strategies, and basic investment principles.",
-        "- Designed to enhance users' financial knowledge and decision-making skills.",
-        "- Includes an option to return to Triage Agent for non-financial queries."
-    ]),
+    docDescription: "This agent offers expertise in financial literacy and money management, providing advice on budgeting and investments to enhance users' financial knowledge, and includes an option to return to the Triage Agent for non-financial queries.",
     agentName: "finance_agent",
     completion: OPENAI_COMPLETION,
     system: [
@@ -366,14 +306,7 @@ export const FINANCE_AGENT = addAgent({
 });
 
 export const TRIAGE_AGENT = addAgent({
-    docDescription: str.newline([
-        "Agent Overview:",
-        "- Acts as the central routing hub for incoming user requests.",
-        "- Analyzes queries to identify the most suitable specialized agent based on content.",
-        "- Ensures smooth transitions between agents by passing relevant context.",
-        "- Equipped with tools to navigate to any specialized agent as needed.",
-        "- Default starting point for all interactions within the swarm."
-    ]),
+    docDescription: "This agent acts as the central routing hub for incoming user requests, analyzing queries to identify the most suitable specialized agent, ensuring smooth transitions by passing relevant context, and serving as the default starting point equipped with tools to navigate to any specialized agent.",
     agentName: "triage_agent",
     completion: OPENAI_COMPLETION,
     system: [
@@ -415,14 +348,7 @@ export const TRIAGE_AGENT = addAgent({
 });
 
 export const ROOT_SWARM = addSwarm({
-    docDescription: str.newline([
-        "Swarm Overview:",
-        "- Serves as the root structure for a multi-agent system with specialized roles.",
-        "- Manages a collection of agents, each tailored to a specific domain of expertise.",
-        "- Utilizes a Triage Agent as the default entry point for request analysis and routing.",
-        "- Designed to handle diverse user queries across technology, security, environment, health, and finance.",
-        "- Ensures seamless interaction and coordination between agents for optimal user support."
-    ]),
+    docDescription: "This swarm serves as the root structure for a multi-agent system with specialized roles, managing a collection of agents tailored to specific domains, utilizing the Triage Agent as the entry point for request analysis, and designed to handle diverse queries across technology, security, environment, health, and finance for seamless user support.",
     swarmName: "root_swarm",
     agentList: [
         TECH_TRENDS_AGENT,

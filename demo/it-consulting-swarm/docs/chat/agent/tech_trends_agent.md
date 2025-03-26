@@ -1,10 +1,6 @@
 # tech_trends_agent
 
-> Agent Overview:
-- Specializes in providing insights into current and emerging technology trends.
-- Expertise includes artificial intelligence, blockchain, Internet of Things (IoT), and more.
-- Aims to deliver actionable, industry-aligned advice for tech enthusiasts and professionals.
-- Can navigate back to Triage Agent if the query falls outside its scope.
+> This agent specializes in providing insights into current and emerging technology trends, with expertise in areas like artificial intelligence and blockchain, aiming to deliver actionable, industry-aligned advice for tech enthusiasts and professionals while offering navigation back to the Triage Agent for queries outside its scope.
 
 **Completion:** `openai_completion`
 
@@ -69,7 +65,4 @@ Ensure your answer is:
 
 #### Note for developer
 
-*Tool Purpose:
-- Enables returning to the Triage Agent from any specialized agent.
-- Useful for reassessing user requests or redirecting to another agent.
-- Supports passing context or a specific destination reason for improved routing.*
+*This tool enables returning to the Triage Agent from any specialized agent, making it useful for reassessing user requests or redirecting to another agent while supporting context or a specific destination reason for improved routing.*

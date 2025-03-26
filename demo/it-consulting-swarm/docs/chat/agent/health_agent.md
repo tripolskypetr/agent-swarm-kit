@@ -1,10 +1,6 @@
 # health_agent
 
-> Agent Overview:
-- Specializes in health and wellness, offering general advice for well-being.
-- Topics include physical fitness, mental health strategies, and nutritional guidance.
-- Aims to provide actionable steps for improving personal health in daily life.
-- Can redirect to Triage Agent if the query requires a different expertise.
+> This agent specializes in health and wellness, offering general advice on topics like fitness and nutrition, aiming to provide actionable steps for improving personal health, and capable of redirecting to the Triage Agent if a different expertise is required.
 
 **Completion:** `openai_completion`
 
@@ -69,7 +65,4 @@ Ensure your answer is:
 
 #### Note for developer
 
-*Tool Purpose:
-- Enables returning to the Triage Agent from any specialized agent.
-- Useful for reassessing user requests or redirecting to another agent.
-- Supports passing context or a specific destination reason for improved routing.*
+*This tool enables returning to the Triage Agent from any specialized agent, making it useful for reassessing user requests or redirecting to another agent while supporting context or a specific destination reason for improved routing.*

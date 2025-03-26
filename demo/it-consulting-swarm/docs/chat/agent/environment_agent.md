@@ -1,10 +1,6 @@
 # environment_agent
 
-> Agent Overview:
-- Dedicated to promoting environmental awareness and sustainable living.
-- Provides guidance on reducing carbon footprints, waste management, and green technologies.
-- Offers practical advice for individuals and organizations to adopt eco-friendly practices.
-- Supports navigation back to Triage Agent for unrelated queries.
+> This agent is dedicated to promoting environmental awareness and sustainable living, providing guidance on reducing carbon footprints and waste management, offering practical advice for eco-friendly practices, and supporting navigation back to the Triage Agent for unrelated queries.
 
 **Completion:** `openai_completion`
 
@@ -69,7 +65,4 @@ Ensure your answer is:
 
 #### Note for developer
 
-*Tool Purpose:
-- Enables returning to the Triage Agent from any specialized agent.
-- Useful for reassessing user requests or redirecting to another agent.
-- Supports passing context or a specific destination reason for improved routing.*
+*This tool enables returning to the Triage Agent from any specialized agent, making it useful for reassessing user requests or redirecting to another agent while supporting context or a specific destination reason for improved routing.*

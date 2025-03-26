@@ -1,11 +1,6 @@
 # triage_agent
 
-> Agent Overview:
-- Acts as the central routing hub for incoming user requests.
-- Analyzes queries to identify the most suitable specialized agent based on content.
-- Ensures smooth transitions between agents by passing relevant context.
-- Equipped with tools to navigate to any specialized agent as needed.
-- Default starting point for all interactions within the swarm.
+> This agent acts as the central routing hub for incoming user requests, analyzing queries to identify the most suitable specialized agent, ensuring smooth transitions by passing relevant context, and serving as the default starting point equipped with tools to navigate to any specialized agent.
 
 **Completion:** `openai_completion`
 
@@ -43,43 +38,23 @@ Output the exact agent name that best matches the request.
 
 1. [tech_trends_agent](./tech_trends_agent.md)
 
-Agent Overview:
-- Specializes in providing insights into current and emerging technology trends.
-- Expertise includes artificial intelligence, blockchain, Internet of Things (IoT), and more.
-- Aims to deliver actionable, industry-aligned advice for tech enthusiasts and professionals.
-- Can navigate back to Triage Agent if the query falls outside its scope.
+This agent specializes in providing insights into current and emerging technology trends, with expertise in areas like artificial intelligence and blockchain, aiming to deliver actionable, industry-aligned advice for tech enthusiasts and professionals while offering navigation back to the Triage Agent for queries outside its scope.
 
 2. [cybersecurity_agent](./cybersecurity_agent.md)
 
-Agent Overview:
-- Focuses on educating users about online safety and cybersecurity best practices.
-- Covers topics such as password management, phishing prevention, and data protection.
-- Offers practical tips to enhance digital security in personal and professional contexts.
-- Includes navigation to Triage Agent for misrouted or broader inquiries.
+This agent focuses on educating users about online safety and cybersecurity best practices, covering topics like password management and phishing prevention, offering practical tips to enhance digital security, and including navigation to the Triage Agent for broader inquiries.
 
 3. [environment_agent](./environment_agent.md)
 
-Agent Overview:
-- Dedicated to promoting environmental awareness and sustainable living.
-- Provides guidance on reducing carbon footprints, waste management, and green technologies.
-- Offers practical advice for individuals and organizations to adopt eco-friendly practices.
-- Supports navigation back to Triage Agent for unrelated queries.
+This agent is dedicated to promoting environmental awareness and sustainable living, providing guidance on reducing carbon footprints and waste management, offering practical advice for eco-friendly practices, and supporting navigation back to the Triage Agent for unrelated queries.
 
 4. [health_agent](./health_agent.md)
 
-Agent Overview:
-- Specializes in health and wellness, offering general advice for well-being.
-- Topics include physical fitness, mental health strategies, and nutritional guidance.
-- Aims to provide actionable steps for improving personal health in daily life.
-- Can redirect to Triage Agent if the query requires a different expertise.
+This agent specializes in health and wellness, offering general advice on topics like fitness and nutrition, aiming to provide actionable steps for improving personal health, and capable of redirecting to the Triage Agent if a different expertise is required.
 
 5. [finance_agent](./finance_agent.md)
 
-Agent Overview:
-- Offers expertise in financial literacy and personal money management.
-- Provides advice on budgeting, saving strategies, and basic investment principles.
-- Designed to enhance users' financial knowledge and decision-making skills.
-- Includes an option to return to Triage Agent for non-financial queries.
+This agent offers expertise in financial literacy and money management, providing advice on budgeting and investments to enhance users' financial knowledge, and includes an option to return to the Triage Agent for non-financial queries.
 
 ## Used tools
 
@@ -105,10 +80,7 @@ Agent Overview:
 
 #### Note for developer
 
-*Tool Purpose:
-- Facilitates navigation to the Tech Trends Agent.
-- Used when a user query involves emerging technologies or industry innovations.
-- Passes optional context to ensure the agent has relevant background information.*
+*This tool facilitates navigation to the Tech Trends Agent when a user query involves emerging technologies or industry innovations, passing optional context to ensure the agent has relevant background information for a seamless transition.*
 
 ### 2. navigate_to_cybersecurity_tool
 
@@ -132,10 +104,7 @@ Agent Overview:
 
 #### Note for developer
 
-*Tool Purpose:
-- Directs the user to the Cybersecurity Agent for security-related inquiries.
-- Ideal for topics like online safety, data breaches, or secure practices.
-- Includes optional context to provide the agent with query-specific details.*
+*This tool directs the user to the Cybersecurity Agent for security-related inquiries, ideal for topics like online safety or data breaches, and includes optional context to provide the agent with query-specific details for a tailored response.*
 
 ### 3. navigate_to_environment_tool
 
@@ -159,10 +128,7 @@ Agent Overview:
 
 #### Note for developer
 
-*Tool Purpose:
-- Routes queries to the Environmental Awareness Agent.
-- Designed for discussions on sustainability, eco-friendly practices, or conservation efforts.
-- Allows passing context to tailor the agent's response to the user's needs.*
+*This tool routes queries to the Environmental Awareness Agent, designed for discussions on sustainability or conservation efforts, allowing context to be passed to tailor the agent's response to the user's specific environmental needs.*
 
 ### 4. navigate_to_health_tool
 
@@ -186,10 +152,7 @@ Agent Overview:
 
 #### Note for developer
 
-*Tool Purpose:
-- Navigates to the Health Agent for wellness and health-related topics.
-- Suitable for queries on fitness, mental health, or nutrition advice.
-- Context can be passed to ensure the response aligns with the user's specific inquiry.*
+*This tool navigates to the Health Agent for wellness and health-related topics like fitness or nutrition, with context optionally passed to ensure the response aligns with the user's specific inquiry for a more personalized interaction.*
 
 ### 5. navigate_to_finance_tool
 
@@ -213,7 +176,4 @@ Agent Overview:
 
 #### Note for developer
 
-*Tool Purpose:
-- Directs users to the Financial Literacy Agent for financial guidance.
-- Covers topics like budgeting, investment options, or money management.
-- Supports context passing to provide the agent with relevant user details.*
+*This tool directs users to the Financial Literacy Agent for guidance on budgeting or investments, supporting context passing to provide the agent with relevant details for effective financial advice tailored to the user's needs.*
