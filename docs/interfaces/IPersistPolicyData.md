@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IPersistPolicyData
+group: docs
+---
+
 # IPersistPolicyData
 
 Defines the structure for policy data persistence in the swarm system.

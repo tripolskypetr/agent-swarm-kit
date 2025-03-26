@@ -1,7 +1,12 @@
+---
+title: docs/api-reference/interface/IPersistSwarmControl
+group: docs
+---
+
 # IPersistSwarmControl
 
-Interface defining control methods for swarm persistence operations.
-Allows customization of persistence adapters for active agents and navigation stacks.
+Defines control methods for customizing swarm persistence operations.
+Allows injection of custom persistence adapters for active agents and navigation stacks tied to `SwarmName`.
 
 ## Methods
 
@@ -12,6 +17,7 @@ usePersistActiveAgentAdapter: (Ctor: TPersistBaseCtor<string, IPersistActiveAgen
 ```
 
 Sets a custom persistence adapter for active agent storage.
+Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory storage for `SwarmName`).
 
 ### usePersistNavigationStackAdapter
 
@@ -20,3 +26,4 @@ usePersistNavigationStackAdapter: (Ctor: TPersistBaseCtor<string, IPersistNaviga
 ```
 
 Sets a custom persistence adapter for navigation stack storage.
+Overrides the default `PersistBase` implementation for specialized behavior (e.g., database storage for `SwarmName`).

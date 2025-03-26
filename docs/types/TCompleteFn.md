@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TCompleteFn
+group: docs
+---
+
 # TCompleteFn
 
 ```ts

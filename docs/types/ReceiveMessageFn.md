@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/ReceiveMessageFn
+group: docs
+---
+
 # ReceiveMessageFn
 
 ```ts

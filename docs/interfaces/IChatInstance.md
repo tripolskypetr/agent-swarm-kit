@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IChatInstance
+group: docs
+---
+
 # IChatInstance
 
 ## Methods

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TSwarmConnectionService
+group: docs
+---
+
 # TSwarmConnectionService
 
 ```ts

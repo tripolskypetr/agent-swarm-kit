@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IPolicy
+group: docs
+---
+
 # IPolicy
 
 Interface representing a policy enforcement mechanism.

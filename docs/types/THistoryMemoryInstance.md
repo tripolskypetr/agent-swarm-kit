@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/THistoryMemoryInstance
+group: docs
+---
+
 # THistoryMemoryInstance
 
 ```ts

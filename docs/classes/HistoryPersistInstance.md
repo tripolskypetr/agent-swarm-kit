@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/HistoryPersistInstance
+group: docs
+---
+
 # HistoryPersistInstance
 
 Implements `IHistoryInstance`

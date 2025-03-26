@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ICompletionArgs
+group: docs
+---
+
 # ICompletionArgs
 
 Interface representing the arguments required to request a completion.
@@ -32,7 +37,7 @@ The source of the last message, indicating whether it originated from a tool or 
 ### messages
 
 ```ts
-messages: IModelMessage[]
+messages: IModelMessage<object>[]
 ```
 
 An array of model messages providing the conversation history or context for the completion.

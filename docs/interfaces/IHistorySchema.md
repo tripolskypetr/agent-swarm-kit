@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IHistorySchema
+group: docs
+---
+
 # IHistorySchema
 
 Interface representing the schema for history configuration.

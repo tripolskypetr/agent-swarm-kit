@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/SharedStateConnectionService
+group: docs
+---
+
 # SharedStateConnectionService
 
 Implements `IState<T>`

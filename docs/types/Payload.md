@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/Payload
+group: docs
+---
+
 # Payload
 
 ```ts

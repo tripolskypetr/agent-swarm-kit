@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ISessionConnectionService
+group: docs
+---
+
 # ISessionConnectionService
 
 Interface extending SessionConnectionService for type definition purposes.

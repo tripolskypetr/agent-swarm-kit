@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IStateParams
+group: docs
+---
+
 # IStateParams
 
 Interface representing the runtime parameters for state management.

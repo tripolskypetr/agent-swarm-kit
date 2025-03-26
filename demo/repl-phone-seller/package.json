@@ -14,7 +14,7 @@
   "dependencies": {
     "@tensorflow/tfjs-backend-wasm": "^4.22.0",
     "@tensorflow/tfjs-core": "^4.22.0",
-    "agent-swarm-kit": "^1.0.166",
+    "agent-swarm-kit": "^1.0.212",
     "functools-kit": "^1.0.75",
     "ollama": "^0.5.14",
     "openai": "^4.86.2",

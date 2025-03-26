@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IHistoryControl
+group: docs
+---
+
 # IHistoryControl
 
 Interface defining control methods for configuring history behavior.

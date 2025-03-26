@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IHistoryParams
+group: docs
+---
+
 # IHistoryParams
 
 Interface representing the parameters required to create a history instance.

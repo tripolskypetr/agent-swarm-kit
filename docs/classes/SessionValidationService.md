@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/SessionValidationService
+group: docs
+---
+
 # SessionValidationService
 
 Service for managing and validating sessions within the swarm system.

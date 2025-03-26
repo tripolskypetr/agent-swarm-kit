@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IStateConnectionService
+group: docs
+---
+
 # IStateConnectionService
 
 Interface extending StateConnectionService for type definition purposes.

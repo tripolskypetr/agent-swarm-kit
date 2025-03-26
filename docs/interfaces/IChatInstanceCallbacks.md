@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IChatInstanceCallbacks
+group: docs
+---
+
 # IChatInstanceCallbacks
 
 ## Methods

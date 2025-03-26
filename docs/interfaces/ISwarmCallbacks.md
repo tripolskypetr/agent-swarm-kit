@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ISwarmCallbacks
+group: docs
+---
+
 # ISwarmCallbacks
 
 Interface representing lifecycle callbacks for an initialized swarm.

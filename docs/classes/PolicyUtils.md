@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/PolicyUtils
+group: docs
+---
+
 # PolicyUtils
 
 Utility class providing methods to manage client bans within a swarm policy context.

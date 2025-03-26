@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/RoundRobin
+group: docs
+---
+
 # RoundRobin
 
 A generic RoundRobin implementation that cycles through token-based instance creators.

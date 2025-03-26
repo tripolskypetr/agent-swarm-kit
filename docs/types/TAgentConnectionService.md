@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TAgentConnectionService
+group: docs
+---
+
 # TAgentConnectionService
 
 ```ts

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/ChatInstance
+group: docs
+---
+
 # ChatInstance
 
 Implements `IChatInstance`

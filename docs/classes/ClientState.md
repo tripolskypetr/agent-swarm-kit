@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/ClientState
+group: docs
+---
+
 # ClientState
 
 Implements `IState<State>`

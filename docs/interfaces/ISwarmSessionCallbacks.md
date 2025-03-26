@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ISwarmSessionCallbacks
+group: docs
+---
+
 # ISwarmSessionCallbacks
 
 Interface representing callbacks for session-related events within a swarm.

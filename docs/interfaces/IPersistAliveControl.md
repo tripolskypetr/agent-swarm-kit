@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IPersistAliveControl
+group: docs
+---
+
 # IPersistAliveControl
 
 Defines control methods for customizing alive status persistence operations.

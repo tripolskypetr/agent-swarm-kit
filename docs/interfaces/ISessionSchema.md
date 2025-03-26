@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ISessionSchema
+group: docs
+---
+
 # ISessionSchema
 
 Interface representing the schema for session data.

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/ClientSession
+group: docs
+---
+
 # ClientSession
 
 Implements `ISession`
@@ -22,15 +27,6 @@ constructor(params: ISessionParams);
 params: ISessionParams
 ```
 
-### _emitSubject
-
-```ts
-_emitSubject: Subject<string>
-```
-
-Subject for emitting output messages to subscribers, used by emit and connect methods.
-Provides an asynchronous stream of validated messages, supporting real-time updates to external connectors.
-
 ## Methods
 
 ### emit
@@ -39,7 +35,7 @@ Provides an asynchronous stream of validated messages, supporting real-time upda
 emit(message: string): Promise<void>;
 ```
 
-Emits a message to subscribers via _emitSubject after validating it against the policy (ClientPolicy).
+Emits a message to subscribers via swarm _emitSubject after validating it against the policy (ClientPolicy).
 Emits the ban message if validation fails, notifying subscribers and logging via BusService.
 Supports SwarmConnectionService by broadcasting session outputs within the swarm.
 
@@ -75,7 +71,7 @@ Supports ToolSchemaService by linking tool output to tool calls, integrating wit
 ### commitUserMessage
 
 ```ts
-commitUserMessage(message: string): Promise<void>;
+commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
 ```
 
 Commits a user message to the agent’s history via the swarm’s agent (ClientAgent) without triggering a response.
@@ -120,7 +116,7 @@ Logs the action via BusService, supporting ClientHistory for assistant response 
 ### connect
 
 ```ts
-connect(connector: SendMessageFn$1): ReceiveMessageFn<string>;
+connect(connector: SendMessageFn): ReceiveMessageFn<string>;
 ```
 
 Connects the session to a message connector, subscribing to emitted messages and returning a receiver function.

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TSharedStorage
+group: docs
+---
+
 # TSharedStorage
 
 ```ts

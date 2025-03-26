@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/ToolValidationService
+group: docs
+---
+
 # ToolValidationService
 
 Service for validating tool configurations within the swarm system.

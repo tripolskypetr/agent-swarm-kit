@@ -1,7 +1,7 @@
-import { Adapter, addAgent, addCompletion, addSwarm, addTool, Chat, commitToolOutput, execute, getAgentName, Schema, History } from "agent-swarm-kit";
+import { Chat, getAgentName, Schema, History } from "agent-swarm-kit";
 import type { ServerWebSocket } from "bun";
-import { OpenAI } from "openai";
 import { parseArgs } from "util";
+import { TEST_SWARM } from "./lib/swarm";
 
 declare function parseInt(value: unknown): number;
 
@@ -23,28 +23,12 @@ const { values } = parseArgs({
   allowPositionals: true,
 });
 
-const COHERE_COMPLETION = addCompletion({
-  completionName: "cohere_completion",
-  getCompletion: Adapter.fromOpenAI(new OpenAI({ apiKey: process.env.OPENAI_API_KEY }))
-})
 
 History.useHistoryCallbacks({
   getSystemPrompt: () => [
     `The server port is ${SERVER_PORT}. Tell him that port ASAP`
   ]
 });
-
-const TEST_AGENT = addAgent({
-  agentName: "test_agent",
-  completion: COHERE_COMPLETION,
-  prompt: `You are a test agent for Nginx Upstream. Tell user the server port from the chat history (system message)`,
-});
-
-const TEST_SWARM = addSwarm({
-  swarmName: "test_swarm",
-  agentList: [TEST_AGENT],
-  defaultAgent: TEST_AGENT,
-})
 
 const SERVER_PORT = parseInt(values.port);
 

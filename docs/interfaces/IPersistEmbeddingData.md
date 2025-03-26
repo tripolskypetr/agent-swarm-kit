@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IPersistEmbeddingData
+group: docs
+---
+
 # IPersistEmbeddingData
 
 Defines the structure for embedding data persistence in the swarm system.

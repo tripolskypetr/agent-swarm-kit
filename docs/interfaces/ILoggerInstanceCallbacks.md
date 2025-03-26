@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ILoggerInstanceCallbacks
+group: docs
+---
+
 # ILoggerInstanceCallbacks
 
 Callbacks for managing logger instance lifecycle and log events.

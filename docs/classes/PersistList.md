@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/PersistList
+group: docs
+---
+
 # PersistList
 
 Extends `PersistBase<EntityName>`

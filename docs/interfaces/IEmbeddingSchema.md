@@ -1,9 +1,22 @@
+---
+title: docs/api-reference/interface/IEmbeddingSchema
+group: docs
+---
+
 # IEmbeddingSchema
 
 Interface representing the schema for configuring an embedding mechanism.
 Defines how embeddings are created and compared within the swarm.
 
 ## Properties
+
+### persist
+
+```ts
+persist: boolean
+```
+
+Optional flag to enable serialization of navigation stack and active agent state to persistent storage (e.g., hard drive).
 
 ### embeddingName
 
@@ -12,6 +25,24 @@ embeddingName: string
 ```
 
 The unique name of the embedding mechanism within the swarm.
+
+### writeEmbeddingCache
+
+```ts
+writeEmbeddingCache: (embeddings: number[], embeddingName: string, stringHash: string) => void | Promise<void>
+```
+
+Stores an embedding vector for a specific string hash, persisting it for future retrieval.
+Used to cache computed embeddings to avoid redundant processing.
+
+### readEmbeddingCache
+
+```ts
+readEmbeddingCache: (embeddingName: string, stringHash: string) => number[] | Promise<number[]>
+```
+
+Retrieves the embedding vector for a specific string hash, returning null if not found.
+Used to check if a precomputed embedding exists in the cache.
 
 ### callbacks
 
@@ -26,7 +57,7 @@ Optional partial set of callbacks for embedding events, allowing customization o
 ### createEmbedding
 
 ```ts
-createEmbedding: (text: string) => Promise<Embeddings>
+createEmbedding: (text: string, embeddingName: string) => Promise<Embeddings>
 ```
 
 Creates an embedding from the provided text.

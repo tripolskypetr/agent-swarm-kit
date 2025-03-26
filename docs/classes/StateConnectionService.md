@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/StateConnectionService
+group: docs
+---
+
 # StateConnectionService
 
 Implements `IState<T>`

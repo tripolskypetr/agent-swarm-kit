@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TSharedStateConnectionService
+group: docs
+---
+
 # TSharedStateConnectionService
 
 ```ts

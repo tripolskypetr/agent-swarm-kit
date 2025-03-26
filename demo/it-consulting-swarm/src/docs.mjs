@@ -3,6 +3,6 @@ import plantuml from "plantuml";
 
 import "./lib/swarm";
 
-await dumpDocs('./docs/chat', plantuml);
+await dumpDocs("demo/it-consulting-swarm", './docs/chat', plantuml);
 
 process.kill(process.pid);

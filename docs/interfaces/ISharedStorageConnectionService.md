@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ISharedStorageConnectionService
+group: docs
+---
+
 # ISharedStorageConnectionService
 
 Interface extending SharedStorageConnectionService for type definition purposes.

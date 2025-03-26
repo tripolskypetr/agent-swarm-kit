@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IPolicyParams
+group: docs
+---
+
 # IPolicyParams
 
 Interface representing the parameters required to initialize a policy.

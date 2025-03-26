@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IStorageSchema
+group: docs
+---
+
 # IStorageSchema
 
 Interface representing the schema for storage configuration.

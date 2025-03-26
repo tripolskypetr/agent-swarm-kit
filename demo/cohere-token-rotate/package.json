@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "bun ./src/index.ts"
+    "start": "bun ./src/index.ts",
+    "build:docs": "bun ./src/docs.mjs"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -17,10 +18,11 @@
     "@langchain/core": "^0.3.43",
     "@langchain/ollama": "^0.2.0",
     "@langchain/openai": "^0.4.8",
-    "agent-swarm-kit": "^1.0.199",
+    "agent-swarm-kit": "^1.0.212",
     "cohere-ai": "^7.16.0",
     "functools-kit": "^1.0.76",
     "ollama": "^0.5.14",
-    "openai": "^4.89.0"
+    "openai": "^4.89.0",
+    "plantuml": "^0.0.2"
   }
 }

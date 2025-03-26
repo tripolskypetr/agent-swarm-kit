@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/THistoryConnectionService
+group: docs
+---
+
 # THistoryConnectionService
 
 ```ts

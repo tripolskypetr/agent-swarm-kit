@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IIncomingMessage
+group: docs
+---
+
 # IIncomingMessage
 
 Interface representing an incoming message received by the swarm system.

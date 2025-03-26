@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/PolicyConnectionService
+group: docs
+---
+
 # PolicyConnectionService
 
 Implements `IPolicy`

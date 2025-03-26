@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IPersistAliveData
+group: docs
+---
+
 # IPersistAliveData
 
 Defines the structure for alive status persistence in the swarm system.

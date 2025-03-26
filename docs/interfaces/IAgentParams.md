@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IAgentParams
+group: docs
+---
+
 # IAgentParams
 
 Interface representing the runtime parameters for an agent.

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IMethodContext
+group: docs
+---
+
 # IMethodContext
 
 Interface defining the structure of method call context in the swarm system.

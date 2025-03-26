@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/SharedStoragePublicService
+group: docs
+---
+
 # SharedStoragePublicService
 
 Implements `TSharedStorageConnectionService`

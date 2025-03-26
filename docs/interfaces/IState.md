@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IState
+group: docs
+---
+
 # IState
 
 Interface representing the runtime state management API.

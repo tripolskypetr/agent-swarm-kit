@@ -1,3 +1,8 @@
+---
+title: demo/it-consulting-swarm/root_swarm
+group: demo/it-consulting-swarm
+---
+
 # root_swarm
 
 > This swarm serves as the root structure for a multi-agent system with specialized roles, managing a collection of agents tailored to specific domains, utilizing the Triage Agent as the entry point for request analysis, and designed to handle diverse queries across technology, security, environment, health, and finance for seamless user support.

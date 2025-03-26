@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TPersistBaseCtor
+group: docs
+---
+
 # TPersistBaseCtor
 
 ```ts

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TSharedStorageConnectionService
+group: docs
+---
+
 # TSharedStorageConnectionService
 
 ```ts

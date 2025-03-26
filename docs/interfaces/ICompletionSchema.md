@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ICompletionSchema
+group: docs
+---
+
 # ICompletionSchema
 
 Interface representing the schema for configuring a completion mechanism.
@@ -26,7 +31,7 @@ Optional partial set of callbacks for completion events, allowing customization 
 ### getCompletion
 
 ```ts
-getCompletion: (args: ICompletionArgs) => Promise<IModelMessage>
+getCompletion: (args: ICompletionArgs) => Promise<IModelMessage<object>>
 ```
 
 Retrieves a completion based on the provided arguments.

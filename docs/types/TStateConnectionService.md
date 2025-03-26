@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TStateConnectionService
+group: docs
+---
+
 # TStateConnectionService
 
 ```ts

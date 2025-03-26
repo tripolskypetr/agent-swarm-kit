@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/Action
+group: docs
+---
+
 # Action
 
 ```ts

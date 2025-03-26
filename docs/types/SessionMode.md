@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/SessionMode
+group: docs
+---
+
 # SessionMode
 
 ```ts

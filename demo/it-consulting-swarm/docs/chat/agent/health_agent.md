@@ -1,3 +1,8 @@
+---
+title: demo/it-consulting-swarm/health_agent
+group: demo/it-consulting-swarm
+---
+
 # health_agent
 
 > This agent specializes in health and wellness, offering general advice on topics like fitness and nutrition, aiming to provide actionable steps for improving personal health, and capable of redirecting to the Triage Agent if a different expertise is required.

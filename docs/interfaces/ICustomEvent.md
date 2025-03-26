@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ICustomEvent
+group: docs
+---
+
 # ICustomEvent
 
 Interface representing a custom event with a flexible payload in the swarm system.

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TLoggerInstance
+group: docs
+---
+
 # TLoggerInstance
 
 ```ts

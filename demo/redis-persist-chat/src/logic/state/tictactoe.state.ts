@@ -3,6 +3,7 @@ import { StateName } from '../../enum/StateName';
 import type { IGameState } from '../../model/GameState.model';
 
 addState({
+  docDescription: "This state, named TicTacToeState, defines a Tic-tac-toe game structure for the persist-redis-storage project, initializing a default 9-cell board with middleware to detect wins or draws, persisting the game’s progress in Redis alongside chat history and other agent states.",
   stateName: StateName.TicTacToeState,
   getDefaultState: (): IGameState => ({
     board: Array(9).fill(null),

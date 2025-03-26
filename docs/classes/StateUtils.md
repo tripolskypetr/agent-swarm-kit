@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/StateUtils
+group: docs
+---
+
 # StateUtils
 
 Implements `TState`

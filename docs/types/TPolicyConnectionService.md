@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TPolicyConnectionService
+group: docs
+---
+
 # TPolicyConnectionService
 
 ```ts

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IStorage
+group: docs
+---
+
 # IStorage
 
 Interface representing the runtime storage management API.

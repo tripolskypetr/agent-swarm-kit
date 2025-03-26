@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ISessionParams
+group: docs
+---
+
 # ISessionParams
 
 Interface representing the parameters required to create a session.

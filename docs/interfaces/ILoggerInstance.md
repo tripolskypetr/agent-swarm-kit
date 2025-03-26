@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ILoggerInstance
+group: docs
+---
+
 # ILoggerInstance
 
 Interface for logger instances, extending the base ILogger with lifecycle methods.

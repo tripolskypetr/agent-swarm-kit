@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IStorageData
+group: docs
+---
+
 # IStorageData
 
 Interface representing the data structure stored in the storage.

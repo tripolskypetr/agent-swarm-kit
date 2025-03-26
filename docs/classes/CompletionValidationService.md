@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/CompletionValidationService
+group: docs
+---
+
 # CompletionValidationService
 
 Service for validating completion names within the swarm system.

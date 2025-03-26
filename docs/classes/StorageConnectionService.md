@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/StorageConnectionService
+group: docs
+---
+
 # StorageConnectionService
 
 Implements `IStorage`

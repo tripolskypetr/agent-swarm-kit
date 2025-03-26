@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/StorageValidationService
+group: docs
+---
+
 # StorageValidationService
 
 Service for validating storage configurations within the swarm system.

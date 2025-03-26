@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TSharedState
+group: docs
+---
+
 # TSharedState
 
 ```ts

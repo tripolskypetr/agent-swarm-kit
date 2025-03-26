@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IEmbeddingCallbacks
+group: docs
+---
+
 # IEmbeddingCallbacks
 
 Interface representing callbacks for embedding lifecycle events.

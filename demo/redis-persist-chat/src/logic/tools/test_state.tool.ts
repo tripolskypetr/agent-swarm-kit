@@ -7,6 +7,7 @@ import { StateName } from "../../enum/StateName";
 const PARAMETER_SCHEMA = z.object({}).strict();
 
 addTool({
+  docNote: "This tool, named TestStateTool, operates within the persist-redis-storage project to test the TicTacToeState by resetting it to a default 9-cell board state, persisting it in Redis, confirming the action via tool output, and triggering a follow-up message to inform the user of successful testing.",
   toolName: ToolName.TestStateTool,
   type: "function",
   validate: async ({ clientId, agentName, params }) => {

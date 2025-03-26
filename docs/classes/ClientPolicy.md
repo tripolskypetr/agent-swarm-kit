@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/ClientPolicy
+group: docs
+---
+
 # ClientPolicy
 
 Implements `IPolicy`

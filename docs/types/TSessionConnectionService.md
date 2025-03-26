@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/type/TSessionConnectionService
+group: docs
+---
+
 # TSessionConnectionService
 
 ```ts

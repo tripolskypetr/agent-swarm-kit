@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IPolicyConnectionService
+group: docs
+---
+
 # IPolicyConnectionService
 
 Interface extending PolicyConnectionService for type definition purposes.

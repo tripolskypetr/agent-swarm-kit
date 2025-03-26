@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/SchemaUtils
+group: docs
+---
+
 # SchemaUtils
 
 Utility class for managing schema-related operations, including session memory access and data serialization.

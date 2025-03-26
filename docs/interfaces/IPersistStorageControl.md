@@ -1,7 +1,12 @@
+---
+title: docs/api-reference/interface/IPersistStorageControl
+group: docs
+---
+
 # IPersistStorageControl
 
-Interface defining control methods for storage persistence operations.
-Allows customization of the persistence adapter for storage.
+Defines control methods for customizing storage persistence operations.
+Allows injection of a custom persistence adapter for storage tied to `StorageName`.
 
 ## Methods
 
@@ -12,3 +17,4 @@ usePersistStorageAdapter: (Ctor: TPersistBaseCtor<string, IPersistStorageData<IS
 ```
 
 Sets a custom persistence adapter for storage.
+Overrides the default `PersistBase` implementation for specialized behavior (e.g., database storage for `StorageName`).

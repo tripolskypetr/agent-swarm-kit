@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/BusService
+group: docs
+---
+
 # BusService
 
 Implements `IBus`

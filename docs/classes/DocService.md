@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/DocService
+group: docs
+---
+
 # DocService
 
 Service class for generating and writing documentation for swarms, agents, and performance data in the swarm system.
@@ -144,7 +149,7 @@ Outputs to dirName/agent/[agentName].md, with UML images in dirName/image, sourc
 ### dumpDocs
 
 ```ts
-dumpDocs: (dirName?: string) => Promise<void>
+dumpDocs: (prefix?: string, dirName?: string) => Promise<void>
 ```
 
 Generates and writes documentation for all swarms and agents in the system.

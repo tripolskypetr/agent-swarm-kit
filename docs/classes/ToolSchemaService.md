@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/ToolSchemaService
+group: docs
+---
+
 # ToolSchemaService
 
 Service class for managing tool schemas in the swarm system.

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IOutgoingMessage
+group: docs
+---
+
 # IOutgoingMessage
 
 Interface representing an outgoing message sent from the swarm system.

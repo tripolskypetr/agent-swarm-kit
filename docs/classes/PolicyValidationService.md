@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/PolicyValidationService
+group: docs
+---
+
 # PolicyValidationService
 
 Service for validating policies within the swarm system.

@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IBusEventContext
+group: docs
+---
+
 # IBusEventContext
 
 Interface representing the contextual metadata for an event in the swarm system.

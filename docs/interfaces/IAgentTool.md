@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/IAgentTool
+group: docs
+---
+
 # IAgentTool
 
 Interface representing a tool used by an agent, extending the base ITool interface.
@@ -21,6 +26,15 @@ toolName: string
 
 The unique name of the tool, used for identification within the agent swarm.
 
+### validate
+
+```ts
+validate: (dto: { clientId: string; agentName: string; toolCalls: IToolCall[]; params: T; }) => boolean | Promise<boolean>
+```
+
+Validates the tool parameters before execution.
+Can return synchronously or asynchronously based on validation complexity.
+
 ### callbacks
 
 ```ts
@@ -38,12 +52,3 @@ call: (dto: { toolId: string; clientId: string; agentName: string; params: T; to
 ```
 
 Executes the tool with the specified parameters and context.
-
-### validate
-
-```ts
-validate: (dto: { clientId: string; agentName: string; toolCalls: IToolCall[]; params: T; }) => boolean | Promise<boolean>
-```
-
-Validates the tool parameters before execution.
-Can return synchronously or asynchronously based on validation complexity.

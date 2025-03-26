@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/SharedStorageConnectionService
+group: docs
+---
+
 # SharedStorageConnectionService
 
 Implements `IStorage`

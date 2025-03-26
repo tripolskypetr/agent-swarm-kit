@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/interface/ISessionContext
+group: docs
+---
+
 # ISessionContext
 
 Represents the session context, encapsulating client, method, and execution metadata.

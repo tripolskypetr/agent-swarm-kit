@@ -1,3 +1,8 @@
+---
+title: docs/api-reference/class/ClientAgent
+group: docs
+---
+
 # ClientAgent
 
 Implements `IAgent`
@@ -130,7 +135,7 @@ Applies validation and resurrection strategies (via _resurrectModel) if needed, 
 ### commitUserMessage
 
 ```ts
-commitUserMessage(message: string): Promise<void>;
+commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
 ```
 
 Commits a user message to the history without triggering a response, notifying the system via BusService.
