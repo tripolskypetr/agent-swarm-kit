@@ -394,6 +394,23 @@ export class ClientSwarm implements ISwarm {
       clientId: this.params.clientId,
     });
   }
+
+  /**
+ * Disposes of the swarm, performing cleanup
+ * Called when the swarm is no longer needed, ensuring proper resource release.
+ * @returns {Promise<void>} Resolves when disposal is complete and logged.
+ */
+  async dispose(): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} dispose`
+      );
+    {
+      this._agentChangedSubject.unsubscribeAll();
+      this._emitSubject.unsubscribeAll();
+      this._cancelOutputSubject.unsubscribeAll();
+    }
+  }
 }
 
 /**

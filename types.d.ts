@@ -1231,6 +1231,14 @@ type ReceiveMessageFn<T = void> = (incoming: IIncomingMessage) => Promise<T>;
  */
 interface ISession {
     /**
+     * Sends a notification message to connect listeners via the internal `_notifySubject`.
+     * Logs the notification if debugging is enabled.
+     *
+     * @param {string} message - The notification message to send.
+     * @returns {Promise<void>} Resolves when the message is successfully sent to subscribers.
+     */
+    notify(message: string): Promise<void>;
+    /**
      * Emits a message to the session's communication channel.
      * @param {string} message - The message content to emit.
      * @returns {Promise<void>} A promise that resolves when the message is successfully emitted.
@@ -4096,6 +4104,12 @@ declare class ClientSwarm implements ISwarm {
      * @returns {Promise<void>} Resolves when the agent is set, stack is updated, and the event is logged.
      */
     setAgentName(agentName: AgentName): Promise<void>;
+    /**
+   * Disposes of the swarm, performing cleanup
+   * Called when the swarm is no longer needed, ensuring proper resource release.
+   * @returns {Promise<void>} Resolves when disposal is complete and logged.
+   */
+    dispose(): Promise<void>;
 }
 
 /**
@@ -4339,12 +4353,21 @@ declare class CompletionSchemaService {
  */
 declare class ClientSession implements ISession {
     readonly params: ISessionParams;
+    private _notifySubject;
     /**
      * Constructs a new ClientSession instance with the provided parameters.
      * Invokes the onInit callback if defined and logs construction if debugging is enabled.
      * @param {ISessionParams} params - The parameters for initializing the session, including clientId, swarmName, swarm, policy, bus, etc.
      */
     constructor(params: ISessionParams);
+    /**
+     * Sends a notification message to connect listeners via the internal `_notifySubject`.
+     * Logs the notification if debugging is enabled.
+     *
+     * @param {string} message - The notification message to send.
+     * @returns {Promise<void>} Resolves when the message is successfully sent to subscribers.
+     */
+    notify(message: string): Promise<void>;
     /**
      * Emits a message to subscribers via swarm _emitSubject after validating it against the policy (ClientPolicy).
      * Emits the ban message if validation fails, notifying subscribers and logging via BusService.
@@ -4488,6 +4511,14 @@ declare class SessionConnectionService implements ISession {
      * @returns {ClientSession} The memoized ClientSession instance configured for the client and swarm.
      */
     getSession: ((clientId: string, swarmName: string) => ClientSession) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientSession>;
+    /**
+     * Sends a notification message to connect listeners via the internal `_notifySubject`.
+     * Logs the notification if debugging is enabled.
+     *
+     * @param {string} message - The notification message to send.
+     * @returns {Promise<void>} Resolves when the message is successfully sent to subscribers.
+     */
+    notify: (message: string) => Promise<void>;
     /**
      * Emits a message to the session, typically for asynchronous communication.
      * Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -4910,6 +4941,17 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @private
      */
     private readonly busService;
+    /**
+     * Emits a message to the session, typically for asynchronous communication.
+     * Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
+     * @param {string} content - The message content to notify the session.
+     * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+     * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking.
+     * @param {SwarmName} swarmName - The swarm name, sourced from Swarm.interface, used in SwarmMetaService context.
+     * @returns {Promise<void>} A promise resolving when the message is emitted.
+     */
+    notify: (content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Emits a message to the session for a specific client and swarm.
      * Wraps SessionConnectionService.emit with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -8766,6 +8808,42 @@ declare const execute: (content: string, clientId: string, agentName: string) =>
 declare const emit: (content: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
+ * Sends a notification message as output from the swarm session without executing an incoming message.
+ *
+ * This function directly sends a provided string as output from the swarm session, bypassing message execution. It is designed exclusively
+ * for sessions established via the "makeConnection" mode. The function validates the session, swarm, and specified agent, ensuring the agent
+ * is still active before sending the notification. If the active agent has changed, the operation is skipped. The execution is wrapped in
+ * `beginContext` for a clean environment, logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
+ *
+ * @param {string} content - The content to be sent as the notification output.
+ * @param {string} clientId - The unique identifier of the client session sending the notification.
+ * @param {AgentName} agentName - The name of the agent intended to send the notification.
+ * @returns {Promise<void>} A promise that resolves when the notification is sent, or resolves early if skipped due to an agent change.
+ * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
+ * @example
+ * await notify("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active
+ */
+declare const notify: (content: string, clientId: string, agentName: string) => Promise<void>;
+
+/**
+ * Sends a notification message as output from the swarm session without executing an incoming message.
+ *
+ * This function directly sends a provided string as output from the swarm session, bypassing message execution. It is designed exclusively
+ * for sessions established via the "makeConnection" mode. The function validates the session, swarm, and specified agent, ensuring the agent
+ * is still active before sending the notification. Will notify even if the agent was changed. The execution is wrapped in
+ * `beginContext` for a clean environment, logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
+ *
+ * @param {string} content - The content to be sent as the notification output.
+ * @param {string} clientId - The unique identifier of the client session sending the notification.
+ * @param {AgentName} agentName - The name of the agent intended to send the notification.
+ * @returns {Promise<void>} A promise that resolves when the notification is sent
+ * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
+ * @example
+ * await notifyForce("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active
+ */
+declare const notifyForce: (content: string, clientId: string, agentName: string) => Promise<void>;
+
+/**
  * Executes a message statelessly with an agent in a swarm session, bypassing chat history.
  *
  * This function processes a command or message using the specified agent without appending it to the chat history, designed to prevent
@@ -11024,4 +11102,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, runStateless, runStatelessForce, session, setConfig, swarm };

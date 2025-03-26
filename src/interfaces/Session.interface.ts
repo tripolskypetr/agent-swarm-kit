@@ -64,6 +64,16 @@ export type ReceiveMessageFn<T = void> = (
  * Defines methods for message emission, execution, and state management.
  */
 export interface ISession {
+
+  /**
+   * Sends a notification message to connect listeners via the internal `_notifySubject`.
+   * Logs the notification if debugging is enabled.
+   * 
+   * @param {string} message - The notification message to send.
+   * @returns {Promise<void>} Resolves when the message is successfully sent to subscribers.
+   */
+  notify(message: string): Promise<void>
+
   /**
    * Emits a message to the session's communication channel.
    * @param {string} message - The message content to emit.

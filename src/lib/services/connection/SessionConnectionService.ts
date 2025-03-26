@@ -100,9 +100,9 @@ export class SessionConnectionService implements ISession {
         clientId,
         policy: policies
           ? new MergePolicy(
-              policies.map(this.policyConnectionService.getPolicy),
-              swarmName,
-            )
+            policies.map(this.policyConnectionService.getPolicy),
+            swarmName,
+          )
           : new NoopPolicy(swarmName),
         logger: this.loggerService,
         bus: this.busService,
@@ -112,6 +112,24 @@ export class SessionConnectionService implements ISession {
       });
     }
   );
+
+  /**
+   * Sends a notification message to connect listeners via the internal `_notifySubject`.
+   * Logs the notification if debugging is enabled.
+   * 
+   * @param {string} message - The notification message to send.
+   * @returns {Promise<void>} Resolves when the message is successfully sent to subscribers.
+   */
+  public notify = async (message: string): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sessionConnectionService notify`, {
+        message,
+      });
+    return await this.getSession(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
+    ).notify(message);
+  };
 
   /**
    * Emits a message to the session, typically for asynchronous communication.

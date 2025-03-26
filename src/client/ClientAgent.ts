@@ -34,9 +34,9 @@ const TOOL_NO_OUTPUT_WARNING_SYMBOL = Symbol("tool-warning-timeout");
  */
 const createPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[
-    Math.floor(
-      Math.random() * GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS.length
-    )
+  Math.floor(
+    Math.random() * GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS.length
+  )
   ];
 
 /**
@@ -75,8 +75,7 @@ const createToolCall = async (
       );
   } catch (error) {
     console.error(
-      `agent-swarm tool call error functionName=${
-        tool.function.name
+      `agent-swarm tool call error functionName=${tool.function.name
       } error=${getErrorMessage(error)}`,
       {
         clientId: self.params.clientId,
@@ -291,8 +290,7 @@ const EXECUTE_FN = async (
           );
         const result = await self._resurrectModel(
           mode,
-          `Function validation failed: name=${
-            tool.function.name
+          `Function validation failed: name=${tool.function.name
           } arguments=${JSON.stringify(tool.function.arguments)}`
         );
         GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -401,8 +399,7 @@ const EXECUTE_FN = async (
             );
           const result = await self._resurrectModel(
             mode,
-            `Function call failed with error: name=${
-              tool.function.name
+            `Function call failed with error: name=${tool.function.name
             } arguments=${JSON.stringify(tool.function.arguments)}`
           );
           GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -1110,6 +1107,14 @@ export class ClientAgent implements IAgent {
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} dispose`
       );
+    {
+      this._agentChangeSubject.unsubscribeAll();
+      this._resqueSubject.unsubscribeAll();
+      this._toolErrorSubject.unsubscribeAll();
+      this._toolStopSubject.unsubscribeAll();
+      this._toolCommitSubject.unsubscribeAll();
+      this._outputSubject.unsubscribeAll();
+    }
     this.params.onDispose &&
       this.params.onDispose(this.params.clientId, this.params.agentName);
   }

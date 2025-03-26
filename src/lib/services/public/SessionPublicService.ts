@@ -83,6 +83,45 @@ export class SessionPublicService implements TSessionConnectionService {
   private readonly busService = inject<BusService>(TYPES.busService);
 
   /**
+   * Emits a message to the session, typically for asynchronous communication.
+   * Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
+   * @param {string} content - The message content to notify the session.
+   * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+   * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking.
+   * @param {SwarmName} swarmName - The swarm name, sourced from Swarm.interface, used in SwarmMetaService context.
+   * @returns {Promise<void>} A promise resolving when the message is emitted.
+   */
+   public notify = async (
+    content: string,
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService notify", {
+        content,
+        clientId,
+        methodName,
+        swarmName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sessionConnectionService.notify(content);
+      },
+      {
+        methodName,
+        clientId,
+        swarmName,
+        policyName: "",
+        agentName: "",
+        storageName: "",
+        stateName: "",
+      }
+    );
+  };
+
+  /**
    * Emits a message to the session for a specific client and swarm.
    * Wraps SessionConnectionService.emit with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used in ClientAgent (e.g., session-level messaging) and AgentPublicService (e.g., swarm context emission).

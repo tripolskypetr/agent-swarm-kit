@@ -38,6 +38,8 @@ export * from "./functions/target/executeForce";
 export * from "./functions/target/makeAutoDispose";
 export * from "./functions/target/execute";
 export * from "./functions/target/emit";
+export * from "./functions/target/notify";
+export * from "./functions/target/notifyForce";
 export * from "./functions/target/runStateless";
 export * from "./functions/target/runStatelessForce";
 export * from "./functions/target/makeConnection";

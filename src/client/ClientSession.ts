@@ -20,6 +20,9 @@ import { GLOBAL_CONFIG } from "../config/params";
  * @implements {ISession}
  */
 export class ClientSession implements ISession {
+
+  private _notifySubject = new Subject<string>();
+
   /**
    * Constructs a new ClientSession instance with the provided parameters.
    * Invokes the onInit callback if defined and logs construction if debugging is enabled.
@@ -34,6 +37,24 @@ export class ClientSession implements ISession {
         }
       );
     this.params.onInit && this.params.onInit(params.clientId, params.swarmName);
+  }
+
+  /**
+   * Sends a notification message to connect listeners via the internal `_notifySubject`.
+   * Logs the notification if debugging is enabled.
+   * 
+   * @param {string} message - The notification message to send.
+   * @returns {Promise<void>} Resolves when the message is successfully sent to subscribers.
+   */
+  async notify(message: string): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} notify`,
+        {
+          message,
+        }
+      );
+    await this._notifySubject.next(message);
   }
 
   /**
@@ -420,6 +441,13 @@ export class ClientSession implements ISession {
       },
       clientId: this.params.clientId,
     });
+    this._notifySubject.subscribe(async (data: string) => {
+      await connector({
+        data,
+        agentName: await this.params.swarm.getAgentName(),
+        clientId: this.params.clientId,
+      });
+    });
     return async (incoming: IIncomingMessage): Promise<string> => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         this.params.logger.debug(
@@ -448,6 +476,9 @@ export class ClientSession implements ISession {
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} dispose`
       );
+    {
+      this._notifySubject.unsubscribeAll();
+    }
     this.params.onDispose &&
       this.params.onDispose(this.params.clientId, this.params.swarmName);
   }

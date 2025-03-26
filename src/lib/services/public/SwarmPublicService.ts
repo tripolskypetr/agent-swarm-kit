@@ -12,7 +12,7 @@ import { GLOBAL_CONFIG } from "../../../config/params";
  * Used to define TSwarmConnectionService by excluding internal keys, ensuring SwarmPublicService aligns with public-facing operations.
  * @interface ISwarmConnectionService
  */
-interface ISwarmConnectionService extends SwarmConnectionService {}
+interface ISwarmConnectionService extends SwarmConnectionService { }
 
 /**
  * Type representing keys to exclude from ISwarmConnectionService (internal methods).

@@ -261,6 +261,10 @@ export class SwarmConnectionService implements ISwarm {
     if (!this.getSwarm.has(key)) {
       return;
     }
+    await this.getSwarm(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
+    ).dispose();
     this.getSwarm.clear(key);
   };
 }
