@@ -47,15 +47,7 @@ Ensure your answer is:
 
 #### Parameters for model
 
-> **1. destination**
-
-*Type:* `string`
-
-*Description:* `Optional specific destination or reason for returning to triage`
-
-*Required:* [ ]
-
-> **2. context**
+> **1. context**
 
 *Type:* `string`
 
@@ -65,4 +57,4 @@ Ensure your answer is:
 
 #### Note for developer
 
-*This tool enables returning to the Triage Agent from any specialized agent, making it useful for reassessing user requests or redirecting to another agent while supporting context or a specific destination reason for improved routing.*
+*This tool enables returning to the Triage Agent from any specialized agent, making it useful for reassessing user requests or redirecting to another agent while supporting context for improved answer after routing.*

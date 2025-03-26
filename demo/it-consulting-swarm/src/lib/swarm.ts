@@ -47,7 +47,7 @@ export const NAVIGATE_TO_TECH_TRENDS = addTool({
 });
 
 export const NAVIGATE_TO_TRIAGE = addTool({
-    docNote: "This tool enables returning to the Triage Agent from any specialized agent, making it useful for reassessing user requests or redirecting to another agent while supporting context or a specific destination reason for improved routing.",
+    docNote: "This tool enables returning to the Triage Agent from any specialized agent, making it useful for reassessing user requests or redirecting to another agent while supporting context for improved answer after routing.",
     toolName: "navigate_to_triage_tool",
     type: "function",
     call: async ({ toolId, clientId, params }) => {
@@ -62,10 +62,6 @@ export const NAVIGATE_TO_TRIAGE = addTool({
         parameters: {
             type: "object",
             properties: {
-                destination: {
-                    type: "string",
-                    description: "Optional specific destination or reason for returning to triage"
-                },
                 context: {
                     type: "string",
                     description: "Additional context to pass back to the Triage Agent"
