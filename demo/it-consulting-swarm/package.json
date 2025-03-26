@@ -1,0 +1,22 @@
+{
+  "name": "it-consulting-swarm",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun ./src/client.ts",
+    "build:docs": "bun ./src/docs.mjs"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "agent-swarm-kit": "^1.0.207",
+    "functools-kit": "^1.0.76",
+    "openai": "^4.89.0",
+    "plantuml": "^0.0.2"
+  }
+}
