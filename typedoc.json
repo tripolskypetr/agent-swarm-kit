@@ -1,6 +1,6 @@
 {
     "entryPoints": ["./src/index.ts"],
-    "projectDocuments": ["docs/agent-swarm-kit.md", "demo/**/*.md"],
+    "projectDocuments": ["docs/*", "demo/**/*.md"],
     "name": "agent-swarm-kit",
     "includeVersion": true,
     "logLevel": "Verbose",
