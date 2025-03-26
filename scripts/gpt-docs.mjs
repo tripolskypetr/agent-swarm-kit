@@ -118,6 +118,12 @@ const generateDescription = retry(async (filePath, prompt) => {
 const outputPath = join(process.cwd(), 'docs', `${MODULE_NAME}.md`);
 const output = [];
 
+output.push("---");
+output.push(`title: docs/agent-swarm-kit`);
+output.push(`group: docs`)
+output.push("---");
+output.push("");
+
 {
     const classList = globSync(`./docs/classes/*`);
     output.push(`# ${MODULE_NAME} classes`);
