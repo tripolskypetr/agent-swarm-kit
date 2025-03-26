@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "start:server": "bun ./src/index.ts",
-    "start:client": "open-cli http://localhost:1337"
+    "start:client": "open-cli http://localhost:1337",
+    "build:docs": "bun ./src/docs.mjs"
   },
   "devDependencies": {
     "open-cli": "^8.0.0",
@@ -20,6 +21,7 @@
     "functools-kit": "^1.0.76",
     "hono": "^4.7.5",
     "ollama": "^0.5.14",
+    "plantuml": "^0.0.2",
     "wavefile": "^11.0.0"
   }
 }
