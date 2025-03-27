@@ -43,7 +43,7 @@
     "build:docs": "rimraf docs && mkdir docs && node ./scripts/dts-docs.cjs ./types.d.ts ./docs",
     "docs:gpt": "npm run build && node ./scripts/gpt-docs.mjs",
     "docs:uml": "npm run build && node ./scripts/uml.mjs",
-    "docs:www": "rimraf docs/wwwroot && typedoc",
+    "docs:www": "rimraf docs/wwwroot && typedoc && node ./packages/typedoc-yandex-metrica/index.mjs",
     "docs:demo:win": ".\\scripts\\win\\build_demo_docs.bat",
     "docs:demo": "sh ./scripts/linux/build_demo_docs.sh",
     "repl": "dotenv -e .env -- npm run build && node -e \"import('./scripts/repl.mjs')\" --interactive"
