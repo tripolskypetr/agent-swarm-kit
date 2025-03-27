@@ -7359,6 +7359,15 @@ declare class MemorySchemaService {
      */
     private memoryMap;
     /**
+     * Checks if a value exists in the memory map for a given client ID.
+     * Determines whether the memoryMap contains an entry for the specified clientId.
+     * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionPublicService’s data access needs.
+     * Supports ClientAgent by providing a way to verify session-scoped runtime memory existence.
+     * @param {string} clientId - The ID of the client, typed as SessionId from Session.interface, scoping the memory to a session.
+     * @returns {boolean} True if a value exists for the clientId, false otherwise.
+     */
+    hasValue: (clientId: string) => boolean;
+    /**
      * Writes a value to the memory map for a given client ID, merging it with existing data.
      * Merges the provided value with any existing object for the clientId using Object.assign, then stores the result in the memoryMap, returning the merged value.
      * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionConnectionService’s session data needs.
@@ -11154,10 +11163,29 @@ declare class SharedStorageUtils implements TSharedStorage {
 declare const SharedStorage: SharedStorageUtils;
 
 /**
+ * @private
+ * Symbol used as a unique key for the queued version of the `PERSIST_WRITE_FN` function.
+ * This ensures that the function is executed in a controlled, serialized manner to avoid
+ * race conditions when persisting memory values.
+ */
+declare const PERSIST_WRITE_SYMBOL: unique symbol;
+/**
  * Utility class for managing schema-related operations, including session memory access and data serialization.
  * Provides methods to read/write client session memory and serialize objects into formatted strings.
  */
 declare class SchemaUtils {
+    /**
+     * @private
+     * A queued version of the `PERSIST_WRITE_FN` function, ensuring serialized execution.
+     * This property is used to persist session memory values for a specific client in a controlled manner,
+     * avoiding race conditions during concurrent writes.
+     *
+     * @template T - The type of the memory value to persist, must extend object.
+     * @param {string} clientId - The ID of the client whose memory value is being persisted.
+     * @param {T} memoryValue - The memory value to persist, typically an object.
+     * @returns {Promise<void>} A promise that resolves when the memory value is successfully persisted.
+     */
+    private [PERSIST_WRITE_SYMBOL];
     /**
      * Writes a value to the session memory for a given client.
      * Executes within a context for logging and validation, ensuring the client session is valid.

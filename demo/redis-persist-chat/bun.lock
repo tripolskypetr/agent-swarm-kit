@@ -6,7 +6,7 @@
       "dependencies": {
         "@tensorflow/tfjs-backend-wasm": "^4.22.0",
         "@tensorflow/tfjs-core": "^4.22.0",
-        "agent-swarm-kit": "^1.0.212",
+        "agent-swarm-kit": "^1.0.214",
         "functools-kit": "^1.0.76",
         "ioredis": "^5.6.0",
         "ollama": "^0.5.14",
@@ -52,7 +52,7 @@
 
     "abort-controller": ["abort-controller@3.0.0", "", { "dependencies": { "event-target-shim": "^5.0.0" } }, "sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg=="],
 
-    "agent-swarm-kit": ["agent-swarm-kit@1.0.212", "", { "dependencies": { "di-kit": "^1.0.14", "di-scoped": "^1.0.16", "functools-kit": "^1.0.76", "get-moment-stamp": "^1.1.1", "lodash-es": "4.17.21", "xml2js": "0.6.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-OdAow3BEnH5caOdwDwy4b7/uRRghQ8Xq/aaTON761jdkWu7JpA2PV/u0we32aWkvu2zc50NI/cF4IGCOanJqYA=="],
+    "agent-swarm-kit": ["agent-swarm-kit@1.0.214", "", { "dependencies": { "di-kit": "^1.0.14", "di-scoped": "^1.0.16", "functools-kit": "^1.0.76", "get-moment-stamp": "^1.1.1", "lodash-es": "4.17.21", "xml2js": "0.6.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-jR9/4xhLdXaBd/NGCEVjlKL9pPuCzU8Qow9TSuLsYttl2jbc3QJo+hlaYqyVsk9/1yZwumCz4sV84gDpXnyeAw=="],
 
     "agentkeepalive": ["agentkeepalive@4.6.0", "", { "dependencies": { "humanize-ms": "^1.2.1" } }, "sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ=="],
 
