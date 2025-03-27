@@ -50,6 +50,7 @@ import PolicyPublicService from "./services/public/PolicyPublicService";
 import PolicyConnectionService from "./services/connection/PolicyConnectionService";
 import PayloadContextService, { TPayloadContextService } from "./services/context/PayloadContextService";
 import AliveService from "./services/base/AliveService";
+import { ISwarmDI } from "../model/SwarmDI.model";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -173,7 +174,8 @@ const validationServices = {
   ),
 };
 
-export const swarm = {
+/** {@inheritDoc ISwarmDI} */
+export const swarm: ISwarmDI = {
   ...baseServices,
   ...contextServices,
   ...connectionServices,
