@@ -69,6 +69,17 @@ Lists all items in the storage for a given client and agent, optionally filtered
 Validates the storage name and agent-storage registration before querying the storage service.
 Executes within a context for logging.
 
+### createNumericIndex
+
+```ts
+createNumericIndex: (payload: { clientId: string; agentName: string; storageName: string; }) => Promise<number>
+```
+
+Creates a numeric index for the storage of a given client and agent.
+Validates the storage name and agent-storage registration before calculating the index.
+Executes within a context for logging.
+The numeric index is determined based on the current number of items in the storage.
+
 ### clear
 
 ```ts
