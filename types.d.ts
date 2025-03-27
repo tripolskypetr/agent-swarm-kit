@@ -1,65 +1,6 @@
-import * as di_scoped from 'di-scoped';
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
-
-/**
- * Interface defining the structure of execution context in the swarm system.
- * Represents metadata for tracking a specific execution, used across services like ClientAgent, PerfService, and BusService.
- * @interface IExecutionContext
- */
-interface IExecutionContext {
-    /**
-     * The unique identifier of the client session, tying to ClientAgent’s clientId and PerfService’s execution tracking.
-     * @type {string}
-     */
-    clientId: string;
-    /**
-     * The unique identifier of the execution instance, used in PerfService (e.g., startExecution) and BusService (e.g., commitExecutionBegin).
-     * @type {string}
-     */
-    executionId: string;
-    /**
-     * The unique identifier of the process, sourced from GLOBAL_CONFIG.CC_PROCESS_UUID, used in PerfService’s IPerformanceRecord.processId.
-     * @type {string}
-     */
-    processId: string;
-}
-/**
- * Scoped service class providing execution context information in the swarm system.
- * Stores and exposes an IExecutionContext object (clientId, executionId, processId) via dependency injection, scoped using di-scoped for execution-specific instances.
- * Integrates with ClientAgent (e.g., EXECUTE_FN execution context), PerfService (e.g., execution tracking in startExecution), BusService (e.g., execution events in commitExecutionBegin), and LoggerService (e.g., context logging in info).
- * Provides a lightweight, immutable context container for tracking execution metadata across the system.
- */
-declare const ExecutionContextService: (new () => {
-    readonly context: IExecutionContext;
-}) & Omit<{
-    new (context: IExecutionContext): {
-        readonly context: IExecutionContext;
-    };
-}, "prototype"> & di_scoped.IScopedClassRun<[context: IExecutionContext]>;
-
-/**
- * Interface defining the structure of a payload context, used to encapsulate execution metadata and payload data.
- * @template Payload - The type of the payload object, defaults to a generic object.
- */
-interface IPayloadContext<Payload extends object = object> {
-    /** The unique identifier of the client associated with this context. */
-    clientId: string;
-    /** The payload data carried by this context, typed according to the Payload generic. */
-    payload: Payload;
-}
-/**
- * A scoped service class that encapsulates a payload context for dependency injection.
- * Provides a way to access execution metadata and payload data within a specific scope.
- * Scoped using `di-scoped` to ensure instance isolation per scope.
- */
-declare const PayloadContextService: (new () => {
-    readonly context: IPayloadContext;
-}) & Omit<{
-    new (context: IPayloadContext): {
-        readonly context: IPayloadContext;
-    };
-}, "prototype"> & di_scoped.IScopedClassRun<[context: IPayloadContext<object>]>;
+import * as di_scoped from 'di-scoped';
 
 /**
  * Interface representing an incoming message received by the swarm system.
@@ -3327,6 +3268,82 @@ declare const MethodContextService: (new () => {
         readonly context: IMethodContext;
     };
 }, "prototype"> & di_scoped.IScopedClassRun<[context: IMethodContext]>;
+/**
+ * Type alias representing an instance of MethodContextService.
+ * Used in dependency injection (e.g., LoggerService, PerfService) to type the injected service, ensuring type safety across the swarm system.
+ * @typedef {InstanceType<typeof MethodContextService>} TMethodContextService
+ */
+type TMethodContextService = InstanceType<typeof MethodContextService>;
+
+/**
+ * Interface defining the structure of execution context in the swarm system.
+ * Represents metadata for tracking a specific execution, used across services like ClientAgent, PerfService, and BusService.
+ * @interface IExecutionContext
+ */
+interface IExecutionContext {
+    /**
+     * The unique identifier of the client session, tying to ClientAgent’s clientId and PerfService’s execution tracking.
+     * @type {string}
+     */
+    clientId: string;
+    /**
+     * The unique identifier of the execution instance, used in PerfService (e.g., startExecution) and BusService (e.g., commitExecutionBegin).
+     * @type {string}
+     */
+    executionId: string;
+    /**
+     * The unique identifier of the process, sourced from GLOBAL_CONFIG.CC_PROCESS_UUID, used in PerfService’s IPerformanceRecord.processId.
+     * @type {string}
+     */
+    processId: string;
+}
+/**
+ * Scoped service class providing execution context information in the swarm system.
+ * Stores and exposes an IExecutionContext object (clientId, executionId, processId) via dependency injection, scoped using di-scoped for execution-specific instances.
+ * Integrates with ClientAgent (e.g., EXECUTE_FN execution context), PerfService (e.g., execution tracking in startExecution), BusService (e.g., execution events in commitExecutionBegin), and LoggerService (e.g., context logging in info).
+ * Provides a lightweight, immutable context container for tracking execution metadata across the system.
+ */
+declare const ExecutionContextService: (new () => {
+    readonly context: IExecutionContext;
+}) & Omit<{
+    new (context: IExecutionContext): {
+        readonly context: IExecutionContext;
+    };
+}, "prototype"> & di_scoped.IScopedClassRun<[context: IExecutionContext]>;
+/**
+ * Type alias representing an instance of ExecutionContextService.
+ * Used in dependency injection (e.g., LoggerService, BusService) to type the injected service, ensuring type safety across the swarm system.
+ * @typedef {InstanceType<typeof ExecutionContextService>} TExecutionContextService
+ */
+type TExecutionContextService = InstanceType<typeof ExecutionContextService>;
+
+/**
+ * Interface defining the structure of a payload context, used to encapsulate execution metadata and payload data.
+ * @template Payload - The type of the payload object, defaults to a generic object.
+ */
+interface IPayloadContext<Payload extends object = object> {
+    /** The unique identifier of the client associated with this context. */
+    clientId: string;
+    /** The payload data carried by this context, typed according to the Payload generic. */
+    payload: Payload;
+}
+/**
+ * A scoped service class that encapsulates a payload context for dependency injection.
+ * Provides a way to access execution metadata and payload data within a specific scope.
+ * Scoped using `di-scoped` to ensure instance isolation per scope.
+ */
+declare const PayloadContextService: (new () => {
+    readonly context: IPayloadContext;
+}) & Omit<{
+    new (context: IPayloadContext): {
+        readonly context: IPayloadContext;
+    };
+}, "prototype"> & di_scoped.IScopedClassRun<[context: IPayloadContext<object>]>;
+/**
+ * Type alias for an instance of PayloadContextService.
+ * Represents the concrete type of a scoped PayloadContextService instance.
+ */
+type TPayloadContextService = InstanceType<typeof PayloadContextService>;
 
 /**
  * Service class implementing the ILogger interface to provide logging functionality in the swarm system.
@@ -8178,59 +8195,241 @@ declare class AliveService {
     markOffline: (clientId: SessionId, swarmName: SwarmName, methodName: string) => Promise<void>;
 }
 
-declare const swarm: {
-    agentValidationService: AgentValidationService;
-    toolValidationService: ToolValidationService;
-    sessionValidationService: SessionValidationService;
-    swarmValidationService: SwarmValidationService;
-    completionValidationService: CompletionValidationService;
-    storageValidationService: StorageValidationService;
-    embeddingValidationService: EmbeddingValidationService;
-    policyValidationService: PolicyValidationService;
-    agentMetaService: AgentMetaService;
-    swarmMetaService: SwarmMetaService;
-    agentPublicService: AgentPublicService;
-    historyPublicService: HistoryPublicService;
-    sessionPublicService: SessionPublicService;
-    swarmPublicService: SwarmPublicService;
-    storagePublicService: StoragePublicService;
-    sharedStoragePublicService: SharedStoragePublicService;
-    statePublicService: StatePublicService<any>;
-    sharedStatePublicService: SharedStatePublicService<any>;
-    policyPublicService: PolicyPublicService;
-    agentSchemaService: AgentSchemaService;
-    toolSchemaService: ToolSchemaService;
-    swarmSchemaService: SwarmSchemaService;
-    completionSchemaService: CompletionSchemaService;
-    embeddingSchemaService: EmbeddingSchemaService;
-    storageSchemaService: StorageSchemaService;
-    stateSchemaService: StateSchemaService;
-    memorySchemaService: MemorySchemaService;
-    policySchemaService: PolicySchemaService;
-    agentConnectionService: AgentConnectionService;
-    historyConnectionService: HistoryConnectionService;
-    swarmConnectionService: SwarmConnectionService;
-    sessionConnectionService: SessionConnectionService;
-    storageConnectionService: StorageConnectionService;
-    sharedStorageConnectionService: SharedStorageConnectionService;
-    stateConnectionService: StateConnectionService<any>;
-    sharedStateConnectionService: SharedStateConnectionService<any>;
-    policyConnectionService: PolicyConnectionService;
-    methodContextService: {
-        readonly context: IMethodContext;
-    };
-    payloadContextService: {
-        readonly context: IPayloadContext;
-    };
-    executionContextService: {
-        readonly context: IExecutionContext;
-    };
+/**
+ * Interface defining the structure of the dependency injection container for the swarm system.
+ * Aggregates all services providing core functionality, context management, connectivity, schema definitions,
+ * public APIs, metadata, and validation for the swarm system.
+ */
+interface ISwarmDI {
+    /**
+     * Service for managing documentation generation and retrieval within the swarm system.
+     * Integrates with `DocService` to provide system-wide documentation capabilities.
+     */
     docService: DocService;
+    /**
+     * Service for event-driven communication across the swarm system.
+     * Implements `IBus` to dispatch events like "run" or "emit-output" to clients via `bus.emit`.
+     */
     busService: BusService;
+    /**
+     * Service for monitoring and recording performance metrics in the swarm system.
+     * Tracks execution times and resource usage, e.g., via `startExecution` in `PerfService`.
+     */
     perfService: PerfService;
+    /**
+     * Service for tracking the liveness and health of swarm components.
+     * Ensures system components remain operational, integrating with persistence layers like `PersistAlive`.
+     */
     aliveService: AliveService;
+    /**
+     * Service for logging system events and debugging information.
+     * Implements `ILogger` to provide log, debug, and info-level logging across components.
+     */
     loggerService: LoggerService;
-};
+    /**
+     * Service for managing method-level execution context.
+     * Tracks invocation metadata, scoped via `MethodContextService` for debugging and tracing.
+     */
+    methodContextService: TMethodContextService;
+    /**
+     * Service for encapsulating payload-related context data.
+     * Implements `IPayloadContext` to provide execution metadata and payload access via `PayloadContextService`.
+     */
+    payloadContextService: TPayloadContextService;
+    /**
+     * Service for managing execution-level context across the swarm system.
+     * Implements `IExecutionContext` to track `clientId`, `executionId`, and `processId` via `ExecutionContextService`.
+     */
+    executionContextService: TExecutionContextService;
+    /**
+     * Service for managing agent connections within the swarm.
+     * Handles lifecycle events like `makeConnection` and `disposeConnection` for agents.
+     */
+    agentConnectionService: AgentConnectionService;
+    /**
+     * Service for managing history connections and persistence.
+     * Integrates with `IHistory` to connect and store historical data via `HistoryConnectionService`.
+     */
+    historyConnectionService: HistoryConnectionService;
+    /**
+     * Service for managing swarm-level connections.
+     * Facilitates swarm lifecycle operations like agent navigation via `SwarmConnectionService`.
+     */
+    swarmConnectionService: SwarmConnectionService;
+    /**
+     * Service for managing client session connections.
+     * Implements `ISession` connectivity via `SessionConnectionService` for client interactions.
+     */
+    sessionConnectionService: SessionConnectionService;
+    /**
+     * Service for managing storage connections within the swarm.
+     * Handles `IStorage` connectivity and persistence via `StorageConnectionService`.
+     */
+    storageConnectionService: StorageConnectionService;
+    /**
+     * Service for managing shared storage connections across agents.
+     * Provides shared `IStorage` access via `SharedStorageConnectionService`.
+     */
+    sharedStorageConnectionService: SharedStorageConnectionService;
+    /**
+     * Service for managing state connections within the swarm.
+     * Handles `IState` connectivity and persistence via `StateConnectionService`.
+     */
+    stateConnectionService: StateConnectionService;
+    /**
+     * Service for managing shared state connections across agents.
+     * Provides shared `IState` access via `SharedStateConnectionService`.
+     */
+    sharedStateConnectionService: SharedStateConnectionService;
+    /**
+     * Service for managing policy connections within the swarm.
+     * Handles `IPolicy` connectivity and enforcement via `PolicyConnectionService`.
+     */
+    policyConnectionService: PolicyConnectionService;
+    /**
+     * Service for defining and managing agent schemas.
+     * Implements `IAgentSchema` to configure agent behavior via `AgentSchemaService`.
+     */
+    agentSchemaService: AgentSchemaService;
+    /**
+     * Service for defining and managing tool schemas.
+     * Configures `ITool` structures for agent use via `ToolSchemaService`.
+     */
+    toolSchemaService: ToolSchemaService;
+    /**
+     * Service for defining and managing swarm schemas.
+     * Implements `ISwarmSchema` to configure swarm behavior via `SwarmSchemaService`.
+     */
+    swarmSchemaService: SwarmSchemaService;
+    /**
+     * Service for defining and managing completion schemas.
+     * Configures `ICompletionSchema` for AI model interactions via `CompletionSchemaService`.
+     */
+    completionSchemaService: CompletionSchemaService;
+    /**
+     * Service for defining and managing embedding schemas.
+     * Implements `IEmbeddingSchema` for text encoding via `EmbeddingSchemaService`.
+     */
+    embeddingSchemaService: EmbeddingSchemaService;
+    /**
+     * Service for defining and managing storage schemas.
+     * Implements `IStorageSchema` for data persistence via `StorageSchemaService`.
+     */
+    storageSchemaService: StorageSchemaService;
+    /**
+     * Service for defining and managing state schemas.
+     * Implements `IStateSchema` for state management via `StateSchemaService`.
+     */
+    stateSchemaService: StateSchemaService;
+    /**
+     * Service for defining and managing memory schemas.
+     * Handles session memory structures via `MemorySchemaService` for client state persistence.
+     */
+    memorySchemaService: MemorySchemaService;
+    /**
+     * Service for defining and managing policy schemas.
+     * Implements `IPolicySchema` for rule enforcement via `PolicySchemaService`.
+     */
+    policySchemaService: PolicySchemaService;
+    /**
+     * Service exposing public APIs for agent operations.
+     * Provides methods like `execute` and `runStateless` via `AgentPublicService`.
+     */
+    agentPublicService: AgentPublicService;
+    /**
+     * Service exposing public APIs for historical data management.
+     * Implements `IHistory` operations like `push` via `HistoryPublicService`.
+     */
+    historyPublicService: HistoryPublicService;
+    /**
+     * Service exposing public APIs for session management.
+     * Provides session lifecycle methods via `SessionPublicService`.
+     */
+    sessionPublicService: SessionPublicService;
+    /**
+     * Service exposing public APIs for swarm operations.
+     * Handles swarm navigation and management via `SwarmPublicService`.
+     */
+    swarmPublicService: SwarmPublicService;
+    /**
+     * Service exposing public APIs for storage operations.
+     * Implements `IStorage` methods like `upsert` and `take` via `StoragePublicService`.
+     */
+    storagePublicService: StoragePublicService;
+    /**
+     * Service exposing public APIs for shared storage operations.
+     * Provides shared `IStorage` access via `SharedStoragePublicService`.
+     */
+    sharedStoragePublicService: SharedStoragePublicService;
+    /**
+     * Service exposing public APIs for state operations.
+     * Implements `IState` methods like `getState` and `setState` via `StatePublicService`.
+     */
+    statePublicService: StatePublicService;
+    /**
+     * Service exposing public APIs for shared state operations.
+     * Provides shared `IState` access via `SharedStatePublicService`.
+     */
+    sharedStatePublicService: SharedStatePublicService;
+    /**
+     * Service exposing public APIs for policy operations.
+     * Implements `IPolicy` methods like `banClient` via `PolicyPublicService`.
+     */
+    policyPublicService: PolicyPublicService;
+    /**
+     * Service managing metadata for agents.
+     * Tracks agent-specific metadata via `AgentMetaService`.
+     */
+    agentMetaService: AgentMetaService;
+    /**
+     * Service managing metadata for swarms.
+     * Tracks swarm-specific metadata via `SwarmMetaService`.
+     */
+    swarmMetaService: SwarmMetaService;
+    /**
+     * Service validating agent-related data and configurations.
+     * Ensures agent integrity via `AgentValidationService`.
+     */
+    agentValidationService: AgentValidationService;
+    /**
+     * Service validating tool-related data and parameters.
+     * Ensures tool correctness via `ToolValidationService`.
+     */
+    toolValidationService: ToolValidationService;
+    /**
+     * Service validating session-related data and connectivity.
+     * Ensures session validity via `SessionValidationService`.
+     */
+    sessionValidationService: SessionValidationService;
+    /**
+     * Service validating swarm-related data and configurations.
+     * Ensures swarm integrity via `SwarmValidationService`.
+     */
+    swarmValidationService: SwarmValidationService;
+    /**
+     * Service validating completion-related data and responses.
+     * Ensures completion integrity via `CompletionValidationService`.
+     */
+    completionValidationService: CompletionValidationService;
+    /**
+     * Service validating storage-related data and operations.
+     * Ensures storage integrity via `StorageValidationService`.
+     */
+    storageValidationService: StorageValidationService;
+    /**
+     * Service validating embedding-related data and configurations.
+     * Ensures embedding integrity via `EmbeddingValidationService`.
+     */
+    embeddingValidationService: EmbeddingValidationService;
+    /**
+     * Service validating policy-related data and enforcement rules.
+     * Ensures policy integrity via `PolicyValidationService`.
+     */
+    policyValidationService: PolicyValidationService;
+}
+
+/** {@inheritDoc ISwarmDI} */
+declare const swarm: ISwarmDI;
 
 /**
  * Dumps the documentation for the agents and swarms.
