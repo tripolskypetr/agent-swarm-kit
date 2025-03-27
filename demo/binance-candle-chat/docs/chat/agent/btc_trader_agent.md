@@ -134,7 +134,33 @@ Entry-point agent that identifies the user’s cryptocurrency of interest and ro
 
 *Retrieves the last 7 days of candle data for the agent’s cryptocurrency and initiates a long-term trend prediction (UP or DOWN) based on this data.*
 
-### 4. navigate_to_triage_tool
+### 4. calculate_average_coin_price_tool
+
+#### Name for model
+
+`calculate_average_revenue`
+
+#### Description for model
+
+`Calculate the average const of a coin and the current profit loss in a trader's portfolio, allowing user to fix the profit`
+
+#### Parameters for model
+
+> **1. coin**
+
+*Type:* `string`
+
+*Description:* `The current cryptocurrency coin taken from active agent prompt`
+
+*Enum:* `BTC, ETH, BNB, XRP, SOL`
+
+*Required:* [x]
+
+#### Note for developer
+
+*Tool that calculates the average cost per unit and the cumulative profit or loss for a given cryptocurrency in the user's trading portfolio. It retrieves historical order data from storage, verifies the coin matches the current agent’s focus (BTC, ETH, BNB, XRP, or SOL), and provides financial insights for long-term trading decisions. If the coin mismatches, it redirects to the Triage Agent.*
+
+### 5. navigate_to_triage_tool
 
 #### Name for model
 
@@ -157,3 +183,15 @@ Entry-point agent that identifies the user’s cryptocurrency of interest and ro
 #### Note for developer
 
 *Returns the conversation to the Triage Agent when the user loses interest in the current cryptocurrency, optionally passing context for further routing.*
+
+## Used storages
+
+### 1. order_storage
+
+#### Storage description
+
+Persistent storage system designed to record and organize cryptocurrency trading orders, capturing details such as order type (buy/sell), coin (BTC, ETH, BNB, XRP, SOL), quantity, and price. Utilizes embeddings for efficient indexing and retrieval, supporting portfolio management and profit/loss calculations for long-term trading strategies across all trader agents.
+
+*Embedding:* `nomic_embedding`
+
+*Shared:* [ ]

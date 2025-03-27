@@ -137,7 +137,7 @@ addEmbedding({
 });
 
 addStorage<IOrderSchema>({
-  docDescription: "",
+  docDescription: "Persistent storage system designed to record and organize cryptocurrency trading orders, capturing details such as order type (buy/sell), coin (BTC, ETH, BNB, XRP, SOL), quantity, and price. Utilizes embeddings for efficient indexing and retrieval, supporting portfolio management and profit/loss calculations for long-term trading strategies across all trader agents.",
   createIndex: ({ type, coin, quantity, price }) =>
     str.space(type, coin, quantity, price),
   embedding: EmbeddingName.NomicEmbedding,
@@ -476,7 +476,7 @@ addAgent({
 
 addTool({
   toolName: ToolName.CalculateAverageCoinPriceTool,
-  docNote: "",
+  docNote: "Tool that calculates the average cost per unit and the cumulative profit or loss for a given cryptocurrency in the user's trading portfolio. It retrieves historical order data from storage, verifies the coin matches the current agent’s focus (BTC, ETH, BNB, XRP, or SOL), and provides financial insights for long-term trading decisions. If the coin mismatches, it redirects to the Triage Agent.",
   type: "function",
   call: async ({ toolId, agentName, clientId, params }) => {
     console.log(ToolName.CalculateAverageCoinPriceTool, { params });
