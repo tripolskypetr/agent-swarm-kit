@@ -6,11 +6,15 @@ import {
     addTool,
     changeToAgent,
     changeToDefaultAgent,
+    commitFlush,
+    commitFlushForce,
     commitToolOutput,
     commitToolOutputForce,
+    commitUserMessageForce,
     emit,
     execute,
     executeForce,
+    getLastUserMessage,
     setConfig,
 } from "agent-swarm-kit";
 import { str } from "functools-kit";
@@ -77,7 +81,7 @@ const TRIAGE_SYSTEM_PROMPT = str.newline(
     "- Ethereum (ETH) -> ETH Trader Agent",
     "- Binance Coin (BNB) -> BNB Trader Agent",
     "- Ripple (XRP) -> XRP Trader Agent",
-    "- Solana (SOL) -> SOL Trader Agent",
+    "- Solana (SOL) -> SOL Trader Agent"
     // "If unclear, ask user to specify their cryptocurrency of interest"
 );
 
@@ -98,8 +102,15 @@ addAgent({
     docDescription:
         "Specialized agent for long-term Bitcoin (BTC) trading. Calculates buy/sell prices and quantities based on user-specified USD amounts and predicts market trends using historical data.",
     completion: CompletionName.OpenAiCompletion,
-    prompt: "You are the Bitcoin AI trader specializing in long-term investments.",
-    system: [TRADER_SYSTEM_PROMPT],
+    prompt:
+        "You are the Bitcoin AI trader specializing in long-term investments.",
+    system: [
+        TRADER_SYSTEM_PROMPT,
+        str.newline(
+            `When user speak about ETH (Ethereum), BNB (Binance coin), XRP (Ripple), SOL (Solana) but not BTC (Bitcoin) navigate him to the ${AgentName.TriageAgent}`,
+            "This is especially important while user want to buy, sell or predict coin price"
+        ),
+    ],
     tools: [
         ToolName.CalculateBuyPriceQuantityTool,
         ToolName.CalculateSellPriceQuantityTool,
@@ -114,8 +125,15 @@ addAgent({
     docDescription:
         "Specialized agent for long-term Ethereum (ETH) trading. Provides buy/sell calculations for user-defined USD amounts and assesses market trends using recent candle data.",
     completion: CompletionName.OpenAiCompletion,
-    prompt: "You are the Ethereum AI trader specializing in long-term investments.",
-    system: [TRADER_SYSTEM_PROMPT],
+    prompt:
+        "You are the Ethereum AI trader specializing in long-term investments.",
+    system: [
+        TRADER_SYSTEM_PROMPT,
+        str.newline(
+            `When user speak about BTC (Bitcoin), BNB (Binance coin), XRP (Ripple), SOL (Solana) but not ETH (Ethereum) navigate him to the ${AgentName.TriageAgent}`,
+            "This is especially important while user want to buy, sell or predict coin price"
+        ),
+    ],
     tools: [
         ToolName.CalculateBuyPriceQuantityTool,
         ToolName.CalculateSellPriceQuantityTool,
@@ -130,8 +148,15 @@ addAgent({
     docDescription:
         "Specialized agent for long-term Binance Coin (BNB) trading. Computes buy/sell order details based on USD inputs and evaluates market direction with trend analysis tools.",
     completion: CompletionName.OpenAiCompletion,
-    prompt: "You are the Binance Coin AI trader specializing in long-term investments.",
-    system: [TRADER_SYSTEM_PROMPT],
+    prompt:
+        "You are the Binance Coin AI trader specializing in long-term investments.",
+    system: [
+        TRADER_SYSTEM_PROMPT,
+        str.newline(
+            `When user speak about BTC (Bitcoin), ETH (Ethereum), XRP (Ripple), SOL (Solana) but not BNB (Binance coin) navigate him to the ${AgentName.TriageAgent}`,
+            "This is especially important while user want to buy, sell or predict coin price"
+        ),
+    ],
     tools: [
         ToolName.CalculateBuyPriceQuantityTool,
         ToolName.CalculateSellPriceQuantityTool,
@@ -147,7 +172,13 @@ addAgent({
         "Specialized agent for long-term Ripple (XRP) trading. Determines buy/sell prices and quantities for specified USD amounts and predicts trends using market data.",
     completion: CompletionName.OpenAiCompletion,
     prompt: "You are the Ripple AI trader specializing in long-term investments.",
-    system: [TRADER_SYSTEM_PROMPT],
+    system: [
+        TRADER_SYSTEM_PROMPT,
+        str.newline(
+            `When user speak about BTC (Bitcoin), ETH (Ethereum), BNB (Binance coin), SOL (Solana) but not XRP (Ripple) navigate him to the ${AgentName.TriageAgent}`,
+            "This is especially important while user want to buy, sell or predict coin price"
+        ),
+    ],
     tools: [
         ToolName.CalculateBuyPriceQuantityTool,
         ToolName.CalculateSellPriceQuantityTool,
@@ -163,7 +194,13 @@ addAgent({
         "Specialized agent for long-term Solana (SOL) trading. Calculates buy/sell order parameters based on USD values and analyzes market trends with historical candles.",
     completion: CompletionName.OpenAiCompletion,
     prompt: "You are the Solana AI trader specializing in long-term investments.",
-    system: [TRADER_SYSTEM_PROMPT],
+    system: [
+        TRADER_SYSTEM_PROMPT,
+        str.newline(
+            `When user speak about BTC (Bitcoin), ETH (Ethereum), BNB (Binance coin), XRP (Ripple) but not SOL (Solana) navigate him to the ${AgentName.TriageAgent}`,
+            "This is especially important while user want to buy, sell or predict coin price"
+        ),
+    ],
     tools: [
         ToolName.CalculateBuyPriceQuantityTool,
         ToolName.CalculateSellPriceQuantityTool,
@@ -188,8 +225,8 @@ addTool({
         );
         await changeToAgent(AgentName.BtcTraderAgent, clientId);
         await executeForce(
-            params?.context
-                ? `Continue conversation with user based on the next context: ${params?.context}`
+            params.context
+                ? `Continue conversation with user based on the next context: ${params.context}`
                 : "Continue conversation with user",
             clientId
         );
@@ -224,8 +261,8 @@ addTool({
         );
         await changeToAgent(AgentName.EthTraderAgent, clientId);
         await executeForce(
-            params?.context
-                ? `Continue conversation with user based on the next context: ${params?.context}`
+            params.context
+                ? `Continue conversation with user based on the next context: ${params.context}`
                 : "Continue conversation with user",
             clientId
         );
@@ -260,8 +297,8 @@ addTool({
         );
         await changeToAgent(AgentName.BnbTraderAgent, clientId);
         await executeForce(
-            params?.context
-                ? `Continue conversation with user based on the next context: ${params?.context}`
+            params.context
+                ? `Continue conversation with user based on the next context: ${params.context}`
                 : "Continue conversation with user",
             clientId
         );
@@ -296,8 +333,8 @@ addTool({
         );
         await changeToAgent(AgentName.XrpTraderAgent, clientId);
         await executeForce(
-            params?.context
-                ? `Continue conversation with user based on the next context: ${params?.context}`
+            params.context
+                ? `Continue conversation with user based on the next context: ${params.context}`
                 : "Continue conversation with user",
             clientId
         );
@@ -332,8 +369,8 @@ addTool({
         );
         await changeToAgent(AgentName.SolTraderAgent, clientId);
         await executeForce(
-            params?.context
-                ? `Continue conversation with user based on the next context: ${params?.context}`
+            params.context
+                ? `Continue conversation with user based on the next context: ${params.context}`
                 : "Continue conversation with user",
             clientId
         );
@@ -361,7 +398,8 @@ addAgent({
         "Entry-point agent that identifies the user’s cryptocurrency of interest and routes them to the appropriate specialized trader agent for long-term trading assistance.",
     completion: CompletionName.OpenAiCompletion,
     system: [TRIAGE_SYSTEM_PROMPT],
-    prompt: "Identify which cryptocurrency the user is interested in and navigate to the appropriate trader agent.",
+    prompt:
+        "Identify which cryptocurrency the user is interested in and navigate to the appropriate trader agent.",
     tools: [
         ToolName.NavigateToBtcTraderTool,
         ToolName.NavigateToEthTraderTool,
@@ -385,10 +423,36 @@ addTool({
     type: "function",
     call: async ({ clientId, toolId, agentName, params }) => {
         console.log(ToolName.CalculateMarketTrendTool, { params });
+        if (!params.coin) {
+            await commitToolOutput(
+                toolId,
+                "Please provide the coin name to fetch the candle date",
+                clientId,
+                agentName
+            );
+            await execute(
+                "Please tell to specify for which coin exactly I want to check the candle data. Could be BTC, ETH, BNB, XRP, SOL",
+                clientId,
+                agentName
+            );
+            return;
+        }
         const coin = AgentCoinMap[agentName];
+        if (coin !== params.coin) {
+            const lastMessage = await getLastUserMessage(clientId);
+            await commitFlush(clientId, agentName);
+            await changeToAgent(AgentName.TriageAgent, clientId);
+            await executeForce(lastMessage, clientId);
+            return;
+        }
         const candleList = await candles(coin);
         console.log(JSON.stringify(candleList, null, 2));
-        await commitToolOutput(toolId, `Last 7 days ${coin} candles: ${JSON.stringify(candleList)}`, clientId, agentName);
+        await commitToolOutput(
+            toolId,
+            `Last 7 days ${coin} candles: ${JSON.stringify(candleList)}`,
+            clientId,
+            agentName
+        );
         await execute(
             `Predict the long-term market trend (UP or DOWN) for ${coin} based on the last week's candles`,
             clientId,
@@ -397,11 +461,19 @@ addTool({
     },
     function: {
         name: "predict_market_trend_tool",
-        description: "Predict the market trend for buying or selling strategy. When user ask should he buy or sell the cryptocurrency without total amount, call exactly that tool in priority first",
+        description:
+            "Predict the market trend for buying or selling strategy. When user ask should he buy or sell the cryptocurrency without total amount, call exactly that tool in priority first",
         parameters: {
             type: "object",
-            properties: {},
-            required: [],
+            properties: {
+                coin: {
+                    description:
+                        "The current cryptocurrency coin taken from active agent prompt",
+                    type: "string",
+                    enum: ["BTC", "ETH", "BNB", "XRP", "SOL"],
+                },
+            },
+            required: ["coin"],
         },
     },
 });
@@ -414,6 +486,20 @@ addTool({
     type: "function",
     call: async ({ agentName, toolId, clientId, params }) => {
         console.log(ToolName.CalculateBuyPriceQuantityTool, { params });
+        if (!params.coin) {
+            await commitToolOutput(
+                toolId,
+                "Please provide the coin name to place the buy order",
+                clientId,
+                agentName
+            );
+            await execute(
+                "Please tell to specify which coin exactly I want to buy. Could be BTC, ETH, BNB, XRP, SOL",
+                clientId,
+                agentName
+            );
+            return;
+        }
         if (!params.total) {
             await commitToolOutput(
                 toolId,
@@ -429,7 +515,17 @@ addTool({
             return;
         }
         const coin = AgentCoinMap[agentName];
-        const { price, quantity } = await calculateBuyUSDT(Number(params.total), coin);
+        if (coin !== params.coin) {
+            const lastMessage = await getLastUserMessage(clientId);
+            await commitFlush(clientId, agentName);
+            await changeToAgent(AgentName.TriageAgent, clientId);
+            await executeForce(lastMessage, clientId);
+            return;
+        }
+        const { price, quantity } = await calculateBuyUSDT(
+            Number(params.total),
+            coin
+        );
         await commitToolOutput(
             toolId,
             `Long-term buy ${coin} for ${params.total} USD: price=${price}, quantity=${quantity}`,
@@ -452,8 +548,14 @@ addTool({
                     type: "number",
                     description: "USD amount",
                 },
+                coin: {
+                    description:
+                        "The current cryptocurrency coin taken from active agent prompt",
+                    type: "string",
+                    enum: ["BTC", "ETH", "BNB", "XRP", "SOL"],
+                },
             },
-            required: ["total"],
+            required: ["total", "coin"],
         },
     },
 });
@@ -465,6 +567,20 @@ addTool({
     type: "function",
     call: async ({ agentName, toolId, clientId, params }) => {
         console.log(ToolName.CalculateSellPriceQuantityTool, { params });
+        if (!params.coin) {
+            await commitToolOutput(
+                toolId,
+                "Please provide the coin name to place the sell order",
+                clientId,
+                agentName
+            );
+            await execute(
+                "Please tell to specify which coin exactly I want to sell. Could be BTC, ETH, BNB, XRP, SOL",
+                clientId,
+                agentName
+            );
+            return;
+        }
         if (!params.total) {
             await commitToolOutput(
                 toolId,
@@ -480,7 +596,17 @@ addTool({
             return;
         }
         const coin = AgentCoinMap[agentName];
-        const { price, quantity } = await calculateBuyUSDT(Number(params.total), coin);
+        if (coin !== params.coin) {
+            const lastMessage = await getLastUserMessage(clientId);
+            await commitFlush(clientId, agentName);
+            await changeToAgent(AgentName.TriageAgent, clientId);
+            await executeForce(lastMessage, clientId);
+            return;
+        }
+        const { price, quantity } = await calculateBuyUSDT(
+            Number(params.total),
+            coin
+        );
         await commitToolOutput(
             toolId,
             `Long-term sell ${coin} for ${params.total} USD: price=${price}, quantity=${quantity}`,
@@ -503,8 +629,14 @@ addTool({
                     type: "number",
                     description: "USD amount",
                 },
+                coin: {
+                    description:
+                        "The current cryptocurrency coin taken from active agent prompt",
+                    type: "string",
+                    enum: ["BTC", "ETH", "BNB", "XRP", "SOL"],
+                },
             },
-            required: ["total"],
+            required: ["total", "coin"],
         },
     },
 });
@@ -516,18 +648,24 @@ addTool({
     type: "function",
     call: async ({ toolId, clientId, params }) => {
         console.log(ToolName.NavigateToTriageTool, { params });
+        const lastMessage = await getLastUserMessage(clientId);
         await commitToolOutputForce(
             toolId,
             "Navigation to Triage Agent successful",
             clientId
         );
         await changeToDefaultAgent(clientId);
-        await executeForce(
-            params?.context
-                ? `Continue conversation with user based on the next context: ${params?.context}`
-                : "Which cryptocurrency are you interested in now?",
-            clientId
-        );
+        await commitFlushForce(clientId);
+        if (params.context) {
+            await commitUserMessageForce(lastMessage, "user", clientId);
+            await executeForce(
+                params.context
+                    ? `Continue conversation with user based on the next context: ${params.context}`
+                    : "Which cryptocurrency are you interested in now?",
+                clientId
+            );
+        }
+        await executeForce(lastMessage, clientId);
     },
     function: {
         name: ToolName.NavigateToTriageTool,
