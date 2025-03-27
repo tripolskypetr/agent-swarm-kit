@@ -3,6 +3,7 @@ cd demo
 for D in `find . -maxdepth 1 -not -path "." -not -path "./.*" -type d`
 do
     cd $D
+    echo $D
     bun install
     npm run build:docs
     cd ..

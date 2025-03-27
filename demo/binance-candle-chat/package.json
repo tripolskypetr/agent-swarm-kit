@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "bun ./src/repl.ts",
-    "build:docs": "./src/docs.mjs"
+    "build:docs": "bun ./src/docs.mjs"
   },
   "devDependencies": {
     "@types/bun": "latest"

@@ -38,6 +38,17 @@ Map instance for storing session-specific memory data.
 Maps SessionId (as clientId) to arbitrary objects, providing a simple in-memory store, used in writeValue, readValue, and dispose methods.
 Not persisted, serving as a transient memory layer for session runtime data.
 
+### hasValue
+
+```ts
+hasValue: (clientId: string) => boolean
+```
+
+Checks if a value exists in the memory map for a given client ID.
+Determines whether the memoryMap contains an entry for the specified clientId.
+Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionPublicService’s data access needs.
+Supports ClientAgent by providing a way to verify session-scoped runtime memory existence.
+
 ### writeValue
 
 ```ts
