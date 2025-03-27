@@ -11,7 +11,6 @@ import {
     emit,
     execute,
     executeForce,
-    History,
     setConfig,
 } from "agent-swarm-kit";
 import { str } from "functools-kit";
