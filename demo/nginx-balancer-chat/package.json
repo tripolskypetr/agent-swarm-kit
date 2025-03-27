@@ -19,7 +19,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "agent-swarm-kit": "^1.0.212",
+    "agent-swarm-kit": "^1.0.214",
     "cohere-ai": "^7.16.0",
     "dotenv": "^16.4.7",
     "functools-kit": "^1.0.76",
