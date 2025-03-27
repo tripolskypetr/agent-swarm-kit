@@ -437,7 +437,7 @@ addTool({
             agentName
         );
         await emit(
-            `To buy the ${coin} for ${params.total} USDT uou should place the MARKET_BUY order with price=${price} and quantity=${quantity}`,
+            `To buy the ${coin} for ${params.total} USDT you should place the MARKET_BUY order with price=${price} and quantity=${quantity}`,
             clientId,
             agentName
         );
