@@ -29,6 +29,9 @@ If user doesn't specify a USD amount, ask them to provide it
 Do not tell the user should he buy the currency directly without calling calculate_market_trend_tool
 If user is no longer interested in this cryptocurrency, navigate back to Triage Agent`
 
+2. `When user speak about BTC (Bitcoin), ETH (Ethereum), XRP (Ripple), SOL (Solana) but not BNB (Binance coin) navigate him to the triage_agent
+This is especially important while user want to buy, sell or predict coin price`
+
 ## Depends on
 
 1. [triage_agent](./triage_agent.md)
@@ -57,6 +60,16 @@ Entry-point agent that identifies the user’s cryptocurrency of interest and ro
 
 *Required:* [x]
 
+> **2. coin**
+
+*Type:* `string`
+
+*Description:* `The current cryptocurrency coin taken from active agent prompt`
+
+*Enum:* `BTC, ETH, BNB, XRP, SOL`
+
+*Required:* [x]
+
 #### Note for developer
 
 *Computes the price and quantity for a market buy order based on a user-specified USD amount, prompting for the amount if not provided.*
@@ -81,6 +94,16 @@ Entry-point agent that identifies the user’s cryptocurrency of interest and ro
 
 *Required:* [x]
 
+> **2. coin**
+
+*Type:* `string`
+
+*Description:* `The current cryptocurrency coin taken from active agent prompt`
+
+*Enum:* `BTC, ETH, BNB, XRP, SOL`
+
+*Required:* [x]
+
 #### Note for developer
 
 *Determines the price and quantity for a market sell order based on a user-defined USD amount, requesting the amount if missing.*
@@ -97,7 +120,15 @@ Entry-point agent that identifies the user’s cryptocurrency of interest and ro
 
 #### Parameters for model
 
-*Empty parameters*
+> **1. coin**
+
+*Type:* `string`
+
+*Description:* `The current cryptocurrency coin taken from active agent prompt`
+
+*Enum:* `BTC, ETH, BNB, XRP, SOL`
+
+*Required:* [x]
 
 #### Note for developer
 
