@@ -46,6 +46,7 @@
     "docs:www": "rimraf docs/wwwroot && typedoc && node ./packages/typedoc-yandex-metrica/index.mjs",
     "docs:demo:win": ".\\scripts\\win\\build_demo_docs.bat",
     "docs:demo": "sh ./scripts/linux/build_demo_docs.sh",
+    "docs:demo:concat": "node ./packages/concat-demo-docs/index.mjs",
     "repl": "dotenv -e .env -- npm run build && node -e \"import('./scripts/repl.mjs')\" --interactive"
   },
   "main": "build/index.cjs",

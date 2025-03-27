@@ -1,0 +1,23 @@
+{
+  "name": "binance-candle-chat",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun ./src/repl.ts",
+    "build:docs": "bun ./src/docs.mjs"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "agent-swarm-kit": "^1.0.214",
+    "functools-kit": "^1.0.76",
+    "node-binance-api": "^0.13.5",
+    "openai": "^4.89.1",
+    "plantuml": "^0.0.2"
+  }
+}
