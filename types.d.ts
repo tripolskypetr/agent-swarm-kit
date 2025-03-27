@@ -11165,16 +11165,6 @@ declare class SharedStorageUtils implements TSharedStorage {
      */
     list: <T extends IStorageData = IStorageData>(storageName: StorageName, filter?: (item: T) => boolean) => Promise<T[]>;
     /**
-     * Creates a new numeric index for the specified storage.
-     * Executes within a context for logging and validation, ensuring the storage name is valid.
-     * The numeric index is determined based on the current number of items in the storage.
-     *
-     * @param {StorageName} storageName - The name of the storage for which to create the numeric index.
-     * @returns {Promise<number>} A promise resolving to the newly created numeric index.
-     * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-     */
-    createNumericIndex: (storageName: string) => Promise<number>;
-    /**
      * Clears all items from the storage.
      * Executes within a context for logging and validation, ensuring the storage name is valid.
      * @param {StorageName} storageName - The name of the storage to clear.
