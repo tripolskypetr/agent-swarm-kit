@@ -31,6 +31,10 @@ const METHOD_NAME_GET = "SharedStorageUtils.get";
 /** @private Constant for logging the list method in SharedStorageUtils */
 const METHOD_NAME_LIST = "SharedStorageUtils.list";
 
+/** @private Constant for logging the createNumericIndex method in SharedStorageUtils */
+const METHOD_NAME_CREATE_NUMERIC_INDEX =
+  "SharedStorageUtils.createNumericIndex";
+
 /** @private Constant for logging the clear method in SharedStorageUtils */
 const METHOD_NAME_CLEAR = "SharedStorageUtils.clear";
 
@@ -200,6 +204,28 @@ export class SharedStorageUtils implements TSharedStorage {
     storageName: StorageName,
     filter?: (item: T) => boolean
   ) => Promise<T[]>;
+
+  /**
+   * Creates a new numeric index for the specified storage.
+   * Executes within a context for logging and validation, ensuring the storage name is valid.
+   * The numeric index is determined based on the current number of items in the storage.
+   *
+   * @param {StorageName} storageName - The name of the storage for which to create the numeric index.
+   * @returns {Promise<number>} A promise resolving to the newly created numeric index.
+   * @throws {Error} If storage validation fails or the shared storage service encounters an error.
+   */
+  public createNumericIndex = beginContext(async (storageName: StorageName) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME_CREATE_NUMERIC_INDEX, {
+        storageName,
+      });
+    swarm.storageValidationService.validate(storageName, METHOD_NAME_CREATE_NUMERIC_INDEX);
+    const { length } = await swarm.sharedStoragePublicService.list(
+      METHOD_NAME_CREATE_NUMERIC_INDEX,
+      storageName
+    );
+    return length + 1;
+  });
 
   /**
    * Clears all items from the storage.

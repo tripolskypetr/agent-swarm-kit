@@ -11055,6 +11055,23 @@ declare class StorageUtils implements TStorage {
         filter?: (item: T) => boolean;
     }) => Promise<T[]>;
     /**
+     * Creates a numeric index for the storage of a given client and agent.
+     * Validates the storage name and agent-storage registration before calculating the index.
+     * Executes within a context for logging.
+     * The numeric index is determined based on the current number of items in the storage.
+     * @param {Object} payload - The payload containing client, agent, and storage details.
+     * @param {string} payload.clientId - The ID of the client whose storage is being indexed.
+     * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+     * @param {StorageName} payload.storageName - The name of the storage to index.
+     * @returns {Promise<number>} A promise resolving to the next numeric index for the storage.
+     * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
+     */
+    createNumericIndex: (payload: {
+        clientId: string;
+        agentName: AgentName;
+        storageName: StorageName;
+    }) => Promise<number>;
+    /**
      * Clears all items from the storage for a given client and agent.
      * Validates the storage name and agent-storage registration before clearing via the storage service.
      * Executes within a context for logging.
@@ -11147,6 +11164,16 @@ declare class SharedStorageUtils implements TSharedStorage {
      * @throws {Error} If storage validation fails or the shared storage service encounters an error.
      */
     list: <T extends IStorageData = IStorageData>(storageName: StorageName, filter?: (item: T) => boolean) => Promise<T[]>;
+    /**
+     * Creates a new numeric index for the specified storage.
+     * Executes within a context for logging and validation, ensuring the storage name is valid.
+     * The numeric index is determined based on the current number of items in the storage.
+     *
+     * @param {StorageName} storageName - The name of the storage for which to create the numeric index.
+     * @returns {Promise<number>} A promise resolving to the newly created numeric index.
+     * @throws {Error} If storage validation fails or the shared storage service encounters an error.
+     */
+    createNumericIndex: (storageName: string) => Promise<number>;
     /**
      * Clears all items from the storage.
      * Executes within a context for logging and validation, ensuring the storage name is valid.

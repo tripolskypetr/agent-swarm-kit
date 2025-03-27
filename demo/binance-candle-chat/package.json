@@ -14,9 +14,12 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "agent-swarm-kit": "^1.0.214",
+    "@tensorflow/tfjs-backend-wasm": "^4.22.0",
+    "@tensorflow/tfjs-core": "^4.22.0",
+    "agent-swarm-kit": "^1.0.216",
     "functools-kit": "^1.0.76",
     "node-binance-api": "^0.13.5",
+    "ollama": "^0.5.14",
     "openai": "^4.89.1",
     "plantuml": "^0.0.2"
   }

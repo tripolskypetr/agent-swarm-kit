@@ -31,6 +31,9 @@ const METHOD_NAME_GET = "StorageUtils.get";
 /** @private Constant for logging the list method in StorageUtils */
 const METHOD_NAME_LIST = "StorageUtils.list";
 
+/** @private Constant for logging the createNumericIndex method in SharedStorageUtils */
+const METHOD_NAME_CREATE_NUMERIC_INDEX = "StorageUtils.createNumericIndex";
+
 /** @private Constant for logging the clear method in StorageUtils */
 const METHOD_NAME_CLEAR = "StorageUtils.clear";
 
@@ -325,6 +328,52 @@ export class StorageUtils implements TStorage {
     storageName: StorageName;
     filter?: (item: T) => boolean;
   }) => Promise<T[]>;
+
+  /**
+   * Creates a numeric index for the storage of a given client and agent.
+   * Validates the storage name and agent-storage registration before calculating the index.
+   * Executes within a context for logging.
+   * The numeric index is determined based on the current number of items in the storage.
+   * @param {Object} payload - The payload containing client, agent, and storage details.
+   * @param {string} payload.clientId - The ID of the client whose storage is being indexed.
+   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
+   * @param {StorageName} payload.storageName - The name of the storage to index.
+   * @returns {Promise<number>} A promise resolving to the next numeric index for the storage.
+   * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
+   */
+  public createNumericIndex = beginContext(
+    async (payload: {
+      clientId: string;
+      agentName: AgentName;
+      storageName: StorageName;
+    }) => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(METHOD_NAME_CREATE_NUMERIC_INDEX, {
+          clientId: payload.clientId,
+          storageName: payload.storageName,
+        });
+      swarm.storageValidationService.validate(
+        payload.storageName,
+        METHOD_NAME_CREATE_NUMERIC_INDEX
+      );
+      if (
+        !swarm.agentValidationService.hasStorage(
+          payload.agentName,
+          payload.storageName
+        )
+      ) {
+        throw new Error(
+          `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (createNumericIndex)`
+        );
+      }
+      const { length } = await swarm.storagePublicService.list(
+        METHOD_NAME_CREATE_NUMERIC_INDEX,
+        payload.clientId,
+        payload.storageName
+      );
+      return length + 1;
+    }
+  );
 
   /**
    * Clears all items from the storage for a given client and agent.

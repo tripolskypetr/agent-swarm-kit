@@ -1,10 +1,10 @@
+import "./config/tf";
 import readline from "readline";
 
-import { randomString } from "functools-kit";
 import { Chat, getAgentName } from "agent-swarm-kit";
 import { SwarmName } from "./lib/swarm";
 
-const CLIENT_ID = randomString();
+const CLIENT_ID = "binance-candle-chat";
 
 const rl = readline.createInterface({
   input: process.stdin,
