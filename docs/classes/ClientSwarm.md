@@ -148,3 +148,12 @@ setAgentName(agentName: AgentName): Promise<void>;
 
 Sets the active agent by name, updates the navigation stack, and persists the change via params.setActiveAgent/setNavigationStack.
 Invokes the onAgentChanged callback and emits an event via BusService, supporting ClientSession’s agent switching.
+
+### dispose
+
+```ts
+dispose(): Promise<void>;
+```
+
+Disposes of the swarm, performing cleanup
+Called when the swarm is no longer needed, ensuring proper resource release.

@@ -38,6 +38,15 @@ Stops further tool calls within the session.
 
 ## Methods
 
+### notify
+
+```ts
+notify: (message: string) => Promise<void>
+```
+
+Sends a notification message to connect listeners via the internal `_notifySubject`.
+Logs the notification if debugging is enabled.
+
 ### emit
 
 ```ts

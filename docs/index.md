@@ -81,8 +81,6 @@ group: docs
 
 ## Interfaces
 
-- [IExecutionContext](interfaces/IExecutionContext.md)
-- [IPayloadContext](interfaces/IPayloadContext.md)
 - [IIncomingMessage](interfaces/IIncomingMessage.md)
 - [IOutgoingMessage](interfaces/IOutgoingMessage.md)
 - [ILogger](interfaces/ILogger.md)
@@ -153,6 +151,8 @@ group: docs
 - [IAgentSchema](interfaces/IAgentSchema.md)
 - [IAgent](interfaces/IAgent.md)
 - [IMethodContext](interfaces/IMethodContext.md)
+- [IExecutionContext](interfaces/IExecutionContext.md)
+- [IPayloadContext](interfaces/IPayloadContext.md)
 - [IAgentConnectionService](interfaces/IAgentConnectionService.md)
 - [IHistoryConnectionService](interfaces/IHistoryConnectionService.md)
 - [ISessionConnectionService](interfaces/ISessionConnectionService.md)
@@ -165,6 +165,7 @@ group: docs
 - [IPerformanceRecord](interfaces/IPerformanceRecord.md)
 - [IClientPerfomanceRecord](interfaces/IClientPerfomanceRecord.md)
 - [IPolicyConnectionService](interfaces/IPolicyConnectionService.md)
+- [ISwarmDI](interfaces/ISwarmDI.md)
 - [IConfig](interfaces/IConfig.md)
 - [IMakeDisposeParams](interfaces/IMakeDisposeParams.md)
 - [IMakeConnectionConfig](interfaces/IMakeConnectionConfig.md)
@@ -207,6 +208,9 @@ group: docs
 - [ToolValue](types/ToolValue.md)
 - [AgentName](types/AgentName.md)
 - [ToolName](types/ToolName.md)
+- [TMethodContextService](types/TMethodContextService.md)
+- [TExecutionContextService](types/TExecutionContextService.md)
+- [TPayloadContextService](types/TPayloadContextService.md)
 - [InternalKeys$8](types/InternalKeys$8.md)
 - [TAgentConnectionService](types/TAgentConnectionService.md)
 - [InternalKeys$7](types/InternalKeys$7.md)

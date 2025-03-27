@@ -86,6 +86,15 @@ Uses functools-kit’s memoize to cache instances by a composite key (clientId-s
 Configures the session with swarm data from SwarmSchemaService, policies from PolicyConnectionService (merged via MergePolicy or defaulting to NoopPolicy), and swarm access from SwarmConnectionService.
 Supports ClientAgent (session context for execution), SessionPublicService (public API), and SwarmPublicService (swarm integration).
 
+### notify
+
+```ts
+notify: (message: string) => Promise<void>
+```
+
+Sends a notification message to connect listeners via the internal `_notifySubject`.
+Logs the notification if debugging is enabled.
+
 ### emit
 
 ```ts

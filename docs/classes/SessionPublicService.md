@@ -56,6 +56,16 @@ busService: any
 Bus service instance, injected via DI, for emitting session-related events.
 Used in connect to signal execution start and end (commitExecutionBegin, commitExecutionEnd), integrating with BusService’s event system.
 
+### notify
+
+```ts
+notify: (content: string, methodName: string, clientId: string, swarmName: string) => Promise<void>
+```
+
+Emits a message to the session, typically for asynchronous communication.
+Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
+
 ### emit
 
 ```ts

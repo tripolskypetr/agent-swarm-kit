@@ -27,7 +27,22 @@ constructor(params: ISessionParams);
 params: ISessionParams
 ```
 
+### _notifySubject
+
+```ts
+_notifySubject: any
+```
+
 ## Methods
+
+### notify
+
+```ts
+notify(message: string): Promise<void>;
+```
+
+Sends a notification message to connect listeners via the internal `_notifySubject`.
+Logs the notification if debugging is enabled.
 
 ### emit
 
