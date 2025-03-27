@@ -31,6 +31,22 @@ export class MemorySchemaService {
   private memoryMap = new Map<SessionId, object>();
 
   /**
+   * Checks if a value exists in the memory map for a given client ID.
+   * Determines whether the memoryMap contains an entry for the specified clientId.
+   * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionPublicService’s data access needs.
+   * Supports ClientAgent by providing a way to verify session-scoped runtime memory existence.
+   * @param {string} clientId - The ID of the client, typed as SessionId from Session.interface, scoping the memory to a session.
+   * @returns {boolean} True if a value exists for the clientId, false otherwise.
+   */
+  public hasValue = (clientId: string): boolean => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`memorySchemaService hasValue`, {
+        clientId,
+      });
+    return this.memoryMap.has(clientId);
+  };
+
+  /**
    * Writes a value to the memory map for a given client ID, merging it with existing data.
    * Merges the provided value with any existing object for the clientId using Object.assign, then stores the result in the memoryMap, returning the merged value.
    * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionConnectionService’s session data needs.

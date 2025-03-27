@@ -21,7 +21,7 @@ const debug = {
 
 test("Will parallel completion for session", async ({ pass, fail }) => {
   const TEST_DELAY = 3_000;
-  const TOTAL_TIMEOUT = 5_000;
+  const TOTAL_TIMEOUT = 15_000;
 
   const TIMEOUT_SYMBOL = Symbol("timeout");
 

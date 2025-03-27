@@ -3,6 +3,7 @@ import objectFlat from "../utils/objectFlat";
 import swarm from "../lib";
 import beginContext from "../utils/beginContext";
 import { PersistMemoryAdapter } from "./Persist";
+import { queued } from "functools-kit";
 
 /** @private Constant for logging the serialize method in SchemaUtils */
 const METHOD_NAME_SERIALIZE = "SchemaUtils.serialize";
@@ -14,10 +15,56 @@ const METHOD_NAME_WRITE = "SchemaUtils.write";
 const METHOD_NAME_READ = "SchemaUtils.read";
 
 /**
+ * @private
+ * Asynchronous function for persisting session memory values for a specific client.
+ * If the global configuration enables persistent memory storage, it uses the `PersistMemoryAdapter`
+ * to store the memory value associated with the given client ID.
+ *
+ * @template T - The type of the memory value to persist, must extend object.
+ * @param {string} clientId - The ID of the client whose memory value is being persisted.
+ * @param {T} memoryValue - The memory value to persist, typically an object.
+ * @returns {Promise<void>} A promise that resolves when the memory value is successfully persisted.
+ */
+const PERSIST_WRITE_FN = async <T extends object = object>(
+  clientId: string,
+  memoryValue: T
+) => {
+  if (GLOBAL_CONFIG.CC_PERSIST_MEMORY_STORAGE) {
+    return await PersistMemoryAdapter.setMemory(memoryValue, clientId);
+  }
+};
+
+/**
+ * @private
+ * Symbol used as a unique key for the queued version of the `PERSIST_WRITE_FN` function.
+ * This ensures that the function is executed in a controlled, serialized manner to avoid
+ * race conditions when persisting memory values.
+ */
+const PERSIST_WRITE_SYMBOL = Symbol("persist-write-fn");
+
+/**
  * Utility class for managing schema-related operations, including session memory access and data serialization.
  * Provides methods to read/write client session memory and serialize objects into formatted strings.
  */
 export class SchemaUtils {
+  /**
+   * @private
+   * A queued version of the `PERSIST_WRITE_FN` function, ensuring serialized execution.
+   * This property is used to persist session memory values for a specific client in a controlled manner,
+   * avoiding race conditions during concurrent writes.
+   *
+   * @template T - The type of the memory value to persist, must extend object.
+   * @param {string} clientId - The ID of the client whose memory value is being persisted.
+   * @param {T} memoryValue - The memory value to persist, typically an object.
+   * @returns {Promise<void>} A promise that resolves when the memory value is successfully persisted.
+   */
+  private [PERSIST_WRITE_SYMBOL] = queued(PERSIST_WRITE_FN) as <
+    T extends object = object
+  >(
+    clientId: string,
+    memoryValue: T
+  ) => Promise<void>;
+
   /**
    * Writes a value to the session memory for a given client.
    * Executes within a context for logging and validation, ensuring the client session is valid.
@@ -35,13 +82,9 @@ export class SchemaUtils {
           value,
         });
       swarm.sessionValidationService.validate(clientId, METHOD_NAME_WRITE);
-      if (GLOBAL_CONFIG.CC_PERSIST_MEMORY_STORAGE) {
-        return await PersistMemoryAdapter.setMemory(
-          swarm.memorySchemaService.writeValue(clientId, value),
-          clientId
-        );
-      }
-      return swarm.memorySchemaService.writeValue(clientId, value);
+      const memoryValue = swarm.memorySchemaService.writeValue(clientId, value);
+      this[PERSIST_WRITE_SYMBOL](clientId, memoryValue);
+      return memoryValue;
     }
   ) as <T extends object = object>(clientId: string, value: T) => Promise<T>;
 
@@ -60,10 +103,13 @@ export class SchemaUtils {
           clientId,
         });
       swarm.sessionValidationService.validate(clientId, METHOD_NAME_READ);
+      if (swarm.memorySchemaService.hasValue(clientId)) {
+        return swarm.memorySchemaService.readValue(clientId);
+      }
       if (GLOBAL_CONFIG.CC_PERSIST_MEMORY_STORAGE) {
-        return await PersistMemoryAdapter.getMemory(
+        return swarm.memorySchemaService.writeValue(
           clientId,
-          swarm.memorySchemaService.readValue(clientId)
+          await PersistMemoryAdapter.getMemory(clientId, {})
         );
       }
       return swarm.memorySchemaService.readValue(clientId);
