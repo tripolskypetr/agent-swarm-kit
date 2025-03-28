@@ -75,6 +75,7 @@ class ToolAbortController {
   abort() {
     if (this._abortController) {
       this._abortController.abort();
+      this._abortController = new AbortController();
     }
   }
 }
