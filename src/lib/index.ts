@@ -174,7 +174,7 @@ const validationServices = {
   ),
 };
 
-/** {@inheritDoc ISwarmDI} */
+/** @inheritDoc */
 export const swarm: ISwarmDI = {
   ...baseServices,
   ...contextServices,
