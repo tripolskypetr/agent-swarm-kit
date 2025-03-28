@@ -2847,6 +2847,17 @@ interface ICompletionSchema {
 type CompletionName = string;
 
 /**
+ * Interface extending the standard `AbortSignal` to represent a typed abort signal.
+ * Used for signaling and managing the cancellation of asynchronous operations.
+ *
+ * This interface can be extended or customized to include additional properties or methods
+ * specific to the application's requirements.
+ *
+ * @extends {AbortSignal}
+ */
+interface TAbortSignal extends AbortSignal {
+}
+/**
  * Type representing possible values for tool parameters.
  * @typedef {string | number | boolean | null} ToolValue
  */
@@ -2927,6 +2938,7 @@ interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
         agentName: AgentName;
         params: T;
         toolCalls: IToolCall[];
+        abortSignal: TAbortSignal;
         isLast: boolean;
     }): Promise<void>;
     /**
@@ -3419,6 +3431,40 @@ declare const MODEL_RESQUE_SYMBOL: unique symbol;
 declare const TOOL_ERROR_SYMBOL: unique symbol;
 declare const TOOL_STOP_SYMBOL: unique symbol;
 /**
+ * A utility class for managing the lifecycle of an `AbortController` instance.
+ * Provides a mechanism to signal and handle abort events for asynchronous operations.
+ *
+ * This class is used to create and manage an `AbortController` instance, allowing
+ * consumers to access the `AbortSignal` and trigger abort events when necessary.
+ */
+declare class ToolAbortController {
+    /**
+     * The internal `AbortController` instance used to manage abort signals.
+     * If `AbortController` is not available in the global environment, this will be `null`.
+     * @private
+     */
+    private _abortController;
+    /**
+     * Initializes a new instance of the `ToolAbortController` class.
+     * If the `AbortController` API is available in the global environment, an instance is created.
+     */
+    constructor();
+    /**
+     * Gets the `AbortSignal` associated with the internal `AbortController`.
+     * This signal can be used to monitor or respond to abort events.
+     *
+     * @returns {AbortSignal} The `AbortSignal` instance, or throws an error if `AbortController` is not supported.
+     */
+    get signal(): AbortSignal;
+    /**
+     * Triggers the abort event on the internal `AbortController`, signaling any listeners
+     * that the associated operation should be aborted.
+     *
+     * If no `AbortController` instance exists, this method does nothing.
+     */
+    abort(): void;
+}
+/**
  * Represents a client-side agent in the swarm system, implementing the IAgent interface.
  * Manages message execution, tool calls, history updates, and event emissions, with queued execution to prevent overlap.
  * Integrates with AgentConnectionService (instantiation), HistoryConnectionService (history), ToolSchemaService (tools), CompletionSchemaService (completions), SwarmConnectionService (swarm coordination), and BusService (events).
@@ -3427,6 +3473,15 @@ declare const TOOL_STOP_SYMBOL: unique symbol;
  */
 declare class ClientAgent implements IAgent {
     readonly params: IAgentParams;
+    /**
+     * An instance of `ToolAbortController` used to manage the lifecycle of abort signals for tool executions.
+     * Provides an `AbortSignal` to signal and handle abort events for asynchronous operations.
+     *
+     * This property is used to control and cancel ongoing tool executions when necessary, such as during agent changes or tool stops.
+     * @type {ToolAbortController}
+     * @readonly
+     */
+    readonly _toolAbortController: ToolAbortController;
     /**
      * Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.
      * @type {Subject<typeof AGENT_CHANGE_SYMBOL>}

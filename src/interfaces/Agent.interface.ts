@@ -12,6 +12,17 @@ import { StateName } from "./State.interface";
 import { IBus } from "./Bus.interface";
 
 /**
+ * Interface extending the standard `AbortSignal` to represent a typed abort signal.
+ * Used for signaling and managing the cancellation of asynchronous operations.
+ * 
+ * This interface can be extended or customized to include additional properties or methods
+ * specific to the application's requirements.
+ * 
+ * @extends {AbortSignal}
+ */
+interface TAbortSignal extends AbortSignal { }
+
+/**
  * Type representing possible values for tool parameters.
  * @typedef {string | number | boolean | null} ToolValue
  */
@@ -119,6 +130,7 @@ export interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
     agentName: AgentName;
     params: T;
     toolCalls: IToolCall[];
+    abortSignal: TAbortSignal;
     isLast: boolean;
   }): Promise<void>;
 

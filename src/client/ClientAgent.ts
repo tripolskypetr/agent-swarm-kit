@@ -28,6 +28,58 @@ const TOOL_NO_OUTPUT_WARNING_TIMEOUT = 15_000;
 const TOOL_NO_OUTPUT_WARNING_SYMBOL = Symbol("tool-warning-timeout");
 
 /**
+ * A utility class for managing the lifecycle of an `AbortController` instance.
+ * Provides a mechanism to signal and handle abort events for asynchronous operations.
+ * 
+ * This class is used to create and manage an `AbortController` instance, allowing
+ * consumers to access the `AbortSignal` and trigger abort events when necessary.
+ */
+class ToolAbortController {
+
+  /**
+   * The internal `AbortController` instance used to manage abort signals.
+   * If `AbortController` is not available in the global environment, this will be `null`.
+   * @private
+   */
+  private _abortController: AbortController | null = null;
+
+  /**
+   * Initializes a new instance of the `ToolAbortController` class.
+   * If the `AbortController` API is available in the global environment, an instance is created.
+   */
+  constructor() {
+    if ("AbortController" in globalThis) {
+      this._abortController = new AbortController();
+    }
+  }
+
+  /**
+   * Gets the `AbortSignal` associated with the internal `AbortController`.
+   * This signal can be used to monitor or respond to abort events.
+   * 
+   * @returns {AbortSignal} The `AbortSignal` instance, or throws an error if `AbortController` is not supported.
+   */
+  get signal(): AbortSignal {
+    if (!this._abortController) {
+      return undefined as never;
+    }
+    return this._abortController.signal;
+  }
+
+  /**
+   * Triggers the abort event on the internal `AbortController`, signaling any listeners
+   * that the associated operation should be aborted.
+   * 
+   * If no `AbortController` instance exists, this method does nothing.
+   */
+  abort() {
+    if (this._abortController) {
+      this._abortController.abort();
+    }
+  }
+}
+
+/**
  * Creates a random placeholder string from the configured empty output placeholders.
  * Used in error recovery scenarios (e.g., _resurrectModel) to provide a fallback output.
  * @returns {string} A randomly selected placeholder string from GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS.
@@ -64,6 +116,7 @@ const createToolCall = async (
       agentName: self.params.agentName,
       params: tool.function.arguments,
       isLast: idx === toolCalls.length - 1,
+      abortSignal: self._toolAbortController.signal,
       toolCalls,
     });
     targetFn.callbacks?.onAfterCall &&
@@ -466,6 +519,17 @@ const EXECUTE_FN = async (
  * @implements {IAgent}
  */
 export class ClientAgent implements IAgent {
+
+  /**
+   * An instance of `ToolAbortController` used to manage the lifecycle of abort signals for tool executions.
+   * Provides an `AbortSignal` to signal and handle abort events for asynchronous operations.
+   * 
+   * This property is used to control and cancel ongoing tool executions when necessary, such as during agent changes or tool stops.
+   * @type {ToolAbortController}
+   * @readonly
+   */
+  readonly _toolAbortController = new ToolAbortController();
+
   /**
    * Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.
    * @type {Subject<typeof AGENT_CHANGE_SYMBOL>}
@@ -921,6 +985,7 @@ export class ClientAgent implements IAgent {
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitAgentChange`
       );
+    this._toolAbortController.abort();
     await this._agentChangeSubject.next(AGENT_CHANGE_SYMBOL);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-agent-change",
@@ -944,6 +1009,7 @@ export class ClientAgent implements IAgent {
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitStopTools`
       );
+    this._toolAbortController.abort();
     await this._toolStopSubject.next(TOOL_STOP_SYMBOL);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "commit-stop-tools",
@@ -1114,6 +1180,7 @@ export class ClientAgent implements IAgent {
       this._toolStopSubject.unsubscribeAll();
       this._toolCommitSubject.unsubscribeAll();
       this._outputSubject.unsubscribeAll();
+      this._toolAbortController.abort();
     }
     this.params.onDispose &&
       this.params.onDispose(this.params.clientId, this.params.agentName);
