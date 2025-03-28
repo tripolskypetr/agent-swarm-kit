@@ -248,6 +248,10 @@ export class StorageUtils implements TStorage {
           clientId: payload.clientId,
           storageName: payload.storageName,
         });
+      swarm.sessionValidationService.validate(
+        payload.clientId,
+        METHOD_NAME_GET
+      );
       swarm.storageValidationService.validate(
         payload.storageName,
         METHOD_NAME_GET
@@ -301,6 +305,10 @@ export class StorageUtils implements TStorage {
           clientId: payload.clientId,
           storageName: payload.storageName,
         });
+      swarm.sessionValidationService.validate(
+        payload.clientId,
+        METHOD_NAME_LIST
+      );
       swarm.storageValidationService.validate(
         payload.storageName,
         METHOD_NAME_LIST
@@ -352,6 +360,10 @@ export class StorageUtils implements TStorage {
           clientId: payload.clientId,
           storageName: payload.storageName,
         });
+      swarm.sessionValidationService.validate(
+        payload.clientId,
+        METHOD_NAME_CREATE_NUMERIC_INDEX
+      );
       swarm.storageValidationService.validate(
         payload.storageName,
         METHOD_NAME_CREATE_NUMERIC_INDEX
@@ -397,6 +409,10 @@ export class StorageUtils implements TStorage {
           clientId: payload.clientId,
           storageName: payload.storageName,
         });
+      swarm.sessionValidationService.validate(
+        payload.clientId,
+        METHOD_NAME_CLEAR
+      );
       swarm.storageValidationService.validate(
         payload.storageName,
         METHOD_NAME_CLEAR
