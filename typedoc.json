@@ -1,8 +1,9 @@
 {
     "entryPoints": ["./types.d.ts"],
+    "readme": "./docs/getting-started.md", 
     "projectDocuments": ["docs/*", "demo/**/*.md"],
     "name": "agent-swarm-kit",
-    "includeVersion": true,
+    "includeVersion": false,
     "logLevel": "Verbose",
     "out": "./docs/wwwroot",
     "tsconfig": "./tsconfig.docs.json"
