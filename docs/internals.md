@@ -1,5 +1,5 @@
 ---
-title: docs/agent-swarm-kit
+title: docs/internals
 group: docs
 ---
 

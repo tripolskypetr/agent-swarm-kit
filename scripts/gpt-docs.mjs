@@ -115,11 +115,11 @@ const generateDescription = retry(async (filePath, prompt) => {
 }, 5, 5_000);
 
 
-const outputPath = join(process.cwd(), 'docs', `${MODULE_NAME}.md`);
+const outputPath = join(process.cwd(), 'docs', `internals.md`);
 const output = [];
 
 output.push("---");
-output.push(`title: docs/agent-swarm-kit`);
+output.push(`title: docs/internals`);
 output.push(`group: docs`)
 output.push("---");
 output.push("");
