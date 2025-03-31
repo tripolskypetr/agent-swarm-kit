@@ -1,6 +1,6 @@
 ---
-title: docs/getting-started
-group: docs
+title: app/getting-started
+group: app
 ---
 
 # Getting Started
