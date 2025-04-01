@@ -16,6 +16,7 @@ import {
   execute,
   executeForce,
   getLastUserMessage,
+  hasNavigation,
   Storage,
 } from "agent-swarm-kit";
 import { str } from "functools-kit";
@@ -803,8 +804,15 @@ addTool({
     "Returns the conversation to the Triage Agent when the user loses interest in the current cryptocurrency, optionally passing context for further routing.",
   toolName: ToolName.NavigateToTriageTool,
   type: "function",
-  call: async ({ toolId, clientId, params }) => {
+  call: async ({ toolId, clientId, agentName, params }) => {
     console.log(ToolName.NavigateToTriageTool, { params });
+    /**
+     * Prevent recursive navigation
+     */
+    if (await hasNavigation(clientId, AgentName.TriageAgent)) {
+      emit("Ok, got it. Ask me a question", clientId, agentName);
+      return;
+    }
     const lastMessage = await getLastUserMessage(clientId);
     await commitToolOutputForce(
       toolId,
