@@ -25,7 +25,7 @@ export class NavigationValidationService {
    * Uses memoization to ensure route persistence across calls while optimizing performance.
    * @type {(clientId: string, swarmName: SwarmName) => Set<AgentName>}
    */
-  private getNavigationRoute = memoize<
+  public getNavigationRoute = memoize<
     (clientId: string, swarmName: SwarmName) => Set<AgentName>
   >(
     ([clientId, swarmName]) => `${clientId}-${swarmName}`,

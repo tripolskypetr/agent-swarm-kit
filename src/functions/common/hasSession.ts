@@ -14,6 +14,7 @@ const METHOD_NAME = "function.common.hasSession";
  * @returns {boolean} `true` if the session exists, otherwise `false`.
  */
 export const hasSession = (clientId: string) => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, { clientId });
   return swarm.sessionValidationService.hasSession(clientId);
 };
