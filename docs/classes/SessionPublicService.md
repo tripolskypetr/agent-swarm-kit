@@ -56,6 +56,14 @@ busService: any
 Bus service instance, injected via DI, for emitting session-related events.
 Used in connect to signal execution start and end (commitExecutionBegin, commitExecutionEnd), integrating with BusService’s event system.
 
+### navigationValidationService
+
+```ts
+navigationValidationService: any
+```
+
+Service which prevent tool call to navigate client recursively
+
 ### notify
 
 ```ts

@@ -415,3 +415,11 @@ policyValidationService: PolicyValidationService
 
 Service validating policy-related data and enforcement rules.
 Ensures policy integrity via `PolicyValidationService`.
+
+### navigationValidationService
+
+```ts
+navigationValidationService: NavigationValidationService
+```
+
+Service preventing the recursive call of changeToAgent

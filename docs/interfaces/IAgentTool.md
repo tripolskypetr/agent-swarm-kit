@@ -48,7 +48,7 @@ Optional lifecycle callbacks for the tool, allowing customization of execution f
 ### call
 
 ```ts
-call: (dto: { toolId: string; clientId: string; agentName: string; params: T; toolCalls: IToolCall[]; isLast: boolean; }) => Promise<void>
+call: (dto: { toolId: string; clientId: string; agentName: string; params: T; toolCalls: IToolCall[]; abortSignal: TAbortSignal; isLast: boolean; }) => Promise<void>
 ```
 
 Executes the tool with the specified parameters and context.

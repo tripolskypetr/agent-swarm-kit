@@ -26,6 +26,17 @@ constructor(params: IAgentParams);
 params: IAgentParams
 ```
 
+### _toolAbortController
+
+```ts
+_toolAbortController: ToolAbortController
+```
+
+An instance of `ToolAbortController` used to manage the lifecycle of abort signals for tool executions.
+Provides an `AbortSignal` to signal and handle abort events for asynchronous operations.
+
+This property is used to control and cancel ongoing tool executions when necessary, such as during agent changes or tool stops.
+
 ### _agentChangeSubject
 
 ```ts
