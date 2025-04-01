@@ -133,6 +133,7 @@ export const complete = beginContext(
             clientId,
             content.length
           );
+          swarm.navigationValidationService.beginMonit(clientId, swarmName);
           try {
             swarm.busService.commitExecutionBegin(clientId, { swarmName });
             const result = await run(METHOD_NAME, content);

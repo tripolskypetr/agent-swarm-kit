@@ -5014,6 +5014,12 @@ declare class SessionPublicService implements TSessionConnectionService {
      */
     private readonly busService;
     /**
+     * Service which prevent tool call to navigate client recursively
+     * @type {NavigationValidationService}
+     * @private
+     */
+    private readonly navigationValidationService;
+    /**
      * Emits a message to the session, typically for asynchronous communication.
      * Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
@@ -8260,6 +8266,51 @@ declare class AliveService {
 }
 
 /**
+ * Service for validating and managing navigation logic within the swarm system.
+ * Ensures agents are navigated efficiently by tracking visited agents and preventing redundant navigation.
+ * Integrates with `LoggerService` for logging and uses memoization to optimize route tracking.
+ */
+declare class NavigationValidationService {
+    /**
+     * Injected logger service for recording navigation events and debugging information.
+     * Implements `ILogger` to provide log, debug, and info-level logging.
+     * @type {LoggerService}
+     */
+    private readonly loggerService;
+    /**
+     * Memoized function to retrieve or create a navigation route for a client and swarm.
+     * Returns a `Set` of visited `AgentName`s, keyed by a combination of `clientId` and `swarmName`.
+     * Uses memoization to ensure route persistence across calls while optimizing performance.
+     * @type {(clientId: string, swarmName: SwarmName) => Set<AgentName>}
+     */
+    private getNavigationRoute;
+    /**
+     * Determines if navigation to a specific agent should proceed.
+     * Checks if the agent has been previously visited in the route; if not, adds it and allows navigation.
+     * Logs navigation attempts and decisions when info-level logging is enabled.
+     * @param {AgentName} agentName - The name of the agent to navigate to.
+     * @param {string} clientId - The unique identifier of the client requesting navigation.
+     * @param {SwarmName} swarmName - The name of the swarm context for the navigation.
+     * @returns {boolean} True if navigation should proceed, false if the agent was already visited.
+     */
+    shouldNavigate: (agentName: AgentName, clientId: string, swarmName: SwarmName) => boolean;
+    /**
+     * Initializes or resets the navigation route monitoring for a client and swarm.
+     * Clears the existing route to start fresh, logging the action if info-level logging is enabled.
+     * @param {string} clientId - The unique identifier of the client initiating monitoring.
+     * @param {SwarmName} swarmName - The name of the swarm context to monitor.
+     */
+    beginMonit: (clientId: string, swarmName: SwarmName) => void;
+    /**
+     * Disposes of the navigation route for a client and swarm.
+     * Removes the memoized route entry, logging the action if info-level logging is enabled.
+     * @param {string} clientId - The unique identifier of the client whose route is being disposed.
+     * @param {SwarmName} swarmName - The name of the swarm context to dispose.
+     */
+    dispose: (clientId: string, swarmName: SwarmName) => void;
+}
+
+/**
  * Interface defining the structure of the dependency injection container for the swarm system.
  * Aggregates all services providing core functionality, context management, connectivity, schema definitions,
  * public APIs, metadata, and validation for the swarm system.
@@ -8490,9 +8541,13 @@ interface ISwarmDI {
      * Ensures policy integrity via `PolicyValidationService`.
      */
     policyValidationService: PolicyValidationService;
+    /**
+     * Service preventing the recursive call of changeToAgent
+     */
+    navigationValidationService: NavigationValidationService;
 }
 
-/** {@inheritDoc ISwarmDI} */
+/** @inheritDoc */
 declare const swarm: ISwarmDI;
 
 /**
@@ -9599,12 +9654,12 @@ declare const listenEventOnce: <T extends unknown = any>(clientId: string, topic
  *
  * @param {AgentName} agentName - The name of the agent to switch to.
  * @param {string} clientId - The unique identifier of the client session.
- * @returns {Promise<void>} A promise that resolves when the agent change is complete.
+ * @returns {Promise<boolean>} A promise that resolves when the agent change is complete. If it resolved false, the navigation is canceled due to recursion
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToAgent("AgentX", "client-123");
  */
-declare const changeToAgent: (agentName: string, clientId: string) => Promise<void>;
+declare const changeToAgent: (agentName: string, clientId: string) => Promise<boolean>;
 
 /**
  * Navigates back to the previous or default agent for a given client session in a swarm.
@@ -9614,12 +9669,12 @@ declare const changeToAgent: (agentName: string, clientId: string) => Promise<vo
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
  *
  * @param {string} clientId - The unique identifier of the client session.
- * @returns {Promise<void>} A promise that resolves when the agent change is complete.
+ * @returns {Promise<boolean>} A promise that resolves when the agent change is complete. If navigation stack contains recursion does nothing
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToPrevAgent("client-123");
  */
-declare const changeToPrevAgent: (clientId: string) => Promise<void>;
+declare const changeToPrevAgent: (clientId: string) => Promise<boolean>;
 
 /**
  * Navigates back to the default agent for a given client session in a swarm.
@@ -9629,12 +9684,12 @@ declare const changeToPrevAgent: (clientId: string) => Promise<void>;
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
  *
  * @param {string} clientId - The unique identifier of the client session.
- * @returns {Promise<void>} A promise that resolves when the default agent change is complete.
+ * @returns {Promise<boolean>} A promise that resolves when the default agent change is complete. If navigation stack contains recursion being canceled
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToDefaultAgent("client-123");
  */
-declare const changeToDefaultAgent: (clientId: string) => Promise<void>;
+declare const changeToDefaultAgent: (clientId: string) => Promise<boolean>;
 
 /**
  * Subscribes to agent-specific events on the swarm bus service for a specific client and executes a callback for each event.

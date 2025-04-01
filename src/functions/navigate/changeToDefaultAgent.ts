@@ -27,13 +27,13 @@ const CHANGE_AGENT_GC = 60 * 1_000;
  * @param {string} methodName - The name of the method invoking the change.
  * @param {string} agentName - The name of the default agent to switch to.
  * @param {SwarmName} swarmName - The name of the swarm in which the change occurs.
- * @returns {Promise<void>} A promise that resolves when the agent change is complete.
+ * @returns {Promise<boolean>} A promise that resolves when the agent change is complete.
  */
 type TChangeToDefaultAgentRun = (
   methodName: string,
   agentName: string,
   swarmName: SwarmName
-) => Promise<void>;
+) => Promise<boolean>;
 
 /**
  * Creates a change agent function with time-to-live (TTL) and queuing capabilities for switching to the default agent.
@@ -53,6 +53,9 @@ const createChangeToDefaultAgent = ttl(
         agentName: AgentName,
         swarmName: SwarmName
       ) => {
+        if (!swarm.navigationValidationService.shouldNavigate(agentName, clientId, swarmName)) {
+          return false;
+        }
         // Notify all agents in the swarm of the change
         await Promise.all(
           swarm.swarmValidationService
@@ -101,6 +104,8 @@ const createChangeToDefaultAgent = ttl(
           clientId,
           swarmName
         );
+
+        return true;
       }
     ) as TChangeToDefaultAgentRun,
   {
@@ -129,7 +134,7 @@ const createGc = singleshot(async () => {
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
  *
  * @param {string} clientId - The unique identifier of the client session.
- * @returns {Promise<void>} A promise that resolves when the default agent change is complete.
+ * @returns {Promise<boolean>} A promise that resolves when the default agent change is complete. If navigation stack contains recursion being canceled
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToDefaultAgent("client-123");

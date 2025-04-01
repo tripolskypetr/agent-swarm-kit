@@ -8,7 +8,6 @@ import { StorageName } from "../../interfaces/Storage.interface";
 import { StateName } from "../../interfaces/State.interface";
 import beginContext from "../../utils/beginContext";
 import {
-  PersistAliveAdapter,
   PersistMemoryAdapter,
 } from "../../classes/Persist";
 import { markOffline } from "../other/markOffline";
@@ -135,7 +134,11 @@ export const disposeConnection = beginContext(
       swarm.perfService.dispose(clientId);
     }
 
-    swarm.sessionValidationService.removeSession(clientId);
+    {
+      swarm.sessionValidationService.removeSession(clientId);
+      swarm.navigationValidationService.dispose(clientId, swarmName);
+    }
+
     PersistMemoryAdapter.dispose(clientId);
   }
 );

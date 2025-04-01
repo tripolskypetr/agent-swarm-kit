@@ -48,9 +48,12 @@ import PolicySchemaService from "./services/schema/PolicySchemaService";
 import PolicyValidationService from "./services/validation/PolicyValidationService";
 import PolicyPublicService from "./services/public/PolicyPublicService";
 import PolicyConnectionService from "./services/connection/PolicyConnectionService";
-import PayloadContextService, { TPayloadContextService } from "./services/context/PayloadContextService";
+import PayloadContextService, {
+  TPayloadContextService,
+} from "./services/context/PayloadContextService";
 import AliveService from "./services/base/AliveService";
 import { ISwarmDI } from "../model/SwarmDI.model";
+import NavigationValidationService from "./services/validation/NavigationValidationService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -171,6 +174,9 @@ const validationServices = {
   ),
   policyValidationService: inject<PolicyValidationService>(
     TYPES.policyValidationService
+  ),
+  navigationValidationService: inject<NavigationValidationService>(
+    TYPES.navigationValidationService
   ),
 };
 

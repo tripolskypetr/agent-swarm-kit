@@ -15,6 +15,7 @@ import { IIncomingMessage } from "../../../model/EmitMessage.model";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import PerfService from "../base/PerfService";
 import BusService from "../base/BusService";
+import NavigationValidationService from "../validation/NavigationValidationService";
 
 /**
  * Interface extending SessionConnectionService for type definition purposes.
@@ -83,6 +84,14 @@ export class SessionPublicService implements TSessionConnectionService {
   private readonly busService = inject<BusService>(TYPES.busService);
 
   /**
+   * Service which prevent tool call to navigate client recursively
+   * @type {NavigationValidationService}
+   * @private
+   */
+  private readonly navigationValidationService =
+    inject<NavigationValidationService>(TYPES.navigationValidationService);
+
+  /**
    * Emits a message to the session, typically for asynchronous communication.
    * Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
@@ -92,7 +101,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * @param {SwarmName} swarmName - The swarm name, sourced from Swarm.interface, used in SwarmMetaService context.
    * @returns {Promise<void>} A promise resolving when the message is emitted.
    */
-   public notify = async (
+  public notify = async (
     content: string,
     methodName: string,
     clientId: string,
@@ -283,6 +292,7 @@ export class SessionPublicService implements TSessionConnectionService {
             clientId,
             incoming.data.length
           );
+          this.navigationValidationService.beginMonit(clientId, swarmName);
           try {
             this.busService.commitExecutionBegin(clientId, { swarmName });
             const result = await send(incoming);
@@ -460,7 +470,10 @@ export class SessionPublicService implements TSessionConnectionService {
       });
     return await MethodContextService.runInContext(
       async () => {
-        return await this.sessionConnectionService.commitUserMessage(message, mode);
+        return await this.sessionConnectionService.commitUserMessage(
+          message,
+          mode
+        );
       },
       {
         methodName,

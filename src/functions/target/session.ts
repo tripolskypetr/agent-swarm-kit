@@ -64,6 +64,7 @@ const sessionInternal = (
       async () => {
         let isFinished = false;
         swarm.perfService.startExecution(executionId, clientId, content.length);
+        swarm.navigationValidationService.beginMonit(clientId, swarmName);
         try {
           swarm.busService.commitExecutionBegin(clientId, { swarmName });
           const result = await swarm.sessionPublicService.execute(

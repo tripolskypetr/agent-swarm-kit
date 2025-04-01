@@ -62,6 +62,7 @@ const validationServices = {
     embeddingValidationService: Symbol('embeddingValidationService'),
     storageValidationService: Symbol('storageValidationService'),
     policyValidationService: Symbol('policyValidationService'),
+    navigationValidationService: Symbol('navigationValidationService'),
 };
 
 export const TYPES = {

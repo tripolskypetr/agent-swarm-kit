@@ -45,6 +45,7 @@ import PolicyPublicService from "../services/public/PolicyPublicService";
 import PolicyConnectionService from "../services/connection/PolicyConnectionService";
 import PayloadContextService from "../services/context/PayloadContextService";
 import AliveService from "../services/base/AliveService";
+import NavigationValidationService from "../services/validation/NavigationValidationService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -110,4 +111,5 @@ import AliveService from "../services/base/AliveService";
     provide(TYPES.storageValidationService, () => new StorageValidationService());
     provide(TYPES.embeddingValidationService, () => new EmbeddingValidationService());
     provide(TYPES.policyValidationService, () => new PolicyValidationService());
+    provide(TYPES.navigationValidationService, () => new NavigationValidationService());
 }
