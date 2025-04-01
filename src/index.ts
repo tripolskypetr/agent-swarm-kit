@@ -48,6 +48,7 @@ export * from "./functions/target/session";
 export * from "./functions/target/disposeConnection";
 
 export * from "./functions/common/hasSession";
+export * from "./functions/common/hasNavigation";
 export * from "./functions/common/getPayload";
 export * from "./functions/common/getAgentName";
 export * from "./functions/common/getAgentHistory";
