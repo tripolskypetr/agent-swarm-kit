@@ -806,6 +806,11 @@ addTool({
   type: "function",
   call: async ({ toolId, clientId, agentName, params }) => {
     console.log(ToolName.NavigateToTriageTool, { params });
+    await commitToolOutputForce(
+      toolId,
+      "Navigation to Triage Agent successful",
+      clientId
+    );
     /**
      * Prevent recursive navigation
      */
@@ -814,11 +819,6 @@ addTool({
       return;
     }
     const lastMessage = await getLastUserMessage(clientId);
-    await commitToolOutputForce(
-      toolId,
-      "Navigation to Triage Agent successful",
-      clientId
-    );
     await changeToDefaultAgent(clientId);
     await commitFlushForce(clientId);
     if (params.context) {
