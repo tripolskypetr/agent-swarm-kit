@@ -13,6 +13,8 @@ import { IStorageData, StorageName } from "../interfaces/Storage.interface";
 import { IGlobalConfig } from "../model/GlobalConfig.model";
 import { EmbeddingName } from "../interfaces/Embedding.interface";
 
+const CC_THROW_WHEN_NAVIGATION_RECURSION = true;
+
 const CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT = "Start the conversation";
 
 const CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT = str.newline(
@@ -248,6 +250,7 @@ const GLOBAL_CONFIG: IGlobalConfig = {
   CC_DEFAULT_WRITE_EMBEDDING_CACHE,
   CC_PERSIST_EMBEDDING_CACHE,
   CC_DEFAULT_AGENT_TOOL_VALIDATE,
+  CC_THROW_WHEN_NAVIGATION_RECURSION,
 };
 
 GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";

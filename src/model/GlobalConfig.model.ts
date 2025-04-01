@@ -539,4 +539,9 @@ export interface IGlobalConfig {
     toolCalls: IToolCall[];
     params: unknown;
   }) => Promise<boolean> | boolean;
+  
+  /**
+   * Throw an error if agents being changed recursively
+   */
+  CC_THROW_WHEN_NAVIGATION_RECURSION: boolean;
 }
