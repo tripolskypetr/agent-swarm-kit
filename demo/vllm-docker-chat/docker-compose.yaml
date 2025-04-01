@@ -1,24 +1,50 @@
 version: '3.9'
 
+# ```bash
+# rm -rf model
+# git clone https://huggingface.co/yandex/YandexGPT-5-Lite-8B-instruct model
+# ```
+#
+# https://stackoverflow.com/a/59008360/7388307
+#
+# ```bash
+# sudo apt-get install nvidia-container-runtime
+# ```
+#
+# ```bash
+# $ sudo tee /etc/docker/daemon.json <<EOF
+# {
+#     "runtimes": {
+#         "nvidia": {
+#             "path": "/usr/bin/nvidia-container-runtime",
+#             "runtimeArgs": []
+#         }
+#     }
+# }
+# EOF
+# sudo pkill -SIGHUP dockerd
+# ```
+
 services:
   vllm:
     image: vllm/vllm-openai:v0.8.2
     container_name: vllm-openai
     volumes:
-      - ./yagpt.gguf:/model/yagpt.gguf
+      - ./model:/model/
     ports:
       - "1338:1338"
     environment:
-      - VLLM_MODEL=/model/yagpt.gguf
+      - VLLM_MODEL=/model/
       - VLLM_TARGET_DEVICE=cuda
     command: >
-      --model /model/yagpt.gguf
+      --model /model/
       --port 1338
       --host 0.0.0.0
       --served-model-name yagpt
     runtime: nvidia
+    #        ^^^^^^
+    restart: unless-stopped
     # deploy:
     #   resources:
     #     limits:
     #       gpus: '"device=0"'
-    restart: unless-stopped
