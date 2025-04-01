@@ -319,25 +319,25 @@ Connecting to a swarm allows clients (e.g., CLI, WebSocket, or HTTP interfaces) 
 For developers looking to integrate `agent-swarm-kit` into real-life projects, forking the repository and exploring the `demo` folder is highly recommended. The official repository (assumed to be hosted on a platform like GitHub) provides a wealth of practical examples that demonstrate the framework’s capabilities in action. Here’s why this is important and how to get started:
 
 - **Practical Examples**: The `demo` folder typically contains fully functional code samples that showcase real-world use cases, such as:
-    - [**binance-candle-chat**](./demo/binance-candle-chat/): A cryptocurrency trading swarm with a triage agent routing to specialized trader agents (BTC, ETH, BNB, XRP, SOL) that calculate buy/sell orders and predict trends using OpenAI completion.
+    - [**binance-candle-chat**](https://github.com/tripolskypetr/agent-swarm-kit/tree/master/demo/binance-candle-chat/): A cryptocurrency trading swarm with a triage agent routing to specialized trader agents (BTC, ETH, BNB, XRP, SOL) that calculate buy/sell orders and predict trends using OpenAI completion.
 
-    - [**it-consulting-swarm**](./demo/it-consulting-swarm/): A multi-agent system with a triage agent routing queries to specialized agents for tech trends, cybersecurity, environment, health, and finance, all powered by OpenAI completion.
+    - [**it-consulting-swarm**](https://github.com/tripolskypetr/agent-swarm-kit/tree/master/demo/it-consulting-swarm/): A multi-agent system with a triage agent routing queries to specialized agents for tech trends, cybersecurity, environment, health, and finance, all powered by OpenAI completion.
 
-    - [**langchain-stream**](./demo/langchain-stream/): A pharma sales demo with a triage agent using Cohere completion and LangChain for real-time token streaming, alongside Ollama and LMStudio, to assist with consultations and cart operations.
+    - [**langchain-stream**](https://github.com/tripolskypetr/agent-swarm-kit/tree/master/demo/langchain-stream/): A pharma sales demo with a triage agent using Cohere completion and LangChain for real-time token streaming, alongside Ollama and LMStudio, to assist with consultations and cart operations.
 
-    - [**redis-persist-chat**](./demo/redis-persist-chat/): A chat system with a triage agent using Saiga Yandex GPT, persisting chat history and states (like Tic-tac-toe) in Redis, with policies to restrict sensitive topics.
+    - [**redis-persist-chat**](https://github.com/tripolskypetr/agent-swarm-kit/tree/master/demo/redis-persist-chat/): A chat system with a triage agent using Saiga Yandex GPT, persisting chat history and states (like Tic-tac-toe) in Redis, with policies to restrict sensitive topics.
 
-    - [**nginx-balancer-chat**](./demo/nginx-balancer-chat/): A test environment demonstrating load balancing across 5 chat instances via Nginx, with a single agent reporting the server port using OpenAI completion.
+    - [**nginx-balancer-chat**](https://github.com/tripolskypetr/agent-swarm-kit/tree/master/demo/nginx-balancer-chat/): A test environment demonstrating load balancing across 5 chat instances via Nginx, with a single agent reporting the server port using OpenAI completion.
 
-    - [**cohere-token-rotate**](./demo/cohere-token-rotate/): A pharma sales system with a triage agent using Cohere completion and a token rotation mechanism (10 trial tokens in parallel) for optimized API performance.
+    - [**cohere-token-rotate**](https://github.com/tripolskypetr/agent-swarm-kit/tree/master/demo/cohere-token-rotate/): A pharma sales system with a triage agent using Cohere completion and a token rotation mechanism (10 trial tokens in parallel) for optimized API performance.
 
-    - [**whisper-voice-chat**](./demo/whisper-voice-chat/): A voice-based chat system using Whisper for real-time transcription and a single test agent powered by Nemotron Mini (via Ollama) to handle user interactions.
+    - [**whisper-voice-chat**](https://github.com/tripolskypetr/agent-swarm-kit/tree/master/demo/whisper-voice-chat/): A voice-based chat system using Whisper for real-time transcription and a single test agent powered by Nemotron Mini (via Ollama) to handle user interactions.
 
-    - [**telegram-ollama-chat**](./demo/telegram-ollama-chat/): A Telegram-based pharma sales chatbot with a triage agent routing requests to a sales agent, both using Ollama for natural conversations and managing product data from a shared storage.
+    - [**telegram-ollama-chat**](https://github.com/tripolskypetr/agent-swarm-kit/tree/master/demo/telegram-ollama-chat/): A Telegram-based pharma sales chatbot with a triage agent routing requests to a sales agent, both using Ollama for natural conversations and managing product data from a shared storage.
 
-    - [**repl-phone-seller**](./demo/repl-phone-seller/): A REPL terminal app featuring a sales agent that helps users add phones to a cart, leveraging Ollama completions and tools for searching phones by keywords or diagonal size.
+    - [**repl-phone-seller**](https://github.com/tripolskypetr/agent-swarm-kit/tree/master/demo/repl-phone-seller/): A REPL terminal app featuring a sales agent that helps users add phones to a cart, leveraging Ollama completions and tools for searching phones by keywords or diagonal size.
 
-    - [**client-server-chat**](./demo/client-server-chat/): A WebSocket-based pharma sales demo with a single test agent using Saiga Yandex GPT to provide consultations and manage a cart.
+    - [**client-server-chat**](https://github.com/tripolskypetr/agent-swarm-kit/tree/master/demo/client-server-chat/): A WebSocket-based pharma sales demo with a single test agent using Saiga Yandex GPT to provide consultations and manage a cart.
 
 - **Learning by Doing**: By forking the repo, you can:
   - Run the demos directly to see how components like agents, tools, and connections work together.
