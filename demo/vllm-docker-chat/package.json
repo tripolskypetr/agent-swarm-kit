@@ -1,0 +1,23 @@
+{
+  "name": "vllm-docker-chat",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun ./src/repl.ts",
+    "start:debug": "bun --inspect-brk ./src/repl.ts",
+    "build:docs": "bun ./src/docs.mjs"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "agent-swarm-kit": "^1.0.219",
+    "functools-kit": "^1.0.76",
+    "openai": "^4.91.0",
+    "plantuml": "^0.0.2"
+  }
+}

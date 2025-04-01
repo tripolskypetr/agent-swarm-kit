@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  vllm:
+    image: vllm/vllm-openai:0.8.2
+    container_name: vllm-openai
+    volumes:
+      - ./yagpt.gguf:/model/yagpt.gguf
+    ports:
+      - "1338:1338"
+    environment:
+      - VLLM_MODEL=/model/yagpt.gguf
+      - VLLM_TARGET_DEVICE=cuda
+    command: >
+      --model /model/yagpt.gguf
+      --port 1338
+      --host 0.0.0.0
+      --served-model-name yagpt
+    deploy:
+      resources:
+        limits:
+          gpus: '"device=0"'
+    restart: unless-stopped
