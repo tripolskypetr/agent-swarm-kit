@@ -1,8 +1,8 @@
-version: '3.8'
+version: '3.9'
 
 services:
   vllm:
-    image: vllm/vllm-openai:0.8.2
+    image: vllm/vllm-openai:v0.8.2
     container_name: vllm-openai
     volumes:
       - ./yagpt.gguf:/model/yagpt.gguf
@@ -16,8 +16,9 @@ services:
       --port 1338
       --host 0.0.0.0
       --served-model-name yagpt
-    deploy:
-      resources:
-        limits:
-          gpus: '"device=0"'
+    runtime: nvidia
+    # deploy:
+    #   resources:
+    #     limits:
+    #       gpus: '"device=0"'
     restart: unless-stopped
