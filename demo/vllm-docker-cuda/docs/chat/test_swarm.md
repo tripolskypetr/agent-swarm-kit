@@ -1,6 +1,6 @@
 ---
-title: demo/vllm-docker-chat/test_swarm
-group: demo/vllm-docker-chat
+title: demo/vllm-docker-cuda/test_swarm
+group: demo/vllm-docker-cuda
 ---
 
 # test_swarm

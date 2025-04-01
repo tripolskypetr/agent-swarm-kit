@@ -1,5 +1,5 @@
 {
-  "name": "vllm-docker-chat",
+  "name": "vllm-docker-cuda",
   "module": "index.ts",
   "type": "module",
   "private": true,
