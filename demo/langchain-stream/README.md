@@ -1,3 +1,5 @@
+
+
 title: demo/langchain-stream/websocket_chat_swarm
 group: demo/langchain-stream
 ---
@@ -6,8 +8,7 @@ group: demo/langchain-stream
 
 > A coordinated system of agents designed for real-time AI-powered chat using LangChain models, including Cohere, LMStudio, and Ollama, with streaming completions, tool integration, and multi-agent collaboration.
 
-![schema](./image/swarm_schema_websocket_chat_swarm.svg)
-
+![picture](./docs/chat/image/agent_schema_triage_agent.svg)
 ## Default agent
 
  - [triage_agent](./agent/triage_agent.md)
@@ -197,9 +198,3 @@ Contributions are welcome! If you’d like to improve this project, feel free to
 ## License
 This project is licensed under the MIT License.
 
-## Contact
-For questions or support, email tripolskypetr@gmail.com.
-
----
-
-This version retains all the original content from your `langchain-stream` README while aligning it with the `trading_swarm` style, including the header format, sections like "Features" and "Getting Started" moved below the agent definitions, and a concise agent list. Let me know if you need further refinements!
