@@ -99,6 +99,15 @@ storageSchemaService: any
 Storage schema service instance, injected via DI.
 Supplies storage details for writeAgentDoc, documenting storage resources used by agents.
 
+### wikiSchemaService
+
+```ts
+wikiSchemaService: any
+```
+
+Wiki schema service instance, injected via DI.
+Supplies wiki details for writeAgentDoc, documenting wiki resources used by agents.
+
 ### stateSchemaService
 
 ```ts

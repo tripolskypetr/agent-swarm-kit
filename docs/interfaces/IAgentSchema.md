@@ -82,6 +82,14 @@ storages: string[]
 
 Optional array of storage names utilized by the agent.
 
+### wikiList
+
+```ts
+wikiList: string[]
+```
+
+Optional array of wiki names utilized by the agent.
+
 ### states
 
 ```ts

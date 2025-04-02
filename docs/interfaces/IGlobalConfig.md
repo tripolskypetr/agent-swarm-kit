@@ -423,3 +423,11 @@ CC_DEFAULT_AGENT_TOOL_VALIDATE: (dto: { clientId: string; agentName: string; too
 
 Validates the tool parameters before execution.
 Can return synchronously or asynchronously based on validation complexity.
+
+### CC_THROW_WHEN_NAVIGATION_RECURSION
+
+```ts
+CC_THROW_WHEN_NAVIGATION_RECURSION: boolean
+```
+
+Throw an error if agents being changed recursively
