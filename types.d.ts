@@ -8781,6 +8781,12 @@ declare const dumpClientPerformance: {
     runAfterExecute: (dirName?: any) => Promise<() => void>;
 };
 
+/**
+ * Adds a wiki schema to the system
+ * @function addWiki
+ * @param {IWikiSchema} wikiSchema - The wiki schema to add
+ * @returns {string} The name of the added wiki
+ */
 declare const addWiki: (wikiSchema: IWikiSchema) => string;
 
 /**
@@ -9230,11 +9236,10 @@ declare const question: (message: string, clientId: string, agentName: string, w
  * @function questionForce
  * @param {string} message - The message/question to be processed
  * @param {string} clientId - Unique identifier for the client
- * @param {AgentName} agentName - Name of the agent handling the question
  * @param {WikiName} wikiName - Name of the wiki context
  * @returns {Promise<string>} The response from the chat process
  */
-declare const questionForce: (message: string, clientId: string, agentName: string, wikiName: string) => Promise<string>;
+declare const questionForce: (message: string, clientId: string, wikiName: string) => Promise<string>;
 
 /**
  * Interface for the parameters of the makeAutoDispose function.
@@ -9338,13 +9343,12 @@ declare const notify: (content: string, clientId: string, agentName: string) => 
  *
  * @param {string} content - The content to be sent as the notification output.
  * @param {string} clientId - The unique identifier of the client session sending the notification.
- * @param {AgentName} agentName - The name of the agent intended to send the notification.
  * @returns {Promise<void>} A promise that resolves when the notification is sent
  * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
  * @example
  * await notifyForce("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active
  */
-declare const notifyForce: (content: string, clientId: string, agentName: string) => Promise<void>;
+declare const notifyForce: (content: string, clientId: string) => Promise<void>;
 
 /**
  * Executes a message statelessly with an agent in a swarm session, bypassing chat history.
