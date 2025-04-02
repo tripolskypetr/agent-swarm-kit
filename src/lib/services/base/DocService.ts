@@ -20,6 +20,7 @@ import PerfService from "./PerfService";
 import { getMomentStamp, getTimeStamp } from "get-moment-stamp";
 import PolicySchemaService from "../schema/PolicySchemaService";
 import { writeFileAtomic } from "../../../utils/writeFileAtomic";
+import WikiSchemaService from "../schema/WikiSchemaService";
 
 /**
  * Maximum number of concurrent threads for documentation generation tasks.
@@ -143,6 +144,16 @@ export class DocService {
   );
 
   /**
+   * Wiki schema service instance, injected via DI.
+   * Supplies wiki details for writeAgentDoc, documenting wiki resources used by agents.
+   * @type {WikiSchemaService}
+   * @private
+   */
+  private readonly wikiSchemaService = inject<WikiSchemaService>(
+    TYPES.wikiSchemaService
+  );
+
+  /**
    * State schema service instance, injected via DI.
    * Provides state details for writeAgentDoc, documenting state resources used by agents.
    * @type {StateSchemaService}
@@ -241,8 +252,7 @@ export class DocService {
             continue;
           }
           result.push(
-            `${i + 1}. [${swarmSchema.agentList[i]}](./agent/${
-              swarmSchema.agentList[i]
+            `${i + 1}. [${swarmSchema.agentList[i]}](./agent/${swarmSchema.agentList[i]
             }.md)`
           );
           const { docDescription } = this.agentSchemaService.get(
@@ -381,8 +391,7 @@ export class DocService {
             continue;
           }
           result.push(
-            `${i + 1}. [${agentSchema.dependsOn[i]}](./${
-              agentSchema.dependsOn[i]
+            `${i + 1}. [${agentSchema.dependsOn[i]}](./${agentSchema.dependsOn[i]
             }.md)`
           );
           const { docDescription } = this.agentSchemaService.get(
@@ -446,8 +455,7 @@ export class DocService {
               {
                 result.push("");
                 result.push(
-                  `*Required:* [${
-                    fn.parameters.required.includes(key) ? "x" : " "
+                  `*Required:* [${fn.parameters.required.includes(key) ? "x" : " "
                   }]`
                 );
               }
@@ -539,6 +547,35 @@ export class DocService {
           if (callbacks) {
             result.push("");
             result.push(`#### State callbacks`);
+            result.push("");
+            const callbackList = Object.keys(callbacks);
+            for (let i = 0; i !== callbackList.length; i++) {
+              result.push(`${i + 1}. \`${callbackList[i]}\``);
+            }
+          }
+          result.push("");
+        }
+      }
+
+      if (agentSchema.wikiList) {
+        result.push(`## Used wiki list`);
+        result.push("");
+        for (let i = 0; i !== agentSchema.wikiList.length; i++) {
+          if (!agentSchema.wikiList[i]) {
+            continue;
+          }
+          result.push(`### ${i + 1}. ${agentSchema.wikiList[i]}`);
+          const { docDescription, callbacks } =
+            this.wikiSchemaService.get(agentSchema.wikiList[i]);
+          if (docDescription) {
+            result.push("");
+            result.push(`#### Wiki description`);
+            result.push("");
+            result.push(docDescription);
+          }
+          if (callbacks) {
+            result.push("");
+            result.push(`#### Wiki callbacks`);
             result.push("");
             const callbackList = Object.keys(callbacks);
             for (let i = 0; i !== callbackList.length; i++) {

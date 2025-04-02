@@ -54,6 +54,8 @@ import PayloadContextService, {
 import AliveService from "./services/base/AliveService";
 import { ISwarmDI } from "../model/SwarmDI.model";
 import NavigationValidationService from "./services/validation/NavigationValidationService";
+import WikiValidationService from "./services/validation/WikiValidationService";
+import WikiSchemaService from "./services/schema/WikiSchemaService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -121,6 +123,7 @@ const schemaServices = {
   stateSchemaService: inject<StateSchemaService>(TYPES.stateSchemaService),
   memorySchemaService: inject<MemorySchemaService>(TYPES.memorySchemaService),
   policySchemaService: inject<PolicySchemaService>(TYPES.policySchemaService),
+  wikiSchemaService: inject<WikiSchemaService>(TYPES.wikiSchemaService),
 };
 
 const publicServices = {
@@ -178,6 +181,7 @@ const validationServices = {
   navigationValidationService: inject<NavigationValidationService>(
     TYPES.navigationValidationService
   ),
+  wikiValidationService: inject<WikiValidationService>(TYPES.wikiValidationService),
 };
 
 /** @inheritDoc */

@@ -44,6 +44,8 @@ import PolicyConnectionService from "../lib/services/connection/PolicyConnection
 import { TPayloadContextService } from "../lib/services/context/PayloadContextService";
 import AliveService from "../lib/services/base/AliveService";
 import NavigationValidationService from "../lib/services/validation/NavigationValidationService";
+import WikiValidationService from "../lib/services/validation/WikiValidationService";
+import WikiSchemaService from "../lib/services/schema/WikiSchemaService";
 
 /**
  * Interface defining the structure of the dependency injection container for the swarm system.
@@ -211,6 +213,12 @@ export interface ISwarmDI {
    */
   policySchemaService: PolicySchemaService;
 
+  /**
+   * Service for defining and managing agent wikies.
+   * Implements `IWikiSchema` for rule enforcement via `WikiSchemaService`.
+   */
+  wikiSchemaService: WikiSchemaService;
+
   // Public Services
   /**
    * Service exposing public APIs for agent operations.
@@ -332,4 +340,9 @@ export interface ISwarmDI {
    * Service preventing the recursive call of changeToAgent
    */
   navigationValidationService: NavigationValidationService;
+
+  /**
+   * Service preventing the recursive call of changeToAgent
+   */
+  wikiValidationService: WikiValidationService;
 }

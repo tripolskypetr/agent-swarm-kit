@@ -13,6 +13,8 @@ import StorageValidationService from "./StorageValidationService";
 import { StorageName } from "../../../interfaces/Storage.interface";
 import { StateName } from "../../../interfaces/State.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import WikiValidationService from "./WikiValidationService";
+import { WikiName } from "../../../interfaces/Wiki.interface";
 
 /**
  * Service for validating agents within the swarm system, managing agent schemas and dependencies.
@@ -41,6 +43,17 @@ export class AgentValidationService {
    */
   private readonly toolValidationService = inject<ToolValidationService>(
     TYPES.toolValidationService
+  );
+
+  /**
+   * Wiki validation service instance for validating wikies associated with agents.
+   * Injected via DI, used in validate method to check agent wiki list.
+   * @type {WikiValidationService}
+   * @private
+   * @readonly
+   */
+  private readonly wikiValidationService = inject<WikiValidationService>(
+    TYPES.wikiValidationService
   );
 
   /**
@@ -112,6 +125,25 @@ export class AgentValidationService {
   };
 
   /**
+   * Retrieves the list of wiki names associated with a given agent.
+   * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
+   * @returns {WikiName[]} An array of wikies names from the agent’s schema.
+   * @throws {Error} If the agent is not found in _agentMap.
+   */
+  public getWikiList = (agentName: AgentName): WikiName[] => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentValidationService getWikiList", {
+        agentName,
+      });
+    if (!this._agentMap.has(agentName)) {
+      throw new Error(
+        `agent-swarm agent ${agentName} not exist (getWikiList)`
+      );
+    }
+    return this._agentMap.get(agentName)!.wikiList || [];
+  };
+
+  /**
    * Retrieves the list of state names associated with a given agent.
    * Logs the operation and validates agent existence, supporting ClientState integration.
    * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
@@ -176,6 +208,31 @@ export class AgentValidationService {
       }
       const { storages = [] } = this._agentMap.get(agentName)!;
       return storages.includes(storageName);
+    }
+  );
+
+  /**
+   * Checks if an agent has declared wiki
+   * @param {AgentName} agentName - The name of the agent to check, sourced from Agent.interface.
+   * @param {WikiName} wikiName - The name of the wiki to verify, sourced from Wiki.interface.
+   * @returns {boolean} True if the wiki is registered in the agent’s schema, false otherwise.
+   * @throws {Error} If the agent is not found in _agentMap.
+   */
+  public hasWiki = memoize(
+    ([agentName, wikiName]) => `${agentName}-${wikiName}`,
+    (agentName: AgentName, wikiName: WikiName): boolean => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("agentValidationService hasWiki", {
+          agentName,
+          wikiName,
+        });
+      if (!this._agentMap.has(agentName)) {
+        throw new Error(
+          `agent-swarm agent ${agentName} not exist (hasWiki)`
+        );
+      }
+      const { wikiList = [] } = this._agentMap.get(agentName)!;
+      return wikiList.includes(wikiName);
     }
   );
 
@@ -267,6 +324,16 @@ export class AgentValidationService {
           );
         }
         this.storageValidationService.validate(storageName, source);
+      });
+      agent.wikiList?.forEach((wikiName: WikiName) => {
+        if (typeof wikiName !== "string") {
+          throw new Error(
+            `agent-swarm agent ${agentName} storage list is invalid (wikiName=${String(
+              wikiName
+            )}) source=${source}`
+          );
+        }
+        this.wikiValidationService.validate(wikiName, source);
       });
     }
   ) as (agentName: AgentName, source: string) => void;
