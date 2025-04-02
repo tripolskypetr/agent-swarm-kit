@@ -33,6 +33,17 @@ export const question = beginContext(
     swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
     swarm.wikiValidationService.validate(wikiName, METHOD_NAME);
 
+    if (
+      !swarm.agentValidationService.hasWiki(
+        agentName,
+        wikiName
+      )
+    ) {
+      throw new Error(
+        `agent-swarm ${METHOD_NAME} ${wikiName} not registered in ${agentName}`
+      );
+    }
+
     const currentAgentName = await swarm.swarmPublicService.getAgentName(
       METHOD_NAME,
       clientId,
