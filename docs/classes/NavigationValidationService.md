@@ -29,7 +29,7 @@ Implements `ILogger` to provide log, debug, and info-level logging.
 ### getNavigationRoute
 
 ```ts
-getNavigationRoute: any
+getNavigationRoute: ((clientId: string, swarmName: string) => Set<string>) & IClearableMemoize<string> & IControlMemoize<string, Set<string>>
 ```
 
 Memoized function to retrieve or create a navigation route for a client and swarm.

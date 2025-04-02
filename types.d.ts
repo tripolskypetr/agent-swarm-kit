@@ -2847,6 +2847,53 @@ interface ICompletionSchema {
 type CompletionName = string;
 
 /**
+ * @interface IWikiCallbacks
+ * @description Callback functions for wiki operations
+ */
+interface IWikiCallbacks {
+    /**
+     * Optional callback triggered when a chat operation occurs
+     * @param {IChatArgs} args - Arguments for the chat operation
+     */
+    onChat?: (args: IChatArgs) => void;
+}
+/**
+ * @interface IChatArgs
+ * @description Arguments required for chat operations
+ */
+interface IChatArgs {
+    /** Unique identifier for the client */
+    clientId: string;
+    /** Name of the agent handling the chat */
+    agentName: AgentName;
+    /** Message content for the chat */
+    message: string;
+}
+/**
+ * @interface IWikiSchema
+ * @description Schema definition for wiki configuration
+ */
+interface IWikiSchema {
+    /** Optional description of the wiki documentation */
+    docDescription?: string;
+    /** Name identifier for the wiki */
+    wikiName: WikiName;
+    /**
+     * Function to get chat response
+     * @param {IChatArgs} args - Arguments for the chat operation
+     * @returns {Promise<string>} The chat response
+     */
+    getChat(args: IChatArgs): Promise<string>;
+    /** Optional callbacks for wiki operations */
+    callbacks?: IWikiCallbacks;
+}
+/**
+ * @typedef {string} WikiName
+ * @description Type alias for wiki name identifier
+ */
+type WikiName = string;
+
+/**
  * Interface extending the standard `AbortSignal` to represent a typed abort signal.
  * Used for signaling and managing the cancellation of asynchronous operations.
  *
@@ -3110,6 +3157,8 @@ interface IAgentSchema {
     tools?: ToolName[];
     /** Optional array of storage names utilized by the agent. */
     storages?: StorageName[];
+    /** Optional array of wiki names utilized by the agent. */
+    wikiList?: WikiName[];
     /** Optional array of state names managed by the agent. */
     states?: StateName[];
     /** Optional array of agent names this agent depends on for transitions (e.g., via changeToAgent). */
@@ -5318,6 +5367,14 @@ declare class AgentValidationService {
      */
     private readonly toolValidationService;
     /**
+     * Wiki validation service instance for validating wikies associated with agents.
+     * Injected via DI, used in validate method to check agent wiki list.
+     * @type {WikiValidationService}
+     * @private
+     * @readonly
+     */
+    private readonly wikiValidationService;
+    /**
      * Completion validation service instance for validating completion configurations of agents.
      * Injected via DI, used in validate method to check agent completion.
      * @type {CompletionValidationService}
@@ -5362,6 +5419,13 @@ declare class AgentValidationService {
      */
     getStorageList: (agentName: AgentName) => StorageName[];
     /**
+     * Retrieves the list of wiki names associated with a given agent.
+     * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
+     * @returns {WikiName[]} An array of wikies names from the agent’s schema.
+     * @throws {Error} If the agent is not found in _agentMap.
+     */
+    getWikiList: (agentName: AgentName) => WikiName[];
+    /**
      * Retrieves the list of state names associated with a given agent.
      * Logs the operation and validates agent existence, supporting ClientState integration.
      * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
@@ -5386,6 +5450,14 @@ declare class AgentValidationService {
      * @throws {Error} If the agent is not found in _agentMap.
      */
     hasStorage: ((agentName: AgentName, storageName: StorageName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
+    /**
+     * Checks if an agent has declared wiki
+     * @param {AgentName} agentName - The name of the agent to check, sourced from Agent.interface.
+     * @param {WikiName} wikiName - The name of the wiki to verify, sourced from Wiki.interface.
+     * @returns {boolean} True if the wiki is registered in the agent’s schema, false otherwise.
+     * @throws {Error} If the agent is not found in _agentMap.
+     */
+    hasWiki: ((agentName: AgentName, wikiName: WikiName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
      * Checks if an agent has a registered dependency on another agent, memoized for performance.
      * Logs the operation, supporting inter-agent dependency validation within SwarmSchemaService.
@@ -6966,6 +7038,13 @@ declare class DocService {
      */
     private readonly storageSchemaService;
     /**
+     * Wiki schema service instance, injected via DI.
+     * Supplies wiki details for writeAgentDoc, documenting wiki resources used by agents.
+     * @type {WikiSchemaService}
+     * @private
+     */
+    private readonly wikiSchemaService;
+    /**
      * State schema service instance, injected via DI.
      * Provides state details for writeAgentDoc, documenting state resources used by agents.
      * @type {StateSchemaService}
@@ -8311,6 +8390,79 @@ declare class NavigationValidationService {
 }
 
 /**
+ * @class WikiValidationService
+ * @description Service for managing and validating wiki configurations
+ */
+declare class WikiValidationService {
+    /**
+     * @private
+     * @readonly
+     * @description Injected logger service instance
+     */
+    private readonly loggerService;
+    /**
+     * @private
+     * @description Map storing wiki schemas by wiki name
+     */
+    private _wikiMap;
+    /**
+     * Adds a wiki schema to the validation service
+     * @public
+     * @param {WikiName} wikiName - The name of the wiki
+     * @param {IWikiSchema} wikiSchema - The wiki schema to add
+     * @throws {Error} If wikiName already exists
+     */
+    addWiki: (wikiName: WikiName, wikiSchema: IWikiSchema) => void;
+    /**
+     * Validates the existence of a wiki
+     * @public
+     * @param {WikiName} wikiName - The name of the wiki to validate
+     * @param {string} source - The source requesting validation
+     * @throws {Error} If wikiName is not found
+     * @description Memoized function to cache validation results
+     */
+    validate: (wikiName: WikiName, source: string) => void;
+}
+
+/**
+ * @class WikiSchemaService
+ * @description Service for managing wiki schema registrations and retrieval
+ */
+declare class WikiSchemaService {
+    /**
+     * @readonly
+     * @description Injected logger service instance
+     */
+    readonly loggerService: LoggerService;
+    /**
+     * @private
+     * @description Registry for storing wiki schemas
+     */
+    private registry;
+    /**
+     * Validates basic requirements of a wiki schema
+     * @private
+     * @param {IWikiSchema} wikiSchema - The wiki schema to validate
+     * @throws {Error} If validation fails
+     */
+    private validateShallow;
+    /**
+     * Registers a wiki schema with a given key
+     * @public
+     * @param {WikiName} key - The key to register the schema under
+     * @param {IWikiSchema} value - The wiki schema to register
+     */
+    register: (key: WikiName, value: IWikiSchema) => void;
+    /**
+     * Retrieves a wiki schema by key
+     * @public
+     * @param {WikiName} key - The key of the schema to retrieve
+     * @returns {IWikiSchema} The registered wiki schema
+     */
+    get: (key: WikiName) => IWikiSchema;
+}
+
+/**
  * Interface defining the structure of the dependency injection container for the swarm system.
  * Aggregates all services providing core functionality, context management, connectivity, schema definitions,
  * public APIs, metadata, and validation for the swarm system.
@@ -8447,6 +8599,11 @@ interface ISwarmDI {
      */
     policySchemaService: PolicySchemaService;
     /**
+     * Service for defining and managing agent wikies.
+     * Implements `IWikiSchema` for rule enforcement via `WikiSchemaService`.
+     */
+    wikiSchemaService: WikiSchemaService;
+    /**
      * Service exposing public APIs for agent operations.
      * Provides methods like `execute` and `runStateless` via `AgentPublicService`.
      */
@@ -8545,6 +8702,10 @@ interface ISwarmDI {
      * Service preventing the recursive call of changeToAgent
      */
     navigationValidationService: NavigationValidationService;
+    /**
+     * Service preventing the recursive call of changeToAgent
+     */
+    wikiValidationService: WikiValidationService;
 }
 
 /** @inheritDoc */
@@ -8619,6 +8780,14 @@ declare const dumpClientPerformance: {
      */
     runAfterExecute: (dirName?: any) => Promise<() => void>;
 };
+
+/**
+ * Adds a wiki schema to the system
+ * @function addWiki
+ * @param {IWikiSchema} wikiSchema - The wiki schema to add
+ * @returns {string} The name of the added wiki
+ */
+declare const addWiki: (wikiSchema: IWikiSchema) => string;
 
 /**
  * Adds a new agent to the agent registry for use within the swarm system.
@@ -9052,6 +9221,27 @@ declare const emitForce: (content: string, clientId: string) => Promise<void>;
 declare const executeForce: (content: string, clientId: string) => Promise<string>;
 
 /**
+ * Initiates a question process within a chat context
+ * @function question
+ * @param {string} message - The message/question to be processed
+ * @param {string} clientId - Unique identifier for the client
+ * @param {AgentName} agentName - Name of the agent handling the question
+ * @param {WikiName} wikiName - Name of the wiki context
+ * @returns {Promise<string>} The response from the chat process
+ */
+declare const question: (message: string, clientId: string, agentName: string, wikiName: string) => Promise<string>;
+
+/**
+ * Initiates a forced question process within a chat context
+ * @function questionForce
+ * @param {string} message - The message/question to be processed
+ * @param {string} clientId - Unique identifier for the client
+ * @param {WikiName} wikiName - Name of the wiki context
+ * @returns {Promise<string>} The response from the chat process
+ */
+declare const questionForce: (message: string, clientId: string, wikiName: string) => Promise<string>;
+
+/**
  * Interface for the parameters of the makeAutoDispose function.
  * @interface IMakeDisposeParams
  * @property {number} timeoutSeconds - Timeout in seconds before auto-dispose is triggered.
@@ -9153,13 +9343,12 @@ declare const notify: (content: string, clientId: string, agentName: string) => 
  *
  * @param {string} content - The content to be sent as the notification output.
  * @param {string} clientId - The unique identifier of the client session sending the notification.
- * @param {AgentName} agentName - The name of the agent intended to send the notification.
  * @returns {Promise<void>} A promise that resolves when the notification is sent
  * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
  * @example
  * await notifyForce("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active
  */
-declare const notifyForce: (content: string, clientId: string, agentName: string) => Promise<void>;
+declare const notifyForce: (content: string, clientId: string) => Promise<void>;
 
 /**
  * Executes a message statelessly with an agent in a swarm session, bypassing chat history.
@@ -11480,4 +11669,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MethodContextService, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MethodContextService, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };

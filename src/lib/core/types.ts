@@ -34,6 +34,7 @@ const schemaServices = {
     stateSchemaService: Symbol('stateSchemaService'),
     memorySchemaService: Symbol('memorySchemaService'),
     policySchemaService: Symbol('policySchemaService'),
+    wikiSchemaService: Symbol('wikiSchemaService'),
 };
 
 const metaServices = {
@@ -63,6 +64,7 @@ const validationServices = {
     storageValidationService: Symbol('storageValidationService'),
     policyValidationService: Symbol('policyValidationService'),
     navigationValidationService: Symbol('navigationValidationService'),
+    wikiValidationService: Symbol('wikiValidationService'),
 };
 
 export const TYPES = {

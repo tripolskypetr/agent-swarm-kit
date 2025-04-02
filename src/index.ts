@@ -6,6 +6,7 @@ export * from "./cli/dumpSwarm";
 export * from "./cli/dumpPerfomance";
 export * from "./cli/dumpClientPerfomance";
 
+export * from "./functions/setup/addWiki";
 export * from "./functions/setup/addAgent";
 export * from "./functions/setup/addCompletion";
 export * from "./functions/setup/addSwarm";
@@ -35,6 +36,8 @@ export * from "./functions/commit/commitStopToolsForce";
 
 export * from "./functions/target/emitForce";
 export * from "./functions/target/executeForce";
+export * from "./functions/target/question";
+export * from "./functions/target/questionForce";
 export * from "./functions/target/makeAutoDispose";
 export * from "./functions/target/execute";
 export * from "./functions/target/emit";
@@ -96,6 +99,10 @@ export {
 } from "./interfaces/Completion.interface";
 export { ISwarmSchema } from "./interfaces/Swarm.interface";
 export { IAgentTool } from "./interfaces/Agent.interface";
+export { ToolValue } from "./interfaces/Agent.interface";
+
+export { IWikiSchema } from "./interfaces/Wiki.interface";
+export { IChatArgs } from "./interfaces/Wiki.interface";
 
 export { IEmbeddingSchema } from "./interfaces/Embedding.interface";
 export { IStorageSchema } from "./interfaces/Storage.interface";

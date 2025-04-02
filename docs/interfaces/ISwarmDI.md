@@ -245,6 +245,15 @@ policySchemaService: PolicySchemaService
 Service for defining and managing policy schemas.
 Implements `IPolicySchema` for rule enforcement via `PolicySchemaService`.
 
+### wikiSchemaService
+
+```ts
+wikiSchemaService: WikiSchemaService
+```
+
+Service for defining and managing agent wikies.
+Implements `IWikiSchema` for rule enforcement via `WikiSchemaService`.
+
 ### agentPublicService
 
 ```ts
@@ -420,6 +429,14 @@ Ensures policy integrity via `PolicyValidationService`.
 
 ```ts
 navigationValidationService: NavigationValidationService
+```
+
+Service preventing the recursive call of changeToAgent
+
+### wikiValidationService
+
+```ts
+wikiValidationService: WikiValidationService
 ```
 
 Service preventing the recursive call of changeToAgent

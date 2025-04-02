@@ -46,6 +46,8 @@ import PolicyConnectionService from "../services/connection/PolicyConnectionServ
 import PayloadContextService from "../services/context/PayloadContextService";
 import AliveService from "../services/base/AliveService";
 import NavigationValidationService from "../services/validation/NavigationValidationService";
+import WikiSchemaService from "../services/schema/WikiSchemaService";
+import WikiValidationService from "../services/validation/WikiValidationService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -83,6 +85,7 @@ import NavigationValidationService from "../services/validation/NavigationValida
     provide(TYPES.stateSchemaService, () => new StateSchemaService());
     provide(TYPES.memorySchemaService, () => new MemorySchemaService());
     provide(TYPES.policySchemaService, () => new PolicySchemaService());
+    provide(TYPES.wikiSchemaService, () => new WikiSchemaService());
 }
 
 {
@@ -112,4 +115,5 @@ import NavigationValidationService from "../services/validation/NavigationValida
     provide(TYPES.embeddingValidationService, () => new EmbeddingValidationService());
     provide(TYPES.policyValidationService, () => new PolicyValidationService());
     provide(TYPES.navigationValidationService, () => new NavigationValidationService());
+    provide(TYPES.wikiValidationService, () => new WikiValidationService());
 }
