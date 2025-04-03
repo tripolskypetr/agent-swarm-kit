@@ -328,7 +328,7 @@ export class AgentValidationService {
       agent.wikiList?.forEach((wikiName: WikiName) => {
         if (typeof wikiName !== "string") {
           throw new Error(
-            `agent-swarm agent ${agentName} storage list is invalid (wikiName=${String(
+            `agent-swarm agent ${agentName} wiki list is invalid (wikiName=${String(
               wikiName
             )}) source=${source}`
           );

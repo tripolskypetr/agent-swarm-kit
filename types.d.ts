@@ -3449,7 +3449,7 @@ declare class LoggerService implements ILogger {
      * @param {...any[]} args - The message content and optional additional data (e.g., objects, strings).
      * @returns {void}
      */
-    log: (topic: string, ...args: any[]) => void;
+    log: (topic: string, ...args: any[]) => Promise<void>;
     /**
      * Logs messages at the debug level, routing to both the client-specific logger (if clientId exists) and the common logger.
      * Attaches method and execution context for detailed debugging, heavily used in ClientAgent (e.g., RUN_FN, EXECUTE_FN) when GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG is true.
@@ -3457,7 +3457,7 @@ declare class LoggerService implements ILogger {
      * @param {...any[]} args - The debug content and optional additional data (e.g., objects, strings).
      * @returns {void}
      */
-    debug: (topic: string, ...args: any[]) => void;
+    debug: (topic: string, ...args: any[]) => Promise<void>;
     /**
      * Logs messages at the info level, routing to both the client-specific logger (if clientId exists) and the common logger.
      * Attaches method and execution context for informational tracking, used in PerfService (e.g., startExecution) and DocService (e.g., dumpDocs) when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -3465,7 +3465,7 @@ declare class LoggerService implements ILogger {
      * @param {...any[]} args - The info content and optional additional data (e.g., objects, strings).
      * @returns {void}
      */
-    info: (topic: string, ...args: any[]) => void;
+    info: (topic: string, ...args: any[]) => Promise<void>;
     /**
      * Sets a new common logger instance, replacing the default NOOP_LOGGER or previous logger.
      * Allows runtime customization of system-wide logging behavior, potentially used in testing or advanced configurations (e.g., redirecting logs to a file or console).

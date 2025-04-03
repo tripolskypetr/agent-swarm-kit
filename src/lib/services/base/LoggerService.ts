@@ -1,14 +1,17 @@
 import { inject } from "../../../lib/core/di";
 import { ILogger } from "../../../interfaces/Logger.interface";
 import MethodContextService, {
+  IMethodContext,
   TMethodContextService,
 } from "../context/MethodContextService";
 import TYPES from "../../../lib/core/types";
 import ExecutionContextService, {
+  IExecutionContext,
   TExecutionContextService,
 } from "../context/ExecutionContextService";
 import { singleshot } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import { scoped } from "di-scoped";
 
 /**
  * A no-operation (noop) logger implementation of ILogger, used as the default common logger.
@@ -41,6 +44,29 @@ const NOOP_LOGGER: ILogger = {
     void 0;
   },
 };
+
+/**
+ * A scoped context class for client-specific logging.
+ * Provides a structured context containing method and execution-level metadata,
+ * enabling traceability and context-aware logging for client-specific operations.
+ *
+ * This class is used to encapsulate and manage the logging context for a specific client,
+ * ensuring that logs are enriched with relevant contextual information such as method and execution contexts.
+ *
+ * @param {Object} context - The logging context object.
+ * @param {IMethodContext} context.methodContext - The method-level context, typically containing metadata like clientId.
+ * @param {IExecutionContext} context.executionContext - The execution-level context, typically containing metadata like clientId.
+ */
+const ClientLoggerContext = scoped(
+  class {
+    constructor(
+      readonly context: {
+        methodContext: IMethodContext;
+        executionContext: IExecutionContext;
+      }
+    ) {}
+  }
+);
 
 /**
  * Service class implementing the ILogger interface to provide logging functionality in the swarm system.
@@ -95,7 +121,10 @@ export class LoggerService implements ILogger {
    * @param {...any[]} args - The message content and optional additional data (e.g., objects, strings).
    * @returns {void}
    */
-  public log = (topic: string, ...args: any[]) => {
+  public log = async (topic: string, ...args: any[]) => {
+    if (ClientLoggerContext.hasContext()) {
+      return;
+    }
     const methodContext = MethodContextService.hasContext()
       ? this.methodContextService.context
       : null;
@@ -107,8 +136,12 @@ export class LoggerService implements ILogger {
       methodContext,
       executionContext,
     };
-    clientId && this.getLoggerAdapter().log(clientId, topic, ...args, context);
-    this._commonLogger.log(topic, ...args, context);
+    return await ClientLoggerContext.runInContext(async () => {
+      if (clientId) {
+        await this.getLoggerAdapter().log(clientId, topic, ...args, context);
+      }
+      await this._commonLogger.log(topic, ...args, context);
+    }, context);
   };
 
   /**
@@ -118,7 +151,10 @@ export class LoggerService implements ILogger {
    * @param {...any[]} args - The debug content and optional additional data (e.g., objects, strings).
    * @returns {void}
    */
-  public debug = (topic: string, ...args: any[]) => {
+  public debug = async (topic: string, ...args: any[]) => {
+    if (ClientLoggerContext.hasContext()) {
+      return;
+    }
     const methodContext = MethodContextService.hasContext()
       ? this.methodContextService.context
       : null;
@@ -130,9 +166,12 @@ export class LoggerService implements ILogger {
       methodContext,
       executionContext,
     };
-    clientId &&
-      this.getLoggerAdapter().debug(clientId, topic, ...args, context);
-    this._commonLogger.debug(topic, ...args, context);
+    return await ClientLoggerContext.runInContext(async () => {
+      if (clientId) {
+        await this.getLoggerAdapter().debug(clientId, topic, ...args, context);
+      }
+      await this._commonLogger.debug(topic, ...args, context);
+    }, context);
   };
 
   /**
@@ -142,7 +181,10 @@ export class LoggerService implements ILogger {
    * @param {...any[]} args - The info content and optional additional data (e.g., objects, strings).
    * @returns {void}
    */
-  public info = (topic: string, ...args: any[]) => {
+  public info = async (topic: string, ...args: any[]) => {
+    if (ClientLoggerContext.hasContext()) {
+      return;
+    }
     const methodContext = MethodContextService.hasContext()
       ? this.methodContextService.context
       : null;
@@ -154,8 +196,12 @@ export class LoggerService implements ILogger {
       methodContext,
       executionContext,
     };
-    clientId && this.getLoggerAdapter().info(clientId, topic, ...args, context);
-    this._commonLogger.info(topic, ...args, context);
+    return await ClientLoggerContext.runInContext(async () => {
+      if (clientId) {
+        await this.getLoggerAdapter().info(clientId, topic, ...args, context);
+      }
+      await this._commonLogger.info(topic, ...args, context);
+    }, context);
   };
 
   /**
