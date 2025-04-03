@@ -6,7 +6,7 @@
       "dependencies": {
         "@tensorflow/tfjs-backend-wasm": "^4.22.0",
         "@tensorflow/tfjs-core": "^4.22.0",
-        "agent-swarm-kit": "^1.0.214",
+        "agent-swarm-kit": "^1.0.229",
         "functools-kit": "^1.0.75",
         "ollama": "^0.5.14",
         "openai": "^4.86.2",
@@ -48,7 +48,7 @@
 
     "abort-controller": ["abort-controller@3.0.0", "", { "dependencies": { "event-target-shim": "^5.0.0" } }, "sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg=="],
 
-    "agent-swarm-kit": ["agent-swarm-kit@1.0.214", "", { "dependencies": { "di-kit": "^1.0.14", "di-scoped": "^1.0.16", "functools-kit": "^1.0.76", "get-moment-stamp": "^1.1.1", "lodash-es": "4.17.21", "xml2js": "0.6.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-jR9/4xhLdXaBd/NGCEVjlKL9pPuCzU8Qow9TSuLsYttl2jbc3QJo+hlaYqyVsk9/1yZwumCz4sV84gDpXnyeAw=="],
+    "agent-swarm-kit": ["agent-swarm-kit@1.0.229", "", { "dependencies": { "di-kit": "^1.0.14", "di-scoped": "^1.0.16", "functools-kit": "^1.0.77", "get-moment-stamp": "^1.1.1", "lodash-es": "4.17.21", "xml2js": "0.6.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-jwm7tMOqbaY0FpZuaGcD2GO361V8AHh2toJMmtBmugItZyO7j7ylDKTWeYXgWw8BjXs9Jg9dFskgQA5rtkVSSw=="],
 
     "agentkeepalive": ["agentkeepalive@4.6.0", "", { "dependencies": { "humanize-ms": "^1.2.1" } }, "sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ=="],
 
@@ -238,7 +238,7 @@
 
     "@types/ws/@types/node": ["@types/node@22.13.10", "", { "dependencies": { "undici-types": "~6.20.0" } }, "sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw=="],
 
-    "agent-swarm-kit/functools-kit": ["functools-kit@1.0.76", "", { "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-wMzVr0akLkl3doV7eaORMNIw9AwqwY9+7KSkfhE2gUg99dvy0AxV7HkBdas77l4sEZKbccE1e9bzRFQxW0J3ug=="],
+    "agent-swarm-kit/functools-kit": ["functools-kit@1.0.77", "", { "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-LhLqMGPd1ECb1TdQu5BrgzVrduDw+xPQxbvdVNkOyfniuKxa1QpnOfkGKEXJjcCKQ2eAqaaz6Ch5TYoPNK615w=="],
 
     "bun-types/@types/node": ["@types/node@22.13.10", "", { "dependencies": { "undici-types": "~6.20.0" } }, "sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw=="],
 
