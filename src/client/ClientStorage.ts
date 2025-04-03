@@ -61,7 +61,7 @@ type Payload<T extends IStorageData = IStorageData> = {
 const CREATE_EMBEDDING_FN = async <T extends IStorageData = IStorageData>(
   item: T,
   self: ClientStorage<T>
-): Promise<readonly [Embeddings, string]> => {
+): Promise<readonly [Embeddings, string][]> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
       `ClientStorage storageName=${self.params.storageName} clientId=${self.params.clientId} shared=${self.params.shared} _createEmbedding`,
@@ -70,31 +70,63 @@ const CREATE_EMBEDDING_FN = async <T extends IStorageData = IStorageData>(
       }
     );
   const index = await self.params.createIndex(item);
-  const hash = createSHA256Hash(index);
-  let embeddings = await self.params.readEmbeddingCache(
-    self.params.embedding,
-    hash
-  );
-  if (!embeddings) {
-    embeddings = await self.params.createEmbedding(
-      index,
-      self.params.embedding
-    );
-    await self.params.writeEmbeddingCache(
-      embeddings,
+  const result: [Embeddings, string][] = [];
+  if (typeof index === "string") {
+    const hash = createSHA256Hash(index);
+    let embeddings = await self.params.readEmbeddingCache(
       self.params.embedding,
       hash
     );
+    if (!embeddings) {
+      embeddings = await self.params.createEmbedding(
+        index,
+        self.params.embedding
+      );
+      await self.params.writeEmbeddingCache(
+        embeddings,
+        self.params.embedding,
+        hash
+      );
+    }
+    if (self.params.onCreate) {
+      self.params.onCreate(
+        index,
+        embeddings,
+        self.params.clientId,
+        self.params.embedding
+      );
+    }
+    result.push([embeddings, index] as const);
+  } else {
+    for (const value of Object.values(index)) {
+      const hash = createSHA256Hash(value);
+      let embeddings = await self.params.readEmbeddingCache(
+        self.params.embedding,
+        hash
+      );
+      if (!embeddings) {
+        embeddings = await self.params.createEmbedding(
+          value,
+          self.params.embedding
+        );
+        await self.params.writeEmbeddingCache(
+          embeddings,
+          self.params.embedding,
+          hash
+        );
+      }
+      if (self.params.onCreate) {
+        self.params.onCreate(
+          value,
+          embeddings,
+          self.params.clientId,
+          self.params.embedding
+        );
+      }
+      result.push([embeddings, value] as const);
+    }
   }
-  if (self.params.onCreate) {
-    self.params.onCreate(
-      index,
-      embeddings,
-      self.params.clientId,
-      self.params.embedding
-    );
-  }
-  return [embeddings, index] as const;
+  return result;
 };
 
 /**
@@ -427,21 +459,26 @@ export class ClientStorage<T extends IStorageData = IStorageData>
       Array.from(this._itemMap.values()).map(
         execpool(
           async (item) => {
-            const [targetEmbeddings, index] = await this._createEmbedding(item);
-            const score = await this.params.calculateSimilarity(
-              searchEmbeddings,
-              targetEmbeddings
-            );
-            if (this.params.onCompare) {
-              this.params.onCompare(
-                search,
-                index,
-                score,
-                this.params.clientId,
-                this.params.embedding
+            let maxScore = Number.NEGATIVE_INFINITY;
+            for (const [targetEmbeddings, index] of await this._createEmbedding(
+              item
+            )) {
+              const score = await this.params.calculateSimilarity(
+                searchEmbeddings,
+                targetEmbeddings
               );
+              if (this.params.onCompare) {
+                this.params.onCompare(
+                  search,
+                  index,
+                  score,
+                  this.params.clientId,
+                  this.params.embedding
+                );
+              }
+              maxScore = Math.max(score, maxScore);
             }
-            indexed.push(item, score);
+            indexed.push(item, maxScore);
           },
           {
             delay: 10,

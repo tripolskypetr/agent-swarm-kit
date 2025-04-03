@@ -69,7 +69,13 @@ export interface IStorageSchema<T extends IStorageData = IStorageData> {
    * @param {T} item - The storage item to index.
    * @returns {Promise<string> | string} The index string for the item, synchronously or asynchronously.
    */
-  createIndex(item: T): Promise<string> | string;
+  createIndex(
+    item: T
+  ):
+    | Promise<string>
+    | string
+    | Record<string, string>
+    | Promise<Record<string, string>>;
 
   /** The name of the embedding mechanism used for indexing and searching storage data. */
   embedding: EmbeddingName;

@@ -220,7 +220,7 @@ interface IStorageSchema<T extends IStorageData = IStorageData> {
      * @param {T} item - The storage item to index.
      * @returns {Promise<string> | string} The index string for the item, synchronously or asynchronously.
      */
-    createIndex(item: T): Promise<string> | string;
+    createIndex(item: T): Promise<string> | string | Record<string, string> | Promise<Record<string, string>>;
     /** The name of the embedding mechanism used for indexing and searching storage data. */
     embedding: EmbeddingName;
     /** The unique name of the storage within the swarm. */
@@ -6006,7 +6006,7 @@ declare class ClientStorage<T extends IStorageData = IStorageData> implements IS
      * @returns {Promise<readonly [Embeddings, string]>} A tuple of embeddings (from Embedding.interface) and index string.
      * @private
      */
-    _createEmbedding: ((item: T) => Promise<readonly [Embeddings, string]>) & functools_kit.IClearableMemoize<string | number> & functools_kit.IControlMemoize<string | number, Promise<readonly [Embeddings, string]>>;
+    _createEmbedding: ((item: T) => Promise<readonly [Embeddings, string][]>) & functools_kit.IClearableMemoize<string | number> & functools_kit.IControlMemoize<string | number, Promise<readonly [Embeddings, string][]>>;
     /**
      * Waits for the initialization of the storage, loading initial data and creating embeddings via WAIT_FOR_INIT_FN.
      * Ensures initialization happens only once using singleshot, supporting StorageConnectionService’s lifecycle.
