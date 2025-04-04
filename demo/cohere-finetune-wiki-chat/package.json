@@ -1,0 +1,23 @@
+{
+  "name": "cohere-finetune-wiki-chat",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun ./src/repl.ts",
+    "build:docs": "bun ./src/docs.mjs"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "agent-swarm-kit": "^1.0.229",
+    "cohere-ai": "^7.16.0",
+    "functools-kit": "^1.0.77",
+    "openai": "^4.91.1",
+    "plantuml": "^0.0.2"
+  }
+}
