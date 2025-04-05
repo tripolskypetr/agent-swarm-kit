@@ -1,6 +1,6 @@
 ---
-title: app/fine-tuning
-group: app
+title: articles/fine-tuning
+group: articles
 ---
 
 # Fine Tuning a Swarm of Agents
@@ -76,7 +76,7 @@ Notably, OpenAI’s admin panel automates file selection, validation, and traini
 ![Image](./images/1f01a112639974b84d539b900a61c46f.png)  
 *Caption: [https://agent-tune.github.io/](https://agent-tune.github.io/)*
 
-A conditionally free intern can fill such `jsonl` files on the site [https://agent-tune.github.io/](https://agent-tune.github.io/).
+A potentially cheap intern can fill such `jsonl` files on the site [https://agent-tune.github.io/](https://agent-tune.github.io/).
 
 ![Image](./images/569e89fc510506fff829004d106e4980.png)  
 *Caption: [https://agent-tune.github.io/](https://agent-tune.github.io/)*
