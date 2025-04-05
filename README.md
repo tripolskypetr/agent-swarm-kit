@@ -346,6 +346,31 @@ See the **[Test Cases](https://github.com/tripolskypetr/agent-swarm-kit/blob/mas
 
 ---
 
+## 🌍 Ecosystem
+
+The `agent-swarm-kit` ecosystem extends beyond the core library, offering complementary tools to enhance your multi-agent AI development experience. One such tool is:
+
+### Agent Tune Dataset Constructor
+
+> **[Explore Agent Tune](https://agent-tune.github.io)**
+
+The **Agent Tune Dataset Constructor** is a React-based tool designed for crafting fine-tuning datasets tailored for AI models, published on GitHub Pages at [agent-tune.github.io](https://agent-tune.github.io). It provides a dynamic, user-friendly interface with list and grid layouts, enabling you to define user inputs, preferred and non-preferred outputs, and multi-turn chat histories—complete with tool definitions and calls. Built with the `react-declarative` library and styled using Material-UI, it’s optimized for creating JSONL files compatible with OpenAI’s fine-tuning API.
+
+#### Key Features
+- **Dynamic Forms**: Build dataset entries with configurable user inputs, outputs, and tools (up to five per entry), featuring autocomplete for tool names and enum values.
+- **Chat History**: Include conversational context with tool calls, supporting up to five messages per entry.
+- **Data Management**: Import/export datasets as JSONL files (`SFT` and `DPO` both), with automatic `tool_call_id` generation, and persist changes to local storage.
+- **Validation**: Ensures tool consistency, message order, and data integrity.
+- **Ease of Use**: Navigate with breadcrumbs, save drafts, and export directly for fine-tuning with commands like `openai api fine_tunes.create`.
+
+#### Use Case
+Perfect for preparing training data to fine-tune agents within `agent-swarm-kit`, Agent Tune lets you define precise behaviors—like how a sales agent responds or a triage agent routes requests—before integrating them into your swarm. Export your dataset and fine-tune your models to enhance performance across your agent network.
+
+#### Get Started
+Visit [agent-tune.github.io](https://agent-tune.github.io) to try it out, or clone the repository to customize it further. Combine it with `agent-swarm-kit` for a seamless workflow from dataset creation to agent deployment.
+
+---
+
 ## 🤝 Contribute
 
 We’d love your input! Fork the repo, submit a PR, or open an issue on **[GitHub](https://github.com/tripolskypetr/agent-swarm-kit)**.
