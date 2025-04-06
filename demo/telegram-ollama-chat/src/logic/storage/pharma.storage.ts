@@ -13,7 +13,7 @@ export const PHARMA_STORAGE = addStorage<IProductDto>({
   storageName: "pharma_storage",
   embedding: OLLAMA_EMBEDDING,
   shared: true,
-  createIndex: ({ description }) => description,
+  createIndex: ({ description }) => `${description}`,
   getDefaultData: async () => {
     const data = await readFile("./data/products.json");
     return JSON.parse(data.toString());

@@ -5,7 +5,7 @@ import { StorageName } from "../../enum/StorageName";
 
 addStorage<IFactSchema>({
   docDescription: "This storage, named FactStorage, operates within the persist-redis-storage project to maintain a collection of fascinating facts with descriptions indexed by NomicEmbedding, persisting them in Redis alongside chat history and agent states, initialized with default entries like honey’s longevity and Venus’s rotation.",
-  createIndex: ({ description }) => description,
+  createIndex: ({ description }) => `${description}`,
   embedding: EmbeddingName.NomicEmbedding,
   storageName: StorageName.FactStorage,
   getDefaultData: () => [

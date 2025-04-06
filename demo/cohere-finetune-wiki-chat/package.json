@@ -14,7 +14,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "agent-swarm-kit": "^1.0.229",
+    "agent-swarm-kit": "^1.0.230",
     "cohere-ai": "^7.16.0",
     "functools-kit": "^1.0.77",
     "openai": "^4.91.1",

@@ -21,16 +21,24 @@ const ollama = new Ollama();
 addEmbedding({
   embeddingName: EmbeddingName.NomicEmbedding,
   calculateSimilarity: async (a, b) => {
-    return tidy(() => {
-      const tensorA = tensor1d(a);
-      const tensorB = tensor1d(b);
-      const dotProduct = sum(mul(tensorA, tensorB));
-      const normA = norm(tensorA);
-      const normB = norm(tensorB);
-      const cosineData = div(dotProduct, mul(normA, normB)).dataSync();
-      const cosineSimilarity = cosineData[0];
-      return cosineSimilarity;
-    });
+    const tensorA = tensor1d(a);
+    const tensorB = tensor1d(b);
+    const dotProduct = sum(mul(tensorA, tensorB));
+    const normA = norm(tensorA);
+    const normB = norm(tensorB);
+    const normProduct = mul(normA, normB);
+    const cosineTensor = div(dotProduct, normProduct);
+    const [similarity] = await cosineTensor.data();
+    {
+      tensorA.dispose();
+      tensorB.dispose();
+      dotProduct.dispose();
+      normA.dispose();
+      normB.dispose();
+      normProduct.dispose();
+      cosineTensor.dispose();
+    }
+    return similarity;
   },
   createEmbedding: async (text) => {
     const { embedding } = await ollama.embeddings({

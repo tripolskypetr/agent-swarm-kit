@@ -5,7 +5,7 @@ import readline from "readline";
 import { randomString } from "functools-kit";
 import { getAgentName, session } from "agent-swarm-kit";
 
-const CLIENT_ID = "111" // randomString()
+const CLIENT_ID = randomString()
 
 const { complete } = session(CLIENT_ID, SwarmName.RootSwarm);
 

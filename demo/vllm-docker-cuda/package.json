@@ -15,7 +15,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "agent-swarm-kit": "^1.0.219",
+    "agent-swarm-kit": "^1.0.230",
     "functools-kit": "^1.0.76",
     "openai": "^4.91.0",
     "plantuml": "^0.0.2"

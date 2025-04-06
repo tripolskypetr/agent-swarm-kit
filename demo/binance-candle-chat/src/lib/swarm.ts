@@ -117,16 +117,24 @@ addCompletion({
 addEmbedding({
   embeddingName: EmbeddingName.NomicEmbedding,
   calculateSimilarity: async (a, b) => {
-    return tidy(() => {
-      const tensorA = tensor1d(a);
-      const tensorB = tensor1d(b);
-      const dotProduct = sum(mul(tensorA, tensorB));
-      const normA = norm(tensorA);
-      const normB = norm(tensorB);
-      const cosineData = div(dotProduct, mul(normA, normB)).dataSync();
-      const cosineSimilarity = cosineData[0];
-      return cosineSimilarity;
-    });
+    const tensorA = tensor1d(a);
+    const tensorB = tensor1d(b);
+    const dotProduct = sum(mul(tensorA, tensorB));
+    const normA = norm(tensorA);
+    const normB = norm(tensorB);
+    const normProduct = mul(normA, normB);
+    const cosineTensor = div(dotProduct, normProduct);
+    const [similarity] = await cosineTensor.data();
+    {
+      tensorA.dispose();
+      tensorB.dispose();
+      dotProduct.dispose();
+      normA.dispose();
+      normB.dispose();
+      normProduct.dispose();
+      cosineTensor.dispose();
+    }
+    return similarity;
   },
   createEmbedding: async (text) => {
     const { embedding } = await ollama.embeddings({
@@ -138,9 +146,14 @@ addEmbedding({
 });
 
 addStorage<IOrderSchema>({
-  docDescription: "Persistent storage system designed to record and organize cryptocurrency trading orders, capturing details such as order type (buy/sell), coin (BTC, ETH, BNB, XRP, SOL), quantity, and price. Utilizes embeddings for efficient indexing and retrieval, supporting portfolio management and profit/loss calculations for long-term trading strategies across all trader agents.",
-  createIndex: ({ type, coin, quantity, price }) =>
-    str.space(type, coin, quantity, price),
+  docDescription:
+    "Persistent storage system designed to record and organize cryptocurrency trading orders, capturing details such as order type (buy/sell), coin (BTC, ETH, BNB, XRP, SOL), quantity, and price. Utilizes embeddings for efficient indexing and retrieval, supporting portfolio management and profit/loss calculations for long-term trading strategies across all trader agents.",
+  createIndex: ({ type, coin, quantity, price }) => ({
+    type,
+    coin,
+    quantity,
+    price,
+  }),
   embedding: EmbeddingName.NomicEmbedding,
   storageName: StorageName.OrderStorage,
 });
@@ -477,7 +490,8 @@ addAgent({
 
 addTool({
   toolName: ToolName.CalculateAverageCoinPriceTool,
-  docNote: "Tool that calculates the average cost per unit and the cumulative profit or loss for a given cryptocurrency in the user's trading portfolio. It retrieves historical order data from storage, verifies the coin matches the current agent’s focus (BTC, ETH, BNB, XRP, or SOL), and provides financial insights for long-term trading decisions. If the coin mismatches, it redirects to the Triage Agent.",
+  docNote:
+    "Tool that calculates the average cost per unit and the cumulative profit or loss for a given cryptocurrency in the user's trading portfolio. It retrieves historical order data from storage, verifies the coin matches the current agent’s focus (BTC, ETH, BNB, XRP, or SOL), and provides financial insights for long-term trading decisions. If the coin mismatches, it redirects to the Triage Agent.",
   type: "function",
   call: async ({ toolId, agentName, clientId, params }) => {
     console.log(ToolName.CalculateAverageCoinPriceTool, { params });
