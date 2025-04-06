@@ -99,6 +99,9 @@ const CREATE_EMBEDDING_FN = async <T extends IStorageData = IStorageData>(
     result.push([embeddings, index] as const);
   } else {
     for (const value of Object.values(index)) {
+      if (typeof value !== "string") {
+        continue;
+      }
       const hash = createSHA256Hash(value);
       let embeddings = await self.params.readEmbeddingCache(
         self.params.embedding,
@@ -477,6 +480,9 @@ export class ClientStorage<T extends IStorageData = IStorageData>
                 );
               }
               maxScore = Math.max(score, maxScore);
+            }
+            if (maxScore === Number.NEGATIVE_INFINITY) {
+              return;
             }
             indexed.push(item, maxScore);
           },
