@@ -26,7 +26,7 @@ Unleash the power of collaborative AI with `agent-swarm-kit`! This library empow
 
 ### First Look
 
-Read the [briefing article by the link](https://agent-swarm.github.io/documents/app_getting-started.html)
+Read the [detailed instructions by the link](https://agent-swarm.github.io/documents/app_getting-started.html)
 
 ### Installation
 
