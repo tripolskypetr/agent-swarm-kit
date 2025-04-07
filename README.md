@@ -22,7 +22,7 @@ Unleash the power of collaborative AI with `agent-swarm-kit`! This library empow
 
 ## 🚀 Getting Started
 
-**Want a real-world demo?** Check out our **[Binance Candle Chat](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/demo/binance-candle-chat/src/lib/swarm.ts)**—a practical example of a sales agent in action!
+> **Want a real-world demo?** Check out our **[Binance Candle Chat](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/demo/binance-candle-chat/src/lib/swarm.ts)**—a practical example of a sales agent in action!
 
 ### Documentation
 
