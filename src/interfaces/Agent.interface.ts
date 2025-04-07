@@ -166,6 +166,7 @@ export interface IAgentParams
   extends Omit<
     IAgentSchema,
     keyof {
+      system: never;
       tools: never;
       completion: never;
       validate: never;
@@ -367,6 +368,12 @@ export interface IAgentSchema {
 
   /** Optional array of system prompts, typically used for tool-calling protocols. */
   system?: string[];
+
+  /** Optional array of system prompts, alias for `system` */
+  systemStatic?: string[];
+
+  /** Optional dynamic array of system prompts from the callback */
+  systemDynamic?: (clientId: string, agentName: AgentName) => (Promise<string[]> | string[]);
 
   /** Optional array of tool names available to the agent. */
   tools?: ToolName[];

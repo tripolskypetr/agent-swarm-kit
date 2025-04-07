@@ -30,12 +30,11 @@ const TOOL_NO_OUTPUT_WARNING_SYMBOL = Symbol("tool-warning-timeout");
 /**
  * A utility class for managing the lifecycle of an `AbortController` instance.
  * Provides a mechanism to signal and handle abort events for asynchronous operations.
- * 
+ *
  * This class is used to create and manage an `AbortController` instance, allowing
  * consumers to access the `AbortSignal` and trigger abort events when necessary.
  */
 class ToolAbortController {
-
   /**
    * The internal `AbortController` instance used to manage abort signals.
    * If `AbortController` is not available in the global environment, this will be `null`.
@@ -56,7 +55,7 @@ class ToolAbortController {
   /**
    * Gets the `AbortSignal` associated with the internal `AbortController`.
    * This signal can be used to monitor or respond to abort events.
-   * 
+   *
    * @returns {AbortSignal} The `AbortSignal` instance, or throws an error if `AbortController` is not supported.
    */
   get signal(): AbortSignal {
@@ -69,7 +68,7 @@ class ToolAbortController {
   /**
    * Triggers the abort event on the internal `AbortController`, signaling any listeners
    * that the associated operation should be aborted.
-   * 
+   *
    * If no `AbortController` instance exists, this method does nothing.
    */
   abort() {
@@ -87,9 +86,9 @@ class ToolAbortController {
  */
 const createPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[
-  Math.floor(
-    Math.random() * GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS.length
-  )
+    Math.floor(
+      Math.random() * GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS.length
+    )
   ];
 
 /**
@@ -129,7 +128,8 @@ const createToolCall = async (
       );
   } catch (error) {
     console.error(
-      `agent-swarm tool call error functionName=${tool.function.name
+      `agent-swarm tool call error functionName=${
+        tool.function.name
       } error=${getErrorMessage(error)}`,
       {
         clientId: self.params.clientId,
@@ -169,7 +169,7 @@ const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
     self.params.onRun(self.params.clientId, self.params.agentName, incoming);
   const messages = await self.params.history.toArrayForAgent(
     self.params.prompt,
-    self.params.system
+    await self._resolveSystemPrompt()
   );
   messages.push({
     agentName: self.params.agentName,
@@ -344,7 +344,8 @@ const EXECUTE_FN = async (
           );
         const result = await self._resurrectModel(
           mode,
-          `Function validation failed: name=${tool.function.name
+          `Function validation failed: name=${
+            tool.function.name
           } arguments=${JSON.stringify(tool.function.arguments)}`
         );
         GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -453,7 +454,8 @@ const EXECUTE_FN = async (
             );
           const result = await self._resurrectModel(
             mode,
-            `Function call failed with error: name=${tool.function.name
+            `Function call failed with error: name=${
+              tool.function.name
             } arguments=${JSON.stringify(tool.function.arguments)}`
           );
           GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -520,11 +522,10 @@ const EXECUTE_FN = async (
  * @implements {IAgent}
  */
 export class ClientAgent implements IAgent {
-
   /**
    * An instance of `ToolAbortController` used to manage the lifecycle of abort signals for tool executions.
    * Provides an `AbortSignal` to signal and handle abort events for asynchronous operations.
-   * 
+   *
    * This property is used to control and cancel ongoing tool executions when necessary, such as during agent changes or tool stops.
    * @type {ToolAbortController}
    * @readonly
@@ -587,6 +588,37 @@ export class ClientAgent implements IAgent {
         }
       );
     this.params.onInit && this.params.onInit(params.clientId, params.agentName);
+  }
+
+  /**
+   * Resolves the system prompt by combining static and dynamic system messages.
+   * Static messages are directly included from the `systemStatic` parameter, while dynamic messages
+   * are fetched asynchronously using the `systemDynamic` function.
+   *
+   * This method is used to construct the system-level context for the agent, which can include
+   * predefined static messages and dynamically generated messages based on the agent's state or configuration.
+   *
+   * @returns {Promise<string[]>} A promise that resolves to an array of system messages,
+   * including both static and dynamically generated messages.
+   */
+  async _resolveSystemPrompt(): Promise<string[]> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resolveSystemPrompt`
+      );
+    const system: string[] = [];
+    if (this.params.systemStatic) {
+      system.push(...this.params.systemStatic);
+    }
+    if (this.params.systemDynamic) {
+      system.push(
+        ...(await this.params.systemDynamic(
+          this.params.clientId,
+          this.params.agentName
+        ))
+      );
+    }
+    return system;
   }
 
   /**
@@ -808,7 +840,7 @@ export class ClientAgent implements IAgent {
       );
     const messages = await this.params.history.toArrayForAgent(
       this.params.prompt,
-      this.params.system
+      await this._resolveSystemPrompt()
     );
     const args = {
       clientId: this.params.clientId,
@@ -866,7 +898,7 @@ export class ClientAgent implements IAgent {
       });
       const messages = await this.params.history.toArrayForAgent(
         this.params.prompt,
-        this.params.system
+        await this._resolveSystemPrompt()
       );
       const args = {
         clientId: this.params.clientId,

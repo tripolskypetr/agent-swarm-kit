@@ -137,6 +137,8 @@ export class AgentConnectionService implements IAgent {
       const {
         prompt,
         system,
+        systemStatic = system,
+        systemDynamic,
         tools,
         transform = GLOBAL_CONFIG.CC_AGENT_OUTPUT_TRANSFORM,
         map = GLOBAL_CONFIG.CC_AGENT_OUTPUT_MAP,
@@ -170,7 +172,8 @@ export class AgentConnectionService implements IAgent {
         bus: this.busService,
         history: this.historyConnectionService.getHistory(clientId, agentName),
         prompt,
-        system,
+        systemStatic,
+        systemDynamic,
         transform,
         map,
         tools: tools?.map(this.toolSchemaService.get),

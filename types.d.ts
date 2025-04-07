@@ -3014,6 +3014,7 @@ interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
  * @extends {IAgentSchemaCallbacks}
  */
 interface IAgentParams extends Omit<IAgentSchema, keyof {
+    system: never;
     tools: never;
     completion: never;
     validate: never;
@@ -3153,6 +3154,10 @@ interface IAgentSchema {
     prompt: string;
     /** Optional array of system prompts, typically used for tool-calling protocols. */
     system?: string[];
+    /** Optional array of system prompts, alias for `system` */
+    systemStatic?: string[];
+    /** Optional dynamic array of system prompts from the callback */
+    systemDynamic?: (clientId: string, agentName: AgentName) => (Promise<string[]> | string[]);
     /** Optional array of tool names available to the agent. */
     tools?: ToolName[];
     /** Optional array of storage names utilized by the agent. */
@@ -3573,6 +3578,18 @@ declare class ClientAgent implements IAgent {
      * @param {IAgentParams} params - The parameters for agent initialization, including clientId, agentName, completion, tools, etc.
      */
     constructor(params: IAgentParams);
+    /**
+     * Resolves the system prompt by combining static and dynamic system messages.
+     * Static messages are directly included from the `systemStatic` parameter, while dynamic messages
+     * are fetched asynchronously using the `systemDynamic` function.
+     *
+     * This method is used to construct the system-level context for the agent, which can include
+     * predefined static messages and dynamically generated messages based on the agent's state or configuration.
+     *
+     * @returns {Promise<string[]>} A promise that resolves to an array of system messages,
+     * including both static and dynamically generated messages.
+     */
+    _resolveSystemPrompt(): Promise<string[]>;
     /**
      * Emits the transformed output after validation, invoking callbacks and emitting events via BusService.
      * Attempts model resurrection via _resurrectModel if validation fails, throwing an error if unrecoverable.
