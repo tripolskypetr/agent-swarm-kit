@@ -91,7 +91,7 @@ export const OperatorInstance = makeExtendable(
     /**
      * Disposed flag for child class
      */
-    get isDisposed() {
+    public get isDisposed() {
       return this._isDisposed;
     }
 
