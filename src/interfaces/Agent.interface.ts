@@ -13,6 +13,11 @@ import { IBus } from "./Bus.interface";
 import { WikiName } from "./Wiki.interface";
 
 /**
+ * The dispose function type, representing a function that performs cleanup or resource release.
+ */
+type DisposeFn = () => void;
+
+/**
  * Interface extending the standard `AbortSignal` to represent a typed abort signal.
  * Used for signaling and managing the cancellation of asynchronous operations.
  * 
@@ -360,11 +365,14 @@ export interface IAgentSchema {
   /** The unique name of the agent within the swarm. */
   agentName: AgentName;
 
-  /** The name of the completion mechanism used by the agent. */
-  completion: CompletionName;
+  /** Flag means the operator is going to chat with customer on another side */
+  operator?: boolean;
 
-  /** The primary prompt guiding the agent's behavior. */
-  prompt: string;
+  /** The name of the completion mechanism used by the agent. REQUIRED WHEN AGENT IS NOT OPERATOR */
+  completion?: CompletionName;
+
+  /** The primary prompt guiding the agent's behavior. REQUIRED WHEN AGENT IS NOT OPERATOR */
+  prompt?: string;
 
   /** Optional array of system prompts, typically used for tool-calling protocols. */
   system?: string[];
@@ -374,6 +382,9 @@ export interface IAgentSchema {
 
   /** Optional dynamic array of system prompts from the callback */
   systemDynamic?: (clientId: string, agentName: AgentName) => (Promise<string[]> | string[]);
+
+  /** Operator connection function to passthrough the chat into operator dashboard */
+  connectOperator?: (clientId: string, agentName: AgentName) => (message: string, next: (answer: string) => void) => DisposeFn,
 
   /** Optional array of tool names available to the agent. */
   tools?: ToolName[];

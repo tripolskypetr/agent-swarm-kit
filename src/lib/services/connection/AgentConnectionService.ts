@@ -16,6 +16,7 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 import StorageConnectionService from "./StorageConnectionService";
 import BusService from "../base/BusService";
 import StateConnectionService from "./StateConnectionService";
+import ClientOperator from "../../../client/ClientOperator";
 
 /**
  * Service class for managing agent connections and operations in the swarm system.
@@ -137,6 +138,7 @@ export class AgentConnectionService implements IAgent {
       const {
         prompt,
         system,
+        operator,
         systemStatic = system,
         systemDynamic,
         tools,
@@ -147,10 +149,12 @@ export class AgentConnectionService implements IAgent {
         callbacks,
         storages,
         states,
+        connectOperator = GLOBAL_CONFIG.CC_DEFAULT_CONNECT_OPERATOR,
         completion: completionName,
         validate = validateDefault,
       } = this.agentSchemaService.get(agentName);
       const completion = this.completionSchemaService.get(completionName);
+      const history = this.historyConnectionService.getHistory(clientId, agentName);
       this.sessionValidationService.addAgentUsage(clientId, agentName);
       storages?.forEach((storageName) =>
         this.storageConnectionService
@@ -162,6 +166,16 @@ export class AgentConnectionService implements IAgent {
           .getStateRef(clientId, stateName)
           .waitForInit()
       );
+      if (operator) {
+        return new ClientOperator({
+          clientId,
+          agentName,
+          bus: this.busService,
+          history,
+          logger: this.loggerService,
+          connectOperator
+        });
+      }
       return new ClientAgent({
         clientId,
         agentName,
@@ -170,7 +184,7 @@ export class AgentConnectionService implements IAgent {
         mapToolCalls,
         logger: this.loggerService,
         bus: this.busService,
-        history: this.historyConnectionService.getHistory(clientId, agentName),
+        history,
         prompt,
         systemStatic,
         systemDynamic,

@@ -1010,7 +1010,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
           swarmName,
         }
       );
-    const isInitial = this.getActiveAgentStorage.has(swarmName);
+    const isInitial = !this.getActiveAgentStorage.has(swarmName);
     const activeAgentStorage = this.getActiveAgentStorage(swarmName);
     await activeAgentStorage.waitForInit(isInitial);
     if (await activeAgentStorage.hasValue(clientId)) {
@@ -1043,7 +1043,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
           swarmName,
         }
       );
-    const isInitial = this.getActiveAgentStorage.has(swarmName);
+    const isInitial = !this.getActiveAgentStorage.has(swarmName);
     const activeAgentStorage = this.getActiveAgentStorage(swarmName);
     await activeAgentStorage.waitForInit(isInitial);
     await activeAgentStorage.writeValue(clientId, { agentName });
@@ -1069,7 +1069,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
           swarmName,
         }
       );
-    const isInitial = this.getNavigationStackStorage.has(swarmName);
+    const isInitial = !this.getNavigationStackStorage.has(swarmName);
     const navigationStackStorage = this.getNavigationStackStorage(swarmName);
     await navigationStackStorage.waitForInit(isInitial);
     if (await navigationStackStorage.hasValue(clientId)) {
@@ -1101,7 +1101,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
           swarmName,
         }
       );
-    const isInitial = this.getNavigationStackStorage.has(swarmName);
+    const isInitial = !this.getNavigationStackStorage.has(swarmName);
     const navigationStackStorage = this.getNavigationStackStorage(swarmName);
     await navigationStackStorage.waitForInit(isInitial);
     await navigationStackStorage.writeValue(clientId, { agentStack });
@@ -1209,7 +1209,7 @@ export class PersistStateUtils implements IPersistStateControl {
         clientId,
         stateName,
       });
-    const isInitial = this.getStateStorage.has(stateName);
+    const isInitial = !this.getStateStorage.has(stateName);
     const stateStorage = this.getStateStorage(stateName);
     await stateStorage.waitForInit(isInitial);
     await stateStorage.writeValue(clientId, { state });
@@ -1235,7 +1235,7 @@ export class PersistStateUtils implements IPersistStateControl {
         clientId,
         stateName,
       });
-    const isInitial = this.getStateStorage.has(stateName);
+    const isInitial = !this.getStateStorage.has(stateName);
     const stateStorage = this.getStateStorage(stateName);
     await stateStorage.waitForInit(isInitial);
     if (await stateStorage.hasValue(clientId)) {
@@ -1349,7 +1349,7 @@ export class PersistStorageUtils implements IPersistStorageControl {
         clientId,
         storageName,
       });
-    const isInitial = this.getPersistStorage.has(storageName);
+    const isInitial = !this.getPersistStorage.has(storageName);
     const persistStorage = this.getPersistStorage(storageName);
     await persistStorage.waitForInit(isInitial);
     if (await persistStorage.hasValue(clientId)) {
@@ -1379,7 +1379,7 @@ export class PersistStorageUtils implements IPersistStorageControl {
         clientId,
         storageName,
       });
-    const isInitial = this.getPersistStorage.has(storageName);
+    const isInitial = !this.getPersistStorage.has(storageName);
     const persistStorage = this.getPersistStorage(storageName);
     await persistStorage.waitForInit(isInitial);
     await persistStorage.writeValue(clientId, { data });
@@ -1486,7 +1486,7 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
       swarm.loggerService.log(PERSIST_MEMORY_UTILS_METHOD_NAME_SET_MEMORY, {
         clientId,
       });
-    const isInitial = this.getMemoryStorage.has(clientId);
+    const isInitial = !this.getMemoryStorage.has(clientId);
     const stateStorage = this.getMemoryStorage(clientId);
     await stateStorage.waitForInit(isInitial);
     await stateStorage.writeValue(clientId, { data });
@@ -1509,7 +1509,7 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
       swarm.loggerService.log(PERSIST_MEMORY_UTILS_METHOD_NAME_GET_MEMORY, {
         clientId,
       });
-    const isInitial = this.getMemoryStorage.has(clientId);
+    const isInitial = !this.getMemoryStorage.has(clientId);
     const stateStorage = this.getMemoryStorage(clientId);
     await stateStorage.waitForInit(isInitial);
     if (await stateStorage.hasValue(clientId)) {
@@ -1637,7 +1637,7 @@ export class PersistAliveUtils implements IPersistAliveControl {
       swarm.loggerService.log(PERSIST_ALIVE_UTILS_METHOD_NAME_MARK_ONLINE, {
         clientId,
       });
-    const isInitial = this.getAliveStorage.has(swarmName);
+    const isInitial = !this.getAliveStorage.has(swarmName);
     const stateStorage = this.getAliveStorage(swarmName);
     await stateStorage.waitForInit(isInitial);
     await stateStorage.writeValue(clientId, { online: true });
@@ -1658,7 +1658,7 @@ export class PersistAliveUtils implements IPersistAliveControl {
       swarm.loggerService.log(PERSIST_ALIVE_UTILS_METHOD_NAME_MARK_OFFLINE, {
         clientId,
       });
-    const isInitial = this.getAliveStorage.has(swarmName);
+    const isInitial = !this.getAliveStorage.has(swarmName);
     const stateStorage = this.getAliveStorage(swarmName);
     await stateStorage.waitForInit(isInitial);
     await stateStorage.writeValue(clientId, { online: false });
@@ -1679,7 +1679,7 @@ export class PersistAliveUtils implements IPersistAliveControl {
       swarm.loggerService.log(PERSIST_ALIVE_UTILS_METHOD_NAME_GET_ONLINE, {
         clientId,
       });
-    const isInitial = this.getAliveStorage.has(swarmName);
+    const isInitial = !this.getAliveStorage.has(swarmName);
     const stateStorage = this.getAliveStorage(swarmName);
     await stateStorage.waitForInit(isInitial);
     if (await stateStorage.hasValue(clientId)) {
@@ -1790,7 +1790,7 @@ export class PersistPolicyUtils implements IPersistPolicyControl {
         PERSIST_POLICY_UTILS_METHOD_NAME_GET_BANNED_CLIENTS
       );
 
-    const isInitial = this.getPolicyStorage.has(swarmName);
+    const isInitial = !this.getPolicyStorage.has(swarmName);
     const stateStorage = this.getPolicyStorage(swarmName);
     await stateStorage.waitForInit(isInitial);
 
@@ -1821,7 +1821,7 @@ export class PersistPolicyUtils implements IPersistPolicyControl {
         PERSIST_POLICY_UTILS_METHOD_NAME_SET_BANNED_CLIENTS
       );
 
-    const isInitial = this.getPolicyStorage.has(swarmName);
+    const isInitial = !this.getPolicyStorage.has(swarmName);
     const stateStorage = this.getPolicyStorage(swarmName);
     await stateStorage.waitForInit(isInitial);
 
@@ -1928,7 +1928,7 @@ export class PersistEmbeddingUtils implements IPersistEmbeddingControl {
         PERSIST_EMBEDDING_UTILS_METHOD_NAME_READ_EMBEDDING_CACHE
       );
 
-    const isInitial = this.getEmbeddingStorage.has(embeddingName);
+    const isInitial = !this.getEmbeddingStorage.has(embeddingName);
     const stateStorage = this.getEmbeddingStorage(embeddingName);
     await stateStorage.waitForInit(isInitial);
 
@@ -1959,7 +1959,7 @@ export class PersistEmbeddingUtils implements IPersistEmbeddingControl {
         PERSIST_EMBEDDING_UTILS_METHOD_NAME_WRITE_EMBEDDING_CACHE
       );
 
-    const isInitial = this.getEmbeddingStorage.has(embeddingName);
+    const isInitial = !this.getEmbeddingStorage.has(embeddingName);
     const stateStorage = this.getEmbeddingStorage(embeddingName);
     await stateStorage.waitForInit(isInitial);
 

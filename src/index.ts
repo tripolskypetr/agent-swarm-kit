@@ -153,6 +153,11 @@ export {
 } from "./classes/Logger";
 
 export {
+  Operator,
+  OperatorInstance,
+} from "./classes/Operator"
+
+export {
   PersistBase,
   PersistList,
   TPersistBase,

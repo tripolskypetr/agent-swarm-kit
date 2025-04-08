@@ -1,5 +1,7 @@
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
+import { IAgent as IAgent$1 } from 'src/interfaces/Agent.interface';
+import { IOperatorParams } from 'src/interfaces/Operator.interface';
 import * as di_scoped from 'di-scoped';
 
 /**
@@ -2894,6 +2896,10 @@ interface IWikiSchema {
 type WikiName = string;
 
 /**
+ * The dispose function type, representing a function that performs cleanup or resource release.
+ */
+type DisposeFn$2 = () => void;
+/**
  * Interface extending the standard `AbortSignal` to represent a typed abort signal.
  * Used for signaling and managing the cancellation of asynchronous operations.
  *
@@ -3148,16 +3154,20 @@ interface IAgentSchema {
     docDescription?: string;
     /** The unique name of the agent within the swarm. */
     agentName: AgentName;
-    /** The name of the completion mechanism used by the agent. */
-    completion: CompletionName;
-    /** The primary prompt guiding the agent's behavior. */
-    prompt: string;
+    /** Flag means the operator is going to chat with customer on another side */
+    operator?: boolean;
+    /** The name of the completion mechanism used by the agent. REQUIRED WHEN AGENT IS NOT OPERATOR */
+    completion?: CompletionName;
+    /** The primary prompt guiding the agent's behavior. REQUIRED WHEN AGENT IS NOT OPERATOR */
+    prompt?: string;
     /** Optional array of system prompts, typically used for tool-calling protocols. */
     system?: string[];
     /** Optional array of system prompts, alias for `system` */
     systemStatic?: string[];
     /** Optional dynamic array of system prompts from the callback */
     systemDynamic?: (clientId: string, agentName: AgentName) => (Promise<string[]> | string[]);
+    /** Operator connection function to passthrough the chat into operator dashboard */
+    connectOperator?: (clientId: string, agentName: AgentName) => (message: string, next: (answer: string) => void) => DisposeFn$2;
     /** Optional array of tool names available to the agent. */
     tools?: ToolName[];
     /** Optional array of storage names utilized by the agent. */
@@ -3694,6 +3704,24 @@ declare class ClientAgent implements IAgent {
     dispose(): Promise<void>;
 }
 
+declare class ClientOperator implements IAgent$1 {
+    readonly params: IOperatorParams;
+    private _outgoingSubject;
+    private _operatorSignal;
+    constructor(params: IOperatorParams);
+    run(): Promise<string>;
+    execute(input: string, mode: ExecutionMode): Promise<void>;
+    waitForOutput(): Promise<string>;
+    commitToolOutput(): Promise<void>;
+    commitSystemMessage(): Promise<void>;
+    commitUserMessage(content: string): Promise<void>;
+    commitAssistantMessage(): Promise<void>;
+    commitFlush(): Promise<void>;
+    commitStopTools(): Promise<void>;
+    commitAgentChange(): Promise<void>;
+    dispose(): Promise<void>;
+}
+
 /**
  * Service class for managing agent connections and operations in the swarm system.
  * Implements IAgent to provide an interface for agent instantiation, execution, message handling, and lifecycle management.
@@ -3782,7 +3810,7 @@ declare class AgentConnectionService implements IAgent {
      * @param {string} agentName - The name of the agent, sourced from Agent.interface, used in AgentSchemaService lookups.
      * @returns {ClientAgent} The memoized ClientAgent instance configured for the client and agent.
      */
-    getAgent: ((clientId: string, agentName: string) => ClientAgent) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientAgent>;
+    getAgent: ((clientId: string, agentName: string) => ClientAgent | ClientOperator) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientAgent | ClientOperator>;
     /**
      * Executes an input command on the agent in a specified execution mode.
      * Delegates to ClientAgent.execute, using context from MethodContextService to identify the agent, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -4801,7 +4829,7 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @param {AgentName} agentName - The name of the agent, sourced from Agent.interface, used in DocService docs.
      * @returns {Promise<unknown>} A promise resolving to the agent reference object.
      */
-    createAgentRef: (methodName: string, clientId: string, agentName: AgentName) => Promise<ClientAgent>;
+    createAgentRef: (methodName: string, clientId: string, agentName: AgentName) => Promise<ClientAgent | ClientOperator>;
     /**
      * Executes a command on the agent with a specified execution mode.
      * Wraps AgentConnectionService.execute with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -10488,6 +10516,7 @@ type TLoggerInstance = InstanceType<typeof LoggerInstance>;
  */
 declare const Logger: ILoggerControl;
 
+type DisposeFn$1 = () => void;
 /**
  * Interface defining the global configuration settings and behaviors for the swarm system.
  * Centralizes constants and functions used across components like `ClientAgent` (e.g., tool handling, logging, history).
@@ -10908,6 +10937,12 @@ interface IGlobalConfig {
      * Throw an error if agents being changed recursively
      */
     CC_THROW_WHEN_NAVIGATION_RECURSION: boolean;
+    /**
+     * Default function to connect an operator for handling messages and responses.
+     * Establishes a connection between a client and an agent, allowing messages to be sent
+     * and answers to be received via a callback mechanism.
+     */
+    CC_DEFAULT_CONNECT_OPERATOR: (clientId: string, agentName: AgentName) => (message: string, next: (answer: string) => void) => DisposeFn$1;
 }
 
 declare const GLOBAL_CONFIG: IGlobalConfig;
@@ -10919,6 +10954,39 @@ declare const GLOBAL_CONFIG: IGlobalConfig;
  * Only the specified properties will be updated, leaving the rest of the `GLOBAL_CONFIG` unchanged.
  */
 declare const setConfig: (config: Partial<IGlobalConfig>) => void;
+
+interface IOperatorInstanceCallbacks {
+    onInit: (clientId: string, agentName: AgentName) => void;
+    onAnswer: (answer: string, clientId: string, agentName: AgentName) => void;
+    onMessage: (message: string, clientId: string, agentName: AgentName) => void;
+    onDispose: (clientId: string, agentName: AgentName) => void;
+    onNotify: (answer: string, clientId: string, agentName: AgentName) => void;
+}
+interface IOperatorInstance {
+    connectAnswer(next: (answer: string) => void): void;
+    answer(content: string): Promise<void>;
+    notify(content: string): Promise<void>;
+    recieveMessage(message: string): Promise<void>;
+    dispose(): Promise<void>;
+}
+type TOperatorInstanceCtor = new (clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>) => IOperatorInstance;
+declare class OperatorInstance implements IOperatorInstance {
+    readonly clientId: string;
+    readonly agentName: AgentName;
+    readonly callbacks: Partial<IOperatorInstanceCallbacks>;
+    private _answerSubject;
+    constructor(clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>);
+    connectAnswer(next: (answer: string) => void): void;
+    notify(content: string): Promise<void>;
+    answer(content: string): Promise<void>;
+    recieveMessage(message: string): Promise<void>;
+    dispose(): Promise<void>;
+}
+interface IOperatorControl {
+    useOperatorAdapter(Ctor: TOperatorInstanceCtor): void;
+    useOperatorCallbacks: (Callbacks: Partial<IOperatorInstanceCallbacks>) => void;
+}
+declare const Operator: IOperatorControl;
 
 /**
  * A generic RoundRobin implementation that cycles through token-based instance creators.
@@ -11686,4 +11754,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MethodContextService, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };
