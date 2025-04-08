@@ -343,8 +343,13 @@ export class DocService {
         result.push("");
       }
 
-      {
+      if (agentSchema.completion) {
         result.push(`**Completion:** \`${agentSchema.completion}\``);
+        result.push("");
+      }
+
+      {
+        result.push(`*Operator:* [${agentSchema.operator ? "x" : " "}]`);
         result.push("");
       }
 

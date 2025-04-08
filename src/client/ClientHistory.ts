@@ -206,7 +206,7 @@ export class ClientHistory implements IHistory {
     );
     const promptMessages: IModelMessage[] = [];
     {
-      promptMessages.push({
+      prompt && promptMessages.push({
         agentName: this.params.agentName,
         mode: "tool",
         content: prompt,

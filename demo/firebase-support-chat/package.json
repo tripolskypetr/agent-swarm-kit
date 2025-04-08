@@ -14,7 +14,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "agent-swarm-kit": "^1.0.240",
+    "agent-swarm-kit": "^1.0.241",
     "firebase": "^11.6.0",
     "functools-kit": "^1.0.78",
     "plantuml": "^0.0.2",

@@ -168,7 +168,7 @@ const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
   self.params.onRun &&
     self.params.onRun(self.params.clientId, self.params.agentName, incoming);
   const messages = await self.params.history.toArrayForAgent(
-    self.params.prompt,
+    self.params.prompt ?? "",
     await self._resolveSystemPrompt()
   );
   messages.push({
@@ -839,7 +839,7 @@ export class ClientAgent implements IAgent {
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} getCompletion`
       );
     const messages = await this.params.history.toArrayForAgent(
-      this.params.prompt,
+      this.params.prompt ?? "",
       await this._resolveSystemPrompt()
     );
     const args = {
@@ -897,7 +897,7 @@ export class ClientAgent implements IAgent {
         content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
       });
       const messages = await this.params.history.toArrayForAgent(
-        this.params.prompt,
+        this.params.prompt ?? "",
         await this._resolveSystemPrompt()
       );
       const args = {

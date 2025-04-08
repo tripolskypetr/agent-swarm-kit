@@ -32,10 +32,7 @@ Operator.useOperatorAdapter(class extends OperatorInstance {
      * like `listenEvent` or `notify` for `makeConnection` 
      */
     async notify(content: string) {
-        {
-            console.log(content);
-            console.log()
-        }
+        console.log(content);
         await super.notify(content);
     }
 
@@ -51,11 +48,13 @@ Operator.useOperatorAdapter(class extends OperatorInstance {
 });
 
 addAgent({
+    docDescription: "This agent, named operator_agent, operates within an AI consulting swarm, redirecting interactions to the operator dashboard using a Firebase Realtime-implemented connection bus, enabling seamless human assistance when customers request it.",
     agentName: AgentName.OperatorAgent,
     operator: true,
-})
+});
 
 addSwarm({
+    docDescription: "This swarm, named root_swarm, forms the backbone of an AI consulting swarm, utilizing a single operator_agent as both its sole member and default agent, leveraging a Firebase Realtime-driven connection bus to redirect customer interactions to the operator dashboard for human assistance when needed.",
     swarmName: SwarmName.RootSwarm,
     agentList: [AgentName.OperatorAgent],
     defaultAgent: AgentName.OperatorAgent,
