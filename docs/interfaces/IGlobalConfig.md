@@ -431,3 +431,13 @@ CC_THROW_WHEN_NAVIGATION_RECURSION: boolean
 ```
 
 Throw an error if agents being changed recursively
+
+### CC_DEFAULT_CONNECT_OPERATOR
+
+```ts
+CC_DEFAULT_CONNECT_OPERATOR: (clientId: string, agentName: string) => (message: string, next: (answer: string) => void) => DisposeFn$1
+```
+
+Default function to connect an operator for handling messages and responses.
+Establishes a connection between a client and an agent, allowing messages to be sent
+and answers to be received via a callback mechanism.

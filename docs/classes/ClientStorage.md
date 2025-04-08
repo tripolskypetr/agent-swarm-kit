@@ -47,7 +47,7 @@ Ensures sequential execution of storage operations, supporting thread-safe updat
 ### _createEmbedding
 
 ```ts
-_createEmbedding: ((item: T) => Promise<readonly [Embeddings, string]>) & IClearableMemoize<string | number> & IControlMemoize<string | number, Promise<readonly [Embeddings, string]>>
+_createEmbedding: ((item: T) => Promise<readonly [Embeddings, string][]>) & IClearableMemoize<string | number> & IControlMemoize<string | number, Promise<readonly [Embeddings, string][]>>
 ```
 
 Creates embeddings for the given item, memoized by item ID to avoid redundant calculations via CREATE_EMBEDDING_FN.

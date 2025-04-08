@@ -87,7 +87,7 @@ Optional function to provide the default data for the storage, resolved in persi
 ### createIndex
 
 ```ts
-createIndex: (item: T) => string | Promise<string>
+createIndex: (item: T) => string | Promise<string> | Record<string, string> | Promise<Record<string, string>>
 ```
 
 Function to generate an index for a storage item, used for search and retrieval.

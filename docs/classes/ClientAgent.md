@@ -105,6 +105,19 @@ Implements IAgent.run, delegating to RUN_FN with queuing via functools-kit’s q
 
 ## Methods
 
+### _resolveSystemPrompt
+
+```ts
+_resolveSystemPrompt(): Promise<string[]>;
+```
+
+Resolves the system prompt by combining static and dynamic system messages.
+Static messages are directly included from the `systemStatic` parameter, while dynamic messages
+are fetched asynchronously using the `systemDynamic` function.
+
+This method is used to construct the system-level context for the agent, which can include
+predefined static messages and dynamically generated messages based on the agent's state or configuration.
+
 ### _emitOutput
 
 ```ts
