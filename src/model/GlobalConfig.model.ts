@@ -10,6 +10,8 @@ import { PolicyName } from "../interfaces/Policy.interface";
 import { SessionId } from "../interfaces/Session.interface";
 import { EmbeddingName } from "../interfaces/Embedding.interface";
 
+type DisposeFn = () => void;
+
 /**
  * Interface defining the global configuration settings and behaviors for the swarm system.
  * Centralizes constants and functions used across components like `ClientAgent` (e.g., tool handling, logging, history).
@@ -539,9 +541,19 @@ export interface IGlobalConfig {
     toolCalls: IToolCall[];
     params: unknown;
   }) => Promise<boolean> | boolean;
-  
+
   /**
    * Throw an error if agents being changed recursively
    */
   CC_THROW_WHEN_NAVIGATION_RECURSION: boolean;
+
+  /**
+   * Default function to connect an operator for handling messages and responses.
+   * Establishes a connection between a client and an agent, allowing messages to be sent
+   * and answers to be received via a callback mechanism.
+   */
+  CC_DEFAULT_CONNECT_OPERATOR: (
+    clientId: string,
+    agentName: AgentName
+  ) => (message: string, next: (answer: string) => void) => DisposeFn;
 }

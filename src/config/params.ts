@@ -12,6 +12,7 @@ import { StateName } from "../interfaces/State.interface";
 import { IStorageData, StorageName } from "../interfaces/Storage.interface";
 import { IGlobalConfig } from "../model/GlobalConfig.model";
 import { EmbeddingName } from "../interfaces/Embedding.interface";
+import { OperatorAdapter } from "../classes/Operator";
 
 const CC_THROW_WHEN_NAVIGATION_RECURSION = true;
 
@@ -203,6 +204,18 @@ const CC_DEFAULT_WRITE_EMBEDDING_CACHE = (
   stringHash: string
 ) => Promise.resolve();
 
+/**
+ * Default function to connect an operator for handling messages and responses.
+ * Establishes a connection between a client and an agent, allowing messages to be sent
+ * and answers to be received via a callback mechanism.
+ *
+ * @param {string} clientId - The unique identifier of the client initiating the connection.
+ * @param {AgentName} agentName - The name of the agent to connect with.
+ * @returns {(message: string, next: (answer: string) => void) => DisposeFn} 
+ */
+const CC_DEFAULT_CONNECT_OPERATOR = (clientId: string, agentName: AgentName) =>
+  OperatorAdapter.connectOperator(clientId, agentName);
+
 const GLOBAL_CONFIG: IGlobalConfig = {
   CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
   CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
@@ -251,6 +264,7 @@ const GLOBAL_CONFIG: IGlobalConfig = {
   CC_PERSIST_EMBEDDING_CACHE,
   CC_DEFAULT_AGENT_TOOL_VALIDATE,
   CC_THROW_WHEN_NAVIGATION_RECURSION,
+  CC_DEFAULT_CONNECT_OPERATOR,
 };
 
 GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";

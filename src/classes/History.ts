@@ -934,7 +934,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
         clientId,
         agentName,
       });
-    const isInitial = this.getHistory.has(clientId);
+    const isInitial = !this.getHistory.has(clientId);
     const history = await this.getHistory(clientId);
     await history.waitForInit(agentName, isInitial);
     for await (const item of history.iterate(agentName)) {
@@ -960,7 +960,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
         agentName,
         value,
       });
-    const isInitial = this.getHistory.has(clientId);
+    const isInitial = !this.getHistory.has(clientId);
     const history = await this.getHistory(clientId);
     await history.waitForInit(agentName, isInitial);
     return await history.push(value, agentName);
@@ -981,7 +981,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
         clientId,
         agentName,
       });
-    const isInitial = this.getHistory.has(clientId);
+    const isInitial = !this.getHistory.has(clientId);
     const history = await this.getHistory(clientId);
     await history.waitForInit(agentName, isInitial);
     return await history.pop(agentName);

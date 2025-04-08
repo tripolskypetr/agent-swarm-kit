@@ -59,7 +59,7 @@ Sources from GLOBAL_CONFIG.CC_GET_CLIENT_LOGGER_ADAPTER (defaults to LoggerAdapt
 ### log
 
 ```ts
-log: (topic: string, ...args: any[]) => void
+log: (topic: string, ...args: any[]) => Promise<void>
 ```
 
 Logs messages at the normal level, routing to both the client-specific logger (if clientId exists) and the common logger.
@@ -69,7 +69,7 @@ Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG, defaults to enabled.
 ### debug
 
 ```ts
-debug: (topic: string, ...args: any[]) => void
+debug: (topic: string, ...args: any[]) => Promise<void>
 ```
 
 Logs messages at the debug level, routing to both the client-specific logger (if clientId exists) and the common logger.
@@ -78,7 +78,7 @@ Attaches method and execution context for detailed debugging, heavily used in Cl
 ### info
 
 ```ts
-info: (topic: string, ...args: any[]) => void
+info: (topic: string, ...args: any[]) => Promise<void>
 ```
 
 Logs messages at the info level, routing to both the client-specific logger (if clientId exists) and the common logger.

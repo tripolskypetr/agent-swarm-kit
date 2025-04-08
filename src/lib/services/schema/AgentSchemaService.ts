@@ -51,12 +51,12 @@ export class AgentSchemaService {
         `agent-swarm agent schema validation failed: missing agentName`
       );
     }
-    if (typeof agentSchema.completion !== "string") {
+    if (!agentSchema.operator && typeof agentSchema.completion !== "string") {
       throw new Error(
         `agent-swarm agent schema validation failed: missing completion for agentName=${agentSchema.agentName}`
       );
     }
-    if (typeof agentSchema.prompt !== "string") {
+    if (!agentSchema.operator && typeof agentSchema.prompt !== "string") {
       throw new Error(
         `agent-swarm agent schema validation failed: missing prompt for agentName=${agentSchema.agentName}`
       );

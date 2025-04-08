@@ -42,13 +42,21 @@ agentName: string
 
 The unique name of the agent within the swarm.
 
+### operator
+
+```ts
+operator: boolean
+```
+
+Flag means the operator is going to chat with customer on another side
+
 ### completion
 
 ```ts
 completion: string
 ```
 
-The name of the completion mechanism used by the agent.
+The name of the completion mechanism used by the agent. REQUIRED WHEN AGENT IS NOT OPERATOR
 
 ### prompt
 
@@ -56,7 +64,7 @@ The name of the completion mechanism used by the agent.
 prompt: string
 ```
 
-The primary prompt guiding the agent's behavior.
+The primary prompt guiding the agent's behavior. REQUIRED WHEN AGENT IS NOT OPERATOR
 
 ### system
 
@@ -65,6 +73,30 @@ system: string[]
 ```
 
 Optional array of system prompts, typically used for tool-calling protocols.
+
+### systemStatic
+
+```ts
+systemStatic: string[]
+```
+
+Optional array of system prompts, alias for `system`
+
+### systemDynamic
+
+```ts
+systemDynamic: (clientId: string, agentName: string) => string[] | Promise<string[]>
+```
+
+Optional dynamic array of system prompts from the callback
+
+### connectOperator
+
+```ts
+connectOperator: (clientId: string, agentName: string) => (message: string, next: (answer: string) => void) => DisposeFn$2
+```
+
+Operator connection function to passthrough the chat into operator dashboard
 
 ### tools
 

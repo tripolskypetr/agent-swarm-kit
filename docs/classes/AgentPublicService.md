@@ -41,7 +41,7 @@ Provides core functionality (e.g., getAgent, execute) called by public methods, 
 ### createAgentRef
 
 ```ts
-createAgentRef: (methodName: string, clientId: string, agentName: string) => Promise<ClientAgent>
+createAgentRef: (methodName: string, clientId: string, agentName: string) => Promise<ClientAgent | ClientOperator>
 ```
 
 Creates a reference to an agent for a specific client and method context.

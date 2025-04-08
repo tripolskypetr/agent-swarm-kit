@@ -114,7 +114,7 @@ Provides completion logic to ClientAgent in getAgent, supporting agent execution
 ### getAgent
 
 ```ts
-getAgent: ((clientId: string, agentName: string) => ClientAgent) & IClearableMemoize<string> & IControlMemoize<string, ClientAgent>
+getAgent: ((clientId: string, agentName: string) => ClientAgent | ClientOperator) & IClearableMemoize<string> & IControlMemoize<string, ClientAgent | ClientOperator>
 ```
 
 Retrieves or creates a memoized ClientAgent instance for a given client and agent.
