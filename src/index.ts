@@ -155,6 +155,7 @@ export {
 export {
   Operator,
   OperatorInstance,
+  TOperatorInstance,
 } from "./classes/Operator"
 
 export {

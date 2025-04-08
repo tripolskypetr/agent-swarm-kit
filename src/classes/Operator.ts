@@ -218,6 +218,11 @@ export const OperatorInstance = makeExtendable(
 );
 
 /**
+ * Type alias for an instance of OperatorInstance.
+ */
+export type TOperatorInstance = InstanceType<typeof OperatorInstance>;
+
+/**
  * Operator control interface
  * @interface IOperatorControl
  */
