@@ -1,7 +1,5 @@
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
-import { IAgent as IAgent$1 } from 'src/interfaces/Agent.interface';
-import { IOperatorParams } from 'src/interfaces/Operator.interface';
 import * as di_scoped from 'di-scoped';
 
 /**
@@ -3704,12 +3702,23 @@ declare class ClientAgent implements IAgent {
     dispose(): Promise<void>;
 }
 
+interface IOperatorSchema {
+    connectOperator: IAgentSchema["connectOperator"];
+}
+interface IOperatorParams extends IOperatorSchema, IAgentSchemaCallbacks {
+    agentName: AgentName;
+    clientId: string;
+    logger: ILogger;
+    bus: IBus;
+    history: IHistory;
+}
+
 /**
  * Client operator implementation
  * @class ClientOperator
  * @implements {IAgent}
  */
-declare class ClientOperator implements IAgent$1 {
+declare class ClientOperator implements IAgent {
     readonly params: IOperatorParams;
     private _outgoingSubject;
     private _operatorSignal;
@@ -11053,47 +11062,47 @@ type TOperatorInstanceCtor = new (clientId: string, agentName: AgentName, callba
  * @class OperatorInstance
  * @implements {IOperatorInstance}
  */
-declare class OperatorInstance implements IOperatorInstance {
-    readonly clientId: string;
-    readonly agentName: AgentName;
-    readonly callbacks: Partial<IOperatorInstanceCallbacks>;
-    private _answerSubject;
-    /**
-     * Creates an OperatorInstance
-     * @param {string} clientId - The client identifier
-     * @param {AgentName} agentName - The agent name
-     * @param {Partial<IOperatorInstanceCallbacks>} callbacks - Event callbacks
-     */
-    constructor(clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>);
-    /**
-     * Connects an answer subscription
-     * @param {(answer: string) => void} next - Answer handler callback
-     */
-    connectAnswer(next: (answer: string) => void): void;
-    /**
-     * Sends a notification
-     * @param {string} content - Notification content
-     * @returns {Promise<void>}
-     */
-    notify(content: string): Promise<void>;
-    /**
-     * Sends an answer
-     * @param {string} content - Answer content
-     * @returns {Promise<void>}
-     */
-    answer(content: string): Promise<void>;
-    /**
-     * Receives a message
-     * @param {string} message - Message content
-     * @returns {Promise<void>}
-     */
-    recieveMessage(message: string): Promise<void>;
-    /**
-     * Disposes the operator instance
-     * @returns {Promise<void>}
-     */
-    dispose(): Promise<void>;
-}
+declare const OperatorInstance: {
+    new (clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>): {
+        _answerSubject: Subject<string>;
+        _isDisposed: boolean;
+        /**
+         * Disposed flag for child class
+         */
+        readonly isDisposed: boolean;
+        readonly clientId: string;
+        readonly agentName: AgentName;
+        readonly callbacks: Partial<IOperatorInstanceCallbacks>;
+        /**
+         * Connects an answer subscription
+         * @param {(answer: string) => void} next - Answer handler callback
+         */
+        connectAnswer(next: (answer: string) => void): void;
+        /**
+         * Sends a notification
+         * @param {string} content - Notification content
+         * @returns {Promise<void>}
+         */
+        notify(content: string): Promise<void>;
+        /**
+         * Sends an answer
+         * @param {string} content - Answer content
+         * @returns {Promise<void>}
+         */
+        answer(content: string): Promise<void>;
+        /**
+         * Receives a message
+         * @param {string} message - Message content
+         * @returns {Promise<void>}
+         */
+        recieveMessage(message: string): Promise<void>;
+        /**
+         * Disposes the operator instance
+         * @returns {Promise<void>}
+         */
+        dispose(): Promise<void>;
+    };
+};
 /**
  * Operator control interface
  * @interface IOperatorControl

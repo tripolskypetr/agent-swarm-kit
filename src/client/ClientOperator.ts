@@ -1,5 +1,5 @@
-import { IAgent } from "src/interfaces/Agent.interface";
-import { IOperatorParams } from "src/interfaces/Operator.interface";
+import { IAgent } from "../interfaces/Agent.interface";
+import { IOperatorParams } from "../interfaces/Operator.interface";
 import { ExecutionMode } from "../interfaces/Session.interface";
 import { sleep, Subject } from "functools-kit";
 import { GLOBAL_CONFIG } from "../config/params";

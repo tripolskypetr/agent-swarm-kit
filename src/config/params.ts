@@ -12,7 +12,7 @@ import { StateName } from "../interfaces/State.interface";
 import { IStorageData, StorageName } from "../interfaces/Storage.interface";
 import { IGlobalConfig } from "../model/GlobalConfig.model";
 import { EmbeddingName } from "../interfaces/Embedding.interface";
-import { OperatorAdapter } from "src/classes/Operator";
+import { OperatorAdapter } from "../classes/Operator";
 
 const CC_THROW_WHEN_NAVIGATION_RECURSION = true;
 
