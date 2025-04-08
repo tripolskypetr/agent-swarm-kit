@@ -31,6 +31,8 @@ interface IOperatorInstance {
   connectAnswer(next: (answer: string) => void): void;
   /** Sends an answer */
   answer(content: string): Promise<void>;
+  /** Init the connection */
+  init(): Promise<void>;
   /** Sends a notification */
   notify(content: string): Promise<void>;
   /** Receives a message */
@@ -55,6 +57,9 @@ const OPERATOR_INSTANCE_METHOD_NAME_CTOR = "OperatorInstance.CTOR";
 /** @private Constant for logging the connectAnswer method in OperatorInstance */
 const OPERATOR_INSTANCE_METHOD_NAME_CONNECT_ANSWER =
   "OperatorInstance.connectAnswer";
+
+/** @private Constant for logging the init method in OperatorInstance */
+const OPERATOR_INSTANCE_METHOD_NAME_INIT = "OperatorInstance.init";
 
 /** @private Constant for logging the notify method in OperatorInstance */
 const OPERATOR_INSTANCE_METHOD_NAME_NOTIFY = "OperatorInstance.notify";
@@ -111,9 +116,6 @@ export const OperatorInstance = makeExtendable(
           clientId: this.clientId,
           agentName,
         });
-      if (this.callbacks.onInit) {
-        this.callbacks.onInit(clientId, agentName);
-      }
     }
 
     /**
@@ -131,6 +133,21 @@ export const OperatorInstance = makeExtendable(
         );
       this._answerSubject.unsubscribeAll();
       this._answerSubject.subscribe(next);
+    }
+
+    /**
+     * Init the operator connection
+     * @returns {Promise<void>}
+     */
+    public async init() {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_INIT, {
+          clientId: this.clientId,
+          agentName: this.agentName,
+        });
+      if (this.callbacks.onInit) {
+        this.callbacks.onInit(this.clientId, this.agentName);
+      }
     }
 
     /**
@@ -286,7 +303,9 @@ export class OperatorUtils implements IOperatorControl {
         clientId,
         agentName,
       });
+    const isInitial = !this.getOperator.has(`${clientId}-${agentName}`);
     const operator = this.getOperator(clientId, agentName);
+    isInitial && operator.init();
     return (message: string, next: (answer: string) => void): DisposeFn => {
       operator.connectAnswer(next);
       operator.recieveMessage(message);

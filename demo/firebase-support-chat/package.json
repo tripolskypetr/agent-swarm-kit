@@ -1,0 +1,23 @@
+{
+  "name": "firebase-support-chat",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun ./src/repl.ts",
+    "build:docs": "bun ./src/docs.mjs"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "agent-swarm-kit": "^1.0.240",
+    "firebase": "^11.6.0",
+    "functools-kit": "^1.0.78",
+    "plantuml": "^0.0.2",
+    "stream-chat": "^8.58.0"
+  }
+}

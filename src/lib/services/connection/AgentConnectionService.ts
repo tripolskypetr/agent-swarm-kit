@@ -153,7 +153,6 @@ export class AgentConnectionService implements IAgent {
         completion: completionName,
         validate = validateDefault,
       } = this.agentSchemaService.get(agentName);
-      const completion = this.completionSchemaService.get(completionName);
       const history = this.historyConnectionService.getHistory(clientId, agentName);
       this.sessionValidationService.addAgentUsage(clientId, agentName);
       storages?.forEach((storageName) =>
@@ -192,7 +191,7 @@ export class AgentConnectionService implements IAgent {
         transform,
         map,
         tools: tools?.map(this.toolSchemaService.get),
-        completion,
+        completion: this.completionSchemaService.get(completionName),
         ...callbacks,
       });
     }

@@ -304,7 +304,9 @@ export class AgentValidationService {
           `agent-swarm agent ${agentName} not found source=${source}`
         );
       }
-      this.completionValidationService.validate(agent.completion, source);
+      if (!agent.operator) {
+        this.completionValidationService.validate(agent.completion, source);
+      }
       agent.tools?.forEach((toolName: ToolName) => {
         if (typeof toolName !== "string") {
           throw new Error(

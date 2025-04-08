@@ -11049,6 +11049,8 @@ interface IOperatorInstance {
     connectAnswer(next: (answer: string) => void): void;
     /** Sends an answer */
     answer(content: string): Promise<void>;
+    /** Init the connection */
+    init(): Promise<void>;
     /** Sends a notification */
     notify(content: string): Promise<void>;
     /** Receives a message */
@@ -11082,6 +11084,11 @@ declare const OperatorInstance: {
          * @param {(answer: string) => void} next - Answer handler callback
          */
         connectAnswer(next: (answer: string) => void): void;
+        /**
+         * Init the operator connection
+         * @returns {Promise<void>}
+         */
+        init(): Promise<void>;
         /**
          * Sends a notification
          * @param {string} content - Notification content
