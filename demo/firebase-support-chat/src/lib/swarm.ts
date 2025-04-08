@@ -26,6 +26,10 @@ Operator.useOperatorAdapter(class extends OperatorInstance {
      * Used when operator takes initiative and send message first.
      * When user send question first, the next operator message will trigger 
      * the answer method instead
+     * 
+     * The answer method is working automatically sending the last incoming operator message to the client
+     * The notify method should be overriten to send the message to client using prefered transport
+     * like `listenEvent` or `notify` for `makeConnection` 
      */
     async notify(content: string) {
         {
