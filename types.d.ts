@@ -3704,21 +3704,77 @@ declare class ClientAgent implements IAgent {
     dispose(): Promise<void>;
 }
 
+/**
+ * Client operator implementation
+ * @class ClientOperator
+ * @implements {IAgent}
+ */
 declare class ClientOperator implements IAgent$1 {
     readonly params: IOperatorParams;
     private _outgoingSubject;
     private _operatorSignal;
+    /**
+     * Creates a ClientOperator instance
+     * @param {IOperatorParams} params - Operator parameters
+     */
     constructor(params: IOperatorParams);
+    /**
+     * Runs the operator (not supported)
+     * @returns {Promise<string>}
+     */
     run(): Promise<string>;
+    /**
+     * Executes an input with specified mode
+     * @param {string} input - Input content
+     * @param {ExecutionMode} mode - Execution mode
+     * @returns {Promise<void>}
+     */
     execute(input: string, mode: ExecutionMode): Promise<void>;
+    /**
+     * Waits for operator output with timeout
+     * @returns {Promise<string>} Output result or empty string on timeout
+     */
     waitForOutput(): Promise<string>;
+    /**
+     * Commits tool output (not supported)
+     * @returns {Promise<void>}
+     */
     commitToolOutput(): Promise<void>;
+    /**
+     * Commits system message (not supported)
+     * @returns {Promise<void>}
+     */
     commitSystemMessage(): Promise<void>;
+    /**
+     * Commits user message
+     * @param {string} content - Message content
+     * @returns {Promise<void>}
+     */
     commitUserMessage(content: string): Promise<void>;
+    /**
+     * Commits assistant message (not supported)
+     * @returns {Promise<void>}
+     */
     commitAssistantMessage(): Promise<void>;
+    /**
+     * Commits flush (not supported)
+     * @returns {Promise<void>}
+     */
     commitFlush(): Promise<void>;
+    /**
+     * Commits stop tools (not supported)
+     * @returns {Promise<void>}
+     */
     commitStopTools(): Promise<void>;
+    /**
+     * Commits agent change
+     * @returns {Promise<void>}
+     */
     commitAgentChange(): Promise<void>;
+    /**
+     * Disposes the client operator
+     * @returns {Promise<void>}
+     */
     dispose(): Promise<void>;
 }
 
@@ -10955,37 +11011,100 @@ declare const GLOBAL_CONFIG: IGlobalConfig;
  */
 declare const setConfig: (config: Partial<IGlobalConfig>) => void;
 
+/**
+ * Callbacks interface for OperatorInstance events
+ * @interface IOperatorInstanceCallbacks
+ */
 interface IOperatorInstanceCallbacks {
+    /** Called when operator instance is initialized */
     onInit: (clientId: string, agentName: AgentName) => void;
+    /** Called when operator provides an answer */
     onAnswer: (answer: string, clientId: string, agentName: AgentName) => void;
+    /** Called when operator receives a message */
     onMessage: (message: string, clientId: string, agentName: AgentName) => void;
+    /** Called when operator instance is disposed */
     onDispose: (clientId: string, agentName: AgentName) => void;
+    /** Called when operator sends a notification */
     onNotify: (answer: string, clientId: string, agentName: AgentName) => void;
 }
+/**
+ * Interface for Operator instance functionality
+ * @interface IOperatorInstance
+ */
 interface IOperatorInstance {
+    /** Connects an answer handler */
     connectAnswer(next: (answer: string) => void): void;
+    /** Sends an answer */
     answer(content: string): Promise<void>;
+    /** Sends a notification */
     notify(content: string): Promise<void>;
+    /** Receives a message */
     recieveMessage(message: string): Promise<void>;
+    /** Disposes the operator instance */
     dispose(): Promise<void>;
 }
+/**
+ * Constructor type for OperatorInstance
+ * @typedef {new (clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>) => IOperatorInstance} TOperatorInstanceCtor
+ */
 type TOperatorInstanceCtor = new (clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>) => IOperatorInstance;
+/**
+ * Operator instance implementation
+ * @class OperatorInstance
+ * @implements {IOperatorInstance}
+ */
 declare class OperatorInstance implements IOperatorInstance {
     readonly clientId: string;
     readonly agentName: AgentName;
     readonly callbacks: Partial<IOperatorInstanceCallbacks>;
     private _answerSubject;
+    /**
+     * Creates an OperatorInstance
+     * @param {string} clientId - The client identifier
+     * @param {AgentName} agentName - The agent name
+     * @param {Partial<IOperatorInstanceCallbacks>} callbacks - Event callbacks
+     */
     constructor(clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>);
+    /**
+     * Connects an answer subscription
+     * @param {(answer: string) => void} next - Answer handler callback
+     */
     connectAnswer(next: (answer: string) => void): void;
+    /**
+     * Sends a notification
+     * @param {string} content - Notification content
+     * @returns {Promise<void>}
+     */
     notify(content: string): Promise<void>;
+    /**
+     * Sends an answer
+     * @param {string} content - Answer content
+     * @returns {Promise<void>}
+     */
     answer(content: string): Promise<void>;
+    /**
+     * Receives a message
+     * @param {string} message - Message content
+     * @returns {Promise<void>}
+     */
     recieveMessage(message: string): Promise<void>;
+    /**
+     * Disposes the operator instance
+     * @returns {Promise<void>}
+     */
     dispose(): Promise<void>;
 }
+/**
+ * Operator control interface
+ * @interface IOperatorControl
+ */
 interface IOperatorControl {
+    /** Sets custom operator adapter */
     useOperatorAdapter(Ctor: TOperatorInstanceCtor): void;
+    /** Sets operator callbacks */
     useOperatorCallbacks: (Callbacks: Partial<IOperatorInstanceCallbacks>) => void;
 }
+/** @type {IOperatorControl} Operator control instance */
 declare const Operator: IOperatorControl;
 
 /**

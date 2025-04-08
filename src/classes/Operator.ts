@@ -5,22 +5,44 @@ import { GLOBAL_CONFIG } from "../config/params";
 
 type DisposeFn = () => void;
 
+/**
+ * Callbacks interface for OperatorInstance events
+ * @interface IOperatorInstanceCallbacks
+ */
 interface IOperatorInstanceCallbacks {
+  /** Called when operator instance is initialized */
   onInit: (clientId: string, agentName: AgentName) => void;
+  /** Called when operator provides an answer */
   onAnswer: (answer: string, clientId: string, agentName: AgentName) => void;
+  /** Called when operator receives a message */
   onMessage: (message: string, clientId: string, agentName: AgentName) => void;
+  /** Called when operator instance is disposed */
   onDispose: (clientId: string, agentName: AgentName) => void;
+  /** Called when operator sends a notification */
   onNotify: (answer: string, clientId: string, agentName: AgentName) => void;
 }
 
+/**
+ * Interface for Operator instance functionality
+ * @interface IOperatorInstance
+ */
 interface IOperatorInstance {
+  /** Connects an answer handler */
   connectAnswer(next: (answer: string) => void): void;
+  /** Sends an answer */
   answer(content: string): Promise<void>;
+  /** Sends a notification */
   notify(content: string): Promise<void>;
+  /** Receives a message */
   recieveMessage(message: string): Promise<void>;
+  /** Disposes the operator instance */
   dispose(): Promise<void>;
 }
 
+/**
+ * Constructor type for OperatorInstance
+ * @typedef {new (clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>) => IOperatorInstance} TOperatorInstanceCtor
+ */
 export type TOperatorInstanceCtor = new (
   clientId: string,
   agentName: AgentName,
@@ -54,9 +76,20 @@ const METHOD_NAME_USE_OPERATOR_CALLBACKS = "OperatorUtils.useOperatorCallbacks";
 /** @private Constant for logging the connectOperator method in OperatorUtils */
 const METHOD_NAME_CONNECT_OPERATOR = "OperatorUtils.connectOperator";
 
+/**
+ * Operator instance implementation
+ * @class OperatorInstance
+ * @implements {IOperatorInstance}
+ */
 export class OperatorInstance implements IOperatorInstance {
   private _answerSubject = new Subject<string>();
 
+  /**
+   * Creates an OperatorInstance
+   * @param {string} clientId - The client identifier
+   * @param {AgentName} agentName - The agent name
+   * @param {Partial<IOperatorInstanceCallbacks>} callbacks - Event callbacks
+   */
   constructor(
     readonly clientId: string,
     readonly agentName: AgentName,
@@ -72,6 +105,10 @@ export class OperatorInstance implements IOperatorInstance {
     }
   }
 
+  /**
+   * Connects an answer subscription
+   * @param {(answer: string) => void} next - Answer handler callback
+   */
   public connectAnswer(next: (answer: string) => void) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_CONNECT_ANSWER, {
@@ -82,6 +119,11 @@ export class OperatorInstance implements IOperatorInstance {
     this._answerSubject.subscribe(next);
   }
 
+  /**
+   * Sends a notification
+   * @param {string} content - Notification content
+   * @returns {Promise<void>}
+   */
   public async notify(content: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_NOTIFY, {
@@ -94,6 +136,11 @@ export class OperatorInstance implements IOperatorInstance {
     }
   }
 
+  /**
+   * Sends an answer
+   * @param {string} content - Answer content
+   * @returns {Promise<void>}
+   */
   public async answer(content: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_ANSWER, {
@@ -111,6 +158,11 @@ export class OperatorInstance implements IOperatorInstance {
     this._answerSubject.unsubscribeAll();
   }
 
+  /**
+   * Receives a message
+   * @param {string} message - Message content
+   * @returns {Promise<void>}
+   */
   public async recieveMessage(message: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_RECEIVE_MESSAGE, {
@@ -123,6 +175,10 @@ export class OperatorInstance implements IOperatorInstance {
     }
   }
 
+  /**
+   * Disposes the operator instance
+   * @returns {Promise<void>}
+   */
   public async dispose() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_DISPOSE, {
@@ -136,13 +192,24 @@ export class OperatorInstance implements IOperatorInstance {
   }
 }
 
+/**
+ * Operator control interface
+ * @interface IOperatorControl
+ */
 export interface IOperatorControl {
+  /** Sets custom operator adapter */
   useOperatorAdapter(Ctor: TOperatorInstanceCtor): void;
+  /** Sets operator callbacks */
   useOperatorCallbacks: (
     Callbacks: Partial<IOperatorInstanceCallbacks>
   ) => void;
 }
 
+/**
+ * Operator utilities class
+ * @class OperatorUtils
+ * @implements {IOperatorControl}
+ */
 export class OperatorUtils implements IOperatorControl {
   private OperatorFactory: TOperatorInstanceCtor = OperatorInstance;
   private OperatorCallbacks: Partial<IOperatorInstanceCallbacks> = {};
@@ -157,18 +224,32 @@ export class OperatorUtils implements IOperatorControl {
       ])
   );
 
+  /**
+   * Sets custom operator adapter constructor
+   * @param {TOperatorInstanceCtor} Ctor - Operator constructor
+   */
   public useOperatorAdapter(Ctor: TOperatorInstanceCtor) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_USE_OPERATOR_ADAPTER);
     this.OperatorFactory = Ctor;
   }
 
+  /**
+   * Sets operator callbacks
+   * @param {Partial<IOperatorInstanceCallbacks>} Callbacks - Callback functions
+   */
   public useOperatorCallbacks(Callbacks: Partial<IOperatorInstanceCallbacks>) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_USE_OPERATOR_CALLBACKS);
     Object.assign(this.OperatorCallbacks, Callbacks);
   }
 
+  /**
+   * Connects an operator instance
+   * @param {string} clientId - Client identifier
+   * @param {AgentName} agentName - Agent name
+   * @returns {(message: string, next: (answer: string) => void) => DisposeFn} Connection function
+   */
   public connectOperator(clientId: string, agentName: AgentName) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_CONNECT_OPERATOR, {
@@ -187,6 +268,8 @@ export class OperatorUtils implements IOperatorControl {
   }
 }
 
+/** @type {OperatorUtils} Operator adapter instance */
 export const OperatorAdapter = new OperatorUtils();
 
+/** @type {IOperatorControl} Operator control instance */
 export const Operator = OperatorAdapter as IOperatorControl;
