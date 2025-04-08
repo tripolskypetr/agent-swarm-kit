@@ -173,7 +173,8 @@ export class AgentConnectionService implements IAgent {
           bus: this.busService,
           history,
           logger: this.loggerService,
-          connectOperator
+          connectOperator,
+          ...callbacks,
         });
       }
       return new ClientAgent({
