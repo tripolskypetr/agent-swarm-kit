@@ -11008,6 +11008,10 @@ interface IGlobalConfig {
      * and answers to be received via a callback mechanism.
      */
     CC_DEFAULT_CONNECT_OPERATOR: (clientId: string, agentName: AgentName) => (message: string, next: (answer: string) => void) => DisposeFn$1;
+    /**
+     * Flag to enable operator timeout, used in `ClientOperator` for message processing.
+     */
+    CC_ENABLE_OPERATOR_TIMEOUT: boolean;
 }
 
 declare const GLOBAL_CONFIG: IGlobalConfig;

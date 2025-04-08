@@ -556,4 +556,9 @@ export interface IGlobalConfig {
     clientId: string,
     agentName: AgentName
   ) => (message: string, next: (answer: string) => void) => DisposeFn;
+
+  /**
+   * Flag to enable operator timeout, used in `ClientOperator` for message processing.
+   */
+  CC_ENABLE_OPERATOR_TIMEOUT: boolean;
 }

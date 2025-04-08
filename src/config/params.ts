@@ -216,6 +216,11 @@ const CC_DEFAULT_WRITE_EMBEDDING_CACHE = (
 const CC_DEFAULT_CONNECT_OPERATOR = (clientId: string, agentName: AgentName) =>
   OperatorAdapter.connectOperator(clientId, agentName);
 
+/**
+ * Flag to enable operator timeout, used in `ClientOperator` for message processing.
+ */
+const CC_ENABLE_OPERATOR_TIMEOUT = false;
+
 const GLOBAL_CONFIG: IGlobalConfig = {
   CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
   CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
@@ -265,6 +270,7 @@ const GLOBAL_CONFIG: IGlobalConfig = {
   CC_DEFAULT_AGENT_TOOL_VALIDATE,
   CC_THROW_WHEN_NAVIGATION_RECURSION,
   CC_DEFAULT_CONNECT_OPERATOR,
+  CC_ENABLE_OPERATOR_TIMEOUT,
 };
 
 GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";

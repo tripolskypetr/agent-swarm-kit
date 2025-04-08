@@ -146,6 +146,9 @@ export class ClientOperator implements IAgent {
       this.params.logger.debug(
         `ClientOperator agentName=${this.params.agentName} clientId=${this.params.clientId} waitForOutput begin`
       );
+    if (!GLOBAL_CONFIG.CC_ENABLE_OPERATOR_TIMEOUT) {
+      return await this._outgoingSubject.toPromise();
+    }
     const result = await Promise.race([
       this._outgoingSubject.toPromise(),
       sleep(OPERATOR_SIGNAL_TIMEOUT).then(() => OPERATOR_SIGNAL_SYMBOL),
@@ -158,11 +161,6 @@ export class ClientOperator implements IAgent {
       await this._operatorSignal.dispose();
       return "";
     }
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      this.params.logger.debug(
-        `ClientOperator agentName=${this.params.agentName} clientId=${this.params.clientId} waitForOutput end`,
-        { result }
-      );
     return result;
   }
 
