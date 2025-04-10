@@ -94,6 +94,28 @@ export class SwarmValidationService {
   };
 
   /**
+   * Retrieves the set of agent names associated with a given swarm.
+   * Logs the operation and validates swarm existence, supporting ClientSwarm’s agent management.
+   * @param {SwarmName} swarmName - The name of the swarm to query, sourced from Swarm.interface.
+   * @returns {string[]} An array of agent names from the swarm’s schema.
+   * @throws {Error} If the swarm is not found in _swarmMap.
+   */
+  public getAgentSet = memoize(
+    ([swarmName]) => `${swarmName}`,
+    (swarmName: SwarmName): Set<string> => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("swarmValidationService getAgentSet", {
+          swarmName,
+        });
+      const swarm = this._swarmMap.get(swarmName);
+      if (!swarm) {
+        throw new Error(`agent-swarm swarm ${swarmName} not found`);
+      }
+      return new Set(swarm.agentList);
+    }
+  );
+
+  /**
    * Retrieves the list of policy names associated with a given swarm.
    * Logs the operation and validates swarm existence, supporting ClientSwarm’s policy enforcement.
    * @param {SwarmName} swarmName - The name of the swarm to query, sourced from Swarm.interface.

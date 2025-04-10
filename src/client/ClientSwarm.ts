@@ -297,6 +297,9 @@ export class ClientSwarm implements ISwarm {
       );
     const agentName = await this.getAgentName();
     const result = this.params.agentMap[agentName];
+    if (!result) {
+      throw new Error(`agent-swarm ClientSwarm getAgent current agent is not in the swarm agentName=${agentName} clientId=${this.params.clientId} swarmName=${this.params.swarmName}`)
+    }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "get-agent",
       source: "swarm-bus",
