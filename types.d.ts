@@ -5888,6 +5888,14 @@ declare class SwarmValidationService {
      */
     getAgentList: (swarmName: SwarmName) => string[];
     /**
+     * Retrieves the set of agent names associated with a given swarm.
+     * Logs the operation and validates swarm existence, supporting ClientSwarm’s agent management.
+     * @param {SwarmName} swarmName - The name of the swarm to query, sourced from Swarm.interface.
+     * @returns {string[]} An array of agent names from the swarm’s schema.
+     * @throws {Error} If the swarm is not found in _swarmMap.
+     */
+    getAgentSet: ((swarmName: SwarmName) => Set<string>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, Set<string>>;
+    /**
      * Retrieves the list of policy names associated with a given swarm.
      * Logs the operation and validates swarm existence, supporting ClientSwarm’s policy enforcement.
      * @param {SwarmName} swarmName - The name of the swarm to query, sourced from Swarm.interface.

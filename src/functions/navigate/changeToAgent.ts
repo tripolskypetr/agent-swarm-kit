@@ -53,7 +53,13 @@ const createChangeToAgent = ttl(
         agentName: AgentName,
         swarmName: SwarmName
       ) => {
-        if (!swarm.navigationValidationService.shouldNavigate(agentName, clientId, swarmName)) {
+        if (
+          !swarm.navigationValidationService.shouldNavigate(
+            agentName,
+            clientId,
+            swarmName
+          )
+        ) {
           return false;
         }
         // Notify all agents in the swarm of the change
@@ -163,6 +169,18 @@ export const changeToAgent = beginContext(
           `agent-swarm missing dependency detected for activeAgent=${activeAgent} dependencyAgent=${agentName}`
         );
       }
+    }
+
+    if (!swarm.swarmValidationService.getAgentSet(swarmName).has(agentName)) {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+        swarm.loggerService.log(
+          'function "changeToAgent" skipped due to the agent is not in the swarm',
+          {
+            agentName,
+            clientId,
+          }
+        );
+      return false;
     }
 
     // Execute the agent change with TTL and queuing
