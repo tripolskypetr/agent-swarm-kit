@@ -60,6 +60,7 @@ const createChangeToAgent = ttl(
             swarmName
           )
         ) {
+          console.warn(`function "changeToAgent" skipped due to the circular route found clientId=${clientId} swarmName=${swarmName} agentNameTo=${agentName}`);
           return false;
         }
         // Notify all agents in the swarm of the change
@@ -178,8 +179,10 @@ export const changeToAgent = beginContext(
           {
             agentName,
             clientId,
+            swarmName,
           }
         );
+      console.warn(`function "changeToAgent" skipped due to the agent is not in the swarm clientId=${clientId} agentName=${agentName} swarmName=${swarmName}`);
       return false;
     }
 
