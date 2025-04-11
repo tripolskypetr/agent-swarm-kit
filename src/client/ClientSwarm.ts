@@ -7,11 +7,104 @@ import {
 } from "functools-kit";
 import { GLOBAL_CONFIG } from "../config/params";
 import { AgentName, IAgent } from "../interfaces/Agent.interface";
-import ISwarm, { ISwarmParams } from "../interfaces/Swarm.interface";
+import ISwarm, { ISwarmParams, SwarmName } from "../interfaces/Swarm.interface";
 import { IBusEvent } from "../model/Event.model";
+import { ExecutionMode } from "../interfaces/Session.interface";
+import { ILogger } from "../interfaces/Logger.interface";
 
 const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
 const STACK_NEED_FETCH = Symbol("stack-need-fetch");
+
+class NoopAgent implements IAgent {
+  constructor(
+    readonly clientId: string,
+    readonly swarmName: SwarmName,
+    readonly agentName: AgentName,
+    readonly defaultAgent: IAgent,
+    readonly logger: ILogger
+  ) {}
+
+  async run(input: string) {
+    const message = `called run on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    const context = {
+      input,
+    };
+    this.logger.log(message, context);
+    console.error(message, context);
+    return await this.defaultAgent.run(input);
+  }
+
+  async execute(input: string, mode: ExecutionMode) {
+    const message = `called execute on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    const context = {
+      input,
+      mode,
+    };
+    this.logger.log(message, context);
+    console.error(message, context);
+    return await this.defaultAgent.execute(input, mode);
+  }
+
+  async waitForOutput() {
+    const message = `called waitForOutput on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    this.logger.log(message);
+    console.error(message);
+    return await this.defaultAgent.waitForOutput();
+  }
+
+  async commitToolOutput(toolId: string, content: string) {
+    const message = `called commitToolOutput on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    const context = { toolId, content };
+    this.logger.log(message, context);
+    console.error(message, context);
+    return await this.defaultAgent.commitToolOutput(toolId, content);
+  }
+
+  async commitSystemMessage(content: string) {
+    const message = `called commitToolOutput on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    const context = { content };
+    this.logger.log(message, context);
+    console.error(message, context);
+    return await this.defaultAgent.commitSystemMessage(content);
+  }
+
+  async commitUserMessage(content: string, mode: ExecutionMode) {
+    const message = `called commitUserMessage on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    const context = { content, mode };
+    this.logger.log(message, context);
+    console.error(message, context);
+    return await this.defaultAgent.commitUserMessage(content, mode);
+  }
+
+  async commitAssistantMessage(content: string) {
+    const message = `called commitAssistantMessage on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    const context = { content };
+    this.logger.log(message, context);
+    console.error(message, context);
+    return await this.defaultAgent.commitAssistantMessage(content);
+  }
+
+  async commitFlush() {
+    const message = `called commitAssistantMessage on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    this.logger.log(message);
+    console.error(message);
+    return await this.defaultAgent.commitFlush();
+  }
+
+  async commitStopTools() {
+    const message = `called commitStopTools on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    this.logger.log(message);
+    console.error(message);
+    return await this.defaultAgent.commitStopTools();
+  }
+
+  async commitAgentChange() {
+    const message = `called commitAgentChange on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    this.logger.log(message);
+    console.error(message);
+    return await this.defaultAgent.commitAgentChange();
+  }
+}
 
 /**
  * Waits for output from an agent in the swarm, handling cancellation and agent changes with queued execution.
@@ -297,21 +390,31 @@ export class ClientSwarm implements ISwarm {
       );
     const agentName = await this.getAgentName();
     const result = this.params.agentMap[agentName];
-    if (!result) {
-      throw new Error(`agent-swarm ClientSwarm getAgent current agent is not in the swarm agentName=${agentName} clientId=${this.params.clientId} swarmName=${this.params.swarmName}`)
-    }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "get-agent",
       source: "swarm-bus",
-      input: {
+      input: {},
+      output: {
+        agentName,
         result,
       },
-      output: {},
       context: {
         swarmName: this.params.swarmName,
       },
       clientId: this.params.clientId,
     });
+    if (!result) {
+      console.error(
+        `agent-swarm ClientSwarm getAgent current agent is not in the swarm agentName=${agentName} clientId=${this.params.clientId} swarmName=${this.params.swarmName}`
+      );
+      return new NoopAgent(
+        this.params.clientId,
+        this.params.swarmName,
+        agentName,
+        this.params.agentMap[this.params.defaultAgent],
+        this.params.logger
+      );
+    }
     return result;
   }
 
@@ -399,10 +502,10 @@ export class ClientSwarm implements ISwarm {
   }
 
   /**
- * Disposes of the swarm, performing cleanup
- * Called when the swarm is no longer needed, ensuring proper resource release.
- * @returns {Promise<void>} Resolves when disposal is complete and logged.
- */
+   * Disposes of the swarm, performing cleanup
+   * Called when the swarm is no longer needed, ensuring proper resource release.
+   * @returns {Promise<void>} Resolves when disposal is complete and logged.
+   */
   async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
