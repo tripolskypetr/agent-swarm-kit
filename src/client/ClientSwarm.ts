@@ -15,7 +15,21 @@ import { ILogger } from "../interfaces/Logger.interface";
 const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
 const STACK_NEED_FETCH = Symbol("stack-need-fetch");
 
+/**
+ * A no-operation (noop) agent that serves as a fallback when an agent is not found in the swarm.
+ * Implements the {@link IAgent} interface and logs calls to its methods, indicating that the requested agent is unavailable,
+ * before delegating execution to a provided default agent. Used within the swarm system to handle invalid or missing agent references gracefully.
+ * @implements {IAgent}
+ */
 class NoopAgent implements IAgent {
+  /**
+   * Creates a new NoopAgent instance.
+   * @param {string} clientId - The unique identifier of the client associated with the swarm.
+   * @param {SwarmName} swarmName - The name of the swarm this agent is associated with.
+   * @param {AgentName} agentName - The name of the agent that was not found, used for logging.
+   * @param {IAgent} defaultAgent - The default agent to delegate method calls to.
+   * @param {ILogger} logger - The logger instance for recording method calls and errors.
+   */
   constructor(
     readonly clientId: string,
     readonly swarmName: SwarmName,
@@ -24,6 +38,12 @@ class NoopAgent implements IAgent {
     readonly logger: ILogger
   ) {}
 
+  /**
+   * Logs an attempt to run the missing agent and delegates to the default agent's run method.
+   * @param {string} input - The input string to process.
+   * @returns {Promise<unknown>} The result from the default agent's run method.
+   * @async
+   */
   async run(input: string) {
     const message = `called run on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
     const context = {
@@ -34,6 +54,13 @@ class NoopAgent implements IAgent {
     return await this.defaultAgent.run(input);
   }
 
+  /**
+   * Logs an attempt to execute the missing agent and delegates to the default agent's execute method.
+   * @param {string} input - The input string to process.
+   * @param {ExecutionMode} mode - The execution mode (e.g., synchronous or asynchronous).
+   * @returns {Promise<unknown>} The result from the default agent's execute method.
+   * @async
+   */
   async execute(input: string, mode: ExecutionMode) {
     const message = `called execute on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
     const context = {
@@ -45,6 +72,11 @@ class NoopAgent implements IAgent {
     return await this.defaultAgent.execute(input, mode);
   }
 
+  /**
+   * Logs an attempt to wait for output from the missing agent and delegates to the default agent's waitForOutput method.
+   * @returns {Promise<string>} The output from the default agent's waitForOutput method.
+   * @async
+   */
   async waitForOutput() {
     const message = `called waitForOutput on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
     this.logger.log(message);
@@ -52,6 +84,13 @@ class NoopAgent implements IAgent {
     return await this.defaultAgent.waitForOutput();
   }
 
+  /**
+   * Logs an attempt to commit tool output for the missing agent and delegates to the default agent's commitToolOutput method.
+   * @param {string} toolId - The identifier of the tool whose output is being committed.
+   * @param {string} content - The content to commit as tool output.
+   * @returns {Promise<void>} Resolves when the default agent's commitToolOutput method completes.
+   * @async
+   */
   async commitToolOutput(toolId: string, content: string) {
     const message = `called commitToolOutput on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
     const context = { toolId, content };
@@ -60,6 +99,12 @@ class NoopAgent implements IAgent {
     return await this.defaultAgent.commitToolOutput(toolId, content);
   }
 
+  /**
+   * Logs an attempt to commit a system message for the missing agent and delegates to the default agent's commitSystemMessage method.
+   * @param {string} content - The system message content to commit.
+   * @returns {Promise<void>} Resolves when the default agent's commitSystemMessage method completes.
+   * @async
+   */
   async commitSystemMessage(content: string) {
     const message = `called commitToolOutput on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
     const context = { content };
@@ -68,6 +113,13 @@ class NoopAgent implements IAgent {
     return await this.defaultAgent.commitSystemMessage(content);
   }
 
+  /**
+   * Logs an attempt to commit a user message for the missing agent and delegates to the default agent's commitUserMessage method.
+   * @param {string} content - The user message content to commit.
+   * @param {ExecutionMode} mode - The execution mode for the message.
+   * @returns {Promise<void>} Resolves when the default agent's commitUserMessage method completes.
+   * @async
+   */
   async commitUserMessage(content: string, mode: ExecutionMode) {
     const message = `called commitUserMessage on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
     const context = { content, mode };
@@ -76,6 +128,12 @@ class NoopAgent implements IAgent {
     return await this.defaultAgent.commitUserMessage(content, mode);
   }
 
+  /**
+   * Logs an attempt to commit an assistant message for the missing agent and delegates to the default agent's commitAssistantMessage method.
+   * @param {string} content - The assistant message content to commit.
+   * @returns {Promise<void>} Resolves when the default agent's commitAssistantMessage method completes.
+   * @async
+   */
   async commitAssistantMessage(content: string) {
     const message = `called commitAssistantMessage on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
     const context = { content };
@@ -84,6 +142,11 @@ class NoopAgent implements IAgent {
     return await this.defaultAgent.commitAssistantMessage(content);
   }
 
+  /**
+   * Logs an attempt to commit a flush operation for the missing agent and delegates to the default agent's commitFlush method.
+   * @returns {Promise<void>} Resolves when the default agent's commitFlush method completes.
+   * @async
+   */
   async commitFlush() {
     const message = `called commitAssistantMessage on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
     this.logger.log(message);
@@ -91,6 +154,11 @@ class NoopAgent implements IAgent {
     return await this.defaultAgent.commitFlush();
   }
 
+  /**
+   * Logs an attempt to stop tools for the missing agent and delegates to the default agent's commitStopTools method.
+   * @returns {Promise<void>} Resolves when the default agent's commitStopTools method completes.
+   * @async
+   */
   async commitStopTools() {
     const message = `called commitStopTools on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
     this.logger.log(message);
@@ -98,6 +166,11 @@ class NoopAgent implements IAgent {
     return await this.defaultAgent.commitStopTools();
   }
 
+  /**
+   * Logs an attempt to commit an agent change for the missing agent and delegates to the default agent's commitAgentChange method.
+   * @returns {Promise<void>} Resolves when the default agent's commitAgentChange method completes.
+   * @async
+   */
   async commitAgentChange() {
     const message = `called commitAgentChange on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
     this.logger.log(message);
