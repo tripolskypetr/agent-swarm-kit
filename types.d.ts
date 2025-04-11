@@ -4336,10 +4336,10 @@ declare class ClientSwarm implements ISwarm {
      */
     setAgentName(agentName: AgentName): Promise<void>;
     /**
-   * Disposes of the swarm, performing cleanup
-   * Called when the swarm is no longer needed, ensuring proper resource release.
-   * @returns {Promise<void>} Resolves when disposal is complete and logged.
-   */
+     * Disposes of the swarm, performing cleanup
+     * Called when the swarm is no longer needed, ensuring proper resource release.
+     * @returns {Promise<void>} Resolves when disposal is complete and logged.
+     */
     dispose(): Promise<void>;
 }
 
