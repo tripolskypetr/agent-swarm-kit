@@ -5,7 +5,7 @@ group: demo/testbed-chat
 
 # sales_agent
 
-> This agent, named SalesAgent, operates within the repl-phone-seller project to assist users in adding phones to a cart via a REPL terminal, using the OllamaCompletion for natural interactions, relying on SearchPhoneTool and SearchPhoneByDiagonalTool for phone queries, and employing AddToBacketTool to manage BasketStorage, all while storing phone data in PhoneStorage.
+> This agent, named SalesAgent, is designed for a testbed environment using worker-testbed and the WorkerThreads API with tape. It mocks tool calls to validate their execution, passing tests when the correct tool (e.g., AddToBacketTool) is called as requested and failing otherwise. It uses OpenAI for interaction, manages phone additions to BasketStorage via AddToBacketTool, and stores phone data in PhoneStorage.
 
 **Completion:** `openai_completion`
 
@@ -51,4 +51,4 @@ Act like a living person until a tool needs to be called
 
 #### Note for developer
 
-*This tool, named AddToBacketTool, enables users in the repl-phone-seller project to add a phone to their cart via a REPL terminal by validating the phone title, storing it in BasketStorage with a unique ID, logging the action, confirming success through tool output, and prompting the user to place an order.*
+*This tool, named AddToBacketTool, is designed for the repl-phone-seller project's testbed environment using worker-testbed with the WorkerThreads API and tape. It mocks the action of adding a phone to a cart by validating the phone title, storing it in BasketStorage with a unique ID, logging the action, and confirming success through tool output. Tests pass when the tool is called correctly and fail otherwise, with prompts to the user to place an order in the REPL terminal.*
