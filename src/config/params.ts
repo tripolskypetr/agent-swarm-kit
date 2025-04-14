@@ -221,6 +221,11 @@ const CC_DEFAULT_CONNECT_OPERATOR = (clientId: string, agentName: AgentName) =>
  */
 const CC_ENABLE_OPERATOR_TIMEOUT = false;
 
+/**
+ * Disable fetch of data from all storages. Quite usefull for unit tests
+ */
+const CC_STORAGE_DISABLE_GET_DATA = false;
+
 const GLOBAL_CONFIG: IGlobalConfig = {
   CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
   CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
@@ -271,6 +276,7 @@ const GLOBAL_CONFIG: IGlobalConfig = {
   CC_THROW_WHEN_NAVIGATION_RECURSION,
   CC_DEFAULT_CONNECT_OPERATOR,
   CC_ENABLE_OPERATOR_TIMEOUT,
+  CC_STORAGE_DISABLE_GET_DATA,
 };
 
 GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";

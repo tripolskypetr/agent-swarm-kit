@@ -145,6 +145,9 @@ const WAIT_FOR_INIT_FN = async (self: ClientStorage): Promise<void> => {
     self.params.logger.debug(
       `ClientStorage storageName=${self.params.storageName} clientId=${self.params.clientId} shared=${self.params.shared} waitForInit`
     );
+  if (GLOBAL_CONFIG.CC_STORAGE_DISABLE_GET_DATA) {
+    return;
+  }
   if (!self.params.getData) {
     return;
   }

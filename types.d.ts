@@ -11347,6 +11347,10 @@ interface IGlobalConfig {
      * Flag to enable operator timeout, used in `ClientOperator` for message processing.
      */
     CC_ENABLE_OPERATOR_TIMEOUT: boolean;
+    /**
+     * Disable fetch of data from all storages. Quite usefull for unit tests
+     */
+    CC_STORAGE_DISABLE_GET_DATA: boolean;
 }
 
 declare const GLOBAL_CONFIG: IGlobalConfig;
