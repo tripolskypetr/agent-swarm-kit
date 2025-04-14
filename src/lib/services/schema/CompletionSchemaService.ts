@@ -78,6 +78,22 @@ export class CompletionSchemaService {
   };
 
   /**
+   * Overrides an existing completion schema in the registry with a new one.
+   * Replaces the schema associated with the provided key in the ToolRegistry.
+   * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports dynamic updates to completion schemas used by AgentSchemaService, ClientAgent, and other swarm components.
+   * @param {CompletionName} key - The name of the completion to override, sourced from Completion.interface.
+   * @param {ICompletionSchema} value - The new completion schema to replace the existing one, sourced from Completion.interface.
+   * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+   */
+  public override = (key: CompletionName, value: Partial<ICompletionSchema>) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`completionSchemaService override`, { key });
+    this.registry = this.registry.override(key, value);
+    return this.registry.get(key);
+  };
+
+  /**
    * Retrieves a completion schema from the registry by its name.
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports AgentConnectionService’s agent instantiation by providing completion logic (getCompletion) referenced in AgentSchemaService schemas, and ClientAgent’s execution flow.

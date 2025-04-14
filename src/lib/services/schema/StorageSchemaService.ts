@@ -83,6 +83,22 @@ export class StorageSchemaService {
   };
 
   /**
+   * Overrides an existing storage schema in the registry with a new schema.
+   * Replaces the schema associated with the provided key in the ToolRegistry.
+   * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports updates to storage configurations for ClientStorage and SharedStorageConnectionService.
+   * @param {StorageName} key - The name of the storage to override, sourced from Storage.interface.
+   * @param {IStorageSchema} value - The new storage schema to replace the existing one, sourced from Storage.interface.
+   * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+   */
+  public override = (key: StorageName, value: Partial<IStorageSchema>) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`storageSchemaService override`, { key });
+    this.registry = this.registry.override(key, value);
+    return this.registry.get(key);
+  };
+
+  /**
    * Retrieves a storage schema from the registry by its name.
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports StorageConnectionService and SharedStorageConnectionService by providing storage configuration (e.g., createIndex, embedding) for ClientStorage instantiation, referenced in AgentSchemaService schemas via the storages field.

@@ -4153,6 +4153,16 @@ declare class AgentSchemaService {
      */
     register: (key: AgentName, value: IAgentSchema) => void;
     /**
+     * Overrides an existing agent schema in the registry with a new schema.
+     * Replaces the schema associated with the provided key (agentName) in the ToolRegistry.
+     * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports dynamic updates to agent schemas for AgentConnectionService and SwarmConnectionService.
+     * @param {AgentName} key - The name of the agent, used as the registry key, sourced from Agent.interface.
+     * @param {IAgentSchema} value - The new agent schema to override the existing one, sourced from Agent.interface.
+     * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+     */
+    override: (key: AgentName, value: Partial<IAgentSchema>) => IAgentSchema;
+    /**
      * Retrieves an agent schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports AgentConnectionService’s getAgent method by providing schema data for agent instantiation, and SwarmConnectionService’s swarm configuration.
@@ -4207,6 +4217,16 @@ declare class ToolSchemaService {
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
     register: (key: ToolName, value: IAgentTool) => void;
+    /**
+     * Overrides an existing tool schema in the registry with a new schema.
+     * Replaces the schema associated with the provided key (toolName) in the ToolRegistry.
+     * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports dynamic updates to tool schemas for AgentConnectionService and SwarmConnectionService.
+     * @param {ToolName} key - The name of the tool to override, sourced from Agent.interface.
+     * @param {IAgentTool} value - The new tool schema to replace the existing one, sourced from Agent.interface.
+     * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+     */
+    override: (key: ToolName, value: Partial<IAgentTool>) => IAgentTool<Record<string, ToolValue>>;
     /**
      * Retrieves a tool schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -4510,6 +4530,16 @@ declare class SwarmSchemaService {
      */
     register: (key: SwarmName, value: ISwarmSchema) => void;
     /**
+     * Overrides an existing swarm schema in the registry with a new value.
+     * Replaces the schema associated with the given key in the ToolRegistry.
+     * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports dynamic updates to swarm configurations, allowing modifications to agentList, defaultAgent, or policies.
+     * @param {SwarmName} key - The name of the swarm to override, sourced from Swarm.interface.
+     * @param {ISwarmSchema} value - The new swarm schema to replace the existing one, sourced from Swarm.interface.
+     * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+     */
+    override: (key: SwarmName, value: Partial<ISwarmSchema>) => ISwarmSchema;
+    /**
      * Retrieves a swarm schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports SwarmConnectionService by providing swarm configuration (e.g., agentList, defaultAgent, policies) for ClientSwarm instantiation, linking to AgentConnectionService and PolicySchemaService.
@@ -4563,6 +4593,16 @@ declare class CompletionSchemaService {
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
     register: (key: CompletionName, value: ICompletionSchema) => void;
+    /**
+     * Overrides an existing completion schema in the registry with a new one.
+     * Replaces the schema associated with the provided key in the ToolRegistry.
+     * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports dynamic updates to completion schemas used by AgentSchemaService, ClientAgent, and other swarm components.
+     * @param {CompletionName} key - The name of the completion to override, sourced from Completion.interface.
+     * @param {ICompletionSchema} value - The new completion schema to replace the existing one, sourced from Completion.interface.
+     * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+     */
+    override: (key: CompletionName, value: Partial<ICompletionSchema>) => ICompletionSchema;
     /**
      * Retrieves a completion schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -6005,6 +6045,16 @@ declare class EmbeddingSchemaService {
      */
     register: (key: EmbeddingName, value: IEmbeddingSchema) => void;
     /**
+     * Overrides an existing embedding schema in the registry with a new one.
+     * Replaces the schema associated with the provided key in the ToolRegistry.
+     * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports updating embedding logic (e.g., calculateSimilarity and createEmbedding) for storage operations in StorageConnectionService and SharedStorageConnectionService.
+     * @param {EmbeddingName} key - The name of the embedding to override, sourced from Embedding.interface.
+     * @param {IEmbeddingSchema} value - The new embedding schema to associate with the key, sourced from Embedding.interface.
+     * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+     */
+    override: (key: EmbeddingName, value: Partial<IEmbeddingSchema>) => IEmbeddingSchema;
+    /**
      * Retrieves an embedding schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports StorageConnectionService and SharedStorageConnectionService by providing embedding logic (calculateSimilarity and createEmbedding) for storage operations like take, referenced in storage schemas.
@@ -6058,6 +6108,16 @@ declare class StorageSchemaService {
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
     register: (key: StorageName, value: IStorageSchema) => void;
+    /**
+     * Overrides an existing storage schema in the registry with a new schema.
+     * Replaces the schema associated with the provided key in the ToolRegistry.
+     * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports updates to storage configurations for ClientStorage and SharedStorageConnectionService.
+     * @param {StorageName} key - The name of the storage to override, sourced from Storage.interface.
+     * @param {IStorageSchema} value - The new storage schema to replace the existing one, sourced from Storage.interface.
+     * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+     */
+    override: (key: StorageName, value: Partial<IStorageSchema>) => IStorageSchema<IStorageData>;
     /**
      * Retrieves a storage schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -6848,6 +6908,16 @@ declare class StateSchemaService {
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
     register: (key: StateName, value: IStateSchema) => void;
+    /**
+     * Overrides an existing state schema in the registry with a new schema.
+     * Replaces the schema associated with the provided key (stateName) in the ToolRegistry.
+     * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports dynamic updates to state schemas for StateConnectionService and SharedStateConnectionService.
+     * @param {StateName} key - The name of the state to override, sourced from State.interface.
+     * @param {IStateSchema} value - The new state schema to replace the existing one, sourced from State.interface.
+     * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+     */
+    override: (key: StateName, value: Partial<IStateSchema>) => IStateSchema<any>;
     /**
      * Retrieves a state schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -8082,6 +8152,16 @@ declare class PolicySchemaService {
      */
     register: (key: PolicyName, value: IPolicySchema) => void;
     /**
+     * Overrides an existing policy schema in the registry with a new one.
+     * Replaces the schema associated with the provided key (policyName) in the ToolRegistry.
+     * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports dynamic updates to policy schemas, ensuring the latest logic is applied in ClientAgent execution and SessionConnectionService.
+     * @param {PolicyName} key - The name of the policy to override, sourced from Policy.interface.
+     * @param {IPolicySchema} value - The new policy schema to replace the existing one, validated before storage.
+     * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+     */
+    override: (key: PolicyName, value: Partial<IPolicySchema>) => IPolicySchema;
+    /**
      * Retrieves a policy schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports PolicyConnectionService’s getBannedClients method by providing policy logic, used in ClientAgent execution and SessionConnectionService session management.
@@ -8572,6 +8652,14 @@ declare class WikiSchemaService {
      */
     register: (key: WikiName, value: IWikiSchema) => void;
     /**
+     * Overrides an existing wiki schema with a new value for a given key
+     * @public
+     * @param {WikiName} key - The key of the schema to override
+     * @param {IWikiSchema} value - The new wiki schema to set
+     * @description Logs the override operation and updates the registry with the new schema
+     */
+    override: (key: WikiName, value: Partial<IWikiSchema>) => IWikiSchema;
+    /**
      * Retrieves a wiki schema by key
      * @public
      * @param {WikiName} key - The key of the schema to retrieve
@@ -9052,6 +9140,245 @@ declare const addStorage: <T extends IStorageData = IStorageData>(storageSchema:
  * @throws {Error} If policy registration fails due to validation errors in PolicyValidationService or PolicySchemaService.
  */
 declare const addPolicy: (policySchema: IPolicySchema) => string;
+
+type TAgentSchema = {
+    agentName: IAgentSchema["agentName"];
+} & Partial<IAgentSchema>;
+/**
+ * Overrides an existing agent schema in the swarm system with a new or partial schema.
+ * This function updates the configuration of an agent identified by its `agentName`, applying the provided schema properties.
+ * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
+ * Logs the override operation if logging is enabled in the global configuration.
+ *
+ * @param {TAgentSchema} agentSchema - The schema containing the agent’s unique name and optional properties to override.
+ * @param {string} agentSchema.agentName - The unique identifier of the agent to override, matching `IAgentSchema["agentName"]`.
+ * @param {Partial<IAgentSchema>} [agentSchema] - Optional partial schema properties to update, extending `IAgentSchema`.
+ * @returns {void} No return value; the override is applied directly to the swarm’s agent schema service.
+ * @throws {Error} If the agent schema service encounters an error during the override operation (e.g., invalid agentName or schema).
+ *
+ * @example
+ * // Override an agent’s schema with new properties
+ * overrideAgent({
+ *   agentName: "WeatherAgent",
+ *   description: "Updated weather query handler",
+ *   tools: ["getWeather"],
+ * });
+ * // Logs the operation (if enabled) and updates the agent schema in the swarm.
+ */
+declare const overrideAgent: (agentSchema: TAgentSchema) => IAgentSchema;
+
+type TCompletionSchema = {
+    completionName: ICompletionSchema["completionName"];
+} & Partial<ICompletionSchema>;
+/**
+ * Overrides an existing completion schema in the swarm system with a new or partial schema.
+ * This function updates the configuration of a completion mechanism identified by its `completionName`, applying the provided schema properties.
+ * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
+ * Logs the override operation if logging is enabled in the global configuration.
+ *
+ * @param {TCompletionSchema} completionSchema - The schema containing the completion’s unique name and optional properties to override.
+ * @param {string} completionSchema.completionName - The unique identifier of the completion to override, matching `ICompletionSchema["completionName"]`.
+ * @param {Partial<ICompletionSchema>} [completionSchema] - Optional partial schema properties to update, extending `ICompletionSchema`.
+ * @returns {void} No return value; the override is applied directly to the swarm’s completion schema service.
+ * @throws {Error} If the completion schema service encounters an error during the override operation (e.g., invalid completionName or schema).
+ *
+ * @example
+ * // Override a completion’s schema with new properties
+ * overrideCompletion({
+ *   completionName: "TextCompletion",
+ *   model: "gpt-4",
+ *   maxTokens: 500,
+ * });
+ * // Logs the operation (if enabled) and updates the completion schema in the swarm.
+ */
+declare const overrideCompletion: (completionSchema: TCompletionSchema) => ICompletionSchema;
+
+type TEmbeddingSchema = {
+    embeddingName: IEmbeddingSchema["embeddingName"];
+} & Partial<IEmbeddingSchema>;
+/**
+ * Overrides an existing embedding schema in the swarm system with a new or partial schema.
+ * This function updates the configuration of an embedding mechanism identified by its `embeddingName`, applying the provided schema properties.
+ * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
+ * Logs the override operation if logging is enabled in the global configuration.
+ *
+ * @param {TEmbeddingSchema} embeddingSchema - The schema containing the embedding’s unique name and optional properties to override.
+ * @param {string} embeddingSchema.embeddingName - The unique identifier of the embedding to override, matching `IEmbeddingSchema["embeddingName"]`.
+ * @param {Partial<IEmbeddingSchema>} [embeddingSchema] - Optional partial schema properties to update, extending `IEmbeddingSchema`.
+ * @returns {void} No return value; the override is applied directly to the swarm’s embedding schema service.
+ * @throws {Error} If the embedding schema service encounters an error during the override operation (e.g., invalid embeddingName or schema).
+ *
+ * @example
+ * // Override an embedding’s schema with new properties
+ * overrideEmbeding({
+ *   embeddingName: "TextEmbedding",
+ *   persist: true,
+ *   callbacks: {
+ *     onCreate: (text, embeddings) => console.log(`Created embedding for ${text}`),
+ *   },
+ * });
+ * // Logs the operation (if enabled) and updates the embedding schema in the swarm.
+ */
+declare const overrideEmbeding: (embeddingSchema: TEmbeddingSchema) => IEmbeddingSchema;
+
+type TPolicySchema = {
+    policyName: IPolicySchema["policyName"];
+} & Partial<IPolicySchema>;
+/**
+ * Overrides an existing policy schema in the swarm system with a new or partial schema.
+ * This function updates the configuration of a policy identified by its `policyName`, applying the provided schema properties.
+ * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
+ * Logs the override operation if logging is enabled in the global configuration.
+ *
+ * @param {TPolicySchema} policySchema - The schema containing the policy’s unique name and optional properties to override.
+ * @param {string} policySchema.policyName - The unique identifier of the policy to override, matching `IPolicySchema["policyName"]`.
+ * @param {Partial<IPolicySchema>} [policySchema] - Optional partial schema properties to update, extending `IPolicySchema`.
+ * @returns {void} No return value; the override is applied directly to the swarm’s policy schema service.
+ * @throws {Error} If the policy schema service encounters an error during the override operation (e.g., invalid policyName or schema).
+ *
+ * @example
+ * // Override a policy’s schema with new properties
+ * overridePolicy({
+ *   policyName: "ContentFilter",
+ *   autoBan: true,
+ *   banMessage: "Content policy violation detected.",
+ * });
+ * // Logs the operation (if enabled) and updates the policy schema in the swarm.
+ */
+declare const overridePolicy: (policySchema: TPolicySchema) => IPolicySchema;
+
+type TStateSchema<T extends unknown = any> = {
+    stateName: IStateSchema<T>["stateName"];
+} & Partial<IStateSchema<T>>;
+/**
+ * Overrides an existing state schema in the swarm system with a new or partial schema.
+ * This function updates the configuration of a state identified by its `stateName`, applying the provided schema properties.
+ * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
+ * Logs the override operation if logging is enabled in the global configuration.
+ *
+ * @template T - The type of the state data, defaults to `any`.
+ * @param {TStateSchema<T>} stateSchema - The schema containing the state’s unique name and optional properties to override.
+ * @param {string} stateSchema.stateName - The unique identifier of the state to override, matching `IStateSchema<T>["stateName"]`.
+ * @param {Partial<IStateSchema<T>>} [stateSchema] - Optional partial schema properties to update, extending `IStateSchema<T>`.
+ * @returns {IStateSchema<T>} The updated state schema as applied by the swarm’s state schema service.
+ * @throws {Error} If the state schema service encounters an error during the override operation (e.g., invalid stateName or schema).
+ *
+ * @example
+ * // Override a state’s schema with new properties
+ * overrideState({
+ *   stateName: "UserPreferences",
+ *   persist: true,
+ *   getDefaultState: () => ({ theme: "dark" }),
+ * });
+ * // Logs the operation (if enabled) and updates the state schema in the swarm.
+ */
+declare const overrideState: <T extends unknown = any>(stateSchema: TStateSchema<T>) => IStateSchema<T>;
+
+type TStorageSchema<T extends IStorageData = IStorageData> = {
+    storageName: IStorageSchema<T>["storageName"];
+} & Partial<IStorageSchema<T>>;
+/**
+ * Overrides an existing storage schema in the swarm system with a new or partial schema.
+ * This function updates the configuration of a storage identified by its `storageName`, applying the provided schema properties.
+ * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
+ * Logs the override operation if logging is enabled in the global configuration.
+ *
+ * @template T - The type of the storage data, defaults to `IStorageData`.
+ * @param {TStorageSchema<T>} storageSchema - The schema containing the storage’s unique name and optional properties to override.
+ * @param {string} storageSchema.storageName - The unique identifier of the storage to override, matching `IStorageSchema<T>["storageName"]`.
+ * @param {Partial<IStorageSchema<T>>} [storageSchema] - Optional partial schema properties to update, extending `IStorageSchema<T>`.
+ * @returns {IStorageSchema<T>} The updated storage schema as applied by the swarm’s storage schema service.
+ * @throws {Error} If the storage schema service encounters an error during the override operation (e.g., invalid storageName or schema).
+ *
+ * @example
+ * // Override a storage’s schema with new properties
+ * overrideStorage({
+ *   storageName: "UserData",
+ *   persist: true,
+ *   embedding: "TextEmbedding",
+ *   createIndex: (item) => item.id.toString(),
+ * });
+ * // Logs the operation (if enabled) and updates the storage schema in the swarm.
+ */
+declare const overrideStorage: <T extends IStorageData = IStorageData>(storageSchema: TStorageSchema<T>) => IStorageSchema<T>;
+
+type TSwarmSchema = {
+    swarmName: ISwarmSchema["swarmName"];
+} & Partial<ISwarmSchema>;
+/**
+ * Overrides an existing swarm schema in the swarm system with a new or partial schema.
+ * This function updates the configuration of a swarm identified by its `swarmName`, applying the provided schema properties.
+ * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
+ * Logs the override operation if logging is enabled in the global configuration.
+ *
+ * @param {TSwarmSchema} swarmSchema - The schema containing the swarm’s unique name and optional properties to override.
+ * @param {string} swarmSchema.swarmName - The unique identifier of the swarm to override, matching `ISwarmSchema["swarmName"]`.
+ * @param {Partial<ISwarmSchema>} [swarmSchema] - Optional partial schema properties to update, extending `ISwarmSchema`.
+ * @returns {void} No return value; the override is applied directly to the swarm’s swarm schema service.
+ * @throws {Error} If the swarm schema service encounters an error during the override operation (e.g., invalid swarmName or schema).
+ *
+ * @example
+ * // Override a swarm’s schema with new properties
+ * overrideSwarm({
+ *   swarmName: "MainSwarm",
+ *   defaultAgent: "WeatherAgent",
+ *   policies: ["ContentFilter"],
+ * });
+ * // Logs the operation (if enabled) and updates the swarm schema in the swarm system.
+ */
+declare const overrideSwarm: (swarmSchema: TSwarmSchema) => ISwarmSchema;
+
+type TAgentTool = {
+    toolName: IAgentTool["toolName"];
+} & Partial<IAgentTool>;
+/**
+ * Overrides an existing tool schema in the swarm system with a new or partial schema.
+ * This function updates the configuration of a tool identified by its `toolName`, applying the provided schema properties.
+ * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
+ * Logs the override operation if logging is enabled in the global configuration.
+ *
+ * @param {TAgentTool} toolSchema - The schema containing the tool’s unique name and optional properties to override.
+ * @param {string} toolSchema.toolName - The unique identifier of the tool to override, matching `IAgentTool["toolName"]`.
+ * @param {Partial<IAgentTool>} [toolSchema] - Optional partial schema properties to update, extending `IAgentTool`.
+ * @returns {void} No return value; the override is applied directly to the swarm’s tool schema service.
+ * @throws {Error} If the tool schema service encounters an error during the override operation (e.g., invalid toolName or schema).
+ *
+ * @example
+ * // Override a tool’s schema with new properties
+ * overrideTool({
+ *   toolName: "WeatherTool",
+ *   description: "Updated weather data retrieval tool",
+ *   execute: async (params) => fetchWeather(params),
+ * });
+ * // Logs the operation (if enabled) and updates the tool schema in the swarm.
+ */
+declare const overrideTool: (toolSchema: TAgentTool) => IAgentTool<Record<string, ToolValue>>;
+
+type TWikiSchema = {
+    wikiName: IWikiSchema["wikiName"];
+} & Partial<IWikiSchema>;
+/**
+ * Overrides an existing wiki schema in the swarm system with a new or partial schema.
+ * This function updates the configuration of a wiki identified by its `wikiName`, applying the provided schema properties.
+ * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
+ * Logs the override operation if logging is enabled in the global configuration.
+ *
+ * @param {TWikiSchema} wikiSchema - The schema containing the wiki’s unique name and optional properties to override.
+ * @param {string} wikiSchema.wikiName - The unique identifier of the wiki to override, matching `IWikiSchema["wikiName"]`.
+ * @param {Partial<IWikiSchema>} [wikiSchema] - Optional partial schema properties to update, extending `IWikiSchema`.
+ * @returns {void} No return value; the override is applied directly to the swarm’s wiki schema service.
+ * @throws {Error} If the wiki schema service encounters an error during the override operation (e.g., invalid wikiName or schema).
+ *
+ * @example
+ * // Override a wiki’s schema with new properties
+ * overrideWiki({
+ *   wikiName: "KnowledgeBase",
+ *   description: "Updated knowledge repository",
+ *   storage: "WikiStorage",
+ * });
+ * // Logs the operation (if enabled) and updates the wiki schema in the swarm.
+ */
+declare const overrideWiki: (wikiSchema: TWikiSchema) => IWikiSchema;
 
 /**
  * Marks a client as online in the specified swarm.
@@ -11905,4 +12232,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideEmbeding, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };

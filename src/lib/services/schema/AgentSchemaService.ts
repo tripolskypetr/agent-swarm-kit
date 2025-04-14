@@ -74,9 +74,7 @@ export class AgentSchemaService {
         `agent-swarm agent schema validation failed: found duplicate system prompt for agentName=${agentSchema.agentName} system=[${agentSchema.system}]`
       );
     }
-    if (
-      agentSchema.system?.some((value) => typeof value !== "string")
-    ) {
+    if (agentSchema.system?.some((value) => typeof value !== "string")) {
       throw new Error(
         `agent-swarm agent schema validation failed: invalid system prompt for agentName=${agentSchema.agentName} system=[${agentSchema.system}]`
       );
@@ -94,9 +92,7 @@ export class AgentSchemaService {
         `agent-swarm agent schema validation failed: found duplicate dependsOn for agentName=${agentSchema.agentName} dependsOn=[${agentSchema.dependsOn}]`
       );
     }
-    if (
-      agentSchema.dependsOn?.some((value) => typeof value !== "string")
-    ) {
+    if (agentSchema.dependsOn?.some((value) => typeof value !== "string")) {
       throw new Error(
         `agent-swarm agent schema validation failed: invalid dependsOn for agentName=${agentSchema.agentName} dependsOn=[${agentSchema.dependsOn}]`
       );
@@ -114,9 +110,7 @@ export class AgentSchemaService {
         `agent-swarm agent schema validation failed: found duplicate states for agentName=${agentSchema.agentName} states=[${agentSchema.states}]`
       );
     }
-    if (
-      agentSchema.states?.some((value) => typeof value !== "string")
-    ) {
+    if (agentSchema.states?.some((value) => typeof value !== "string")) {
       throw new Error(
         `agent-swarm agent schema validation failed: invalid states for agentName=${agentSchema.agentName} states=[${agentSchema.states}]`
       );
@@ -134,9 +128,7 @@ export class AgentSchemaService {
         `agent-swarm agent schema validation failed: found duplicate storages for agentName=${agentSchema.agentName} storages=[${agentSchema.storages}]`
       );
     }
-    if (
-      agentSchema.storages?.some((value) => typeof value !== "string")
-    ) {
+    if (agentSchema.storages?.some((value) => typeof value !== "string")) {
       throw new Error(
         `agent-swarm agent schema validation failed: invalid storages for agentName=${agentSchema.agentName} storages=[${agentSchema.storages}]`
       );
@@ -154,9 +146,7 @@ export class AgentSchemaService {
         `agent-swarm agent schema validation failed: found duplicate wikiList for agentName=${agentSchema.agentName} wikiList=[${agentSchema.wikiList}]`
       );
     }
-    if (
-      agentSchema.wikiList?.some((value) => typeof value !== "string")
-    ) {
+    if (agentSchema.wikiList?.some((value) => typeof value !== "string")) {
       throw new Error(
         `agent-swarm agent schema validation failed: invalid wikiList for agentName=${agentSchema.agentName} wikiList=[${agentSchema.wikiList}]`
       );
@@ -174,9 +164,7 @@ export class AgentSchemaService {
         `agent-swarm agent schema validation failed: found duplicate tools for agentName=${agentSchema.agentName} tools=[${agentSchema.tools}]`
       );
     }
-    if (
-      agentSchema.tools?.some((value) => typeof value !== "string")
-    ) {
+    if (agentSchema.tools?.some((value) => typeof value !== "string")) {
       throw new Error(
         `agent-swarm agent schema validation failed: invalid tools for agentName=${agentSchema.agentName} tools=[${agentSchema.tools}]`
       );
@@ -197,6 +185,22 @@ export class AgentSchemaService {
       this.loggerService.info(`agentSchemaService register`, { key });
     this.validateShallow(value);
     this.registry = this.registry.register(key, value);
+  };
+
+  /**
+   * Overrides an existing agent schema in the registry with a new schema.
+   * Replaces the schema associated with the provided key (agentName) in the ToolRegistry.
+   * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports dynamic updates to agent schemas for AgentConnectionService and SwarmConnectionService.
+   * @param {AgentName} key - The name of the agent, used as the registry key, sourced from Agent.interface.
+   * @param {IAgentSchema} value - The new agent schema to override the existing one, sourced from Agent.interface.
+   * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+   */
+  public override = (key: AgentName, value: Partial<IAgentSchema>) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`agentSchemaService override`, { key });
+    this.registry = this.registry.override(key, value);
+    return this.registry.get(key);
   };
 
   /**

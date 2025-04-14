@@ -61,9 +61,7 @@ export class StateSchemaService {
         `agent-swarm state schema validation failed: invalid middlewares for stateName=${stateSchema.stateName} middlewares=${stateSchema.middlewares}`
       );
     }
-    if (
-      stateSchema.middlewares?.some((value) => typeof value !== "function")
-    ) {
+    if (stateSchema.middlewares?.some((value) => typeof value !== "function")) {
       throw new Error(
         `agent-swarm state schema validation failed: invalid middlewares for stateName=${stateSchema.stateName} middlewares=[${stateSchema.middlewares}]`
       );
@@ -84,6 +82,22 @@ export class StateSchemaService {
       this.loggerService.info(`stateSchemaService register`, { key });
     this.validateShallow(value);
     this.registry = this.registry.register(key, value);
+  };
+
+  /**
+   * Overrides an existing state schema in the registry with a new schema.
+   * Replaces the schema associated with the provided key (stateName) in the ToolRegistry.
+   * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports dynamic updates to state schemas for StateConnectionService and SharedStateConnectionService.
+   * @param {StateName} key - The name of the state to override, sourced from State.interface.
+   * @param {IStateSchema} value - The new state schema to replace the existing one, sourced from State.interface.
+   * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+   */
+  public override = (key: StateName, value: Partial<IStateSchema>) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`stateSchemaService override`, { key });
+    this.registry = this.registry.override(key, value);
+    return this.registry.get(key);
   };
 
   /**

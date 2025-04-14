@@ -16,6 +16,16 @@ export * from "./functions/setup/addEmbeding";
 export * from "./functions/setup/addStorage";
 export * from "./functions/setup/addPolicy";
 
+export * from "./functions/test/overrideAgent";     
+export * from "./functions/test/overrideCompletion";
+export * from "./functions/test/overrideEmbeding";  
+export * from "./functions/test/overridePolicy";    
+export * from "./functions/test/overrideState";     
+export * from "./functions/test/overrideStorage";   
+export * from "./functions/test/overrideSwarm";     
+export * from "./functions/test/overrideTool";      
+export * from "./functions/test/overrideWiki";      
+
 export * from "./functions/other/markOnline";
 export * from "./functions/other/markOffline";
 

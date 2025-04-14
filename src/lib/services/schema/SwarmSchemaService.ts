@@ -61,9 +61,7 @@ export class SwarmSchemaService {
         `agent-swarm swarm schema validation failed: missing agentList for swarmName=${swarmSchema.swarmName} value=${swarmSchema.agentList}`
       );
     }
-    if (
-      swarmSchema.agentList.length !== new Set(swarmSchema.agentList).size
-    ) {
+    if (swarmSchema.agentList.length !== new Set(swarmSchema.agentList).size) {
       throw new Error(
         `agent-swarm swarm schema validation failed: found duplicate agentList for swarmName=${swarmSchema.swarmName} agentList=[${swarmSchema.agentList}]`
       );
@@ -86,9 +84,7 @@ export class SwarmSchemaService {
         `agent-swarm swarm schema validation failed: found duplicate policies for swarmName=${swarmSchema.swarmName} policies=[${swarmSchema.policies}]`
       );
     }
-    if (
-      swarmSchema.policies?.some((value) => typeof value !== "string")
-    ) {
+    if (swarmSchema.policies?.some((value) => typeof value !== "string")) {
       throw new Error(
         `agent-swarm swarm schema validation failed: invalid policies for swarmName=${swarmSchema.swarmName} value=[${swarmSchema.policies}]`
       );
@@ -109,6 +105,22 @@ export class SwarmSchemaService {
       this.loggerService.info(`swarmSchemaService register`, { key });
     this.validateShallow(value);
     this.registry = this.registry.register(key, value);
+  };
+
+  /**
+   * Overrides an existing swarm schema in the registry with a new value.
+   * Replaces the schema associated with the given key in the ToolRegistry.
+   * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports dynamic updates to swarm configurations, allowing modifications to agentList, defaultAgent, or policies.
+   * @param {SwarmName} key - The name of the swarm to override, sourced from Swarm.interface.
+   * @param {ISwarmSchema} value - The new swarm schema to replace the existing one, sourced from Swarm.interface.
+   * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+   */
+  public override = (key: SwarmName, value: Partial<ISwarmSchema>) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`swarmSchemaService override`, { key });
+    this.registry = this.registry.override(key, value);
+    return this.registry.get(key);
   };
 
   /**

@@ -86,6 +86,22 @@ export class ToolSchemaService {
   };
 
   /**
+   * Overrides an existing tool schema in the registry with a new schema.
+   * Replaces the schema associated with the provided key (toolName) in the ToolRegistry.
+   * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports dynamic updates to tool schemas for AgentConnectionService and SwarmConnectionService.
+   * @param {ToolName} key - The name of the tool to override, sourced from Agent.interface.
+   * @param {IAgentTool} value - The new tool schema to replace the existing one, sourced from Agent.interface.
+   * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+   */
+  public override = (key: ToolName, value: Partial<IAgentTool>) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`toolSchemaService override`, { key });
+    this.registry = this.registry.override(key, value);
+    return this.registry.get(key);
+  };
+
+  /**
    * Retrieves a tool schema from the registry by its name.
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports AgentConnectionService by providing tool definitions (e.g., call, validate, function) for agent instantiation, referenced in AgentSchemaService schemas via the tools field.
