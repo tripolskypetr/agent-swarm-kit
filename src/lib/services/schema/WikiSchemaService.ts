@@ -10,14 +10,14 @@ import { GLOBAL_CONFIG } from "../../../config/params";
  * @description Service for managing wiki schema registrations and retrieval
  */
 export class WikiSchemaService {
-  /** 
-   * @readonly 
+  /**
+   * @readonly
    * @description Injected logger service instance
    */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-  /** 
-   * @private 
+  /**
+   * @private
    * @description Registry for storing wiki schemas
    */
   private registry = new ToolRegistry<Record<WikiName, IWikiSchema>>(
@@ -58,6 +58,20 @@ export class WikiSchemaService {
       this.loggerService.info(`wikiSchemaService register`, { key });
     this.validateShallow(value);
     this.registry = this.registry.register(key, value);
+  };
+
+  /**
+   * Overrides an existing wiki schema with a new value for a given key
+   * @public
+   * @param {WikiName} key - The key of the schema to override
+   * @param {IWikiSchema} value - The new wiki schema to set
+   * @description Logs the override operation and updates the registry with the new schema
+   */
+  public override = (key: WikiName, value: Partial<IWikiSchema>) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`wikiSchemaService override`, { key });
+    this.registry = this.registry.override(key, value);
+    return this.registry.get(key);
   };
 
   /**

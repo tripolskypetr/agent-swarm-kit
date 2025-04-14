@@ -81,6 +81,22 @@ export class PolicySchemaService {
   };
 
   /**
+   * Overrides an existing policy schema in the registry with a new one.
+   * Replaces the schema associated with the provided key (policyName) in the ToolRegistry.
+   * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports dynamic updates to policy schemas, ensuring the latest logic is applied in ClientAgent execution and SessionConnectionService.
+   * @param {PolicyName} key - The name of the policy to override, sourced from Policy.interface.
+   * @param {IPolicySchema} value - The new policy schema to replace the existing one, validated before storage.
+   * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+   */
+  public override = (key: PolicyName, value: Partial<IPolicySchema>) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`policySchemaService override`, { key });
+    this.registry = this.registry.override(key, value);
+    return this.registry.get(key);
+  };
+
+  /**
    * Retrieves a policy schema from the registry by its name.
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports PolicyConnectionService’s getBannedClients method by providing policy logic, used in ClientAgent execution and SessionConnectionService session management.

@@ -84,6 +84,22 @@ export class EmbeddingSchemaService {
   };
 
   /**
+   * Overrides an existing embedding schema in the registry with a new one.
+   * Replaces the schema associated with the provided key in the ToolRegistry.
+   * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports updating embedding logic (e.g., calculateSimilarity and createEmbedding) for storage operations in StorageConnectionService and SharedStorageConnectionService.
+   * @param {EmbeddingName} key - The name of the embedding to override, sourced from Embedding.interface.
+   * @param {IEmbeddingSchema} value - The new embedding schema to associate with the key, sourced from Embedding.interface.
+   * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
+   */
+  public override = (key: EmbeddingName, value: Partial<IEmbeddingSchema>) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`embeddingSchemaService override`, { key });
+    this.registry = this.registry.override(key, value);
+    return this.registry.get(key);
+  };
+
+  /**
    * Retrieves an embedding schema from the registry by its name.
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports StorageConnectionService and SharedStorageConnectionService by providing embedding logic (calculateSimilarity and createEmbedding) for storage operations like take, referenced in storage schemas.
