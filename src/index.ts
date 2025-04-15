@@ -6,6 +6,8 @@ export * from "./cli/dumpSwarm";
 export * from "./cli/dumpPerfomance";
 export * from "./cli/dumpClientPerfomance";
 
+export * from './template/createNavigateToTriageAgent';
+
 export * from "./functions/setup/addWiki";
 export * from "./functions/setup/addAgent";
 export * from "./functions/setup/addCompletion";

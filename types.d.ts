@@ -8988,6 +8988,70 @@ declare const dumpClientPerformance: {
 };
 
 /**
+ * Configuration parameters for creating a navigation handler to a triage agent.
+ * Defines optional messages or functions to handle flush, execution, and tool output scenarios during navigation.
+ *
+ * @interface IFactoryParams
+ * @property {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [flushMessage] - Optional message or function to emit after flushing the session. If a function, it receives the client ID and default agent name, returning a string or promise of a string.
+ * @property {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [executeMessage] - Optional message or function to execute when no navigation is needed. If a function, it receives the client ID and default agent name, returning a string or promise of a string.
+ * @property {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [toolOutputAccept] - Optional message or function for tool output when navigation to the default agent occurs. If a function, it receives the client ID and default agent name, returning a string or promise of a string. Defaults to a message indicating successful navigation.
+ * @property {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [toolOutputReject] - Optional message or function for tool output when already on the default agent. If a function, it receives the client ID and default agent name, returning a string or promise of a string. Defaults to a message indicating no navigation was needed.
+ *
+ * @example
+ * // Static message configuration
+ * const params: IFactoryParams = {
+ *   flushMessage: "Session reset for triage.",
+ *   toolOutputAccept: "Navigation completed.",
+ * };
+ *
+ * @example
+ * // Dynamic message configuration
+ * const params: IFactoryParams = {
+ *   executeMessage: (clientId, agent) => `Processing ${clientId} on ${agent}`,
+ *   toolOutputReject: (clientId, agent) => `No navigation needed for ${clientId}`,
+ * };
+ */
+interface IFactoryParams {
+    flushMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
+    executeMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
+    toolOutputAccept?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
+    toolOutputReject?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
+}
+/**
+ * Creates a function to navigate to a triage agent for a specific client, handling navigation, message execution, and tool output.
+ * The factory generates a handler that checks navigation state, commits tool outputs with accept/reject messages, and triggers execution or emission based on provided parameters.
+ * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
+ * Logs the navigation operation if logging is enabled in the global configuration.
+ *
+ * @param {IFactoryParams} params - Configuration parameters for the navigation handler.
+ * @param {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [params.flushMessage] - Optional message or function to emit after flushing the session.
+ * @param {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [params.executeMessage] - Optional message or function to execute if no navigation is needed.
+ * @param {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [params.toolOutputAccept] - Optional message or function for tool output when navigation occurs, defaults to `DEFAULT_ACCEPT_FN`.
+ * @param {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [params.toolOutputReject] - Optional message or function for tool output when already on the default agent, defaults to `DEFAULT_REJECT_FN`.
+ * @returns {Promise<(toolId: string, clientId: string) => Promise<void>>} A promise resolving to a function that handles navigation to the triage agent.
+ * @throws {Error} If neither `flushMessage` nor `executeMessage` is provided, or if any internal operation (e.g., navigation, commit, or execution) fails.
+ *
+ * @example
+ * // Create a navigation handler with a static flush message
+ * const navigate = await createNavigateToTriageAgent({
+ *   flushMessage: "Session reset for triage.",
+ *   toolOutputAccept: "Navigation completed.",
+ * });
+ * await navigate("tool-123", "client-456");
+ * // Navigates to default agent, commits custom tool output, and emits the flush message if applicable.
+ *
+ * @example
+ * // Create a navigation handler with dynamic messages
+ * const navigate = await createNavigateToTriageAgent({
+ *   executeMessage: (clientId, agent) => `Processing ${clientId} on ${agent}`,
+ *   toolOutputReject: (clientId, agent) => `No navigation needed for ${clientId}`,
+ * });
+ * await navigate("tool-789", "client-012");
+ * // Commits dynamic reject message and executes the message if already on the default agent.
+ */
+declare const createNavigateToTriageAgent: ({ flushMessage, executeMessage, toolOutputAccept, toolOutputReject, }: IFactoryParams) => Promise<(toolId: string, clientId: string) => Promise<void>>;
+
+/**
  * Adds a wiki schema to the system
  * @function addWiki
  * @param {IWikiSchema} wikiSchema - The wiki schema to add
@@ -12236,4 +12300,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideEmbeding, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideEmbeding, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };
