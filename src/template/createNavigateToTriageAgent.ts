@@ -9,16 +9,38 @@ import { emitForce } from "../functions/target/emitForce";
 import { executeForce } from "../functions/target/executeForce";
 import swarm from "../lib";
 import beginContext from "../utils/beginContext";
+import { AgentName } from "../interfaces/Agent.interface";
+import { SessionId } from "../interfaces/Session.interface";
 
 const METHOD_NAME = "function.template.navigateToTriageAgent";
 
 interface IFactoryParams {
-  flushMessage?: string | ((clientId: string) => string | Promise<string>);
-  executeMessage?: string | ((clientId: string) => string | Promise<string>);
+  flushMessage?:
+    | string
+    | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
+  executeMessage?:
+    | string
+    | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
+  toolOutputAccept?:
+    | string
+    | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
+  toolOutputReject?:
+    | string
+    | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
 }
 
+const DEFAULT_ACCEPT_FN = (_: SessionId, defaultAgent: AgentName) =>
+  `Successfully navigated to ${defaultAgent}`;
+const DEFAULT_REJECT_FN = (_: SessionId, defaultAgent: AgentName) =>
+  `Already on ${defaultAgent}`;
+
 export const createNavigateToTriageAgent = beginContext(
-  async ({ flushMessage, executeMessage }: IFactoryParams) => {
+  async ({
+    flushMessage,
+    executeMessage,
+    toolOutputAccept = DEFAULT_ACCEPT_FN,
+    toolOutputReject = DEFAULT_REJECT_FN,
+  }: IFactoryParams) => {
     if (!flushMessage && !executeMessage) {
       throw new Error(
         "agent-swarm createNavigateToTriageAgent flushMessage or executeMessage required"
@@ -40,7 +62,9 @@ export const createNavigateToTriageAgent = beginContext(
         await changeToDefaultAgent(clientId);
         await commitToolOutputForce(
           toolId,
-          `Successfully navigated to ${defaultAgent}`,
+          typeof toolOutputAccept === "string"
+            ? toolOutputAccept
+            : await toolOutputAccept(clientId, defaultAgent),
           clientId
         );
         await executeForce(lastMessage, clientId);
@@ -51,7 +75,7 @@ export const createNavigateToTriageAgent = beginContext(
         await emitForce(
           typeof flushMessage === "string"
             ? flushMessage
-            : await flushMessage(clientId),
+            : await flushMessage(clientId, defaultAgent),
           clientId
         );
         return;
@@ -59,13 +83,15 @@ export const createNavigateToTriageAgent = beginContext(
 
       await commitToolOutputForce(
         toolId,
-        `Already on ${defaultAgent}`,
+        typeof toolOutputReject === "string"
+          ? toolOutputReject
+          : await toolOutputReject(clientId, defaultAgent),
         clientId
       );
       await executeForce(
         typeof executeMessage === "string"
           ? executeMessage
-          : await executeMessage(clientId),
+          : await executeMessage(clientId, defaultAgent),
         clientId
       );
     };
