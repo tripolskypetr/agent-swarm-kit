@@ -376,7 +376,7 @@ export class DocService {
         result.push("");
       }
 
-      if (agentSchema.system) {
+      if (agentSchema.systemStatic) {
         result.push(`## System prompt`);
         result.push("");
         for (let i = 0; i !== agentSchema.system.length; i++) {
@@ -386,6 +386,11 @@ export class DocService {
           result.push(`${i + 1}. \`${agentSchema.system[i]}\``);
           result.push("");
         }
+      }
+
+      if (agentSchema.systemDynamic) {
+        result.push("***Dynamic system prompt found***");
+        result.push("");
       }
 
       if (agentSchema.dependsOn) {
