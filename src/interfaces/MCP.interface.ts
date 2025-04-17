@@ -49,6 +49,7 @@ export interface IMCPCallbacks {
 
 export interface IMCPSchema {
   mcpName: MCPName;
+  docDescription?: string;
   listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
   callTool: <T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
   callbacks?: Partial<IMCPCallbacks>;
