@@ -56,6 +56,10 @@ import { ISwarmDI } from "../model/SwarmDI.model";
 import NavigationValidationService from "./services/validation/NavigationValidationService";
 import WikiValidationService from "./services/validation/WikiValidationService";
 import WikiSchemaService from "./services/schema/WikiSchemaService";
+import MCPConnectionService from "./services/connection/MCPConnectionService";
+import MCPSchemaService from "./services/schema/MCPSchemaService";
+import MCPPublicService from "./services/public/MCPPublicService";
+import MCPValidationService from "./services/validation/MCPValidationService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -105,6 +109,9 @@ const connectionServices = {
   policyConnectionService: inject<PolicyConnectionService>(
     TYPES.policyConnectionService
   ),
+  mcpConnectionService: inject<MCPConnectionService>(
+    TYPES.mcpConnectionService
+  ),
 };
 
 const schemaServices = {
@@ -124,6 +131,7 @@ const schemaServices = {
   memorySchemaService: inject<MemorySchemaService>(TYPES.memorySchemaService),
   policySchemaService: inject<PolicySchemaService>(TYPES.policySchemaService),
   wikiSchemaService: inject<WikiSchemaService>(TYPES.wikiSchemaService),
+  mcpSchemaService: inject<MCPSchemaService>(TYPES.mcpSchemaService),
 };
 
 const publicServices = {
@@ -146,6 +154,7 @@ const publicServices = {
     TYPES.sharedStatePublicService
   ),
   policyPublicService: inject<PolicyPublicService>(TYPES.policyPublicService),
+  mcpPublicService: inject<MCPPublicService>(TYPES.mcpPublicService),
 };
 
 const metaServices = {
@@ -181,7 +190,12 @@ const validationServices = {
   navigationValidationService: inject<NavigationValidationService>(
     TYPES.navigationValidationService
   ),
-  wikiValidationService: inject<WikiValidationService>(TYPES.wikiValidationService),
+  wikiValidationService: inject<WikiValidationService>(
+    TYPES.wikiValidationService
+  ),
+  mcpValidationService: inject<MCPValidationService>(
+    TYPES.mcpValidationService
+  ),
 };
 
 /** @inheritDoc */

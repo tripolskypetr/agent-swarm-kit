@@ -95,6 +95,7 @@ export class SharedStoragePublicService implements TSharedStorageConnectionServi
         agentName: "",
         swarmName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -130,6 +131,7 @@ export class SharedStoragePublicService implements TSharedStorageConnectionServi
         agentName: "",
         swarmName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -165,6 +167,7 @@ export class SharedStoragePublicService implements TSharedStorageConnectionServi
         agentName: "",
         swarmName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -201,6 +204,7 @@ export class SharedStoragePublicService implements TSharedStorageConnectionServi
         agentName: "",
         swarmName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -236,6 +240,7 @@ export class SharedStoragePublicService implements TSharedStorageConnectionServi
         agentName: "",
         swarmName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -269,6 +274,7 @@ export class SharedStoragePublicService implements TSharedStorageConnectionServi
         agentName: "",
         swarmName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };

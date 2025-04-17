@@ -380,6 +380,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
           stateName: "",
           storageName: "",
           swarmName: "",
+          mcpName: "",
         }
       );
     }
@@ -414,6 +415,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
           stateName: "",
           storageName: "",
           swarmName: "",
+          mcpName: "",
         }
       );
     }
@@ -448,6 +450,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
           stateName: "",
           storageName: "",
           swarmName: "",
+          mcpName: "",
         }
       );
     }

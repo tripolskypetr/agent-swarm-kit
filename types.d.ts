@@ -3287,6 +3287,8 @@ type AgentName = string;
  */
 type ToolName = string;
 
+type MCPName = string;
+
 /**
  * Interface defining the structure of method call context in the swarm system.
  * Represents metadata for tracking a specific method invocation, used across services like ClientAgent, PerfService, and LoggerService.
@@ -3328,6 +3330,11 @@ interface IMethodContext {
      * @type {PolicyName}
      */
     policyName: PolicyName;
+    /**
+     * The name of the mcp involved, sourced from MCP.interface
+     * @type {PolicyName}
+     */
+    mcpName: MCPName;
 }
 /**
  * Scoped service class providing method call context information in the swarm system.

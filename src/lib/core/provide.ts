@@ -48,6 +48,10 @@ import AliveService from "../services/base/AliveService";
 import NavigationValidationService from "../services/validation/NavigationValidationService";
 import WikiSchemaService from "../services/schema/WikiSchemaService";
 import WikiValidationService from "../services/validation/WikiValidationService";
+import MCPConnectionService from "../services/connection/MCPConnectionService";
+import MCPSchemaService from "../services/schema/MCPSchemaService";
+import MCPPublicService from "../services/public/MCPPublicService";
+import MCPValidationService from "../services/validation/MCPValidationService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -73,6 +77,7 @@ import WikiValidationService from "../services/validation/WikiValidationService"
     provide(TYPES.stateConnectionService, () => new StateConnectionService());
     provide(TYPES.sharedStateConnectionService, () => new SharedStateConnectionService());
     provide(TYPES.policyConnectionService, () => new PolicyConnectionService());
+    provide(TYPES.mcpConnectionService, () => new MCPConnectionService());
 }
 
 {
@@ -86,6 +91,7 @@ import WikiValidationService from "../services/validation/WikiValidationService"
     provide(TYPES.memorySchemaService, () => new MemorySchemaService());
     provide(TYPES.policySchemaService, () => new PolicySchemaService());
     provide(TYPES.wikiSchemaService, () => new WikiSchemaService());
+    provide(TYPES.mcpSchemaService, () => new MCPSchemaService());
 }
 
 {
@@ -98,6 +104,7 @@ import WikiValidationService from "../services/validation/WikiValidationService"
     provide(TYPES.statePublicService, () => new StatePublicService());
     provide(TYPES.sharedStatePublicService, () => new SharedStatePublicService());
     provide(TYPES.policyPublicService, () => new PolicyPublicService());
+    provide(TYPES.mcpPublicService, () => new MCPPublicService());
 }
 
 {
@@ -116,4 +123,5 @@ import WikiValidationService from "../services/validation/WikiValidationService"
     provide(TYPES.policyValidationService, () => new PolicyValidationService());
     provide(TYPES.navigationValidationService, () => new NavigationValidationService());
     provide(TYPES.wikiValidationService, () => new WikiValidationService());
+    provide(TYPES.mcpValidationService, () => new MCPValidationService());
 }

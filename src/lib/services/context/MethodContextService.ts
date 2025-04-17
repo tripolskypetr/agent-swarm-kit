@@ -4,6 +4,7 @@ import { SwarmName } from "../../../interfaces/Swarm.interface";
 import { StorageName } from "../../../interfaces/Storage.interface";
 import { StateName } from "../../../interfaces/State.interface";
 import { PolicyName } from "../../../interfaces/Policy.interface";
+import { MCPName } from "../../../interfaces/MCP.interface";
 
 /**
  * Interface defining the structure of method call context in the swarm system.
@@ -52,6 +53,12 @@ export interface IMethodContext {
    * @type {PolicyName}
    */
   policyName: PolicyName;
+
+  /**
+   * The name of the mcp involved, sourced from MCP.interface
+   * @type {PolicyName}
+   */
+  mcpName: MCPName;
 }
 
 /**

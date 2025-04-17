@@ -26,7 +26,7 @@ type DisposeFn = () => void;
  * 
  * @extends {AbortSignal}
  */
-interface TAbortSignal extends AbortSignal { }
+export interface TAbortSignal extends AbortSignal { }
 
 /**
  * Type representing possible values for tool parameters.

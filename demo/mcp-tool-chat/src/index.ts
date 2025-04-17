@@ -11,9 +11,28 @@ const transport = new StdioClientTransport({
   args: ["./server/src/index.ts"],
 });
 
+type MCPToolProperties = {
+    [key: string]: {
+        type: string;
+    }
+}
+
+export interface IMCPTool<Properties = MCPToolProperties> {
+  name: string;
+  description?: string;
+  inputSchema: {
+    type: "object";
+    properties?: Properties;
+    required?: string[];
+  };
+}
+  
+
 await client.connect(transport);
 
-const tools = await client.listTools();
+const { tools } = await client.listTools();
+
+const tool: IMCPTool<unknown> = tools[0]!;
 
 console.log(JSON.stringify(tools, null, 2));
 
