@@ -1,6 +1,10 @@
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
 import * as di_scoped from 'di-scoped';
+import MCPConnectionService from 'src/lib/services/connection/MCPConnectionService';
+import MCPSchemaService from 'src/lib/services/schema/MCPSchemaService';
+import MCPPublicService from 'src/lib/services/public/MCPPublicService';
+import MCPValidationService from 'src/lib/services/validation/MCPValidationService';
 
 /**
  * Interface representing an incoming message received by the swarm system.
@@ -3287,6 +3291,42 @@ type AgentName = string;
  */
 type ToolName = string;
 
+type MCPToolProperties = {
+    [key: string]: {
+        type: string;
+    };
+};
+interface IMCPToolCallDto<T = Record<string, ToolValue>> {
+    toolId: string;
+    clientId: string;
+    agentName: AgentName;
+    params: T;
+    toolCalls: IToolCall[];
+    abortSignal: TAbortSignal;
+    isLast: boolean;
+}
+interface IMCPTool<Properties = MCPToolProperties> {
+    name: string;
+    description?: string;
+    inputSchema: {
+        type: "object";
+        properties?: Properties;
+        required?: string[];
+    };
+}
+interface IMCPCallbacks {
+    onInit(): void;
+    onDispose(clientId: string): void;
+    onFetch(clientId: string): void;
+    onList(clientId: string): void;
+    onCall<T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): void;
+}
+interface IMCPSchema {
+    mcpName: MCPName;
+    listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
+    callTool: <T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
+    callbacks?: Partial<IMCPCallbacks>;
+}
 type MCPName = string;
 
 /**
@@ -8767,6 +8807,11 @@ interface ISwarmDI {
      */
     policyConnectionService: PolicyConnectionService;
     /**
+     * Service for managing mcp connections within the swarm.
+     * Handles `IMCP` connectivity and enforcement via `MCPConnectionService`.
+     */
+    mcpConnectionService: MCPConnectionService;
+    /**
      * Service for defining and managing agent schemas.
      * Implements `IAgentSchema` to configure agent behavior via `AgentSchemaService`.
      */
@@ -8811,6 +8856,11 @@ interface ISwarmDI {
      * Implements `IPolicySchema` for rule enforcement via `PolicySchemaService`.
      */
     policySchemaService: PolicySchemaService;
+    /**
+     * Service for defining and managing policy schemas.
+     * Implements `IMCPSchema` for rule enforcement via `MCPSchemaService`.
+     */
+    mcpSchemaService: MCPSchemaService;
     /**
      * Service for defining and managing agent wikies.
      * Implements `IWikiSchema` for rule enforcement via `WikiSchemaService`.
@@ -8862,6 +8912,11 @@ interface ISwarmDI {
      */
     policyPublicService: PolicyPublicService;
     /**
+     * Service exposing public APIs for mcp operations.
+     * Implements `IMCP` methods like `listTools` via `MCPPublicService`.
+     */
+    mcpPublicService: MCPPublicService;
+    /**
      * Service managing metadata for agents.
      * Tracks agent-specific metadata via `AgentMetaService`.
      */
@@ -8911,6 +8966,11 @@ interface ISwarmDI {
      * Ensures policy integrity via `PolicyValidationService`.
      */
     policyValidationService: PolicyValidationService;
+    /**
+     * Service validating mcp-related data and enforcement rules.
+     * Ensures mcp integrity via `MCPValidationService`.
+     */
+    mcpValidationService: MCPValidationService;
     /**
      * Service preventing the recursive call of changeToAgent
      */
@@ -9205,6 +9265,8 @@ declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
  */
 declare const addTool: <T extends any = Record<string, ToolValue>>(toolSchema: IAgentTool<T>) => string;
 
+declare const addMCP: (mcpSchema: IMCPSchema) => string;
+
 /**
  * Adds a new state to the state registry for use within the swarm system.
  *
@@ -9489,6 +9551,11 @@ type TAgentTool = {
  * // Logs the operation (if enabled) and updates the tool schema in the swarm.
  */
 declare const overrideTool: (toolSchema: TAgentTool) => IAgentTool<Record<string, ToolValue>>;
+
+type TMCPSchema = {
+    mcpName: IMCPSchema["mcpName"];
+} & Partial<IMCPSchema>;
+declare const overrideMCP: (mcpSchema: TMCPSchema) => IMCPSchema;
 
 type TWikiSchema = {
     wikiName: IWikiSchema["wikiName"];
@@ -12372,4 +12439,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideEmbeding, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addCompletion, addEmbedding, addMCP, addPolicy, addState, addStorage, addSwarm, addTool, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideEmbeding, overrideMCP, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };

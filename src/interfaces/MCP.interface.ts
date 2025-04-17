@@ -3,7 +3,7 @@ import { AgentName, TAbortSignal, ToolValue } from "./Agent.interface";
 import { IBus } from "./Bus.interface";
 import { ILogger } from "./Logger.interface";
 
-type MCPToolProperties = {
+export type MCPToolProperties = {
   [key: string]: {
     type: string;
   };
