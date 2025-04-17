@@ -8,19 +8,7 @@ Unleash the power of collaborative AI with `agent-swarm-kit`! This library empow
 
 ![Agent Swarm Schema](https://raw.githubusercontent.com/tripolskypetr/agent-swarm-kit/master/schema.png)
 
----
-
 ## ✨ Why Choose Agent Swarm Kit?
-
-- **Multi-Agent Collaboration**: Orchestrate multiple AI agents, each with unique roles—like triage, sales, or refunds—working as a team.
-- **Lightweight & Flexible**: Unlike bulky frameworks, our API is simple and delegates prompt engineering to your team.
-- **Framework-Agnostic**: Each agent works with any AI provider—OpenAI, Ollama, LMStudio, Claude, Grok, YandexGPT, Gemini, you name it!
-- **Robust Validation**: Built-in checks ensure tools, agents, and outputs are always on point.
-- **Real-Time Interaction**: Supports message scheduling and WebSocket channels for dynamic user input.
-
----
-
-## 🔍 Features
 
 - **Conversation Testbed**: Includes a unit testing framework with tool and agent override capabilities, enabling developers to simulate and validate agent interactions and tool integrations in isolated environments.
 
