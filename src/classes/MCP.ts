@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../config/params";
-import IMCP, { IMCPTool, IMCPToolCallDto } from "../interfaces/MCP.interface";
+import IMCP, { IMCPTool, IMCPToolCallDto, MCPToolValue } from "../interfaces/MCP.interface";
 import swarm from "../lib";
-import { AgentName, ToolValue } from "../interfaces/Agent.interface";
+import { AgentName } from "../interfaces/Agent.interface";
 
 export class NoopMCP implements IMCP {
   constructor(readonly agentName: AgentName) {
@@ -29,7 +29,7 @@ export class NoopMCP implements IMCP {
     return Promise.resolve(false);
   }
 
-  public async callTool<T = Record<string, ToolValue>>(
+  public async callTool<T = Record<string, MCPToolValue>>(
     toolName: string,
     dto: IMCPToolCallDto<T>
   ): Promise<void> {
@@ -90,7 +90,7 @@ export class MergeMCP implements IMCP {
     return false;
   }
 
-  public async callTool<T = Record<string, ToolValue>>(
+  public async callTool<T = Record<string, MCPToolValue>>(
     toolName: string,
     dto: IMCPToolCallDto<T>
   ): Promise<void> {

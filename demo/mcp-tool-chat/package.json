@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "bun ./src/index.ts"
+    "start": "bun ./src/repl.ts",
+    "build:docs": "bun ./src/docs.mjs"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -13,6 +14,9 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.9.0"
+    "@modelcontextprotocol/sdk": "1.9.0",
+    "agent-swarm-kit": "1.1.8",
+    "functools-kit": "1.0.80",
+    "openai": "4.95.0"
   }
 }

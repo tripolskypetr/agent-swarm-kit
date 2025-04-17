@@ -4,8 +4,7 @@ import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import MethodContextService from "../context/MethodContextService";
 import { GLOBAL_CONFIG } from "../../../config/params";
-import { IMCPTool, IMCPToolCallDto } from "../../../interfaces/MCP.interface";
-import { ToolValue } from "../../../interfaces/Agent.interface";
+import { IMCPTool, IMCPToolCallDto, MCPToolValue } from "../../../interfaces/MCP.interface";
 
 interface IMCPConnectionService extends MCPConnectionService {}
 
@@ -78,7 +77,7 @@ export class MCPPublicService implements TMCPConnectionService {
     );
   }
 
-  async callTool<T = Record<string, ToolValue>>(
+  async callTool<T = Record<string, MCPToolValue>>(
     methodName: string,
     clientId: string,
     mcpName: string,

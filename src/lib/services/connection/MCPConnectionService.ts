@@ -5,6 +5,7 @@ import IMCP, {
   IMCPTool,
   IMCPToolCallDto,
   MCPName,
+  MCPToolValue,
 } from "../../../interfaces/MCP.interface";
 import { memoize } from "functools-kit";
 import ClientMCP from "../../../client/ClientMCP";
@@ -12,7 +13,6 @@ import { TMethodContextService } from "../context/MethodContextService";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import BusService from "../base/BusService";
 import MCPSchemaService from "../schema/MCPSchemaService";
-import { ToolValue } from "../../../interfaces/Agent.interface";
 
 export class MCPConnectionService implements IMCP {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -59,7 +59,7 @@ export class MCPConnectionService implements IMCP {
     );
   }
 
-  async callTool<T = Record<string, ToolValue>>(
+  async callTool<T = Record<string, MCPToolValue>>(
     toolName: string,
     dto: IMCPToolCallDto<T>
   ): Promise<void> {

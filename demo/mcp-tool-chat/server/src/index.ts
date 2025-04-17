@@ -18,6 +18,15 @@ server.tool(
   })
 );
 
+/*
+server.tool(
+    "get_weather_tool_test",
+    "Get the current weather using MCP",
+    { permission: z.enum(["write', vadmin"]).describe("test")},
+    async () => ({
+      content: [{ type: "text", text: "It's 25C in Istanbul" }],
+    })
+);
 
 server.tool("fetch-weather", { city: z.string() }, async ({ city }) => {
   const response = await fetch(`https://api.weather.com/${city}`);
@@ -26,6 +35,7 @@ server.tool("fetch-weather", { city: z.string() }, async ({ city }) => {
     content: [{ type: "text", text: data }],
   };
 });
+*/
 
 const transport = new StdioServerTransport();
 

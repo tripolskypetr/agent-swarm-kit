@@ -2893,12 +2893,15 @@ interface IWikiSchema {
  */
 type WikiName = string;
 
+type MCPToolValue = unknown;
 type MCPToolProperties = {
     [key: string]: {
         type: string;
+        enum?: string[];
+        description?: string;
     };
 };
-interface IMCPToolCallDto<T = Record<string, ToolValue>> {
+interface IMCPToolCallDto<T = Record<string, MCPToolValue>> {
     toolId: string;
     clientId: string;
     agentName: AgentName;
@@ -2919,19 +2922,19 @@ interface IMCPTool<Properties = MCPToolProperties> {
 interface IMCP {
     listTools(clientId: string): Promise<IMCPTool[]>;
     hasTool(toolName: string, clientId: string): Promise<boolean>;
-    callTool<T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    callTool<T = Record<string, MCPToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
 }
 interface IMCPCallbacks {
     onInit(): void;
     onDispose(clientId: string): void;
     onFetch(clientId: string): void;
     onList(clientId: string): void;
-    onCall<T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): void;
+    onCall<T = Record<string, MCPToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): void;
 }
 interface IMCPSchema {
     mcpName: MCPName;
     listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
-    callTool: <T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
+    callTool: <T = Record<string, MCPToolValue>>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
     callbacks?: Partial<IMCPCallbacks>;
 }
 interface IMCPParams extends IMCPSchema {
@@ -3643,6 +3646,7 @@ declare class ClientAgent implements IAgent {
      * @param {IAgentParams} params - The parameters for agent initialization, including clientId, agentName, completion, tools, etc.
      */
     constructor(params: IAgentParams);
+    _resolveTools(): Promise<IAgentTool[]>;
     /**
      * Resolves the system prompt by combining static and dynamic system messages.
      * Static messages are directly included from the `systemStatic` parameter, while dynamic messages
@@ -3688,7 +3692,7 @@ declare class ClientAgent implements IAgent {
      * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
      * @returns {Promise<IModelMessage>} The completion message from the model, with content defaulted to an empty string if null.
      */
-    getCompletion(mode: ExecutionMode): Promise<IModelMessage>;
+    getCompletion(mode: ExecutionMode, tools: IAgentTool[]): Promise<IModelMessage>;
     /**
      * Commits a user message to the history without triggering a response, notifying the system via BusService.
      * Supports SessionConnectionService by logging user interactions within a session.
@@ -8746,7 +8750,7 @@ declare class ClientMCP implements IMCP {
     private fetchTools;
     listTools(clientId: string): Promise<IMCPTool<MCPToolProperties>[]>;
     hasTool(toolName: string, clientId: string): Promise<boolean>;
-    callTool<T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    callTool<T = Record<string, MCPToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
     dispose(clientId: string): void;
 }
 
@@ -8758,7 +8762,7 @@ declare class MCPConnectionService implements IMCP {
     getMCP: ((mcpName: MCPName) => ClientMCP) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientMCP>;
     listTools(clientId: string): Promise<IMCPTool[]>;
     hasTool(toolName: string, clientId: string): Promise<boolean>;
-    callTool<T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    callTool<T = Record<string, MCPToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
 }
 
 declare class MCPSchemaService {
@@ -8783,7 +8787,7 @@ declare class MCPPublicService implements TMCPConnectionService {
     private readonly mcpConnectionService;
     listTools(methodName: string, clientId: string, mcpName: string): Promise<IMCPTool[]>;
     hasTool(methodName: string, clientId: string, mcpName: string, toolName: string): Promise<boolean>;
-    callTool<T = Record<string, ToolValue>>(methodName: string, clientId: string, mcpName: string, toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    callTool<T = Record<string, MCPToolValue>>(methodName: string, clientId: string, mcpName: string, toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
 }
 
 declare class MCPValidationService {

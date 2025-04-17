@@ -1,15 +1,19 @@
 import { IToolCall } from "../model/Tool.model";
-import { AgentName, TAbortSignal, ToolValue } from "./Agent.interface";
+import { AgentName, TAbortSignal } from "./Agent.interface";
 import { IBus } from "./Bus.interface";
 import { ILogger } from "./Logger.interface";
+
+export type MCPToolValue = unknown;
 
 export type MCPToolProperties = {
   [key: string]: {
     type: string;
+    enum?: string[];
+    description?: string;
   };
 };
 
-export interface IMCPToolCallDto<T = Record<string, ToolValue>> {
+export interface IMCPToolCallDto<T = Record<string, MCPToolValue>> {
     toolId: string;
     clientId: string;
     agentName: AgentName;
@@ -32,7 +36,7 @@ export interface IMCPTool<Properties = MCPToolProperties> {
 export interface IMCP {
   listTools(clientId: string): Promise<IMCPTool[]>;
   hasTool(toolName: string, clientId: string): Promise<boolean>;
-  callTool<T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+  callTool<T = Record<string, MCPToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
 }
 
 export interface IMCPCallbacks {
@@ -40,13 +44,13 @@ export interface IMCPCallbacks {
   onDispose(clientId: string): void;
   onFetch(clientId: string): void;
   onList(clientId: string): void;
-  onCall<T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): void;
+  onCall<T = Record<string, MCPToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): void;
 }
 
 export interface IMCPSchema {
   mcpName: MCPName;
   listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
-  callTool: <T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
+  callTool: <T = Record<string, MCPToolValue>>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
   callbacks?: Partial<IMCPCallbacks>;
 }
 

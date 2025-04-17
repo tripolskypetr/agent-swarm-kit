@@ -4,11 +4,9 @@ import {
   IMCPParams,
   IMCPTool,
   IMCPToolCallDto,
+  MCPToolValue,
 } from "../interfaces/MCP.interface";
 import { memoize } from "functools-kit";
-import {
-  ToolValue,
-} from "../interfaces/Agent.interface";
 
 export class ClientMCP implements IMCP {
   constructor(readonly params: IMCPParams) {
@@ -67,7 +65,7 @@ export class ClientMCP implements IMCP {
     return toolMap.has(toolName);
   }
 
-  public async callTool<T = Record<string, ToolValue>>(
+  public async callTool<T = Record<string, MCPToolValue>>(
     toolName: string,
     dto: IMCPToolCallDto<T>
   ) {
