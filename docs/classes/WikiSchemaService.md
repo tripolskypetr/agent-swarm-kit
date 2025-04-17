@@ -41,6 +41,14 @@ register: (key: string, value: IWikiSchema) => void
 
 Registers a wiki schema with a given key
 
+### override
+
+```ts
+override: (key: string, value: Partial<IWikiSchema>) => IWikiSchema
+```
+
+Overrides an existing wiki schema with a new value for a given key
+
 ### get
 
 ```ts

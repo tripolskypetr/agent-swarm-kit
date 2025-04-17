@@ -25,6 +25,14 @@ answer: (content: string) => Promise<void>
 
 Sends an answer
 
+### init
+
+```ts
+init: () => Promise<void>
+```
+
+Init the connection
+
 ### notify
 
 ```ts

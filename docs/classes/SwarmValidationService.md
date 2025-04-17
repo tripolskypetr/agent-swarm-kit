@@ -74,6 +74,15 @@ getAgentList: (swarmName: string) => string[]
 Retrieves the list of agent names associated with a given swarm.
 Logs the operation and validates swarm existence, supporting ClientSwarm’s agent management.
 
+### getAgentSet
+
+```ts
+getAgentSet: ((swarmName: string) => Set<string>) & IClearableMemoize<string> & IControlMemoize<string, Set<string>>
+```
+
+Retrieves the set of agent names associated with a given swarm.
+Logs the operation and validates swarm existence, supporting ClientSwarm’s agent management.
+
 ### getPolicyList
 
 ```ts

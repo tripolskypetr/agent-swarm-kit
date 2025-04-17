@@ -7,8 +7,7 @@ group: docs
 
 ```ts
 type InternalKeys$7 = keyof {
-    getHistory: never;
-    getItems: never;
+    getSession: never;
 };
 ```
 

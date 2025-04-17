@@ -60,6 +60,17 @@ Validates the schema using validateShallow, then adds it to the ToolRegistry und
 Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StateConnectionService’s state management.
 Supports ClientAgent execution by providing validated state schemas to StateConnectionService and SharedStateConnectionService for ClientState configuration.
 
+### override
+
+```ts
+override: (key: string, value: Partial<IStateSchema<any>>) => IStateSchema<any>
+```
+
+Overrides an existing state schema in the registry with a new schema.
+Replaces the schema associated with the provided key (stateName) in the ToolRegistry.
+Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports dynamic updates to state schemas for StateConnectionService and SharedStateConnectionService.
+
 ### get
 
 ```ts

@@ -60,6 +60,17 @@ Validates the schema using validateShallow, then adds it to the ToolRegistry und
 Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StorageConnectionService’s embedding usage.
 Supports storage operations (e.g., similarity-based retrieval in ClientStorage) by providing validated embedding schemas to StorageConnectionService and SharedStorageConnectionService.
 
+### override
+
+```ts
+override: (key: string, value: Partial<IEmbeddingSchema>) => IEmbeddingSchema
+```
+
+Overrides an existing embedding schema in the registry with a new one.
+Replaces the schema associated with the provided key in the ToolRegistry.
+Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports updating embedding logic (e.g., calculateSimilarity and createEmbedding) for storage operations in StorageConnectionService and SharedStorageConnectionService.
+
 ### get
 
 ```ts

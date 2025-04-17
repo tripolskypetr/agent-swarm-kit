@@ -34,6 +34,14 @@ bus: IBus
 
 The bus instance for event communication within the swarm.
 
+### mcp
+
+```ts
+mcp: IMCP
+```
+
+The mcp instance for external tool call
+
 ### history
 
 ```ts

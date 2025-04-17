@@ -60,6 +60,17 @@ Validates the schema using validateShallow, then adds it to the ToolRegistry und
 Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with PolicyConnectionService’s policy enforcement.
 Supports ClientAgent execution and SessionConnectionService by providing validated policy schemas for access control.
 
+### override
+
+```ts
+override: (key: string, value: Partial<IPolicySchema>) => IPolicySchema
+```
+
+Overrides an existing policy schema in the registry with a new one.
+Replaces the schema associated with the provided key (policyName) in the ToolRegistry.
+Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports dynamic updates to policy schemas, ensuring the latest logic is applied in ClientAgent execution and SessionConnectionService.
+
 ### get
 
 ```ts

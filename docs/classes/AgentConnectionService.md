@@ -111,6 +111,15 @@ completionSchemaService: any
 Completion schema service instance, injected via DI, for retrieving completion configurations.
 Provides completion logic to ClientAgent in getAgent, supporting agent execution flows.
 
+### mcpConnectionService
+
+```ts
+mcpConnectionService: any
+```
+
+MCP connection service instance, injected via DI, for retrieving external tools
+Provides mcp integration logic to ClientAgent in getAgent, supporting agent tool execution.
+
 ### getAgent
 
 ```ts

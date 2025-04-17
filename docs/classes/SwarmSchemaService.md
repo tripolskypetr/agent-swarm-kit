@@ -60,6 +60,17 @@ Validates the schema using validateShallow, then adds it to the ToolRegistry und
 Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SwarmConnectionService’s swarm management.
 Supports ClientAgent execution by providing validated swarm schemas to SwarmConnectionService for ClientSwarm configuration.
 
+### override
+
+```ts
+override: (key: string, value: Partial<ISwarmSchema>) => ISwarmSchema
+```
+
+Overrides an existing swarm schema in the registry with a new value.
+Replaces the schema associated with the given key in the ToolRegistry.
+Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports dynamic updates to swarm configurations, allowing modifications to agentList, defaultAgent, or policies.
+
 ### get
 
 ```ts

@@ -60,6 +60,17 @@ Validates the schema using validateShallow, then adds it to the ToolRegistry und
 Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StorageConnectionService’s storage management.
 Supports ClientAgent execution by providing validated storage schemas to StorageConnectionService and SharedStorageConnectionService for ClientStorage configuration.
 
+### override
+
+```ts
+override: (key: string, value: Partial<IStorageSchema<IStorageData>>) => IStorageSchema<IStorageData>
+```
+
+Overrides an existing storage schema in the registry with a new schema.
+Replaces the schema associated with the provided key in the ToolRegistry.
+Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports updates to storage configurations for ClientStorage and SharedStorageConnectionService.
+
 ### get
 
 ```ts

@@ -7,7 +7,7 @@ group: docs
 
 ```ts
 type TSwarmConnectionService = {
-    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$5>]: unknown;
+    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$6>]: unknown;
 };
 ```
 

@@ -65,3 +65,11 @@ policyName: string
 ```
 
 The name of the policy involved, sourced from Policy.interface, used in PerfService (e.g., policyBans) and DocService (e.g., policy docs).
+
+### mcpName
+
+```ts
+mcpName: string
+```
+
+The name of the mcp involved, sourced from MCP.interface

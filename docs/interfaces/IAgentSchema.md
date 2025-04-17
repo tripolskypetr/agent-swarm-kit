@@ -130,6 +130,14 @@ states: string[]
 
 Optional array of state names managed by the agent.
 
+### mcp
+
+```ts
+mcp: string[]
+```
+
+Optional array of mcp names managed by the agent
+
 ### dependsOn
 
 ```ts
