@@ -72,6 +72,19 @@ export class MCPConnectionService implements IMCP {
       this.methodContextService.context.mcpName
     ).callTool(toolName, dto);
   }
+
+  public dispose = async (clientId: string) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`mcpConnectionService dispose`, { clientId });
+    const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.agentName}`;
+    if (!this.getMCP.has(key)) {
+      return;
+    }
+    await this.getMCP(this.methodContextService.context.mcpName).dispose(
+      clientId
+    );
+    this.getMCP.clear(clientId);
+  };
 }
 
 export default MCPConnectionService;

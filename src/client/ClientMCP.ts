@@ -8,7 +8,14 @@ import {
 } from "../interfaces/MCP.interface";
 import { memoize } from "functools-kit";
 
+/**
+ * A client-side implementation of the IMCP interface for managing tools and their operations.
+ */
 export class ClientMCP implements IMCP {
+  /**
+   * Creates an instance of ClientMCP.
+   * @param params - The parameters for configuring the MCP, including callbacks and tool management functions.
+   */
   constructor(readonly params: IMCPParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -22,6 +29,11 @@ export class ClientMCP implements IMCP {
     }
   }
 
+  /**
+   * Memoized function to fetch and cache tools for a given client ID.
+   * @param clientId - The ID of the client requesting the tools.
+   * @returns A promise resolving to a Map of tool names to IMCPTool objects.
+   */
   private fetchTools = memoize(
     ([clientId]) => `${clientId}`,
     async (clientId: string): Promise<Map<string, IMCPTool>> => {
@@ -37,6 +49,11 @@ export class ClientMCP implements IMCP {
     }
   );
 
+  /**
+   * Lists all available tools for a given client.
+   * @param clientId - The ID of the client requesting the tool list.
+   * @returns A promise resolving to an array of IMCPTool objects.
+   */
   public async listTools(clientId: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -52,6 +69,12 @@ export class ClientMCP implements IMCP {
     return Array.from(toolMap.values());
   }
 
+  /**
+   * Checks if a specific tool exists for a given client.
+   * @param toolName - The name of the tool to check.
+   * @param clientId - The ID of the client.
+   * @returns A promise resolving to true if the tool exists, false otherwise.
+   */
   public async hasTool(toolName: string, clientId: string): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -65,6 +88,12 @@ export class ClientMCP implements IMCP {
     return toolMap.has(toolName);
   }
 
+  /**
+   * Calls a specific tool with the provided parameters.
+   * @param toolName - The name of the tool to call.
+   * @param dto - The data transfer object containing tool call parameters.
+   * @returns A promise resolving when the tool call is complete.
+   */
   public async callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
@@ -83,6 +112,10 @@ export class ClientMCP implements IMCP {
     return await this.params.callTool(toolName, dto);
   }
 
+  /**
+   * Disposes of resources associated with a client, clearing cached tools and invoking the dispose callback.
+   * @param clientId - The ID of the client whose resources are to be disposed.
+   */
   public dispose(clientId: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(

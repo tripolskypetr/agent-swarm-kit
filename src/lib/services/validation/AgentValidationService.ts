@@ -175,6 +175,26 @@ export class AgentValidationService {
   };
 
   /**
+   * Retrieves the list of mcp names associated with a given agent.
+   * Logs the operation and validates agent existence, supporting ClientMCP integration.
+   * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
+   * @returns {MCPName[]} An array of mcp names from the agent’s schema.
+   * @throws {Error} If the agent is not found in _agentMap.
+   */
+  public getMCPList = (agentName: AgentName): MCPName[] => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentValidationService getMCPList", {
+        agentName,
+      });
+    if (!this._agentMap.has(agentName)) {
+      throw new Error(
+        `agent-swarm agent ${agentName} not exist (getMCPList)`
+      );
+    }
+    return this._agentMap.get(agentName)!.mcp || [];
+  };
+
+  /**
    * Registers a new agent with its schema in the validation service.
    * Logs the operation and updates _agentMap and _agentDepsMap, supporting AgentSchemaService’s agent registration.
    * @param {AgentName} agentName - The name of the agent to add, sourced from Agent.interface.

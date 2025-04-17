@@ -4,7 +4,11 @@ import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import MethodContextService from "../context/MethodContextService";
 import { GLOBAL_CONFIG } from "../../../config/params";
-import { IMCPTool, IMCPToolCallDto, MCPToolValue } from "../../../interfaces/MCP.interface";
+import {
+  IMCPTool,
+  IMCPToolCallDto,
+  MCPToolValue,
+} from "../../../interfaces/MCP.interface";
 
 interface IMCPConnectionService extends MCPConnectionService {}
 
@@ -105,6 +109,30 @@ export class MCPPublicService implements TMCPConnectionService {
       }
     );
   }
+
+  public dispose = async (
+    methodName: string,
+    clientId: string,
+    mcpName: string
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`mcpPublicService dispose`, { clientId });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.mcpConnectionService.dispose(clientId);
+      },
+      {
+        methodName,
+        clientId,
+        mcpName,
+        agentName: "",
+        swarmName: "",
+        storageName: "",
+        stateName: "",
+        policyName: "",
+      }
+    );
+  };
 }
 
 export default MCPPublicService;

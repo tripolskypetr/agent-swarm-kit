@@ -645,6 +645,10 @@ export class ClientAgent implements IAgent {
     this.params.onInit && this.params.onInit(params.clientId, params.agentName);
   }
 
+  /**
+   * Resolves and combines tools from the agent's parameters and MCP tool list, ensuring no duplicate tool names.
+   * @returns A promise resolving to an array of unique IAgentTool objects.
+   */
   async _resolveTools(): Promise<IAgentTool[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
