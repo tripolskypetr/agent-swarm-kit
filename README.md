@@ -32,6 +32,10 @@ Unleash the power of collaborative AI with `agent-swarm-kit`! This library empow
 
 - **Swarm of OpenAI, Grok, and Claude in One Chat**: An agent-agnostic framework that allows a single chat to leverage multiple AI models (e.g., OpenAI, Grok, Claude) within a swarm, providing flexibility and diversity in agent capabilities.
 
+- **Agent Schema to Markdown**: Generates Markdown documentation from agent schemas automatically in CI/CD, keeping project managers and teams updated on agent prompts, tools, and swarm structures without manual reporting. Changes are reflected instantly, streamlining communication and project tracking.
+
+- **Redis Storage Integration**: Persists state management, RAG (Retrieval-Augmented Generation) search data, and chat history in Redis, ensuring reliable, scalable, and high-performance storage. This enables safe and consistent access to agent states, vector search results, and conversation histories across distributed systems (Microservices).
+
 ---
 
 ## 🚀 Getting Started
