@@ -1,10 +1,6 @@
 import * as functools_kit from 'functools-kit';
 import { SortedArray, Subject } from 'functools-kit';
 import * as di_scoped from 'di-scoped';
-import MCPConnectionService from 'src/lib/services/connection/MCPConnectionService';
-import MCPSchemaService from 'src/lib/services/schema/MCPSchemaService';
-import MCPPublicService from 'src/lib/services/public/MCPPublicService';
-import MCPValidationService from 'src/lib/services/validation/MCPValidationService';
 
 /**
  * Interface representing an incoming message received by the swarm system.
@@ -2897,6 +2893,53 @@ interface IWikiSchema {
  */
 type WikiName = string;
 
+type MCPToolProperties = {
+    [key: string]: {
+        type: string;
+    };
+};
+interface IMCPToolCallDto<T = Record<string, ToolValue>> {
+    toolId: string;
+    clientId: string;
+    agentName: AgentName;
+    params: T;
+    toolCalls: IToolCall[];
+    abortSignal: TAbortSignal;
+    isLast: boolean;
+}
+interface IMCPTool<Properties = MCPToolProperties> {
+    name: string;
+    description?: string;
+    inputSchema: {
+        type: "object";
+        properties?: Properties;
+        required?: string[];
+    };
+}
+interface IMCP {
+    listTools(clientId: string): Promise<IMCPTool[]>;
+    hasTool(toolName: string, clientId: string): Promise<boolean>;
+    callTool<T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+}
+interface IMCPCallbacks {
+    onInit(): void;
+    onDispose(clientId: string): void;
+    onFetch(clientId: string): void;
+    onList(clientId: string): void;
+    onCall<T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): void;
+}
+interface IMCPSchema {
+    mcpName: MCPName;
+    listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
+    callTool: <T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
+    callbacks?: Partial<IMCPCallbacks>;
+}
+interface IMCPParams extends IMCPSchema {
+    logger: ILogger;
+    bus: IBus;
+}
+type MCPName = string;
+
 /**
  * The dispose function type, representing a function that performs cleanup or resource release.
  */
@@ -3024,6 +3067,7 @@ interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
 interface IAgentParams extends Omit<IAgentSchema, keyof {
     system: never;
     tools: never;
+    mcp: never;
     completion: never;
     validate: never;
 }>, IAgentSchemaCallbacks {
@@ -3033,6 +3077,8 @@ interface IAgentParams extends Omit<IAgentSchema, keyof {
     logger: ILogger;
     /** The bus instance for event communication within the swarm. */
     bus: IBus;
+    /** The mcp instance for external tool call */
+    mcp: IMCP;
     /** The history instance for tracking agent interactions. */
     history: IHistory;
     /** The completion instance for generating responses or outputs. */
@@ -3178,6 +3224,8 @@ interface IAgentSchema {
     wikiList?: WikiName[];
     /** Optional array of state names managed by the agent. */
     states?: StateName[];
+    /** Optional array of mcp names managed by the agent */
+    mcp?: MCPName[];
     /** Optional array of agent names this agent depends on for transitions (e.g., via changeToAgent). */
     dependsOn?: AgentName[];
     /**
@@ -3290,44 +3338,6 @@ type AgentName = string;
  * @typedef {string} ToolName
  */
 type ToolName = string;
-
-type MCPToolProperties = {
-    [key: string]: {
-        type: string;
-    };
-};
-interface IMCPToolCallDto<T = Record<string, ToolValue>> {
-    toolId: string;
-    clientId: string;
-    agentName: AgentName;
-    params: T;
-    toolCalls: IToolCall[];
-    abortSignal: TAbortSignal;
-    isLast: boolean;
-}
-interface IMCPTool<Properties = MCPToolProperties> {
-    name: string;
-    description?: string;
-    inputSchema: {
-        type: "object";
-        properties?: Properties;
-        required?: string[];
-    };
-}
-interface IMCPCallbacks {
-    onInit(): void;
-    onDispose(clientId: string): void;
-    onFetch(clientId: string): void;
-    onList(clientId: string): void;
-    onCall<T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): void;
-}
-interface IMCPSchema {
-    mcpName: MCPName;
-    listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
-    callTool: <T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
-    callbacks?: Partial<IMCPCallbacks>;
-}
-type MCPName = string;
 
 /**
  * Interface defining the structure of method call context in the swarm system.
@@ -3913,6 +3923,13 @@ declare class AgentConnectionService implements IAgent {
      * @private
      */
     private readonly completionSchemaService;
+    /**
+     * MCP connection service instance, injected via DI, for retrieving external tools
+     * Provides mcp integration logic to ClientAgent in getAgent, supporting agent tool execution.
+     * @type {CompletionSchemaService}
+     * @private
+     */
+    private readonly mcpConnectionService;
     /**
      * Retrieves or creates a memoized ClientAgent instance for a given client and agent.
      * Uses functools-kit’s memoize to cache instances by a composite key (clientId-agentName), ensuring efficient reuse across calls.
@@ -4940,7 +4957,7 @@ interface IAgentConnectionService extends AgentConnectionService {
  * Used to filter out non-public methods like getAgent in TAgentConnectionService.
  * @typedef {keyof { getAgent: never }} InternalKeys
  */
-type InternalKeys$8 = keyof {
+type InternalKeys$9 = keyof {
     getAgent: never;
 };
 /**
@@ -4949,7 +4966,7 @@ type InternalKeys$8 = keyof {
  * @typedef {Object} TAgentConnectionService
  */
 type TAgentConnectionService = {
-    [key in Exclude<keyof IAgentConnectionService, InternalKeys$8>]: unknown;
+    [key in Exclude<keyof IAgentConnectionService, InternalKeys$9>]: unknown;
 };
 /**
  * Service class for managing public agent operations in the swarm system.
@@ -5114,7 +5131,7 @@ interface IHistoryConnectionService extends HistoryConnectionService {
  * Used to filter out non-public methods like getHistory and getItems in THistoryConnectionService.
  * @typedef {keyof { getHistory: never; getItems: never }} InternalKeys
  */
-type InternalKeys$7 = keyof {
+type InternalKeys$8 = keyof {
     getHistory: never;
     getItems: never;
 };
@@ -5124,7 +5141,7 @@ type InternalKeys$7 = keyof {
  * @typedef {Object} THistoryConnectionService
  */
 type THistoryConnectionService = {
-    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$7>]: unknown;
+    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$8>]: unknown;
 };
 /**
  * Service class for managing public history operations in the swarm system.
@@ -5213,7 +5230,7 @@ interface ISessionConnectionService extends SessionConnectionService {
  * Used to filter out non-public methods like getSession in TSessionConnectionService.
  * @typedef {keyof { getSession: never }} InternalKeys
  */
-type InternalKeys$6 = keyof {
+type InternalKeys$7 = keyof {
     getSession: never;
 };
 /**
@@ -5222,7 +5239,7 @@ type InternalKeys$6 = keyof {
  * @typedef {Object} TSessionConnectionService
  */
 type TSessionConnectionService = {
-    [key in Exclude<keyof ISessionConnectionService, InternalKeys$6>]: unknown;
+    [key in Exclude<keyof ISessionConnectionService, InternalKeys$7>]: unknown;
 };
 /**
  * Service class for managing public session interactions in the swarm system.
@@ -5410,7 +5427,7 @@ interface ISwarmConnectionService extends SwarmConnectionService {
  * Used to filter out non-public methods like getSwarm in TSwarmConnectionService.
  * @typedef {keyof { getSwarm: never }} InternalKeys
  */
-type InternalKeys$5 = keyof {
+type InternalKeys$6 = keyof {
     getSwarm: never;
 };
 /**
@@ -5419,7 +5436,7 @@ type InternalKeys$5 = keyof {
  * @typedef {Object} TSwarmConnectionService
  */
 type TSwarmConnectionService = {
-    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$5>]: unknown;
+    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$6>]: unknown;
 };
 /**
  * Service class for managing public swarm-level interactions in the swarm system.
@@ -5571,6 +5588,14 @@ declare class AgentValidationService {
      * @readonly
      */
     private readonly wikiValidationService;
+    /**
+     * MCP validation service instance for validating mcp associated with agents.
+     * Injected via DI, used in validate method to check agent mcp list.
+     * @type {WikiValidationService}
+     * @private
+     * @readonly
+     */
+    private readonly mcpValidationService;
     /**
      * Completion validation service instance for validating completion configurations of agents.
      * Injected via DI, used in validate method to check agent completion.
@@ -6438,7 +6463,7 @@ interface IStorageConnectionService extends StorageConnectionService {
  * Used to filter out non-public methods like getStorage and getSharedStorage in TStorageConnectionService.
  * @typedef {keyof { getStorage: never; getSharedStorage: never }} InternalKeys
  */
-type InternalKeys$4 = keyof {
+type InternalKeys$5 = keyof {
     getStorage: never;
     getSharedStorage: never;
 };
@@ -6448,7 +6473,7 @@ type InternalKeys$4 = keyof {
  * @typedef {Object} TStorageConnectionService
  */
 type TStorageConnectionService = {
-    [key in Exclude<keyof IStorageConnectionService, InternalKeys$4>]: unknown;
+    [key in Exclude<keyof IStorageConnectionService, InternalKeys$5>]: unknown;
 };
 /**
  * Service class for managing public client-specific storage operations in the swarm system.
@@ -6834,7 +6859,7 @@ interface IStateConnectionService extends StateConnectionService {
  * Used to filter out non-public methods like getStateRef and getSharedStateRef in TStateConnectionService.
  * @typedef {keyof { getStateRef: never; getSharedStateRef: never }} InternalKeys
  */
-type InternalKeys$3 = keyof {
+type InternalKeys$4 = keyof {
     getStateRef: never;
     getSharedStateRef: never;
 };
@@ -6844,7 +6869,7 @@ type InternalKeys$3 = keyof {
  * @typedef {Object} TStateConnectionService
  */
 type TStateConnectionService = {
-    [key in Exclude<keyof IStateConnectionService, InternalKeys$3>]: unknown;
+    [key in Exclude<keyof IStateConnectionService, InternalKeys$4>]: unknown;
 };
 /**
  * Service class for managing public client-specific state operations in the swarm system, with generic type support for state data.
@@ -7537,7 +7562,7 @@ interface ISharedStateConnectionService extends SharedStateConnectionService {
  * Used to filter out non-public methods like getStateRef and getSharedStateRef in TSharedStateConnectionService.
  * @typedef {keyof { getStateRef: never; getSharedStateRef: never }} InternalKeys
  */
-type InternalKeys$2 = keyof {
+type InternalKeys$3 = keyof {
     getStateRef: never;
     getSharedStateRef: never;
 };
@@ -7547,7 +7572,7 @@ type InternalKeys$2 = keyof {
  * @typedef {Object} TSharedStateConnectionService
  */
 type TSharedStateConnectionService = {
-    [key in Exclude<keyof ISharedStateConnectionService, InternalKeys$2>]: unknown;
+    [key in Exclude<keyof ISharedStateConnectionService, InternalKeys$3>]: unknown;
 };
 /**
  * Service class for managing public shared state operations in the swarm system, with generic type support for state data.
@@ -7613,7 +7638,7 @@ interface ISharedStorageConnectionService extends SharedStorageConnectionService
  * Used to filter out non-public methods like getStorage and getSharedStorage in TSharedStorageConnectionService.
  * @typedef {keyof { getStorage: never; getSharedStorage: never }} InternalKeys
  */
-type InternalKeys$1 = keyof {
+type InternalKeys$2 = keyof {
     getStorage: never;
     getSharedStorage: never;
 };
@@ -7623,7 +7648,7 @@ type InternalKeys$1 = keyof {
  * @typedef {Object} TSharedStorageConnectionService
  */
 type TSharedStorageConnectionService = {
-    [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys$1>]: unknown;
+    [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys$2>]: unknown;
 };
 /**
  * Service class for managing public shared storage operations in the swarm system.
@@ -8456,7 +8481,7 @@ interface IPolicyConnectionService extends PolicyConnectionService {
  * Used to filter out non-public methods like getPolicy in TPolicyConnectionService.
  * @typedef {keyof { getPolicy: never }} InternalKeys
  */
-type InternalKeys = keyof {
+type InternalKeys$1 = keyof {
     getPolicy: never;
 };
 /**
@@ -8465,7 +8490,7 @@ type InternalKeys = keyof {
  * @typedef {Object} TPolicyConnectionService
  */
 type TPolicyConnectionService = {
-    [key in Exclude<keyof IPolicyConnectionService, InternalKeys>]: unknown;
+    [key in Exclude<keyof IPolicyConnectionService, InternalKeys$1>]: unknown;
 };
 /**
  * Service class for managing public policy operations in the swarm system.
@@ -8713,6 +8738,59 @@ declare class WikiSchemaService {
      * @returns {IWikiSchema} The registered wiki schema
      */
     get: (key: WikiName) => IWikiSchema;
+}
+
+declare class ClientMCP implements IMCP {
+    readonly params: IMCPParams;
+    constructor(params: IMCPParams);
+    private fetchTools;
+    listTools(clientId: string): Promise<IMCPTool<MCPToolProperties>[]>;
+    hasTool(toolName: string, clientId: string): Promise<boolean>;
+    callTool<T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    dispose(clientId: string): void;
+}
+
+declare class MCPConnectionService implements IMCP {
+    private readonly loggerService;
+    private readonly busService;
+    private readonly methodContextService;
+    private readonly mcpSchemaService;
+    getMCP: ((mcpName: MCPName) => ClientMCP) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientMCP>;
+    listTools(clientId: string): Promise<IMCPTool[]>;
+    hasTool(toolName: string, clientId: string): Promise<boolean>;
+    callTool<T = Record<string, ToolValue>>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+}
+
+declare class MCPSchemaService {
+    readonly loggerService: LoggerService;
+    private registry;
+    private validateShallow;
+    register: (key: MCPName, value: IMCPSchema) => void;
+    override: (key: MCPName, value: Partial<IMCPSchema>) => IMCPSchema;
+    get: (key: MCPName) => IMCPSchema;
+}
+
+interface IMCPConnectionService extends MCPConnectionService {
+}
+type InternalKeys = keyof {
+    getMCP: never;
+};
+type TMCPConnectionService = {
+    [key in Exclude<keyof IMCPConnectionService, InternalKeys>]: unknown;
+};
+declare class MCPPublicService implements TMCPConnectionService {
+    private readonly loggerService;
+    private readonly mcpConnectionService;
+    listTools(methodName: string, clientId: string, mcpName: string): Promise<IMCPTool[]>;
+    hasTool(methodName: string, clientId: string, mcpName: string, toolName: string): Promise<boolean>;
+    callTool<T = Record<string, ToolValue>>(methodName: string, clientId: string, mcpName: string, toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+}
+
+declare class MCPValidationService {
+    private readonly loggerService;
+    private _mcpMap;
+    addMCP: (mcpName: MCPName, mcpSchema: IMCPSchema) => void;
+    validate: (mcpName: MCPName, source: string) => void;
 }
 
 /**

@@ -1,7 +1,7 @@
 import { GLOBAL_CONFIG } from "../config/params";
 import IMCP, { IMCPTool, IMCPToolCallDto } from "../interfaces/MCP.interface";
 import swarm from "../lib";
-import { AgentName, ToolValue } from "src/interfaces/Agent.interface";
+import { AgentName, ToolValue } from "../interfaces/Agent.interface";
 
 export class NoopMCP implements IMCP {
   constructor(readonly agentName: AgentName) {

@@ -46,10 +46,10 @@ import AliveService from "../lib/services/base/AliveService";
 import NavigationValidationService from "../lib/services/validation/NavigationValidationService";
 import WikiValidationService from "../lib/services/validation/WikiValidationService";
 import WikiSchemaService from "../lib/services/schema/WikiSchemaService";
-import MCPConnectionService from "src/lib/services/connection/MCPConnectionService";
-import MCPSchemaService from "src/lib/services/schema/MCPSchemaService";
-import MCPPublicService from "src/lib/services/public/MCPPublicService";
-import MCPValidationService from "src/lib/services/validation/MCPValidationService";
+import MCPConnectionService from "../lib/services/connection/MCPConnectionService";
+import MCPSchemaService from "../lib/services/schema/MCPSchemaService";
+import MCPPublicService from "../lib/services/public/MCPPublicService";
+import MCPValidationService from "../lib/services/validation/MCPValidationService";
 
 /**
  * Interface defining the structure of the dependency injection container for the swarm system.
