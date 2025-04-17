@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.9.0",
-    "agent-swarm-kit": "1.1.9",
+    "agent-swarm-kit": "1.1.10",
     "functools-kit": "1.0.80",
     "openai": "4.95.0"
   }
