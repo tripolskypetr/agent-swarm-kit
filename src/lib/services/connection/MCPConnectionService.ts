@@ -14,16 +14,29 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 import BusService from "../base/BusService";
 import MCPSchemaService from "../schema/MCPSchemaService";
 
+/**
+ * Service class for managing MCP (Model Context Protocol) connections and operations.
+ * Implements the IMCP interface to handle tool listing, checking, calling, and disposal.
+ */
 export class MCPConnectionService implements IMCP {
+  /** Injected LoggerService for logging operations. */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+  /** Injected BusService for communication or event handling. */
   private readonly busService = inject<BusService>(TYPES.busService);
+  /** Injected MethodContextService for accessing method context information. */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
+  /** Injected MCPSchemaService for managing MCP schemas. */
   private readonly mcpSchemaService = inject<MCPSchemaService>(
     TYPES.mcpSchemaService
   );
 
+  /**
+   * Memoized function to retrieve or create an MCP instance for a given MCP name.
+   * @param mcpName - The name of the MCP to retrieve or create.
+   * @returns A ClientMCP instance configured with the specified schema and dependencies.
+   */
   public getMCP = memoize(
     ([mcpName]) => `${mcpName}`,
     (mcpName: MCPName) => {
@@ -37,6 +50,11 @@ export class MCPConnectionService implements IMCP {
     }
   );
 
+  /**
+   * Lists available tools for a given client.
+   * @param clientId - The ID of the client requesting the tool list.
+   * @returns A promise resolving to an array of IMCPTool objects.
+   */
   async listTools(clientId: string): Promise<IMCPTool[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpConnectionService listTools`, {
@@ -47,6 +65,12 @@ export class MCPConnectionService implements IMCP {
     ).listTools(clientId);
   }
 
+  /**
+   * Checks if a specific tool exists for a given client.
+   * @param toolName - The name of the tool to check.
+   * @param clientId - The ID of the client.
+   * @returns A promise resolving to true if the tool exists, false otherwise.
+   */
   async hasTool(toolName: string, clientId: string): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpConnectionService hasTool`, {
@@ -59,6 +83,12 @@ export class MCPConnectionService implements IMCP {
     );
   }
 
+  /**
+   * Calls a specific tool with the provided parameters.
+   * @param toolName - The name of the tool to call.
+   * @param dto - The data transfer object containing tool call parameters.
+   * @returns A promise resolving when the tool call is complete.
+   */
   async callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
@@ -73,6 +103,11 @@ export class MCPConnectionService implements IMCP {
     ).callTool(toolName, dto);
   }
 
+  /**
+   * Disposes of resources associated with a client, clearing cached MCP instances.
+   * @param clientId - The ID of the client whose resources are to be disposed.
+   * @returns A promise resolving when the disposal is complete.
+   */
   public dispose = async (clientId: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpConnectionService dispose`, { clientId });

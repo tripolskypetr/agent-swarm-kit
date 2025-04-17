@@ -5,10 +5,18 @@ import beginContext from "../../utils/beginContext";
 
 const METHOD_NAME = "function.test.overrideMCP";
 
+/**
+ * Type definition for a partial MCP schema, requiring at least an mcpName.
+ */
 type TMCPSchema = {
   mcpName: IMCPSchema["mcpName"];
 } & Partial<IMCPSchema>;
 
+/**
+ * Overrides an existing MCP (Model Context Protocol) schema with a new or partial schema.
+ * @param mcpSchema - The MCP schema containing the name and optional properties to override.
+ * @returns The result of the override operation from the MCP schema service.
+ */
 export const overrideMCP = beginContext((mcpSchema: TMCPSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

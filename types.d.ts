@@ -2893,9 +2893,15 @@ interface IWikiSchema {
  */
 type WikiName = string;
 
+/**
+ * Type representing the value of an MCP tool's parameters, which can be an object with string keys or undefined.
+ */
 type MCPToolValue = {
     [x: string]: unknown;
 } | undefined;
+/**
+ * Type representing the properties of an MCP tool's input schema.
+ */
 type MCPToolProperties = {
     [key: string]: {
         type: string;
@@ -2903,46 +2909,129 @@ type MCPToolProperties = {
         description?: string;
     };
 };
+/**
+ * Interface for the data transfer object used in MCP tool calls.
+ */
 interface IMCPToolCallDto<T extends MCPToolValue = MCPToolValue> {
+    /** Unique identifier for the tool. */
     toolId: string;
+    /** Identifier for the client making the tool call. */
     clientId: string;
+    /** Name of the agent associated with the tool call. */
     agentName: AgentName;
+    /** Parameters for the tool call. */
     params: T;
+    /** Array of tool calls associated with this request. */
     toolCalls: IToolCall[];
+    /** Signal to abort the tool call operation. */
     abortSignal: TAbortSignal;
+    /** Indicates if this is the last tool call in a sequence. */
     isLast: boolean;
 }
+/**
+ * Interface for an MCP tool, defining its name, description, and input schema.
+ */
 interface IMCPTool<Properties = MCPToolProperties> {
+    /** Name of the tool. */
     name: string;
+    /** Optional description of the tool. */
     description?: string;
+    /** Schema defining the input structure for the tool. */
     inputSchema: {
         type: "object";
         properties?: Properties;
         required?: string[];
     };
 }
+/**
+ * Interface for Model Context Protocol (MCP) operations.
+ */
 interface IMCP {
+    /**
+     * Lists available tools for a given client.
+     * @param clientId - The ID of the client requesting the tool list.
+     * @returns A promise resolving to an array of IMCPTool objects.
+     */
     listTools(clientId: string): Promise<IMCPTool[]>;
+    /**
+     * Checks if a specific tool exists for a given client.
+     * @param toolName - The name of the tool to check.
+     * @param clientId - The ID of the client.
+     * @returns A promise resolving to true if the tool exists, false otherwise.
+     */
     hasTool(toolName: string, clientId: string): Promise<boolean>;
+    /**
+     * Calls a specific tool with the provided parameters.
+     * @param toolName - The name of the tool to call.
+     * @param dto - The data transfer object containing tool call parameters.
+     * @returns A promise resolving when the tool call is complete.
+     */
     callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
 }
+/**
+ * Interface for MCP callback functions triggered during various lifecycle events.
+ */
 interface IMCPCallbacks {
+    /** Called when the MCP is initialized. */
     onInit(): void;
+    /**
+     * Called when the MCP resources for a client are disposed.
+     * @param clientId - The ID of the client.
+     */
     onDispose(clientId: string): void;
+    /**
+     * Called when tools are fetched for a client.
+     * @param clientId - The ID of the client.
+     */
     onFetch(clientId: string): void;
+    /**
+     * Called when listing tools for a client.
+     * @param clientId - The ID of the client.
+     */
     onList(clientId: string): void;
+    /**
+     * Called when a tool is invoked.
+     * @param toolName - The name of the tool being called.
+     * @param dto - The data transfer object containing tool call parameters.
+     */
     onCall<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): void;
 }
+/**
+ * Interface for the MCP schema, defining the structure and behavior of an MCP.
+ */
 interface IMCPSchema {
+    /** Unique name of the MCP. */
     mcpName: MCPName;
+    /** Optional description of the MCP for documentation. */
+    docDescription?: string;
+    /**
+     * Function to list available tools for a client.
+     * @param clientId - The ID of the client.
+     * @returns A promise resolving to an array of IMCPTool objects.
+     */
     listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
+    /**
+     * Function to call a specific tool with the provided parameters.
+     * @param toolName - The name of the tool to call.
+     * @param dto - The data transfer object containing tool call parameters.
+     * @returns A promise resolving when the tool call is complete.
+     */
     callTool: <T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
+    /** Optional callbacks for MCP lifecycle events. */
     callbacks?: Partial<IMCPCallbacks>;
 }
+/**
+ * Interface for MCP parameters, extending the MCP schema with additional dependencies.
+ */
 interface IMCPParams extends IMCPSchema {
+    /** Logger instance for logging MCP operations. */
     logger: ILogger;
+    /** Bus instance for communication or event handling. */
     bus: IBus;
 }
+/**
+ * Type representing the name of an MCP.
+ */
 type MCPName = string;
 
 /**
@@ -3648,6 +3737,10 @@ declare class ClientAgent implements IAgent {
      * @param {IAgentParams} params - The parameters for agent initialization, including clientId, agentName, completion, tools, etc.
      */
     constructor(params: IAgentParams);
+    /**
+     * Resolves and combines tools from the agent's parameters and MCP tool list, ensuring no duplicate tool names.
+     * @returns A promise resolving to an array of unique IAgentTool objects.
+     */
     _resolveTools(): Promise<IAgentTool[]>;
     /**
      * Resolves the system prompt by combining static and dynamic system messages.
@@ -5662,6 +5755,14 @@ declare class AgentValidationService {
      */
     getStateList: (agentName: AgentName) => StateName[];
     /**
+     * Retrieves the list of mcp names associated with a given agent.
+     * Logs the operation and validates agent existence, supporting ClientMCP integration.
+     * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
+     * @returns {MCPName[]} An array of mcp names from the agent’s schema.
+     * @throws {Error} If the agent is not found in _agentMap.
+     */
+    getMCPList: (agentName: AgentName) => MCPName[];
+    /**
      * Registers a new agent with its schema in the validation service.
      * Logs the operation and updates _agentMap and _agentDepsMap, supporting AgentSchemaService’s agent registration.
      * @param {AgentName} agentName - The name of the agent to add, sourced from Agent.interface.
@@ -7283,6 +7384,13 @@ declare class DocService {
      */
     private readonly agentSchemaService;
     /**
+     * Model context protocol service instance, injected via DI.
+     * Retrieves IMCPSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
+     * @type {MCPSchemaService}
+     * @private
+     */
+    private readonly mcpSchemaService;
+    /**
      * Policy schema service instance, injected via DI.
      * Supplies policy descriptions for writeSwarmDoc, documenting banhammer policies associated with swarms.
      * @type {PolicySchemaService}
@@ -8746,33 +8854,129 @@ declare class WikiSchemaService {
     get: (key: WikiName) => IWikiSchema;
 }
 
+/**
+ * A client-side implementation of the IMCP interface for managing tools and their operations.
+ */
 declare class ClientMCP implements IMCP {
     readonly params: IMCPParams;
+    /**
+     * Creates an instance of ClientMCP.
+     * @param params - The parameters for configuring the MCP, including callbacks and tool management functions.
+     */
     constructor(params: IMCPParams);
+    /**
+     * Memoized function to fetch and cache tools for a given client ID.
+     * @param clientId - The ID of the client requesting the tools.
+     * @returns A promise resolving to a Map of tool names to IMCPTool objects.
+     */
     private fetchTools;
+    /**
+     * Lists all available tools for a given client.
+     * @param clientId - The ID of the client requesting the tool list.
+     * @returns A promise resolving to an array of IMCPTool objects.
+     */
     listTools(clientId: string): Promise<IMCPTool<MCPToolProperties>[]>;
+    /**
+     * Checks if a specific tool exists for a given client.
+     * @param toolName - The name of the tool to check.
+     * @param clientId - The ID of the client.
+     * @returns A promise resolving to true if the tool exists, false otherwise.
+     */
     hasTool(toolName: string, clientId: string): Promise<boolean>;
+    /**
+     * Calls a specific tool with the provided parameters.
+     * @param toolName - The name of the tool to call.
+     * @param dto - The data transfer object containing tool call parameters.
+     * @returns A promise resolving when the tool call is complete.
+     */
     callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    /**
+     * Disposes of resources associated with a client, clearing cached tools and invoking the dispose callback.
+     * @param clientId - The ID of the client whose resources are to be disposed.
+     */
     dispose(clientId: string): void;
 }
 
+/**
+ * Service class for managing MCP (Model Context Protocol) connections and operations.
+ * Implements the IMCP interface to handle tool listing, checking, calling, and disposal.
+ */
 declare class MCPConnectionService implements IMCP {
+    /** Injected LoggerService for logging operations. */
     private readonly loggerService;
+    /** Injected BusService for communication or event handling. */
     private readonly busService;
+    /** Injected MethodContextService for accessing method context information. */
     private readonly methodContextService;
+    /** Injected MCPSchemaService for managing MCP schemas. */
     private readonly mcpSchemaService;
+    /**
+     * Memoized function to retrieve or create an MCP instance for a given MCP name.
+     * @param mcpName - The name of the MCP to retrieve or create.
+     * @returns A ClientMCP instance configured with the specified schema and dependencies.
+     */
     getMCP: ((mcpName: MCPName) => ClientMCP) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientMCP>;
+    /**
+     * Lists available tools for a given client.
+     * @param clientId - The ID of the client requesting the tool list.
+     * @returns A promise resolving to an array of IMCPTool objects.
+     */
     listTools(clientId: string): Promise<IMCPTool[]>;
+    /**
+     * Checks if a specific tool exists for a given client.
+     * @param toolName - The name of the tool to check.
+     * @param clientId - The ID of the client.
+     * @returns A promise resolving to true if the tool exists, false otherwise.
+     */
     hasTool(toolName: string, clientId: string): Promise<boolean>;
+    /**
+     * Calls a specific tool with the provided parameters.
+     * @param toolName - The name of the tool to call.
+     * @param dto - The data transfer object containing tool call parameters.
+     * @returns A promise resolving when the tool call is complete.
+     */
     callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    /**
+     * Disposes of resources associated with a client, clearing cached MCP instances.
+     * @param clientId - The ID of the client whose resources are to be disposed.
+     * @returns A promise resolving when the disposal is complete.
+     */
+    dispose: (clientId: string) => Promise<void>;
 }
 
+/**
+ * Service class for managing MCP (Model Context Protocol) schemas.
+ * Provides methods to register, override, and retrieve MCP schemas.
+ */
 declare class MCPSchemaService {
+    /** Injected LoggerService for logging operations. */
     readonly loggerService: LoggerService;
+    /** Registry for storing MCP schemas, keyed by MCP name. */
     private registry;
+    /**
+     * Validates the basic structure of an MCP schema.
+     * @param mcpSchema - The MCP schema to validate.
+     * @throws Error if the schema is missing required fields or has invalid types.
+     */
     private validateShallow;
+    /**
+     * Registers a new MCP schema in the registry.
+     * @param key - The name of the MCP to register.
+     * @param value - The MCP schema to register.
+     */
     register: (key: MCPName, value: IMCPSchema) => void;
+    /**
+     * Overrides an existing MCP schema with new or partial values.
+     * @param key - The name of the MCP to override.
+     * @param value - The partial MCP schema to apply.
+     * @returns The updated MCP schema.
+     */
     override: (key: MCPName, value: Partial<IMCPSchema>) => IMCPSchema;
+    /**
+     * Retrieves an MCP schema by its name.
+     * @param key - The name of the MCP to retrieve.
+     * @returns The MCP schema associated with the given name.
+     */
     get: (key: MCPName) => IMCPSchema;
 }
 
@@ -8784,18 +8988,75 @@ type InternalKeys = keyof {
 type TMCPConnectionService = {
     [key in Exclude<keyof IMCPConnectionService, InternalKeys>]: unknown;
 };
+/**
+ * Public service class for interacting with MCP (Model Context Protocol) operations.
+ * Provides methods to list tools, check tool existence, call tools, and dispose resources,
+ * executing operations within a specified context.
+ */
 declare class MCPPublicService implements TMCPConnectionService {
+    /** Injected LoggerService for logging operations. */
     private readonly loggerService;
+    /** Injected MCPConnectionService for handling MCP operations. */
     private readonly mcpConnectionService;
+    /**
+     * Lists available tools for a given client within a specified context.
+     * @param methodName - The name of the method for context tracking.
+     * @param clientId - The ID of the client requesting the tool list.
+     * @param mcpName - The name of the MCP to query.
+     * @returns A promise resolving to an array of IMCPTool objects.
+     */
     listTools(methodName: string, clientId: string, mcpName: string): Promise<IMCPTool[]>;
+    /**
+     * Checks if a specific tool exists for a given client within a specified context.
+     * @param methodName - The name of the method for context tracking.
+     * @param clientId - The ID of the client.
+     * @param mcpName - The name of the MCP to query.
+     * @param toolName - The name of the tool to check.
+     * @returns A promise resolving to true if the tool exists, false otherwise.
+     */
     hasTool(methodName: string, clientId: string, mcpName: string, toolName: string): Promise<boolean>;
+    /**
+     * Calls a specific tool with the provided parameters within a specified context.
+     * @param methodName - The name of the method for context tracking.
+     * @param clientId - The ID of the client.
+     * @param mcpName - The name of the MCP to query.
+     * @param toolName - The name of the tool to call.
+     * @param dto - The data transfer object containing tool call parameters.
+     * @returns A promise resolving when the tool call is complete.
+     */
     callTool<T extends MCPToolValue = MCPToolValue>(methodName: string, clientId: string, mcpName: string, toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    /**
+     * Disposes of resources associated with a client within a specified context.
+     * @param methodName - The name of the method for context tracking.
+     * @param clientId - The ID of the client whose resources are to be disposed.
+     * @param mcpName - The name of the MCP to query.
+     * @returns A promise resolving when the disposal is complete.
+     */
+    dispose: (methodName: string, clientId: string, mcpName: string) => Promise<void>;
 }
 
+/**
+ * Service class for validating and managing MCP (Model Context Protocol) schemas.
+ * Maintains a map of MCP schemas and provides methods to add and validate them.
+ */
 declare class MCPValidationService {
+    /** Injected LoggerService for logging operations. */
     private readonly loggerService;
+    /** Internal map storing MCP schemas, keyed by MCP name. */
     private _mcpMap;
+    /**
+     * Adds a new MCP schema to the map.
+     * @param mcpName - The name of the MCP to add.
+     * @param mcpSchema - The MCP schema to store.
+     * @throws Error if an MCP with the same name already exists.
+     */
     addMCP: (mcpName: MCPName, mcpSchema: IMCPSchema) => void;
+    /**
+     * Validates the existence of an MCP schema by its name.
+     * @param mcpName - The name of the MCP to validate.
+     * @param source - The source context or identifier for the validation request.
+     * @throws Error if the MCP does not exist in the map.
+     */
     validate: (mcpName: MCPName, source: string) => void;
 }
 
@@ -9349,6 +9610,11 @@ declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
  */
 declare const addTool: <T extends any = Record<string, ToolValue>>(toolSchema: IAgentTool<T>) => string;
 
+/**
+ * Registers a new MCP (Model Context Protocol) schema in the system.
+ * @param mcpSchema - The MCP schema to register.
+ * @returns The name of the registered MCP.
+ */
 declare const addMCP: (mcpSchema: IMCPSchema) => string;
 
 /**
@@ -9636,9 +9902,17 @@ type TAgentTool = {
  */
 declare const overrideTool: (toolSchema: TAgentTool) => IAgentTool<Record<string, ToolValue>>;
 
+/**
+ * Type definition for a partial MCP schema, requiring at least an mcpName.
+ */
 type TMCPSchema = {
     mcpName: IMCPSchema["mcpName"];
 } & Partial<IMCPSchema>;
+/**
+ * Overrides an existing MCP (Model Context Protocol) schema with a new or partial schema.
+ * @param mcpSchema - The MCP schema containing the name and optional properties to override.
+ * @returns The result of the override operation from the MCP schema service.
+ */
 declare const overrideMCP: (mcpSchema: TMCPSchema) => IMCPSchema;
 
 type TWikiSchema = {

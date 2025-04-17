@@ -5,10 +5,22 @@ import { IMCPSchema, MCPName } from "../../../interfaces/MCP.interface";
 import { memoize } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../../config/params";
 
+/**
+ * Service class for validating and managing MCP (Model Context Protocol) schemas.
+ * Maintains a map of MCP schemas and provides methods to add and validate them.
+ */
 export class MCPValidationService {
+  /** Injected LoggerService for logging operations. */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+  /** Internal map storing MCP schemas, keyed by MCP name. */
   private _mcpMap = new Map<MCPName, IMCPSchema>();
 
+  /**
+   * Adds a new MCP schema to the map.
+   * @param mcpName - The name of the MCP to add.
+   * @param mcpSchema - The MCP schema to store.
+   * @throws Error if an MCP with the same name already exists.
+   */
   public addMCP = (mcpName: MCPName, mcpSchema: IMCPSchema): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("mcpValidationService addMCP", {
@@ -21,6 +33,12 @@ export class MCPValidationService {
     this._mcpMap.set(mcpName, mcpSchema);
   };
 
+  /**
+   * Validates the existence of an MCP schema by its name.
+   * @param mcpName - The name of the MCP to validate.
+   * @param source - The source context or identifier for the validation request.
+   * @throws Error if the MCP does not exist in the map.
+   */
   public validate = memoize(
     ([mcpName]) => mcpName,
     (mcpName: MCPName, source: string): void => {
