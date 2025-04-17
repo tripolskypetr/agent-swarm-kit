@@ -1,5 +1,5 @@
 {
-  "name": "mcp-tool-chat",
+  "name": "mcp-weather-chat",
   "module": "index.ts",
   "type": "module",
   "private": true,
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.9.0",
-    "agent-swarm-kit": "1.1.8",
+    "agent-swarm-kit": "1.1.9",
     "functools-kit": "1.0.80",
     "openai": "4.95.0"
   }

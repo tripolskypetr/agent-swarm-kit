@@ -77,7 +77,7 @@ export class MCPPublicService implements TMCPConnectionService {
     );
   }
 
-  async callTool<T = Record<string, MCPToolValue>>(
+  async callTool<T = MCPToolValue>(
     methodName: string,
     clientId: string,
     mcpName: string,

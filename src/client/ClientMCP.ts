@@ -65,7 +65,7 @@ export class ClientMCP implements IMCP {
     return toolMap.has(toolName);
   }
 
-  public async callTool<T = Record<string, MCPToolValue>>(
+  public async callTool<T = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
   ) {

@@ -16,7 +16,7 @@ export const TEST_MCP = addMCP({
   callTool: async (toolName, { toolId, params, clientId, agentName }) => {
     const { content } = await client.callTool({
       name: toolName,
-      arguments: params as any,
+      arguments: params,
     });
     const [{ text }] = content as any;
     await commitToolOutput(toolId, text, clientId, agentName);
