@@ -20,6 +20,20 @@ Unleash the power of collaborative AI with `agent-swarm-kit`! This library empow
 
 ---
 
+## 🔍 Features
+
+- **Conversation Testbed**: Includes a unit testing framework with tool and agent override capabilities, enabling developers to simulate and validate agent interactions and tool integrations in isolated environments.
+
+- **Model Context Protocol Ready**: Seamlessly connect agents to multiple remote MCP servers, allowing integration with external tools written in various languages (e.g., C#, Python) via the reusable Model Context Protocol, originally developed for Claude Desktop.
+
+- **Automatic Client Session Orchestration**: Automatically manages client sessions, handling message history, agent navigation, and resource disposal for efficient and scalable real-time interactions.
+
+- **Operator Support**: Supports navigation to human operators through tool calls, enabling seamless escalation of conversations from AI agents to human support for enhanced user experience.
+
+- **Swarm of OpenAI, Grok, and Claude in One Chat**: An agent-agnostic framework that allows a single chat to leverage multiple AI models (e.g., OpenAI, Grok, Claude) within a swarm, providing flexibility and diversity in agent capabilities.
+
+---
+
 ## 🚀 Getting Started
 
 > **Want a real-world demo?** Check out our **[Binance Candle Chat](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/demo/binance-candle-chat/src/lib/swarm.ts)**—a practical example of a sales agent in action!
