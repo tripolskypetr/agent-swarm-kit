@@ -13,7 +13,7 @@ export type MCPToolProperties = {
   };
 };
 
-export interface IMCPToolCallDto<T = MCPToolValue> {
+export interface IMCPToolCallDto<T extends MCPToolValue = MCPToolValue> {
     toolId: string;
     clientId: string;
     agentName: AgentName;
@@ -36,7 +36,7 @@ export interface IMCPTool<Properties = MCPToolProperties> {
 export interface IMCP {
   listTools(clientId: string): Promise<IMCPTool[]>;
   hasTool(toolName: string, clientId: string): Promise<boolean>;
-  callTool<T = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+  callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
 }
 
 export interface IMCPCallbacks {
@@ -44,13 +44,13 @@ export interface IMCPCallbacks {
   onDispose(clientId: string): void;
   onFetch(clientId: string): void;
   onList(clientId: string): void;
-  onCall<T = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): void;
+  onCall<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): void;
 }
 
 export interface IMCPSchema {
   mcpName: MCPName;
   listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
-  callTool: <T = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
+  callTool: <T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
   callbacks?: Partial<IMCPCallbacks>;
 }
 

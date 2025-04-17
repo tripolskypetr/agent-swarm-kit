@@ -59,7 +59,7 @@ export class MCPConnectionService implements IMCP {
     );
   }
 
-  async callTool<T = MCPToolValue>(
+  async callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
   ): Promise<void> {

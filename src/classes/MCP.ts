@@ -29,7 +29,7 @@ export class NoopMCP implements IMCP {
     return Promise.resolve(false);
   }
 
-  public async callTool<T = MCPToolValue>(
+  public async callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
   ): Promise<void> {
@@ -90,7 +90,7 @@ export class MergeMCP implements IMCP {
     return false;
   }
 
-  public async callTool<T = MCPToolValue>(
+  public async callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
   ): Promise<void> {

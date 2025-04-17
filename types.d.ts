@@ -2903,7 +2903,7 @@ type MCPToolProperties = {
         description?: string;
     };
 };
-interface IMCPToolCallDto<T = MCPToolValue> {
+interface IMCPToolCallDto<T extends MCPToolValue = MCPToolValue> {
     toolId: string;
     clientId: string;
     agentName: AgentName;
@@ -2924,19 +2924,19 @@ interface IMCPTool<Properties = MCPToolProperties> {
 interface IMCP {
     listTools(clientId: string): Promise<IMCPTool[]>;
     hasTool(toolName: string, clientId: string): Promise<boolean>;
-    callTool<T = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
 }
 interface IMCPCallbacks {
     onInit(): void;
     onDispose(clientId: string): void;
     onFetch(clientId: string): void;
     onList(clientId: string): void;
-    onCall<T = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): void;
+    onCall<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): void;
 }
 interface IMCPSchema {
     mcpName: MCPName;
     listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
-    callTool: <T = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
+    callTool: <T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
     callbacks?: Partial<IMCPCallbacks>;
 }
 interface IMCPParams extends IMCPSchema {
@@ -8752,7 +8752,7 @@ declare class ClientMCP implements IMCP {
     private fetchTools;
     listTools(clientId: string): Promise<IMCPTool<MCPToolProperties>[]>;
     hasTool(toolName: string, clientId: string): Promise<boolean>;
-    callTool<T = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
     dispose(clientId: string): void;
 }
 
@@ -8764,7 +8764,7 @@ declare class MCPConnectionService implements IMCP {
     getMCP: ((mcpName: MCPName) => ClientMCP) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientMCP>;
     listTools(clientId: string): Promise<IMCPTool[]>;
     hasTool(toolName: string, clientId: string): Promise<boolean>;
-    callTool<T = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
 }
 
 declare class MCPSchemaService {
@@ -8789,7 +8789,7 @@ declare class MCPPublicService implements TMCPConnectionService {
     private readonly mcpConnectionService;
     listTools(methodName: string, clientId: string, mcpName: string): Promise<IMCPTool[]>;
     hasTool(methodName: string, clientId: string, mcpName: string, toolName: string): Promise<boolean>;
-    callTool<T = MCPToolValue>(methodName: string, clientId: string, mcpName: string, toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    callTool<T extends MCPToolValue = MCPToolValue>(methodName: string, clientId: string, mcpName: string, toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
 }
 
 declare class MCPValidationService {
