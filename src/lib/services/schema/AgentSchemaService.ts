@@ -169,6 +169,24 @@ export class AgentSchemaService {
         `agent-swarm agent schema validation failed: invalid tools for agentName=${agentSchema.agentName} tools=[${agentSchema.tools}]`
       );
     }
+    if (agentSchema.mcp && !Array.isArray(agentSchema.mcp)) {
+      throw new Error(
+        `agent-swarm agent schema validation failed: invalid mcp for agentName=${agentSchema.agentName} mcp=${agentSchema.mcp}`
+      );
+    }
+    if (
+      agentSchema.mcp &&
+      agentSchema.mcp.length !== new Set(agentSchema.mcp).size
+    ) {
+      throw new Error(
+        `agent-swarm agent schema validation failed: found duplicate mcp for agentName=${agentSchema.agentName} mcp=[${agentSchema.mcp}]`
+      );
+    }
+    if (agentSchema.mcp?.some((value) => typeof value !== "string")) {
+      throw new Error(
+        `agent-swarm agent schema validation failed: invalid mcp for agentName=${agentSchema.agentName} mcp=[${agentSchema.mcp}]`
+      );
+    }
   };
 
   /**

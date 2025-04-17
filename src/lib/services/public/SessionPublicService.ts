@@ -126,6 +126,7 @@ export class SessionPublicService implements TSessionConnectionService {
         agentName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -165,6 +166,7 @@ export class SessionPublicService implements TSessionConnectionService {
         agentName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -206,6 +208,7 @@ export class SessionPublicService implements TSessionConnectionService {
         agentName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -244,6 +247,7 @@ export class SessionPublicService implements TSessionConnectionService {
         agentName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -359,6 +363,7 @@ export class SessionPublicService implements TSessionConnectionService {
         agentName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -398,6 +403,7 @@ export class SessionPublicService implements TSessionConnectionService {
         agentName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -439,6 +445,7 @@ export class SessionPublicService implements TSessionConnectionService {
         agentName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -483,6 +490,7 @@ export class SessionPublicService implements TSessionConnectionService {
         agentName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -518,6 +526,7 @@ export class SessionPublicService implements TSessionConnectionService {
         agentName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -553,6 +562,7 @@ export class SessionPublicService implements TSessionConnectionService {
         agentName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -589,6 +599,7 @@ export class SessionPublicService implements TSessionConnectionService {
         agentName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };

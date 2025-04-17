@@ -105,6 +105,14 @@ Implements IAgent.run, delegating to RUN_FN with queuing via functools-kit’s q
 
 ## Methods
 
+### _resolveTools
+
+```ts
+_resolveTools(): Promise<IAgentTool[]>;
+```
+
+Resolves and combines tools from the agent's parameters and MCP tool list, ensuring no duplicate tool names.
+
 ### _resolveSystemPrompt
 
 ```ts
@@ -150,7 +158,7 @@ Useful for external consumers (e.g., SwarmConnectionService) awaiting agent resp
 ### getCompletion
 
 ```ts
-getCompletion(mode: ExecutionMode): Promise<IModelMessage>;
+getCompletion(mode: ExecutionMode, tools: IAgentTool[]): Promise<IModelMessage>;
 ```
 
 Retrieves a completion message from the model using the current history and tools.

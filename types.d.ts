@@ -2894,6 +2894,147 @@ interface IWikiSchema {
 type WikiName = string;
 
 /**
+ * Type representing the value of an MCP tool's parameters, which can be an object with string keys or undefined.
+ */
+type MCPToolValue = {
+    [x: string]: unknown;
+} | undefined;
+/**
+ * Type representing the properties of an MCP tool's input schema.
+ */
+type MCPToolProperties = {
+    [key: string]: {
+        type: string;
+        enum?: string[];
+        description?: string;
+    };
+};
+/**
+ * Interface for the data transfer object used in MCP tool calls.
+ */
+interface IMCPToolCallDto<T extends MCPToolValue = MCPToolValue> {
+    /** Unique identifier for the tool. */
+    toolId: string;
+    /** Identifier for the client making the tool call. */
+    clientId: string;
+    /** Name of the agent associated with the tool call. */
+    agentName: AgentName;
+    /** Parameters for the tool call. */
+    params: T;
+    /** Array of tool calls associated with this request. */
+    toolCalls: IToolCall[];
+    /** Signal to abort the tool call operation. */
+    abortSignal: TAbortSignal;
+    /** Indicates if this is the last tool call in a sequence. */
+    isLast: boolean;
+}
+/**
+ * Interface for an MCP tool, defining its name, description, and input schema.
+ */
+interface IMCPTool<Properties = MCPToolProperties> {
+    /** Name of the tool. */
+    name: string;
+    /** Optional description of the tool. */
+    description?: string;
+    /** Schema defining the input structure for the tool. */
+    inputSchema: {
+        type: "object";
+        properties?: Properties;
+        required?: string[];
+    };
+}
+/**
+ * Interface for Model Context Protocol (MCP) operations.
+ */
+interface IMCP {
+    /**
+     * Lists available tools for a given client.
+     * @param clientId - The ID of the client requesting the tool list.
+     * @returns A promise resolving to an array of IMCPTool objects.
+     */
+    listTools(clientId: string): Promise<IMCPTool[]>;
+    /**
+     * Checks if a specific tool exists for a given client.
+     * @param toolName - The name of the tool to check.
+     * @param clientId - The ID of the client.
+     * @returns A promise resolving to true if the tool exists, false otherwise.
+     */
+    hasTool(toolName: string, clientId: string): Promise<boolean>;
+    /**
+     * Calls a specific tool with the provided parameters.
+     * @param toolName - The name of the tool to call.
+     * @param dto - The data transfer object containing tool call parameters.
+     * @returns A promise resolving when the tool call is complete.
+     */
+    callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+}
+/**
+ * Interface for MCP callback functions triggered during various lifecycle events.
+ */
+interface IMCPCallbacks {
+    /** Called when the MCP is initialized. */
+    onInit(): void;
+    /**
+     * Called when the MCP resources for a client are disposed.
+     * @param clientId - The ID of the client.
+     */
+    onDispose(clientId: string): void;
+    /**
+     * Called when tools are fetched for a client.
+     * @param clientId - The ID of the client.
+     */
+    onFetch(clientId: string): void;
+    /**
+     * Called when listing tools for a client.
+     * @param clientId - The ID of the client.
+     */
+    onList(clientId: string): void;
+    /**
+     * Called when a tool is invoked.
+     * @param toolName - The name of the tool being called.
+     * @param dto - The data transfer object containing tool call parameters.
+     */
+    onCall<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): void;
+}
+/**
+ * Interface for the MCP schema, defining the structure and behavior of an MCP.
+ */
+interface IMCPSchema {
+    /** Unique name of the MCP. */
+    mcpName: MCPName;
+    /** Optional description of the MCP for documentation. */
+    docDescription?: string;
+    /**
+     * Function to list available tools for a client.
+     * @param clientId - The ID of the client.
+     * @returns A promise resolving to an array of IMCPTool objects.
+     */
+    listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
+    /**
+     * Function to call a specific tool with the provided parameters.
+     * @param toolName - The name of the tool to call.
+     * @param dto - The data transfer object containing tool call parameters.
+     * @returns A promise resolving when the tool call is complete.
+     */
+    callTool: <T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
+    /** Optional callbacks for MCP lifecycle events. */
+    callbacks?: Partial<IMCPCallbacks>;
+}
+/**
+ * Interface for MCP parameters, extending the MCP schema with additional dependencies.
+ */
+interface IMCPParams extends IMCPSchema {
+    /** Logger instance for logging MCP operations. */
+    logger: ILogger;
+    /** Bus instance for communication or event handling. */
+    bus: IBus;
+}
+/**
+ * Type representing the name of an MCP.
+ */
+type MCPName = string;
+
+/**
  * The dispose function type, representing a function that performs cleanup or resource release.
  */
 type DisposeFn$2 = () => void;
@@ -3020,6 +3161,7 @@ interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
 interface IAgentParams extends Omit<IAgentSchema, keyof {
     system: never;
     tools: never;
+    mcp: never;
     completion: never;
     validate: never;
 }>, IAgentSchemaCallbacks {
@@ -3029,6 +3171,8 @@ interface IAgentParams extends Omit<IAgentSchema, keyof {
     logger: ILogger;
     /** The bus instance for event communication within the swarm. */
     bus: IBus;
+    /** The mcp instance for external tool call */
+    mcp: IMCP;
     /** The history instance for tracking agent interactions. */
     history: IHistory;
     /** The completion instance for generating responses or outputs. */
@@ -3174,6 +3318,8 @@ interface IAgentSchema {
     wikiList?: WikiName[];
     /** Optional array of state names managed by the agent. */
     states?: StateName[];
+    /** Optional array of mcp names managed by the agent */
+    mcp?: MCPName[];
     /** Optional array of agent names this agent depends on for transitions (e.g., via changeToAgent). */
     dependsOn?: AgentName[];
     /**
@@ -3328,6 +3474,11 @@ interface IMethodContext {
      * @type {PolicyName}
      */
     policyName: PolicyName;
+    /**
+     * The name of the mcp involved, sourced from MCP.interface
+     * @type {PolicyName}
+     */
+    mcpName: MCPName;
 }
 /**
  * Scoped service class providing method call context information in the swarm system.
@@ -3587,6 +3738,11 @@ declare class ClientAgent implements IAgent {
      */
     constructor(params: IAgentParams);
     /**
+     * Resolves and combines tools from the agent's parameters and MCP tool list, ensuring no duplicate tool names.
+     * @returns A promise resolving to an array of unique IAgentTool objects.
+     */
+    _resolveTools(): Promise<IAgentTool[]>;
+    /**
      * Resolves the system prompt by combining static and dynamic system messages.
      * Static messages are directly included from the `systemStatic` parameter, while dynamic messages
      * are fetched asynchronously using the `systemDynamic` function.
@@ -3631,7 +3787,7 @@ declare class ClientAgent implements IAgent {
      * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
      * @returns {Promise<IModelMessage>} The completion message from the model, with content defaulted to an empty string if null.
      */
-    getCompletion(mode: ExecutionMode): Promise<IModelMessage>;
+    getCompletion(mode: ExecutionMode, tools: IAgentTool[]): Promise<IModelMessage>;
     /**
      * Commits a user message to the history without triggering a response, notifying the system via BusService.
      * Supports SessionConnectionService by logging user interactions within a session.
@@ -3866,6 +4022,13 @@ declare class AgentConnectionService implements IAgent {
      * @private
      */
     private readonly completionSchemaService;
+    /**
+     * MCP connection service instance, injected via DI, for retrieving external tools
+     * Provides mcp integration logic to ClientAgent in getAgent, supporting agent tool execution.
+     * @type {CompletionSchemaService}
+     * @private
+     */
+    private readonly mcpConnectionService;
     /**
      * Retrieves or creates a memoized ClientAgent instance for a given client and agent.
      * Uses functools-kit’s memoize to cache instances by a composite key (clientId-agentName), ensuring efficient reuse across calls.
@@ -4893,7 +5056,7 @@ interface IAgentConnectionService extends AgentConnectionService {
  * Used to filter out non-public methods like getAgent in TAgentConnectionService.
  * @typedef {keyof { getAgent: never }} InternalKeys
  */
-type InternalKeys$8 = keyof {
+type InternalKeys$9 = keyof {
     getAgent: never;
 };
 /**
@@ -4902,7 +5065,7 @@ type InternalKeys$8 = keyof {
  * @typedef {Object} TAgentConnectionService
  */
 type TAgentConnectionService = {
-    [key in Exclude<keyof IAgentConnectionService, InternalKeys$8>]: unknown;
+    [key in Exclude<keyof IAgentConnectionService, InternalKeys$9>]: unknown;
 };
 /**
  * Service class for managing public agent operations in the swarm system.
@@ -5067,7 +5230,7 @@ interface IHistoryConnectionService extends HistoryConnectionService {
  * Used to filter out non-public methods like getHistory and getItems in THistoryConnectionService.
  * @typedef {keyof { getHistory: never; getItems: never }} InternalKeys
  */
-type InternalKeys$7 = keyof {
+type InternalKeys$8 = keyof {
     getHistory: never;
     getItems: never;
 };
@@ -5077,7 +5240,7 @@ type InternalKeys$7 = keyof {
  * @typedef {Object} THistoryConnectionService
  */
 type THistoryConnectionService = {
-    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$7>]: unknown;
+    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$8>]: unknown;
 };
 /**
  * Service class for managing public history operations in the swarm system.
@@ -5166,7 +5329,7 @@ interface ISessionConnectionService extends SessionConnectionService {
  * Used to filter out non-public methods like getSession in TSessionConnectionService.
  * @typedef {keyof { getSession: never }} InternalKeys
  */
-type InternalKeys$6 = keyof {
+type InternalKeys$7 = keyof {
     getSession: never;
 };
 /**
@@ -5175,7 +5338,7 @@ type InternalKeys$6 = keyof {
  * @typedef {Object} TSessionConnectionService
  */
 type TSessionConnectionService = {
-    [key in Exclude<keyof ISessionConnectionService, InternalKeys$6>]: unknown;
+    [key in Exclude<keyof ISessionConnectionService, InternalKeys$7>]: unknown;
 };
 /**
  * Service class for managing public session interactions in the swarm system.
@@ -5363,7 +5526,7 @@ interface ISwarmConnectionService extends SwarmConnectionService {
  * Used to filter out non-public methods like getSwarm in TSwarmConnectionService.
  * @typedef {keyof { getSwarm: never }} InternalKeys
  */
-type InternalKeys$5 = keyof {
+type InternalKeys$6 = keyof {
     getSwarm: never;
 };
 /**
@@ -5372,7 +5535,7 @@ type InternalKeys$5 = keyof {
  * @typedef {Object} TSwarmConnectionService
  */
 type TSwarmConnectionService = {
-    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$5>]: unknown;
+    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$6>]: unknown;
 };
 /**
  * Service class for managing public swarm-level interactions in the swarm system.
@@ -5525,6 +5688,14 @@ declare class AgentValidationService {
      */
     private readonly wikiValidationService;
     /**
+     * MCP validation service instance for validating mcp associated with agents.
+     * Injected via DI, used in validate method to check agent mcp list.
+     * @type {WikiValidationService}
+     * @private
+     * @readonly
+     */
+    private readonly mcpValidationService;
+    /**
      * Completion validation service instance for validating completion configurations of agents.
      * Injected via DI, used in validate method to check agent completion.
      * @type {CompletionValidationService}
@@ -5583,6 +5754,14 @@ declare class AgentValidationService {
      * @throws {Error} If the agent is not found in _agentMap.
      */
     getStateList: (agentName: AgentName) => StateName[];
+    /**
+     * Retrieves the list of mcp names associated with a given agent.
+     * Logs the operation and validates agent existence, supporting ClientMCP integration.
+     * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
+     * @returns {MCPName[]} An array of mcp names from the agent’s schema.
+     * @throws {Error} If the agent is not found in _agentMap.
+     */
+    getMCPList: (agentName: AgentName) => MCPName[];
     /**
      * Registers a new agent with its schema in the validation service.
      * Logs the operation and updates _agentMap and _agentDepsMap, supporting AgentSchemaService’s agent registration.
@@ -6391,7 +6570,7 @@ interface IStorageConnectionService extends StorageConnectionService {
  * Used to filter out non-public methods like getStorage and getSharedStorage in TStorageConnectionService.
  * @typedef {keyof { getStorage: never; getSharedStorage: never }} InternalKeys
  */
-type InternalKeys$4 = keyof {
+type InternalKeys$5 = keyof {
     getStorage: never;
     getSharedStorage: never;
 };
@@ -6401,7 +6580,7 @@ type InternalKeys$4 = keyof {
  * @typedef {Object} TStorageConnectionService
  */
 type TStorageConnectionService = {
-    [key in Exclude<keyof IStorageConnectionService, InternalKeys$4>]: unknown;
+    [key in Exclude<keyof IStorageConnectionService, InternalKeys$5>]: unknown;
 };
 /**
  * Service class for managing public client-specific storage operations in the swarm system.
@@ -6787,7 +6966,7 @@ interface IStateConnectionService extends StateConnectionService {
  * Used to filter out non-public methods like getStateRef and getSharedStateRef in TStateConnectionService.
  * @typedef {keyof { getStateRef: never; getSharedStateRef: never }} InternalKeys
  */
-type InternalKeys$3 = keyof {
+type InternalKeys$4 = keyof {
     getStateRef: never;
     getSharedStateRef: never;
 };
@@ -6797,7 +6976,7 @@ type InternalKeys$3 = keyof {
  * @typedef {Object} TStateConnectionService
  */
 type TStateConnectionService = {
-    [key in Exclude<keyof IStateConnectionService, InternalKeys$3>]: unknown;
+    [key in Exclude<keyof IStateConnectionService, InternalKeys$4>]: unknown;
 };
 /**
  * Service class for managing public client-specific state operations in the swarm system, with generic type support for state data.
@@ -7205,6 +7384,13 @@ declare class DocService {
      */
     private readonly agentSchemaService;
     /**
+     * Model context protocol service instance, injected via DI.
+     * Retrieves IMCPSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
+     * @type {MCPSchemaService}
+     * @private
+     */
+    private readonly mcpSchemaService;
+    /**
      * Policy schema service instance, injected via DI.
      * Supplies policy descriptions for writeSwarmDoc, documenting banhammer policies associated with swarms.
      * @type {PolicySchemaService}
@@ -7490,7 +7676,7 @@ interface ISharedStateConnectionService extends SharedStateConnectionService {
  * Used to filter out non-public methods like getStateRef and getSharedStateRef in TSharedStateConnectionService.
  * @typedef {keyof { getStateRef: never; getSharedStateRef: never }} InternalKeys
  */
-type InternalKeys$2 = keyof {
+type InternalKeys$3 = keyof {
     getStateRef: never;
     getSharedStateRef: never;
 };
@@ -7500,7 +7686,7 @@ type InternalKeys$2 = keyof {
  * @typedef {Object} TSharedStateConnectionService
  */
 type TSharedStateConnectionService = {
-    [key in Exclude<keyof ISharedStateConnectionService, InternalKeys$2>]: unknown;
+    [key in Exclude<keyof ISharedStateConnectionService, InternalKeys$3>]: unknown;
 };
 /**
  * Service class for managing public shared state operations in the swarm system, with generic type support for state data.
@@ -7566,7 +7752,7 @@ interface ISharedStorageConnectionService extends SharedStorageConnectionService
  * Used to filter out non-public methods like getStorage and getSharedStorage in TSharedStorageConnectionService.
  * @typedef {keyof { getStorage: never; getSharedStorage: never }} InternalKeys
  */
-type InternalKeys$1 = keyof {
+type InternalKeys$2 = keyof {
     getStorage: never;
     getSharedStorage: never;
 };
@@ -7576,7 +7762,7 @@ type InternalKeys$1 = keyof {
  * @typedef {Object} TSharedStorageConnectionService
  */
 type TSharedStorageConnectionService = {
-    [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys$1>]: unknown;
+    [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys$2>]: unknown;
 };
 /**
  * Service class for managing public shared storage operations in the swarm system.
@@ -8409,7 +8595,7 @@ interface IPolicyConnectionService extends PolicyConnectionService {
  * Used to filter out non-public methods like getPolicy in TPolicyConnectionService.
  * @typedef {keyof { getPolicy: never }} InternalKeys
  */
-type InternalKeys = keyof {
+type InternalKeys$1 = keyof {
     getPolicy: never;
 };
 /**
@@ -8418,7 +8604,7 @@ type InternalKeys = keyof {
  * @typedef {Object} TPolicyConnectionService
  */
 type TPolicyConnectionService = {
-    [key in Exclude<keyof IPolicyConnectionService, InternalKeys>]: unknown;
+    [key in Exclude<keyof IPolicyConnectionService, InternalKeys$1>]: unknown;
 };
 /**
  * Service class for managing public policy operations in the swarm system.
@@ -8669,6 +8855,212 @@ declare class WikiSchemaService {
 }
 
 /**
+ * A client-side implementation of the IMCP interface for managing tools and their operations.
+ */
+declare class ClientMCP implements IMCP {
+    readonly params: IMCPParams;
+    /**
+     * Creates an instance of ClientMCP.
+     * @param params - The parameters for configuring the MCP, including callbacks and tool management functions.
+     */
+    constructor(params: IMCPParams);
+    /**
+     * Memoized function to fetch and cache tools for a given client ID.
+     * @param clientId - The ID of the client requesting the tools.
+     * @returns A promise resolving to a Map of tool names to IMCPTool objects.
+     */
+    private fetchTools;
+    /**
+     * Lists all available tools for a given client.
+     * @param clientId - The ID of the client requesting the tool list.
+     * @returns A promise resolving to an array of IMCPTool objects.
+     */
+    listTools(clientId: string): Promise<IMCPTool<MCPToolProperties>[]>;
+    /**
+     * Checks if a specific tool exists for a given client.
+     * @param toolName - The name of the tool to check.
+     * @param clientId - The ID of the client.
+     * @returns A promise resolving to true if the tool exists, false otherwise.
+     */
+    hasTool(toolName: string, clientId: string): Promise<boolean>;
+    /**
+     * Calls a specific tool with the provided parameters.
+     * @param toolName - The name of the tool to call.
+     * @param dto - The data transfer object containing tool call parameters.
+     * @returns A promise resolving when the tool call is complete.
+     */
+    callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    /**
+     * Disposes of resources associated with a client, clearing cached tools and invoking the dispose callback.
+     * @param clientId - The ID of the client whose resources are to be disposed.
+     */
+    dispose(clientId: string): void;
+}
+
+/**
+ * Service class for managing MCP (Model Context Protocol) connections and operations.
+ * Implements the IMCP interface to handle tool listing, checking, calling, and disposal.
+ */
+declare class MCPConnectionService implements IMCP {
+    /** Injected LoggerService for logging operations. */
+    private readonly loggerService;
+    /** Injected BusService for communication or event handling. */
+    private readonly busService;
+    /** Injected MethodContextService for accessing method context information. */
+    private readonly methodContextService;
+    /** Injected MCPSchemaService for managing MCP schemas. */
+    private readonly mcpSchemaService;
+    /**
+     * Memoized function to retrieve or create an MCP instance for a given MCP name.
+     * @param mcpName - The name of the MCP to retrieve or create.
+     * @returns A ClientMCP instance configured with the specified schema and dependencies.
+     */
+    getMCP: ((mcpName: MCPName) => ClientMCP) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientMCP>;
+    /**
+     * Lists available tools for a given client.
+     * @param clientId - The ID of the client requesting the tool list.
+     * @returns A promise resolving to an array of IMCPTool objects.
+     */
+    listTools(clientId: string): Promise<IMCPTool[]>;
+    /**
+     * Checks if a specific tool exists for a given client.
+     * @param toolName - The name of the tool to check.
+     * @param clientId - The ID of the client.
+     * @returns A promise resolving to true if the tool exists, false otherwise.
+     */
+    hasTool(toolName: string, clientId: string): Promise<boolean>;
+    /**
+     * Calls a specific tool with the provided parameters.
+     * @param toolName - The name of the tool to call.
+     * @param dto - The data transfer object containing tool call parameters.
+     * @returns A promise resolving when the tool call is complete.
+     */
+    callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    /**
+     * Disposes of resources associated with a client, clearing cached MCP instances.
+     * @param clientId - The ID of the client whose resources are to be disposed.
+     * @returns A promise resolving when the disposal is complete.
+     */
+    dispose: (clientId: string) => Promise<void>;
+}
+
+/**
+ * Service class for managing MCP (Model Context Protocol) schemas.
+ * Provides methods to register, override, and retrieve MCP schemas.
+ */
+declare class MCPSchemaService {
+    /** Injected LoggerService for logging operations. */
+    readonly loggerService: LoggerService;
+    /** Registry for storing MCP schemas, keyed by MCP name. */
+    private registry;
+    /**
+     * Validates the basic structure of an MCP schema.
+     * @param mcpSchema - The MCP schema to validate.
+     * @throws Error if the schema is missing required fields or has invalid types.
+     */
+    private validateShallow;
+    /**
+     * Registers a new MCP schema in the registry.
+     * @param key - The name of the MCP to register.
+     * @param value - The MCP schema to register.
+     */
+    register: (key: MCPName, value: IMCPSchema) => void;
+    /**
+     * Overrides an existing MCP schema with new or partial values.
+     * @param key - The name of the MCP to override.
+     * @param value - The partial MCP schema to apply.
+     * @returns The updated MCP schema.
+     */
+    override: (key: MCPName, value: Partial<IMCPSchema>) => IMCPSchema;
+    /**
+     * Retrieves an MCP schema by its name.
+     * @param key - The name of the MCP to retrieve.
+     * @returns The MCP schema associated with the given name.
+     */
+    get: (key: MCPName) => IMCPSchema;
+}
+
+interface IMCPConnectionService extends MCPConnectionService {
+}
+type InternalKeys = keyof {
+    getMCP: never;
+};
+type TMCPConnectionService = {
+    [key in Exclude<keyof IMCPConnectionService, InternalKeys>]: unknown;
+};
+/**
+ * Public service class for interacting with MCP (Model Context Protocol) operations.
+ * Provides methods to list tools, check tool existence, call tools, and dispose resources,
+ * executing operations within a specified context.
+ */
+declare class MCPPublicService implements TMCPConnectionService {
+    /** Injected LoggerService for logging operations. */
+    private readonly loggerService;
+    /** Injected MCPConnectionService for handling MCP operations. */
+    private readonly mcpConnectionService;
+    /**
+     * Lists available tools for a given client within a specified context.
+     * @param methodName - The name of the method for context tracking.
+     * @param clientId - The ID of the client requesting the tool list.
+     * @param mcpName - The name of the MCP to query.
+     * @returns A promise resolving to an array of IMCPTool objects.
+     */
+    listTools(methodName: string, clientId: string, mcpName: string): Promise<IMCPTool[]>;
+    /**
+     * Checks if a specific tool exists for a given client within a specified context.
+     * @param methodName - The name of the method for context tracking.
+     * @param clientId - The ID of the client.
+     * @param mcpName - The name of the MCP to query.
+     * @param toolName - The name of the tool to check.
+     * @returns A promise resolving to true if the tool exists, false otherwise.
+     */
+    hasTool(methodName: string, clientId: string, mcpName: string, toolName: string): Promise<boolean>;
+    /**
+     * Calls a specific tool with the provided parameters within a specified context.
+     * @param methodName - The name of the method for context tracking.
+     * @param clientId - The ID of the client.
+     * @param mcpName - The name of the MCP to query.
+     * @param toolName - The name of the tool to call.
+     * @param dto - The data transfer object containing tool call parameters.
+     * @returns A promise resolving when the tool call is complete.
+     */
+    callTool<T extends MCPToolValue = MCPToolValue>(methodName: string, clientId: string, mcpName: string, toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    /**
+     * Disposes of resources associated with a client within a specified context.
+     * @param methodName - The name of the method for context tracking.
+     * @param clientId - The ID of the client whose resources are to be disposed.
+     * @param mcpName - The name of the MCP to query.
+     * @returns A promise resolving when the disposal is complete.
+     */
+    dispose: (methodName: string, clientId: string, mcpName: string) => Promise<void>;
+}
+
+/**
+ * Service class for validating and managing MCP (Model Context Protocol) schemas.
+ * Maintains a map of MCP schemas and provides methods to add and validate them.
+ */
+declare class MCPValidationService {
+    /** Injected LoggerService for logging operations. */
+    private readonly loggerService;
+    /** Internal map storing MCP schemas, keyed by MCP name. */
+    private _mcpMap;
+    /**
+     * Adds a new MCP schema to the map.
+     * @param mcpName - The name of the MCP to add.
+     * @param mcpSchema - The MCP schema to store.
+     * @throws Error if an MCP with the same name already exists.
+     */
+    addMCP: (mcpName: MCPName, mcpSchema: IMCPSchema) => void;
+    /**
+     * Validates the existence of an MCP schema by its name.
+     * @param mcpName - The name of the MCP to validate.
+     * @param source - The source context or identifier for the validation request.
+     * @throws Error if the MCP does not exist in the map.
+     */
+    validate: (mcpName: MCPName, source: string) => void;
+}
+
+/**
  * Interface defining the structure of the dependency injection container for the swarm system.
  * Aggregates all services providing core functionality, context management, connectivity, schema definitions,
  * public APIs, metadata, and validation for the swarm system.
@@ -8760,6 +9152,11 @@ interface ISwarmDI {
      */
     policyConnectionService: PolicyConnectionService;
     /**
+     * Service for managing mcp connections within the swarm.
+     * Handles `IMCP` connectivity and enforcement via `MCPConnectionService`.
+     */
+    mcpConnectionService: MCPConnectionService;
+    /**
      * Service for defining and managing agent schemas.
      * Implements `IAgentSchema` to configure agent behavior via `AgentSchemaService`.
      */
@@ -8804,6 +9201,11 @@ interface ISwarmDI {
      * Implements `IPolicySchema` for rule enforcement via `PolicySchemaService`.
      */
     policySchemaService: PolicySchemaService;
+    /**
+     * Service for defining and managing policy schemas.
+     * Implements `IMCPSchema` for rule enforcement via `MCPSchemaService`.
+     */
+    mcpSchemaService: MCPSchemaService;
     /**
      * Service for defining and managing agent wikies.
      * Implements `IWikiSchema` for rule enforcement via `WikiSchemaService`.
@@ -8855,6 +9257,11 @@ interface ISwarmDI {
      */
     policyPublicService: PolicyPublicService;
     /**
+     * Service exposing public APIs for mcp operations.
+     * Implements `IMCP` methods like `listTools` via `MCPPublicService`.
+     */
+    mcpPublicService: MCPPublicService;
+    /**
      * Service managing metadata for agents.
      * Tracks agent-specific metadata via `AgentMetaService`.
      */
@@ -8904,6 +9311,11 @@ interface ISwarmDI {
      * Ensures policy integrity via `PolicyValidationService`.
      */
     policyValidationService: PolicyValidationService;
+    /**
+     * Service validating mcp-related data and enforcement rules.
+     * Ensures mcp integrity via `MCPValidationService`.
+     */
+    mcpValidationService: MCPValidationService;
     /**
      * Service preventing the recursive call of changeToAgent
      */
@@ -9199,6 +9611,13 @@ declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
 declare const addTool: <T extends any = Record<string, ToolValue>>(toolSchema: IAgentTool<T>) => string;
 
 /**
+ * Registers a new MCP (Model Context Protocol) schema in the system.
+ * @param mcpSchema - The MCP schema to register.
+ * @returns The name of the registered MCP.
+ */
+declare const addMCP: (mcpSchema: IMCPSchema) => string;
+
+/**
  * Adds a new state to the state registry for use within the swarm system.
  *
  * This function registers a new state, enabling the swarm to manage and utilize it for agent operations or shared data persistence.
@@ -9482,6 +9901,19 @@ type TAgentTool = {
  * // Logs the operation (if enabled) and updates the tool schema in the swarm.
  */
 declare const overrideTool: (toolSchema: TAgentTool) => IAgentTool<Record<string, ToolValue>>;
+
+/**
+ * Type definition for a partial MCP schema, requiring at least an mcpName.
+ */
+type TMCPSchema = {
+    mcpName: IMCPSchema["mcpName"];
+} & Partial<IMCPSchema>;
+/**
+ * Overrides an existing MCP (Model Context Protocol) schema with a new or partial schema.
+ * @param mcpSchema - The MCP schema containing the name and optional properties to override.
+ * @returns The result of the override operation from the MCP schema service.
+ */
+declare const overrideMCP: (mcpSchema: TMCPSchema) => IMCPSchema;
 
 type TWikiSchema = {
     wikiName: IWikiSchema["wikiName"];
@@ -12365,4 +12797,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addCompletion, addEmbedding, addPolicy, addState, addStorage, addSwarm, addTool, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideEmbeding, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addCompletion, addEmbedding, addMCP, addPolicy, addState, addStorage, addSwarm, addTool, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideEmbeding, overrideMCP, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };

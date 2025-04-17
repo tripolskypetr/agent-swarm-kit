@@ -46,6 +46,10 @@ import AliveService from "../lib/services/base/AliveService";
 import NavigationValidationService from "../lib/services/validation/NavigationValidationService";
 import WikiValidationService from "../lib/services/validation/WikiValidationService";
 import WikiSchemaService from "../lib/services/schema/WikiSchemaService";
+import MCPConnectionService from "../lib/services/connection/MCPConnectionService";
+import MCPSchemaService from "../lib/services/schema/MCPSchemaService";
+import MCPPublicService from "../lib/services/public/MCPPublicService";
+import MCPValidationService from "../lib/services/validation/MCPValidationService";
 
 /**
  * Interface defining the structure of the dependency injection container for the swarm system.
@@ -158,6 +162,12 @@ export interface ISwarmDI {
    */
   policyConnectionService: PolicyConnectionService;
 
+  /**
+   * Service for managing mcp connections within the swarm.
+   * Handles `IMCP` connectivity and enforcement via `MCPConnectionService`.
+   */
+  mcpConnectionService: MCPConnectionService;
+
   // Schema Services
   /**
    * Service for defining and managing agent schemas.
@@ -212,6 +222,12 @@ export interface ISwarmDI {
    * Implements `IPolicySchema` for rule enforcement via `PolicySchemaService`.
    */
   policySchemaService: PolicySchemaService;
+
+  /**
+   * Service for defining and managing policy schemas.
+   * Implements `IMCPSchema` for rule enforcement via `MCPSchemaService`.
+   */
+  mcpSchemaService: MCPSchemaService;
 
   /**
    * Service for defining and managing agent wikies.
@@ -274,6 +290,12 @@ export interface ISwarmDI {
    */
   policyPublicService: PolicyPublicService;
 
+  /**
+   * Service exposing public APIs for mcp operations.
+   * Implements `IMCP` methods like `listTools` via `MCPPublicService`.
+   */
+  mcpPublicService: MCPPublicService;
+
   // Meta Services
   /**
    * Service managing metadata for agents.
@@ -335,6 +357,12 @@ export interface ISwarmDI {
    * Ensures policy integrity via `PolicyValidationService`.
    */
   policyValidationService: PolicyValidationService;
+
+  /**
+   * Service validating mcp-related data and enforcement rules.
+   * Ensures mcp integrity via `MCPValidationService`.
+   */
+  mcpValidationService: MCPValidationService;
 
   /**
    * Service preventing the recursive call of changeToAgent

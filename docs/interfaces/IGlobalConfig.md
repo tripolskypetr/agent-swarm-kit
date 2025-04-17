@@ -441,3 +441,19 @@ CC_DEFAULT_CONNECT_OPERATOR: (clientId: string, agentName: string) => (message: 
 Default function to connect an operator for handling messages and responses.
 Establishes a connection between a client and an agent, allowing messages to be sent
 and answers to be received via a callback mechanism.
+
+### CC_ENABLE_OPERATOR_TIMEOUT
+
+```ts
+CC_ENABLE_OPERATOR_TIMEOUT: boolean
+```
+
+Flag to enable operator timeout, used in `ClientOperator` for message processing.
+
+### CC_STORAGE_DISABLE_GET_DATA
+
+```ts
+CC_STORAGE_DISABLE_GET_DATA: boolean
+```
+
+Disable fetch of data from all storages. Quite usefull for unit tests

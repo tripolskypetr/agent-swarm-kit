@@ -14,6 +14,7 @@ export * from "./functions/setup/addAgent";
 export * from "./functions/setup/addCompletion";
 export * from "./functions/setup/addSwarm";
 export * from "./functions/setup/addTool";
+export * from "./functions/setup/addMCP";
 export * from "./functions/setup/addState";
 export * from "./functions/setup/addEmbeding";
 export * from "./functions/setup/addStorage";
@@ -27,6 +28,7 @@ export * from "./functions/test/overrideState";
 export * from "./functions/test/overrideStorage";   
 export * from "./functions/test/overrideSwarm";     
 export * from "./functions/test/overrideTool";      
+export * from "./functions/test/overrideMCP";     
 export * from "./functions/test/overrideWiki";      
 
 export * from "./functions/other/markOnline";
@@ -121,6 +123,8 @@ export { IEmbeddingSchema } from "./interfaces/Embedding.interface";
 export { IStorageSchema } from "./interfaces/Storage.interface";
 export { IStateSchema } from "./interfaces/State.interface";
 export { IPolicySchema } from "./interfaces/Policy.interface";
+
+export { IMCPSchema, IMCPTool, MCPToolProperties } from './interfaces/MCP.interface';
 
 export { IModelMessage } from "./model/ModelMessage.model";
 export { IIncomingMessage, IOutgoingMessage } from "./model/EmitMessage.model";

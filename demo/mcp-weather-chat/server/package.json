@@ -1,0 +1,16 @@
+{
+  "name": "mcp-weather-chat-server",
+  "private": true,
+  "scripts": {
+    "start": "bun ./src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.9.0"
+  }
+}

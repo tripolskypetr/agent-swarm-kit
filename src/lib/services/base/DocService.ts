@@ -21,6 +21,7 @@ import { getMomentStamp, getTimeStamp } from "get-moment-stamp";
 import PolicySchemaService from "../schema/PolicySchemaService";
 import { writeFileAtomic } from "../../../utils/writeFileAtomic";
 import WikiSchemaService from "../schema/WikiSchemaService";
+import MCPSchemaService from "../schema/MCPSchemaService";
 
 /**
  * Maximum number of concurrent threads for documentation generation tasks.
@@ -114,6 +115,16 @@ export class DocService {
   );
 
   /**
+   * Model context protocol service instance, injected via DI.
+   * Retrieves IMCPSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
+   * @type {MCPSchemaService}
+   * @private
+   */
+  private readonly mcpSchemaService = inject<MCPSchemaService>(
+    TYPES.mcpSchemaService
+  );
+
+  /**
    * Policy schema service instance, injected via DI.
    * Supplies policy descriptions for writeSwarmDoc, documenting banhammer policies associated with swarms.
    * @type {PolicySchemaService}
@@ -203,7 +214,7 @@ export class DocService {
       {
         result.push("---");
         result.push(`title: ${prefix}/${swarmSchema.swarmName}`);
-        result.push(`group: ${prefix}`)
+        result.push(`group: ${prefix}`);
         result.push("---");
         result.push("");
       }
@@ -252,7 +263,8 @@ export class DocService {
             continue;
           }
           result.push(
-            `${i + 1}. [${swarmSchema.agentList[i]}](./agent/${swarmSchema.agentList[i]
+            `${i + 1}. [${swarmSchema.agentList[i]}](./agent/${
+              swarmSchema.agentList[i]
             }.md)`
           );
           const { docDescription } = this.agentSchemaService.get(
@@ -329,7 +341,7 @@ export class DocService {
       {
         result.push("---");
         result.push(`title: ${prefix}/${agentSchema.agentName}`);
-        result.push(`group: ${prefix}`)
+        result.push(`group: ${prefix}`);
         result.push("---");
         result.push("");
       }
@@ -401,11 +413,31 @@ export class DocService {
             continue;
           }
           result.push(
-            `${i + 1}. [${agentSchema.dependsOn[i]}](./${agentSchema.dependsOn[i]
+            `${i + 1}. [${agentSchema.dependsOn[i]}](./${
+              agentSchema.dependsOn[i]
             }.md)`
           );
           const { docDescription } = this.agentSchemaService.get(
             agentSchema.dependsOn[i]
+          );
+          if (docDescription) {
+            result.push("");
+            result.push(docDescription);
+          }
+          result.push("");
+        }
+      }
+
+      if (agentSchema.mcp) {
+        result.push(`## Model Context Protocol`);
+        result.push("");
+        for (let i = 0; i !== agentSchema.mcp.length; i++) {
+          if (!agentSchema.mcp[i]) {
+            continue;
+          }
+          result.push(`${i + 1}. ${agentSchema.mcp[i]}`);
+          const { docDescription } = this.mcpSchemaService.get(
+            agentSchema.mcp[i]
           );
           if (docDescription) {
             result.push("");
@@ -465,7 +497,8 @@ export class DocService {
               {
                 result.push("");
                 result.push(
-                  `*Required:* [${fn.parameters.required.includes(key) ? "x" : " "
+                  `*Required:* [${
+                    fn.parameters.required.includes(key) ? "x" : " "
                   }]`
                 );
               }
@@ -575,8 +608,9 @@ export class DocService {
             continue;
           }
           result.push(`### ${i + 1}. ${agentSchema.wikiList[i]}`);
-          const { docDescription, callbacks } =
-            this.wikiSchemaService.get(agentSchema.wikiList[i]);
+          const { docDescription, callbacks } = this.wikiSchemaService.get(
+            agentSchema.wikiList[i]
+          );
           if (docDescription) {
             result.push("");
             result.push(`#### Wiki description`);
@@ -623,7 +657,10 @@ export class DocService {
    * @param {string} [dirName=join(process.cwd(), "docs/chat")] - The base directory for documentation output, defaults to "docs/chat" in the current working directory.
    * @returns {Promise<void>} A promise resolving when all documentation files are written.
    */
-  public dumpDocs = async (prefix = "swarm", dirName = join(process.cwd(), "docs/chat")) => {
+  public dumpDocs = async (
+    prefix = "swarm",
+    dirName = join(process.cwd(), "docs/chat")
+  ) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("docService dumpDocs", {
         dirName,

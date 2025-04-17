@@ -60,6 +60,17 @@ Validates the schema using validateShallow, then adds it to the ToolRegistry und
 Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentConnectionService’s schema usage.
 Supports ClientAgent instantiation by providing validated schemas to AgentConnectionService and SwarmConnectionService.
 
+### override
+
+```ts
+override: (key: string, value: Partial<IAgentSchema>) => IAgentSchema
+```
+
+Overrides an existing agent schema in the registry with a new schema.
+Replaces the schema associated with the provided key (agentName) in the ToolRegistry.
+Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports dynamic updates to agent schemas for AgentConnectionService and SwarmConnectionService.
+
 ### get
 
 ```ts

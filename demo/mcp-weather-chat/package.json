@@ -1,0 +1,23 @@
+{
+  "name": "mcp-weather-chat",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun ./src/repl.ts",
+    "build:docs": "bun ./src/docs.mjs"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.9.0",
+    "agent-swarm-kit": "1.1.11",
+    "functools-kit": "1.0.80",
+    "openai": "4.95.0",
+    "plantuml": "^0.0.2"
+  }
+}

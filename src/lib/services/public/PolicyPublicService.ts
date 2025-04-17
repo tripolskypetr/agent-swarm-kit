@@ -92,6 +92,7 @@ export class PolicyPublicService implements TPolicyConnectionService {
         policyName,
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -134,6 +135,7 @@ export class PolicyPublicService implements TPolicyConnectionService {
         policyName,
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -180,6 +182,7 @@ export class PolicyPublicService implements TPolicyConnectionService {
         policyName,
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -226,6 +229,7 @@ export class PolicyPublicService implements TPolicyConnectionService {
         policyName,
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -268,6 +272,7 @@ export class PolicyPublicService implements TPolicyConnectionService {
         policyName,
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -310,6 +315,7 @@ export class PolicyPublicService implements TPolicyConnectionService {
         policyName,
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };

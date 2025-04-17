@@ -7,7 +7,8 @@ group: docs
 
 ```ts
 type InternalKeys$5 = keyof {
-    getSwarm: never;
+    getStorage: never;
+    getSharedStorage: never;
 };
 ```
 

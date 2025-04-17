@@ -15,6 +15,8 @@ import { StateName } from "../../../interfaces/State.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import WikiValidationService from "./WikiValidationService";
 import { WikiName } from "../../../interfaces/Wiki.interface";
+import MCPValidationService from "./MCPValidationService";
+import { MCPName } from "../../../interfaces/MCP.interface";
 
 /**
  * Service for validating agents within the swarm system, managing agent schemas and dependencies.
@@ -54,6 +56,17 @@ export class AgentValidationService {
    */
   private readonly wikiValidationService = inject<WikiValidationService>(
     TYPES.wikiValidationService
+  );
+
+  /**
+   * MCP validation service instance for validating mcp associated with agents.
+   * Injected via DI, used in validate method to check agent mcp list.
+   * @type {WikiValidationService}
+   * @private
+   * @readonly
+   */
+  private readonly mcpValidationService = inject<MCPValidationService>(
+    TYPES.mcpValidationService
   );
 
   /**
@@ -136,9 +149,7 @@ export class AgentValidationService {
         agentName,
       });
     if (!this._agentMap.has(agentName)) {
-      throw new Error(
-        `agent-swarm agent ${agentName} not exist (getWikiList)`
-      );
+      throw new Error(`agent-swarm agent ${agentName} not exist (getWikiList)`);
     }
     return this._agentMap.get(agentName)!.wikiList || [];
   };
@@ -161,6 +172,26 @@ export class AgentValidationService {
       );
     }
     return this._agentMap.get(agentName)!.states || [];
+  };
+
+  /**
+   * Retrieves the list of mcp names associated with a given agent.
+   * Logs the operation and validates agent existence, supporting ClientMCP integration.
+   * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
+   * @returns {MCPName[]} An array of mcp names from the agent’s schema.
+   * @throws {Error} If the agent is not found in _agentMap.
+   */
+  public getMCPList = (agentName: AgentName): MCPName[] => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentValidationService getMCPList", {
+        agentName,
+      });
+    if (!this._agentMap.has(agentName)) {
+      throw new Error(
+        `agent-swarm agent ${agentName} not exist (getMCPList)`
+      );
+    }
+    return this._agentMap.get(agentName)!.mcp || [];
   };
 
   /**
@@ -227,9 +258,7 @@ export class AgentValidationService {
           wikiName,
         });
       if (!this._agentMap.has(agentName)) {
-        throw new Error(
-          `agent-swarm agent ${agentName} not exist (hasWiki)`
-        );
+        throw new Error(`agent-swarm agent ${agentName} not exist (hasWiki)`);
       }
       const { wikiList = [] } = this._agentMap.get(agentName)!;
       return wikiList.includes(wikiName);
@@ -336,6 +365,16 @@ export class AgentValidationService {
           );
         }
         this.wikiValidationService.validate(wikiName, source);
+      });
+      agent.mcp?.forEach((mcpName: MCPName) => {
+        if (typeof mcpName !== "string") {
+          throw new Error(
+            `agent-swarm agent ${agentName} mcp list is invalid (mcpName=${String(
+              mcpName
+            )}) source=${source}`
+          );
+        }
+        this.mcpValidationService.validate(mcpName, source);
       });
     }
   ) as (agentName: AgentName, source: string) => void;

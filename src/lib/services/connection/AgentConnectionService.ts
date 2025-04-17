@@ -17,6 +17,8 @@ import StorageConnectionService from "./StorageConnectionService";
 import BusService from "../base/BusService";
 import StateConnectionService from "./StateConnectionService";
 import ClientOperator from "../../../client/ClientOperator";
+import MCPConnectionService from "./MCPConnectionService";
+import { MergeMCP, NoopMCP } from "../../../classes/MCP";
 
 /**
  * Service class for managing agent connections and operations in the swarm system.
@@ -124,6 +126,16 @@ export class AgentConnectionService implements IAgent {
   );
 
   /**
+   * MCP connection service instance, injected via DI, for retrieving external tools
+   * Provides mcp integration logic to ClientAgent in getAgent, supporting agent tool execution.
+   * @type {CompletionSchemaService}
+   * @private
+   */
+  private readonly mcpConnectionService = inject<MCPConnectionService>(
+    TYPES.mcpConnectionService
+  );
+
+  /**
    * Retrieves or creates a memoized ClientAgent instance for a given client and agent.
    * Uses functools-kit’s memoize to cache instances by a composite key (clientId-agentName), ensuring efficient reuse across calls.
    * Configures the agent with schema data (prompt, tools, completion) from AgentSchemaService, ToolSchemaService, and CompletionSchemaService, and initializes storage/state dependencies via StorageConnectionService and StateConnectionService.
@@ -149,11 +161,15 @@ export class AgentConnectionService implements IAgent {
         callbacks,
         storages,
         states,
+        mcp,
         connectOperator = GLOBAL_CONFIG.CC_DEFAULT_CONNECT_OPERATOR,
         completion: completionName,
         validate = validateDefault,
       } = this.agentSchemaService.get(agentName);
-      const history = this.historyConnectionService.getHistory(clientId, agentName);
+      const history = this.historyConnectionService.getHistory(
+        clientId,
+        agentName
+      );
       this.sessionValidationService.addAgentUsage(clientId, agentName);
       storages?.forEach((storageName) =>
         this.storageConnectionService
@@ -184,6 +200,9 @@ export class AgentConnectionService implements IAgent {
         mapToolCalls,
         logger: this.loggerService,
         bus: this.busService,
+        mcp: mcp
+          ? new MergeMCP(mcp.map(this.mcpConnectionService.getMCP), agentName)
+          : new NoopMCP(agentName),
         history,
         prompt,
         systemStatic,

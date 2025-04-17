@@ -93,6 +93,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         swarmName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -129,6 +130,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         swarmName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -167,6 +169,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         swarmName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -203,6 +206,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         swarmName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };
@@ -238,6 +242,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         swarmName: "",
         storageName: "",
         stateName: "",
+        mcpName: "",
       }
     );
   };

@@ -11,6 +11,7 @@ import { StorageName } from "./Storage.interface";
 import { StateName } from "./State.interface";
 import { IBus } from "./Bus.interface";
 import { WikiName } from "./Wiki.interface";
+import IMCP, { MCPName } from "./MCP.interface";
 
 /**
  * The dispose function type, representing a function that performs cleanup or resource release.
@@ -26,7 +27,7 @@ type DisposeFn = () => void;
  * 
  * @extends {AbortSignal}
  */
-interface TAbortSignal extends AbortSignal { }
+export interface TAbortSignal extends AbortSignal { }
 
 /**
  * Type representing possible values for tool parameters.
@@ -173,6 +174,7 @@ export interface IAgentParams
     keyof {
       system: never;
       tools: never;
+      mcp: never;
       completion: never;
       validate: never;
     }
@@ -186,6 +188,9 @@ export interface IAgentParams
 
   /** The bus instance for event communication within the swarm. */
   bus: IBus;
+
+  /** The mcp instance for external tool call */
+  mcp: IMCP;
 
   /** The history instance for tracking agent interactions. */
   history: IHistory;
@@ -397,6 +402,9 @@ export interface IAgentSchema {
 
   /** Optional array of state names managed by the agent. */
   states?: StateName[];
+
+  /** Optional array of mcp names managed by the agent */
+  mcp?: MCPName[];
 
   /** Optional array of agent names this agent depends on for transitions (e.g., via changeToAgent). */
   dependsOn?: AgentName[];

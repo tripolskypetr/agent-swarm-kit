@@ -7,7 +7,7 @@ group: docs
 
 ```ts
 type TSharedStorageConnectionService = {
-    [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys$1>]: unknown;
+    [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys$2>]: unknown;
 };
 ```
 

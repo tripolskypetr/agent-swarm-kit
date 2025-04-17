@@ -19,6 +19,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 import { ExecutionMode } from "../interfaces/Session.interface";
 import { IToolCall } from "../model/Tool.model";
 import { IBusEvent } from "../model/Event.model";
+import { MCPToolProperties } from "src/interfaces/MCP.interface";
 
 const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
 const MODEL_RESQUE_SYMBOL = Symbol("model-resque");
@@ -152,6 +153,61 @@ const createToolCall = async (
 };
 
 /**
+ * Maps an MCP (Model-Context-Protocol) tool definition to an `IAgentTool` object.
+ * This function transforms the MCP tool's schema and properties into a format compatible with the agent's tool system.
+ * It also defines the tool's behavior, including its call method and parameter validation.
+ *
+ * @param {Object} tool - The MCP tool definition containing its name, description, and input schema.
+ * @param {string} tool.name - The name of the MCP tool.
+ * @param {string} [tool.description=tool.name] - A description of the MCP tool. Defaults to the tool's name if not provided.
+ * @param {Object} [tool.inputSchema] - The input schema for the MCP tool, defining its parameters and validation rules.
+ * @param {Object} [tool.inputSchema.properties] - The properties of the input schema, where each key represents a parameter.
+ * @param {string[]} [tool.inputSchema.required] - An array of required parameter names for the tool.
+ * @param {ClientAgent} self - The `ClientAgent` instance, providing context such as the agent's name, client ID, and logger.
+ *
+ * @returns {IAgentTool} An object representing the mapped tool, including its name, type, function definition, and call behavior.
+ */
+const mapMcpToolCall = (
+  { name, description = name, inputSchema },
+  self: ClientAgent
+): IAgentTool => {
+  const mcpProperties: MCPToolProperties = inputSchema
+    ? inputSchema.properties ?? {}
+    : {};
+  return {
+    toolName: `mcp_${name}`,
+    type: "function",
+    function: {
+      name,
+      description,
+      parameters: {
+        type: "object",
+        properties: Object.entries(mcpProperties).reduce(
+          (acm, [key, { type, description = type, enum: e }]) => ({
+            ...acm,
+            [key]: {
+              type,
+              description,
+              enum: e,
+            },
+          }),
+          {}
+        ),
+        required: inputSchema.required,
+      },
+    },
+    call: async (dto) => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        self.params.logger.debug(
+          `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} calling MCP tool toolName=${name}`
+        );
+      await self.params.mcp.callTool(name, dto);
+    },
+    validate: () => true,
+  };
+};
+
+/**
  * Runs a stateless completion for the incoming message, returning the transformed result.
  * Returns an empty string if tool calls are present or validation fails, avoiding further processing.
  * Integrates with CompletionSchemaService (via params.completion) and HistoryConnectionService (via params.history).
@@ -182,9 +238,7 @@ const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
     agentName: self.params.agentName,
     messages,
     mode: "user" as const,
-    tools: self.params.tools?.map((t) =>
-      omit(t, "toolName", "docNote", "call", "validate", "callbacks")
-    ),
+    tools: [],
   };
   const rawMessage = await self.params.completion.getCompletion(args);
   self.params.completion.callbacks?.onComplete &&
@@ -269,7 +323,8 @@ const EXECUTE_FN = async (
     agentName: self.params.agentName,
     content: incoming.trim(),
   });
-  const rawMessage = await self.getCompletion(mode);
+  const toolList = await self._resolveTools();
+  const rawMessage = await self.getCompletion(mode, toolList);
   const message = await self.params.map(
     rawMessage,
     self.params.clientId,
@@ -301,14 +356,14 @@ const EXECUTE_FN = async (
 
     for (let idx = 0; idx !== toolCalls.length; idx++) {
       const tool = toolCalls[idx];
-      const targetFn = self.params.tools?.find(
+      const targetFn = toolList.find(
         (t) => t.function.name === tool.function.name
       );
       if (!targetFn) {
         GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
           self.params.logger.debug(
             `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} tool function not found`,
-            self.params.tools
+            toolList
           );
         const result = await self._resurrectModel(
           mode,
@@ -591,6 +646,40 @@ export class ClientAgent implements IAgent {
   }
 
   /**
+   * Resolves and combines tools from the agent's parameters and MCP tool list, ensuring no duplicate tool names.
+   * @returns A promise resolving to an array of unique IAgentTool objects.
+   */
+  async _resolveTools(): Promise<IAgentTool[]> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resolveTools`
+      );
+    const seen = new Set<string>();
+    const agentToolList: IAgentTool[] = this.params.tools
+      ? this.params.tools
+      : [];
+    const mcpToolList = await this.params.mcp.listTools(this.params.clientId);
+    if (mcpToolList.length) {
+      return agentToolList
+        .concat(mcpToolList.map((tool) => mapMcpToolCall(tool, this)))
+        .filter(({ function: { name } }) => {
+          if (!seen.has(name)) {
+            seen.add(name);
+            return true;
+          }
+          return false;
+        });
+    }
+    return agentToolList.filter(({ function: { name } }) => {
+      if (!seen.has(name)) {
+        seen.add(name);
+        return true;
+      }
+      return false;
+    });
+  }
+
+  /**
    * Resolves the system prompt by combining static and dynamic system messages.
    * Static messages are directly included from the `systemStatic` parameter, while dynamic messages
    * are fetched asynchronously using the `systemDynamic` function.
@@ -761,7 +850,7 @@ export class ClientAgent implements IAgent {
       await this._resqueSubject.next(MODEL_RESQUE_SYMBOL);
       return placeholder;
     }
-    const rawMessage = await this.getCompletion(mode);
+    const rawMessage = await this.getCompletion(mode, []);
     if (rawMessage.tool_calls?.length) {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         this.params.logger.debug(
@@ -833,7 +922,7 @@ export class ClientAgent implements IAgent {
    * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
    * @returns {Promise<IModelMessage>} The completion message from the model, with content defaulted to an empty string if null.
    */
-  async getCompletion(mode: ExecutionMode): Promise<IModelMessage> {
+  async getCompletion(mode: ExecutionMode, tools: IAgentTool[]): Promise<IModelMessage> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} getCompletion`
@@ -847,7 +936,7 @@ export class ClientAgent implements IAgent {
       agentName: this.params.agentName,
       messages,
       mode,
-      tools: this.params.tools?.map((t) =>
+      tools: tools.map((t) =>
         omit(t, "toolName", "docNote", "call", "validate", "callbacks")
       ),
     };
@@ -905,7 +994,7 @@ export class ClientAgent implements IAgent {
         agentName: this.params.agentName,
         messages,
         mode,
-        tools: this.params.tools?.map((t) =>
+        tools: tools.map((t) =>
           omit(t, "toolName", "docNote", "call", "validate", "callbacks")
         ),
       };

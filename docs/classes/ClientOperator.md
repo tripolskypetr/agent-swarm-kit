@@ -5,7 +5,7 @@ group: docs
 
 # ClientOperator
 
-Implements `IAgent$1`
+Implements `IAgent`
 
 Client operator implementation
 

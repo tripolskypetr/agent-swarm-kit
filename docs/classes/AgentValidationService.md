@@ -47,6 +47,15 @@ wikiValidationService: any
 Wiki validation service instance for validating wikies associated with agents.
 Injected via DI, used in validate method to check agent wiki list.
 
+### mcpValidationService
+
+```ts
+mcpValidationService: any
+```
+
+MCP validation service instance for validating mcp associated with agents.
+Injected via DI, used in validate method to check agent mcp list.
+
 ### completionValidationService
 
 ```ts
@@ -117,6 +126,15 @@ getStateList: (agentName: string) => string[]
 
 Retrieves the list of state names associated with a given agent.
 Logs the operation and validates agent existence, supporting ClientState integration.
+
+### getMCPList
+
+```ts
+getMCPList: (agentName: string) => string[]
+```
+
+Retrieves the list of mcp names associated with a given agent.
+Logs the operation and validates agent existence, supporting ClientMCP integration.
 
 ### addAgent
 

@@ -120,6 +120,30 @@ export const disposeConnection = beginContext(
       );
     }
 
+    // Dispose of mcp resources associated with agents
+    {
+      const mcpDisposeSet = new Set<StateName>();
+      await Promise.all(
+        swarm.swarmValidationService
+          .getAgentList(swarmName)
+          .flatMap((agentName) =>
+            swarm.agentValidationService.getMCPList(agentName)
+          )
+          .filter((mcpName) => !!mcpName)
+          .map(async (mcpName) => {
+            if (mcpDisposeSet.has(mcpName)) {
+              return;
+            }
+            mcpDisposeSet.add(mcpName);
+            await swarm.mcpPublicService.dispose(
+              methodName,
+              clientId,
+              mcpName
+            );
+          })
+      );
+    }
+
     // Dispose of auxiliary services and remove the session
     await History.dispose(clientId, null);
     await LoggerAdapter.dispose(clientId);

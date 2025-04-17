@@ -7,7 +7,7 @@ group: docs
 
 ```ts
 type TStateConnectionService = {
-    [key in Exclude<keyof IStateConnectionService, InternalKeys$3>]: unknown;
+    [key in Exclude<keyof IStateConnectionService, InternalKeys$4>]: unknown;
 };
 ```
 

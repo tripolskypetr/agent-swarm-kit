@@ -7,7 +7,7 @@ group: docs
 
 ```ts
 type InternalKeys = keyof {
-    getPolicy: never;
+    getMCP: never;
 };
 ```
 

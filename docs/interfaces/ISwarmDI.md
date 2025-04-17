@@ -164,6 +164,15 @@ policyConnectionService: PolicyConnectionService
 Service for managing policy connections within the swarm.
 Handles `IPolicy` connectivity and enforcement via `PolicyConnectionService`.
 
+### mcpConnectionService
+
+```ts
+mcpConnectionService: MCPConnectionService
+```
+
+Service for managing mcp connections within the swarm.
+Handles `IMCP` connectivity and enforcement via `MCPConnectionService`.
+
 ### agentSchemaService
 
 ```ts
@@ -244,6 +253,15 @@ policySchemaService: PolicySchemaService
 
 Service for defining and managing policy schemas.
 Implements `IPolicySchema` for rule enforcement via `PolicySchemaService`.
+
+### mcpSchemaService
+
+```ts
+mcpSchemaService: MCPSchemaService
+```
+
+Service for defining and managing policy schemas.
+Implements `IMCPSchema` for rule enforcement via `MCPSchemaService`.
 
 ### wikiSchemaService
 
@@ -335,6 +353,15 @@ policyPublicService: PolicyPublicService
 Service exposing public APIs for policy operations.
 Implements `IPolicy` methods like `banClient` via `PolicyPublicService`.
 
+### mcpPublicService
+
+```ts
+mcpPublicService: MCPPublicService
+```
+
+Service exposing public APIs for mcp operations.
+Implements `IMCP` methods like `listTools` via `MCPPublicService`.
+
 ### agentMetaService
 
 ```ts
@@ -424,6 +451,15 @@ policyValidationService: PolicyValidationService
 
 Service validating policy-related data and enforcement rules.
 Ensures policy integrity via `PolicyValidationService`.
+
+### mcpValidationService
+
+```ts
+mcpValidationService: MCPValidationService
+```
+
+Service validating mcp-related data and enforcement rules.
+Ensures mcp integrity via `MCPValidationService`.
 
 ### navigationValidationService
 

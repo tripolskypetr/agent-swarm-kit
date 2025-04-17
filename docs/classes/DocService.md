@@ -72,6 +72,15 @@ agentSchemaService: any
 Agent schema service instance, injected via DI.
 Retrieves IAgentSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
 
+### mcpSchemaService
+
+```ts
+mcpSchemaService: any
+```
+
+Model context protocol service instance, injected via DI.
+Retrieves IMCPSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
+
 ### policySchemaService
 
 ```ts

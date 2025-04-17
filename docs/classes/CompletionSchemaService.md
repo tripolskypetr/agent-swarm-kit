@@ -60,6 +60,17 @@ Validates the schema using validateShallow, then adds it to the ToolRegistry und
 Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentSchemaService’s completion references.
 Supports ClientAgent execution by providing validated completion schemas to AgentConnectionService and SwarmConnectionService.
 
+### override
+
+```ts
+override: (key: string, value: Partial<ICompletionSchema>) => ICompletionSchema
+```
+
+Overrides an existing completion schema in the registry with a new one.
+Replaces the schema associated with the provided key in the ToolRegistry.
+Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports dynamic updates to completion schemas used by AgentSchemaService, ClientAgent, and other swarm components.
+
 ### get
 
 ```ts
