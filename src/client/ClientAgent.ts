@@ -19,7 +19,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 import { ExecutionMode } from "../interfaces/Session.interface";
 import { IToolCall } from "../model/Tool.model";
 import { IBusEvent } from "../model/Event.model";
-import { MCPToolProperties } from "src/interfaces/MCP.interface";
+import { MCPToolProperties } from "../interfaces/MCP.interface";
 
 const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
 const MODEL_RESQUE_SYMBOL = Symbol("model-resque");
@@ -85,7 +85,7 @@ class ToolAbortController {
  * Used in error recovery scenarios (e.g., _resurrectModel) to provide a fallback output.
  * @returns {string} A randomly selected placeholder string from GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS.
  */
-const createPlaceholder = () =>
+export const createPlaceholder = () =>
   GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS[
     Math.floor(
       Math.random() * GLOBAL_CONFIG.CC_EMPTY_OUTPUT_PLACEHOLDERS.length

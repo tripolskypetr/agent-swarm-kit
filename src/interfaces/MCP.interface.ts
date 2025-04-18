@@ -6,7 +6,12 @@ import { ILogger } from "./Logger.interface";
 /**
  * Type representing the value of an MCP tool's parameters, which can be an object with string keys or undefined.
  */
-export type MCPToolValue = { [x: string]: unknown; } | undefined;
+export type MCPToolValue = { [x: string]: unknown } | undefined;
+
+/**
+ * When MCP tool return string it will automatically commit to the agent
+ */
+export type MCPToolOutput = string | undefined | void; 
 
 /**
  * Type representing the properties of an MCP tool's input schema.
@@ -65,7 +70,7 @@ export interface IMCP {
    * @returns A promise resolving to an array of IMCPTool objects.
    */
   listTools(clientId: string): Promise<IMCPTool[]>;
-  
+
   /**
    * Checks if a specific tool exists for a given client.
    * @param toolName - The name of the tool to check.
@@ -73,14 +78,17 @@ export interface IMCP {
    * @returns A promise resolving to true if the tool exists, false otherwise.
    */
   hasTool(toolName: string, clientId: string): Promise<boolean>;
-  
+
   /**
    * Calls a specific tool with the provided parameters.
    * @param toolName - The name of the tool to call.
    * @param dto - The data transfer object containing tool call parameters.
    * @returns A promise resolving when the tool call is complete.
    */
-  callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+  callTool<T extends MCPToolValue = MCPToolValue>(
+    toolName: string,
+    dto: IMCPToolCallDto<T>
+  ): Promise<MCPToolOutput>;
 }
 
 /**
@@ -89,31 +97,34 @@ export interface IMCP {
 export interface IMCPCallbacks {
   /** Called when the MCP is initialized. */
   onInit(): void;
-  
+
   /**
    * Called when the MCP resources for a client are disposed.
    * @param clientId - The ID of the client.
    */
   onDispose(clientId: string): void;
-  
+
   /**
    * Called when tools are fetched for a client.
    * @param clientId - The ID of the client.
    */
   onFetch(clientId: string): void;
-  
+
   /**
    * Called when listing tools for a client.
    * @param clientId - The ID of the client.
    */
   onList(clientId: string): void;
-  
+
   /**
    * Called when a tool is invoked.
    * @param toolName - The name of the tool being called.
    * @param dto - The data transfer object containing tool call parameters.
    */
-  onCall<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): void;
+  onCall<T extends MCPToolValue = MCPToolValue>(
+    toolName: string,
+    dto: IMCPToolCallDto<T>
+  ): void;
 }
 
 /**
@@ -124,22 +135,25 @@ export interface IMCPSchema {
   mcpName: MCPName;
   /** Optional description of the MCP for documentation. */
   docDescription?: string;
-  
+
   /**
    * Function to list available tools for a client.
    * @param clientId - The ID of the client.
    * @returns A promise resolving to an array of IMCPTool objects.
    */
   listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
-  
+
   /**
    * Function to call a specific tool with the provided parameters.
    * @param toolName - The name of the tool to call.
    * @param dto - The data transfer object containing tool call parameters.
    * @returns A promise resolving when the tool call is complete.
    */
-  callTool: <T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
-  
+  callTool: <T extends MCPToolValue = MCPToolValue>(
+    toolName: string,
+    dto: IMCPToolCallDto<T>
+  ) => Promise<MCPToolOutput>;
+
   /** Optional callbacks for MCP lifecycle events. */
   callbacks?: Partial<IMCPCallbacks>;
 }

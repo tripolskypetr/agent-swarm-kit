@@ -2900,6 +2900,10 @@ type MCPToolValue = {
     [x: string]: unknown;
 } | undefined;
 /**
+ * When MCP tool return string it will automatically commit to the agent
+ */
+type MCPToolOutput = string | undefined | void;
+/**
  * Type representing the properties of an MCP tool's input schema.
  */
 type MCPToolProperties = {
@@ -2966,7 +2970,7 @@ interface IMCP {
      * @param dto - The data transfer object containing tool call parameters.
      * @returns A promise resolving when the tool call is complete.
      */
-    callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<MCPToolOutput>;
 }
 /**
  * Interface for MCP callback functions triggered during various lifecycle events.
@@ -3016,7 +3020,7 @@ interface IMCPSchema {
      * @param dto - The data transfer object containing tool call parameters.
      * @returns A promise resolving when the tool call is complete.
      */
-    callTool: <T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>;
+    callTool: <T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<MCPToolOutput>;
     /** Optional callbacks for MCP lifecycle events. */
     callbacks?: Partial<IMCPCallbacks>;
 }
@@ -8889,7 +8893,7 @@ declare class ClientMCP implements IMCP {
      * @param dto - The data transfer object containing tool call parameters.
      * @returns A promise resolving when the tool call is complete.
      */
-    callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<MCPToolOutput>;
     /**
      * Disposes of resources associated with a client, clearing cached tools and invoking the dispose callback.
      * @param clientId - The ID of the client whose resources are to be disposed.
@@ -8935,7 +8939,7 @@ declare class MCPConnectionService implements IMCP {
      * @param dto - The data transfer object containing tool call parameters.
      * @returns A promise resolving when the tool call is complete.
      */
-    callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<MCPToolOutput>;
     /**
      * Disposes of resources associated with a client, clearing cached MCP instances.
      * @param clientId - The ID of the client whose resources are to be disposed.
@@ -9024,7 +9028,7 @@ declare class MCPPublicService implements TMCPConnectionService {
      * @param dto - The data transfer object containing tool call parameters.
      * @returns A promise resolving when the tool call is complete.
      */
-    callTool<T extends MCPToolValue = MCPToolValue>(methodName: string, clientId: string, mcpName: string, toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+    callTool<T extends MCPToolValue = MCPToolValue>(methodName: string, clientId: string, mcpName: string, toolName: string, dto: IMCPToolCallDto<T>): Promise<MCPToolOutput>;
     /**
      * Disposes of resources associated with a client within a specified context.
      * @param methodName - The name of the method for context tracking.

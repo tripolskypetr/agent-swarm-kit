@@ -5,6 +5,7 @@ import IMCP, {
   IMCPTool,
   IMCPToolCallDto,
   MCPName,
+  MCPToolOutput,
   MCPToolValue,
 } from "../../../interfaces/MCP.interface";
 import { memoize } from "functools-kit";
@@ -92,7 +93,7 @@ export class MCPConnectionService implements IMCP {
   async callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
-  ): Promise<void> {
+  ): Promise<MCPToolOutput> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpConnectionService hasTool`, {
         toolName,

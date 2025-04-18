@@ -7,6 +7,7 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 import {
   IMCPTool,
   IMCPToolCallDto,
+  MCPToolOutput,
   MCPToolValue,
 } from "../../../interfaces/MCP.interface";
 
@@ -118,7 +119,7 @@ export class MCPPublicService implements TMCPConnectionService {
     mcpName: string,
     toolName: string,
     dto: IMCPToolCallDto<T>
-  ): Promise<void> {
+  ): Promise<MCPToolOutput> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpPublicService callTool`, {
         toolName,

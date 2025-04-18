@@ -1,7 +1,18 @@
 import { GLOBAL_CONFIG } from "../config/params";
-import IMCP, { IMCPTool, IMCPToolCallDto, MCPToolValue } from "../interfaces/MCP.interface";
+import IMCP, {
+  IMCPTool,
+  IMCPToolCallDto,
+  MCPToolValue,
+} from "../interfaces/MCP.interface";
 import swarm from "../lib";
 import { AgentName } from "../interfaces/Agent.interface";
+import { commitToolOutput } from "../functions/commit/commitToolOutput";
+import { execute } from "../functions/target/execute";
+import { commitFlush } from "../functions/commit/commitFlush";
+import { emit } from "../functions/target/emit";
+import { createPlaceholder } from "../client/ClientAgent";
+import { getAgentName } from "../functions/common/getAgentName";
+import { getErrorMessage } from "functools-kit";
 
 /**
  * A no-operation implementation of the IMCP interface.
@@ -57,7 +68,7 @@ export class NoopMCP implements IMCP {
   public async callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
-  ): Promise<void> {
+  ): Promise<undefined> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
         `NoopMCP callTool agentName=${this.agentName}`,
@@ -144,7 +155,7 @@ export class MergeMCP implements IMCP {
   public async callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
-  ): Promise<void> {
+  ): Promise<undefined> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
         `MergeMCP callTool agentName=${this.agentName}`,
@@ -155,7 +166,24 @@ export class MergeMCP implements IMCP {
       );
     for (const mcp of this.mcpList) {
       if (await mcp.hasTool(toolName, dto.clientId)) {
-        return await mcp.callTool(toolName, dto);
+        const agentName = await getAgentName(dto.clientId);
+        try {
+          const toolOutput = await mcp.callTool(toolName, dto);
+          if (typeof toolOutput === "string") {
+            await commitToolOutput(
+              dto.toolId,
+              toolOutput,
+              dto.clientId,
+              agentName
+            );
+            await execute("", dto.clientId, agentName);
+          }
+        } catch (error) {
+          console.error(`agent-swarm MCP tool error toolName=${toolName} agentName=${agentName} error=${getErrorMessage(error)}`);
+          await commitFlush(dto.clientId, agentName);
+          await emit(createPlaceholder(), dto.clientId, agentName);
+        }
+        return;
       }
     }
     throw new Error(
