@@ -23,7 +23,7 @@ export const TEST_MCP = addMCP({
     /** 
      * 
      * Can simple return the text output to execute model automically,
-     * If you want to emit event, just return undefined, custom code allowed here
+     * If you want to emit event, just return `undefined`, custom code allowed here
      * 
      * @example
      * await commitToolOutput(toolId, text, clientId, agentName);
