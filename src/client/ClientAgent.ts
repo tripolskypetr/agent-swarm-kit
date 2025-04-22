@@ -661,6 +661,7 @@ export class ClientAgent implements IAgent {
     const mcpToolList = await this.params.mcp.listTools(this.params.clientId);
     if (mcpToolList.length) {
       return agentToolList
+        .slice(0, this.params.maxToolCalls)
         .concat(mcpToolList.map((tool) => mapMcpToolCall(tool, this)))
         .filter(({ function: { name } }) => {
           if (!seen.has(name)) {
@@ -670,13 +671,15 @@ export class ClientAgent implements IAgent {
           return false;
         });
     }
-    return agentToolList.filter(({ function: { name } }) => {
-      if (!seen.has(name)) {
-        seen.add(name);
-        return true;
-      }
-      return false;
-    });
+    return agentToolList
+      .slice(0, this.params.maxToolCalls)
+      .filter(({ function: { name } }) => {
+        if (!seen.has(name)) {
+          seen.add(name);
+          return true;
+        }
+        return false;
+      });
   }
 
   /**
@@ -922,7 +925,10 @@ export class ClientAgent implements IAgent {
    * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
    * @returns {Promise<IModelMessage>} The completion message from the model, with content defaulted to an empty string if null.
    */
-  async getCompletion(mode: ExecutionMode, tools: IAgentTool[]): Promise<IModelMessage> {
+  async getCompletion(
+    mode: ExecutionMode,
+    tools: IAgentTool[]
+  ): Promise<IModelMessage> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} getCompletion`
