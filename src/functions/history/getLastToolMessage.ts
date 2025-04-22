@@ -19,7 +19,7 @@ const METHOD_NAME = "function.history.getLastToolMessage";
  * const lastMessage = await getLastToolMessage("client-123");
  * console.log(lastMessage); // Outputs the last tool message or null
  */
-export const getLastToolMessage = beginContext(async (clientId: string) => {
+export const getLastToolMessage = beginContext(async (clientId: string): Promise<string | null> => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -29,5 +29,5 @@ export const getLastToolMessage = beginContext(async (clientId: string) => {
   // Fetch raw history and find the last tool message
   const history = await getRawHistory(clientId, METHOD_NAME);
   const last = history.findLast(({ role }) => role === "tool");
-  return last ? last.content : null;
+  return last?.content ? last.content : null;
 });

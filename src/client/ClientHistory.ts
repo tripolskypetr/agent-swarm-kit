@@ -176,6 +176,7 @@ export class ClientHistory implements IHistory {
         tool_calls,
         content: tool_calls?.length ? "" : content,
       }))
+      .filter(({ content, tool_calls }) => !!content || !!tool_calls?.length)
       .filter(this._filterCondition)
       .slice(-GLOBAL_CONFIG.CC_KEEP_MESSAGES);
     const assistantToolOutputCallSet = new Set<string>(
@@ -183,14 +184,14 @@ export class ClientHistory implements IHistory {
         .filter(({ tool_call_id }) => !!tool_call_id)
         .map(({ tool_call_id }) => tool_call_id)
     );
-    const assistantRawMessages = commonMessages
-      .map(({ tool_calls, ...message }) => ({
+    const assistantRawMessages = commonMessages.map(
+      ({ tool_calls, ...message }) => ({
         ...message,
         tool_calls: tool_calls?.filter(({ id }) =>
           assistantToolOutputCallSet.has(id)
         ),
-      }))
-      .filter(({ content, tool_calls }) => !!content || !!tool_calls?.length);
+      })
+    );
     const assistantToolCallSet = new Set<string>(
       assistantRawMessages
         .filter(({ tool_calls }) => !!tool_calls?.length)
@@ -206,12 +207,13 @@ export class ClientHistory implements IHistory {
     );
     const promptMessages: IModelMessage[] = [];
     {
-      prompt && promptMessages.push({
-        agentName: this.params.agentName,
-        mode: "tool",
-        content: prompt,
-        role: "system",
-      });
+      prompt &&
+        promptMessages.push({
+          agentName: this.params.agentName,
+          mode: "tool",
+          content: prompt,
+          role: "system",
+        });
       GLOBAL_CONFIG.CC_AGENT_SYSTEM_PROMPT?.forEach((content) => {
         if (!content) {
           return;
@@ -221,7 +223,7 @@ export class ClientHistory implements IHistory {
           mode: "tool",
           content,
           role: "system",
-        })
+        });
       });
       system?.forEach((content) => {
         if (!content) {
@@ -232,7 +234,7 @@ export class ClientHistory implements IHistory {
           mode: "tool",
           content,
           role: "system",
-        })
+        });
       });
     }
     return [...promptMessages, ...systemMessages, ...assistantMessages];

@@ -63,14 +63,16 @@ export class NavigationValidationService {
             agentName,
           }
         );
+      const routeStr = Array.from(navigationRoute).concat(agentName).join("->");
       console.warn(`agent-swarm navigation skipped due to recursion`, {
         clientId,
         agentName,
         swarmName,
+        route: routeStr,
       });
       if (GLOBAL_CONFIG.CC_THROW_WHEN_NAVIGATION_RECURSION) {
         throw new Error(
-          `agent-swarm navigation skipped due to recursion clientId=${clientId} swarmName=${swarmName} agentName=${agentName}`
+          `agent-swarm navigation skipped due to recursion clientId=${clientId} swarmName=${swarmName} agentName=${agentName} route=${routeStr}`
         );
       }
       return false;

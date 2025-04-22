@@ -19,7 +19,7 @@ const METHOD_NAME = "function.history.getLastUserMessage";
  * const lastMessage = await getLastUserMessage("client-123");
  * console.log(lastMessage); // Outputs the last user message or null
  */
-export const getLastUserMessage = beginContext(async (clientId: string) => {
+export const getLastUserMessage = beginContext(async (clientId: string): Promise<string | null> => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -31,5 +31,5 @@ export const getLastUserMessage = beginContext(async (clientId: string) => {
   const last = history.findLast(
     ({ role, mode }) => role === "user" && mode === "user"
   );
-  return last ? last.content : null;
+  return last?.content ? last.content : null;
 });

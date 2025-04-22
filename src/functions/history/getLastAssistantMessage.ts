@@ -20,7 +20,7 @@ const METHOD_NAME = "function.history.getLastAssistantMessage";
  * console.log(lastMessage); // Outputs the last assistant message or null
  */
 export const getLastAssistantMessage = beginContext(
-  async (clientId: string) => {
+  async (clientId: string): Promise<string | null> => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
@@ -30,6 +30,6 @@ export const getLastAssistantMessage = beginContext(
     // Fetch raw history and find the last assistant message
     const history = await getRawHistory(clientId, METHOD_NAME);
     const last = history.findLast(({ role }) => role === "assistant");
-    return last ? last.content : null;
+    return last?.content ? last.content : null;
   }
 );

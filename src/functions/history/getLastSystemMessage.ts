@@ -19,7 +19,7 @@ const METHOD_NAME = "function.history.getLastSystemMessage";
  * const lastMessage = await getLastSystemMessage("client-123");
  * console.log(lastMessage); // Outputs the last system message or null
  */
-export const getLastSystemMessage = beginContext(async (clientId: string) => {
+export const getLastSystemMessage = beginContext(async (clientId: string): Promise<string | null> => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
