@@ -9407,7 +9407,7 @@ declare const dumpClientPerformance: {
  * Configuration parameters for creating a navigation handler to a triage agent.
  * Defines optional messages or functions to handle flush, execution, and tool output scenarios during navigation.
  *
- * @interface IFactoryParams
+ * @interface INavigateToTriageParams
  * @property {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [flushMessage] - Optional message or function to emit after flushing the session. If a function, it receives the client ID and default agent name, returning a string or promise of a string.
  * @property {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [executeMessage] - Optional message or function to execute when no navigation is needed. If a function, it receives the client ID and default agent name, returning a string or promise of a string.
  * @property {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [toolOutputAccept] - Optional message or function for tool output when navigation to the default agent occurs. If a function, it receives the client ID and default agent name, returning a string or promise of a string. Defaults to a message indicating successful navigation.
@@ -9415,19 +9415,19 @@ declare const dumpClientPerformance: {
  *
  * @example
  * // Static message configuration
- * const params: IFactoryParams = {
+ * const params: INavigateToTriageParams = {
  *   flushMessage: "Session reset for triage.",
  *   toolOutputAccept: "Navigation completed.",
  * };
  *
  * @example
  * // Dynamic message configuration
- * const params: IFactoryParams = {
+ * const params: INavigateToTriageParams = {
  *   executeMessage: (clientId, agent) => `Processing ${clientId} on ${agent}`,
  *   toolOutputReject: (clientId, agent) => `No navigation needed for ${clientId}`,
  * };
  */
-interface IFactoryParams$1 {
+interface INavigateToTriageParams {
     flushMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
     executeMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
     toolOutputAccept?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
@@ -9465,13 +9465,13 @@ interface IFactoryParams$1 {
  * await navigate("tool-789", "client-012");
  * // Commits dynamic reject message and executes the message if already on the default agent.
  */
-declare const createNavigateToTriageAgent: ({ flushMessage, executeMessage, toolOutputAccept, toolOutputReject, }: IFactoryParams$1) => Promise<(toolId: string, clientId: string) => Promise<void>>;
+declare const createNavigateToTriageAgent: ({ flushMessage, executeMessage, toolOutputAccept, toolOutputReject, }: INavigateToTriageParams) => (toolId: string, clientId: string) => Promise<void>;
 
 /**
  * Configuration parameters for creating a navigation handler to a specific agent.
  * Defines optional messages or functions to handle flush, emission, execution, and tool output scenarios during navigation, incorporating the last user message where applicable.
  *
- * @interface IFactoryParams
+ * @interface INavigateToAgentParams
  * @property {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [flushMessage] - Optional message or function to emit after flushing the session. If a function, it receives the client ID and agent name, returning a string or promise of a string. Defaults to a generic retry message.
  * @property {string | ((clientId: string, agentName: AgentName) => string | Promise<string>)} [toolOutput] - Optional message or function for tool output when navigation occurs. If a function, it receives the client ID and agent name, returning a string or promise of a string. Defaults to a message indicating successful navigation.
  * @property {string | ((clientId: string, lastMessage: string, agentName: AgentName) => string | Promise<string>)} [emitMessage] - Optional message or function to emit when navigation occurs without execution. If a function, it receives the client ID, last user message, and agent name, returning a string or promise of a string.
@@ -9479,19 +9479,19 @@ declare const createNavigateToTriageAgent: ({ flushMessage, executeMessage, tool
  *
  * @example
  * // Static message configuration
- * const params: IFactoryParams = {
+ * const params: INavigateToAgentParams = {
  *   flushMessage: "Session reset.",
  *   toolOutput: "Navigation completed.",
  * };
  *
  * @example
  * // Dynamic message configuration with last message
- * const params: IFactoryParams = {
+ * const params: INavigateToAgentParams = {
  *   executeMessage: (clientId, lastMessage, agent) => `Processing ${lastMessage} for ${clientId} on ${agent}`,
  *   emitMessage: (clientId, lastMessage, agent) => `Emitted ${lastMessage} for ${clientId} on ${agent}`,
  * };
  */
-interface IFactoryParams {
+interface INavigateToAgentParams {
     flushMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
     toolOutput?: string | ((clientId: string, agentName: AgentName) => string | Promise<string>);
     emitMessage?: string | ((clientId: string, lastMessage: string, agentName: AgentName) => string | Promise<string>);
@@ -9530,7 +9530,70 @@ interface IFactoryParams {
  * await navigate("tool-789", "client-012", "SupportAgent");
  * // Navigates to SupportAgent, commits dynamic tool output, and executes the message with the last user message.
  */
-declare const createNavigateToAgent: ({ executeMessage, emitMessage, flushMessage, toolOutput, }: IFactoryParams) => Promise<(toolId: string, clientId: string, agentName: string) => Promise<void>>;
+declare const createNavigateToAgent: ({ executeMessage, emitMessage, flushMessage, toolOutput, }: INavigateToAgentParams) => (toolId: string, clientId: string, agentName: string) => Promise<void>;
+
+/**
+ * Adds navigation functionality to an agent by creating a tool that allows navigation to a specified agent.
+ * @module addAgentNavigation
+ */
+
+/**
+ * Parameters for configuring agent navigation.
+ * @interface IAgentNavigationParams
+ * @extends INavigateToAgentParams
+ */
+interface IAgentNavigationParams extends INavigateToAgentParams {
+    /** The name of the tool to be created. */
+    toolName: ToolName;
+    /** A description of the tool's functionality. */
+    description: string;
+    /** The target agent to navigate to. */
+    navigateTo: AgentName;
+    /** Optional documentation note for the tool. */
+    docNote?: string;
+}
+/**
+ * Creates and registers a navigation tool for an agent to navigate to another specified agent.
+ * @function addAgentNavigation
+ * @param {IAgentNavigationParams} params - The parameters for configuring the navigation tool.
+ * @param {ToolName} params.toolName - The name of the tool.
+ * @param {string} params.description - Description of the tool's purpose.
+ * @param {AgentName} params.navigateTo - The target agent to navigate to.
+ * @param {string} [params.docNote] - Optional documentation note.
+ * @param {...INavigateToAgentParams} params.navigateProps - Additional navigation properties.
+ * @returns {ReturnType<typeof addTool>} The result of adding the navigation tool.
+ */
+declare const addAgentNavigation: (args_0: IAgentNavigationParams) => string;
+
+/**
+ * Adds triage navigation functionality to an agent by creating a tool that facilitates navigation to a triage agent.
+ * @module addTriageNavigation
+ */
+
+/**
+ * Parameters for configuring triage navigation.
+ * @interface ITriageNavigationParams
+ * @extends INavigateToTriageParams
+ */
+interface ITriageNavigationParams extends INavigateToTriageParams {
+    /** The name of the tool to be created. */
+    toolName: ToolName;
+    /** A description of the tool's functionality. */
+    description: string;
+    /** Optional documentation note for the tool. */
+    docNote?: string;
+}
+/**
+ * Creates and registers a triage navigation tool for an agent to navigate to a triage agent.
+ * @function addTriageNavigation
+ * @param {ITriageNavigationParams} params - The parameters for configuring the triage navigation tool.
+ * @param {ToolName} params.toolName - The name of the tool.
+ * @param {string} params.description - Description of the tool's purpose.
+ * @param {string} [params.docNote] - Optional documentation note.
+ * @param {...INavigateToTriageParams} params.navigateProps - Additional triage navigation properties.
+ * @returns {ReturnType<typeof addTool>} The result of adding the triage navigation tool.
+ */
+declare const addTriageNavigation: (args_0: ITriageNavigationParams) => string;
 
 /**
  * Adds a wiki schema to the system
@@ -12801,4 +12864,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addCompletion, addEmbedding, addMCP, addPolicy, addState, addStorage, addSwarm, addTool, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideEmbeding, overrideMCP, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addEmbedding, addMCP, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideEmbeding, overrideMCP, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };

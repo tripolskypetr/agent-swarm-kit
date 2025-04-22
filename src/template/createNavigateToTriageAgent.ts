@@ -15,10 +15,15 @@ import { SessionId } from "../interfaces/Session.interface";
 const METHOD_NAME = "function.template.navigateToTriageAgent";
 
 /**
+ * Will send tool output directly to the model without any additions
+ */
+const DEFAULT_EXECUTE_MESSAGE = "";
+
+/**
  * Configuration parameters for creating a navigation handler to a triage agent.
  * Defines optional messages or functions to handle flush, execution, and tool output scenarios during navigation.
  *
- * @interface IFactoryParams
+ * @interface INavigateToTriageParams
  * @property {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [flushMessage] - Optional message or function to emit after flushing the session. If a function, it receives the client ID and default agent name, returning a string or promise of a string.
  * @property {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [executeMessage] - Optional message or function to execute when no navigation is needed. If a function, it receives the client ID and default agent name, returning a string or promise of a string.
  * @property {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [toolOutputAccept] - Optional message or function for tool output when navigation to the default agent occurs. If a function, it receives the client ID and default agent name, returning a string or promise of a string. Defaults to a message indicating successful navigation.
@@ -26,19 +31,19 @@ const METHOD_NAME = "function.template.navigateToTriageAgent";
  *
  * @example
  * // Static message configuration
- * const params: IFactoryParams = {
+ * const params: INavigateToTriageParams = {
  *   flushMessage: "Session reset for triage.",
  *   toolOutputAccept: "Navigation completed.",
  * };
  *
  * @example
  * // Dynamic message configuration
- * const params: IFactoryParams = {
+ * const params: INavigateToTriageParams = {
  *   executeMessage: (clientId, agent) => `Processing ${clientId} on ${agent}`,
  *   toolOutputReject: (clientId, agent) => `No navigation needed for ${clientId}`,
  * };
  */
-interface IFactoryParams {
+export interface INavigateToTriageParams {
   flushMessage?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
@@ -90,18 +95,12 @@ const DEFAULT_REJECT_FN = (_: SessionId, defaultAgent: AgentName) =>
  * await navigate("tool-789", "client-012");
  * // Commits dynamic reject message and executes the message if already on the default agent.
  */
-export const createNavigateToTriageAgent = async ({
+export const createNavigateToTriageAgent = ({
   flushMessage,
-  executeMessage,
+  executeMessage = DEFAULT_EXECUTE_MESSAGE,
   toolOutputAccept = DEFAULT_ACCEPT_FN,
   toolOutputReject = DEFAULT_REJECT_FN,
-}: IFactoryParams) => {
-  if (!flushMessage && !executeMessage) {
-    throw new Error(
-      "agent-swarm createNavigateToTriageAgent flushMessage or executeMessage required"
-    );
-  }
-
+}: INavigateToTriageParams) => {
   /**
    * Navigates to the default triage agent for a given client and tool, handling message commits and execution.
    *
@@ -131,6 +130,7 @@ export const createNavigateToTriageAgent = async ({
         clientId
       );
       await executeForce(lastMessage, clientId);
+      return;
     }
 
     if (flushMessage) {

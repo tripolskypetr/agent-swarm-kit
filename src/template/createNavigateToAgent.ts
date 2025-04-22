@@ -15,10 +15,15 @@ import { getLastUserMessage } from "../functions/history/getLastUserMessage";
 const METHOD_NAME = "function.template.navigateToAgent";
 
 /**
+ * Will send tool output directly to the model without any additions
+ */
+const DEFAULT_EXECUTE_MESSAGE = "";
+
+/**
  * Configuration parameters for creating a navigation handler to a specific agent.
  * Defines optional messages or functions to handle flush, emission, execution, and tool output scenarios during navigation, incorporating the last user message where applicable.
  *
- * @interface IFactoryParams
+ * @interface INavigateToAgentParams
  * @property {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [flushMessage] - Optional message or function to emit after flushing the session. If a function, it receives the client ID and agent name, returning a string or promise of a string. Defaults to a generic retry message.
  * @property {string | ((clientId: string, agentName: AgentName) => string | Promise<string>)} [toolOutput] - Optional message or function for tool output when navigation occurs. If a function, it receives the client ID and agent name, returning a string or promise of a string. Defaults to a message indicating successful navigation.
  * @property {string | ((clientId: string, lastMessage: string, agentName: AgentName) => string | Promise<string>)} [emitMessage] - Optional message or function to emit when navigation occurs without execution. If a function, it receives the client ID, last user message, and agent name, returning a string or promise of a string.
@@ -26,19 +31,19 @@ const METHOD_NAME = "function.template.navigateToAgent";
  *
  * @example
  * // Static message configuration
- * const params: IFactoryParams = {
+ * const params: INavigateToAgentParams = {
  *   flushMessage: "Session reset.",
  *   toolOutput: "Navigation completed.",
  * };
  *
  * @example
  * // Dynamic message configuration with last message
- * const params: IFactoryParams = {
+ * const params: INavigateToAgentParams = {
  *   executeMessage: (clientId, lastMessage, agent) => `Processing ${lastMessage} for ${clientId} on ${agent}`,
  *   emitMessage: (clientId, lastMessage, agent) => `Emitted ${lastMessage} for ${clientId} on ${agent}`,
  * };
  */
-interface IFactoryParams {
+export interface INavigateToAgentParams {
   flushMessage?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
@@ -106,18 +111,12 @@ const DEFAULT_FLUSH_MESSAGE = ({}: SessionId, {}: AgentName) =>
  * await navigate("tool-789", "client-012", "SupportAgent");
  * // Navigates to SupportAgent, commits dynamic tool output, and executes the message with the last user message.
  */
-export const createNavigateToAgent = async ({
-  executeMessage,
+export const createNavigateToAgent = ({
+  executeMessage = DEFAULT_EXECUTE_MESSAGE,
   emitMessage,
   flushMessage = DEFAULT_FLUSH_MESSAGE,
   toolOutput = DEFAULT_TOOL_OUTPUT,
-}: IFactoryParams) => {
-  if (!emitMessage && !executeMessage) {
-    throw new Error(
-      "agent-swarm createNavigateToAgent emitMessage or executeMessage required"
-    );
-  }
-
+}: INavigateToAgentParams) => {
   /**
    * Navigates to a specified agent for a given client and tool, handling message commits, execution, or emission using the last user message.
    *
@@ -140,7 +139,7 @@ export const createNavigateToAgent = async ({
       if (
         await and(
           not(hasNavigation(clientId, agentName)),
-          Promise.resolve(!!executeMessage)
+          Promise.resolve(!emitMessage)
         )
       ) {
         await commitToolOutputForce(
