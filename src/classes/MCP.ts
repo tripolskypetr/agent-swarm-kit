@@ -176,7 +176,9 @@ export class MergeMCP implements IMCP {
               dto.clientId,
               agentName
             );
-            await execute("", dto.clientId, agentName);
+            if (dto.isLast) {
+              await execute("", dto.clientId, agentName);
+            }
           }
         } catch (error) {
           console.error(`agent-swarm MCP tool error toolName=${toolName} agentName=${agentName} error=${getErrorMessage(error)}`);
