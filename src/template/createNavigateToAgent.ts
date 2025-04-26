@@ -11,6 +11,7 @@ import { AgentName } from "../interfaces/Agent.interface";
 import { SessionId } from "../interfaces/Session.interface";
 import { changeToAgent } from "../functions/navigate/changeToAgent";
 import { getLastUserMessage } from "../functions/history/getLastUserMessage";
+import { getAgentName } from "../functions/common/getAgentName";
 
 const METHOD_NAME = "function.template.navigateToAgent";
 
@@ -52,10 +53,20 @@ export interface INavigateToAgentParams {
     | ((clientId: string, agentName: AgentName) => string | Promise<string>);
   emitMessage?:
     | string
-    | ((clientId: string, lastMessage: string, agentName: AgentName) => string | Promise<string>);
+    | ((
+        clientId: string,
+        lastMessage: string,
+        lastAgent: string,
+        agentName: AgentName
+      ) => string | Promise<string>);
   executeMessage?:
     | string
-    | ((clientId: string, lastMessage: string, agentName: AgentName) => string | Promise<string>);
+    | ((
+        clientId: string,
+        lastMessage: string,
+        lastAgent: string,
+        agentName: AgentName
+      ) => string | Promise<string>);
 }
 
 /**
@@ -135,6 +146,7 @@ export const createNavigateToAgent = ({
         });
 
       const lastMessage = await getLastUserMessage(clientId);
+      const lastAgent = await getAgentName(clientId);
 
       if (
         await and(
@@ -153,7 +165,7 @@ export const createNavigateToAgent = ({
         await executeForce(
           typeof executeMessage === "string"
             ? executeMessage
-            : await executeMessage(clientId, lastMessage, agentName),
+            : await executeMessage(clientId, lastMessage, lastAgent, agentName),
           clientId
         );
         return;
@@ -176,7 +188,7 @@ export const createNavigateToAgent = ({
         await emitForce(
           typeof emitMessage === "string"
             ? emitMessage
-            : await emitMessage(clientId, lastMessage, agentName),
+            : await emitMessage(clientId, lastMessage, lastAgent, agentName),
           clientId
         );
         return;

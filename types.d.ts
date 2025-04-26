@@ -9495,8 +9495,8 @@ declare const createNavigateToTriageAgent: ({ flushMessage, lastMessage: lastMes
 interface INavigateToAgentParams {
     flushMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
     toolOutput?: string | ((clientId: string, agentName: AgentName) => string | Promise<string>);
-    emitMessage?: string | ((clientId: string, lastMessage: string, agentName: AgentName) => string | Promise<string>);
-    executeMessage?: string | ((clientId: string, lastMessage: string, agentName: AgentName) => string | Promise<string>);
+    emitMessage?: string | ((clientId: string, lastMessage: string, lastAgent: string, agentName: AgentName) => string | Promise<string>);
+    executeMessage?: string | ((clientId: string, lastMessage: string, lastAgent: string, agentName: AgentName) => string | Promise<string>);
 }
 /**
  * Creates a function to navigate to a specified agent for a given client, handling navigation, message execution, emission, and tool output.
