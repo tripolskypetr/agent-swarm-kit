@@ -9428,6 +9428,7 @@ declare const dumpClientPerformance: {
  * };
  */
 interface INavigateToTriageParams {
+    lastMessage?: (clientId: string, lastMessage: string, lastAgent: AgentName, defaultAgent: AgentName) => string | Promise<string>;
     flushMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
     executeMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
     toolOutputAccept?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
@@ -9465,7 +9466,7 @@ interface INavigateToTriageParams {
  * await navigate("tool-789", "client-012");
  * // Commits dynamic reject message and executes the message if already on the default agent.
  */
-declare const createNavigateToTriageAgent: ({ flushMessage, executeMessage, toolOutputAccept, toolOutputReject, }: INavigateToTriageParams) => (toolId: string, clientId: string) => Promise<void>;
+declare const createNavigateToTriageAgent: ({ flushMessage, lastMessage: lastMessageFn, executeMessage, toolOutputAccept, toolOutputReject, }: INavigateToTriageParams) => (toolId: string, clientId: string) => Promise<void>;
 
 /**
  * Configuration parameters for creating a navigation handler to a specific agent.

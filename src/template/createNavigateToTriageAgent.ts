@@ -11,6 +11,7 @@ import swarm from "../lib";
 import beginContext from "../utils/beginContext";
 import { AgentName } from "../interfaces/Agent.interface";
 import { SessionId } from "../interfaces/Session.interface";
+import { getAgentName } from "../functions/common/getAgentName";
 
 const METHOD_NAME = "function.template.navigateToTriageAgent";
 
@@ -44,6 +45,12 @@ const DEFAULT_EXECUTE_MESSAGE = "";
  * };
  */
 export interface INavigateToTriageParams {
+  lastMessage?: (
+    clientId: string,
+    lastMessage: string,
+    lastAgent: AgentName,
+    defaultAgent: AgentName
+  ) => string | Promise<string>;
   flushMessage?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
@@ -59,9 +66,15 @@ export interface INavigateToTriageParams {
 }
 
 const DEFAULT_ACCEPT_FN = (_: SessionId, defaultAgent: AgentName) =>
-  `Successfully navigated to ${defaultAgent}`;
+  `Successfully navigated to ${defaultAgent}. Continue conversation based on the last message.`;
 const DEFAULT_REJECT_FN = (_: SessionId, defaultAgent: AgentName) =>
-  `Already on ${defaultAgent}`;
+  `Already on ${defaultAgent}. No navigation needed. Continue conversation.`;
+const DEFAULT_LAST_MESSAGE_FN = (
+  _: SessionId,
+  lastMessage: string,
+  lastAgent: AgentName
+) =>
+  `I have been talking with ${lastAgent}. The last message was: ${lastMessage}`;
 
 /**
  * Creates a function to navigate to a triage agent for a specific client, handling navigation, message execution, and tool output.
@@ -97,6 +110,7 @@ const DEFAULT_REJECT_FN = (_: SessionId, defaultAgent: AgentName) =>
  */
 export const createNavigateToTriageAgent = ({
   flushMessage,
+  lastMessage: lastMessageFn = DEFAULT_LAST_MESSAGE_FN,
   executeMessage = DEFAULT_EXECUTE_MESSAGE,
   toolOutputAccept = DEFAULT_ACCEPT_FN,
   toolOutputReject = DEFAULT_REJECT_FN,
@@ -119,6 +133,8 @@ export const createNavigateToTriageAgent = ({
     const swarmName = swarm.sessionValidationService.getSwarm(clientId);
     const { defaultAgent } = swarm.swarmSchemaService.get(swarmName);
 
+    const lastAgent = await getAgentName(clientId);
+
     if (await not(hasNavigation(clientId, defaultAgent))) {
       const lastMessage = await getLastUserMessage(clientId);
       await changeToDefaultAgent(clientId);
@@ -129,7 +145,10 @@ export const createNavigateToTriageAgent = ({
           : await toolOutputAccept(clientId, defaultAgent),
         clientId
       );
-      await executeForce(lastMessage, clientId);
+      await executeForce(
+        await lastMessageFn(clientId, lastMessage, lastAgent, defaultAgent),
+        clientId
+      );
       return;
     }
 
