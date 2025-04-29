@@ -23,7 +23,7 @@ const EXECPOOL_SIZE = 5;
 /**
  * Delay in milliseconds between executions in the execpool for completion requests.
  */
-const EXECPOOL_WAIT = 100;
+const EXECPOOL_WAIT = 0;
 
 /**
  * Maximum retry count before the exception

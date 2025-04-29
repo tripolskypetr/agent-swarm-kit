@@ -29,6 +29,7 @@ import MCPSchemaService from "../schema/MCPSchemaService";
  * @type {number}
  */
 const THREAD_POOL_SIZE = 5;
+const THREAD_POOL_DELAY = 0;
 
 /**
  * List of subdirectories created for organizing documentation output.
@@ -318,6 +319,7 @@ export class DocService {
     },
     {
       maxExec: THREAD_POOL_SIZE,
+      delay: THREAD_POOL_DELAY,
     }
   );
 
@@ -647,6 +649,7 @@ export class DocService {
     },
     {
       maxExec: THREAD_POOL_SIZE,
+      delay: THREAD_POOL_DELAY,
     }
   );
 

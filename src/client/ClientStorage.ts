@@ -15,6 +15,8 @@ import { IBusEvent } from "../model/Event.model";
 import { Embeddings } from "../interfaces/Embedding.interface";
 import { createHash } from "crypto";
 
+const STORAGE_POOL_DELAY = 0;
+
 /**
  * Creates a SHA-256 hash of the provided string.
  *
@@ -162,7 +164,7 @@ const WAIT_FOR_INIT_FN = async (self: ClientStorage): Promise<void> => {
   await Promise.all(
     data.map(
       execpool(self._createEmbedding, {
-        delay: 10,
+        delay: STORAGE_POOL_DELAY,
         maxExec: GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL,
       })
     )
@@ -490,7 +492,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
             indexed.push(item, maxScore);
           },
           {
-            delay: 10,
+            delay: STORAGE_POOL_DELAY,
             maxExec: GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL,
           }
         )
