@@ -100,7 +100,7 @@ export class ComputePublicService<T extends IComputeData = IComputeData>
       });
     return await MethodContextService.runInContext(
       async () => {
-        return await this.computeConnectionService.update(clientId, computeName);
+        return await this.computeConnectionService.update();
       },
       {
         methodName,

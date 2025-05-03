@@ -77,13 +77,13 @@ export class SharedComputeConnectionService<T extends IComputeData = IComputeDat
     return await compute.calculate(stateName);
   };
 
-  public update = async (clientId: string, computeName: ComputeName) => {
+  public update = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sharedComputeConnectionService update`);
     const compute = this.getComputeRef(
       this.methodContextService.context.computeName
     );
-    return await compute.update(clientId, computeName);
+    return await compute.update();
   };
 }
 

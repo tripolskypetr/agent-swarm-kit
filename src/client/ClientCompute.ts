@@ -90,14 +90,17 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
     }
   }
 
-  update(clientId: string, computeName: StateName) {
+  update() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
-        `ClientCompute computeName=${this.params.computeName} clientId=${clientId} computeName=${computeName} update`
+        `ClientCompute computeName=${this.params.computeName} clientId=${this.params.clientId} computeName=${this.params.computeName} update`
       );
     this[GET_COMPUTE_DATA_FN_SYMBOL].clear();
     if (this.params.callbacks?.onUpdate) {
-      this.params.callbacks.onUpdate(clientId, computeName);
+      this.params.callbacks.onUpdate(
+        this.params.clientId,
+        this.params.computeName
+      );
     }
   }
 

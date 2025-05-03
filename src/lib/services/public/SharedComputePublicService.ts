@@ -85,21 +85,19 @@ export class SharedComputePublicService<T extends IComputeData = IComputeData>
 
   public update = async (
     methodName: string,
-    clientId: string,
     computeName: ComputeName
   ) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sharedComputePublicService update`, {
-        clientId,
         computeName,
       });
     return await MethodContextService.runInContext(
       async () => {
-        return await this.sharedComputeConnectionService.update(clientId, computeName);
+        return await this.sharedComputeConnectionService.update();
       },
       {
         methodName,
-        clientId,
+        clientId: "",
         computeName,
         policyName: "",
         agentName: "",
