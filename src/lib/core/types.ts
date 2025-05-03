@@ -23,6 +23,8 @@ const connectionServices = {
     sharedStateConnectionService: Symbol('sharedStateConnectionService'),
     policyConnectionService: Symbol('policyConnectionService'),
     mcpConnectionService: Symbol('mcpConnectionService'),
+    computeConnectionService: Symbol('computeConnectionService'),
+    sharedComputeConnectionService: Symbol('sharedComputeConnectionService'),
 };
 
 const schemaServices = {
@@ -37,6 +39,7 @@ const schemaServices = {
     policySchemaService: Symbol('policySchemaService'),
     wikiSchemaService: Symbol('wikiSchemaService'),
     mcpSchemaService: Symbol('mcpSchemaService'),
+    computeSchemaService: Symbol('computeSchemaService'),
 };
 
 const metaServices = {
@@ -55,6 +58,8 @@ const publicServices = {
     sharedStatePublicService: Symbol('sharedStatePublicService'),
     policyPublicService: Symbol('policyPublicService'),
     mcpPublicService: Symbol('mcpPublicService'),
+    computePublicService: Symbol('computePublicService'),
+    sharedComputePublicService: Symbol('sharedComputePublicService'),
 };
 
 const validationServices = {
@@ -69,6 +74,8 @@ const validationServices = {
     navigationValidationService: Symbol('navigationValidationService'),
     wikiValidationService: Symbol('wikiValidationService'),
     mcpValidationService: Symbol('mcpValidationService'),
+    computeValidationService: Symbol('computeValidationService'),
+    stateValidationService: Symbol('stateValidationService'),
 };
 
 export const TYPES = {

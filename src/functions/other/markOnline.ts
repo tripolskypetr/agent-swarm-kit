@@ -33,6 +33,7 @@ export const markOnline = async (clientId: string, swarmName: SwarmName): Promis
       policyName: "",
       stateName: "",
       storageName: "",
+      computeName: "",
       mcpName: "",
       swarmName,
       clientId,

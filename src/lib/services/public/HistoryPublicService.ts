@@ -94,6 +94,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -131,6 +132,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -170,6 +172,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -207,6 +210,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -243,6 +247,7 @@ export class HistoryPublicService implements THistoryConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };

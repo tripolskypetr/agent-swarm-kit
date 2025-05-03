@@ -8,6 +8,7 @@ import { StorageName } from "../../../interfaces/Storage.interface";
 import { StateName } from "../../../interfaces/State.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import { memoize } from "functools-kit";
+import { ComputeName } from "../../../interfaces/Compute.interface";
 
 /**
  * Service for managing and validating sessions within the swarm system.
@@ -59,6 +60,14 @@ export class SessionValidationService {
    * @private
    */
   private _stateSwarmMap = new Map<SessionId, StateName[]>();
+
+  /**
+   * Map of session IDs to their associated compute names, tracking compute usage per session.
+   * Populated by addComputeUsage, modified by removeComputeUsage.
+   * @type {Map<SessionId, StateName[]>}
+   * @private
+   */
+  private _computeSwarmMap = new Map<SessionId, ComputeName[]>();
 
   /**
    * Map of session IDs to their associated swarm names, defining session-swarm relationships.
@@ -199,6 +208,31 @@ export class SessionValidationService {
   };
 
   /**
+   * Tracks a compute’s usage within a session, adding it to the session’s compute list.
+   * Logs the operation, supporting ClientState’s session-specific compute tracking.
+   * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
+   * @param {ComputeName} computeName - The name of the compute to add, sourced from State.interface.
+   */
+  public addComputeUsage = (
+    sessionId: SessionId,
+    computeName: ComputeName
+  ): void => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService addComputeUsage", {
+        sessionId,
+        computeName,
+      });
+    if (this._computeSwarmMap.has(sessionId)) {
+      const computes = this._computeSwarmMap.get(sessionId)!;
+      if (!computes.includes(computeName)) {
+        computes.push(computeName);
+      }
+    } else {
+      this._computeSwarmMap.set(sessionId, [computeName]);
+    }
+  };
+
+  /**
    * Removes an agent from a session’s agent usage list.
    * Logs the operation and cleans up if the list becomes empty, supporting ClientAgent’s session cleanup.
    * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
@@ -319,6 +353,36 @@ export class SessionValidationService {
   };
 
   /**
+   * Removes a compute from a session’s compute usage list.
+   * Logs the operation and cleans up if the list becomes empty, supporting ClientCompute’s session cleanup.
+   * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
+   * @param {ComputeName} computeName - The name of the compute to remove, sourced from Compute.interface.
+   * @throws {Error} If no computes are found for the session in _computeSwarmMap.
+   */
+  public removeComputeUsage = (
+    sessionId: SessionId,
+    computeName: ComputeName
+  ): void => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService removeComputeUsage", {
+        sessionId,
+        computeName,
+      });
+    if (this._computeSwarmMap.has(sessionId)) {
+      const computes = this._computeSwarmMap.get(sessionId)!;
+      const computeIndex = computes.indexOf(computeName);
+      if (computeIndex !== -1) {
+        computes.splice(computeIndex, 1);
+      }
+      if (computes.length === 0) {
+        this._computeSwarmMap.delete(sessionId);
+      }
+    } else {
+      throw new Error(`No computes found for sessionId=${sessionId}`);
+    }
+  };
+
+  /**
    * Retrieves the mode of a session.
    * Logs the operation and validates session existence, supporting ClientSession’s mode-based behavior.
    * @param {SessionId} clientId - The ID of the session (client ID), sourced from Session.interface.
@@ -361,6 +425,20 @@ export class SessionValidationService {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("sessionValidationService getSessionList");
     return [...this._sessionSwarmMap.keys()];
+  };
+  
+  /**
+   * Retrieves the list of computes associated with a session.
+   * Logs the operation, supporting ClientAgent’s session-specific agent queries.
+   * @param {SessionId} clientId - The ID of the session (client ID), sourced from Compute.interface.
+   * @returns {ComputeName[]} An array of compute names from _computeSwarmMap, or empty array if none.
+   */
+  public getSessionComputeList = (clientId: SessionId): ComputeName[] => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionValidationService getSessionComputeList", {
+        clientId,
+      });
+    return this._computeSwarmMap.get(clientId) ?? [];
   };
 
   /**

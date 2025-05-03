@@ -22,6 +22,7 @@ export * from "./functions/setup/addState";
 export * from "./functions/setup/addEmbeding";
 export * from "./functions/setup/addStorage";
 export * from "./functions/setup/addPolicy";
+export * from "./functions/setup/addCompute";
 
 export * from "./functions/test/overrideAgent";     
 export * from "./functions/test/overrideCompletion";

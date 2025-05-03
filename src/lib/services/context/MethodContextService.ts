@@ -5,6 +5,7 @@ import { StorageName } from "../../../interfaces/Storage.interface";
 import { StateName } from "../../../interfaces/State.interface";
 import { PolicyName } from "../../../interfaces/Policy.interface";
 import { MCPName } from "../../../interfaces/MCP.interface";
+import { ComputeName } from "../../../interfaces/Compute.interface";
 
 /**
  * Interface defining the structure of method call context in the swarm system.
@@ -47,6 +48,12 @@ export interface IMethodContext {
    * @type {StateName}
    */
   stateName: StateName;
+
+  /**
+   * The name of the compute resource involved, sourced from Compute.interface, used in PerfService (e.g., sessionState) and DocService (e.g., compute docs).
+   * @type {ComputeName}
+   */
+  computeName: ComputeName;
 
   /**
    * The name of the policy involved, sourced from Policy.interface, used in PerfService (e.g., policyBans) and DocService (e.g., policy docs).

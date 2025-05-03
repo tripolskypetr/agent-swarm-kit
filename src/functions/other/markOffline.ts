@@ -32,6 +32,7 @@ export const markOffline = async (clientId: string, swarmName: SwarmName): Promi
       policyName: "",
       stateName: "",
       storageName: "",
+      computeName: "",
       mcpName: "",
       swarmName,
       clientId,

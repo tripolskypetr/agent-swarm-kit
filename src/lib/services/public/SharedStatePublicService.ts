@@ -91,6 +91,7 @@ export class SharedStatePublicService<T extends IStateData = IStateData>
         swarmName: "",
         storageName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -125,6 +126,7 @@ export class SharedStatePublicService<T extends IStateData = IStateData>
         swarmName: "",
         storageName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -158,6 +160,7 @@ export class SharedStatePublicService<T extends IStateData = IStateData>
         swarmName: "",
         storageName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
