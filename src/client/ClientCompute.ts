@@ -75,7 +75,7 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
     return await this[GET_COMPUTE_DATA_FN_SYMBOL]();
   }
 
-  calculate(stateName: StateName) {
+  async calculate(stateName: StateName) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientCompute computeName=${this.params.computeName} clientId=${this.params.clientId} computeName=${this.params.computeName} stateName=${stateName} calculate`
