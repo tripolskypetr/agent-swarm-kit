@@ -4,7 +4,7 @@
  */
 
 import { GLOBAL_CONFIG } from "../config/params";
-import { ComputeName } from "../interfaces/Compute.interface";
+import { ComputeName, IComputeData } from "../interfaces/Compute.interface";
 import swarm from "../lib";
 import beginContext from "../utils/beginContext";
 
@@ -73,7 +73,7 @@ export class ComputeUtils {
         computeName,
       );
     }
-  );
+  ) as <T extends IComputeData = any>(clientId: string, computeName: ComputeName) => Promise<T>;
 }
 
 /**
