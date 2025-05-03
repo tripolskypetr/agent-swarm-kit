@@ -1,3 +1,8 @@
+/**
+ * @module ComputeConnectionService
+ * @description Manages compute instances and their lifecycle, integrating with dependency injection and state management.
+ */
+
 import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
@@ -17,29 +22,89 @@ import SharedComputeConnectionService from "./SharedComputeConnectionService";
 import { StateName } from "../../../interfaces/State.interface";
 import StateConnectionService from "./StateConnectionService";
 
+/**
+ * @class ComputeConnectionService
+ * @template T - Type extending IComputeData.
+ * @implements {ICompute<T>}
+ * @description Service for managing compute instances, handling shared and non-shared computations.
+ */
 export class ComputeConnectionService<T extends IComputeData = IComputeData>
   implements ICompute<T>
 {
+  /**
+   * @property {LoggerService} loggerService
+   * @description Injected logger service for logging operations.
+   * @private
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+
+  /**
+   * @property {BusService} busService
+   * @description Injected bus service for event communication.
+   * @private
+   */
   private readonly busService = inject<BusService>(TYPES.busService);
+
+  /**
+   * @property {TMethodContextService} methodContextService
+   * @description Injected service for accessing method context.
+   * @private
+   */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
+
+  /**
+   * @property {ComputeSchemaService} computeSchemaService
+   * @description Injected service for accessing compute schemas.
+   * @private
+   */
   private readonly computeSchemaService = inject<ComputeSchemaService>(
     TYPES.computeSchemaService
   );
+
+  /**
+   * @property {SessionValidationService} sessionValidationService
+   * @description Injected service for session validation and compute usage tracking.
+   * @private
+   */
   private readonly sessionValidationService = inject<SessionValidationService>(
     TYPES.sessionValidationService
   );
+
+  /**
+   * @property {StateConnectionService} stateConnectionService
+   * @description Injected service for managing state connections.
+   * @private
+   */
   private readonly stateConnectionService = inject<StateConnectionService>(
     TYPES.stateConnectionService
   );
+
+  /**
+   * @property {SharedComputeConnectionService} sharedComputeConnectionService
+   * @description Injected service for managing shared compute instances.
+   * @private
+   */
   private readonly sharedComputeConnectionService =
     inject<SharedComputeConnectionService>(
       TYPES.sharedComputeConnectionService
     );
+
+  /**
+   * @property {Set<ComputeName>} _sharedComputeSet
+   * @description Tracks compute names that are shared.
+   * @private
+   */
   private _sharedComputeSet = new Set<ComputeName>();
 
+  /**
+   * @method getComputeRef
+   * @description Retrieves or creates a compute instance, memoized by client ID and compute name.
+   * @param {string} clientId - The client identifier.
+   * @param {ComputeName} computeName - The name of the compute.
+   * @returns {ClientCompute} The compute instance.
+   */
   public getComputeRef = memoize(
     ([clientId, computeName]) => `${clientId}-${computeName}`,
     (clientId: string, computeName: ComputeName) => {
@@ -71,6 +136,12 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
     }
   );
 
+  /**
+   * @method getComputeData
+   * @description Retrieves the computed data for the current context.
+   * @returns {Promise<T>} The computed data.
+   * @async
+   */
   public getComputeData = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`computeConnectionService getComputeData`);
@@ -81,6 +152,13 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
     return await compute.getComputeData();
   };
 
+  /**
+   * @method calculate
+   * @description Triggers a recalculation for the compute instance based on a state change.
+   * @param {StateName} stateName - The name of the state that changed.
+   * @returns {Promise<void>}
+   * @async
+   */
   public calculate = async (stateName: StateName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`computeConnectionService calculate`);
@@ -91,6 +169,12 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
     return await compute.calculate(stateName);
   };
 
+  /**
+   * @method update
+   * @description Forces an update of the compute instance.
+   * @returns {Promise<void>}
+   * @async
+   */
   public update = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`computeConnectionService update`);
@@ -101,6 +185,12 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
     return await compute.update();
   };
 
+  /**
+   * @method dispose
+   * @description Cleans up the compute instance and removes it from the cache.
+   * @returns {Promise<void>}
+   * @async
+   */
   public dispose = async (): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`computeConnectionService dispose`);
@@ -125,4 +215,9 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
   };
 }
 
+/**
+ * @export
+ * @default ComputeConnectionService
+ * @description Exports the ComputeConnectionService class as the default export.
+ */
 export default ComputeConnectionService;
