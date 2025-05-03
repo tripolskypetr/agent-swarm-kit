@@ -90,7 +90,7 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
     }
   }
 
-  update() {
+  async update() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientCompute computeName=${this.params.computeName} clientId=${this.params.clientId} computeName=${this.params.computeName} update`

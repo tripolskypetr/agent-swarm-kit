@@ -39,8 +39,8 @@ export interface IComputeParams<T extends IComputeData = IComputeData>
 }
 
 export interface ICompute<T extends IComputeData = IComputeData> {
-  calculate: (stateName: StateName) => void;
-  update: (clientId: string, computeName: ComputeName) => void;
+  calculate: (stateName: StateName) => Promise<void>;
+  update: (clientId: string, computeName: ComputeName) => Promise<void>;
   getComputeData: () => T | Promise<T>;
 }
 
