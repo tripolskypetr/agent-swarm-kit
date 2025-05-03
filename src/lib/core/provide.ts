@@ -52,6 +52,13 @@ import MCPConnectionService from "../services/connection/MCPConnectionService";
 import MCPSchemaService from "../services/schema/MCPSchemaService";
 import MCPPublicService from "../services/public/MCPPublicService";
 import MCPValidationService from "../services/validation/MCPValidationService";
+import ComputeSchemaService from "../services/schema/ComputeSchemaService";
+import ComputeValidationService from "../services/validation/ComputeValidationService";
+import StateValidationService from "../services/validation/StateValidationService";
+import ComputeConnectionService from "../services/connection/ComputeConnectionService";
+import SharedComputeConnectionService from "../services/connection/SharedComputeConnectionService";
+import ComputePublicService from "../services/public/ComputePublicService";
+import SharedComputePublicService from "../services/public/SharedComputePublicService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -78,6 +85,8 @@ import MCPValidationService from "../services/validation/MCPValidationService";
     provide(TYPES.sharedStateConnectionService, () => new SharedStateConnectionService());
     provide(TYPES.policyConnectionService, () => new PolicyConnectionService());
     provide(TYPES.mcpConnectionService, () => new MCPConnectionService());
+    provide(TYPES.computeConnectionService, () => new ComputeConnectionService());
+    provide(TYPES.sharedComputeConnectionService, () => new SharedComputeConnectionService());
 }
 
 {
@@ -92,6 +101,7 @@ import MCPValidationService from "../services/validation/MCPValidationService";
     provide(TYPES.policySchemaService, () => new PolicySchemaService());
     provide(TYPES.wikiSchemaService, () => new WikiSchemaService());
     provide(TYPES.mcpSchemaService, () => new MCPSchemaService());
+    provide(TYPES.computeSchemaService, () => new ComputeSchemaService());
 }
 
 {
@@ -105,6 +115,8 @@ import MCPValidationService from "../services/validation/MCPValidationService";
     provide(TYPES.sharedStatePublicService, () => new SharedStatePublicService());
     provide(TYPES.policyPublicService, () => new PolicyPublicService());
     provide(TYPES.mcpPublicService, () => new MCPPublicService());
+    provide(TYPES.computePublicService, () => new ComputePublicService());
+    provide(TYPES.sharedComputePublicService, () => new SharedComputePublicService());
 }
 
 {
@@ -124,4 +136,6 @@ import MCPValidationService from "../services/validation/MCPValidationService";
     provide(TYPES.navigationValidationService, () => new NavigationValidationService());
     provide(TYPES.wikiValidationService, () => new WikiValidationService());
     provide(TYPES.mcpValidationService, () => new MCPValidationService());
+    provide(TYPES.computeValidationService, () => new ComputeValidationService());
+    provide(TYPES.stateValidationService, () => new StateValidationService());
 }

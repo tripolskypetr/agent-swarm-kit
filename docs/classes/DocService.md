@@ -126,6 +126,24 @@ stateSchemaService: any
 State schema service instance, injected via DI.
 Provides state details for writeAgentDoc, documenting state resources used by agents.
 
+### computeSchemaService
+
+```ts
+computeSchemaService: any
+```
+
+Compute schema service instance, injected via DI.
+Provides compute details for writeAgentDoc, documenting compute resources used by agents.
+
+### computeValidationService
+
+```ts
+computeValidationService: any
+```
+
+Compute validation service instance, injected via DI.
+Provides compute list for writeAgentDoc, documenting compute resources used by states in agents.
+
 ### agentMetaService
 
 ```ts

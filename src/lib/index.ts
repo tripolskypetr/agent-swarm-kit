@@ -60,6 +60,13 @@ import MCPConnectionService from "./services/connection/MCPConnectionService";
 import MCPSchemaService from "./services/schema/MCPSchemaService";
 import MCPPublicService from "./services/public/MCPPublicService";
 import MCPValidationService from "./services/validation/MCPValidationService";
+import ComputeValidationService from "./services/validation/ComputeValidationService";
+import StateValidationService from "./services/validation/StateValidationService";
+import ComputeSchemaService from "./services/schema/ComputeSchemaService";
+import ComputeConnectionService from "./services/connection/ComputeConnectionService";
+import SharedComputeConnectionService from "./services/connection/SharedComputeConnectionService";
+import ComputePublicService from "./services/public/ComputePublicService";
+import SharedComputePublicService from "./services/public/SharedComputePublicService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -112,6 +119,12 @@ const connectionServices = {
   mcpConnectionService: inject<MCPConnectionService>(
     TYPES.mcpConnectionService
   ),
+  computeConnectionService: inject<ComputeConnectionService>(
+    TYPES.computeConnectionService
+  ),
+  sharedComputeConnectionService: inject<SharedComputeConnectionService>(
+    TYPES.sharedComputeConnectionService
+  ),
 };
 
 const schemaServices = {
@@ -132,6 +145,7 @@ const schemaServices = {
   policySchemaService: inject<PolicySchemaService>(TYPES.policySchemaService),
   wikiSchemaService: inject<WikiSchemaService>(TYPES.wikiSchemaService),
   mcpSchemaService: inject<MCPSchemaService>(TYPES.mcpSchemaService),
+  computeSchemaService: inject<ComputeSchemaService>(TYPES.computeSchemaService),
 };
 
 const publicServices = {
@@ -155,6 +169,8 @@ const publicServices = {
   ),
   policyPublicService: inject<PolicyPublicService>(TYPES.policyPublicService),
   mcpPublicService: inject<MCPPublicService>(TYPES.mcpPublicService),
+  computePublicService: inject<ComputePublicService>(TYPES.computePublicService),
+  sharedComputePublicService: inject<SharedComputePublicService>(TYPES.sharedComputePublicService),
 };
 
 const metaServices = {
@@ -195,6 +211,12 @@ const validationServices = {
   ),
   mcpValidationService: inject<MCPValidationService>(
     TYPES.mcpValidationService
+  ),
+  computeValidationService: inject<ComputeValidationService>(
+    TYPES.computeValidationService
+  ),
+  stateValidationService: inject<StateValidationService>(
+    TYPES.stateValidationService
   ),
 };
 

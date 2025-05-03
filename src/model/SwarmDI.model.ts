@@ -50,6 +50,13 @@ import MCPConnectionService from "../lib/services/connection/MCPConnectionServic
 import MCPSchemaService from "../lib/services/schema/MCPSchemaService";
 import MCPPublicService from "../lib/services/public/MCPPublicService";
 import MCPValidationService from "../lib/services/validation/MCPValidationService";
+import ComputeValidationService from "../lib/services/validation/ComputeValidationService";
+import StateValidationService from "../lib/services/validation/StateValidationService";
+import ComputeSchemaService from "../lib/services/schema/ComputeSchemaService";
+import ComputePublicService from "../lib/services/public/ComputePublicService";
+import SharedComputePublicService from "../lib/services/public/SharedComputePublicService";
+import ComputeConnectionService from "../lib/services/connection/ComputeConnectionService";
+import SharedComputeConnectionService from "../lib/services/connection/SharedComputeConnectionService";
 
 /**
  * Interface defining the structure of the dependency injection container for the swarm system.
@@ -168,6 +175,18 @@ export interface ISwarmDI {
    */
   mcpConnectionService: MCPConnectionService;
 
+  /**
+   * Service for managing compute connections within the swarm.
+   * Handles `ICompute` connectivity via `ComputeConnectionService`.
+   */
+  computeConnectionService: ComputeConnectionService;
+
+  /**
+   * Service for managing shared compute connections within the swarm.
+   * Handles `ICompute` connectivity via `SharedComputePublicService`.
+   */
+  sharedComputeConnectionService: SharedComputeConnectionService;
+
   // Schema Services
   /**
    * Service for defining and managing agent schemas.
@@ -230,6 +249,12 @@ export interface ISwarmDI {
   mcpSchemaService: MCPSchemaService;
 
   /**
+   * Service for defining and managing compute schemas.
+   * Implements `IComputeSchema` for rule enforcement via `ComputeSchemaService`.
+   */
+  computeSchemaService: ComputeSchemaService;
+
+  /**
    * Service for defining and managing agent wikies.
    * Implements `IWikiSchema` for rule enforcement via `WikiSchemaService`.
    */
@@ -279,10 +304,22 @@ export interface ISwarmDI {
   statePublicService: StatePublicService;
 
   /**
+   * Service exposing public APIs for compute operations.
+   * Implements `IComput` methods
+   */
+  computePublicService: ComputePublicService;
+
+  /**
    * Service exposing public APIs for shared state operations.
    * Provides shared `IState` access via `SharedStatePublicService`.
    */
   sharedStatePublicService: SharedStatePublicService;
+
+  /**
+   * Service exposing public APIs for shared compute operations.
+   * Provides shared `ICompute` access via `SharedComputePublicService`.
+   */
+  sharedComputePublicService: SharedComputePublicService;
 
   /**
    * Service exposing public APIs for policy operations.
@@ -363,6 +400,18 @@ export interface ISwarmDI {
    * Ensures mcp integrity via `MCPValidationService`.
    */
   mcpValidationService: MCPValidationService;
+
+  /**
+   * Service validating compute data
+   * Ensures compute integrity via `ComputeValidationService`.
+   */
+  computeValidationService: ComputeValidationService;
+
+  /**
+   * Service validating state-related data.
+   * Ensures mcp integrity via `StateValidationService`.
+   */
+  stateValidationService: StateValidationService;
 
   /**
    * Service preventing the recursive call of changeToAgent

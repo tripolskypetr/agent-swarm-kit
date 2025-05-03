@@ -3,6 +3,7 @@ import { AgentName } from "../interfaces/Agent.interface";
 import { StorageName } from "../interfaces/Storage.interface";
 import { StateName } from "../interfaces/State.interface";
 import { PolicyName } from "../interfaces/Policy.interface";
+import { ComputeName } from "../interfaces/Compute.interface";
 
 /**
  * Interface representing the contextual metadata for an event in the swarm system.
@@ -43,6 +44,14 @@ export interface IBusEventContext {
   stateName: StateName;
 
   /**
+   * The unique name of the compute associated with the event.
+   * Links to a specific compute instance (e.g., ICompute), potentially for compute events, not populated in ClientAgent’s context.
+   * Example: "ComputeX" for a compute update event.
+   * @type {ComputeName}
+   */
+  computeName: ComputeName;
+
+  /**
    * The unique name of the policy associated with the event.
    * Identifies the policy context (e.g., IPolicy), potentially for policy enforcement events (e.g., bans), unused in ClientAgent’s emissions.
    * Example: "PolicyY" for a client ban event.
@@ -72,7 +81,8 @@ export type EventBusSource =
   | "storage-bus"
   | "swarm-bus"
   | "execution-bus"
-  | "policy-bus";
+  | "policy-bus"
+  | "compute-bus";
 
 /**
  * Interface representing the base structure of an event in the swarm system.

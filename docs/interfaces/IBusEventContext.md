@@ -51,6 +51,16 @@ The unique name of the state associated with the event.
 Links to a specific state instance (e.g., IState), potentially for state change events, not populated in ClientAgent’s context.
 Example: "StateX" for a state update event.
 
+### computeName
+
+```ts
+computeName: string
+```
+
+The unique name of the compute associated with the event.
+Links to a specific compute instance (e.g., ICompute), potentially for compute events, not populated in ClientAgent’s context.
+Example: "ComputeX" for a compute update event.
+
 ### policyName
 
 ```ts

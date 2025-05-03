@@ -22,6 +22,7 @@ export * from "./functions/setup/addState";
 export * from "./functions/setup/addEmbeding";
 export * from "./functions/setup/addStorage";
 export * from "./functions/setup/addPolicy";
+export * from "./functions/setup/addCompute";
 
 export * from "./functions/test/overrideAgent";     
 export * from "./functions/test/overrideCompletion";
@@ -32,7 +33,8 @@ export * from "./functions/test/overrideStorage";
 export * from "./functions/test/overrideSwarm";     
 export * from "./functions/test/overrideTool";      
 export * from "./functions/test/overrideMCP";     
-export * from "./functions/test/overrideWiki";      
+export * from "./functions/test/overrideWiki";  
+export * from "./functions/test/overrideCompute";        
 
 export * from "./functions/other/markOnline";
 export * from "./functions/other/markOffline";
@@ -125,6 +127,7 @@ export { IChatArgs } from "./interfaces/Wiki.interface";
 export { IEmbeddingSchema } from "./interfaces/Embedding.interface";
 export { IStorageSchema } from "./interfaces/Storage.interface";
 export { IStateSchema } from "./interfaces/State.interface";
+export { IComputeSchema } from "./interfaces/Compute.interface";
 export { IPolicySchema } from "./interfaces/Policy.interface";
 
 export { IMCPSchema, IMCPTool, MCPToolProperties } from './interfaces/MCP.interface';
@@ -198,6 +201,8 @@ export { RoundRobin } from "./classes/RoundRobin";
 
 export { Policy } from "./classes/Policy";
 export { State } from "./classes/State";
+export { Compute } from "./classes/Compute";
+export { SharedCompute } from "./classes/SharedCompute";
 export { SharedState } from "./classes/SharedState";
 
 export { Chat, IChatInstance, IChatInstanceCallbacks } from "./classes/Chat";

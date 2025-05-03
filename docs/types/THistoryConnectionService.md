@@ -7,7 +7,7 @@ group: docs
 
 ```ts
 type THistoryConnectionService = {
-    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$8>]: unknown;
+    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$a>]: unknown;
 };
 ```
 

@@ -1,0 +1,60 @@
+---
+title: docs/api-reference/class/ClientCompute
+group: docs
+---
+
+# ClientCompute
+
+Implements `ICompute<Compute>`
+
+## Constructor
+
+```ts
+constructor(params: IComputeParams<Compute>);
+```
+
+## Properties
+
+### params
+
+```ts
+params: IComputeParams<Compute>
+```
+
+### __@DISPOSE_SLOT_FN_SYMBOL@2835
+
+```ts
+__@DISPOSE_SLOT_FN_SYMBOL@2835: any
+```
+
+### __@GET_COMPUTE_DATA_FN_SYMBOL@2836
+
+```ts
+__@GET_COMPUTE_DATA_FN_SYMBOL@2836: any
+```
+
+## Methods
+
+### getComputeData
+
+```ts
+getComputeData(): Promise<any>;
+```
+
+### calculate
+
+```ts
+calculate(stateName: StateName): void;
+```
+
+### update
+
+```ts
+update(): void;
+```
+
+### dispose
+
+```ts
+dispose(): Promise<void>;
+```

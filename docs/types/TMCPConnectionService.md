@@ -7,7 +7,7 @@ group: docs
 
 ```ts
 type TMCPConnectionService = {
-    [key in Exclude<keyof IMCPConnectionService, InternalKeys>]: unknown;
+    [key in Exclude<keyof IMCPConnectionService, InternalKeys$2>]: unknown;
 };
 ```
 

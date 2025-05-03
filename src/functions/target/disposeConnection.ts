@@ -7,10 +7,9 @@ import { AgentName } from "../../interfaces/Agent.interface";
 import { StorageName } from "../../interfaces/Storage.interface";
 import { StateName } from "../../interfaces/State.interface";
 import beginContext from "../../utils/beginContext";
-import {
-  PersistMemoryAdapter,
-} from "../../classes/Persist";
+import { PersistMemoryAdapter } from "../../classes/Persist";
 import { markOffline } from "../other/markOffline";
+import { ComputeName } from "../../interfaces/Compute.interface";
 
 const METHOD_NAME = "function.target.disposeConnection";
 
@@ -120,6 +119,30 @@ export const disposeConnection = beginContext(
       );
     }
 
+    // Dispose of compute resources associated with agents
+    {
+      const computeDisposeSet = new Set<StateName>();
+      await Promise.all(
+        swarm.sessionValidationService
+          .getSessionComputeList(clientId)
+          .filter((computeName: ComputeName) => {
+            const { shared } = swarm.computeSchemaService.get(computeName);
+            return !shared;
+          })
+          .map(async (computeName) => {
+            if (computeDisposeSet.has(computeName)) {
+              return;
+            }
+            computeDisposeSet.add(computeName);
+            await swarm.computePublicService.dispose(
+              methodName,
+              clientId,
+              computeName
+            );
+          })
+      );
+    }
+
     // Dispose of mcp resources associated with agents
     {
       const mcpDisposeSet = new Set<StateName>();
@@ -135,11 +158,7 @@ export const disposeConnection = beginContext(
               return;
             }
             mcpDisposeSet.add(mcpName);
-            await swarm.mcpPublicService.dispose(
-              methodName,
-              clientId,
-              mcpName
-            );
+            await swarm.mcpPublicService.dispose(methodName, clientId, mcpName);
           })
       );
     }

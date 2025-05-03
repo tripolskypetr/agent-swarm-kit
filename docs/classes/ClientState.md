@@ -5,7 +5,7 @@ group: docs
 
 # ClientState
 
-Implements `IState<State>`
+Implements `IState<State>`, `IStateChangeContract`
 
 Class representing the client state in the swarm system, implementing the IState interface.
 Manages a single state object with queued read/write operations, middleware support, and event-driven updates via BusService.
@@ -24,6 +24,12 @@ constructor(params: IStateParams<State>);
 
 ```ts
 params: IStateParams<State>
+```
+
+### stateChanged
+
+```ts
+stateChanged: Subject<string>
 ```
 
 ### _state

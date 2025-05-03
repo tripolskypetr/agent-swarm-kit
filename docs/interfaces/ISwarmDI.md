@@ -173,6 +173,24 @@ mcpConnectionService: MCPConnectionService
 Service for managing mcp connections within the swarm.
 Handles `IMCP` connectivity and enforcement via `MCPConnectionService`.
 
+### computeConnectionService
+
+```ts
+computeConnectionService: ComputeConnectionService<any>
+```
+
+Service for managing compute connections within the swarm.
+Handles `ICompute` connectivity via `ComputeConnectionService`.
+
+### sharedComputeConnectionService
+
+```ts
+sharedComputeConnectionService: SharedComputeConnectionService<any>
+```
+
+Service for managing shared compute connections within the swarm.
+Handles `ICompute` connectivity via `SharedComputePublicService`.
+
 ### agentSchemaService
 
 ```ts
@@ -263,6 +281,15 @@ mcpSchemaService: MCPSchemaService
 Service for defining and managing policy schemas.
 Implements `IMCPSchema` for rule enforcement via `MCPSchemaService`.
 
+### computeSchemaService
+
+```ts
+computeSchemaService: ComputeSchemaService
+```
+
+Service for defining and managing compute schemas.
+Implements `IComputeSchema` for rule enforcement via `ComputeSchemaService`.
+
 ### wikiSchemaService
 
 ```ts
@@ -335,6 +362,15 @@ statePublicService: StatePublicService<any>
 Service exposing public APIs for state operations.
 Implements `IState` methods like `getState` and `setState` via `StatePublicService`.
 
+### computePublicService
+
+```ts
+computePublicService: ComputePublicService<any>
+```
+
+Service exposing public APIs for compute operations.
+Implements `IComput` methods
+
 ### sharedStatePublicService
 
 ```ts
@@ -343,6 +379,15 @@ sharedStatePublicService: SharedStatePublicService<any>
 
 Service exposing public APIs for shared state operations.
 Provides shared `IState` access via `SharedStatePublicService`.
+
+### sharedComputePublicService
+
+```ts
+sharedComputePublicService: SharedComputePublicService<any>
+```
+
+Service exposing public APIs for shared compute operations.
+Provides shared `ICompute` access via `SharedComputePublicService`.
 
 ### policyPublicService
 
@@ -460,6 +505,24 @@ mcpValidationService: MCPValidationService
 
 Service validating mcp-related data and enforcement rules.
 Ensures mcp integrity via `MCPValidationService`.
+
+### computeValidationService
+
+```ts
+computeValidationService: ComputeValidationService
+```
+
+Service validating compute data
+Ensures compute integrity via `ComputeValidationService`.
+
+### stateValidationService
+
+```ts
+stateValidationService: StateValidationService
+```
+
+Service validating state-related data.
+Ensures mcp integrity via `StateValidationService`.
 
 ### navigationValidationService
 

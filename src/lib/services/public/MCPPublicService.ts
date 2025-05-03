@@ -64,6 +64,7 @@ export class MCPPublicService implements TMCPConnectionService {
         storageName: "",
         stateName: "",
         policyName: "",
+        computeName: "",
       }
     );
   }
@@ -100,6 +101,7 @@ export class MCPPublicService implements TMCPConnectionService {
         storageName: "",
         stateName: "",
         policyName: "",
+        computeName: "",
       }
     );
   }
@@ -138,6 +140,7 @@ export class MCPPublicService implements TMCPConnectionService {
         storageName: "",
         stateName: "",
         policyName: "",
+        computeName: "",
       }
     );
   }
@@ -169,6 +172,7 @@ export class MCPPublicService implements TMCPConnectionService {
         storageName: "",
         stateName: "",
         policyName: "",
+        computeName: "",
       }
     );
   };

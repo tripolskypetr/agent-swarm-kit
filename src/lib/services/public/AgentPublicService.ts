@@ -90,6 +90,7 @@ export class AgentPublicService implements TAgentConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -133,6 +134,7 @@ export class AgentPublicService implements TAgentConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -173,6 +175,7 @@ export class AgentPublicService implements TAgentConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -210,6 +213,7 @@ export class AgentPublicService implements TAgentConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -256,6 +260,7 @@ export class AgentPublicService implements TAgentConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -296,6 +301,7 @@ export class AgentPublicService implements TAgentConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -338,6 +344,7 @@ export class AgentPublicService implements TAgentConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -383,6 +390,7 @@ export class AgentPublicService implements TAgentConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -420,6 +428,7 @@ export class AgentPublicService implements TAgentConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -457,6 +466,7 @@ export class AgentPublicService implements TAgentConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -494,6 +504,7 @@ export class AgentPublicService implements TAgentConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -531,6 +542,7 @@ export class AgentPublicService implements TAgentConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };

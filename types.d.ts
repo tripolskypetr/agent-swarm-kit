@@ -1,5 +1,5 @@
 import * as functools_kit from 'functools-kit';
-import { SortedArray, Subject } from 'functools-kit';
+import { SortedArray, TSubject, Subject } from 'functools-kit';
 import * as di_scoped from 'di-scoped';
 
 /**
@@ -722,6 +722,43 @@ interface IPolicyParams extends IPolicySchema, IPolicyCallbacks {
  */
 type PolicyName = string;
 
+interface IStateChangeContract {
+    stateChanged: TSubject<StateName>;
+}
+
+type IComputeData = any;
+interface IComputeMiddleware<T extends IComputeData = IComputeData> {
+    (state: T, clientId: string, computeName: ComputeName): Promise<T>;
+}
+interface IComputeCallbacks<T extends IComputeData = IComputeData> {
+    onInit: (clientId: string, computeName: ComputeName) => void;
+    onDispose: (clientId: string, computeName: ComputeName) => void;
+    onCompute: (data: T, clientId: string, computeName: ComputeName) => void;
+    onCalculate: (stateName: StateName, clientId: string, computeName: ComputeName) => void;
+    onUpdate: (clientId: string, computeName: ComputeName) => void;
+}
+interface IComputeSchema<T extends IComputeData = IComputeData> {
+    docDescription?: string;
+    shared?: boolean;
+    computeName: ComputeName;
+    getComputeData: (clientId: string, computeName: ComputeName) => T | Promise<T>;
+    dependsOn?: StateName[];
+    middlewares?: IComputeMiddleware<T>[];
+    callbacks?: Partial<IComputeCallbacks<T>>;
+}
+interface IComputeParams<T extends IComputeData = IComputeData> extends IComputeSchema<T> {
+    clientId: string;
+    logger: ILogger;
+    bus: IBus;
+    binding: IStateChangeContract[];
+}
+interface ICompute<T extends IComputeData = IComputeData> {
+    calculate: (stateName: StateName) => void;
+    update: (clientId: string, computeName: ComputeName) => void;
+    getComputeData: () => T | Promise<T>;
+}
+type ComputeName = string;
+
 /**
  * Interface representing the contextual metadata for an event in the swarm system.
  * Provides optional identifiers for components involved in an event (e.g., agent, swarm, storage), used partially in IBusEvent.context to supply additional context.
@@ -757,6 +794,13 @@ interface IBusEventContext {
      */
     stateName: StateName;
     /**
+     * The unique name of the compute associated with the event.
+     * Links to a specific compute instance (e.g., ICompute), potentially for compute events, not populated in ClientAgent’s context.
+     * Example: "ComputeX" for a compute update event.
+     * @type {ComputeName}
+     */
+    computeName: ComputeName;
+    /**
      * The unique name of the policy associated with the event.
      * Identifies the policy context (e.g., IPolicy), potentially for policy enforcement events (e.g., bans), unused in ClientAgent’s emissions.
      * Example: "PolicyY" for a client ban event.
@@ -776,7 +820,7 @@ type EventSource = string;
  * Enumerates predefined origins for IBusEvent.source, observed as "agent-bus" in ClientAgent (e.g., bus.emit calls), with other values likely used in corresponding components (e.g., "history-bus" in IHistory).
  * @typedef {"agent-bus" | "history-bus" | "session-bus" | "state-bus" | "storage-bus" | "swarm-bus" | "execution-bus" | "policy-bus"} EventBusSource
  */
-type EventBusSource = "agent-bus" | "history-bus" | "session-bus" | "state-bus" | "storage-bus" | "swarm-bus" | "execution-bus" | "policy-bus";
+type EventBusSource = "agent-bus" | "history-bus" | "session-bus" | "state-bus" | "storage-bus" | "swarm-bus" | "execution-bus" | "policy-bus" | "compute-bus";
 /**
  * Interface representing the base structure of an event in the swarm system.
  * Defines the minimal required fields for all events, extended by IBusEvent and ICustomEvent for specific use cases, and used generically in IBus.emit<T>.
@@ -3474,6 +3518,11 @@ interface IMethodContext {
      */
     stateName: StateName;
     /**
+     * The name of the compute resource involved, sourced from Compute.interface, used in PerfService (e.g., sessionState) and DocService (e.g., compute docs).
+     * @type {ComputeName}
+     */
+    computeName: ComputeName;
+    /**
      * The name of the policy involved, sourced from Policy.interface, used in PerfService (e.g., policyBans) and DocService (e.g., policy docs).
      * @type {PolicyName}
      */
@@ -5060,7 +5109,7 @@ interface IAgentConnectionService extends AgentConnectionService {
  * Used to filter out non-public methods like getAgent in TAgentConnectionService.
  * @typedef {keyof { getAgent: never }} InternalKeys
  */
-type InternalKeys$9 = keyof {
+type InternalKeys$b = keyof {
     getAgent: never;
 };
 /**
@@ -5069,7 +5118,7 @@ type InternalKeys$9 = keyof {
  * @typedef {Object} TAgentConnectionService
  */
 type TAgentConnectionService = {
-    [key in Exclude<keyof IAgentConnectionService, InternalKeys$9>]: unknown;
+    [key in Exclude<keyof IAgentConnectionService, InternalKeys$b>]: unknown;
 };
 /**
  * Service class for managing public agent operations in the swarm system.
@@ -5234,7 +5283,7 @@ interface IHistoryConnectionService extends HistoryConnectionService {
  * Used to filter out non-public methods like getHistory and getItems in THistoryConnectionService.
  * @typedef {keyof { getHistory: never; getItems: never }} InternalKeys
  */
-type InternalKeys$8 = keyof {
+type InternalKeys$a = keyof {
     getHistory: never;
     getItems: never;
 };
@@ -5244,7 +5293,7 @@ type InternalKeys$8 = keyof {
  * @typedef {Object} THistoryConnectionService
  */
 type THistoryConnectionService = {
-    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$8>]: unknown;
+    [key in Exclude<keyof IHistoryConnectionService, InternalKeys$a>]: unknown;
 };
 /**
  * Service class for managing public history operations in the swarm system.
@@ -5333,7 +5382,7 @@ interface ISessionConnectionService extends SessionConnectionService {
  * Used to filter out non-public methods like getSession in TSessionConnectionService.
  * @typedef {keyof { getSession: never }} InternalKeys
  */
-type InternalKeys$7 = keyof {
+type InternalKeys$9 = keyof {
     getSession: never;
 };
 /**
@@ -5342,7 +5391,7 @@ type InternalKeys$7 = keyof {
  * @typedef {Object} TSessionConnectionService
  */
 type TSessionConnectionService = {
-    [key in Exclude<keyof ISessionConnectionService, InternalKeys$7>]: unknown;
+    [key in Exclude<keyof ISessionConnectionService, InternalKeys$9>]: unknown;
 };
 /**
  * Service class for managing public session interactions in the swarm system.
@@ -5530,7 +5579,7 @@ interface ISwarmConnectionService extends SwarmConnectionService {
  * Used to filter out non-public methods like getSwarm in TSwarmConnectionService.
  * @typedef {keyof { getSwarm: never }} InternalKeys
  */
-type InternalKeys$6 = keyof {
+type InternalKeys$8 = keyof {
     getSwarm: never;
 };
 /**
@@ -5539,7 +5588,7 @@ type InternalKeys$6 = keyof {
  * @typedef {Object} TSwarmConnectionService
  */
 type TSwarmConnectionService = {
-    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$6>]: unknown;
+    [key in Exclude<keyof ISwarmConnectionService, InternalKeys$8>]: unknown;
 };
 /**
  * Service class for managing public swarm-level interactions in the swarm system.
@@ -5907,6 +5956,13 @@ declare class SessionValidationService {
      */
     private _stateSwarmMap;
     /**
+     * Map of session IDs to their associated compute names, tracking compute usage per session.
+     * Populated by addComputeUsage, modified by removeComputeUsage.
+     * @type {Map<SessionId, StateName[]>}
+     * @private
+     */
+    private _computeSwarmMap;
+    /**
      * Map of session IDs to their associated swarm names, defining session-swarm relationships.
      * Populated by addSession, removed by removeSession.
      * @type {Map<SessionId, SwarmName>}
@@ -5958,6 +6014,13 @@ declare class SessionValidationService {
      */
     addStateUsage: (sessionId: SessionId, stateName: StateName) => void;
     /**
+     * Tracks a compute’s usage within a session, adding it to the session’s compute list.
+     * Logs the operation, supporting ClientState’s session-specific compute tracking.
+     * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
+     * @param {ComputeName} computeName - The name of the compute to add, sourced from State.interface.
+     */
+    addComputeUsage: (sessionId: SessionId, computeName: ComputeName) => void;
+    /**
      * Removes an agent from a session’s agent usage list.
      * Logs the operation and cleans up if the list becomes empty, supporting ClientAgent’s session cleanup.
      * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
@@ -5990,6 +6053,14 @@ declare class SessionValidationService {
      */
     removeStateUsage: (sessionId: SessionId, stateName: StateName) => void;
     /**
+     * Removes a compute from a session’s compute usage list.
+     * Logs the operation and cleans up if the list becomes empty, supporting ClientCompute’s session cleanup.
+     * @param {SessionId} sessionId - The ID of the session, sourced from Session.interface.
+     * @param {ComputeName} computeName - The name of the compute to remove, sourced from Compute.interface.
+     * @throws {Error} If no computes are found for the session in _computeSwarmMap.
+     */
+    removeComputeUsage: (sessionId: SessionId, computeName: ComputeName) => void;
+    /**
      * Retrieves the mode of a session.
      * Logs the operation and validates session existence, supporting ClientSession’s mode-based behavior.
      * @param {SessionId} clientId - The ID of the session (client ID), sourced from Session.interface.
@@ -6010,6 +6081,13 @@ declare class SessionValidationService {
      * @returns {SessionId[]} An array of all session IDs from _sessionSwarmMap.
      */
     getSessionList: () => SessionId[];
+    /**
+     * Retrieves the list of computes associated with a session.
+     * Logs the operation, supporting ClientAgent’s session-specific agent queries.
+     * @param {SessionId} clientId - The ID of the session (client ID), sourced from Compute.interface.
+     * @returns {ComputeName[]} An array of compute names from _computeSwarmMap, or empty array if none.
+     */
+    getSessionComputeList: (clientId: SessionId) => ComputeName[];
     /**
      * Retrieves the list of agents associated with a session.
      * Logs the operation, supporting ClientAgent’s session-specific agent queries.
@@ -6574,7 +6652,7 @@ interface IStorageConnectionService extends StorageConnectionService {
  * Used to filter out non-public methods like getStorage and getSharedStorage in TStorageConnectionService.
  * @typedef {keyof { getStorage: never; getSharedStorage: never }} InternalKeys
  */
-type InternalKeys$5 = keyof {
+type InternalKeys$7 = keyof {
     getStorage: never;
     getSharedStorage: never;
 };
@@ -6584,7 +6662,7 @@ type InternalKeys$5 = keyof {
  * @typedef {Object} TStorageConnectionService
  */
 type TStorageConnectionService = {
-    [key in Exclude<keyof IStorageConnectionService, InternalKeys$5>]: unknown;
+    [key in Exclude<keyof IStorageConnectionService, InternalKeys$7>]: unknown;
 };
 /**
  * Service class for managing public client-specific storage operations in the swarm system.
@@ -6799,8 +6877,9 @@ type Action = "read" | "write";
  * @template State - The type of the state data, extending IStateData from State.interface.
  * @implements {IState<State>}
  */
-declare class ClientState<State extends IStateData = IStateData> implements IState<State> {
+declare class ClientState<State extends IStateData = IStateData> implements IState<State>, IStateChangeContract {
     readonly params: IStateParams<State>;
+    readonly stateChanged: Subject<string>;
     /**
      * The current state data, initialized as null and set during waitForInit.
      * Updated by setState and clearState, persisted via params.setState if provided.
@@ -6970,7 +7049,7 @@ interface IStateConnectionService extends StateConnectionService {
  * Used to filter out non-public methods like getStateRef and getSharedStateRef in TStateConnectionService.
  * @typedef {keyof { getStateRef: never; getSharedStateRef: never }} InternalKeys
  */
-type InternalKeys$4 = keyof {
+type InternalKeys$6 = keyof {
     getStateRef: never;
     getSharedStateRef: never;
 };
@@ -6980,7 +7059,7 @@ type InternalKeys$4 = keyof {
  * @typedef {Object} TStateConnectionService
  */
 type TStateConnectionService = {
-    [key in Exclude<keyof IStateConnectionService, InternalKeys$4>]: unknown;
+    [key in Exclude<keyof IStateConnectionService, InternalKeys$6>]: unknown;
 };
 /**
  * Service class for managing public client-specific state operations in the swarm system, with generic type support for state data.
@@ -7430,6 +7509,20 @@ declare class DocService {
      */
     private readonly stateSchemaService;
     /**
+     * Compute schema service instance, injected via DI.
+     * Provides compute details for writeAgentDoc, documenting compute resources used by agents.
+     * @type {ComputeSchemaService}
+     * @private
+     */
+    private readonly computeSchemaService;
+    /**
+     * Compute validation service instance, injected via DI.
+     * Provides compute list for writeAgentDoc, documenting compute resources used by states in agents.
+     * @type {ComputeValidationService}
+     * @private
+     */
+    private readonly computeValidationService;
+    /**
      * Agent meta service instance, injected via DI.
      * Generates UML diagrams for agents in writeAgentDoc, enhancing documentation with visual schema representations.
      * @type {AgentMetaService}
@@ -7680,7 +7773,7 @@ interface ISharedStateConnectionService extends SharedStateConnectionService {
  * Used to filter out non-public methods like getStateRef and getSharedStateRef in TSharedStateConnectionService.
  * @typedef {keyof { getStateRef: never; getSharedStateRef: never }} InternalKeys
  */
-type InternalKeys$3 = keyof {
+type InternalKeys$5 = keyof {
     getStateRef: never;
     getSharedStateRef: never;
 };
@@ -7690,7 +7783,7 @@ type InternalKeys$3 = keyof {
  * @typedef {Object} TSharedStateConnectionService
  */
 type TSharedStateConnectionService = {
-    [key in Exclude<keyof ISharedStateConnectionService, InternalKeys$3>]: unknown;
+    [key in Exclude<keyof ISharedStateConnectionService, InternalKeys$5>]: unknown;
 };
 /**
  * Service class for managing public shared state operations in the swarm system, with generic type support for state data.
@@ -7756,7 +7849,7 @@ interface ISharedStorageConnectionService extends SharedStorageConnectionService
  * Used to filter out non-public methods like getStorage and getSharedStorage in TSharedStorageConnectionService.
  * @typedef {keyof { getStorage: never; getSharedStorage: never }} InternalKeys
  */
-type InternalKeys$2 = keyof {
+type InternalKeys$4 = keyof {
     getStorage: never;
     getSharedStorage: never;
 };
@@ -7766,7 +7859,7 @@ type InternalKeys$2 = keyof {
  * @typedef {Object} TSharedStorageConnectionService
  */
 type TSharedStorageConnectionService = {
-    [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys$2>]: unknown;
+    [key in Exclude<keyof ISharedStorageConnectionService, InternalKeys$4>]: unknown;
 };
 /**
  * Service class for managing public shared storage operations in the swarm system.
@@ -8599,7 +8692,7 @@ interface IPolicyConnectionService extends PolicyConnectionService {
  * Used to filter out non-public methods like getPolicy in TPolicyConnectionService.
  * @typedef {keyof { getPolicy: never }} InternalKeys
  */
-type InternalKeys$1 = keyof {
+type InternalKeys$3 = keyof {
     getPolicy: never;
 };
 /**
@@ -8608,7 +8701,7 @@ type InternalKeys$1 = keyof {
  * @typedef {Object} TPolicyConnectionService
  */
 type TPolicyConnectionService = {
-    [key in Exclude<keyof IPolicyConnectionService, InternalKeys$1>]: unknown;
+    [key in Exclude<keyof IPolicyConnectionService, InternalKeys$3>]: unknown;
 };
 /**
  * Service class for managing public policy operations in the swarm system.
@@ -8986,11 +9079,11 @@ declare class MCPSchemaService {
 
 interface IMCPConnectionService extends MCPConnectionService {
 }
-type InternalKeys = keyof {
+type InternalKeys$2 = keyof {
     getMCP: never;
 };
 type TMCPConnectionService = {
-    [key in Exclude<keyof IMCPConnectionService, InternalKeys>]: unknown;
+    [key in Exclude<keyof IMCPConnectionService, InternalKeys$2>]: unknown;
 };
 /**
  * Public service class for interacting with MCP (Model Context Protocol) operations.
@@ -9062,6 +9155,108 @@ declare class MCPValidationService {
      * @throws Error if the MCP does not exist in the map.
      */
     validate: (mcpName: MCPName, source: string) => void;
+}
+
+declare class ComputeValidationService {
+    private readonly loggerService;
+    private readonly stateValidationService;
+    private readonly stateSchemaService;
+    private _computeMap;
+    addCompute: (computeName: ComputeName, computeSchema: IComputeSchema) => void;
+    getComputeList: () => string[];
+    validate: (computeName: ComputeName, source: string) => void;
+}
+
+declare class StateValidationService {
+    private readonly loggerService;
+    private _stateMap;
+    addState: (stateName: StateName, stateSchema: IStateSchema) => void;
+    validate: (stateName: StateName, source: string) => void;
+}
+
+declare class ComputeSchemaService {
+    readonly loggerService: LoggerService;
+    private registry;
+    private validateShallow;
+    register: (key: ComputeName, value: IComputeSchema) => void;
+    override: (key: ComputeName, value: Partial<IComputeSchema>) => IComputeSchema<any>;
+    get: (key: ComputeName) => IComputeSchema;
+}
+
+declare const DISPOSE_SLOT_FN_SYMBOL: unique symbol;
+declare const GET_COMPUTE_DATA_FN_SYMBOL: unique symbol;
+declare class ClientCompute<Compute extends IComputeData = IComputeData> implements ICompute<Compute> {
+    readonly params: IComputeParams<Compute>;
+    private [DISPOSE_SLOT_FN_SYMBOL];
+    private [GET_COMPUTE_DATA_FN_SYMBOL];
+    constructor(params: IComputeParams<Compute>);
+    getComputeData(): Promise<any>;
+    calculate(stateName: StateName): void;
+    update(): void;
+    dispose(): Promise<void>;
+}
+
+declare class ComputeConnectionService<T extends IComputeData = IComputeData> implements ICompute<T> {
+    private readonly loggerService;
+    private readonly busService;
+    private readonly methodContextService;
+    private readonly computeSchemaService;
+    private readonly sessionValidationService;
+    private readonly stateConnectionService;
+    private readonly sharedComputeConnectionService;
+    private _sharedComputeSet;
+    getComputeRef: ((clientId: string, computeName: ComputeName) => ClientCompute<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientCompute<any>>;
+    getComputeData: () => Promise<any>;
+    calculate: (stateName: StateName) => Promise<void>;
+    update: () => Promise<void>;
+    dispose: () => Promise<void>;
+}
+
+interface IComputeConnectionService extends ComputeConnectionService {
+}
+type InternalKeys$1 = keyof {
+    getComputeRef: never;
+    getSharedComputeRef: never;
+};
+type TComputeConnectionService = {
+    [key in Exclude<keyof IComputeConnectionService, InternalKeys$1>]: unknown;
+};
+declare class ComputePublicService<T extends IComputeData = IComputeData> implements TComputeConnectionService {
+    private readonly loggerService;
+    private readonly computeConnectionService;
+    getComputeData: (methodName: string, clientId: string, computeName: ComputeName) => Promise<T>;
+    calculate: (stateName: StateName, methodName: string, clientId: string, computeName: ComputeName) => Promise<void>;
+    update: (methodName: string, clientId: string, computeName: ComputeName) => Promise<void>;
+    dispose: (methodName: string, clientId: string, computeName: ComputeName) => Promise<void>;
+}
+
+declare class SharedComputeConnectionService<T extends IComputeData = IComputeData> implements ICompute<T> {
+    private readonly loggerService;
+    private readonly busService;
+    private readonly methodContextService;
+    private readonly sharedStateConnectionService;
+    private readonly computeSchemaService;
+    getComputeRef: ((computeName: ComputeName) => ClientCompute<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientCompute<any>>;
+    getComputeData: () => Promise<any>;
+    calculate: (stateName: StateName) => Promise<void>;
+    update: () => Promise<void>;
+}
+
+interface ISharedComputeConnectionService extends SharedComputeConnectionService {
+}
+type InternalKeys = keyof {
+    getComputeRef: never;
+    getSharedComputeRef: never;
+};
+type TSharedComputeConnectionService = {
+    [key in Exclude<keyof ISharedComputeConnectionService, InternalKeys>]: unknown;
+};
+declare class SharedComputePublicService<T extends IComputeData = IComputeData> implements TSharedComputeConnectionService {
+    private readonly loggerService;
+    private readonly sharedComputeConnectionService;
+    getComputeData: (methodName: string, computeName: ComputeName) => Promise<T>;
+    calculate: (stateName: StateName, methodName: string, computeName: ComputeName) => Promise<void>;
+    update: (methodName: string, computeName: ComputeName) => Promise<void>;
 }
 
 /**
@@ -9161,6 +9356,16 @@ interface ISwarmDI {
      */
     mcpConnectionService: MCPConnectionService;
     /**
+     * Service for managing compute connections within the swarm.
+     * Handles `ICompute` connectivity via `ComputeConnectionService`.
+     */
+    computeConnectionService: ComputeConnectionService;
+    /**
+     * Service for managing shared compute connections within the swarm.
+     * Handles `ICompute` connectivity via `SharedComputePublicService`.
+     */
+    sharedComputeConnectionService: SharedComputeConnectionService;
+    /**
      * Service for defining and managing agent schemas.
      * Implements `IAgentSchema` to configure agent behavior via `AgentSchemaService`.
      */
@@ -9211,6 +9416,11 @@ interface ISwarmDI {
      */
     mcpSchemaService: MCPSchemaService;
     /**
+     * Service for defining and managing compute schemas.
+     * Implements `IComputeSchema` for rule enforcement via `ComputeSchemaService`.
+     */
+    computeSchemaService: ComputeSchemaService;
+    /**
      * Service for defining and managing agent wikies.
      * Implements `IWikiSchema` for rule enforcement via `WikiSchemaService`.
      */
@@ -9251,10 +9461,20 @@ interface ISwarmDI {
      */
     statePublicService: StatePublicService;
     /**
+     * Service exposing public APIs for compute operations.
+     * Implements `IComput` methods
+     */
+    computePublicService: ComputePublicService;
+    /**
      * Service exposing public APIs for shared state operations.
      * Provides shared `IState` access via `SharedStatePublicService`.
      */
     sharedStatePublicService: SharedStatePublicService;
+    /**
+     * Service exposing public APIs for shared compute operations.
+     * Provides shared `ICompute` access via `SharedComputePublicService`.
+     */
+    sharedComputePublicService: SharedComputePublicService;
     /**
      * Service exposing public APIs for policy operations.
      * Implements `IPolicy` methods like `banClient` via `PolicyPublicService`.
@@ -9320,6 +9540,16 @@ interface ISwarmDI {
      * Ensures mcp integrity via `MCPValidationService`.
      */
     mcpValidationService: MCPValidationService;
+    /**
+     * Service validating compute data
+     * Ensures compute integrity via `ComputeValidationService`.
+     */
+    computeValidationService: ComputeValidationService;
+    /**
+     * Service validating state-related data.
+     * Ensures mcp integrity via `StateValidationService`.
+     */
+    stateValidationService: StateValidationService;
     /**
      * Service preventing the recursive call of changeToAgent
      */
@@ -9757,6 +9987,8 @@ declare const addStorage: <T extends IStorageData = IStorageData>(storageSchema:
  */
 declare const addPolicy: (policySchema: IPolicySchema) => string;
 
+declare const addCompute: (computeSchema: IComputeSchema<any>) => string;
+
 type TAgentSchema = {
     agentName: IAgentSchema["agentName"];
 } & Partial<IAgentSchema>;
@@ -10008,6 +10240,11 @@ type TWikiSchema = {
  * // Logs the operation (if enabled) and updates the wiki schema in the swarm.
  */
 declare const overrideWiki: (wikiSchema: TWikiSchema) => IWikiSchema;
+
+type TComputeSchema = {
+    computeName: IComputeSchema["computeName"];
+} & Partial<IComputeSchema>;
+declare const overrideCompute: (computeSchema: TComputeSchema) => IComputeSchema<any>;
 
 /**
  * Marks a client as online in the specified swarm.
@@ -12263,6 +12500,18 @@ declare class StateUtils implements TState {
  */
 declare const State: StateUtils;
 
+declare class ComputeUtils {
+    update: (clientId: string, computeName: string) => Promise<void>;
+    getComputeData: (clientId: string, computeName: string) => Promise<any>;
+}
+declare const Compute: ComputeUtils;
+
+declare class SharedComputeUtils {
+    update: (computeName: string) => Promise<void>;
+    getComputeData: (computeName: string) => Promise<any>;
+}
+declare const SharedCompute: SharedComputeUtils;
+
 /**
  * Type definition for a shared state object, mapping IState keys to unknown values.
  * @typedef {{ [key in keyof IState]: unknown }} TSharedState
@@ -12865,4 +13114,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addEmbedding, addMCP, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideEmbeding, overrideMCP, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, Chat, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };

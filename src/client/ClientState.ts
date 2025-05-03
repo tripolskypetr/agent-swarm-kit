@@ -1,11 +1,13 @@
-import { queued, singleshot } from "functools-kit";
+import { queued, singleshot, Subject } from "functools-kit";
 import {
   IState,
   IStateData,
   IStateParams,
+  StateName,
 } from "../interfaces/State.interface";
 import { IBusEvent } from "../model/Event.model";
 import { GLOBAL_CONFIG } from "../config/params";
+import { IStateChangeContract } from "../contract/StateChange.contract";
 
 /**
  * Type representing a dispatch function for updating the state in ClientState.
@@ -96,8 +98,10 @@ const WAIT_FOR_INIT_FN = async (self: ClientState): Promise<void> => {
  * @implements {IState<State>}
  */
 export class ClientState<State extends IStateData = IStateData>
-  implements IState<State>
+  implements IState<State>, IStateChangeContract
 {
+  public readonly stateChanged = new Subject<StateName>();
+
   /**
    * The current state data, initialized as null and set during waitForInit.
    * Updated by setState and clearState, persisted via params.setState if provided.
@@ -140,7 +144,9 @@ export class ClientState<State extends IStateData = IStateData>
    * Loads the initial state into _state, supporting StateConnectionService’s lifecycle management.
    * @returns {Promise<void>} Resolves when the state is initialized and loaded.
    */
-  waitForInit = singleshot(async (): Promise<void> => await WAIT_FOR_INIT_FN(this));
+  waitForInit = singleshot(
+    async (): Promise<void> => await WAIT_FOR_INIT_FN(this)
+  );
 
   /**
    * Sets the state using the provided dispatch function, applying middlewares and persisting via params.setState.
@@ -194,6 +200,7 @@ export class ClientState<State extends IStateData = IStateData>
       },
       clientId: this.params.clientId,
     });
+    await this.stateChanged.next(this.params.stateName);
     return this._state;
   }
 
@@ -300,6 +307,7 @@ export class ClientState<State extends IStateData = IStateData>
         this.params.stateName
       );
     }
+    this.stateChanged.unsubscribeAll();
   }
 }
 

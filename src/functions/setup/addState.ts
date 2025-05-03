@@ -30,6 +30,12 @@ export const addState = beginContext((stateSchema: IStateSchema) => {
       stateSchema,
     });
 
+  // Register the policy with StateValidationService for runtime validation
+  swarm.stateValidationService.addState(
+    stateSchema.stateName,
+    stateSchema
+  );
+
   // Register the state in the schema service
   swarm.stateSchemaService.register(stateSchema.stateName, stateSchema);
 

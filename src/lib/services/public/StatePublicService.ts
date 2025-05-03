@@ -96,6 +96,7 @@ export class StatePublicService<T extends IStateData = IStateData>
         swarmName: "",
         storageName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -133,6 +134,7 @@ export class StatePublicService<T extends IStateData = IStateData>
         swarmName: "",
         storageName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -169,6 +171,7 @@ export class StatePublicService<T extends IStateData = IStateData>
         swarmName: "",
         storageName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -206,6 +209,7 @@ export class StatePublicService<T extends IStateData = IStateData>
         swarmName: "",
         storageName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };

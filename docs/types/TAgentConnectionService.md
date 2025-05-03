@@ -7,7 +7,7 @@ group: docs
 
 ```ts
 type TAgentConnectionService = {
-    [key in Exclude<keyof IAgentConnectionService, InternalKeys$9>]: unknown;
+    [key in Exclude<keyof IAgentConnectionService, InternalKeys$b>]: unknown;
 };
 ```
 

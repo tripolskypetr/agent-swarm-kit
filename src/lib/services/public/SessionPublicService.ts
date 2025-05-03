@@ -127,6 +127,7 @@ export class SessionPublicService implements TSessionConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -167,6 +168,7 @@ export class SessionPublicService implements TSessionConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -209,6 +211,7 @@ export class SessionPublicService implements TSessionConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -248,6 +251,7 @@ export class SessionPublicService implements TSessionConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -364,6 +368,7 @@ export class SessionPublicService implements TSessionConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -404,6 +409,7 @@ export class SessionPublicService implements TSessionConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -446,6 +452,7 @@ export class SessionPublicService implements TSessionConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -491,6 +498,7 @@ export class SessionPublicService implements TSessionConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -527,6 +535,7 @@ export class SessionPublicService implements TSessionConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -563,6 +572,7 @@ export class SessionPublicService implements TSessionConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
@@ -600,6 +610,7 @@ export class SessionPublicService implements TSessionConnectionService {
         storageName: "",
         stateName: "",
         mcpName: "",
+        computeName: "",
       }
     );
   };
