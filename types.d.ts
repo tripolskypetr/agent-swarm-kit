@@ -722,41 +722,196 @@ interface IPolicyParams extends IPolicySchema, IPolicyCallbacks {
  */
 type PolicyName = string;
 
+/**
+ * @module StateChangeContract
+ * @description Defines an interface for state change event handling using a subject pattern.
+ */
+
+/**
+ * @interface IStateChangeContract
+ * @description Contract for handling state change events, providing a subject to subscribe to state updates.
+ */
 interface IStateChangeContract {
+    /**
+     * @property {TSubject<StateName>} stateChanged
+     * @description A subject that emits state names when changes occur, allowing subscribers to react to state updates.
+     */
     stateChanged: TSubject<StateName>;
 }
 
+/**
+ * @module ComputeInterface
+ * @description Defines interfaces and types for compute-related operations, including schemas, middleware, callbacks, and contracts.
+ */
+
+/**
+ * @typedef {any} IComputeData
+ * @description Generic type for compute data, allowing flexibility in data structure.
+ */
 type IComputeData = any;
+/**
+ * @interface IComputeMiddleware
+ * @template T - Type extending IComputeData.
+ * @description Defines a middleware function for processing compute data.
+ */
 interface IComputeMiddleware<T extends IComputeData = IComputeData> {
+    /**
+     * @param {T} state - The current compute data.
+     * @param {string} clientId - The client identifier.
+     * @param {ComputeName} computeName - The name of the compute.
+     * @returns {Promise<T>} The processed compute data.
+     */
     (state: T, clientId: string, computeName: ComputeName): Promise<T>;
 }
+/**
+ * @interface IComputeCallbacks
+ * @template T - Type extending IComputeData.
+ * @description Defines callback functions for compute lifecycle events.
+ */
 interface IComputeCallbacks<T extends IComputeData = IComputeData> {
+    /**
+     * @method onInit
+     * @description Called when the compute is initialized.
+     * @param {string} clientId - The client identifier.
+     * @param {ComputeName} computeName - The name of the compute.
+     */
     onInit: (clientId: string, computeName: ComputeName) => void;
+    /**
+     * @method onDispose
+     * @description Called when the compute is disposed.
+     * @param {string} clientId - The client identifier.
+     * @param {ComputeName} computeName - The name of the compute.
+     */
     onDispose: (clientId: string, computeName: ComputeName) => void;
+    /**
+     * @method onCompute
+     * @description Called when compute data is processed.
+     * @param {T} data - The computed data.
+     * @param {string} clientId - The client identifier.
+     * @param {ComputeName} computeName - The name of the compute.
+     */
     onCompute: (data: T, clientId: string, computeName: ComputeName) => void;
+    /**
+     * @method onCalculate
+     * @description Called when a recalculation is triggered by a state change.
+     * @param {StateName} stateName - The name of the state that changed.
+     * @param {string} clientId - The client identifier.
+     * @param {ComputeName} computeName - The name of the compute.
+     */
     onCalculate: (stateName: StateName, clientId: string, computeName: ComputeName) => void;
+    /**
+     * @method onUpdate
+     * @description Called when the compute is updated.
+     * @param {string} clientId - The client identifier.
+     * @param {ComputeName} computeName - The name of the compute.
+     */
     onUpdate: (clientId: string, computeName: ComputeName) => void;
 }
+/**
+ * @interface IComputeSchema
+ * @template T - Type extending IComputeData.
+ * @description Defines the schema for a compute, including its configuration and dependencies.
+ */
 interface IComputeSchema<T extends IComputeData = IComputeData> {
+    /**
+     * @property {string} [docDescription]
+     * @description Optional description for documentation purposes.
+     */
     docDescription?: string;
+    /**
+     * @property {boolean} [shared]
+     * @description Indicates if the compute is shared across clients.
+     */
     shared?: boolean;
+    /**
+     * @property {ComputeName} computeName
+     * @description The name of the compute.
+     */
     computeName: ComputeName;
+    /**
+     * @property {Function} getComputeData
+     * @description Function to retrieve or compute the data.
+     * @param {string} clientId - The client identifier.
+     * @param {ComputeName} computeName - The name of the compute.
+     * @returns {T | Promise<T>} The computed data or a promise resolving to it.
+     */
     getComputeData: (clientId: string, computeName: ComputeName) => T | Promise<T>;
+    /**
+     * @property {StateName[]} [dependsOn]
+     * @description Array of state names the compute depends on.
+     */
     dependsOn?: StateName[];
+    /**
+     * @property {IComputeMiddleware<T>[]} [middlewares]
+     * @description Array of middleware functions to process compute data.
+     */
     middlewares?: IComputeMiddleware<T>[];
+    /**
+     * @property {Partial<IComputeCallbacks<T>>} [callbacks]
+     * @description Optional callbacks for compute lifecycle events.
+     */
     callbacks?: Partial<IComputeCallbacks<T>>;
 }
+/**
+ * @interface IComputeParams
+ * @template T - Type extending IComputeData.
+ * @extends IComputeSchema<T>
+ * @description Extends compute schema with additional parameters for compute initialization.
+ */
 interface IComputeParams<T extends IComputeData = IComputeData> extends IComputeSchema<T> {
+    /**
+     * @property {string} clientId
+     * @description The client identifier.
+     */
     clientId: string;
+    /**
+     * @property {ILogger} logger
+     * @description Logger instance for logging compute operations.
+     */
     logger: ILogger;
+    /**
+     * @property {IBus} bus
+     * @description Bus instance for event communication.
+     */
     bus: IBus;
+    /**
+     * @property {IStateChangeContract[]} binding
+     * @description Array of state change contracts for state dependencies.
+     */
     binding: IStateChangeContract[];
 }
+/**
+ * @interface ICompute
+ * @template T - Type extending IComputeData.
+ * @description Defines the contract for compute operations.
+ */
 interface ICompute<T extends IComputeData = IComputeData> {
-    calculate: (stateName: StateName) => void;
-    update: (clientId: string, computeName: ComputeName) => void;
+    /**
+     * @method calculate
+     * @description Triggers a recalculation based on a state change.
+     * @param {StateName} stateName - The name of the state that changed.
+     * @returns {Promise<void>} Resolves when the calculation is complete.
+     */
+    calculate: (stateName: StateName) => Promise<void>;
+    /**
+     * @method update
+     * @description Forces an update of the compute instance.
+     * @param {string} clientId - The client identifier.
+     * @param {ComputeName} computeName - The name of the compute.
+     * @returns {Promise<void>} Resolves when the update is complete.
+     */
+    update: (clientId: string, computeName: ComputeName) => Promise<void>;
+    /**
+     * @method getComputeData
+     * @description Retrieves the computed data.
+     * @returns {T | Promise<T>} The computed data or a promise resolving to it.
+     */
     getComputeData: () => T | Promise<T>;
 }
+/**
+ * @typedef {string} ComputeName
+ * @description Type alias for the compute name, represented as a string.
+ */
 type ComputeName = string;
 
 /**
@@ -9157,105 +9312,551 @@ declare class MCPValidationService {
     validate: (mcpName: MCPName, source: string) => void;
 }
 
+/**
+ * @module ComputeValidationService
+ * @description Service for managing and validating compute schemas, including dependency checks and shared state validation.
+ */
+
+/**
+ * @class ComputeValidationService
+ * @description Manages compute schema validation, registration, and dependency validation with memoized checks.
+ */
 declare class ComputeValidationService {
+    /**
+     * @property {LoggerService} loggerService
+     * @description Injected logger service for logging operations.
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * @property {StateValidationService} stateValidationService
+     * @description Injected service for validating state schemas.
+     * @private
+     */
     private readonly stateValidationService;
+    /**
+     * @property {StateSchemaService} stateSchemaService
+     * @description Injected service for accessing state schemas.
+     * @private
+     */
     private readonly stateSchemaService;
+    /**
+     * @property {Map<ComputeName, IComputeSchema>} _computeMap
+     * @description Map storing compute schemas by compute name.
+     * @private
+     */
     private _computeMap;
+    /**
+     * @method addCompute
+     * @description Adds a compute schema to the map, ensuring no duplicates.
+     * @param {ComputeName} computeName - The name of the compute.
+     * @param {IComputeSchema} computeSchema - The compute schema to register.
+     * @throws {Error} If the compute name already exists.
+     */
     addCompute: (computeName: ComputeName, computeSchema: IComputeSchema) => void;
+    /**
+     * @method getComputeList
+     * @description Retrieves a list of all registered compute names.
+     * @returns {ComputeName[]} Array of compute names.
+     */
     getComputeList: () => string[];
+    /**
+     * @method validate
+     * @description Validates a compute schema and its dependencies, memoized by compute name.
+     * @param {ComputeName} computeName - The name of the compute to validate.
+     * @param {string} source - The source context for the validation.
+     * @throws {Error} If the compute is not found or if shared compute depends on non-shared states.
+     */
     validate: (computeName: ComputeName, source: string) => void;
 }
 
+/**
+ * @module StateValidationService
+ * @description Service for managing and validating state schemas, ensuring uniqueness and existence.
+ */
+
+/**
+ * @class StateValidationService
+ * @description Manages state schema validation and registration with memoized validation checks.
+ */
 declare class StateValidationService {
+    /**
+     * @property {LoggerService} loggerService
+     * @description Injected logger service for logging operations.
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * @property {Map<StateName, IStateSchema>} _stateMap
+     * @description Map storing state schemas by state name.
+     * @private
+     */
     private _stateMap;
+    /**
+     * @method addState
+     * @description Adds a state schema to the map, ensuring no duplicates.
+     * @param {StateName} stateName - The name of the state.
+     * @param {IStateSchema} stateSchema - The state schema to register.
+     * @throws {Error} If the state name already exists.
+     */
     addState: (stateName: StateName, stateSchema: IStateSchema) => void;
+    /**
+     * @method validate
+     * @description Validates the existence of a state, memoized by state name.
+     * @param {StateName} stateName - The name of the state to validate.
+     * @param {string} source - The source context for the validation.
+     * @throws {Error} If the state is not found.
+     */
     validate: (stateName: StateName, source: string) => void;
 }
 
+/**
+ * @module ComputeSchemaService
+ * @description Manages compute schema registration, validation, and retrieval using a tool registry.
+ */
+
+/**
+ * @class ComputeSchemaService
+ * @description Service for managing compute schemas, including registration, validation, and retrieval.
+ */
 declare class ComputeSchemaService {
+    /**
+     * @property {LoggerService} loggerService
+     * @description Injected logger service for logging operations.
+     * @readonly
+     */
     readonly loggerService: LoggerService;
+    /**
+     * @property {ToolRegistry<Record<ComputeName, IComputeSchema>>} registry
+     * @description Registry for storing compute schemas.
+     * @private
+     */
     private registry;
+    /**
+     * @method validateShallow
+     * @description Performs shallow validation of a compute schema.
+     * @param {IComputeSchema} computeSchema - The compute schema to validate.
+     * @throws {Error} If validation fails for computeName, getComputeData, middlewares, or dependsOn.
+     * @private
+     */
     private validateShallow;
+    /**
+     * @method register
+     * @description Registers a compute schema with validation.
+     * @param {ComputeName} key - The name of the compute schema.
+     * @param {IComputeSchema} value - The compute schema to register.
+     */
     register: (key: ComputeName, value: IComputeSchema) => void;
+    /**
+     * @method override
+     * @description Overrides an existing compute schema with new values.
+     * @param {ComputeName} key - The name of the compute schema to override.
+     * @param {Partial<IComputeSchema>} value - The partial compute schema to apply.
+     * @returns {IComputeSchema} The updated compute schema.
+     */
     override: (key: ComputeName, value: Partial<IComputeSchema>) => IComputeSchema<any>;
+    /**
+     * @method get
+     * @description Retrieves a compute schema by its name.
+     * @param {ComputeName} key - The name of the compute schema.
+     * @returns {IComputeSchema} The compute schema.
+     */
     get: (key: ComputeName) => IComputeSchema;
 }
 
+/**
+ * @module ClientCompute
+ * @description Provides a class for managing client-side computations with event handling and state management.
+ */
+
+/**
+ * @constant {symbol} DISPOSE_SLOT_FN_SYMBOL
+ * @description Symbol for the dispose function slot.
+ * @private
+ */
 declare const DISPOSE_SLOT_FN_SYMBOL: unique symbol;
+/**
+ * @constant {symbol} GET_COMPUTE_DATA_FN_SYMBOL
+ * @description Symbol for the compute data function slot.
+ * @private
+ */
 declare const GET_COMPUTE_DATA_FN_SYMBOL: unique symbol;
+/**
+ * @class ClientCompute
+ * @template Compute - Type extending IComputeData.
+ * @implements {ICompute<Compute>}
+ * @description Manages client-side computations, state subscriptions, and lifecycle events.
+ */
 declare class ClientCompute<Compute extends IComputeData = IComputeData> implements ICompute<Compute> {
     readonly params: IComputeParams<Compute>;
+    /**
+     * @property {Function} DISPOSE_SLOT_FN_SYMBOL
+     * @description Stores the composed dispose function.
+     * @private
+     */
     private [DISPOSE_SLOT_FN_SYMBOL];
+    /**
+     * @property {Function} GET_COMPUTE_DATA_FN_SYMBOL
+     * @description Memoized function for retrieving compute data.
+     * @private
+     */
     private [GET_COMPUTE_DATA_FN_SYMBOL];
+    /**
+     * @constructor
+     * @param {IComputeParams<Compute>} params - Configuration parameters for the computation.
+     * @description Initializes the ClientCompute instance, sets up state subscriptions, and triggers onInit callback.
+     */
     constructor(params: IComputeParams<Compute>);
+    /**
+     * @method getComputeData
+     * @description Retrieves the computation data using a memoized function.
+     * @returns {Promise<Compute>} The computed data.
+     * @async
+     */
     getComputeData(): Promise<any>;
-    calculate(stateName: StateName): void;
-    update(): void;
+    /**
+     * @method calculate
+     * @description Triggers a recalculation based on a state change and clears memoized data.
+     * @param {StateName} stateName - The name of the state that changed.
+     */
+    calculate(stateName: StateName): Promise<void>;
+    /**
+     * @method update
+     * @description Forces an update of the computation and clears memoized data.
+     */
+    update(): Promise<void>;
+    /**
+     * @method dispose
+     * @description Cleans up resources, unsubscribes from state changes, and triggers onDispose callback.
+     * @returns {Promise<void>}
+     * @async
+     */
     dispose(): Promise<void>;
 }
 
+/**
+ * @class ComputeConnectionService
+ * @template T - Type extending IComputeData.
+ * @implements {ICompute<T>}
+ * @description Service for managing compute instances, handling shared and non-shared computations.
+ */
 declare class ComputeConnectionService<T extends IComputeData = IComputeData> implements ICompute<T> {
+    /**
+     * @property {LoggerService} loggerService
+     * @description Injected logger service for logging operations.
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * @property {BusService} busService
+     * @description Injected bus service for event communication.
+     * @private
+     */
     private readonly busService;
+    /**
+     * @property {TMethodContextService} methodContextService
+     * @description Injected service for accessing method context.
+     * @private
+     */
     private readonly methodContextService;
+    /**
+     * @property {ComputeSchemaService} computeSchemaService
+     * @description Injected service for accessing compute schemas.
+     * @private
+     */
     private readonly computeSchemaService;
+    /**
+     * @property {SessionValidationService} sessionValidationService
+     * @description Injected service for session validation and compute usage tracking.
+     * @private
+     */
     private readonly sessionValidationService;
+    /**
+     * @property {StateConnectionService} stateConnectionService
+     * @description Injected service for managing state connections.
+     * @private
+     */
     private readonly stateConnectionService;
+    /**
+     * @property {SharedComputeConnectionService} sharedComputeConnectionService
+     * @description Injected service for managing shared compute instances.
+     * @private
+     */
     private readonly sharedComputeConnectionService;
+    /**
+     * @property {Set<ComputeName>} _sharedComputeSet
+     * @description Tracks compute names that are shared.
+     * @private
+     */
     private _sharedComputeSet;
+    /**
+     * @method getComputeRef
+     * @description Retrieves or creates a compute instance, memoized by client ID and compute name.
+     * @param {string} clientId - The client identifier.
+     * @param {ComputeName} computeName - The name of the compute.
+     * @returns {ClientCompute} The compute instance.
+     */
     getComputeRef: ((clientId: string, computeName: ComputeName) => ClientCompute<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientCompute<any>>;
+    /**
+     * @method getComputeData
+     * @description Retrieves the computed data for the current context.
+     * @returns {Promise<T>} The computed data.
+     * @async
+     */
     getComputeData: () => Promise<any>;
+    /**
+     * @method calculate
+     * @description Triggers a recalculation for the compute instance based on a state change.
+     * @param {StateName} stateName - The name of the state that changed.
+     * @returns {Promise<void>}
+     * @async
+     */
     calculate: (stateName: StateName) => Promise<void>;
+    /**
+     * @method update
+     * @description Forces an update of the compute instance.
+     * @returns {Promise<void>}
+     * @async
+     */
     update: () => Promise<void>;
+    /**
+     * @method dispose
+     * @description Cleans up the compute instance and removes it from the cache.
+     * @returns {Promise<void>}
+     * @async
+     */
     dispose: () => Promise<void>;
 }
 
+/**
+ * @module ComputePublicService
+ * @description Provides a public interface for interacting with compute services, wrapping operations in a method context.
+ */
+
+/**
+ * @interface IComputeConnectionService
+ * @description Extends ComputeConnectionService for type compatibility.
+ */
 interface IComputeConnectionService extends ComputeConnectionService {
 }
+/**
+ * @type InternalKeys
+ * @description Defines keys to be excluded from the public interface.
+ */
 type InternalKeys$1 = keyof {
     getComputeRef: never;
     getSharedComputeRef: never;
 };
+/**
+ * @type TComputeConnectionService
+ * @description Type for the public compute service, excluding internal keys.
+ */
 type TComputeConnectionService = {
     [key in Exclude<keyof IComputeConnectionService, InternalKeys$1>]: unknown;
 };
+/**
+ * @class ComputePublicService
+ * @template T - Type extending IComputeData.
+ * @implements {TComputeConnectionService}
+ * @description Public service for managing compute operations with context-aware execution.
+ */
 declare class ComputePublicService<T extends IComputeData = IComputeData> implements TComputeConnectionService {
+    /**
+     * @property {LoggerService} loggerService
+     * @description Injected logger service for logging operations.
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * @property {ComputeConnectionService} computeConnectionService
+     * @description Injected compute connection service for compute operations.
+     * @private
+     */
     private readonly computeConnectionService;
+    /**
+     * @method getComputeData
+     * @description Retrieves computed data within a method context.
+     * @param {string} methodName - Name of the method for context.
+     * @param {string} clientId - Client identifier.
+     * @param {ComputeName} computeName - Name of the compute.
+     * @returns {Promise<T>} The computed data.
+     * @async
+     */
     getComputeData: (methodName: string, clientId: string, computeName: ComputeName) => Promise<T>;
+    /**
+     * @method calculate
+     * @description Triggers a recalculation for the compute instance within a method context.
+     * @param {StateName} stateName - The name of the state that changed.
+     * @param {string} methodName - Name of the method for context.
+     * @param {string} clientId - Client identifier.
+     * @param {ComputeName} computeName - Name of the compute.
+     * @returns {Promise<void>}
+     * @async
+     */
     calculate: (stateName: StateName, methodName: string, clientId: string, computeName: ComputeName) => Promise<void>;
+    /**
+     * @method update
+     * @description Forces an update of the compute instance within a method context.
+     * @param {string} methodName - Name of the method for context.
+     * @param {string} clientId - Client identifier.
+     * @param {ComputeName} computeName - Name of the compute.
+     * @returns {Promise<void>}
+     * @async
+     */
     update: (methodName: string, clientId: string, computeName: ComputeName) => Promise<void>;
+    /**
+     * @method dispose
+     * @description Cleans up the compute instance within a method context.
+     * @param {string} methodName - Name of the method for context.
+     * @param {string} clientId - Client identifier.
+     * @param {ComputeName} computeName - Name of the compute.
+     * @returns {Promise<void>}
+     * @async
+     */
     dispose: (methodName: string, clientId: string, computeName: ComputeName) => Promise<void>;
 }
 
+/**
+ * @class SharedComputeConnectionService
+ * @template T - Type extending IComputeData.
+ * @implements {ICompute<T>}
+ * @description Service for managing shared compute instances, ensuring they are marked as shared.
+ */
 declare class SharedComputeConnectionService<T extends IComputeData = IComputeData> implements ICompute<T> {
+    /**
+     * @property {LoggerService} loggerService
+     * @description Injected logger service for logging operations.
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * @property {BusService} busService
+     * @description Injected bus service for event communication.
+     * @private
+     */
     private readonly busService;
+    /**
+     * @property {TMethodContextService} methodContextService
+     * @description Injected service for accessing method context.
+     * @private
+     */
     private readonly methodContextService;
+    /**
+     * @property {SharedStateConnectionService} sharedStateConnectionService
+     * @description Injected service for managing shared state connections.
+     * @private
+     */
     private readonly sharedStateConnectionService;
+    /**
+     * @property {ComputeSchemaService} computeSchemaService
+     * @description Injected service for accessing compute schemas.
+     * @private
+     */
     private readonly computeSchemaService;
+    /**
+     * @method getComputeRef
+     * @description Retrieves or creates a shared compute instance, memoized by compute name.
+     * @param {ComputeName} computeName - The name of the compute.
+     * @returns {ClientCompute} The shared compute instance.
+     * @throws {Error} If the compute is not marked as shared.
+     */
     getComputeRef: ((computeName: ComputeName) => ClientCompute<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientCompute<any>>;
+    /**
+     * @method getComputeData
+     * @description Retrieves the computed data for the shared compute instance.
+     * @returns {Promise<T>} The computed data.
+     * @async
+     */
     getComputeData: () => Promise<any>;
+    /**
+     * @method calculate
+     * @description Triggers a recalculation for the shared compute instance based on a state change.
+     * @param {StateName} stateName - The name of the state that changed.
+     * @returns {Promise<void>}
+     * @async
+     */
     calculate: (stateName: StateName) => Promise<void>;
+    /**
+     * @method update
+     * @description Forces an update of the shared compute instance.
+     * @returns {Promise<void>}
+     * @async
+     */
     update: () => Promise<void>;
 }
 
+/**
+ * @module SharedComputePublicService
+ * @description Provides a public interface for interacting with shared compute services, wrapping operations in a method context.
+ */
+
+/**
+ * @interface ISharedComputeConnectionService
+ * @description Extends SharedComputeConnectionService for type compatibility.
+ */
 interface ISharedComputeConnectionService extends SharedComputeConnectionService {
 }
+/**
+ * @type InternalKeys
+ * @description Defines keys to be excluded from the public interface.
+ */
 type InternalKeys = keyof {
     getComputeRef: never;
     getSharedComputeRef: never;
 };
+/**
+ * @type TSharedComputeConnectionService
+ * @description Type for the shared compute public service, excluding internal keys.
+ */
 type TSharedComputeConnectionService = {
     [key in Exclude<keyof ISharedComputeConnectionService, InternalKeys>]: unknown;
 };
+/**
+ * @class SharedComputePublicService
+ * @template T - Type extending IComputeData.
+ * @implements {TSharedComputeConnectionService}
+ * @description Public service for managing shared compute operations with context-aware execution.
+ */
 declare class SharedComputePublicService<T extends IComputeData = IComputeData> implements TSharedComputeConnectionService {
+    /**
+     * @property {LoggerService} loggerService
+     * @description Injected logger service for logging operations.
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * @property {SharedComputeConnectionService} sharedComputeConnectionService
+     * @description Injected shared compute connection service for compute operations.
+     * @private
+     */
     private readonly sharedComputeConnectionService;
+    /**
+     * @method getComputeData
+     * @description Retrieves computed data for a shared compute within a method context.
+     * @param {string} methodName - Name of the method for context.
+     * @param {ComputeName} computeName - Name of the shared compute.
+     * @returns {Promise<T>} The computed data.
+     * @async
+     */
     getComputeData: (methodName: string, computeName: ComputeName) => Promise<T>;
+    /**
+     * @method calculate
+     * @description Triggers a recalculation for the shared compute instance within a method context.
+     * @param {StateName} stateName - The name of the state that changed.
+     * @param {string} methodName - Name of the method for context.
+     * @param {ComputeName} computeName - Name of the shared compute.
+     * @returns {Promise<void>}
+     * @async
+     */
     calculate: (stateName: StateName, methodName: string, computeName: ComputeName) => Promise<void>;
+    /**
+     * @method update
+     * @description Forces an update of the shared compute instance within a method context.
+     * @param {string} methodName - Name of the method for context.
+     * @param {ComputeName} computeName - Name of the shared compute.
+     * @returns {Promise<void>}
+     * @async
+     */
     update: (methodName: string, computeName: ComputeName) => Promise<void>;
 }
 
@@ -9987,7 +10588,19 @@ declare const addStorage: <T extends IStorageData = IStorageData>(storageSchema:
  */
 declare const addPolicy: (policySchema: IPolicySchema) => string;
 
-declare const addCompute: (computeSchema: IComputeSchema<any>) => string;
+/**
+ * @module addCompute
+ * @description Provides a function to register a compute schema with validation and logging.
+ */
+
+/**
+ * @function addCompute
+ * @description Registers a compute schema, validates it, and adds it to the compute schema service.
+ * @template T - Type extending IComputeData.
+ * @param {IComputeSchema<T>} computeSchema - The compute schema to register.
+ * @returns {string} The name of the registered compute.
+ */
+declare const addCompute: <T extends IComputeData = any>(stateSchema: IComputeSchema<T>) => string;
 
 type TAgentSchema = {
     agentName: IAgentSchema["agentName"];
@@ -10241,9 +10854,24 @@ type TWikiSchema = {
  */
 declare const overrideWiki: (wikiSchema: TWikiSchema) => IWikiSchema;
 
+/**
+ * @module overrideCompute
+ * @description Provides a function to override an existing compute schema with partial updates.
+ */
+
+/**
+ * @type TComputeSchema
+ * @description Type for partial compute schema updates, requiring computeName and allowing other IComputeSchema properties.
+ */
 type TComputeSchema = {
     computeName: IComputeSchema["computeName"];
 } & Partial<IComputeSchema>;
+/**
+ * @function overrideCompute
+ * @description Overrides an existing compute schema with provided partial updates.
+ * @param {TComputeSchema} computeSchema - The partial compute schema with updates.
+ * @returns {IComputeSchema} The updated compute schema.
+ */
 declare const overrideCompute: (computeSchema: TComputeSchema) => IComputeSchema<any>;
 
 /**
@@ -12500,16 +13128,72 @@ declare class StateUtils implements TState {
  */
 declare const State: StateUtils;
 
+/**
+ * @module ComputeUtils
+ * @description Utility class for compute operations, providing methods to update and retrieve compute data with validation and context management.
+ */
+
+/**
+ * @class ComputeUtils
+ * @description Provides utility methods for interacting with compute services, including validation and context handling.
+ */
 declare class ComputeUtils {
+    /**
+     * @method update
+     * @description Updates a compute instance with validation and context management.
+     * @param {string} clientId - Client identifier.
+     * @param {ComputeName} computeName - Name of the compute.
+     * @returns {Promise<void>} Resolves when the update is complete.
+     * @async
+     */
     update: (clientId: string, computeName: string) => Promise<void>;
-    getComputeData: (clientId: string, computeName: string) => Promise<any>;
+    /**
+     * @method getComputeData
+     * @description Retrieves compute data with validation and context management.
+     * @param {string} clientId - Client identifier.
+     * @param {ComputeName} computeName - Name of the compute.
+     * @returns {Promise<any>} The computed data.
+     * @async
+     */
+    getComputeData: <T extends IComputeData = any>(clientId: string, computeName: ComputeName) => Promise<T>;
 }
+/**
+ * @constant {ComputeUtils} Compute
+ * @description Singleton instance of ComputeUtils.
+ */
 declare const Compute: ComputeUtils;
 
+/**
+ * @module SharedComputeUtils
+ * @description Utility class for shared compute operations, providing methods to update and retrieve shared compute data with validation and context management.
+ */
+
+/**
+ * @class SharedComputeUtils
+ * @description Provides utility methods for interacting with shared compute services, including validation and context handling.
+ */
 declare class SharedComputeUtils {
+    /**
+     * @method update
+     * @description Updates a shared compute instance with validation and context management.
+     * @param {ComputeName} computeName - Name of the shared compute.
+     * @returns {Promise<void>} Resolves when the update is complete.
+     * @async
+     */
     update: (computeName: string) => Promise<void>;
-    getComputeData: (computeName: string) => Promise<any>;
+    /**
+     * @method getComputeData
+     * @description Retrieves shared compute data with validation and context management.
+     * @param {ComputeName} computeName - Name of the shared compute.
+     * @returns {Promise<any>} The computed data.
+     * @async
+     */
+    getComputeData: <T extends IComputeData = any>(clientId: string, computeName: ComputeName) => Promise<T>;
 }
+/**
+ * @constant {SharedComputeUtils} SharedCompute
+ * @description Singleton instance of SharedComputeUtils.
+ */
 declare const SharedCompute: SharedComputeUtils;
 
 /**

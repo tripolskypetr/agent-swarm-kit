@@ -10,13 +10,13 @@ group: docs
 ### calculate
 
 ```ts
-calculate: (stateName: string) => void
+calculate: (stateName: string) => Promise<void>
 ```
 
 ### update
 
 ```ts
-update: (clientId: string, computeName: string) => void
+update: (clientId: string, computeName: string) => Promise<void>
 ```
 
 ### getComputeData

@@ -44,13 +44,13 @@ getComputeData(): Promise<any>;
 ### calculate
 
 ```ts
-calculate(stateName: StateName): void;
+calculate(stateName: StateName): Promise<void>;
 ```
 
 ### update
 
 ```ts
-update(): void;
+update(): Promise<void>;
 ```
 
 ### dispose

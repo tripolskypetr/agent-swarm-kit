@@ -22,5 +22,5 @@ update: (computeName: string) => Promise<void>
 ### getComputeData
 
 ```ts
-getComputeData: (computeName: string) => Promise<any>
+getComputeData: <T extends unknown = any>(clientId: string, computeName: string) => Promise<T>
 ```
