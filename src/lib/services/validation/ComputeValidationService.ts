@@ -5,11 +5,14 @@ import { IComputeSchema, ComputeName } from "../../../interfaces/Compute.interfa
 import { memoize } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import StateValidationService from "./StateValidationService";
+import StateSchemaService from "../schema/StateSchemaService";
 
 export class ComputeValidationService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   private readonly stateValidationService = inject<StateValidationService>(TYPES.stateValidationService);
+
+  private readonly stateSchemaService = inject<StateSchemaService>(TYPES.stateSchemaService);
 
   private _computeMap = new Map<ComputeName, IComputeSchema>();
 
@@ -24,7 +27,7 @@ export class ComputeValidationService {
     }
     this._computeMap.set(computeName, computeSchema);
   };
-9
+
   public validate = memoize(
     ([computeName]) => computeName,
     (computeName: ComputeName, source: string): void => {
@@ -42,6 +45,16 @@ export class ComputeValidationService {
       compute.dependsOn?.forEach((stateName) => {
         this.stateValidationService.validate(stateName, source);
       });
+      if (compute.shared) {
+        compute.dependsOn?.forEach((stateName) => {
+          const { shared } = this.stateSchemaService.get(stateName);
+          if (!shared) {
+            throw new Error(
+              `agent-swarm compute ${computeName} depends on state ${stateName} but it is not shared source=${source}`
+            );
+          }
+        });
+      }
     }
   ) as (computeName: ComputeName, source: string) => void;
 }
