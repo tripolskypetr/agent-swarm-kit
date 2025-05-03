@@ -7,7 +7,8 @@ group: docs
 
 ```ts
 type InternalKeys$1 = keyof {
-    getPolicy: never;
+    getComputeRef: never;
+    getSharedComputeRef: never;
 };
 ```
 

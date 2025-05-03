@@ -7,7 +7,7 @@ group: docs
 
 ```ts
 type TPolicyConnectionService = {
-    [key in Exclude<keyof IPolicyConnectionService, InternalKeys$1>]: unknown;
+    [key in Exclude<keyof IPolicyConnectionService, InternalKeys$3>]: unknown;
 };
 ```
 

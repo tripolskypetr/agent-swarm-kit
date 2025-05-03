@@ -87,7 +87,7 @@ Checks if a specific tool exists for a given client.
 ### callTool
 
 ```ts
-callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<void>;
+callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<MCPToolOutput>;
 ```
 
 Calls a specific tool with the provided parameters.

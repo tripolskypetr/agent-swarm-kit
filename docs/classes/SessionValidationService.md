@@ -66,6 +66,15 @@ _stateSwarmMap: any
 Map of session IDs to their associated state names, tracking state usage per session.
 Populated by addStateUsage, modified by removeStateUsage.
 
+### _computeSwarmMap
+
+```ts
+_computeSwarmMap: any
+```
+
+Map of session IDs to their associated compute names, tracking compute usage per session.
+Populated by addComputeUsage, modified by removeComputeUsage.
+
 ### _sessionSwarmMap
 
 ```ts
@@ -129,6 +138,15 @@ addStateUsage: (sessionId: string, stateName: string) => void
 Tracks a state’s usage within a session, adding it to the session’s state list.
 Logs the operation, supporting ClientState’s session-specific state tracking.
 
+### addComputeUsage
+
+```ts
+addComputeUsage: (sessionId: string, computeName: string) => void
+```
+
+Tracks a compute’s usage within a session, adding it to the session’s compute list.
+Logs the operation, supporting ClientState’s session-specific compute tracking.
+
 ### removeAgentUsage
 
 ```ts
@@ -165,6 +183,15 @@ removeStateUsage: (sessionId: string, stateName: string) => void
 Removes a state from a session’s state usage list.
 Logs the operation and cleans up if the list becomes empty, supporting ClientState’s session cleanup.
 
+### removeComputeUsage
+
+```ts
+removeComputeUsage: (sessionId: string, computeName: string) => void
+```
+
+Removes a compute from a session’s compute usage list.
+Logs the operation and cleans up if the list becomes empty, supporting ClientCompute’s session cleanup.
+
 ### getSessionMode
 
 ```ts
@@ -191,6 +218,15 @@ getSessionList: () => string[]
 
 Retrieves the list of all registered session IDs.
 Logs the operation, supporting SessionConnectionService’s session enumeration.
+
+### getSessionComputeList
+
+```ts
+getSessionComputeList: (clientId: string) => string[]
+```
+
+Retrieves the list of computes associated with a session.
+Logs the operation, supporting ClientAgent’s session-specific agent queries.
 
 ### getSessionAgentList
 

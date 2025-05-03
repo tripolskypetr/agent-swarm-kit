@@ -7,7 +7,7 @@ group: docs
 
 ```ts
 type InternalKeys$9 = keyof {
-    getAgent: never;
+    getSession: never;
 };
 ```
 

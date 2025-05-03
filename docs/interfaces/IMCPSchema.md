@@ -36,7 +36,7 @@ Function to list available tools for a client.
 ### callTool
 
 ```ts
-callTool: <T extends MCPToolValue = { [x: string]: unknown; }>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<void>
+callTool: <T extends MCPToolValue = { [x: string]: unknown; }>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<MCPToolOutput>
 ```
 
 Function to call a specific tool with the provided parameters.

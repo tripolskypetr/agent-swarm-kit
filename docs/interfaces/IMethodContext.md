@@ -58,6 +58,14 @@ stateName: string
 
 The name of the state resource involved, sourced from State.interface, used in PerfService (e.g., sessionState) and DocService (e.g., state docs).
 
+### computeName
+
+```ts
+computeName: string
+```
+
+The name of the compute resource involved, sourced from Compute.interface, used in PerfService (e.g., sessionState) and DocService (e.g., compute docs).
+
 ### policyName
 
 ```ts

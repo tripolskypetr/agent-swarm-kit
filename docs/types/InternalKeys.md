@@ -7,7 +7,8 @@ group: docs
 
 ```ts
 type InternalKeys = keyof {
-    getMCP: never;
+    getComputeRef: never;
+    getSharedComputeRef: never;
 };
 ```
 
