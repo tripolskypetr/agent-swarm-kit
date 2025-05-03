@@ -5,7 +5,7 @@ import TYPES from "../../core/types";
 import MethodContextService from "../context/MethodContextService";
 import { IComputeData, ComputeName } from "../../../interfaces/Compute.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
-import { StateName } from "src/interfaces/State.interface";
+import { StateName } from "../../../interfaces/State.interface";
 
 interface ISharedComputeConnectionService extends SharedComputeConnectionService {}
 

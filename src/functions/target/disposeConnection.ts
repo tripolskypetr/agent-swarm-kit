@@ -9,7 +9,7 @@ import { StateName } from "../../interfaces/State.interface";
 import beginContext from "../../utils/beginContext";
 import { PersistMemoryAdapter } from "../../classes/Persist";
 import { markOffline } from "../other/markOffline";
-import { ComputeName } from "src/interfaces/Compute.interface";
+import { ComputeName } from "../../interfaces/Compute.interface";
 
 const METHOD_NAME = "function.target.disposeConnection";
 

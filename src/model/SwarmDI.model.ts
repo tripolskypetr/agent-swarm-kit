@@ -53,10 +53,10 @@ import MCPValidationService from "../lib/services/validation/MCPValidationServic
 import ComputeValidationService from "../lib/services/validation/ComputeValidationService";
 import StateValidationService from "../lib/services/validation/StateValidationService";
 import ComputeSchemaService from "../lib/services/schema/ComputeSchemaService";
-import ComputePublicService from "src/lib/services/public/ComputePublicService";
-import SharedComputePublicService from "src/lib/services/public/SharedComputePublicService";
-import ComputeConnectionService from "src/lib/services/connection/ComputeConnectionService";
-import SharedComputeConnectionService from "src/lib/services/connection/SharedComputeConnectionService";
+import ComputePublicService from "../lib/services/public/ComputePublicService";
+import SharedComputePublicService from "../lib/services/public/SharedComputePublicService";
+import ComputeConnectionService from "../lib/services/connection/ComputeConnectionService";
+import SharedComputeConnectionService from "../lib/services/connection/SharedComputeConnectionService";
 
 /**
  * Interface defining the structure of the dependency injection container for the swarm system.

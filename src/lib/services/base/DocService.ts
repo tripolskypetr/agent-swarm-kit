@@ -22,6 +22,8 @@ import PolicySchemaService from "../schema/PolicySchemaService";
 import { writeFileAtomic } from "../../../utils/writeFileAtomic";
 import WikiSchemaService from "../schema/WikiSchemaService";
 import MCPSchemaService from "../schema/MCPSchemaService";
+import ComputeValidationService from "../validation/ComputeValidationService";
+import ComputeSchemaService from "../schema/ComputeSchemaService";
 
 /**
  * Maximum number of concurrent threads for documentation generation tasks.
@@ -173,6 +175,26 @@ export class DocService {
    */
   private readonly stateSchemaService = inject<StateSchemaService>(
     TYPES.stateSchemaService
+  );
+
+  /**
+   * Compute schema service instance, injected via DI.
+   * Provides compute details for writeAgentDoc, documenting compute resources used by agents.
+   * @type {ComputeSchemaService}
+   * @private
+   */
+  private readonly computeSchemaService = inject<ComputeSchemaService>(
+    TYPES.computeSchemaService
+  );
+
+  /**
+   * Compute validation service instance, injected via DI.
+   * Provides compute list for writeAgentDoc, documenting compute resources used by states in agents.
+   * @type {ComputeValidationService}
+   * @private
+   */
+  private readonly computeValidationService = inject<ComputeValidationService>(
+    TYPES.computeValidationService
   );
 
   /**
@@ -569,6 +591,18 @@ export class DocService {
         }
       }
 
+      const computeSchemasTotalList = this.computeValidationService
+        .getComputeList()
+        .flatMap((computeName) => {
+          const schema = this.computeSchemaService.get(computeName);
+          if (schema.dependsOn) {
+            return schema.dependsOn.map((stateName) => {
+              return [stateName, schema] as const;
+            });
+          }
+          return [];
+        });
+
       if (agentSchema.states) {
         result.push(`## Used states`);
         result.push("");
@@ -586,17 +620,40 @@ export class DocService {
             result.push(docDescription);
           }
           {
+            const computeSchemasCurrentList = computeSchemasTotalList.filter(
+              ([stateName]) => stateName === agentSchema.states[i]
+            );
+            if (computeSchemasCurrentList?.length) {
+              result.push("");
+              result.push(`#### State bindings`);
+              result.push("");
+              for (let i = 0; i !== computeSchemasCurrentList.length; i++) {
+                const [, { computeName, docDescription }] =
+                  computeSchemasCurrentList[i];
+                result.push("");
+                result.push(`> **${i + 1}. ${computeName}**`);
+                {
+                  result.push("");
+                  result.push(`*Description:* \`${docDescription}\``);
+                }
+              }
+              result.push("");
+            }
+          }
+          {
+            if (callbacks) {
+              result.push("");
+              result.push(`#### State callbacks`);
+              result.push("");
+              const callbackList = Object.keys(callbacks);
+              for (let i = 0; i !== callbackList.length; i++) {
+                result.push(`${i + 1}. \`${callbackList[i]}\``);
+              }
+            }
+          }
+          {
             result.push("");
             result.push(`**Shared:** [${shared ? "x" : " "}]`);
-          }
-          if (callbacks) {
-            result.push("");
-            result.push(`#### State callbacks`);
-            result.push("");
-            const callbackList = Object.keys(callbacks);
-            for (let i = 0; i !== callbackList.length; i++) {
-              result.push(`${i + 1}. \`${callbackList[i]}\``);
-            }
           }
           result.push("");
         }

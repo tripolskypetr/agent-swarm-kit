@@ -1,7 +1,10 @@
 import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import { IComputeSchema, ComputeName } from "../../../interfaces/Compute.interface";
+import {
+  IComputeSchema,
+  ComputeName,
+} from "../../../interfaces/Compute.interface";
 import { memoize } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import StateValidationService from "./StateValidationService";
@@ -10,13 +13,20 @@ import StateSchemaService from "../schema/StateSchemaService";
 export class ComputeValidationService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-  private readonly stateValidationService = inject<StateValidationService>(TYPES.stateValidationService);
+  private readonly stateValidationService = inject<StateValidationService>(
+    TYPES.stateValidationService
+  );
 
-  private readonly stateSchemaService = inject<StateSchemaService>(TYPES.stateSchemaService);
+  private readonly stateSchemaService = inject<StateSchemaService>(
+    TYPES.stateSchemaService
+  );
 
   private _computeMap = new Map<ComputeName, IComputeSchema>();
 
-  public addCompute = (computeName: ComputeName, computeSchema: IComputeSchema): void => {
+  public addCompute = (
+    computeName: ComputeName,
+    computeSchema: IComputeSchema
+  ): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("computeValidationService addCompute", {
         computeName,
@@ -26,6 +36,12 @@ export class ComputeValidationService {
       throw new Error(`agent-swarm compute ${computeName} already exist`);
     }
     this._computeMap.set(computeName, computeSchema);
+  };
+
+  public getComputeList = () => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("computeValidationService getComputeList");
+    return Array.from(this._computeMap.keys());
   };
 
   public validate = memoize(
