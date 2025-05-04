@@ -344,7 +344,7 @@ const EXECUTE_FN = async (
       self.params.clientId,
       self.params.agentName
     );
-    toolCalls = toolCalls.slice(0, self.params.maxToolCalls);
+    toolCalls = toolCalls.slice(-self.params.maxToolCalls);
     await self.params.history.push({
       ...message,
       agentName: self.params.agentName,
@@ -668,15 +668,26 @@ export class ClientAgent implements IAgent {
             return true;
           }
           return false;
+        })
+        .sort(({ function: { name: a } }, { function: { name: b } }) => {
+          const aStarts = a.startsWith("navigate_to_");
+          const bStarts = b.startsWith("navigate_to_");
+          return aStarts === bStarts ? 0 : aStarts ? 1 : -1;
         });
     }
-    return agentToolList.filter(({ function: { name } }) => {
-      if (!seen.has(name)) {
-        seen.add(name);
-        return true;
-      }
-      return false;
-    });
+    return agentToolList
+      .filter(({ function: { name } }) => {
+        if (!seen.has(name)) {
+          seen.add(name);
+          return true;
+        }
+        return false;
+      })
+      .sort(({ function: { name: a } }, { function: { name: b } }) => {
+        const aStarts = a.startsWith("navigate_to_");
+        const bStarts = b.startsWith("navigate_to_");
+        return aStarts === bStarts ? 0 : aStarts ? 1 : -1;
+      });
   }
 
   /**
@@ -922,7 +933,10 @@ export class ClientAgent implements IAgent {
    * @param {ExecutionMode} mode - The execution mode (e.g., "user" or "tool"), determining context.
    * @returns {Promise<IModelMessage>} The completion message from the model, with content defaulted to an empty string if null.
    */
-  async getCompletion(mode: ExecutionMode, tools: IAgentTool[]): Promise<IModelMessage> {
+  async getCompletion(
+    mode: ExecutionMode,
+    tools: IAgentTool[]
+  ): Promise<IModelMessage> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} getCompletion`

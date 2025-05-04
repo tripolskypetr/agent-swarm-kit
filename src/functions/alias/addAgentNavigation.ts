@@ -16,6 +16,8 @@ import { commitToolOutputForce } from "../commit/commitToolOutputForce";
 
 const METHOD_NAME = "function.alias.addAgentNavigation";
 
+const DEFAULT_SKIP_PLACEHOLDER = "Navigation canceled";
+
 /**
  * Parameters for configuring agent navigation.
  * @interface IAgentNavigationParams
@@ -30,6 +32,8 @@ interface IAgentNavigationParams extends INavigateToAgentParams {
   navigateTo: AgentName;
   /** Optional documentation note for the tool. */
   docNote?: string;
+  /** Optional skip output value when got several navigations. */
+  skipPlaceholder?: string;
 }
 
 /**
@@ -49,6 +53,7 @@ export const addAgentNavigation = beginContext(
     docNote,
     description,
     navigateTo,
+    skipPlaceholder = DEFAULT_SKIP_PLACEHOLDER,
     ...navigateProps
   }: IAgentNavigationParams) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
@@ -60,7 +65,7 @@ export const addAgentNavigation = beginContext(
       docNote,
       call: async ({ toolId, clientId, isLast }) => {
         if (!isLast) {
-          await commitToolOutputForce(toolId, "", clientId);
+          await commitToolOutputForce(toolId, skipPlaceholder, clientId);
           return;
         }
         await navigate(toolId, clientId, navigateTo);

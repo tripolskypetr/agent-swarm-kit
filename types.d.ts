@@ -10383,6 +10383,8 @@ interface IAgentNavigationParams extends INavigateToAgentParams {
     navigateTo: AgentName;
     /** Optional documentation note for the tool. */
     docNote?: string;
+    /** Optional skip output value when got several navigations. */
+    skipPlaceholder?: string;
 }
 /**
  * Creates and registers a navigation tool for an agent to navigate to another specified agent.
@@ -10414,6 +10416,8 @@ interface ITriageNavigationParams extends INavigateToTriageParams {
     description: string;
     /** Optional documentation note for the tool. */
     docNote?: string;
+    /** Optional skip output value when got several navigations. */
+    skipPlaceholder?: string;
 }
 /**
  * Creates and registers a triage navigation tool for an agent to navigate to a triage agent.

@@ -16,6 +16,8 @@ import {
 
 const METHOD_NAME = "function.alias.addTriageNavigation";
 
+const DEFAULT_SKIP_PLACEHOLDER = "Navigation canceled";
+
 /**
  * Parameters for configuring triage navigation.
  * @interface ITriageNavigationParams
@@ -28,6 +30,8 @@ interface ITriageNavigationParams extends INavigateToTriageParams {
   description: string;
   /** Optional documentation note for the tool. */
   docNote?: string;
+  /** Optional skip output value when got several navigations. */
+  skipPlaceholder?: string;
 }
 
 /**
@@ -45,6 +49,7 @@ export const addTriageNavigation = beginContext(
     toolName,
     docNote,
     description,
+    skipPlaceholder = DEFAULT_SKIP_PLACEHOLDER,
     ...navigateProps
   }: ITriageNavigationParams) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
@@ -56,7 +61,7 @@ export const addTriageNavigation = beginContext(
       docNote,
       call: async ({ toolId, clientId, isLast }) => {
         if (!isLast) {
-          await commitToolOutputForce(toolId, "", clientId);
+          await commitToolOutputForce(toolId, skipPlaceholder, clientId);
           return;
         }
         await navigate(toolId, clientId);
