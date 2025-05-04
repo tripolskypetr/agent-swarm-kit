@@ -199,6 +199,7 @@ export {
 
 export { RoundRobin } from "./classes/RoundRobin";
 
+export { MCP } from "./classes/MCP";
 export { Policy } from "./classes/Policy";
 export { State } from "./classes/State";
 export { Compute } from "./classes/Compute";

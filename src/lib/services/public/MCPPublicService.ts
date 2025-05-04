@@ -70,6 +70,69 @@ export class MCPPublicService implements TMCPConnectionService {
   }
 
   /**
+   * Updates the list of tools for all clients within a specified context.
+   * @param methodName - The name of the method for context tracking.
+   * @param mcpName - The name of the MCP to query.
+   * @returns A promise resolving when the update is complete.
+   */
+  async updateToolsForAll(methodName: string, mcpName: string): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`mcpPublicService updateToolsForAll`, {
+        mcpName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.mcpConnectionService.updateToolsForAll();
+      },
+      {
+        methodName,
+        clientId: "",
+        mcpName,
+        agentName: "",
+        swarmName: "",
+        storageName: "",
+        stateName: "",
+        policyName: "",
+        computeName: "",
+      }
+    );
+  }
+
+  /**
+   * Updates the list of tools for a specific client within a specified context.
+   * @param methodName - The name of the method for context tracking.
+   * @param clientId - The ID of the client whose tools are to be updated.
+   * @param mcpName - The name of the MCP to query.
+   * @returns A promise resolving when the update is complete.
+   */
+  async updateToolsForClient(
+    methodName: string,
+    clientId: string,
+    mcpName: string
+  ): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`mcpPublicService updateToolsForClient`, {
+        clientId,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.mcpConnectionService.updateToolsForClient(clientId);
+      },
+      {
+        methodName,
+        clientId,
+        mcpName,
+        agentName: "",
+        swarmName: "",
+        storageName: "",
+        stateName: "",
+        policyName: "",
+        computeName: "",
+      }
+    );
+  }
+
+  /**
    * Checks if a specific tool exists for a given client within a specified context.
    * @param methodName - The name of the method for context tracking.
    * @param clientId - The ID of the client.

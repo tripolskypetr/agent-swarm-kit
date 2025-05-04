@@ -3170,6 +3170,16 @@ interface IMCP {
      * @returns A promise resolving when the tool call is complete.
      */
     callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<MCPToolOutput>;
+    /**
+     * Updates the list of tools by clearing the cache and invoking the update callback.
+     * @returns A promise resolving when the update is complete.
+     */
+    updateToolsForAll(): Promise<void>;
+    /**
+     * Updates the list of tools by clearing the cache and invoking the update callback.
+     * @returns A promise resolving when the update is complete.
+     */
+    updateToolsForClient(clientId: string): Promise<void>;
 }
 /**
  * Interface for MCP callback functions triggered during various lifecycle events.
@@ -3198,6 +3208,11 @@ interface IMCPCallbacks {
      * @param dto - The data transfer object containing tool call parameters.
      */
     onCall<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): void;
+    /**
+     * Called when the list of tools is updated.
+     * @param clientId - The ID of the client.
+     */
+    onUpdate(mcpName: MCPName, clientId: string | undefined): void;
 }
 /**
  * Interface for the MCP schema, defining the structure and behavior of an MCP.
@@ -9136,6 +9151,16 @@ declare class ClientMCP implements IMCP {
      */
     hasTool(toolName: string, clientId: string): Promise<boolean>;
     /**
+     * Updates the list of tools by clearing the cache and invoking the update callback.
+     * @returns A promise resolving when the update is complete.
+     */
+    updateToolsForClient(clientId: string): Promise<void>;
+    /**
+     * Updates the list of tools for all clients by clearing the cache and invoking the update callback.
+     * @returns A promise resolving when the update is complete.
+     */
+    updateToolsForAll(): Promise<void>;
+    /**
      * Calls a specific tool with the provided parameters.
      * @param toolName - The name of the tool to call.
      * @param dto - The data transfer object containing tool call parameters.
@@ -9174,6 +9199,17 @@ declare class MCPConnectionService implements IMCP {
      * @returns A promise resolving to an array of IMCPTool objects.
      */
     listTools(clientId: string): Promise<IMCPTool[]>;
+    /**
+     * Updates the list of tools for all clients.
+     * @returns A promise resolving when the tool update is complete.
+     */
+    updateToolsForAll(): Promise<void>;
+    /**
+     * Updates the list of tools for a specific client.
+     * @param clientId - The ID of the client whose tools are to be updated.
+     * @returns
+     */
+    updateToolsForClient(clientId: string): Promise<void>;
     /**
      * Checks if a specific tool exists for a given client.
      * @param toolName - The name of the tool to check.
@@ -9258,6 +9294,21 @@ declare class MCPPublicService implements TMCPConnectionService {
      * @returns A promise resolving to an array of IMCPTool objects.
      */
     listTools(methodName: string, clientId: string, mcpName: string): Promise<IMCPTool[]>;
+    /**
+     * Updates the list of tools for all clients within a specified context.
+     * @param methodName - The name of the method for context tracking.
+     * @param mcpName - The name of the MCP to query.
+     * @returns A promise resolving when the update is complete.
+     */
+    updateToolsForAll(methodName: string, mcpName: string): Promise<void>;
+    /**
+     * Updates the list of tools for a specific client within a specified context.
+     * @param methodName - The name of the method for context tracking.
+     * @param clientId - The ID of the client whose tools are to be updated.
+     * @param mcpName - The name of the MCP to query.
+     * @returns A promise resolving when the update is complete.
+     */
+    updateToolsForClient(methodName: string, clientId: string, mcpName: string): Promise<void>;
     /**
      * Checks if a specific tool exists for a given client within a specified context.
      * @param methodName - The name of the method for context tracking.
@@ -13002,6 +13053,25 @@ declare class RoundRobin<T, Token = string | symbol | {
 }
 
 /**
+ * Utility class for managing MCP updates.
+ * This class provides methods to update tools for all clients or a specific client.
+ * It is used in the context of the MCP (Multi-Client Protocol) system.
+ */
+declare class MCPUtils {
+    /**
+     * Updates the list of tools for all clients or a specific client.
+     * @param mcpName - The name of the MCP to update.
+     * @param clientId - Optional client ID to update tools for a specific client.
+     * @returns A promise resolving when the update is complete.
+     */
+    update(mcpName: MCPName, clientId?: string): Promise<void>;
+}
+/**
+ * Singleton instance of the MCPUtils class.
+ */
+declare const MCP: MCPUtils;
+
+/**
  * Utility class providing methods to manage client bans within a swarm policy context.
  * All methods validate inputs and execute within a context for logging and tracking.
  */
@@ -13802,4 +13872,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };
+export { Adapter, Chat, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, swarm };

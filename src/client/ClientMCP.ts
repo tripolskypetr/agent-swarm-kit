@@ -89,6 +89,38 @@ export class ClientMCP implements IMCP {
   }
 
   /**
+   * Updates the list of tools by clearing the cache and invoking the update callback.
+   * @returns A promise resolving when the update is complete.
+   */
+  public async updateToolsForClient(clientId: string) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientMCP mcpName=${this.params.mcpName} updateToolsForClient`,
+        { clientId }
+      );
+    this.fetchTools.clear(clientId);
+    if (this.params.callbacks?.onUpdate) {
+      this.params.callbacks.onUpdate(this.params.mcpName, clientId);
+    }
+  }
+
+  /**
+   * Updates the list of tools for all clients by clearing the cache and invoking the update callback.
+   * @returns A promise resolving when the update is complete.
+   */
+  public async updateToolsForAll() {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientMCP mcpName=${this.params.mcpName} updateToolsForAll`,
+        {}
+      );
+    this.fetchTools.clear();
+    if (this.params.callbacks?.onUpdate) {
+      this.params.callbacks.onUpdate(this.params.mcpName, undefined);
+    }
+  }
+
+  /**
    * Calls a specific tool with the provided parameters.
    * @param toolName - The name of the tool to call.
    * @param dto - The data transfer object containing tool call parameters.

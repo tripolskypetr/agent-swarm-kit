@@ -67,6 +67,33 @@ export class MCPConnectionService implements IMCP {
   }
 
   /**
+   * Updates the list of tools for all clients.
+   * @returns A promise resolving when the tool update is complete.
+   */
+  async updateToolsForAll(): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`mcpConnectionService updateToolsForAll`, {});
+    return await this.getMCP(
+      this.methodContextService.context.mcpName
+    ).updateToolsForAll();
+  }
+
+  /**
+   * Updates the list of tools for a specific client.
+   * @param clientId - The ID of the client whose tools are to be updated.
+   * @returns 
+   */
+  async updateToolsForClient(clientId: string): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`mcpConnectionService updateToolsForClient`, {
+        clientId,
+      });
+    return await this.getMCP(
+      this.methodContextService.context.mcpName
+    ).updateToolsForClient(clientId);
+  }
+
+  /**
    * Checks if a specific tool exists for a given client.
    * @param toolName - The name of the tool to check.
    * @param clientId - The ID of the client.

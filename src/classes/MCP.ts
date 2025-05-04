@@ -2,6 +2,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 import IMCP, {
   IMCPTool,
   IMCPToolCallDto,
+  MCPName,
   MCPToolValue,
 } from "../interfaces/MCP.interface";
 import swarm from "../lib";
@@ -13,6 +14,8 @@ import { emit } from "../functions/target/emit";
 import { createPlaceholder } from "../client/ClientAgent";
 import { getAgentName } from "../functions/common/getAgentName";
 import { getErrorMessage } from "functools-kit";
+
+const METHOD_NAME_UPDATE = "McpUtils.update";
 
 /**
  * A no-operation implementation of the IMCP interface.
@@ -42,6 +45,31 @@ export class NoopMCP implements IMCP {
         }
       );
     return [];
+  }
+
+  /**
+   * Updates the list of tools for a specific client.
+   * @param clientId - The ID of the client whose tools are to be updated.
+   */
+  public async updateToolsForAll(): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(
+        `NoopMCP updateToolsForAll agentName=${this.agentName}`
+      );
+  }
+
+  /**
+   * Updates the list of tools for a specific client.
+   * @param clientId - The ID of the client whose tools are to be updated.
+   */
+  public async updateToolsForClient(clientId: string): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(
+        `NoopMCP updateToolsForClient agentName=${this.agentName}`,
+        {
+          clientId,
+        }
+      );
   }
 
   /**
@@ -147,6 +175,37 @@ export class MergeMCP implements IMCP {
   }
 
   /**
+   * Updates the list of tools for all clients across all merged MCPs.
+   * @returns A promise resolving when the tool update is complete.
+   */
+  public async updateToolsForAll(): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(
+        `MergeMCP updateToolsForAll agentName=${this.agentName}`
+      );
+    for (const mcp of this.mcpList) {
+      await mcp.updateToolsForAll();
+    }
+  }
+
+  /**
+   * Updates the list of tools for a specific client across all merged MCPs.
+   * @param clientId - The ID of the client whose tools are to be updated.
+   */
+  public async updateToolsForClient(clientId: string): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(
+        `MergeMCP updateToolsForClient agentName=${this.agentName}`,
+        {
+          clientId,
+        }
+      );
+    for (const mcp of this.mcpList) {
+      await mcp.updateToolsForClient(clientId);
+    }
+  }
+
+  /**
    * Calls a tool from one of the merged MCPs if it exists.
    * @param toolName - The name of the tool to call.
    * @param dto - The data transfer object containing tool call parameters.
@@ -181,7 +240,11 @@ export class MergeMCP implements IMCP {
             }
           }
         } catch (error) {
-          console.error(`agent-swarm MCP tool error toolName=${toolName} agentName=${agentName} error=${getErrorMessage(error)}`);
+          console.error(
+            `agent-swarm MCP tool error toolName=${toolName} agentName=${agentName} error=${getErrorMessage(
+              error
+            )}`
+          );
           await commitFlush(dto.clientId, agentName);
           await emit(createPlaceholder(), dto.clientId, agentName);
         }
@@ -193,3 +256,34 @@ export class MergeMCP implements IMCP {
     );
   }
 }
+
+/**
+ * Utility class for managing MCP updates.
+ * This class provides methods to update tools for all clients or a specific client.
+ * It is used in the context of the MCP (Multi-Client Protocol) system.
+ */
+export class MCPUtils {
+  /**
+   * Updates the list of tools for all clients or a specific client.
+   * @param mcpName - The name of the MCP to update.
+   * @param clientId - Optional client ID to update tools for a specific client.
+   * @returns A promise resolving when the update is complete.
+   */
+  public async update(mcpName: MCPName, clientId?: string) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      swarm.loggerService.info(METHOD_NAME_UPDATE, {
+        mcpName,
+        clientId,
+      });
+    swarm.mcpValidationService.validate(mcpName, METHOD_NAME_UPDATE);
+    if (clientId) {
+      return await swarm.mcpPublicService.updateToolsForClient(METHOD_NAME_UPDATE, clientId, mcpName);
+    }
+    return await swarm.mcpPublicService.updateToolsForAll(METHOD_NAME_UPDATE, mcpName);
+  }
+}
+
+/**
+ * Singleton instance of the MCPUtils class.
+ */
+export const MCP = new MCPUtils();

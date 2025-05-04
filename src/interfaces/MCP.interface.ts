@@ -11,7 +11,7 @@ export type MCPToolValue = { [x: string]: unknown } | undefined;
 /**
  * When MCP tool return string it will automatically commit to the agent
  */
-export type MCPToolOutput = string | undefined | void; 
+export type MCPToolOutput = string | undefined | void;
 
 /**
  * Type representing the properties of an MCP tool's input schema.
@@ -89,6 +89,18 @@ export interface IMCP {
     toolName: string,
     dto: IMCPToolCallDto<T>
   ): Promise<MCPToolOutput>;
+
+  /**
+   * Updates the list of tools by clearing the cache and invoking the update callback.
+   * @returns A promise resolving when the update is complete.
+   */
+  updateToolsForAll(): Promise<void>;
+
+  /**
+   * Updates the list of tools by clearing the cache and invoking the update callback.
+   * @returns A promise resolving when the update is complete.
+   */
+  updateToolsForClient(clientId: string): Promise<void>;
 }
 
 /**
@@ -125,6 +137,12 @@ export interface IMCPCallbacks {
     toolName: string,
     dto: IMCPToolCallDto<T>
   ): void;
+
+  /**
+   * Called when the list of tools is updated.
+   * @param clientId - The ID of the client.
+   */
+  onUpdate(mcpName: MCPName, clientId: string | undefined): void;
 }
 
 /**
