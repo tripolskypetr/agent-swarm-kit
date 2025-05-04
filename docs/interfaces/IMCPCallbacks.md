@@ -48,3 +48,11 @@ onCall: <T extends MCPToolValue = { [x: string]: unknown; }>(toolName: string, d
 ```
 
 Called when a tool is invoked.
+
+### onUpdate
+
+```ts
+onUpdate: (mcpName: string, clientId: string) => void
+```
+
+Called when the list of tools is updated.

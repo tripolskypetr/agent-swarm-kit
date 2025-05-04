@@ -32,3 +32,19 @@ callTool: <T extends MCPToolValue = { [x: string]: unknown; }>(toolName: string,
 ```
 
 Calls a specific tool with the provided parameters.
+
+### updateToolsForAll
+
+```ts
+updateToolsForAll: () => Promise<void>
+```
+
+Updates the list of tools by clearing the cache and invoking the update callback.
+
+### updateToolsForClient
+
+```ts
+updateToolsForClient: (clientId: string) => Promise<void>
+```
+
+Updates the list of tools by clearing the cache and invoking the update callback.

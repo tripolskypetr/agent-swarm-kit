@@ -53,6 +53,22 @@ listTools(methodName: string, clientId: string, mcpName: string): Promise<IMCPTo
 
 Lists available tools for a given client within a specified context.
 
+### updateToolsForAll
+
+```ts
+updateToolsForAll(methodName: string, mcpName: string): Promise<void>;
+```
+
+Updates the list of tools for all clients within a specified context.
+
+### updateToolsForClient
+
+```ts
+updateToolsForClient(methodName: string, clientId: string, mcpName: string): Promise<void>;
+```
+
+Updates the list of tools for a specific client within a specified context.
+
 ### hasTool
 
 ```ts

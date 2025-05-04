@@ -76,6 +76,22 @@ listTools(clientId: string): Promise<IMCPTool[]>;
 
 Lists available tools for a given client.
 
+### updateToolsForAll
+
+```ts
+updateToolsForAll(): Promise<void>;
+```
+
+Updates the list of tools for all clients.
+
+### updateToolsForClient
+
+```ts
+updateToolsForClient(clientId: string): Promise<void>;
+```
+
+Updates the list of tools for a specific client.
+
 ### hasTool
 
 ```ts

@@ -49,6 +49,22 @@ hasTool(toolName: string, clientId: string): Promise<boolean>;
 
 Checks if a specific tool exists for a given client.
 
+### updateToolsForClient
+
+```ts
+updateToolsForClient(clientId: string): Promise<void>;
+```
+
+Updates the list of tools by clearing the cache and invoking the update callback.
+
+### updateToolsForAll
+
+```ts
+updateToolsForAll(): Promise<void>;
+```
+
+Updates the list of tools for all clients by clearing the cache and invoking the update callback.
+
 ### callTool
 
 ```ts

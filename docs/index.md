@@ -82,6 +82,7 @@ group: docs
 - [SharedComputeConnectionService](classes/SharedComputeConnectionService.md)
 - [SharedComputePublicService](classes/SharedComputePublicService.md)
 - [RoundRobin](classes/RoundRobin.md)
+- [MCPUtils](classes/MCPUtils.md)
 - [PolicyUtils](classes/PolicyUtils.md)
 - [StateUtils](classes/StateUtils.md)
 - [ComputeUtils](classes/ComputeUtils.md)
