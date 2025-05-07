@@ -14,6 +14,7 @@ import { emit } from "../functions/target/emit";
 import { createPlaceholder } from "../client/ClientAgent";
 import { getAgentName } from "../functions/common/getAgentName";
 import { getErrorMessage } from "functools-kit";
+import { commitStopTools } from "src/functions/commit/commitStopTools";
 
 const METHOD_NAME_UPDATE = "McpUtils.update";
 
@@ -245,6 +246,7 @@ export class MergeMCP implements IMCP {
               error
             )}`
           );
+          await commitStopTools(dto.clientId, agentName);
           await commitFlush(dto.clientId, agentName);
           await emit(createPlaceholder(), dto.clientId, agentName);
         }
