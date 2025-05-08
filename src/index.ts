@@ -130,7 +130,7 @@ export { IStateSchema } from "./interfaces/State.interface";
 export { IComputeSchema } from "./interfaces/Compute.interface";
 export { IPolicySchema } from "./interfaces/Policy.interface";
 
-export { IMCPSchema, IMCPTool, MCPToolProperties } from './interfaces/MCP.interface';
+export { IMCPSchema, IMCPTool, MCPToolProperties, IMCPToolCallDto } from './interfaces/MCP.interface';
 
 export { IModelMessage } from "./model/ModelMessage.model";
 export { IIncomingMessage, IOutgoingMessage } from "./model/EmitMessage.model";
