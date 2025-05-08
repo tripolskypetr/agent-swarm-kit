@@ -829,6 +829,11 @@ interface IComputeSchema<T extends IComputeData = IComputeData> {
      */
     computeName: ComputeName;
     /**
+     * @property {number} [ttl]
+     * @description Time-to-live for the compute data, in milliseconds.
+     */
+    ttl?: number;
+    /**
      * @property {Function} getComputeData
      * @description Function to retrieve or compute the data.
      * @param {string} clientId - The client identifier.

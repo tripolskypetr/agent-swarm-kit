@@ -48,6 +48,11 @@ export class ComputeSchemaService {
         `agent-swarm compute schema validation failed: missing computeName`
       );
     }
+    if (computeSchema.ttl && typeof computeSchema.ttl !== "number") {
+      throw new Error(
+        `agent-swarm compute schema validation failed: invalid ttl`
+      );
+    }
     if (typeof computeSchema.getComputeData !== "function") {
       throw new Error(
         `agent-swarm compute schema validation failed: missing getComputeData for computeName=${computeSchema.computeName}`

@@ -23,6 +23,12 @@ import { StateName } from "../../../interfaces/State.interface";
 import StateConnectionService from "./StateConnectionService";
 
 /**
+ * @constant {number} DEFAULT_COMPUTE_TTL
+ * @description Default time-to-live (TTL) for compute instances, set to 24 hours.
+ */
+const DEFAULT_COMPUTE_TTL = 24 * 60 * 60 * 1_000;
+
+/**
  * @class ComputeConnectionService
  * @template T - Type extending IComputeData.
  * @implements {ICompute<T>}
@@ -114,6 +120,7 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
         dependsOn = [],
         middlewares = [],
         callbacks,
+        ttl = DEFAULT_COMPUTE_TTL,
         shared = false,
       } = this.computeSchemaService.get(computeName);
       if (shared) {
@@ -129,6 +136,7 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
         binding: dependsOn.map((stateName) =>
           this.stateConnectionService.getStateRef(clientId, stateName)
         ),
+        ttl,
         dependsOn,
         middlewares,
         callbacks,

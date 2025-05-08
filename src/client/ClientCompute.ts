@@ -3,7 +3,7 @@
  * @description Provides a class for managing client-side computations with event handling and state management.
  */
 
-import { compose, singleshot } from "functools-kit";
+import { compose, IClearableTtl, ttl } from "functools-kit";
 import {
   ICompute,
   IComputeData,
@@ -12,6 +12,9 @@ import {
 import { IBusEvent } from "../model/Event.model";
 import { GLOBAL_CONFIG } from "../config/params";
 import { StateName } from "../interfaces/State.interface";
+
+type ComputeDataFn = (() => ReturnType<typeof GET_COMPUTE_DATA_FN>) &
+  IClearableTtl;
 
 /**
  * @constant {symbol} DISPOSE_SLOT_FN_SYMBOL
@@ -86,9 +89,7 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
    * @description Memoized function for retrieving compute data.
    * @private
    */
-  private [GET_COMPUTE_DATA_FN_SYMBOL] = singleshot(async () => {
-    return await GET_COMPUTE_DATA_FN(this);
-  });
+  private [GET_COMPUTE_DATA_FN_SYMBOL]: ComputeDataFn;
 
   /**
    * @constructor
@@ -103,6 +104,14 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
           params,
         }
       );
+    this[GET_COMPUTE_DATA_FN_SYMBOL] = ttl(
+      async () => {
+        return await GET_COMPUTE_DATA_FN(this);
+      },
+      {
+        timeout: params.ttl!,
+      }
+    );
     this.params.binding.forEach(
       ({ stateChanged }) =>
         (this[DISPOSE_SLOT_FN_SYMBOL] = compose(
