@@ -23,7 +23,7 @@ export const startPipeline = beginContext(
     await Chat.beginChat(clientId, swarmName);
 
     swarm.sessionValidationService.validate(clientId, METHOD_NAME);
-    swarm.pipelineValidationService.validate(clientId, METHOD_NAME);
+    swarm.pipelineValidationService.validate(pipelineName, METHOD_NAME);
 
     const agentName = await swarm.swarmPublicService.getAgentName(
       METHOD_NAME,
