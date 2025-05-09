@@ -7,8 +7,9 @@ import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 import { PipelineName } from "../../model/Pipeline.model";
-import { Chat } from "../../classes/Chat";
 import { SwarmName } from "../../interfaces/Swarm.interface";
+import { AgentName } from "../../interfaces/Agent.interface";
+import { changeToAgent } from "../navigate/changeToAgent";
 
 /**
  * @constant {string} METHOD_NAME
@@ -24,7 +25,7 @@ const METHOD_NAME = "function.target.startPipeline";
  * @template T - Type of the result returned by the pipeline execution.
  * @param {string} clientId - The client identifier.
  * @param {PipelineName} pipelineName - The name of the pipeline to execute.
- * @param {SwarmName} swarmName - The name of the swarm associated with the pipeline.
+ * @param {AgentName} agentName - The name of the agent associated with the pipeline.
  * @param {Payload} [payload={}] - Optional payload data for the pipeline.
  * @returns {Promise<T>} The result of the pipeline execution.
  */
@@ -32,7 +33,7 @@ export const startPipeline = beginContext(
   async <T = any>(
     clientId: string,
     pipelineName: PipelineName,
-    swarmName: SwarmName,
+    agentName: AgentName,
     payload: unknown = {}
   ): Promise<T> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -43,12 +44,17 @@ export const startPipeline = beginContext(
 
     swarm.sessionValidationService.validate(clientId, METHOD_NAME);
     swarm.pipelineValidationService.validate(pipelineName, METHOD_NAME);
+    swarm.agentValidationService.validate(agentName, METHOD_NAME);
 
-    const agentName = await swarm.swarmPublicService.getAgentName(
+    const currentAgentName = await swarm.swarmPublicService.getAgentName(
       METHOD_NAME,
       clientId,
-      swarmName
+      await swarm.sessionValidationService.getSwarm(clientId),
     );
+
+    if (currentAgentName !== agentName) {
+      await changeToAgent(agentName, clientId);
+    }
 
     const { execute, callbacks } =
       swarm.pipelineSchemaService.get(pipelineName);
@@ -67,6 +73,9 @@ export const startPipeline = beginContext(
       }
       isError = true;
     } finally {
+      if (currentAgentName !== agentName) {
+        await changeToAgent(currentAgentName, clientId);
+      }
       if (callbacks?.onEnd) {
         callbacks.onEnd(clientId, pipelineName, payload, isError);
       }

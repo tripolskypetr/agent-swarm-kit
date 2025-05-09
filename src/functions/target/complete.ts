@@ -1,4 +1,4 @@
-import { queued, randomString, singleshot, ttl } from "functools-kit";
+import { memoize, queued, randomString, singleshot } from "functools-kit";
 import { SwarmName } from "../../interfaces/Swarm.interface";
 import swarm, { ExecutionContextService } from "../../lib";
 import { disposeConnection } from "./disposeConnection";
@@ -6,6 +6,7 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
 import PayloadContextService from "../../lib/services/context/PayloadContextService";
 import { markOnline } from "../other/markOnline";
+import { disposeSubject } from "../../config/emitters";
 
 const METHOD_NAME = "function.target.complete";
 
@@ -20,20 +21,6 @@ const METHOD_NAME = "function.target.complete";
 type TCompleteRun = (METHOD_NAME: string, content: string) => Promise<string>;
 
 /**
- * Time-to-live for the complete function in milliseconds.
- * Defines how long the cached complete function remains valid before expiring.
- * @constant {number}
- */
-const COMPLETE_TTL = 15 * 60 * 1_000;
-
-/**
- * Garbage collection interval for the complete function in milliseconds.
- * Specifies the frequency at which expired TTL entries are cleaned up.
- * @constant {number}
- */
-const COMPLETE_GC = 60 * 1_000;
-
-/**
  * Creates a complete function with time-to-live (TTL) and queuing capabilities.
  *
  * This factory function generates a queued, TTL-limited function to handle single command execution in a swarm session,
@@ -43,7 +30,8 @@ const COMPLETE_GC = 60 * 1_000;
  * @param {SwarmName} swarmName - The name of the swarm in which the command is executed.
  * @returns {TCompleteRun} A function that performs the complete operation with queuing and TTL.
  */
-const createComplete = ttl(
+const createComplete = memoize(
+  ([clientId]) => `${clientId}`,
   (clientId: string, swarmName: SwarmName) =>
     queued(async (METHOD_NAME: string, content: string) => {
       // Validate the swarm and initialize a completion session
@@ -64,11 +52,7 @@ const createComplete = ttl(
       );
       await disposeConnection(clientId, swarmName, METHOD_NAME);
       return result;
-    }) as TCompleteRun,
-  {
-    key: ([clientId, swarmName]) => `${clientId}-${swarmName}`,
-    timeout: COMPLETE_TTL,
-  }
+    }) as TCompleteRun
 );
 
 /**
@@ -79,7 +63,9 @@ const createComplete = ttl(
  * @returns {Promise<void>} A promise that resolves when the garbage collector is initialized.
  */
 const createGc = singleshot(async () => {
-  setInterval(createComplete.gc, COMPLETE_GC);
+  disposeSubject.subscribe((clientId) => {
+    createComplete.clear(clientId);
+  });
 });
 
 /**

@@ -11795,7 +11795,7 @@ declare const scope: <T = any>(runFn: (clientId: string, agentName: AgentName) =
  * @template T - Type of the result returned by the pipeline execution.
  * @param {string} clientId - The client identifier.
  * @param {PipelineName} pipelineName - The name of the pipeline to execute.
- * @param {SwarmName} swarmName - The name of the swarm associated with the pipeline.
+ * @param {AgentName} agentName - The name of the agent associated with the pipeline.
  * @param {Payload} [payload={}] - Optional payload data for the pipeline.
  * @returns {Promise<T>} The result of the pipeline execution.
  */

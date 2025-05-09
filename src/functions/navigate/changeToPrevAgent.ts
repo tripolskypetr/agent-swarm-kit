@@ -1,9 +1,10 @@
-import { queued, singleshot, ttl } from "functools-kit";
+import { memoize, queued, singleshot } from "functools-kit";
 import { AgentName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { SwarmName } from "../../interfaces/Swarm.interface";
 import beginContext from "../../utils/beginContext";
+import { disposeSubject } from "../../config/emitters";
 
 const METHOD_NAME = "function.navigate.changeToPrevAgent";
 
@@ -13,13 +14,6 @@ const METHOD_NAME = "function.navigate.changeToPrevAgent";
  * @constant {number}
  */
 const CHANGE_AGENT_TTL = 15 * 60 * 1_000;
-
-/**
- * Garbage collection interval for the change agent function in milliseconds.
- * Specifies the frequency at which expired TTL entries are cleaned up.
- * @constant {number}
- */
-const CHANGE_AGENT_GC = 60 * 1_000;
 
 /**
  * Type definition for the previous agent change execution function.
@@ -45,7 +39,8 @@ type TChangeToPrevAgentRun = (
  * @param {string} clientId - The unique identifier of the client session.
  * @returns {TChangeToPrevAgentRun} A function that performs the previous agent change operation with queuing and TTL.
  */
-const createChangeToPrevAgent = ttl(
+const createChangeToPrevAgent = memoize(
+  ([clientId]) => `${clientId}`,
   (clientId: string) =>
     queued(
       async (
@@ -53,7 +48,13 @@ const createChangeToPrevAgent = ttl(
         agentName: AgentName,
         swarmName: SwarmName
       ) => {
-        if (!swarm.navigationValidationService.shouldNavigate(agentName, clientId, swarmName)) {
+        if (
+          !swarm.navigationValidationService.shouldNavigate(
+            agentName,
+            clientId,
+            swarmName
+          )
+        ) {
           return false;
         }
         // Notify all agents in the swarm of the change
@@ -107,11 +108,7 @@ const createChangeToPrevAgent = ttl(
 
         return true;
       }
-    ) as TChangeToPrevAgentRun,
-  {
-    key: ([clientId]) => `${clientId}`,
-    timeout: CHANGE_AGENT_TTL,
-  }
+    ) as TChangeToPrevAgentRun
 );
 
 /**
@@ -123,7 +120,9 @@ const createChangeToPrevAgent = ttl(
  * @returns {Promise<void>} A promise that resolves when the garbage collector is initialized.
  */
 const createGc = singleshot(async () => {
-  setInterval(createChangeToPrevAgent.gc, CHANGE_AGENT_GC);
+  disposeSubject.subscribe((clientId) => {
+    createChangeToPrevAgent.clear(clientId);
+  });
 });
 
 /**

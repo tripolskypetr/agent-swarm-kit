@@ -10,6 +10,7 @@ import beginContext from "../../utils/beginContext";
 import { PersistMemoryAdapter } from "../../classes/Persist";
 import { markOffline } from "../other/markOffline";
 import { ComputeName } from "../../interfaces/Compute.interface";
+import { disposeSubject } from "../../config/emitters";
 
 const METHOD_NAME = "function.target.disposeConnection";
 
@@ -169,6 +170,8 @@ export const disposeConnection = beginContext(
 
     // Mark the client offline
     await markOffline(clientId, swarmName);
+
+    await disposeSubject.next(clientId);
 
     {
       swarm.busService.dispose(clientId);

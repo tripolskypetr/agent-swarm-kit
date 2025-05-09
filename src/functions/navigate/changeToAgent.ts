@@ -1,25 +1,12 @@
-import { queued, singleshot, ttl } from "functools-kit";
+import { memoize, queued, singleshot } from "functools-kit";
 import { AgentName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { SwarmName } from "../../interfaces/Swarm.interface";
 import beginContext from "../../utils/beginContext";
+import { disposeSubject } from "../../config/emitters";
 
 const METHOD_NAME = "function.navigate.changeToAgent";
-
-/**
- * Time-to-live for the change agent function in milliseconds.
- * Defines how long the cached change agent function remains valid before expiring.
- * @constant {number}
- */
-const CHANGE_AGENT_TTL = 15 * 60 * 1_000;
-
-/**
- * Garbage collection interval for the change agent function in milliseconds.
- * Specifies the frequency at which expired TTL entries are cleaned up.
- * @constant {number}
- */
-const CHANGE_AGENT_GC = 60 * 1_000;
 
 /**
  * Type definition for the change agent execution function.
@@ -45,7 +32,8 @@ type TChangeToAgentRun = (
  * @param {string} clientId - The unique identifier of the client session.
  * @returns {TChangeToAgentRun} A function that performs the agent change operation with queuing and TTL.
  */
-const createChangeToAgent = ttl(
+const createChangeToAgent = memoize(
+  ([clientId]) => `${clientId}`,
   (clientId: string) =>
     queued(
       async (
@@ -114,10 +102,6 @@ const createChangeToAgent = ttl(
         return true;
       }
     ) as TChangeToAgentRun,
-  {
-    key: ([clientId]) => `${clientId}`,
-    timeout: CHANGE_AGENT_TTL,
-  }
 );
 
 /**
@@ -129,7 +113,9 @@ const createChangeToAgent = ttl(
  * @returns {Promise<void>} A promise that resolves when the garbage collector is initialized.
  */
 const createGc = singleshot(async () => {
-  setInterval(createChangeToAgent.gc, CHANGE_AGENT_GC);
+  disposeSubject.subscribe((clientId) => {
+    createChangeToAgent.clear(clientId);
+  });
 });
 
 /**
