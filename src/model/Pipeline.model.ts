@@ -26,7 +26,7 @@ export interface IPipelineSchema<Payload extends object = any> {
    * @param {AgentName} agentName - The name of the agent executing the pipeline.
    * @returns {Promise<T>} The result of the pipeline execution.
    */
-  execute: <T = any>(clientId: string, payload: Payload, agentName: AgentName) => Promise<T>;
+  execute: <T = void>(clientId: string, payload: Payload, agentName: AgentName) => Promise<T>;
 
   /**
    * @property {Partial<IPipelineCallbacks<Payload>>} [callbacks]

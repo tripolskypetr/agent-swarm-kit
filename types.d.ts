@@ -9941,7 +9941,7 @@ interface IPipelineSchema<Payload extends object = any> {
      * @param {AgentName} agentName - The name of the agent executing the pipeline.
      * @returns {Promise<T>} The result of the pipeline execution.
      */
-    execute: <T = any>(clientId: string, payload: Payload, agentName: AgentName) => Promise<T>;
+    execute: <T = void>(clientId: string, payload: Payload, agentName: AgentName) => Promise<T>;
     /**
      * @property {Partial<IPipelineCallbacks<Payload>>} [callbacks]
      * @description Optional callbacks for pipeline lifecycle events.
@@ -11746,7 +11746,7 @@ interface ISessionConfig {
     onDispose?: () => void;
 }
 
-declare const startPipeline: <Payload extends object = any>(clientId: string, pipelineName: PipelineName, payload?: Payload) => Promise<void>;
+declare const startPipeline: <Payload extends object = any, T = void>(clientId: string, pipelineName: PipelineName, payload?: Payload) => Promise<T>;
 
 /**
  * Disposes of a client session and all related resources within a swarm.

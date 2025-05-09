@@ -6,7 +6,11 @@ import { PipelineName } from "../../model/Pipeline.model";
 const METHOD_NAME = "function.target.startPipeline";
 
 export const startPipeline = beginContext(
-  async (clientId: string, pipelineName: PipelineName, payload: unknown = {}) => {
+  async <T = void>(
+    clientId: string,
+    pipelineName: PipelineName,
+    payload: unknown = {}
+  ): Promise<T> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         clientId,
@@ -28,25 +32,27 @@ export const startPipeline = beginContext(
       swarm.pipelineSchemaService.get(pipelineName);
 
     let isError = false;
+    let result = null;
 
     try {
-        if (callbacks?.onStart) {
-            callbacks.onStart(clientId, pipelineName, payload);
-        }
-        await execute(clientId, payload, agentName);
+      if (callbacks?.onStart) {
+        callbacks.onStart(clientId, pipelineName, payload);
+      }
+      result = await execute(clientId, payload, agentName);
     } catch (error) {
-        if (callbacks?.onError) {
-            callbacks.onError(clientId, pipelineName, payload, error as Error);
-        }
-        isError = true;
+      if (callbacks?.onError) {
+        callbacks.onError(clientId, pipelineName, payload, error as Error);
+      }
+      isError = true;
     } finally {
-        if (callbacks?.onEnd) {
-            callbacks.onEnd(clientId, pipelineName, payload, isError);
-        }
+      if (callbacks?.onEnd) {
+        callbacks.onEnd(clientId, pipelineName, payload, isError);
+      }
     }
+    return result;
   }
-) as <Payload extends object = any>(
+) as <Payload extends object = any, T = void>(
   clientId: string,
   pipelineName: PipelineName,
   payload?: Payload
-) => Promise<void>;
+) => Promise<T>;
