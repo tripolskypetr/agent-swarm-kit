@@ -11746,12 +11746,42 @@ interface ISessionConfig {
     onDispose?: () => void;
 }
 
+/**
+ * @module scope
+ * @description Provides a function to execute a scoped operation with session management, validation, and error handling.
+ */
+
+/**
+ * @interface IScopeOptions
+ * @description Options for the scope operation, including client ID, swarm name, and optional error handler.
+ */
 interface IScopeOptions {
+    /**
+     * @property {string} clientId
+     * @description The client identifier for the scope operation.
+     */
     clientId: string;
+    /**
+     * @property {SwarmName} swarmName
+     * @description The name of the swarm associated with the scope.
+     */
     swarmName: SwarmName;
+    /**
+     * @property {(error: Error) => void} [onError]
+     * @description Optional callback function to handle errors during execution.
+     */
     onError?: (error: Error) => void;
 }
-declare const scope: (runFn: (clientId: string, agentName: AgentName) => Promise<unknown>, args_1: IScopeOptions) => Promise<unknown>;
+/**
+ * @function scope
+ * @description Executes a provided function within a managed scope, handling session creation, validation, and cleanup.
+ * @template T - Type of the result returned by the run function.
+ * @param {Function} runFn - The function to execute, receiving clientId and agentName as arguments.
+ * @param {IScopeOptions} options - Configuration options for the scope operation.
+ * @returns {Promise<T | void>} The result of the run function or void if no result is returned.
+ * @throws {Error} If a session already exists for the clientId.
+ */
+declare const scope: <T = any>(runFn: (clientId: string, agentName: AgentName) => Promise<T | void>, options: IScopeOptions) => Promise<T | void>;
 
 declare const startPipeline: <Payload extends object = any, T = any>(clientId: string, pipelineName: PipelineName, swarmName: SwarmName, payload?: Payload) => Promise<T>;
 
