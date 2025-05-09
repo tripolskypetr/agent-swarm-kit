@@ -41,10 +41,6 @@ export const startPipeline = beginContext(
         pipelineName,
       });
 
-    if (!swarm.sessionValidationService.hasSession(clientId)) {
-      await Chat.beginChat(clientId, swarmName);
-    }
-
     swarm.sessionValidationService.validate(clientId, METHOD_NAME);
     swarm.pipelineValidationService.validate(pipelineName, METHOD_NAME);
 

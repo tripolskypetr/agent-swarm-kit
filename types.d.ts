@@ -11783,6 +11783,22 @@ interface IScopeOptions {
  */
 declare const scope: <T = any>(runFn: (clientId: string, agentName: AgentName) => Promise<T | void>, options: IScopeOptions) => Promise<T | void>;
 
+/**
+ * @module startPipeline
+ * @description Provides a function to initiate a pipeline execution with session validation, logging, and callback handling.
+ */
+
+/**
+ * @function startPipeline
+ * @description Executes a pipeline with the specified name, handling session creation, validation, and lifecycle callbacks.
+ * @template Payload - Type extending object for the pipeline payload.
+ * @template T - Type of the result returned by the pipeline execution.
+ * @param {string} clientId - The client identifier.
+ * @param {PipelineName} pipelineName - The name of the pipeline to execute.
+ * @param {SwarmName} swarmName - The name of the swarm associated with the pipeline.
+ * @param {Payload} [payload={}] - Optional payload data for the pipeline.
+ * @returns {Promise<T>} The result of the pipeline execution.
+ */
 declare const startPipeline: <Payload extends object = any, T = any>(clientId: string, pipelineName: PipelineName, swarmName: SwarmName, payload?: Payload) => Promise<T>;
 
 /**
