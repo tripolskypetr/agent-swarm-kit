@@ -9916,31 +9916,168 @@ declare class SharedComputePublicService<T extends IComputeData = IComputeData> 
     update: (methodName: string, computeName: ComputeName) => Promise<void>;
 }
 
+/**
+ * @module PipelineModel
+ * @description Defines interfaces and types for pipeline schemas and callbacks.
+ */
+
+/**
+ * @interface IPipelineSchema
+ * @template Payload - Type extending object for the pipeline payload.
+ * @description Defines the schema for a pipeline, including execution logic and optional callbacks.
+ */
 interface IPipelineSchema<Payload extends object = any> {
+    /**
+     * @property {PipelineName} pipelineName
+     * @description The name of the pipeline.
+     */
     pipelineName: PipelineName;
+    /**
+     * @property {Function} execute
+     * @description Function to execute the pipeline logic.
+     * @template T - Type of the execution result.
+     * @param {string} clientId - The client identifier.
+     * @param {Payload} payload - The payload data for the pipeline.
+     * @param {AgentName} agentName - The name of the agent executing the pipeline.
+     * @returns {Promise<T>} The result of the pipeline execution.
+     */
     execute: <T = any>(clientId: string, payload: Payload, agentName: AgentName) => Promise<T>;
+    /**
+     * @property {Partial<IPipelineCallbacks<Payload>>} [callbacks]
+     * @description Optional callbacks for pipeline lifecycle events.
+     */
     callbacks?: Partial<IPipelineCallbacks<Payload>>;
 }
+/**
+ * @interface IPipelineCallbacks
+ * @template Payload - Type extending object for the pipeline payload.
+ * @description Defines callback functions for pipeline lifecycle events.
+ */
 interface IPipelineCallbacks<Payload extends object = any> {
+    /**
+     * @method onStart
+     * @description Called when the pipeline execution starts.
+     * @param {string} clientId - The client identifier.
+     * @param {PipelineName} pipelineName - The name of the pipeline.
+     * @param {Payload} payload - The payload data for the pipeline.
+     */
     onStart: (clientId: string, pipelineName: PipelineName, payload: Payload) => void;
+    /**
+     * @method onEnd
+     * @description Called when the pipeline execution ends, indicating success or failure.
+     * @param {string} clientId - The client identifier.
+     * @param {PipelineName} pipelineName - The name of the pipeline.
+     * @param {Payload} payload - The payload data for the pipeline.
+     * @param {boolean} isError - Indicates if the pipeline ended with an error.
+     */
     onEnd: (clientId: string, pipelineName: PipelineName, payload: Payload, isError: boolean) => void;
-    onError: (clientId: string, pipelineName: PipelineName, ayload: Payload, error: Error) => void;
+    /**
+     * @method onError
+     * @description Called when an error occurs during pipeline execution.
+     * @param {string} clientId - The client identifier.
+     * @param {PipelineName} pipelineName - The name of the pipeline.
+     * @param {Payload} payload - The payload data for the pipeline.
+     * @param {Error} error - The error that occurred.
+     */
+    onError: (clientId: string, pipelineName: PipelineName, payload: Payload, error: Error) => void;
 }
+/**
+ * @typedef {string} PipelineName
+ * @description Type alias for the pipeline name, represented as a string.
+ */
 type PipelineName = string;
 
+/**
+ * @module PipelineSchemaService
+ * @description Manages pipeline schema registration, validation, and retrieval using a tool registry.
+ */
+
+/**
+ * @class PipelineSchemaService
+ * @description Service for managing pipeline schemas, including registration, validation, and retrieval.
+ */
 declare class PipelineSchemaService {
+    /**
+     * @property {LoggerService} loggerService
+     * @description Injected logger service for logging operations.
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * @property {ToolRegistry<Record<PipelineName, IPipelineSchema>>} registry
+     * @description Registry for storing pipeline schemas.
+     * @private
+     */
     private registry;
+    /**
+     * @method validateShallow
+     * @description Performs shallow validation of a pipeline schema.
+     * @param {IPipelineSchema} pipelineSchema - The pipeline schema to validate.
+     * @throws {Error} If validation fails for pipelineName or execute.
+     * @private
+     */
     private validateShallow;
+    /**
+     * @method register
+     * @description Registers a pipeline schema with validation.
+     * @param {PipelineName} key - The name of the pipeline schema.
+     * @param {IPipelineSchema} value - The pipeline schema to register.
+     */
     register: (key: PipelineName, value: IPipelineSchema) => void;
+    /**
+     * @method override
+     * @description Overrides an existing pipeline schema with new values.
+     * @param {PipelineName} key - The name of the pipeline schema to override.
+     * @param {Partial<IPipelineSchema>} value - The partial pipeline schema to apply.
+     * @returns {IPipelineSchema} The updated pipeline schema.
+     */
     override: (key: PipelineName, value: Partial<IPipelineSchema>) => IPipelineSchema<any>;
+    /**
+     * @method get
+     * @description Retrieves a pipeline schema by its name.
+     * @param {PipelineName} key - The name of the pipeline schema.
+     * @returns {IPipelineSchema} The pipeline schema.
+     */
     get: (key: PipelineName) => IPipelineSchema;
 }
 
+/**
+ * @module PipelineValidationService
+ * @description Service for managing and validating pipeline schemas, ensuring uniqueness and existence.
+ */
+
+/**
+ * @class PipelineValidationService
+ * @description Manages pipeline schema validation and registration with memoized validation checks.
+ */
 declare class PipelineValidationService {
+    /**
+     * @property {LoggerService} loggerService
+     * @description Injected logger service for logging operations.
+     * @private
+     */
     private readonly loggerService;
+    /**
+     * @property {Map<PipelineName, IPipelineSchema>} _pipelineMap
+     * @description Map storing pipeline schemas by pipeline name.
+     * @private
+     */
     private _pipelineMap;
+    /**
+     * @method addPipeline
+     * @description Adds a pipeline schema to the map, ensuring no duplicates.
+     * @param {PipelineName} pipelineName - The name of the pipeline.
+     * @param {IPipelineSchema} pipelineSchema - The pipeline schema to register.
+     * @throws {Error} If the pipeline name already exists.
+     */
     addPipeline: (pipelineName: PipelineName, pipelineSchema: IPipelineSchema) => void;
+    /**
+     * @method validate
+     * @description Validates the existence of a pipeline, memoized by pipeline name.
+     * @param {PipelineName} pipelineName - The name of the pipeline to validate.
+     * @param {string} source - The source context for the validation.
+     * @throws {Error} If the pipeline is not found.
+     */
     validate: (pipelineName: PipelineName, source: string) => void;
 }
 
@@ -10700,6 +10837,18 @@ declare const addPolicy: (policySchema: IPolicySchema) => string;
  */
 declare const addCompute: <T extends IComputeData = any>(stateSchema: IComputeSchema<T>) => string;
 
+/**
+ * @module addPipeline
+ * @description Provides a function to register a pipeline schema with validation and logging.
+ */
+
+/**
+ * @function addPipeline
+ * @description Registers a pipeline schema, validates it, and adds it to the pipeline schema service.
+ * @template Payload - Type extending object for the pipeline payload.
+ * @param {IPipelineSchema<Payload>} pipelineSchema - The pipeline schema to register.
+ * @returns {string} The name of the registered pipeline.
+ */
 declare const addPipeline: <Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>) => string;
 
 type TAgentSchema = {
@@ -10974,6 +11123,18 @@ type TComputeSchema = {
  */
 declare const overrideCompute: (computeSchema: TComputeSchema) => IComputeSchema<any>;
 
+/**
+ * @module overridePipeline
+ * @description Provides a function to override an existing pipeline schema with partial updates.
+ */
+
+/**
+ * @function overridePipeline
+ * @description Overrides an existing pipeline schema with provided partial updates.
+ * @template Payload - Type extending object for the pipeline payload.
+ * @param {IPipelineSchema<Payload>} pipelineSchema - The partial pipeline schema with updates.
+ * @returns {IPipelineSchema<Payload>} The updated pipeline schema.
+ */
 declare const overridePipeline: <Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>) => IPipelineSchema<Payload>;
 
 /**
