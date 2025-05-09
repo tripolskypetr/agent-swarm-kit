@@ -15,7 +15,7 @@ import { disposeConnection } from "./disposeConnection";
  * @description Method name for the scope operation.
  * @private
  */
-const METHOD_NAME = "function.target.scope";
+const METHOD_NAME = "function.target.fork";
 
 /**
  * @interface IScopeOptions
@@ -42,7 +42,7 @@ interface IScopeOptions {
 }
 
 /**
- * @function scope
+ * @function fork
  * @description Executes a provided function within a managed scope, handling session creation, validation, and cleanup.
  * @template T - Type of the result returned by the run function.
  * @param {Function} runFn - The function to execute, receiving clientId and agentName as arguments.
@@ -50,7 +50,7 @@ interface IScopeOptions {
  * @returns {Promise<T | void>} The result of the run function or void if no result is returned.
  * @throws {Error} If a session already exists for the clientId.
  */
-export const scope = beginContext(
+export const fork = beginContext(
   async <T = any>(
     runFn: (clientId: string, agentName: AgentName) => Promise<T | void>,
     { clientId, swarmName, onError }: IScopeOptions

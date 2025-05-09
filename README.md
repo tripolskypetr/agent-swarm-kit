@@ -27,7 +27,7 @@ Unleash the power of collaborative AI with `agent-swarm-kit`! This library empow
 
 - **Redis Storage Integration**: Persists state management, RAG (Retrieval-Augmented Generation) search data, and chat history in Redis, ensuring reliable, scalable, and high-performance storage. This enables safe and consistent access to agent states, vector search results, and conversation histories across distributed systems (Microservices).
 
-- **Chat Independent Background Agent Sessions**: Enables the swarm to perform complex data processing computations in isolated contexts, such as financial analytics, allowing agents to handle intensive tasks like market trend analysis or portfolio optimization without interfering with the primary chat flow.
+- **Chat Independent Background Agent Sessions**: Enables the swarm to perform complex data processing computations in isolated contexts, such as financial analytics, allowing agents to handle intensive tasks like market trend analysis or portfolio optimization without interfering with the primary chat flow. Works the same way like [fork in POSIX](https://pubs.opengroup.org/onlinepubs/009696799/functions/fork.html)
 
 ---
 
