@@ -38,7 +38,7 @@ export const startPipeline = beginContext(
       if (callbacks?.onStart) {
         callbacks.onStart(clientId, pipelineName, payload);
       }
-      result = await execute(clientId, payload, agentName);
+      result = await execute(clientId, agentName, payload);
     } catch (error) {
       if (callbacks?.onError) {
         callbacks.onError(clientId, pipelineName, payload, error as Error);
