@@ -11799,7 +11799,7 @@ declare const scope: <T = any>(runFn: (clientId: string, agentName: AgentName) =
  * @param {Payload} [payload={}] - Optional payload data for the pipeline.
  * @returns {Promise<T>} The result of the pipeline execution.
  */
-declare const startPipeline: <Payload extends object = any, T = any>(clientId: string, pipelineName: PipelineName, swarmName: SwarmName, payload?: Payload) => Promise<T>;
+declare const startPipeline: <Payload extends object = any, T = any>(clientId: string, pipelineName: PipelineName, agentName: AgentName, payload?: Payload) => Promise<T>;
 
 /**
  * Disposes of a client session and all related resources within a swarm.

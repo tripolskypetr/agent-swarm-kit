@@ -7,7 +7,6 @@ import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 import { PipelineName } from "../../model/Pipeline.model";
-import { SwarmName } from "../../interfaces/Swarm.interface";
 import { AgentName } from "../../interfaces/Agent.interface";
 import { changeToAgent } from "../navigate/changeToAgent";
 
@@ -85,6 +84,6 @@ export const startPipeline = beginContext(
 ) as <Payload extends object = any, T = any>(
   clientId: string,
   pipelineName: PipelineName,
-  swarmName: SwarmName,
+  agentName: AgentName,
   payload?: Payload
 ) => Promise<T>;
