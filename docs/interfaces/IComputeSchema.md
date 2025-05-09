@@ -25,6 +25,12 @@ shared: boolean
 computeName: string
 ```
 
+### ttl
+
+```ts
+ttl: number
+```
+
 ### getComputeData
 
 ```ts
