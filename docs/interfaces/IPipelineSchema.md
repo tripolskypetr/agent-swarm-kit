@@ -16,7 +16,7 @@ pipelineName: string
 ### execute
 
 ```ts
-execute: <T = any>(clientId: string, payload: Payload, agentName: string) => Promise<T>
+execute: <T = any>(clientId: string, agentName: string, payload: Payload) => Promise<void | T>
 ```
 
 ### callbacks

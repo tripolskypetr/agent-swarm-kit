@@ -6,7 +6,7 @@ group: docs
 # SessionMode
 
 ```ts
-type SessionMode = "session" | "makeConnection" | "complete";
+type SessionMode = "session" | "makeConnection" | "complete" | "scope";
 ```
 
 
