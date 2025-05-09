@@ -23,6 +23,7 @@ export * from "./functions/setup/addEmbeding";
 export * from "./functions/setup/addStorage";
 export * from "./functions/setup/addPolicy";
 export * from "./functions/setup/addCompute";
+export * from "./functions/setup/addPipeline";
 
 export * from "./functions/test/overrideAgent";     
 export * from "./functions/test/overrideCompletion";
@@ -35,6 +36,7 @@ export * from "./functions/test/overrideTool";
 export * from "./functions/test/overrideMCP";     
 export * from "./functions/test/overrideWiki";  
 export * from "./functions/test/overrideCompute";        
+export * from "./functions/test/overridePipeline";
 
 export * from "./functions/other/markOnline";
 export * from "./functions/other/markOffline";
@@ -68,6 +70,7 @@ export * from "./functions/target/runStatelessForce";
 export * from "./functions/target/makeConnection";
 export * from "./functions/target/complete";
 export * from "./functions/target/session";
+export * from "./functions/target/startPipeline";
 export * from "./functions/target/disposeConnection";
 
 export * from "./functions/common/hasSession";
@@ -129,6 +132,8 @@ export { IStorageSchema } from "./interfaces/Storage.interface";
 export { IStateSchema } from "./interfaces/State.interface";
 export { IComputeSchema } from "./interfaces/Compute.interface";
 export { IPolicySchema } from "./interfaces/Policy.interface";
+
+export { IPipelineSchema } from "./model/Pipeline.model";
 
 export { IMCPSchema, IMCPTool, MCPToolProperties, IMCPToolCallDto } from './interfaces/MCP.interface';
 

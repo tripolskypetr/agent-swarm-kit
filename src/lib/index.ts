@@ -67,6 +67,9 @@ import ComputeConnectionService from "./services/connection/ComputeConnectionSer
 import SharedComputeConnectionService from "./services/connection/SharedComputeConnectionService";
 import ComputePublicService from "./services/public/ComputePublicService";
 import SharedComputePublicService from "./services/public/SharedComputePublicService";
+import { pipeline } from "stream";
+import PipelineSchemaService from "./services/schema/PipelineSchemaService";
+import PipelineValidationService from "./services/validation/PipelineValidationService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -146,6 +149,9 @@ const schemaServices = {
   wikiSchemaService: inject<WikiSchemaService>(TYPES.wikiSchemaService),
   mcpSchemaService: inject<MCPSchemaService>(TYPES.mcpSchemaService),
   computeSchemaService: inject<ComputeSchemaService>(TYPES.computeSchemaService),
+  pipelineSchemaService: inject<PipelineSchemaService>(
+    TYPES.pipelineSchemaService
+  ),
 };
 
 const publicServices = {
@@ -217,6 +223,9 @@ const validationServices = {
   ),
   stateValidationService: inject<StateValidationService>(
     TYPES.stateValidationService
+  ),
+  pipelineValidationService: inject<PipelineValidationService>(
+    TYPES.pipelineValidationService
   ),
 };
 

@@ -57,6 +57,8 @@ import ComputePublicService from "../lib/services/public/ComputePublicService";
 import SharedComputePublicService from "../lib/services/public/SharedComputePublicService";
 import ComputeConnectionService from "../lib/services/connection/ComputeConnectionService";
 import SharedComputeConnectionService from "../lib/services/connection/SharedComputeConnectionService";
+import PipelineSchemaService from "../lib/services/schema/PipelineSchemaService";
+import PipelineValidationService from "../lib/services/validation/PipelineValidationService";
 
 /**
  * Interface defining the structure of the dependency injection container for the swarm system.
@@ -260,6 +262,12 @@ export interface ISwarmDI {
    */
   wikiSchemaService: WikiSchemaService;
 
+  /**
+   * Service for defining and managing pipeline schemas.
+   * Implements `IPipelineSchema` for rule enforcement via `PipelineSchemaService`.
+   */
+  pipelineSchemaService: PipelineSchemaService;
+
   // Public Services
   /**
    * Service exposing public APIs for agent operations.
@@ -422,4 +430,10 @@ export interface ISwarmDI {
    * Service preventing the recursive call of changeToAgent
    */
   wikiValidationService: WikiValidationService;
+
+  /**
+   * Service for validating pipeline-related data and configurations.
+   * Ensures pipeline integrity via `PipelineValidationService`.
+   */
+  pipelineValidationService: PipelineValidationService;
 }

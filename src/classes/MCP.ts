@@ -14,7 +14,7 @@ import { emit } from "../functions/target/emit";
 import { createPlaceholder } from "../client/ClientAgent";
 import { getAgentName } from "../functions/common/getAgentName";
 import { getErrorMessage } from "functools-kit";
-import { commitStopTools } from "src/functions/commit/commitStopTools";
+import { commitStopTools } from "../functions/commit/commitStopTools";
 
 const METHOD_NAME_UPDATE = "McpUtils.update";
 

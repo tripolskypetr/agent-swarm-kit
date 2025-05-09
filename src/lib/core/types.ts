@@ -40,6 +40,7 @@ const schemaServices = {
     wikiSchemaService: Symbol('wikiSchemaService'),
     mcpSchemaService: Symbol('mcpSchemaService'),
     computeSchemaService: Symbol('computeSchemaService'),
+    pipelineSchemaService: Symbol('pipelineSchemaService'),
 };
 
 const metaServices = {
@@ -76,6 +77,7 @@ const validationServices = {
     mcpValidationService: Symbol('mcpValidationService'),
     computeValidationService: Symbol('computeValidationService'),
     stateValidationService: Symbol('stateValidationService'),
+    pipelineValidationService: Symbol('pipelineValidationService'),
 };
 
 export const TYPES = {
