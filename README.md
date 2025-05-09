@@ -1,5 +1,7 @@
 # 🐝 Agent Swarm Kit
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tripolskypetr/agent-swarm-kit)
+
 > **A lightweight TypeScript library for building orchestrated, framework-agnostic multi-agent AI systems.**
 
 Unleash the power of collaborative AI with `agent-swarm-kit`! This library empowers you to create intelligent, modular agent networks that work together seamlessly—perfect for automating workflows, solving complex problems, or designing next-gen AI systems. With a simple API, robust validation, and flexible architecture, it’s your toolkit for building smarter solutions, faster.
