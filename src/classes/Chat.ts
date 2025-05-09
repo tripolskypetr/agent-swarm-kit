@@ -14,6 +14,23 @@ const INACTIVITY_CHECK = 60 * 1_000;
 const INACTIVITY_TIMEOUT = 15 * 60 * 1000;
 
 /**
+ * @constant {Function} BEGIN_CHAT_FN
+ * @description Function to begin a chat session
+ * @param {ChatInstance} self - Instance of the ChatInstance
+ * @returns {Promise<void>}
+ */
+const BEGIN_CHAT_FN = (self: ChatInstance) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    swarm.loggerService.debug("ChatInstance.beginChat", {
+      clientId: self.clientId,
+      swarmName: self.swarmName,
+    });
+  self.callbacks.onBeginChat &&
+    self.callbacks.onBeginChat(self.clientId, self.swarmName);
+  return Promise.resolve();
+}
+
+/**
  * @interface IChatInstance
  * @description Interface for chat instance functionality
  */
@@ -140,10 +157,10 @@ class ChatInstance implements IChatInstance {
    * @param {DisposeFn} onDispose - Dispose callback function
    */
   constructor(
-    private readonly clientId: SessionId,
-    private readonly swarmName: SwarmName,
-    private readonly onDispose: DisposeFn,
-    private readonly callbacks: Partial<IChatInstanceCallbacks>
+    readonly clientId: SessionId,
+    readonly swarmName: SwarmName,
+    readonly onDispose: DisposeFn,
+    readonly callbacks: Partial<IChatInstanceCallbacks>
   ) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug("ChatInstance CTOR", {
@@ -183,16 +200,9 @@ class ChatInstance implements IChatInstance {
    * Begins a chat session
    * @returns {Promise<void>}
    */
-  public beginChat() {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      swarm.loggerService.debug("ChatInstance.beginChat", {
-        clientId: this.clientId,
-        swarmName: this.swarmName,
-      });
-    this.callbacks.onBeginChat &&
-      this.callbacks.onBeginChat(this.clientId, this.swarmName);
-    return Promise.resolve();
-  }
+  public beginChat = singleshot(async () => {
+    return await BEGIN_CHAT_FN(this);
+  });
 
   /**
    * Sends a message in the chat
@@ -206,6 +216,7 @@ class ChatInstance implements IChatInstance {
         clientId: this.clientId,
         swarmName: this.swarmName,
       });
+    await this.beginChat();
     this._lastActivity = Date.now();
     this.callbacks.onSendMessage &&
       this.callbacks.onSendMessage(this.clientId, this.swarmName, content);

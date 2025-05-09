@@ -2,6 +2,8 @@ import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 import { PipelineName } from "../../model/Pipeline.model";
+import { Chat } from "../../classes/Chat";
+import { SwarmName } from "../../interfaces/Swarm.interface";
 
 const METHOD_NAME = "function.target.startPipeline";
 
@@ -9,6 +11,7 @@ export const startPipeline = beginContext(
   async <T = any>(
     clientId: string,
     pipelineName: PipelineName,
+    swarmName: SwarmName,
     payload: unknown = {}
   ): Promise<T> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -17,10 +20,10 @@ export const startPipeline = beginContext(
         pipelineName,
       });
 
+    await Chat.beginChat(clientId, swarmName);
+
     swarm.sessionValidationService.validate(clientId, METHOD_NAME);
     swarm.pipelineValidationService.validate(clientId, METHOD_NAME);
-
-    const swarmName = swarm.sessionValidationService.getSwarm(clientId);
 
     const agentName = await swarm.swarmPublicService.getAgentName(
       METHOD_NAME,
