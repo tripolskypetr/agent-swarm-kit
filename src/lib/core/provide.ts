@@ -59,6 +59,8 @@ import ComputeConnectionService from "../services/connection/ComputeConnectionSe
 import SharedComputeConnectionService from "../services/connection/SharedComputeConnectionService";
 import ComputePublicService from "../services/public/ComputePublicService";
 import SharedComputePublicService from "../services/public/SharedComputePublicService";
+import PipelineSchemaService from "../services/schema/PipelineSchemaService";
+import PipelineValidationService from "../services/validation/PipelineValidationService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -102,6 +104,7 @@ import SharedComputePublicService from "../services/public/SharedComputePublicSe
     provide(TYPES.wikiSchemaService, () => new WikiSchemaService());
     provide(TYPES.mcpSchemaService, () => new MCPSchemaService());
     provide(TYPES.computeSchemaService, () => new ComputeSchemaService());
+    provide(TYPES.pipelineSchemaService, () => new PipelineSchemaService());
 }
 
 {
@@ -138,4 +141,5 @@ import SharedComputePublicService from "../services/public/SharedComputePublicSe
     provide(TYPES.mcpValidationService, () => new MCPValidationService());
     provide(TYPES.computeValidationService, () => new ComputeValidationService());
     provide(TYPES.stateValidationService, () => new StateValidationService());
+    provide(TYPES.pipelineValidationService, () => new PipelineValidationService())
 }

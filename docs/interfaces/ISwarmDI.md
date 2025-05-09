@@ -299,6 +299,15 @@ wikiSchemaService: WikiSchemaService
 Service for defining and managing agent wikies.
 Implements `IWikiSchema` for rule enforcement via `WikiSchemaService`.
 
+### pipelineSchemaService
+
+```ts
+pipelineSchemaService: PipelineSchemaService
+```
+
+Service for defining and managing pipeline schemas.
+Implements `IPipelineSchema` for rule enforcement via `PipelineSchemaService`.
+
 ### agentPublicService
 
 ```ts
@@ -539,3 +548,12 @@ wikiValidationService: WikiValidationService
 ```
 
 Service preventing the recursive call of changeToAgent
+
+### pipelineValidationService
+
+```ts
+pipelineValidationService: PipelineValidationService
+```
+
+Service for validating pipeline-related data and configurations.
+Ensures pipeline integrity via `PipelineValidationService`.
