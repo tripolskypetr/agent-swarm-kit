@@ -70,6 +70,7 @@ export * from "./functions/target/runStatelessForce";
 export * from "./functions/target/makeConnection";
 export * from "./functions/target/complete";
 export * from "./functions/target/session";
+export * from "./functions/target/scope";
 export * from "./functions/target/startPipeline";
 export * from "./functions/target/disposeConnection";
 

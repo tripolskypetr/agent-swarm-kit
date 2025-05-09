@@ -174,7 +174,7 @@ export type SessionId = string;
  * Defines the session's behavior: full session, connection setup, or single completion.
  * @typedef {"session" | "makeConnection" | "complete"} SessionMode
  */
-export type SessionMode = "session" | "makeConnection" | "complete";
+export type SessionMode = "session" | "makeConnection" | "complete" | "scope";
 
 /**
  * Type representing the source of execution within a session.
