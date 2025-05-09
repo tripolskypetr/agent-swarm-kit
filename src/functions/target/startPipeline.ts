@@ -57,5 +57,6 @@ export const startPipeline = beginContext(
 ) as <Payload extends object = any, T = any>(
   clientId: string,
   pipelineName: PipelineName,
+  swarmName: SwarmName,
   payload?: Payload
 ) => Promise<T>;
