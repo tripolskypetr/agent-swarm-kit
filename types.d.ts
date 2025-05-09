@@ -11746,7 +11746,7 @@ interface ISessionConfig {
     onDispose?: () => void;
 }
 
-declare const startPipeline: <Payload extends object = any, T = void>(clientId: string, pipelineName: PipelineName, payload?: Payload) => Promise<T>;
+declare const startPipeline: <Payload extends object = any, T = any>(clientId: string, pipelineName: PipelineName, payload?: Payload) => Promise<T>;
 
 /**
  * Disposes of a client session and all related resources within a swarm.

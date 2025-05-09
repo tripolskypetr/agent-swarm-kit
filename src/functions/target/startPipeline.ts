@@ -6,7 +6,7 @@ import { PipelineName } from "../../model/Pipeline.model";
 const METHOD_NAME = "function.target.startPipeline";
 
 export const startPipeline = beginContext(
-  async <T = void>(
+  async <T = any>(
     clientId: string,
     pipelineName: PipelineName,
     payload: unknown = {}
@@ -51,7 +51,7 @@ export const startPipeline = beginContext(
     }
     return result;
   }
-) as <Payload extends object = any, T = void>(
+) as <Payload extends object = any, T = any>(
   clientId: string,
   pipelineName: PipelineName,
   payload?: Payload
