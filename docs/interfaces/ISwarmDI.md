@@ -83,6 +83,15 @@ executionContextService: { readonly context: IExecutionContext; }
 Service for managing execution-level context across the swarm system.
 Implements `IExecutionContext` to track `clientId`, `executionId`, and `processId` via `ExecutionContextService`.
 
+### schemaContextService
+
+```ts
+schemaContextService: { readonly context: ISchemaContext; }
+```
+
+Service for managing execution-level schemas across the swarm system.
+Allows to override agent behaviour in specific pipeline call
+
 ### agentConnectionService
 
 ```ts

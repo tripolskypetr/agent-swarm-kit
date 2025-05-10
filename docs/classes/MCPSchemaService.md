@@ -24,10 +24,19 @@ loggerService: LoggerService
 
 Injected LoggerService for logging operations.
 
-### registry
+### schemaContextService
 
 ```ts
-registry: any
+schemaContextService: { readonly context: ISchemaContext; }
+```
+
+Schema context service instance, injected via DI, for managing schema-related context operations.
+Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+
+### _registry
+
+```ts
+_registry: any
 ```
 
 Registry for storing MCP schemas, keyed by MCP name.

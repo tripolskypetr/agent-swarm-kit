@@ -28,10 +28,19 @@ loggerService: any
 Logger service instance, injected via DI, for logging embedding schema operations.
 Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StorageConnectionService and PerfService logging patterns.
 
-### registry
+### schemaContextService
 
 ```ts
-registry: any
+schemaContextService: { readonly context: ISchemaContext; }
+```
+
+Schema context service instance, injected via DI, for managing schema-related context operations.
+Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+
+### _registry
+
+```ts
+_registry: any
 ```
 
 Registry instance for storing embedding schemas, initialized with ToolRegistry from functools-kit.
