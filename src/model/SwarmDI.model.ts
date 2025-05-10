@@ -59,6 +59,7 @@ import ComputeConnectionService from "../lib/services/connection/ComputeConnecti
 import SharedComputeConnectionService from "../lib/services/connection/SharedComputeConnectionService";
 import PipelineSchemaService from "../lib/services/schema/PipelineSchemaService";
 import PipelineValidationService from "../lib/services/validation/PipelineValidationService";
+import { TSchemaContextService } from "../lib/services/context/SchemaContextService";
 
 /**
  * Interface defining the structure of the dependency injection container for the swarm system.
@@ -115,6 +116,12 @@ export interface ISwarmDI {
    * Implements `IExecutionContext` to track `clientId`, `executionId`, and `processId` via `ExecutionContextService`.
    */
   executionContextService: TExecutionContextService;
+
+  /**
+   * Service for managing execution-level schemas across the swarm system.
+   * Allows to override agent behaviour in specific pipeline call
+   */
+  schemaContextService: TSchemaContextService;
 
   // Connection Services
   /**

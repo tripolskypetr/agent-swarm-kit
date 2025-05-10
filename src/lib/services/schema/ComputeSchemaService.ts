@@ -7,8 +7,14 @@ import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import { ToolRegistry } from "functools-kit";
-import { IComputeSchema, ComputeName } from "../../../interfaces/Compute.interface";
+import {
+  IComputeSchema,
+  ComputeName,
+} from "../../../interfaces/Compute.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import SchemaContextService, {
+  TSchemaContextService,
+} from "../context/SchemaContextService";
 
 /**
  * @class ComputeSchemaService
@@ -23,13 +29,50 @@ export class ComputeSchemaService {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
+   * Schema context service instance, injected via DI, for managing schema-related context operations.
+   * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+   * @type {TSchemaContextService}
+   * @readonly
+   */
+  readonly schemaContextService = inject<TSchemaContextService>(
+    TYPES.schemaContextService
+  );
+
+  /**
    * @property {ToolRegistry<Record<ComputeName, IComputeSchema>>} registry
    * @description Registry for storing compute schemas.
    * @private
    */
-  private registry = new ToolRegistry<Record<ComputeName, IComputeSchema>>(
+  private _registry = new ToolRegistry<Record<ComputeName, IComputeSchema>>(
     "computeSchemaService"
   );
+
+  /**
+   * Retrieves the current registry instance for agent schemas.
+   * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+   * Otherwise, it falls back to the private `_registry` instance.
+   */
+  public get registry() {
+    if (SchemaContextService.hasContext()) {
+      return this.schemaContextService.context.registry.computeSchemaService;
+    }
+    return this._registry;
+  }
+
+  /**
+   * Sets the registry instance for agent schemas.
+   * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+   * Otherwise, it updates the private `_registry` instance.
+   */
+  public set registry(
+    value: ToolRegistry<Record<ComputeName, IComputeSchema>>
+  ) {
+    if (SchemaContextService.hasContext()) {
+      this.schemaContextService.context.registry.computeSchemaService = value;
+      return;
+    }
+    this._registry = value;
+  }
 
   /**
    * @method validateShallow
@@ -58,12 +101,17 @@ export class ComputeSchemaService {
         `agent-swarm compute schema validation failed: missing getComputeData for computeName=${computeSchema.computeName}`
       );
     }
-    if (computeSchema.middlewares && !Array.isArray(computeSchema.middlewares)) {
+    if (
+      computeSchema.middlewares &&
+      !Array.isArray(computeSchema.middlewares)
+    ) {
       throw new Error(
         `agent-swarm compute schema validation failed: invalid middlewares for computeName=${computeSchema.computeName} middlewares=${computeSchema.middlewares}`
       );
     }
-    if (computeSchema.middlewares?.some((value) => typeof value !== "function")) {
+    if (
+      computeSchema.middlewares?.some((value) => typeof value !== "function")
+    ) {
       throw new Error(
         `agent-swarm compute schema validation failed: invalid middlewares for computeName=${computeSchema.computeName} middlewares=[${computeSchema.middlewares}]`
       );

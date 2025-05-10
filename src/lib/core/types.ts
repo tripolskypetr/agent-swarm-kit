@@ -10,6 +10,7 @@ const contextServices = {
     methodContextService: Symbol('methodContextService'),
     payloadContextService: Symbol('payloadContextService'),
     executionContextService: Symbol('executionContextService'),
+    schemaContextService: Symbol('schemaContextService'),
 };
 
 const connectionServices = {

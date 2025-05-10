@@ -67,9 +67,11 @@ import ComputeConnectionService from "./services/connection/ComputeConnectionSer
 import SharedComputeConnectionService from "./services/connection/SharedComputeConnectionService";
 import ComputePublicService from "./services/public/ComputePublicService";
 import SharedComputePublicService from "./services/public/SharedComputePublicService";
-import { pipeline } from "stream";
 import PipelineSchemaService from "./services/schema/PipelineSchemaService";
 import PipelineValidationService from "./services/validation/PipelineValidationService";
+import SchemaContextService, {
+  TSchemaContextService,
+} from "./services/context/SchemaContextService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -88,6 +90,9 @@ const contextServices = {
   ),
   executionContextService: inject<TExecutionContextService>(
     TYPES.executionContextService
+  ),
+  schemaContextService: inject<TSchemaContextService>(
+    TYPES.schemaContextService
   ),
 };
 
@@ -148,7 +153,9 @@ const schemaServices = {
   policySchemaService: inject<PolicySchemaService>(TYPES.policySchemaService),
   wikiSchemaService: inject<WikiSchemaService>(TYPES.wikiSchemaService),
   mcpSchemaService: inject<MCPSchemaService>(TYPES.mcpSchemaService),
-  computeSchemaService: inject<ComputeSchemaService>(TYPES.computeSchemaService),
+  computeSchemaService: inject<ComputeSchemaService>(
+    TYPES.computeSchemaService
+  ),
   pipelineSchemaService: inject<PipelineSchemaService>(
     TYPES.pipelineSchemaService
   ),
@@ -175,8 +182,12 @@ const publicServices = {
   ),
   policyPublicService: inject<PolicyPublicService>(TYPES.policyPublicService),
   mcpPublicService: inject<MCPPublicService>(TYPES.mcpPublicService),
-  computePublicService: inject<ComputePublicService>(TYPES.computePublicService),
-  sharedComputePublicService: inject<SharedComputePublicService>(TYPES.sharedComputePublicService),
+  computePublicService: inject<ComputePublicService>(
+    TYPES.computePublicService
+  ),
+  sharedComputePublicService: inject<SharedComputePublicService>(
+    TYPES.sharedComputePublicService
+  ),
 };
 
 const metaServices = {
@@ -245,5 +256,6 @@ init();
 export { MethodContextService };
 export { PayloadContextService };
 export { ExecutionContextService };
+export { SchemaContextService };
 
 export default swarm;

@@ -36,5 +36,7 @@ export const overrideAgent = beginContext((agentSchema: TAgentSchema) => {
       agentSchema,
     });
 
+  const prevSchema = swarm.agentSchemaService.get(agentSchema.agentName);
+
   return swarm.agentSchemaService.override(agentSchema.agentName, agentSchema);
 });

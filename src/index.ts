@@ -71,6 +71,7 @@ export * from "./functions/target/makeConnection";
 export * from "./functions/target/complete";
 export * from "./functions/target/session";
 export * from "./functions/target/fork";
+export * from "./functions/target/scope";
 export * from "./functions/target/startPipeline";
 export * from "./functions/target/disposeConnection";
 
@@ -223,6 +224,7 @@ export { Adapter } from "./classes/Adapter";
 export { ExecutionContextService } from "./lib/services/context/ExecutionContextService";
 export { PayloadContextService } from "./lib/services/context/PayloadContextService";
 export { MethodContextService } from "./lib/services/context/MethodContextService";
+export { SchemaContextService } from "./lib/services/context/SchemaContextService";
 
 export { beginContext } from "./utils/beginContext";
 

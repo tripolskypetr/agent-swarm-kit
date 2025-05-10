@@ -4,6 +4,7 @@ import LoggerService from "../base/LoggerService";
 import { inject } from "../../core/di";
 import TYPES from "../../core/types";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import SchemaContextService, { TSchemaContextService } from "../context/SchemaContextService";
 
 /**
  * Service class for managing tool schemas in the swarm system.
@@ -23,15 +24,50 @@ export class ToolSchemaService {
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
+   * Schema context service instance, injected via DI, for managing schema-related context operations.
+   * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+   * @type {TSchemaContextService}
+   * @readonly
+   */
+  readonly schemaContextService = inject<TSchemaContextService>(
+    TYPES.schemaContextService
+  );
+
+  /**
    * Registry instance for storing tool schemas, initialized with ToolRegistry from functools-kit.
    * Maps ToolName keys to IAgentTool values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
    * @type {ToolRegistry<Record<ToolName, IAgentTool>>}
    * @private
    */
-  private registry = new ToolRegistry<Record<ToolName, IAgentTool>>(
+  private _registry = new ToolRegistry<Record<ToolName, IAgentTool>>(
     "toolSchemaService"
   );
+
+  /**
+   * Retrieves the current registry instance for agent schemas.
+   * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+   * Otherwise, it falls back to the private `_registry` instance.
+   */
+  public get registry() {
+    if (SchemaContextService.hasContext()) {
+      return this.schemaContextService.context.registry.toolSchemaService;
+    }
+    return this._registry;
+  }
+
+  /**
+   * Sets the registry instance for agent schemas.
+   * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+   * Otherwise, it updates the private `_registry` instance.
+   */
+  public set registry(value: ToolRegistry<Record<ToolName, IAgentTool>>) {
+    if (SchemaContextService.hasContext()) {
+      this.schemaContextService.context.registry.toolSchemaService = value;
+      return;
+    }
+    this._registry = value;
+  }
 
   /**
    * Validates a tool schema shallowly, ensuring required fields meet basic integrity constraints.

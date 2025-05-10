@@ -4,6 +4,7 @@ import TYPES from "../../core/types";
 import { ToolRegistry } from "functools-kit";
 import { IWikiSchema, WikiName } from "../../../interfaces/Wiki.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import SchemaContextService, { TSchemaContextService } from "../context/SchemaContextService";
 
 /**
  * @class WikiSchemaService
@@ -17,12 +18,47 @@ export class WikiSchemaService {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
+   * Schema context service instance, injected via DI, for managing schema-related context operations.
+   * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+   * @type {TSchemaContextService}
+   * @readonly
+   */
+  readonly schemaContextService = inject<TSchemaContextService>(
+    TYPES.schemaContextService
+  );
+
+  /**
    * @private
    * @description Registry for storing wiki schemas
    */
-  private registry = new ToolRegistry<Record<WikiName, IWikiSchema>>(
+  private _registry = new ToolRegistry<Record<WikiName, IWikiSchema>>(
     "wikiSchemaService"
   );
+
+  /**
+   * Retrieves the current registry instance for agent schemas.
+   * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+   * Otherwise, it falls back to the private `_registry` instance.
+   */
+  public get registry() {
+    if (SchemaContextService.hasContext()) {
+      return this.schemaContextService.context.registry.wikiSchemaService;
+    }
+    return this._registry;
+  }
+
+  /**
+   * Sets the registry instance for agent schemas.
+   * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+   * Otherwise, it updates the private `_registry` instance.
+   */
+  public set registry(value: ToolRegistry<Record<WikiName, IWikiSchema>>) {
+    if (SchemaContextService.hasContext()) {
+      this.schemaContextService.context.registry.wikiSchemaService = value;
+      return;
+    }
+    this._registry = value;
+  }
 
   /**
    * Validates basic requirements of a wiki schema

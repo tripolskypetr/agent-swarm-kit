@@ -1,5 +1,5 @@
 import * as functools_kit from 'functools-kit';
-import { SortedArray, TSubject, Subject } from 'functools-kit';
+import { SortedArray, TSubject, Subject, ToolRegistry } from 'functools-kit';
 import * as di_scoped from 'di-scoped';
 
 /**
@@ -4501,6 +4501,166 @@ declare class HistoryConnectionService implements IHistory {
 }
 
 /**
+ * @module PipelineModel
+ * @description Defines interfaces and types for pipeline schemas and callbacks.
+ */
+
+/**
+ * @interface IPipelineSchema
+ * @template Payload - Type extending object for the pipeline payload.
+ * @description Defines the schema for a pipeline, including execution logic and optional callbacks.
+ */
+interface IPipelineSchema<Payload extends object = any> {
+    /**
+     * @property {PipelineName} pipelineName
+     * @description The name of the pipeline.
+     */
+    pipelineName: PipelineName;
+    /**
+     * @property {Function} execute
+     * @description Function to execute the pipeline logic.
+     * @template T - Type of the execution result.
+     * @param {string} clientId - The client identifier.
+     * @param {Payload} payload - The payload data for the pipeline.
+     * @param {AgentName} agentName - The name of the agent executing the pipeline.
+     * @returns {Promise<T>} The result of the pipeline execution.
+     */
+    execute: <T = any>(clientId: string, agentName: AgentName, payload: Payload) => Promise<T | void>;
+    /**
+     * @property {Partial<IPipelineCallbacks<Payload>>} [callbacks]
+     * @description Optional callbacks for pipeline lifecycle events.
+     */
+    callbacks?: Partial<IPipelineCallbacks<Payload>>;
+}
+/**
+ * @interface IPipelineCallbacks
+ * @template Payload - Type extending object for the pipeline payload.
+ * @description Defines callback functions for pipeline lifecycle events.
+ */
+interface IPipelineCallbacks<Payload extends object = any> {
+    /**
+     * @method onStart
+     * @description Called when the pipeline execution starts.
+     * @param {string} clientId - The client identifier.
+     * @param {PipelineName} pipelineName - The name of the pipeline.
+     * @param {Payload} payload - The payload data for the pipeline.
+     */
+    onStart: (clientId: string, pipelineName: PipelineName, payload: Payload) => void;
+    /**
+     * @method onEnd
+     * @description Called when the pipeline execution ends, indicating success or failure.
+     * @param {string} clientId - The client identifier.
+     * @param {PipelineName} pipelineName - The name of the pipeline.
+     * @param {Payload} payload - The payload data for the pipeline.
+     * @param {boolean} isError - Indicates if the pipeline ended with an error.
+     */
+    onEnd: (clientId: string, pipelineName: PipelineName, payload: Payload, isError: boolean) => void;
+    /**
+     * @method onError
+     * @description Called when an error occurs during pipeline execution.
+     * @param {string} clientId - The client identifier.
+     * @param {PipelineName} pipelineName - The name of the pipeline.
+     * @param {Payload} payload - The payload data for the pipeline.
+     * @param {Error} error - The error that occurred.
+     */
+    onError: (clientId: string, pipelineName: PipelineName, payload: Payload, error: Error) => void;
+}
+/**
+ * @typedef {string} PipelineName
+ * @description Type alias for the pipeline name, represented as a string.
+ */
+type PipelineName = string;
+
+/**
+ * @interface ISchemaContext
+ * @description Defines the structure of the schema context, containing a registry of schema services for various components.
+ */
+interface ISchemaContext {
+    /**
+     * @property {Object} registry
+     * @description A collection of registries for different schema types, each managing specific schema records.
+     */
+    registry: {
+        /**
+         * @property {ToolRegistry<Record<AgentName, IAgentSchema>>} agentSchemaService
+         * @description Registry for agent schemas, mapping agent names to their schemas.
+         */
+        agentSchemaService: ToolRegistry<Record<AgentName, IAgentSchema>>;
+        /**
+         * @property {ToolRegistry<Record<CompletionName, ICompletionSchema>>} completionSchemaService
+         * @description Registry for completion schemas, mapping completion names to their schemas.
+         */
+        completionSchemaService: ToolRegistry<Record<CompletionName, ICompletionSchema>>;
+        /**
+         * @property {ToolRegistry<Record<ComputeName, IComputeSchema>>} computeSchemaService
+         * @description Registry for compute schemas, mapping compute names to their schemas.
+         */
+        computeSchemaService: ToolRegistry<Record<ComputeName, IComputeSchema>>;
+        /**
+         * @property {ToolRegistry<Record<EmbeddingName, IEmbeddingSchema>>} embeddingSchemaService
+         * @description Registry for embedding schemas, mapping embedding names to their schemas.
+         */
+        embeddingSchemaService: ToolRegistry<Record<EmbeddingName, IEmbeddingSchema>>;
+        /**
+         * @property {ToolRegistry<Record<MCPName, IMCPSchema>>} mcpSchemaService
+         * @description Registry for MCP schemas, mapping MCP names to their schemas.
+         */
+        mcpSchemaService: ToolRegistry<Record<MCPName, IMCPSchema>>;
+        /**
+         * @property {ToolRegistry<Record<PipelineName, IPipelineSchema>>} pipelineSchemaService
+         * @description Registry for pipeline schemas, mapping pipeline names to their schemas.
+         */
+        pipelineSchemaService: ToolRegistry<Record<PipelineName, IPipelineSchema>>;
+        /**
+         * @property {ToolRegistry<Record<PolicyName, IPolicySchema>>} policySchemaService
+         * @description Registry for policy schemas, mapping policy names to their schemas.
+         */
+        policySchemaService: ToolRegistry<Record<PolicyName, IPolicySchema>>;
+        /**
+         * @property {ToolRegistry<Record<StateName, IStateSchema>>} stateSchemaService
+         * @description Registry for state schemas, mapping state names to their schemas.
+         */
+        stateSchemaService: ToolRegistry<Record<StateName, IStateSchema>>;
+        /**
+         * @property {ToolRegistry<Record<StorageName, IStorageSchema>>} storageSchemaService
+         * @description Registry for storage schemas, mapping storage names to their schemas.
+         */
+        storageSchemaService: ToolRegistry<Record<StorageName, IStorageSchema>>;
+        /**
+         * @property {ToolRegistry<Record<SwarmName, ISwarmSchema>>} swarmSchemaService
+         * @description Registry for swarm schemas, mapping swarm names to their schemas.
+         */
+        swarmSchemaService: ToolRegistry<Record<SwarmName, ISwarmSchema>>;
+        /**
+         * @property {ToolRegistry<Record<ToolName, IAgentTool>>} toolSchemaService
+         * @description Registry for tool schemas, mapping tool names to their schemas.
+         */
+        toolSchemaService: ToolRegistry<Record<ToolName, IAgentTool>>;
+        /**
+         * @property {ToolRegistry<Record<WikiName, IWikiSchema>>} wikiSchemaService
+         * @description Registry for wiki schemas, mapping wiki names to their schemas.
+         */
+        wikiSchemaService: ToolRegistry<Record<WikiName, IWikiSchema>>;
+    };
+}
+/**
+ * @class SchemaContextService
+ * @description A scoped service that holds the schema context, enabling dependency injection for schema registries.
+ */
+declare const SchemaContextService: (new () => {
+    readonly context: ISchemaContext;
+}) & Omit<{
+    new (context: ISchemaContext): {
+        readonly context: ISchemaContext;
+    };
+}, "prototype"> & di_scoped.IScopedClassRun<[context: ISchemaContext]>;
+/**
+ * @typedef {InstanceType<typeof SchemaContextService>} TSchemaContextService
+ * @description Type alias for instances of the SchemaContextService class.
+ */
+type TSchemaContextService = InstanceType<typeof SchemaContextService>;
+
+/**
  * Service class for managing agent schemas in the swarm system.
  * Provides a centralized registry for storing and retrieving IAgentSchema instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
  * Integrates with AgentConnectionService (agent instantiation using schemas), SwarmConnectionService (swarm agent configuration), ClientAgent (schema-driven execution), and AgentMetaService (meta-level agent management).
@@ -4516,13 +4676,40 @@ declare class AgentSchemaService {
      */
     readonly loggerService: LoggerService;
     /**
+     * Schema context service instance, injected via DI, for managing schema-related context operations.
+     * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+     * @type {TSchemaContextService}
+     * @readonly
+     */
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
+    /**
      * Registry instance for storing agent schemas, initialized with ToolRegistry from functools-kit.
      * Maps AgentName keys to IAgentSchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @type {ToolRegistry<Record<AgentName, IAgentSchema>>}
      * @private
      */
-    private registry;
+    private _registry;
+    /**
+     * Retrieves the current registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+     * Otherwise, it falls back to the private `_registry` instance.
+     *
+     * @private
+     * @returns {ToolRegistry<Record<AgentName, IAgentSchema>>} The current registry instance for managing agent schemas.
+     */
+    get registry(): ToolRegistry<Record<AgentName, IAgentSchema>>;
+    /**
+     * Sets the registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+     * Otherwise, it updates the private `_registry` instance.
+     *
+     * @private
+     * @param {ToolRegistry<Record<AgentName, IAgentSchema>>} value - The new registry instance to set for managing agent schemas.
+     */
+    set registry(value: ToolRegistry<Record<AgentName, IAgentSchema>>);
     /**
      * Validates an agent schema shallowly, ensuring required fields and array properties meet basic integrity constraints.
      * Checks agentName, completion, and prompt as strings; ensures system, dependsOn, states, storages, and tools are arrays of unique strings if present.
@@ -4581,13 +4768,34 @@ declare class ToolSchemaService {
      */
     private readonly loggerService;
     /**
+     * Schema context service instance, injected via DI, for managing schema-related context operations.
+     * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+     * @type {TSchemaContextService}
+     * @readonly
+     */
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
+    /**
      * Registry instance for storing tool schemas, initialized with ToolRegistry from functools-kit.
      * Maps ToolName keys to IAgentTool values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @type {ToolRegistry<Record<ToolName, IAgentTool>>}
      * @private
      */
-    private registry;
+    private _registry;
+    /**
+     * Retrieves the current registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+     * Otherwise, it falls back to the private `_registry` instance.
+     */
+    get registry(): ToolRegistry<Record<ToolName, IAgentTool>>;
+    /**
+     * Sets the registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+     * Otherwise, it updates the private `_registry` instance.
+     */
+    set registry(value: ToolRegistry<Record<ToolName, IAgentTool>>);
     /**
      * Validates a tool schema shallowly, ensuring required fields meet basic integrity constraints.
      * Checks toolName as a string, call and validate as functions (for tool execution and input validation), and function as an object (tool metadata), using isObject from functools-kit.
@@ -4893,13 +5101,34 @@ declare class SwarmSchemaService {
      */
     readonly loggerService: LoggerService;
     /**
+     * Schema context service instance, injected via DI, for managing schema-related context operations.
+     * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+     * @type {TSchemaContextService}
+     * @readonly
+     */
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
+    /**
      * Registry instance for storing swarm schemas, initialized with ToolRegistry from functools-kit.
      * Maps SwarmName keys to ISwarmSchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @type {ToolRegistry<Record<SwarmName, ISwarmSchema>>}
      * @private
      */
-    private registry;
+    private _registry;
+    /**
+     * Retrieves the current registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+     * Otherwise, it falls back to the private `_registry` instance.
+     */
+    get registry(): ToolRegistry<Record<SwarmName, ISwarmSchema>>;
+    /**
+     * Sets the registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+     * Otherwise, it updates the private `_registry` instance.
+     */
+    set registry(value: ToolRegistry<Record<SwarmName, ISwarmSchema>>);
     /**
      * Validates a swarm schema shallowly, ensuring required fields and optional properties meet basic integrity constraints.
      * Checks swarmName and defaultAgent as strings, agentList as an array of unique strings (AgentName references), and policies, if present, as an array of unique strings (PolicyName references).
@@ -4957,13 +5186,34 @@ declare class CompletionSchemaService {
      */
     readonly loggerService: LoggerService;
     /**
+     * Schema context service instance, injected via DI, for managing schema-related context operations.
+     * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+     * @type {TSchemaContextService}
+     * @readonly
+     */
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
+    /**
      * Registry instance for storing completion schemas, initialized with ToolRegistry from functools-kit.
      * Maps CompletionName keys to ICompletionSchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @type {ToolRegistry<Record<CompletionName, ICompletionSchema>>}
      * @private
      */
-    private registry;
+    private _registry;
+    /**
+     * Retrieves the current registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+     * Otherwise, it falls back to the private `_registry` instance.
+     */
+    get registry(): ToolRegistry<Record<CompletionName, ICompletionSchema>>;
+    /**
+     * Sets the registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+     * Otherwise, it updates the private `_registry` instance.
+     */
+    set registry(value: ToolRegistry<Record<CompletionName, ICompletionSchema>>);
     /**
      * Validates a completion schema shallowly, ensuring required fields meet basic integrity constraints.
      * Checks completionName as a string and getCompletion as a function, critical for agent execution in ClientAgent.
@@ -6453,13 +6703,34 @@ declare class EmbeddingSchemaService {
      */
     private readonly loggerService;
     /**
+     * Schema context service instance, injected via DI, for managing schema-related context operations.
+     * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+     * @type {TSchemaContextService}
+     * @readonly
+     */
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
+    /**
      * Registry instance for storing embedding schemas, initialized with ToolRegistry from functools-kit.
      * Maps EmbeddingName keys to IEmbeddingSchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @type {ToolRegistry<Record<EmbeddingName, IEmbeddingSchema>>}
      * @private
      */
-    private registry;
+    private _registry;
+    /**
+     * Retrieves the current registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+     * Otherwise, it falls back to the private `_registry` instance.
+     */
+    get registry(): ToolRegistry<Record<EmbeddingName, IEmbeddingSchema>>;
+    /**
+     * Sets the registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+     * Otherwise, it updates the private `_registry` instance.
+     */
+    set registry(value: ToolRegistry<Record<EmbeddingName, IEmbeddingSchema>>);
     /**
      * Validates an embedding schema shallowly, ensuring required fields meet basic integrity constraints.
      * Checks embeddingName as a string and calculateSimilarity and createEmbedding as functions, critical for storage operations in StorageConnectionService and SharedStorageConnectionService.
@@ -6517,13 +6788,34 @@ declare class StorageSchemaService {
      */
     readonly loggerService: LoggerService;
     /**
+     * Schema context service instance, injected via DI, for managing schema-related context operations.
+     * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+     * @type {TSchemaContextService}
+     * @readonly
+     */
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
+    /**
      * Registry instance for storing storage schemas, initialized with ToolRegistry from functools-kit.
      * Maps StorageName keys to IStorageSchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @type {ToolRegistry<Record<StorageName, IStorageSchema>>}
      * @private
      */
-    private registry;
+    private _registry;
+    /**
+     * Retrieves the current registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+     * Otherwise, it falls back to the private `_registry` instance.
+     */
+    get registry(): ToolRegistry<Record<StorageName, IStorageSchema>>;
+    /**
+     * Sets the registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+     * Otherwise, it updates the private `_registry` instance.
+     */
+    set registry(value: ToolRegistry<Record<StorageName, IStorageSchema>>);
     /**
      * Validates a storage schema shallowly, ensuring required fields meet basic integrity constraints.
      * Checks storageName as a string, createIndex as a function (for indexing storage data), and embedding as a string (referencing an EmbeddingName from EmbeddingSchemaService).
@@ -7318,13 +7610,34 @@ declare class StateSchemaService {
      */
     readonly loggerService: LoggerService;
     /**
+     * Schema context service instance, injected via DI, for managing schema-related context operations.
+     * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+     * @type {TSchemaContextService}
+     * @readonly
+     */
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
+    /**
      * Registry instance for storing state schemas, initialized with ToolRegistry from functools-kit.
      * Maps StateName keys to IStateSchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @type {ToolRegistry<Record<StateName, IStateSchema>>}
      * @private
      */
-    private registry;
+    private _registry;
+    /**
+     * Retrieves the current registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+     * Otherwise, it falls back to the private `_registry` instance.
+     */
+    get registry(): ToolRegistry<Record<StateName, IStateSchema>>;
+    /**
+     * Sets the registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+     * Otherwise, it updates the private `_registry` instance.
+     */
+    set registry(value: ToolRegistry<Record<StateName, IStateSchema>>);
     /**
      * Validates a state schema shallowly, ensuring required fields and optional properties meet basic integrity constraints.
      * Checks stateName as a string and getState as a function (required for state retrieval), and ensures middlewares, if present, is an array of functions.
@@ -8582,13 +8895,34 @@ declare class PolicySchemaService {
      */
     readonly loggerService: LoggerService;
     /**
+     * Schema context service instance, injected via DI, for managing schema-related context operations.
+     * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+     * @type {TSchemaContextService}
+     * @readonly
+     */
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
+    /**
      * Registry instance for storing policy schemas, initialized with ToolRegistry from functools-kit.
      * Maps PolicyName keys to IPolicySchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @type {ToolRegistry<Record<PolicyName, IPolicySchema>>}
      * @private
      */
-    private registry;
+    private _registry;
+    /**
+     * Retrieves the current registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+     * Otherwise, it falls back to the private `_registry` instance.
+     */
+    get registry(): ToolRegistry<Record<PolicyName, IPolicySchema>>;
+    /**
+     * Sets the registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+     * Otherwise, it updates the private `_registry` instance.
+     */
+    set registry(value: ToolRegistry<Record<PolicyName, IPolicySchema>>);
     /**
      * Validates a policy schema shallowly, ensuring required fields meet basic integrity constraints.
      * Checks policyName as a string and getBannedClients as a function, critical for policy enforcement in PolicyConnectionService.
@@ -9091,10 +9425,31 @@ declare class WikiSchemaService {
      */
     readonly loggerService: LoggerService;
     /**
+     * Schema context service instance, injected via DI, for managing schema-related context operations.
+     * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+     * @type {TSchemaContextService}
+     * @readonly
+     */
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
+    /**
      * @private
      * @description Registry for storing wiki schemas
      */
-    private registry;
+    private _registry;
+    /**
+     * Retrieves the current registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+     * Otherwise, it falls back to the private `_registry` instance.
+     */
+    get registry(): ToolRegistry<Record<WikiName, IWikiSchema>>;
+    /**
+     * Sets the registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+     * Otherwise, it updates the private `_registry` instance.
+     */
+    set registry(value: ToolRegistry<Record<WikiName, IWikiSchema>>);
     /**
      * Validates basic requirements of a wiki schema
      * @private
@@ -9244,8 +9599,29 @@ declare class MCPConnectionService implements IMCP {
 declare class MCPSchemaService {
     /** Injected LoggerService for logging operations. */
     readonly loggerService: LoggerService;
+    /**
+     * Schema context service instance, injected via DI, for managing schema-related context operations.
+     * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+     * @type {TSchemaContextService}
+     * @readonly
+     */
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
     /** Registry for storing MCP schemas, keyed by MCP name. */
-    private registry;
+    private _registry;
+    /**
+     * Retrieves the current registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+     * Otherwise, it falls back to the private `_registry` instance.
+     */
+    get registry(): ToolRegistry<Record<MCPName, IMCPSchema>>;
+    /**
+     * Sets the registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+     * Otherwise, it updates the private `_registry` instance.
+     */
+    set registry(value: ToolRegistry<Record<MCPName, IMCPSchema>>);
     /**
      * Validates the basic structure of an MCP schema.
      * @param mcpSchema - The MCP schema to validate.
@@ -9467,11 +9843,6 @@ declare class StateValidationService {
 }
 
 /**
- * @module ComputeSchemaService
- * @description Manages compute schema registration, validation, and retrieval using a tool registry.
- */
-
-/**
  * @class ComputeSchemaService
  * @description Service for managing compute schemas, including registration, validation, and retrieval.
  */
@@ -9483,11 +9854,32 @@ declare class ComputeSchemaService {
      */
     readonly loggerService: LoggerService;
     /**
+     * Schema context service instance, injected via DI, for managing schema-related context operations.
+     * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+     * @type {TSchemaContextService}
+     * @readonly
+     */
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
+    /**
      * @property {ToolRegistry<Record<ComputeName, IComputeSchema>>} registry
      * @description Registry for storing compute schemas.
      * @private
      */
-    private registry;
+    private _registry;
+    /**
+     * Retrieves the current registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+     * Otherwise, it falls back to the private `_registry` instance.
+     */
+    get registry(): ToolRegistry<Record<ComputeName, IComputeSchema>>;
+    /**
+     * Sets the registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+     * Otherwise, it updates the private `_registry` instance.
+     */
+    set registry(value: ToolRegistry<Record<ComputeName, IComputeSchema>>);
     /**
      * @method validateShallow
      * @description Performs shallow validation of a compute schema.
@@ -9917,82 +10309,6 @@ declare class SharedComputePublicService<T extends IComputeData = IComputeData> 
 }
 
 /**
- * @module PipelineModel
- * @description Defines interfaces and types for pipeline schemas and callbacks.
- */
-
-/**
- * @interface IPipelineSchema
- * @template Payload - Type extending object for the pipeline payload.
- * @description Defines the schema for a pipeline, including execution logic and optional callbacks.
- */
-interface IPipelineSchema<Payload extends object = any> {
-    /**
-     * @property {PipelineName} pipelineName
-     * @description The name of the pipeline.
-     */
-    pipelineName: PipelineName;
-    /**
-     * @property {Function} execute
-     * @description Function to execute the pipeline logic.
-     * @template T - Type of the execution result.
-     * @param {string} clientId - The client identifier.
-     * @param {Payload} payload - The payload data for the pipeline.
-     * @param {AgentName} agentName - The name of the agent executing the pipeline.
-     * @returns {Promise<T>} The result of the pipeline execution.
-     */
-    execute: <T = any>(clientId: string, agentName: AgentName, payload: Payload) => Promise<T | void>;
-    /**
-     * @property {Partial<IPipelineCallbacks<Payload>>} [callbacks]
-     * @description Optional callbacks for pipeline lifecycle events.
-     */
-    callbacks?: Partial<IPipelineCallbacks<Payload>>;
-}
-/**
- * @interface IPipelineCallbacks
- * @template Payload - Type extending object for the pipeline payload.
- * @description Defines callback functions for pipeline lifecycle events.
- */
-interface IPipelineCallbacks<Payload extends object = any> {
-    /**
-     * @method onStart
-     * @description Called when the pipeline execution starts.
-     * @param {string} clientId - The client identifier.
-     * @param {PipelineName} pipelineName - The name of the pipeline.
-     * @param {Payload} payload - The payload data for the pipeline.
-     */
-    onStart: (clientId: string, pipelineName: PipelineName, payload: Payload) => void;
-    /**
-     * @method onEnd
-     * @description Called when the pipeline execution ends, indicating success or failure.
-     * @param {string} clientId - The client identifier.
-     * @param {PipelineName} pipelineName - The name of the pipeline.
-     * @param {Payload} payload - The payload data for the pipeline.
-     * @param {boolean} isError - Indicates if the pipeline ended with an error.
-     */
-    onEnd: (clientId: string, pipelineName: PipelineName, payload: Payload, isError: boolean) => void;
-    /**
-     * @method onError
-     * @description Called when an error occurs during pipeline execution.
-     * @param {string} clientId - The client identifier.
-     * @param {PipelineName} pipelineName - The name of the pipeline.
-     * @param {Payload} payload - The payload data for the pipeline.
-     * @param {Error} error - The error that occurred.
-     */
-    onError: (clientId: string, pipelineName: PipelineName, payload: Payload, error: Error) => void;
-}
-/**
- * @typedef {string} PipelineName
- * @description Type alias for the pipeline name, represented as a string.
- */
-type PipelineName = string;
-
-/**
- * @module PipelineSchemaService
- * @description Manages pipeline schema registration, validation, and retrieval using a tool registry.
- */
-
-/**
  * @class PipelineSchemaService
  * @description Service for managing pipeline schemas, including registration, validation, and retrieval.
  */
@@ -10004,11 +10320,32 @@ declare class PipelineSchemaService {
      */
     private readonly loggerService;
     /**
+     * Schema context service instance, injected via DI, for managing schema-related context operations.
+     * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
+     * @type {TSchemaContextService}
+     * @readonly
+     */
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
+    /**
      * @property {ToolRegistry<Record<PipelineName, IPipelineSchema>>} registry
      * @description Registry for storing pipeline schemas.
      * @private
      */
-    private registry;
+    private _registry;
+    /**
+     * Retrieves the current registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
+     * Otherwise, it falls back to the private `_registry` instance.
+     */
+    get registry(): ToolRegistry<Record<PipelineName, IPipelineSchema>>;
+    /**
+     * Sets the registry instance for agent schemas.
+     * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
+     * Otherwise, it updates the private `_registry` instance.
+     */
+    set registry(value: ToolRegistry<Record<PipelineName, IPipelineSchema>>);
     /**
      * @method validateShallow
      * @description Performs shallow validation of a pipeline schema.
@@ -10127,6 +10464,11 @@ interface ISwarmDI {
      * Implements `IExecutionContext` to track `clientId`, `executionId`, and `processId` via `ExecutionContextService`.
      */
     executionContextService: TExecutionContextService;
+    /**
+     * Service for managing execution-level schemas across the swarm system.
+     * Allows to override agent behaviour in specific pipeline call
+     */
+    schemaContextService: TSchemaContextService;
     /**
      * Service for managing agent connections within the swarm.
      * Handles lifecycle events like `makeConnection` and `disposeConnection` for agents.
@@ -11782,6 +12124,33 @@ interface IScopeOptions {
  * @throws {Error} If a session already exists for the clientId.
  */
 declare const fork: <T = any>(runFn: (clientId: string, agentName: AgentName) => Promise<T | void>, options: IScopeOptions) => Promise<T>;
+
+/**
+ * @module scope
+ * @description Provides a function to execute a specified function within a managed schema context, allowing overrides for schema services.
+ */
+
+/**
+ * @function scope
+ * @description Executes a provided function within a schema context, with optional overrides for schema services such as agents, completions, and pipelines.
+ * @template T - Type of the result returned by the run function.
+ * @param {Function} runFn - The function to execute within the schema context.
+ * @param {Partial<ISchemaContext["registry"]>} [options] - Optional overrides for schema services, with defaults from the swarm's schema services.
+ * @param {ToolRegistry} [options.agentSchemaService=swarm.agentSchemaService.registry] - Registry for agent schemas.
+ * @param {ToolRegistry} [options.completionSchemaService=swarm.completionSchemaService.registry] - Registry for completion schemas.
+ * @param {ToolRegistry} [options.computeSchemaService=swarm.computeSchemaService.registry] - Registry for compute schemas.
+ * @param {ToolRegistry} [options.embeddingSchemaService=swarm.embeddingSchemaService.registry] - Registry for embedding schemas.
+ * @param {ToolRegistry} [options.mcpSchemaService=swarm.mcpSchemaService.registry] - Registry for MCP schemas.
+ * @param {ToolRegistry} [options.pipelineSchemaService=swarm.pipelineSchemaService.registry] - Registry for pipeline schemas.
+ * @param {ToolRegistry} [options.policySchemaService=swarm.policySchemaService.registry] - Registry for policy schemas.
+ * @param {ToolRegistry} [options.stateSchemaService=swarm.stateSchemaService.registry] - Registry for state schemas.
+ * @param {ToolRegistry} [options.storageSchemaService=swarm.storageSchemaService.registry] - Registry for storage schemas.
+ * @param {ToolRegistry} [options.swarmSchemaService=swarm.swarmSchemaService.registry] - Registry for swarm schemas.
+ * @param {ToolRegistry} [options.toolSchemaService=swarm.toolSchemaService.registry] - Registry for tool schemas.
+ * @param {ToolRegistry} [options.wikiSchemaService=swarm.wikiSchemaService.registry] - Registry for wiki schemas.
+ * @returns {Promise<T>} The result of the executed function.
+ */
+declare const scope: <T = any>(runFn: () => Promise<T | void>, { agentSchemaService, completionSchemaService, computeSchemaService, embeddingSchemaService, mcpSchemaService, pipelineSchemaService, policySchemaService, stateSchemaService, storageSchemaService, swarmSchemaService, toolSchemaService, wikiSchemaService, }: Partial<ISchemaContext["registry"]>) => Promise<T>;
 
 /**
  * @module startPipeline
@@ -14135,4 +14504,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, session, setConfig, startPipeline, swarm };
+export { Adapter, Chat, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };
