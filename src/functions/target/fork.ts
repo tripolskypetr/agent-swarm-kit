@@ -54,7 +54,7 @@ export const fork = beginContext(
   async <T = any>(
     runFn: (clientId: string, agentName: AgentName) => Promise<T | void>,
     { clientId, swarmName, onError }: IScopeOptions
-  ): Promise<T | void> => {
+  ): Promise<T> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         clientId,
@@ -94,4 +94,4 @@ export const fork = beginContext(
 ) as <T = any>(
   runFn: (clientId: string, agentName: AgentName) => Promise<T | void>,
   options: IScopeOptions
-) => Promise<T | void>;
+) => Promise<T>;

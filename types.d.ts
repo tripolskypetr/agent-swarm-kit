@@ -11781,7 +11781,7 @@ interface IScopeOptions {
  * @returns {Promise<T | void>} The result of the run function or void if no result is returned.
  * @throws {Error} If a session already exists for the clientId.
  */
-declare const fork: <T = any>(runFn: (clientId: string, agentName: AgentName) => Promise<T | void>, options: IScopeOptions) => Promise<T | void>;
+declare const fork: <T = any>(runFn: (clientId: string, agentName: AgentName) => Promise<T | void>, options: IScopeOptions) => Promise<T>;
 
 /**
  * @module startPipeline
