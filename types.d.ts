@@ -12150,7 +12150,7 @@ declare const fork: <T = any>(runFn: (clientId: string, agentName: AgentName) =>
  * @param {ToolRegistry} [options.wikiSchemaService=swarm.wikiSchemaService.registry] - Registry for wiki schemas.
  * @returns {Promise<T>} The result of the executed function.
  */
-declare const scope: <T = any>(runFn: () => Promise<T | void>, { agentSchemaService, completionSchemaService, computeSchemaService, embeddingSchemaService, mcpSchemaService, pipelineSchemaService, policySchemaService, stateSchemaService, storageSchemaService, swarmSchemaService, toolSchemaService, wikiSchemaService, }: Partial<ISchemaContext["registry"]>) => Promise<T>;
+declare const scope: <T = any>(runFn: () => Promise<T | void>, { agentSchemaService, completionSchemaService, computeSchemaService, embeddingSchemaService, mcpSchemaService, pipelineSchemaService, policySchemaService, stateSchemaService, storageSchemaService, swarmSchemaService, toolSchemaService, wikiSchemaService, }?: Partial<ISchemaContext["registry"]>) => Promise<T>;
 
 /**
  * @module startPipeline

@@ -51,7 +51,7 @@ export const scope = async <T = any>(
     swarmSchemaService = swarm.swarmSchemaService.registry,
     toolSchemaService = swarm.toolSchemaService.registry,
     wikiSchemaService = swarm.wikiSchemaService.registry,
-  }: Partial<ISchemaContext["registry"]>
+  }: Partial<ISchemaContext["registry"]> = {}
 ): Promise<T> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
   return await SchemaContextService.runInContext(runFn as () => Promise<T>, {
