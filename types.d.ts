@@ -1,6 +1,7 @@
 import * as functools_kit from 'functools-kit';
 import { SortedArray, TSubject, Subject, ToolRegistry } from 'functools-kit';
 import * as di_scoped from 'di-scoped';
+import { IToolRequest as IToolRequest$1 } from 'src/model/Tool.model';
 
 /**
  * Interface representing an incoming message received by the swarm system.
@@ -1331,153 +1332,6 @@ interface ISwarm {
 type SwarmName = string;
 
 /**
- * Interface representing the parameters required to create a session.
- * Combines session schema, swarm callbacks, and runtime dependencies.
- * @extends {ISessionSchema}
- * @extends {ISwarmSessionCallbacks}
- */
-interface ISessionParams extends ISessionSchema, ISwarmSessionCallbacks {
-    /** The unique ID of the client associated with the session. */
-    clientId: string;
-    /** The logger instance for recording session activity and errors. */
-    logger: ILogger;
-    /** The policy instance defining session rules and constraints. */
-    policy: IPolicy;
-    /** The bus instance for event communication within the swarm. */
-    bus: IBus;
-    /** The swarm instance managing the session. */
-    swarm: ISwarm;
-    /** The unique name of the swarm this session belongs to. */
-    swarmName: SwarmName;
-}
-/**
- * Interface representing the schema for session data.
- * Currently empty, serving as a placeholder for future session-specific configuration.
- */
-interface ISessionSchema {
-}
-/**
- * Type representing a function for sending messages.
- * @template T - The return type of the send operation, defaults to void.
- * @param {IOutgoingMessage} outgoing - The outgoing message to send.
- * @returns {Promise<T> | T} A promise resolving to the result of the send operation, or the result directly.
- */
-type SendMessageFn<T = void> = (outgoing: IOutgoingMessage) => Promise<T>;
-/**
- * Type representing a function for receiving messages.
- * @template T - The return type of the receive operation, defaults to void.
- * @param {IIncomingMessage} incoming - The incoming message to process.
- * @returns {Promise<T> | T} A promise resolving to the result of the receive operation, or the result directly.
- */
-type ReceiveMessageFn<T = void> = (incoming: IIncomingMessage) => Promise<T>;
-/**
- * Interface representing a session within the swarm.
- * Defines methods for message emission, execution, and state management.
- */
-interface ISession {
-    /**
-     * Sends a notification message to connect listeners via the internal `_notifySubject`.
-     * Logs the notification if debugging is enabled.
-     *
-     * @param {string} message - The notification message to send.
-     * @returns {Promise<void>} Resolves when the message is successfully sent to subscribers.
-     */
-    notify(message: string): Promise<void>;
-    /**
-     * Emits a message to the session's communication channel.
-     * @param {string} message - The message content to emit.
-     * @returns {Promise<void>} A promise that resolves when the message is successfully emitted.
-     * @throws {Error} If the emission fails due to connection issues or invalid message format.
-     */
-    emit(message: string): Promise<void>;
-    /**
-     * Runs a stateless completion without modifying the session's chat history.
-     * Useful for one-off computations or previews.
-     * @param {string} content - The content to process statelessly.
-     * @returns {Promise<string>} A promise resolving to the output of the completion.
-     * @throws {Error} If the execution fails due to invalid content or internal errors.
-     */
-    run(content: string): Promise<string>;
-    /**
-     * Executes a command within the session, potentially updating history based on mode.
-     * @param {string} content - The content to execute.
-     * @param {ExecutionMode} mode - The source of execution ("tool" or "user").
-     * @returns {Promise<string>} A promise resolving to the output of the execution.
-     * @throws {Error} If the execution fails due to invalid content, mode, or internal errors.
-     */
-    execute(content: string, mode: ExecutionMode): Promise<string>;
-    /**
-     * Connects the session to a message sender and returns a receiver function.
-     * Establishes a bidirectional communication channel.
-     * @param {SendMessageFn} connector - The function to send outgoing messages.
-     * @param {...unknown[]} args - Additional arguments for connector setup (implementation-specific).
-     * @returns {ReceiveMessageFn<string>} A function to handle incoming messages, returning a string result.
-     * @throws {Error} If the connection fails or the connector is invalid.
-     */
-    connect(connector: SendMessageFn, ...args: unknown[]): ReceiveMessageFn<string>;
-    /**
-     * Commits tool output to the session's history or state.
-     * @param {string} toolId - The unique `tool_call_id` for tracking in OpenAI-style history.
-     * @param {string} content - The output content from the tool.
-     * @returns {Promise<void>} A promise that resolves when the output is committed.
-     * @throws {Error} If the tool ID is invalid or committing fails.
-     */
-    commitToolOutput(toolId: string, content: string): Promise<void>;
-    /**
-     * Commits an assistant message to the session's history without triggering a response.
-     * @param {string} message - The assistant message content to commit.
-     * @returns {Promise<void>} A promise that resolves when the message is committed.
-     * @throws {Error} If committing the message fails.
-     */
-    commitAssistantMessage(message: string): Promise<void>;
-    /**
-     * Commits a user message to the session's history without triggering a response.
-     * @param {string} message - The user message content to commit.
-     * @returns {Promise<void>} A promise that resolves when the message is committed.
-     * @throws {Error} If committing the message fails.
-     */
-    commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>;
-    /**
-     * Commits a flush operation to clear the session's agent history.
-     * Resets the history to an initial state.
-     * @returns {Promise<void>} A promise that resolves when the history is flushed.
-     * @throws {Error} If flushing the history fails.
-     */
-    commitFlush: () => Promise<void>;
-    /**
-     * Prevents the next tool in the execution sequence from running.
-     * Stops further tool calls within the session.
-     * @returns {Promise<void>} A promise that resolves when the stop is committed.
-     * @throws {Error} If stopping the tools fails.
-     */
-    commitStopTools: () => Promise<void>;
-    /**
-     * Commits a system message to the session's history or state.
-     * @param {string} message - The system message content to commit.
-     * @returns {Promise<void>} A promise that resolves when the message is committed.
-     * @throws {Error} If committing the message fails.
-     */
-    commitSystemMessage(message: string): Promise<void>;
-}
-/**
- * Type representing the unique identifier for a session.
- * @typedef {string} SessionId
- */
-type SessionId = string;
-/**
- * Type representing the operational mode of a session.
- * Defines the session's behavior: full session, connection setup, or single completion.
- * @typedef {"session" | "makeConnection" | "complete"} SessionMode
- */
-type SessionMode = "session" | "makeConnection" | "complete" | "scope";
-/**
- * Type representing the source of execution within a session.
- * Tools emit "tool" messages (ignored in user history), while users emit "user" messages.
- * @typedef {"tool" | "user"} ExecutionMode
- */
-type ExecutionMode = "tool" | "user";
-
-/**
  * Interface representing a tool call request within the swarm system.
  * Encapsulates a specific invocation of a tool as requested by the model, used in agent workflows (e.g., ClientAgent) to bridge model outputs to executable actions.
  * Appears in IModelMessage.tool_calls (e.g., via ICompletion.getCompletion) and is processed by agents to execute tools, emit events (e.g., IBus.emit "commit-tool-output"), and update history (e.g., IHistory.push).
@@ -1607,6 +1461,181 @@ interface ITool {
         };
     };
 }
+/**
+ * Interface representing a request to invoke a specific tool within the swarm system.
+ * Encapsulates the tool name and its associated parameters, used to trigger tool execution.
+ * Typically constructed by agents or models to define the desired tool action and its input arguments.
+ */
+interface IToolRequest {
+    /**
+     * The name of the tool to be invoked.
+     * Must match the name of a defined tool in the system (e.g., ITool.function.name).
+     * Example: "search" for invoking a search tool.
+     * @type {ToolName}
+     */
+    toolName: ToolName;
+    /**
+     * A key-value map of parameters to be passed to the tool.
+     * Defines the input arguments required for the tool's execution, validated against the tool's parameter schema (e.g., ITool.function.parameters).
+     * Example: `{ query: "example" }` for a search tool.
+     * @type {Record<string, unknown>}
+     */
+    params: Record<string, unknown>;
+}
+
+/**
+ * Interface representing the parameters required to create a session.
+ * Combines session schema, swarm callbacks, and runtime dependencies.
+ * @extends {ISessionSchema}
+ * @extends {ISwarmSessionCallbacks}
+ */
+interface ISessionParams extends ISessionSchema, ISwarmSessionCallbacks {
+    /** The unique ID of the client associated with the session. */
+    clientId: string;
+    /** The logger instance for recording session activity and errors. */
+    logger: ILogger;
+    /** The policy instance defining session rules and constraints. */
+    policy: IPolicy;
+    /** The bus instance for event communication within the swarm. */
+    bus: IBus;
+    /** The swarm instance managing the session. */
+    swarm: ISwarm;
+    /** The unique name of the swarm this session belongs to. */
+    swarmName: SwarmName;
+}
+/**
+ * Interface representing the schema for session data.
+ * Currently empty, serving as a placeholder for future session-specific configuration.
+ */
+interface ISessionSchema {
+}
+/**
+ * Type representing a function for sending messages.
+ * @template T - The return type of the send operation, defaults to void.
+ * @param {IOutgoingMessage} outgoing - The outgoing message to send.
+ * @returns {Promise<T> | T} A promise resolving to the result of the send operation, or the result directly.
+ */
+type SendMessageFn<T = void> = (outgoing: IOutgoingMessage) => Promise<T>;
+/**
+ * Type representing a function for receiving messages.
+ * @template T - The return type of the receive operation, defaults to void.
+ * @param {IIncomingMessage} incoming - The incoming message to process.
+ * @returns {Promise<T> | T} A promise resolving to the result of the receive operation, or the result directly.
+ */
+type ReceiveMessageFn<T = void> = (incoming: IIncomingMessage) => Promise<T>;
+/**
+ * Interface representing a session within the swarm.
+ * Defines methods for message emission, execution, and state management.
+ */
+interface ISession {
+    /**
+     * Sends a notification message to connect listeners via the internal `_notifySubject`.
+     * Logs the notification if debugging is enabled.
+     *
+     * @param {string} message - The notification message to send.
+     * @returns {Promise<void>} Resolves when the message is successfully sent to subscribers.
+     */
+    notify(message: string): Promise<void>;
+    /**
+     * Emits a message to the session's communication channel.
+     * @param {string} message - The message content to emit.
+     * @returns {Promise<void>} A promise that resolves when the message is successfully emitted.
+     * @throws {Error} If the emission fails due to connection issues or invalid message format.
+     */
+    emit(message: string): Promise<void>;
+    /**
+     * Runs a stateless completion without modifying the session's chat history.
+     * Useful for one-off computations or previews.
+     * @param {string} content - The content to process statelessly.
+     * @returns {Promise<string>} A promise resolving to the output of the completion.
+     * @throws {Error} If the execution fails due to invalid content or internal errors.
+     */
+    run(content: string): Promise<string>;
+    /**
+     * Executes a command within the session, potentially updating history based on mode.
+     * @param {string} content - The content to execute.
+     * @param {ExecutionMode} mode - The source of execution ("tool" or "user").
+     * @returns {Promise<string>} A promise resolving to the output of the execution.
+     * @throws {Error} If the execution fails due to invalid content, mode, or internal errors.
+     */
+    execute(content: string, mode: ExecutionMode): Promise<string>;
+    /**
+     * Connects the session to a message sender and returns a receiver function.
+     * Establishes a bidirectional communication channel.
+     * @param {SendMessageFn} connector - The function to send outgoing messages.
+     * @param {...unknown[]} args - Additional arguments for connector setup (implementation-specific).
+     * @returns {ReceiveMessageFn<string>} A function to handle incoming messages, returning a string result.
+     * @throws {Error} If the connection fails or the connector is invalid.
+     */
+    connect(connector: SendMessageFn, ...args: unknown[]): ReceiveMessageFn<string>;
+    /**
+     * Commits tool output to the session's history or state.
+     * @param {string} toolId - The unique `tool_call_id` for tracking in OpenAI-style history.
+     * @param {string} content - The output content from the tool.
+     * @returns {Promise<void>} A promise that resolves when the output is committed.
+     * @throws {Error} If the tool ID is invalid or committing fails.
+     */
+    commitToolOutput(toolId: string, content: string): Promise<void>;
+    /**
+     * Commits a tool request to the session's history or state.
+     * @param {IToolRequest[]} request - The tool request(s) to commit. Can be a single request or an array of requests.
+     * @returns {Promise<void>} A promise that resolves when the tool request(s) are committed.
+     * @throws {Error} If committing the tool request(s) fails.
+     */
+    commitToolRequest(request: IToolRequest[]): Promise<string[]>;
+    /**
+     * Commits an assistant message to the session's history without triggering a response.
+     * @param {string} message - The assistant message content to commit.
+     * @returns {Promise<void>} A promise that resolves when the message is committed.
+     * @throws {Error} If committing the message fails.
+     */
+    commitAssistantMessage(message: string): Promise<void>;
+    /**
+     * Commits a user message to the session's history without triggering a response.
+     * @param {string} message - The user message content to commit.
+     * @returns {Promise<void>} A promise that resolves when the message is committed.
+     * @throws {Error} If committing the message fails.
+     */
+    commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>;
+    /**
+     * Commits a flush operation to clear the session's agent history.
+     * Resets the history to an initial state.
+     * @returns {Promise<void>} A promise that resolves when the history is flushed.
+     * @throws {Error} If flushing the history fails.
+     */
+    commitFlush: () => Promise<void>;
+    /**
+     * Prevents the next tool in the execution sequence from running.
+     * Stops further tool calls within the session.
+     * @returns {Promise<void>} A promise that resolves when the stop is committed.
+     * @throws {Error} If stopping the tools fails.
+     */
+    commitStopTools: () => Promise<void>;
+    /**
+     * Commits a system message to the session's history or state.
+     * @param {string} message - The system message content to commit.
+     * @returns {Promise<void>} A promise that resolves when the message is committed.
+     * @throws {Error} If committing the message fails.
+     */
+    commitSystemMessage(message: string): Promise<void>;
+}
+/**
+ * Type representing the unique identifier for a session.
+ * @typedef {string} SessionId
+ */
+type SessionId = string;
+/**
+ * Type representing the operational mode of a session.
+ * Defines the session's behavior: full session, connection setup, or single completion.
+ * @typedef {"session" | "makeConnection" | "complete"} SessionMode
+ */
+type SessionMode = "session" | "makeConnection" | "complete" | "scope";
+/**
+ * Type representing the source of execution within a session.
+ * Tools emit "tool" messages (ignored in user history), while users emit "user" messages.
+ * @typedef {"tool" | "user"} ExecutionMode
+ */
+type ExecutionMode = "tool" | "user";
 
 /**
  * Interface representing a model message within the swarm system.
@@ -2971,6 +3000,8 @@ interface IHistory {
 interface IHistoryParams extends IHistorySchema {
     /** The unique name of the agent associated with this history instance. */
     agentName: AgentName;
+    /** Maximum number of messages taken from agent schema to maintain context size */
+    keepMessages: number;
     /** The unique ID of the client associated with this history instance. */
     clientId: string;
     /** The logger instance for recording history-related activity and errors. */
@@ -3445,6 +3476,15 @@ interface IAgentSchemaCallbacks {
      */
     onSystemMessage?: (clientId: string, agentName: AgentName, message: string) => void;
     /**
+     * Optional callback triggered when a tool request is initiated.
+     * This callback is used to handle or process tool requests made by the agent.
+     *
+     * @param {string} clientId - The ID of the client interacting with the agent.
+     * @param {AgentName} agentName - The name of the agent making the tool request.
+     * @param {IToolRequest} request - The content of the tool request.
+     */
+    onToolRequest?: (clientId: string, agentName: AgentName, request: IToolRequest[]) => void;
+    /**
      * Optional callback triggered when an assistant message is committed.
      * @param {string} clientId - The ID of the client interacting with the agent.
      * @param {AgentName} agentName - The name of the agent.
@@ -3515,6 +3555,8 @@ interface IAgentSchema {
     mapToolCalls?: (tool: IToolCall[], clientId: string, agentName: AgentName) => IToolCall[] | Promise<IToolCall[]>;
     /** Optional maximum number of tool calls allowed per completion cycle. */
     maxToolCalls?: number;
+    /** Optional maximum number of messages to maintain context size */
+    keepMessages?: number;
     /** Optional description for documentation purposes, aiding in agent usage understanding. */
     docDescription?: string;
     /** The unique name of the agent within the swarm. */
@@ -3619,6 +3661,15 @@ interface IAgent {
      * @throws {Error} If committing the message fails.
      */
     commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
+    /**
+     * Commits a tool request to the agent's history or state.
+     * This method is used to log or process tool requests, which can be a single request or an array of requests.
+     *
+     * @param {IToolRequest[]} request - The tool request(s) to commit. Can be a single request or an array of requests.
+     * @returns {Promise<void>} A promise that resolves when the tool request(s) are successfully committed.
+     * @throws {Error} If committing the tool request(s) fails.
+     */
+    commitToolRequest(request: IToolRequest[]): Promise<string[]>;
     /**
      * Commits an assistant message to the agent's history without triggering a response.
      * @param {string} message - The assistant message content to commit.
@@ -4049,6 +4100,15 @@ declare class ClientAgent implements IAgent {
      */
     commitSystemMessage(message: string): Promise<void>;
     /**
+     * Commits a tool request to the agent's history and emits an event via BusService.
+     * This method is used to log tool requests and notify the system of the requested tool calls.
+     * The tool requests are transformed into tool call objects using the `createToolRequest` utility.
+     *
+     * @param {IToolRequest[]} request - An array of tool request objects, each containing details about the requested tools.
+     * @returns {Promise<void>} Resolves when the tool request is committed to history and the event is emitted.
+     */
+    commitToolRequest(request: IToolRequest[]): Promise<string[]>;
+    /**
      * Commits an assistant message to the history without triggering execution, notifying the system via BusService.
      * Useful for logging assistant responses, coordinated with HistoryConnectionService.
      * @param {string} message - The assistant message to commit, trimmed before storage.
@@ -4138,6 +4198,11 @@ declare class ClientOperator implements IAgent {
      * @returns {Promise<void>}
      */
     commitSystemMessage(): Promise<void>;
+    /**
+     * Commits tool request (not supported)
+     * @returns {Promise<string[]>}
+     */
+    commitToolRequest(): Promise<string[]>;
     /**
      * Commits user message
      * @param {string} content - Message content
@@ -4309,6 +4374,14 @@ declare class AgentConnectionService implements IAgent {
      */
     commitSystemMessage: (message: string) => Promise<void>;
     /**
+     * Commits a tool request to the agent’s history.
+     * Delegates to ClientAgent.commitToolRequest, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Mirrors SessionPublicService’s commitToolRequest, supporting ClientAgent’s tool request handling and HistoryPublicService.
+     * @param {IToolRequest[]} request - An array of tool request objects to commit.
+     * @returns {Promise<string[]>} A promise resolving to the commit result, type determined by ClientAgent’s implementation.
+     */
+    commitToolRequest: (request: IToolRequest[]) => Promise<string[]>;
+    /**
      * Commits an assistant message to the agent’s history.
      * Delegates to ClientAgent.commitAssistantMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitAssistantMessage, supporting ClientAgent’s assistant responses and HistoryPublicService.
@@ -4451,6 +4524,13 @@ declare class HistoryConnectionService implements IHistory {
      * @private
      */
     private readonly sessionValidationService;
+    /**
+     * Agent schema service instance, injected via DI, for managing agent schema-related operations.
+     * Used to validate and process agent schemas within the history connection service.
+     * @type {AgentSchemaService}
+     * @private
+     */
+    private readonly agentSchemaService;
     /**
      * Retrieves or creates a memoized ClientHistory instance for a given client and agent.
      * Uses functools-kit’s memoize to cache instances by a composite key (clientId-agentName), ensuring efficient reuse across calls.
@@ -5333,6 +5413,14 @@ declare class ClientSession implements ISession {
      */
     commitStopTools(): Promise<void>;
     /**
+     * Commits a tool request to the agent's history via the swarm’s agent (ClientAgent) and logs the action via BusService.
+     * Supports ToolSchemaService by linking tool requests to tool execution, integrating with ClientAgent’s history management.
+     *
+     * @param {IToolRequest[]} request - An array of tool requests to commit, typically representing tool execution details.
+     * @returns {Promise<string[]>} Resolves when the tool request is committed and the event is logged.
+     */
+    commitToolRequest(request: IToolRequest[]): Promise<string[]>;
+    /**
      * Commits a system message to the agent’s history via the swarm’s agent (ClientAgent), logging via BusService.
      * Supports system-level updates within the session, coordinated with ClientHistory.
      * @param {string} message - The system message to commit, typically for configuration or context.
@@ -5484,6 +5572,15 @@ declare class SessionConnectionService implements ISession {
      */
     commitSystemMessage: (message: string) => Promise<void>;
     /**
+     * Commits a tool request to the session’s history.
+     * Delegates to ClientSession.commitToolRequest, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Mirrors SessionPublicService’s commitToolRequest, supporting ClientAgent’s tool requests and HistoryPublicService integration.
+     *
+     * @param {IToolRequest[]} request - An array of tool requests to commit.
+     * @returns {Promise<string[]>} A promise resolving when the tool requests are committed.
+     */
+    commitToolRequest: (request: IToolRequest[]) => Promise<string[]>;
+    /**
      * Commits an assistant message to the session’s history.
      * Delegates to ClientSession.commitAssistantMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitAssistantMessage, supporting ClientAgent’s assistant responses and HistoryPublicService.
@@ -5632,6 +5729,18 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @returns {Promise<unknown>} A promise resolving to the commit result.
      */
     commitSystemMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Commits a tool request to the agent’s history.
+     * Wraps AgentConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used for submitting tool requests, typically in scenarios where multiple tools are involved in agent operations.
+     *
+     * @param {IToolRequest[]} request - An array of tool requests to commit.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the commit result.
+     */
+    commitToolRequest: (request: IToolRequest[], methodName: string, clientId: string, agentName: AgentName) => Promise<string[]>;
     /**
      * Commits an assistant message to the agent’s history.
      * Wraps AgentConnectionService.commitAssistantMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -5938,6 +6047,18 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @returns {Promise<void>} A promise resolving when the system message is committed.
      */
     commitSystemMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Commits a tool request to the session’s history.
+     * Wraps SessionConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent’s tool execution requests, mirrored in AgentPublicService.
+     *
+     * @param {IToolRequest[]} request - The array of tool requests to commit.
+     * @param {string} methodName - The name of the method invoking the operation, used for logging and context.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {SwarmName} swarmName - The swarm name for context.
+     * @returns {Promise<void>} A promise resolving when the tool request is committed.
+     */
+    commitToolRequest: (request: IToolRequest[], methodName: string, clientId: string, swarmName: SwarmName) => Promise<string[]>;
     /**
      * Commits an assistant message to the session’s history.
      * Wraps SessionConnectionService.commitAssistantMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -11730,6 +11851,37 @@ declare const commitStopTools: (clientId: string, agentName: string) => Promise<
 declare const commitStopToolsForce: (clientId: string) => Promise<void>;
 
 /**
+ * Commits a tool request to the active agent in the swarm system.
+ * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before committing the request.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
+ * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (tool request committing),
+ * and LoggerService (logging). Complements functions like commitSystemMessage by handling tool requests rather than system messages.
+ *
+ * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to commit, either as a single request or an array of requests.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent to commit the request for, validated against registered agents.
+ * @returns {Promise<string[] | null>} A promise that resolves with an array of results if the request is committed, or `null` if skipped (e.g., agent mismatch).
+ * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
+ */
+declare const commitToolRequest: (request: IToolRequest$1 | IToolRequest$1[], clientId: string, agentName: string) => Promise<string[]>;
+
+/**
+ * Forcefully commits a tool request to the active agent in the swarm system.
+ * Validates the session and swarm, bypassing agent validation to directly commit the request.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
+ * SessionPublicService (tool request committing), and LoggerService (logging).
+ * Complements functions like commitToolRequest by skipping agent validation for direct tool request commits.
+ *
+ * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to commit, either as a single request or an array of requests.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @returns {Promise<string[]>} A promise that resolves with an array of results if the request is committed.
+ * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
+ */
+declare const commitToolRequestForce: (request: IToolRequest$1 | IToolRequest$1[], clientId: string) => Promise<string[]>;
+
+/**
  * Emits a string as model output without executing an incoming message or checking the active agent.
  *
  * This function directly emits a provided string as output from the swarm session, bypassing message execution and agent activity checks.
@@ -14497,4 +14649,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };
+export { Adapter, Chat, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };

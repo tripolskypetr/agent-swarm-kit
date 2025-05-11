@@ -6,6 +6,7 @@ import MethodContextService from "../context/MethodContextService";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { ExecutionMode } from "../../../interfaces/Session.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import { IToolRequest } from "../../../model/Tool.model";
 
 /**
  * Interface extending AgentConnectionService for type definition purposes.
@@ -307,6 +308,48 @@ export class AgentPublicService implements TAgentConnectionService {
   };
 
   /**
+   * Commits a tool request to the agent’s history.
+   * Wraps AgentConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Used for submitting tool requests, typically in scenarios where multiple tools are involved in agent operations.
+   *
+   * @param {IToolRequest[]} request - An array of tool requests to commit.
+   * @param {string} methodName - The method name for context and logging.
+   * @param {string} clientId - The client ID for session tracking.
+   * @param {AgentName} agentName - The agent name for identification.
+   * @returns {Promise<unknown>} A promise resolving to the commit result.
+   */
+  public commitToolRequest = async (
+    request: IToolRequest[],
+    methodName: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService commitToolRequest", {
+        methodName,
+        request,
+        clientId,
+        agentName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.agentConnectionService.commitToolRequest(request);
+      },
+      {
+        methodName,
+        clientId,
+        agentName,
+        policyName: "",
+        swarmName: "",
+        storageName: "",
+        stateName: "",
+        mcpName: "",
+        computeName: "",
+      }
+    );
+  };
+
+  /**
    * Commits an assistant message to the agent’s history.
    * Wraps AgentConnectionService.commitAssistantMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent’s assistant responses, tracked by PerfService and documented in DocService.
@@ -378,7 +421,7 @@ export class AgentPublicService implements TAgentConnectionService {
       async () => {
         return await this.agentConnectionService.commitUserMessage(
           message,
-          mode,
+          mode
         );
       },
       {

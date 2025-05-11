@@ -195,6 +195,21 @@ export class ClientOperator implements IAgent {
   }
 
   /**
+   * Commits tool request (not supported)
+   * @returns {Promise<string[]>}
+   */
+  commitToolRequest(): Promise<string[]> {
+    console.warn(
+      `ClientOperator: commitToolRequest should not be called for clientId=${this.params.clientId} agentName=${this.params.agentName}`
+    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientOperator agentName=${this.params.agentName} clientId=${this.params.clientId} commitToolRequest - not supported`
+      );
+    return Promise.resolve([]);
+  }
+
+  /**
    * Commits user message
    * @param {string} content - Message content
    * @returns {Promise<void>}

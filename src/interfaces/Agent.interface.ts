@@ -1,6 +1,6 @@
 import IHistory from "../interfaces/History.interface";
 import { ILogger } from "../interfaces/Logger.interface";
-import { ITool, IToolCall } from "../model/Tool.model";
+import { ITool, IToolCall, IToolRequest } from "../model/Tool.model";
 import {
   CompletionName,
   ICompletion,
@@ -263,6 +263,20 @@ export interface IAgentSchemaCallbacks {
   ) => void;
 
   /**
+   * Optional callback triggered when a tool request is initiated.
+   * This callback is used to handle or process tool requests made by the agent.
+   * 
+   * @param {string} clientId - The ID of the client interacting with the agent.
+   * @param {AgentName} agentName - The name of the agent making the tool request.
+   * @param {IToolRequest} request - The content of the tool request.
+   */
+  onToolRequest?: (
+    clientId: string,
+    agentName: AgentName,
+    request: IToolRequest[]
+  ) => void;
+
+  /**
    * Optional callback triggered when an assistant message is committed.
    * @param {string} clientId - The ID of the client interacting with the agent.
    * @param {AgentName} agentName - The name of the agent.
@@ -503,6 +517,16 @@ export interface IAgent {
    * @throws {Error} If committing the message fails.
    */
   commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
+
+  /**
+   * Commits a tool request to the agent's history or state.
+   * This method is used to log or process tool requests, which can be a single request or an array of requests.
+   * 
+   * @param {IToolRequest[]} request - The tool request(s) to commit. Can be a single request or an array of requests.
+   * @returns {Promise<void>} A promise that resolves when the tool request(s) are successfully committed.
+   * @throws {Error} If committing the tool request(s) fails.
+   */
+  commitToolRequest(request: IToolRequest[]): Promise<string[]>;
 
   /**
    * Commits an assistant message to the agent's history without triggering a response.

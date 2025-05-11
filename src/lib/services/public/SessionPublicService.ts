@@ -16,6 +16,7 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 import PerfService from "../base/PerfService";
 import BusService from "../base/BusService";
 import NavigationValidationService from "../validation/NavigationValidationService";
+import { IToolRequest } from "../../../model/Tool.model";
 
 /**
  * Interface extending SessionConnectionService for type definition purposes.
@@ -399,6 +400,48 @@ export class SessionPublicService implements TSessionConnectionService {
     return await MethodContextService.runInContext(
       async () => {
         return await this.sessionConnectionService.commitSystemMessage(message);
+      },
+      {
+        methodName,
+        clientId,
+        swarmName,
+        policyName: "",
+        agentName: "",
+        storageName: "",
+        stateName: "",
+        mcpName: "",
+        computeName: "",
+      }
+    );
+  };
+
+  /**
+   * Commits a tool request to the session’s history.
+   * Wraps SessionConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports ClientAgent’s tool execution requests, mirrored in AgentPublicService.
+   * 
+   * @param {IToolRequest[]} request - The array of tool requests to commit.
+   * @param {string} methodName - The name of the method invoking the operation, used for logging and context.
+   * @param {string} clientId - The client ID for session tracking.
+   * @param {SwarmName} swarmName - The swarm name for context.
+   * @returns {Promise<void>} A promise resolving when the tool request is committed.
+   */
+  public commitToolRequest = async (
+    request: IToolRequest[],
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService commitToolRequest", {
+        methodName,
+        request,
+        clientId,
+        swarmName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sessionConnectionService.commitToolRequest(request);
       },
       {
         methodName,

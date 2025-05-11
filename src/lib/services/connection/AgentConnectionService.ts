@@ -19,6 +19,7 @@ import StateConnectionService from "./StateConnectionService";
 import ClientOperator from "../../../client/ClientOperator";
 import MCPConnectionService from "./MCPConnectionService";
 import { MergeMCP, NoopMCP } from "../../../classes/MCP";
+import { IToolRequest } from "../../../model/Tool.model";
 
 /**
  * Service class for managing agent connections and operations in the swarm system.
@@ -305,6 +306,24 @@ export class AgentConnectionService implements IAgent {
       this.methodContextService.context.clientId,
       this.methodContextService.context.agentName
     ).commitSystemMessage(message);
+  };
+
+  /**
+   * Commits a tool request to the agent’s history.
+   * Delegates to ClientAgent.commitToolRequest, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SessionPublicService’s commitToolRequest, supporting ClientAgent’s tool request handling and HistoryPublicService.
+   * @param {IToolRequest[]} request - An array of tool request objects to commit.
+   * @returns {Promise<string[]>} A promise resolving to the commit result, type determined by ClientAgent’s implementation.
+   */
+  public commitToolRequest = async (request: IToolRequest[]) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`agentConnectionService commitToolRequest`, {
+        request,
+      });
+    return await this.getAgent(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
+    ).commitToolRequest(request);
   };
 
   /**

@@ -1,3 +1,5 @@
+import { ToolName } from "../interfaces/Agent.interface";
+
 /**
  * Interface representing a tool call request within the swarm system.
  * Encapsulates a specific invocation of a tool as requested by the model, used in agent workflows (e.g., ClientAgent) to bridge model outputs to executable actions.
@@ -138,4 +140,27 @@ export interface ITool {
       };
     };
   };
+}
+
+/**
+ * Interface representing a request to invoke a specific tool within the swarm system.
+ * Encapsulates the tool name and its associated parameters, used to trigger tool execution.
+ * Typically constructed by agents or models to define the desired tool action and its input arguments.
+ */
+export interface IToolRequest {
+  /**
+   * The name of the tool to be invoked.
+   * Must match the name of a defined tool in the system (e.g., ITool.function.name).
+   * Example: "search" for invoking a search tool.
+   * @type {ToolName}
+   */
+  toolName: ToolName;
+
+  /**
+   * A key-value map of parameters to be passed to the tool.
+   * Defines the input arguments required for the tool's execution, validated against the tool's parameter schema (e.g., ITool.function.parameters).
+   * Example: `{ query: "example" }` for a search tool.
+   * @type {Record<string, unknown>}
+   */
+  params: Record<string, unknown>;
 }

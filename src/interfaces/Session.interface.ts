@@ -6,6 +6,7 @@ import ISwarm, {
 } from "../interfaces/Swarm.interface";
 import { IBus } from "./Bus.interface";
 import { IPolicy } from "./Policy.interface";
+import { IToolRequest } from "../model/Tool.model";
 
 /**
  * Interface representing the parameters required to create a session.
@@ -121,6 +122,14 @@ export interface ISession {
    * @throws {Error} If the tool ID is invalid or committing fails.
    */
   commitToolOutput(toolId: string, content: string): Promise<void>;
+
+  /**
+   * Commits a tool request to the session's history or state.
+   * @param {IToolRequest[]} request - The tool request(s) to commit. Can be a single request or an array of requests.
+   * @returns {Promise<void>} A promise that resolves when the tool request(s) are committed.
+   * @throws {Error} If committing the tool request(s) fails.
+   */
+  commitToolRequest(request: IToolRequest[]): Promise<string[]>;
 
   /**
    * Commits an assistant message to the session's history without triggering a response.

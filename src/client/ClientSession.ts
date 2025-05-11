@@ -10,6 +10,7 @@ import {
 import { ISession } from "../interfaces/Session.interface";
 import { IBusEvent } from "../model/Event.model";
 import { GLOBAL_CONFIG } from "../config/params";
+import { IToolRequest } from "../model/Tool.model";
 
 /**
  * Represents a client session in the swarm system, implementing the ISession interface.
@@ -20,7 +21,6 @@ import { GLOBAL_CONFIG } from "../config/params";
  * @implements {ISession}
  */
 export class ClientSession implements ISession {
-
   private _notifySubject = new Subject<string>();
 
   /**
@@ -42,7 +42,7 @@ export class ClientSession implements ISession {
   /**
    * Sends a notification message to connect listeners via the internal `_notifySubject`.
    * Logs the notification if debugging is enabled.
-   * 
+   *
    * @param {string} message - The notification message to send.
    * @returns {Promise<void>} Resolves when the message is successfully sent to subscribers.
    */
@@ -370,6 +370,38 @@ export class ClientSession implements ISession {
       type: "commit-stop-tools",
       source: "session-bus",
       input: {},
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      },
+      clientId: this.params.clientId,
+    });
+    return result;
+  }
+
+  /**
+   * Commits a tool request to the agent's history via the swarm’s agent (ClientAgent) and logs the action via BusService.
+   * Supports ToolSchemaService by linking tool requests to tool execution, integrating with ClientAgent’s history management.
+   * 
+   * @param {IToolRequest[]} request - An array of tool requests to commit, typically representing tool execution details.
+   * @returns {Promise<string[]>} Resolves when the tool request is committed and the event is logged.
+   */
+  async commitToolRequest(request: IToolRequest[]): Promise<string[]> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} commitToolRequest`,
+        {
+          request,
+        }
+      );
+    const agent = await this.params.swarm.getAgent();
+    const result = await agent.commitToolRequest(request);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-tool-request",
+      source: "session-bus",
+      input: {
+        request,
+      },
       output: {},
       context: {
         swarmName: this.params.swarmName,

@@ -11,6 +11,7 @@ import ISwarm, { ISwarmParams, SwarmName } from "../interfaces/Swarm.interface";
 import { IBusEvent } from "../model/Event.model";
 import { ExecutionMode } from "../interfaces/Session.interface";
 import { ILogger } from "../interfaces/Logger.interface";
+import { IToolRequest } from "src/model/Tool.model";
 
 const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
 const STACK_NEED_FETCH = Symbol("stack-need-fetch");
@@ -111,6 +112,20 @@ class NoopAgent implements IAgent {
     this.logger.log(message, context);
     console.error(message, context);
     return await this.defaultAgent.commitSystemMessage(content);
+  }
+
+  /**
+   * Logs an attempt to commit a tool request for the missing agent and delegates to the default agent's commitToolRequest method.
+   * @param {IToolRequest[]} request - An array of tool requests to commit.
+   * @returns {Promise<void>} Resolves when the default agent's commitToolRequest method completes.
+   * @async
+   */
+  async commitToolRequest(request: IToolRequest[]) {
+    const message = `called commitToolOutput on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    const context = { request };
+    this.logger.log(message, context);
+    console.error(message, context);
+    return await this.defaultAgent.commitToolRequest(request);
   }
 
   /**

@@ -17,9 +17,10 @@ import {
 } from "../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import { ExecutionMode } from "../interfaces/Session.interface";
-import { IToolCall } from "../model/Tool.model";
+import { IToolCall, IToolRequest } from "../model/Tool.model";
 import { IBusEvent } from "../model/Event.model";
 import { MCPToolProperties } from "../interfaces/MCP.interface";
+import createToolRequest from "../utils/createToolRequest";
 
 const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
 const MODEL_RESQUE_SYMBOL = Symbol("model-resque");
@@ -1195,6 +1196,49 @@ export class ClientAgent implements IAgent {
       },
       clientId: this.params.clientId,
     });
+  }
+
+  /**
+   * Commits a tool request to the agent's history and emits an event via BusService.
+   * This method is used to log tool requests and notify the system of the requested tool calls.
+   * The tool requests are transformed into tool call objects using the `createToolRequest` utility.
+   *
+   * @param {IToolRequest[]} request - An array of tool request objects, each containing details about the requested tools.
+   * @returns {Promise<void>} Resolves when the tool request is committed to history and the event is emitted.
+   */
+  async commitToolRequest(request: IToolRequest[]): Promise<string[]> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitToolRequest`,
+        { request }
+      );
+    this.params.onToolRequest &&
+      this.params.onToolRequest(
+        this.params.clientId,
+        this.params.agentName,
+        request
+      );
+    const tool_calls = request.map(createToolRequest);
+    await this.params.history.push({
+      role: "assistant",
+      agentName: this.params.agentName,
+      mode: "tool",
+      content: "",
+      tool_calls,
+    });
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-tool-request",
+      source: "agent-bus",
+      input: {
+        request,
+      },
+      output: {},
+      context: {
+        agentName: this.params.agentName,
+      },
+      clientId: this.params.clientId,
+    });
+    return tool_calls.map(({ id }) => id);
   }
 
   /**

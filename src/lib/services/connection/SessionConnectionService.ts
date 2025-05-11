@@ -17,6 +17,7 @@ import BusService from "../base/BusService";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
 import PolicyConnectionService from "./PolicyConnectionService";
 import { MergePolicy, NoopPolicy } from "../../../classes/Policy";
+import { IToolRequest } from "../../../model/Tool.model";
 
 /**
  * Service class for managing session connections and operations in the swarm system.
@@ -248,6 +249,25 @@ export class SessionConnectionService implements ISession {
       this.methodContextService.context.clientId,
       this.methodContextService.context.swarmName
     ).commitSystemMessage(message);
+  };
+
+  /**
+   * Commits a tool request to the session’s history.
+   * Delegates to ClientSession.commitToolRequest, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SessionPublicService’s commitToolRequest, supporting ClientAgent’s tool requests and HistoryPublicService integration.
+   * 
+   * @param {IToolRequest[]} request - An array of tool requests to commit.
+   * @returns {Promise<string[]>} A promise resolving when the tool requests are committed.
+   */
+  public commitToolRequest = async (request: IToolRequest[]): Promise<string[]> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sessionConnectionService commitToolRequest`, {
+        request,
+      });
+    return await this.getSession(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
+    ).commitToolRequest(request);
   };
 
   /**
