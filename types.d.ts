@@ -1,7 +1,6 @@
 import * as functools_kit from 'functools-kit';
 import { SortedArray, TSubject, Subject, ToolRegistry } from 'functools-kit';
 import * as di_scoped from 'di-scoped';
-import { IToolRequest as IToolRequest$1 } from 'src/model/Tool.model';
 
 /**
  * Interface representing an incoming message received by the swarm system.
@@ -11854,32 +11853,55 @@ declare const commitStopToolsForce: (clientId: string) => Promise<void>;
  * Commits a tool request to the active agent in the swarm system.
  * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before committing the request.
  * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
- * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
- * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (tool request committing),
- * and LoggerService (logging). Complements functions like commitSystemMessage by handling tool requests rather than system messages.
  *
- * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to commit, either as a single request or an array of requests.
- * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
- * @param {string} agentName - The name of the agent to commit the request for, validated against registered agents.
- * @returns {Promise<string[] | null>} A promise that resolves with an array of results if the request is committed, or `null` if skipped (e.g., agent mismatch).
- * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
+ * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to commit.
+ * @param {string} clientId - The client ID associated with the session.
+ * @param {string} agentName - The agent name to commit the request for.
+ * @returns {Promise<string[] | null>} A promise resolving with an array of result strings, or null if skipped due to agent mismatch.
+ *
+ * Function overloads
  */
-declare const commitToolRequest: (request: IToolRequest$1 | IToolRequest$1[], clientId: string, agentName: string) => Promise<string[]>;
+declare function commitToolRequest(request: IToolRequest, clientId: string, agentName: string): Promise<string[]>;
+/**
+ * Commits a tool request to the active agent in the swarm system.
+ * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before committing the request.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ *
+ * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to commit.
+ * @param {string} clientId - The client ID associated with the session.
+ * @param {string} agentName - The agent name to commit the request for.
+ * @returns {Promise<string[] | null>} A promise resolving with an array of result strings, or null if skipped due to agent mismatch.
+ *
+ * Function overloads
+ */
+declare function commitToolRequest(request: IToolRequest[], clientId: string, agentName: string): Promise<string[]>;
 
 /**
  * Forcefully commits a tool request to the active agent in the swarm system.
  * Validates the session and swarm, bypassing agent validation to directly commit the request.
  * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
- * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
- * SessionPublicService (tool request committing), and LoggerService (logging).
- * Complements functions like commitToolRequest by skipping agent validation for direct tool request commits.
  *
- * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to commit, either as a single request or an array of requests.
- * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to commit.
+ * @param {string} clientId - The ID of the client associated with the session.
  * @returns {Promise<string[]>} A promise that resolves with an array of results if the request is committed.
- * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
+ * @throws {Error} If session or swarm validation fails.
+ *
+ * Function overloads
  */
-declare const commitToolRequestForce: (request: IToolRequest$1 | IToolRequest$1[], clientId: string) => Promise<string[]>;
+declare function commitToolRequestForce(request: IToolRequest, clientId: string): Promise<string[]>;
+/**
+ * Forcefully commits a tool request to the active agent in the swarm system.
+ * Validates the session and swarm, bypassing agent validation to directly commit the request.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ *
+ * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to commit.
+ * @param {string} clientId - The ID of the client associated with the session.
+ * @returns {Promise<string[]>} A promise that resolves with an array of results if the request is committed.
+ * @throws {Error} If session or swarm validation fails.
+ *
+ * Function overloads
+ */
+declare function commitToolRequestForce(request: IToolRequest[], clientId: string): Promise<string[]>;
 
 /**
  * Emits a string as model output without executing an incoming message or checking the active agent.

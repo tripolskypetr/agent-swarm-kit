@@ -11,7 +11,7 @@ import ISwarm, { ISwarmParams, SwarmName } from "../interfaces/Swarm.interface";
 import { IBusEvent } from "../model/Event.model";
 import { ExecutionMode } from "../interfaces/Session.interface";
 import { ILogger } from "../interfaces/Logger.interface";
-import { IToolRequest } from "src/model/Tool.model";
+import { IToolRequest } from "../model/Tool.model";
 
 const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
 const STACK_NEED_FETCH = Symbol("stack-need-fetch");
