@@ -364,6 +364,9 @@ export interface IAgentSchema {
   /** Optional maximum number of tool calls allowed per completion cycle. */
   maxToolCalls?: number;
 
+  /** Optional maximum number of messages to maintain context size */
+  keepMessages?: number;
+
   /** Optional description for documentation purposes, aiding in agent usage understanding. */
   docDescription?: string;
 

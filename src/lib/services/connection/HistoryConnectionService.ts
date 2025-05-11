@@ -9,6 +9,7 @@ import { TMethodContextService } from "../context/MethodContextService";
 import SessionValidationService from "../validation/SessionValidationService";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import BusService from "../base/BusService";
+import AgentSchemaService from "../schema/AgentSchemaService";
 
 /**
  * Service class for managing history connections and operations in the swarm system.
@@ -56,6 +57,16 @@ export class HistoryConnectionService implements IHistory {
   );
 
   /**
+   * Agent schema service instance, injected via DI, for managing agent schema-related operations.
+   * Used to validate and process agent schemas within the history connection service.
+   * @type {AgentSchemaService}
+   * @private
+   */
+  private readonly agentSchemaService = inject<AgentSchemaService>(
+    TYPES.agentSchemaService,
+  );
+
+  /**
    * Retrieves or creates a memoized ClientHistory instance for a given client and agent.
    * Uses functools-kit’s memoize to cache instances by a composite key (clientId-agentName), ensuring efficient reuse across calls.
    * Initializes the history with items from GLOBAL_CONFIG.CC_GET_AGENT_HISTORY_ADAPTER, and integrates with SessionValidationService for usage tracking.
@@ -68,9 +79,11 @@ export class HistoryConnectionService implements IHistory {
     ([clientId, agentName]) => `${clientId}-${agentName}`,
     (clientId: string, agentName: string) => {
       this.sessionValidationService.addHistoryUsage(clientId, agentName);
+      const { keepMessages = GLOBAL_CONFIG.CC_KEEP_MESSAGES } = this.agentSchemaService.get(agentName);
       return new ClientHistory({
         clientId,
         agentName,
+        keepMessages,
         bus: this.busService,
         items: GLOBAL_CONFIG.CC_GET_AGENT_HISTORY_ADAPTER(clientId, agentName),
         logger: this.loggerService,

@@ -53,6 +53,9 @@ export interface IHistoryParams extends IHistorySchema {
   /** The unique name of the agent associated with this history instance. */
   agentName: AgentName;
 
+  /** Maximum number of messages taken from agent schema to maintain context size */
+  keepMessages: number;
+
   /** The unique ID of the client associated with this history instance. */
   clientId: string;
 

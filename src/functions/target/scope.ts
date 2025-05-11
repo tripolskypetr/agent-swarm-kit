@@ -3,7 +3,7 @@
  * @description Provides a function to execute a specified function within a managed schema context, allowing overrides for schema services.
  */
 
-import { GLOBAL_CONFIG } from "src/config/params";
+import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 import SchemaContextService, {
   ISchemaContext,

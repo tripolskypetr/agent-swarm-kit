@@ -178,7 +178,7 @@ export class ClientHistory implements IHistory {
       }))
       .filter(({ content, tool_calls }) => !!content || !!tool_calls?.length)
       .filter(this._filterCondition)
-      .slice(-GLOBAL_CONFIG.CC_KEEP_MESSAGES);
+      .slice(-this.params.keepMessages);
     const assistantToolOutputCallSet = new Set<string>(
       commonMessages
         .filter(({ tool_call_id }) => !!tool_call_id)
