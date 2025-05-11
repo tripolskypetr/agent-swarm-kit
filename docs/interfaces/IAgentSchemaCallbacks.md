@@ -42,6 +42,15 @@ onSystemMessage: (clientId: string, agentName: string, message: string) => void
 
 Optional callback triggered when a system message is generated.
 
+### onToolRequest
+
+```ts
+onToolRequest: (clientId: string, agentName: string, request: IToolRequest[]) => void
+```
+
+Optional callback triggered when a tool request is initiated.
+This callback is used to handle or process tool requests made by the agent.
+
 ### onAssistantMessage
 
 ```ts

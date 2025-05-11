@@ -110,6 +110,15 @@ commitStopTools(): Promise<void>;
 Signals the agent (via swarm’s ClientAgent) to stop the execution of subsequent tools, logging via BusService.
 Supports ToolSchemaService by interrupting tool call chains, enhancing session control.
 
+### commitToolRequest
+
+```ts
+commitToolRequest(request: IToolRequest[]): Promise<string[]>;
+```
+
+Commits a tool request to the agent's history via the swarm’s agent (ClientAgent) and logs the action via BusService.
+Supports ToolSchemaService by linking tool requests to tool execution, integrating with ClientAgent’s history management.
+
 ### commitSystemMessage
 
 ```ts

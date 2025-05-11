@@ -57,6 +57,15 @@ sessionValidationService: any
 Session validation service instance, injected via DI, for tracking history usage.
 Used in getHistory and dispose to manage history lifecycle, supporting SessionPublicService’s validation needs.
 
+### agentSchemaService
+
+```ts
+agentSchemaService: any
+```
+
+Agent schema service instance, injected via DI, for managing agent schema-related operations.
+Used to validate and process agent schemas within the history connection service.
+
 ### getHistory
 
 ```ts

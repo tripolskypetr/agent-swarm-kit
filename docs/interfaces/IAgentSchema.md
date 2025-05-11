@@ -26,6 +26,14 @@ maxToolCalls: number
 
 Optional maximum number of tool calls allowed per completion cycle.
 
+### keepMessages
+
+```ts
+keepMessages: number
+```
+
+Optional maximum number of messages to maintain context size
+
 ### docDescription
 
 ```ts

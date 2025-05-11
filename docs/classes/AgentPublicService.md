@@ -98,6 +98,16 @@ Commits a system message to the agent’s history.
 Wraps AgentConnectionService.commitSystemMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., system prompt updates), documented in DocService (e.g., system prompts).
 
+### commitToolRequest
+
+```ts
+commitToolRequest: (request: IToolRequest[], methodName: string, clientId: string, agentName: string) => Promise<string[]>
+```
+
+Commits a tool request to the agent’s history.
+Wraps AgentConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Used for submitting tool requests, typically in scenarios where multiple tools are involved in agent operations.
+
 ### commitAssistantMessage
 
 ```ts

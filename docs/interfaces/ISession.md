@@ -89,6 +89,14 @@ commitToolOutput: (toolId: string, content: string) => Promise<void>
 
 Commits tool output to the session's history or state.
 
+### commitToolRequest
+
+```ts
+commitToolRequest: (request: IToolRequest[]) => Promise<string[]>
+```
+
+Commits a tool request to the session's history or state.
+
 ### commitAssistantMessage
 
 ```ts

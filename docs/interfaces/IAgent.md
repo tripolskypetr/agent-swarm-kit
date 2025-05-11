@@ -61,6 +61,15 @@ commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>
 
 Commits a user message to the agent's history without triggering a response.
 
+### commitToolRequest
+
+```ts
+commitToolRequest: (request: IToolRequest[]) => Promise<string[]>
+```
+
+Commits a tool request to the agent's history or state.
+This method is used to log or process tool requests, which can be a single request or an array of requests.
+
 ### commitAssistantMessage
 
 ```ts

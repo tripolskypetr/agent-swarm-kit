@@ -134,6 +134,16 @@ Commits a system message to the session’s history.
 Wraps SessionConnectionService.commitSystemMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., system prompt updates), mirrored in AgentPublicService.
 
+### commitToolRequest
+
+```ts
+commitToolRequest: (request: IToolRequest[], methodName: string, clientId: string, swarmName: string) => Promise<string[]>
+```
+
+Commits a tool request to the session’s history.
+Wraps SessionConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports ClientAgent’s tool execution requests, mirrored in AgentPublicService.
+
 ### commitAssistantMessage
 
 ```ts

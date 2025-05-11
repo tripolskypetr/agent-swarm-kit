@@ -18,6 +18,14 @@ agentName: string
 
 The unique name of the agent associated with this history instance.
 
+### keepMessages
+
+```ts
+keepMessages: number
+```
+
+Maximum number of messages taken from agent schema to maintain context size
+
 ### clientId
 
 ```ts

@@ -209,6 +209,16 @@ commitSystemMessage(message: string): Promise<void>;
 Commits a system message to the history, notifying the system via BusService without triggering execution.
 Supports system-level updates, coordinated with SessionConnectionService.
 
+### commitToolRequest
+
+```ts
+commitToolRequest(request: IToolRequest[]): Promise<string[]>;
+```
+
+Commits a tool request to the agent's history and emits an event via BusService.
+This method is used to log tool requests and notify the system of the requested tool calls.
+The tool requests are transformed into tool call objects using the `createToolRequest` utility.
+
 ### commitAssistantMessage
 
 ```ts
