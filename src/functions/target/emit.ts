@@ -6,22 +6,9 @@ import swarm from "../../lib";
 const METHOD_NAME = "function.target.emit";
 
 /**
- * Emits a string as model output without executing an incoming message, with agent activity validation.
- *
- * This function directly emits a provided string as output from the swarm session, bypassing message execution, and is designed exclusively
- * for sessions established via `makeConnection`. It validates the session, swarm, and specified agent, ensuring the agent is still active
- * before emitting. If the active agent has changed, the operation is skipped. The execution is wrapped in `beginContext` for a clean environment,
- * logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
- *
- * @param {string} content - The content to be emitted as the model output.
- * @param {string} clientId - The unique identifier of the client session emitting the content.
- * @param {AgentName} agentName - The name of the agent intended to emit the content.
- * @returns {Promise<void>} A promise that resolves when the content is emitted, or resolves early if skipped due to an agent change.
- * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
- * @example
- * await emit("Direct output", "client-123", "AgentX"); // Emits "Direct output" if AgentX is active
+ * Function implementation
  */
-export const emit = beginContext(
+const emitInternal = beginContext(
   async (content: string, clientId: string, agentName: AgentName) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -65,3 +52,23 @@ export const emit = beginContext(
     );
   }
 );
+
+/**
+ * Emits a string as model output without executing an incoming message, with agent activity validation.
+ *
+ * This function directly emits a provided string as output from the swarm session, bypassing message execution, and is designed exclusively
+ * for sessions established via `makeConnection`. It validates the session, swarm, and specified agent, ensuring the agent is still active
+ * before emitting. If the active agent has changed, the operation is skipped. The execution is wrapped in `beginContext` for a clean environment,
+ * logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
+ *
+ * @param {string} content - The content to be emitted as the model output.
+ * @param {string} clientId - The unique identifier of the client session emitting the content.
+ * @param {AgentName} agentName - The name of the agent intended to emit the content.
+ * @returns {Promise<void>} A promise that resolves when the content is emitted, or resolves early if skipped due to an agent change.
+ * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
+ * @example
+ * await emit("Direct output", "client-123", "AgentX"); // Emits "Direct output" if AgentX is active
+ */
+export function emit(content: string, clientId: string, agentName: AgentName) {
+  return emitInternal(content, clientId, agentName);
+}

@@ -6,21 +6,9 @@ import swarm from "../../lib";
 const METHOD_NAME = "function.commit.commitSystemMessage";
 
 /**
- * Commits a system-generated message to the active agent in the swarm system.
- * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before committing the message.
- * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
- * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
- * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (message committing),
- * and LoggerService (logging). Complements functions like commitAssistantMessage by handling system messages (e.g., configuration or control messages)
- * rather than assistant-generated responses.
- *
- * @param {string} content - The content of the system message to commit, typically related to system state or control instructions.
- * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
- * @param {string} agentName - The name of the agent to commit the message for, validated against registered agents.
- * @returns {Promise<void>} A promise that resolves when the message is committed or skipped (e.g., agent mismatch).
- * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
+ * Function implementation
  */
-export const commitSystemMessage = beginContext(
+const commitSystemMessageInternal = beginContext(
   async (content: string, clientId: string, agentName: string): Promise<void> => {
     // Log the commit attempt if enabled
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -68,3 +56,22 @@ export const commitSystemMessage = beginContext(
     );
   }
 );
+
+/**
+ * Commits a system-generated message to the active agent in the swarm system.
+ * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before committing the message.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
+ * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (message committing),
+ * and LoggerService (logging). Complements functions like commitAssistantMessage by handling system messages (e.g., configuration or control messages)
+ * rather than assistant-generated responses.
+ *
+ * @param {string} content - The content of the system message to commit, typically related to system state or control instructions.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent to commit the message for, validated against registered agents.
+ * @returns {Promise<void>} A promise that resolves when the message is committed or skipped (e.g., agent mismatch).
+ * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
+ */
+export function commitSystemMessage(content: string, clientId: string, agentName: string) {
+  return commitSystemMessageInternal(content, clientId, agentName);
+}

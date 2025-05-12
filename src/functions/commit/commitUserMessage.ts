@@ -6,21 +6,9 @@ import { ExecutionMode } from "../../interfaces/Session.interface";
 const METHOD_NAME = "function.commit.commitSystemMessage";
 
 /**
- * Commits a user message to the active agent's history in a swarm session without triggering a response.
- *
- * This function commits a user message to the history of the specified agent, ensuring the agent is still active in the swarm session.
- * It performs validation checks on the agent, session, and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
- * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
- *
- * @param {string} content - The content of the user message to be committed.
- * @param {string} clientId - The unique identifier of the client session associated with the operation.
- * @param {string} agentName - The name of the agent to whose history the message will be committed.
- * @returns {Promise<void>} A promise that resolves when the message is successfully committed, or immediately if the operation is skipped due to an agent change.
- * @throws {Error} If validation fails (e.g., invalid agent, session, or swarm) or if the session public service encounters an error during the commit operation.
- * @example
- * await commitUserMessage("User input message", "client-123", "AgentX");
+ * Function implementation
  */
-export const commitUserMessage = beginContext(
+const commitUserMessageInternal = beginContext(
   async <Payload extends object = object>(
     content: string,
     mode: ExecutionMode,
@@ -90,10 +78,29 @@ export const commitUserMessage = beginContext(
       swarmName
     );
   }
-) as <Payload extends object = object>(
+)
+
+/**
+ * Commits a user message to the active agent's history in a swarm session without triggering a response.
+ *
+ * This function commits a user message to the history of the specified agent, ensuring the agent is still active in the swarm session.
+ * It performs validation checks on the agent, session, and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ *
+ * @param {string} content - The content of the user message to be committed.
+ * @param {string} clientId - The unique identifier of the client session associated with the operation.
+ * @param {string} agentName - The name of the agent to whose history the message will be committed.
+ * @returns {Promise<void>} A promise that resolves when the message is successfully committed, or immediately if the operation is skipped due to an agent change.
+ * @throws {Error} If validation fails (e.g., invalid agent, session, or swarm) or if the session public service encounters an error during the commit operation.
+ * @example
+ * await commitUserMessage("User input message", "client-123", "AgentX");
+ */
+export function commitUserMessage<Payload extends object = object>(
   content: string,
   mode: ExecutionMode,
   clientId: string,
   agentName: string,
   payload?: Payload
-) => Promise<void>;
+) {
+  return commitUserMessageInternal(content, mode, clientId, agentName, payload);
+}

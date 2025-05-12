@@ -119,20 +119,9 @@ const createGc = singleshot(async () => {
 });
 
 /**
- * Changes the active agent for a given client session in a swarm.
- *
- * This function facilitates switching the active agent in a swarm session, validating the session and agent dependencies,
- * logging the operation if enabled, and executing the change using a TTL-limited, queued runner.
- * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
- *
- * @param {AgentName} agentName - The name of the agent to switch to.
- * @param {string} clientId - The unique identifier of the client session.
- * @returns {Promise<boolean>} A promise that resolves when the agent change is complete. If it resolved false, the navigation is canceled due to recursion
- * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
- * @example
- * await changeToAgent("AgentX", "client-123");
+ * Function implementation
  */
-export const changeToAgent = beginContext(
+const changeToAgentInternal = beginContext(
   async (agentName: AgentName, clientId: string) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -178,3 +167,21 @@ export const changeToAgent = beginContext(
     return await run(METHOD_NAME, agentName, swarmName);
   }
 );
+
+/**
+ * Changes the active agent for a given client session in a swarm.
+ *
+ * This function facilitates switching the active agent in a swarm session, validating the session and agent dependencies,
+ * logging the operation if enabled, and executing the change using a TTL-limited, queued runner.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
+ *
+ * @param {AgentName} agentName - The name of the agent to switch to.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @returns {Promise<boolean>} A promise that resolves when the agent change is complete. If it resolved false, the navigation is canceled due to recursion
+ * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
+ * @example
+ * await changeToAgent("AgentX", "client-123");
+ */
+export function changeToAgent(agentName: AgentName, clientId: string) {
+  return changeToAgentInternal(agentName, clientId)
+}

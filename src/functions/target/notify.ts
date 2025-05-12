@@ -6,22 +6,9 @@ import swarm from "../../lib";
 const METHOD_NAME = "function.target.notify";
 
 /**
- * Sends a notification message as output from the swarm session without executing an incoming message.
- *
- * This function directly sends a provided string as output from the swarm session, bypassing message execution. It is designed exclusively
- * for sessions established via the "makeConnection" mode. The function validates the session, swarm, and specified agent, ensuring the agent
- * is still active before sending the notification. If the active agent has changed, the operation is skipped. The execution is wrapped in
- * `beginContext` for a clean environment, logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
- *
- * @param {string} content - The content to be sent as the notification output.
- * @param {string} clientId - The unique identifier of the client session sending the notification.
- * @param {AgentName} agentName - The name of the agent intended to send the notification.
- * @returns {Promise<void>} A promise that resolves when the notification is sent, or resolves early if skipped due to an agent change.
- * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
- * @example
- * await notify("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active
+ * Function implementation
  */
-export const notify = beginContext(
+const notifyInternal = beginContext(
   async (content: string, clientId: string, agentName: AgentName) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -76,3 +63,23 @@ export const notify = beginContext(
     );
   }
 );
+
+/**
+ * Sends a notification message as output from the swarm session without executing an incoming message.
+ *
+ * This function directly sends a provided string as output from the swarm session, bypassing message execution. It is designed exclusively
+ * for sessions established via the "makeConnection" mode. The function validates the session, swarm, and specified agent, ensuring the agent
+ * is still active before sending the notification. If the active agent has changed, the operation is skipped. The execution is wrapped in
+ * `beginContext` for a clean environment, logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
+ *
+ * @param {string} content - The content to be sent as the notification output.
+ * @param {string} clientId - The unique identifier of the client session sending the notification.
+ * @param {AgentName} agentName - The name of the agent intended to send the notification.
+ * @returns {Promise<void>} A promise that resolves when the notification is sent, or resolves early if skipped due to an agent change.
+ * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
+ * @example
+ * await notify("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active
+ */
+export function notify(content: string, clientId: string, agentName: AgentName) {
+  return notifyInternal(content, clientId, agentName);
+}

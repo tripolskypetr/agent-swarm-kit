@@ -10,6 +10,18 @@ type TWikiSchema = {
 } & Partial<IWikiSchema>;
 
 /**
+ * Function implementation
+ */
+const overrideWikiInternal = beginContext((wikiSchema: TWikiSchema) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      wikiSchema,
+    });
+
+  return swarm.wikiSchemaService.override(wikiSchema.wikiName, wikiSchema);
+});
+
+/**
  * Overrides an existing wiki schema in the swarm system with a new or partial schema.
  * This function updates the configuration of a wiki identified by its `wikiName`, applying the provided schema properties.
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
@@ -30,11 +42,6 @@ type TWikiSchema = {
  * });
  * // Logs the operation (if enabled) and updates the wiki schema in the swarm.
  */
-export const overrideWiki = beginContext((wikiSchema: TWikiSchema) => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      wikiSchema,
-    });
-
-  return swarm.wikiSchemaService.override(wikiSchema.wikiName, wikiSchema);
-});
+export function overrideWiki(wikiSchema: TWikiSchema) {
+  return overrideWikiInternal(wikiSchema);
+}

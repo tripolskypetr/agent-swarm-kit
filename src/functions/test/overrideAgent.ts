@@ -10,6 +10,20 @@ type TAgentSchema = {
 } & Partial<IAgentSchema>;
 
 /**
+ * Function implementation
+ */
+const overrideAgentInternal = beginContext((agentSchema: TAgentSchema) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      agentSchema,
+    });
+
+  const prevSchema = swarm.agentSchemaService.get(agentSchema.agentName);
+
+  return swarm.agentSchemaService.override(agentSchema.agentName, agentSchema);
+});
+
+/**
  * Overrides an existing agent schema in the swarm system with a new or partial schema.
  * This function updates the configuration of an agent identified by its `agentName`, applying the provided schema properties.
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
@@ -30,13 +44,6 @@ type TAgentSchema = {
  * });
  * // Logs the operation (if enabled) and updates the agent schema in the swarm.
  */
-export const overrideAgent = beginContext((agentSchema: TAgentSchema) => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      agentSchema,
-    });
-
-  const prevSchema = swarm.agentSchemaService.get(agentSchema.agentName);
-
-  return swarm.agentSchemaService.override(agentSchema.agentName, agentSchema);
-});
+export function overrideAgent(agentSchema: TAgentSchema) {
+  return overrideAgentInternal(agentSchema);
+}

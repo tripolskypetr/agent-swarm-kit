@@ -1,9 +1,24 @@
 import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
-import { getRawHistory } from "./getRawHistory";
+import { getRawHistoryInternal } from "./getRawHistory";
 
 const METHOD_NAME = "function.history.getAssistantHistory";
+
+/**
+ * Function implementation
+ */
+const getAssistantHistoryInternal = beginContext(async (clientId: string) => {
+  // Log the operation details if logging is enabled in GLOBAL_CONFIG
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      clientId,
+    });
+
+  // Fetch raw history and filter for assistant role
+  const history = await getRawHistoryInternal(clientId, METHOD_NAME);
+  return history.filter(({ role }) => role === "assistant");
+});
 
 /**
  * Retrieves the assistant's history entries for a given client session.
@@ -19,14 +34,6 @@ const METHOD_NAME = "function.history.getAssistantHistory";
  * const assistantHistory = await getAssistantHistory("client-123");
  * console.log(assistantHistory); // Outputs array of assistant history entries
  */
-export const getAssistantHistory = beginContext(async (clientId: string) => {
-  // Log the operation details if logging is enabled in GLOBAL_CONFIG
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      clientId,
-    });
-
-  // Fetch raw history and filter for assistant role
-  const history = await getRawHistory(clientId, METHOD_NAME);
-  return history.filter(({ role }) => role === "assistant");
-});
+export function getAssistantHistory(clientId: string) {
+  return getAssistantHistoryInternal(clientId);
+}

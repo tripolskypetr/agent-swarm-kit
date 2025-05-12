@@ -9,14 +9,9 @@ import { SwarmName } from "../../interfaces/Swarm.interface";
 const METHOD_NAME = "function.common.getNavigationRoute";
 
 /**
- * Retrieves the navigation route for a given client and swarm.
- * Delegates to `NavigationValidationService.getNavigationRoute` to obtain a `Set` of visited agent names,
- * with optional logging based on global configuration.
- * @param {string} clientId - The unique identifier of the client requesting the navigation route.
- * @param {SwarmName} swarmName - The name of the swarm context for which the route is retrieved.
- * @returns {Set<string>} A set of `AgentName`s representing the visited agents in the navigation route.
+ * Function implementation
  */
-export const getNavigationRoute = (clientId: string, swarmName: SwarmName) => {
+const getNavigationRouteInternal = (clientId: string, swarmName: SwarmName) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       clientId,
@@ -28,3 +23,15 @@ export const getNavigationRoute = (clientId: string, swarmName: SwarmName) => {
     swarmName
   );
 };
+
+/**
+ * Retrieves the navigation route for a given client and swarm.
+ * Delegates to `NavigationValidationService.getNavigationRoute` to obtain a `Set` of visited agent names,
+ * with optional logging based on global configuration.
+ * @param {string} clientId - The unique identifier of the client requesting the navigation route.
+ * @param {SwarmName} swarmName - The name of the swarm context for which the route is retrieved.
+ * @returns {Set<string>} A set of `AgentName`s representing the visited agents in the navigation route.
+ */
+export function getNavigationRoute(clientId: string, swarmName: SwarmName) {
+  return getNavigationRouteInternal(clientId, swarmName);
+}

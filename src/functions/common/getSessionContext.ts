@@ -28,19 +28,9 @@ interface ISessionContext {
 }
 
 /**
- * Retrieves the session context for the current execution environment.
- *
- * This function constructs and returns the session context, including the client ID, process ID, and available method and execution contexts.
- * It logs the operation if enabled, checks for active contexts using the `MethodContextService` and `ExecutionContextService`, and derives the client ID from either context if available.
- * Unlike other functions, it does not perform explicit validation or require a `clientId` parameter, as it relies on the current execution environment's state.
- *
- * @returns {Promise<ISessionContext>} A promise that resolves to an object containing the session context, including `clientId`, `processId`, `methodContext`, and `executionContext`.
- * @throws {Error} If an unexpected error occurs while accessing the method or execution context services (though typically none are thrown in this implementation).
- * @example
- * const context = await getSessionContext();
- * console.log(context); // Outputs { clientId: "client-123", processId: "uuid-xyz", methodContext: {...}, executionContext: {...} }
+ * Function implementation
  */
-export const getSessionContext = async (): Promise<ISessionContext> => {
+const getSessionContextInternal = async (): Promise<ISessionContext> => {
   // Log the operation if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME);
@@ -66,3 +56,20 @@ export const getSessionContext = async (): Promise<ISessionContext> => {
     executionContext,
   };
 };
+
+/**
+ * Retrieves the session context for the current execution environment.
+ *
+ * This function constructs and returns the session context, including the client ID, process ID, and available method and execution contexts.
+ * It logs the operation if enabled, checks for active contexts using the `MethodContextService` and `ExecutionContextService`, and derives the client ID from either context if available.
+ * Unlike other functions, it does not perform explicit validation or require a `clientId` parameter, as it relies on the current execution environment's state.
+ *
+ * @returns {Promise<ISessionContext>} A promise that resolves to an object containing the session context, including `clientId`, `processId`, `methodContext`, and `executionContext`.
+ * @throws {Error} If an unexpected error occurs while accessing the method or execution context services (though typically none are thrown in this implementation).
+ * @example
+ * const context = await getSessionContext();
+ * console.log(context); // Outputs { clientId: "client-123", processId: "uuid-xyz", methodContext: {...}, executionContext: {...} }
+ */
+export function getSessionContext() {
+  return getSessionContextInternal();
+}

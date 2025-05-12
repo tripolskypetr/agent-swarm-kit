@@ -13,11 +13,9 @@ type TMCPSchema = {
 } & Partial<IMCPSchema>;
 
 /**
- * Overrides an existing MCP (Model Context Protocol) schema with a new or partial schema.
- * @param mcpSchema - The MCP schema containing the name and optional properties to override.
- * @returns The result of the override operation from the MCP schema service.
+ * Function implementation
  */
-export const overrideMCP = beginContext((mcpSchema: TMCPSchema) => {
+const overrideMCPInternal = beginContext((mcpSchema: TMCPSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       mcpSchema,
@@ -25,3 +23,12 @@ export const overrideMCP = beginContext((mcpSchema: TMCPSchema) => {
 
   return swarm.mcpSchemaService.override(mcpSchema.mcpName, mcpSchema);
 });
+
+/**
+ * Overrides an existing MCP (Model Context Protocol) schema with a new or partial schema.
+ * @param mcpSchema - The MCP schema containing the name and optional properties to override.
+ * @returns The result of the override operation from the MCP schema service.
+ */
+export function overrideMCP(mcpSchema: TMCPSchema) {
+  return overrideMCPInternal(mcpSchema);
+}

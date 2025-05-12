@@ -8,15 +8,9 @@ import { IChatArgs, WikiName } from "../../interfaces/Wiki.interface";
 const METHOD_NAME = "function.target.question";
 
 /**
- * Initiates a question process within a chat context
- * @function question
- * @param {string} message - The message/question to be processed
- * @param {string} clientId - Unique identifier for the client
- * @param {AgentName} agentName - Name of the agent handling the question
- * @param {WikiName} wikiName - Name of the wiki context
- * @returns {Promise<string>} The response from the chat process
+ * Function implementation
  */
-export const question = beginContext(
+const questionInternal = beginContext(
   async (message: string, clientId: string, agentName: AgentName, wikiName: WikiName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
@@ -77,3 +71,16 @@ export const question = beginContext(
     return await getChat(args);
   }
 );
+
+/**
+ * Initiates a question process within a chat context
+ * @function question
+ * @param {string} message - The message/question to be processed
+ * @param {string} clientId - Unique identifier for the client
+ * @param {AgentName} agentName - Name of the agent handling the question
+ * @param {WikiName} wikiName - Name of the wiki context
+ * @returns {Promise<string>} The response from the chat process
+ */
+export function question(message: string, clientId: string, agentName: AgentName, wikiName: WikiName) {
+  return questionInternal(message, clientId, agentName, wikiName);
+}

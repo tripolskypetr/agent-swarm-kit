@@ -6,22 +6,9 @@ import beginContext from "../../utils/beginContext";
 const METHOD_NAME = "function.target.executeForce";
 
 /**
- * Sends a message to the active agent in a swarm session as if it originated from the client side, forcing execution regardless of agent activity.
- *
- * This function executes a command or message on behalf of the active agent within a swarm session, designed for scenarios like reviewing tool output
- * or initiating a model-to-client conversation. Unlike `execute`, it does not check if the agent is currently active, ensuring execution even if the
- * agent has changed or is inactive. It validates the session and swarm, executes the content with performance tracking and event bus notifications,
- * and is wrapped in `beginContext` for a clean environment and `ExecutionContextService` for metadata tracking.
- *
- * @param {string} content - The content or command to be executed by the active agent.
- * @param {string} clientId - The unique identifier of the client session requesting the execution.
- * @returns {Promise<string>} A promise that resolves to the result of the execution.
- * @throws {Error} If session or swarm validation fails, or if the execution process encounters an error.
- * @example
- * const result = await executeForce("Force this execution", "client-123");
- * console.log(result); // Outputs the agent's response regardless of its active state
+ * Function implementation
  */
-export const executeForce = beginContext(
+const executeForceInternal = beginContext(
   async (content: string, clientId: string) => {
     const executionId = randomString();
 
@@ -73,3 +60,23 @@ export const executeForce = beginContext(
     );
   }
 );
+
+/**
+ * Sends a message to the active agent in a swarm session as if it originated from the client side, forcing execution regardless of agent activity.
+ *
+ * This function executes a command or message on behalf of the active agent within a swarm session, designed for scenarios like reviewing tool output
+ * or initiating a model-to-client conversation. Unlike `execute`, it does not check if the agent is currently active, ensuring execution even if the
+ * agent has changed or is inactive. It validates the session and swarm, executes the content with performance tracking and event bus notifications,
+ * and is wrapped in `beginContext` for a clean environment and `ExecutionContextService` for metadata tracking.
+ *
+ * @param {string} content - The content or command to be executed by the active agent.
+ * @param {string} clientId - The unique identifier of the client session requesting the execution.
+ * @returns {Promise<string>} A promise that resolves to the result of the execution.
+ * @throws {Error} If session or swarm validation fails, or if the execution process encounters an error.
+ * @example
+ * const result = await executeForce("Force this execution", "client-123");
+ * console.log(result); // Outputs the agent's response regardless of its active state
+ */
+export function executeForce(content: string, clientId: string) {
+  return executeForceInternal(content, clientId);
+}

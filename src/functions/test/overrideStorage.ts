@@ -13,6 +13,23 @@ type TStorageSchema<T extends IStorageData = IStorageData> = {
 } & Partial<IStorageSchema<T>>;
 
 /**
+ * Function implementation
+ */
+const overrideStorageInternal = beginContext(
+  (storageSchema: TStorageSchema<IStorageData>): IStorageSchema<any> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME, {
+        storageSchema,
+      });
+
+    return swarm.storageSchemaService.override(
+      storageSchema.storageName,
+      storageSchema
+    );
+  }
+);
+
+/**
  * Overrides an existing storage schema in the swarm system with a new or partial schema.
  * This function updates the configuration of a storage identified by its `storageName`, applying the provided schema properties.
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
@@ -35,18 +52,8 @@ type TStorageSchema<T extends IStorageData = IStorageData> = {
  * });
  * // Logs the operation (if enabled) and updates the storage schema in the swarm.
  */
-export const overrideStorage = beginContext(
-  (storageSchema: TStorageSchema<IStorageData>) => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME, {
-        storageSchema,
-      });
-
-    return swarm.storageSchemaService.override(
-      storageSchema.storageName,
-      storageSchema
-    );
-  }
-) as <T extends IStorageData = IStorageData>(
+export function overrideStorage<T extends IStorageData = IStorageData>(
   storageSchema: TStorageSchema<T>
-) => IStorageSchema<T>;
+): IStorageSchema<T> {
+  return overrideStorageInternal(storageSchema);
+}

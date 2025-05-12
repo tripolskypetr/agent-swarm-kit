@@ -1,9 +1,24 @@
 import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
-import { getRawHistory } from "./getRawHistory";
+import { getRawHistoryInternal } from "./getRawHistory";
 
 const METHOD_NAME = "function.history.getUserHistory";
+
+/**
+ * Function implementation
+ */
+const getUserHistoryInternal = beginContext(async (clientId: string) => {
+  // Log the operation details if logging is enabled in GLOBAL_CONFIG
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      clientId,
+    });
+
+  // Fetch raw history and filter for user role and mode
+  const history = await getRawHistoryInternal(clientId, METHOD_NAME);
+  return history.filter(({ role, mode }) => role === "user" && mode === "user");
+});
 
 /**
  * Retrieves the user-specific history entries for a given client session.
@@ -19,14 +34,6 @@ const METHOD_NAME = "function.history.getUserHistory";
  * const userHistory = await getUserHistory("client-123");
  * console.log(userHistory); // Outputs array of user history entries
  */
-export const getUserHistory = beginContext(async (clientId: string) => {
-  // Log the operation details if logging is enabled in GLOBAL_CONFIG
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      clientId,
-    });
-
-  // Fetch raw history and filter for user role and mode
-  const history = await getRawHistory(clientId, METHOD_NAME);
-  return history.filter(({ role, mode }) => role === "user" && mode === "user");
-});
+export function getUserHistory(clientId: string) {
+  return getUserHistoryInternal(clientId);
+}

@@ -6,22 +6,9 @@ import swarm from "../../lib";
 const METHOD_NAME = "function.commit.commitToolOutput";
 
 /**
- * Commits the output of a tool execution to the active agent in a swarm session.
- *
- * This function ensures that the tool output is committed only if the specified agent is still the active agent in the swarm session.
- * It performs validation checks on the agent, session, and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
- * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
- *
- * @param {string} toolId - The unique identifier of the tool whose output is being committed.
- * @param {string} content - The content or result of the tool execution to be committed.
- * @param {string} clientId - The unique identifier of the client session associated with the operation.
- * @param {AgentName} agentName - The name of the agent committing the tool output.
- * @returns {Promise<void>} A promise that resolves when the tool output is successfully committed, or immediately if the operation is skipped due to an agent change.
- * @throws {Error} If validation fails (e.g., invalid agent, session, or swarm) or if the session public service encounters an error during the commit operation.
- * @example
- * await commitToolOutput("tool-123", "Tool execution result", "client-456", "AgentX");
+ * Function implementation
  */
-export const commitToolOutput = beginContext(
+const commitToolOutputInternal = beginContext(
   async (
     toolId: string,
     content: string,
@@ -74,3 +61,28 @@ export const commitToolOutput = beginContext(
     );
   }
 );
+
+/**
+ * Commits the output of a tool execution to the active agent in a swarm session.
+ *
+ * This function ensures that the tool output is committed only if the specified agent is still the active agent in the swarm session.
+ * It performs validation checks on the agent, session, and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ *
+ * @param {string} toolId - The unique identifier of the tool whose output is being committed.
+ * @param {string} content - The content or result of the tool execution to be committed.
+ * @param {string} clientId - The unique identifier of the client session associated with the operation.
+ * @param {AgentName} agentName - The name of the agent committing the tool output.
+ * @returns {Promise<void>} A promise that resolves when the tool output is successfully committed, or immediately if the operation is skipped due to an agent change.
+ * @throws {Error} If validation fails (e.g., invalid agent, session, or swarm) or if the session public service encounters an error during the commit operation.
+ * @example
+ * await commitToolOutput("tool-123", "Tool execution result", "client-456", "AgentX");
+ */
+export function commitToolOutput(
+  toolId: string,
+  content: string,
+  clientId: string,
+  agentName: AgentName
+) {
+  return commitToolOutputInternal(toolId, content, clientId, agentName);
+}

@@ -6,6 +6,25 @@ import beginContext from "../../utils/beginContext";
 const METHOD_NAME = "function.setup.addSwarm";
 
 /**
+ * Function implementation
+ */
+const addSwarmInternal = beginContext((swarmSchema: ISwarmSchema) => {
+  // Log the operation details if logging is enabled in GLOBAL_CONFIG
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      swarmSchema,
+    });
+
+  // Register the swarm in the validation and schema services
+  swarm.swarmValidationService.addSwarm(swarmSchema.swarmName, swarmSchema);
+  swarm.swarmSchemaService.register(swarmSchema.swarmName, swarmSchema);
+
+  // Return the swarm's name as confirmation of registration
+  return swarmSchema.swarmName;
+});
+
+
+/**
  * Adds a new swarm to the system for managing client sessions.
  *
  * This function registers a new swarm, which serves as the root entity for initiating and managing client sessions within the system.
@@ -21,17 +40,6 @@ const METHOD_NAME = "function.setup.addSwarm";
  * const swarmName = addSwarm(swarmSchema);
  * console.log(swarmName); // Outputs "TaskSwarm"
  */
-export const addSwarm = beginContext((swarmSchema: ISwarmSchema) => {
-  // Log the operation details if logging is enabled in GLOBAL_CONFIG
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      swarmSchema,
-    });
-
-  // Register the swarm in the validation and schema services
-  swarm.swarmValidationService.addSwarm(swarmSchema.swarmName, swarmSchema);
-  swarm.swarmSchemaService.register(swarmSchema.swarmName, swarmSchema);
-
-  // Return the swarm's name as confirmation of registration
-  return swarmSchema.swarmName;
-});
+export function addSwarm(swarmSchema: ISwarmSchema) {
+  return addSwarmInternal(swarmSchema);
+}

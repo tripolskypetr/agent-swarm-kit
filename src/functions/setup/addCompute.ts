@@ -9,13 +9,9 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
 
 /**
- * @function addCompute
- * @description Registers a compute schema, validates it, and adds it to the compute schema service.
- * @template T - Type extending IComputeData.
- * @param {IComputeSchema<T>} computeSchema - The compute schema to register.
- * @returns {string} The name of the registered compute.
+ * Function implementation
  */
-export const addCompute = beginContext((computeSchema: IComputeSchema): string => {
+const addComputeInternal = beginContext((computeSchema: IComputeSchema): string => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log("function.setup.addCompute", {
       computeSchema,
@@ -29,4 +25,14 @@ export const addCompute = beginContext((computeSchema: IComputeSchema): string =
   swarm.computeSchemaService.register(computeSchema.computeName, computeSchema);
 
   return computeSchema.computeName;
-}) as <T extends IComputeData = any>(stateSchema: IComputeSchema<T>) => string;
+});
+
+/**
+ * Registers a compute schema, validates it, and adds it to the compute schema service.
+ * @template T - Type extending IComputeData.
+ * @param {IComputeSchema<T>} computeSchema - The compute schema to register.
+ * @returns {string} The name of the registered compute.
+ */
+export function addCompute<T extends IComputeData = any>(computeSchema: IComputeSchema<T>) {
+  return addComputeInternal(computeSchema);
+}

@@ -119,19 +119,9 @@ const createGc = singleshot(async () => {
 });
 
 /**
- * Navigates back to the default agent for a given client session in a swarm.
- *
- * This function switches the active agent to the default agent defined in the swarm schema for the specified client session.
- * It validates the session and default agent, logs the operation if enabled, and executes the change using a TTL-limited, queued runner.
- * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
- *
- * @param {string} clientId - The unique identifier of the client session.
- * @returns {Promise<boolean>} A promise that resolves when the default agent change is complete. If navigation stack contains recursion being canceled
- * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
- * @example
- * await changeToDefaultAgent("client-123");
+ * Function implementation
  */
-export const changeToDefaultAgent = beginContext(async (clientId: string) => {
+const changeToDefaultAgentInternal = beginContext(async (clientId: string) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -151,3 +141,20 @@ export const changeToDefaultAgent = beginContext(async (clientId: string) => {
   createGc();
   return await run(METHOD_NAME, agentName, swarmName);
 });
+
+/**
+ * Navigates back to the default agent for a given client session in a swarm.
+ *
+ * This function switches the active agent to the default agent defined in the swarm schema for the specified client session.
+ * It validates the session and default agent, logs the operation if enabled, and executes the change using a TTL-limited, queued runner.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @returns {Promise<boolean>} A promise that resolves when the default agent change is complete. If navigation stack contains recursion being canceled
+ * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
+ * @example
+ * await changeToDefaultAgent("client-123");
+ */
+export function changeToDefaultAgent(clientId: string) {
+  return changeToDefaultAgentInternal(clientId);
+}

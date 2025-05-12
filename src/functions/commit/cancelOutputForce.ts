@@ -6,19 +6,9 @@ import swarm from "../../lib";
 const METHOD_NAME = "function.commit.cancelOutputForce";
 
 /**
- * Forcefully cancels the awaited output for a specific client by emitting an empty string, without checking the active agent.
- * Validates the session and swarm, then proceeds with cancellation regardless of the current agent state.
- * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
- * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
- * SwarmPublicService (output cancellation), and LoggerService (logging).
- * Unlike cancelOutput, this function skips agent validation and active agent checks, providing a more aggressive cancellation mechanism.
- *
- * @param {string} clientId - The ID of the client whose output is to be canceled, validated against active sessions.
- * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with cancelOutput).
- * @returns {Promise<void>} A promise that resolves when the output cancellation is complete.
- * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
+ * Function implementation
  */
-export const cancelOutputForce = beginContext(
+const cancelOutputForceInternal = beginContext(
   async (clientId: string): Promise<void> => {
     // Log the cancellation attempt if enabled
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -41,3 +31,20 @@ export const cancelOutputForce = beginContext(
     );
   }
 );
+
+/**
+ * Forcefully cancels the awaited output for a specific client by emitting an empty string, without checking the active agent.
+ * Validates the session and swarm, then proceeds with cancellation regardless of the current agent state.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
+ * SwarmPublicService (output cancellation), and LoggerService (logging).
+ * Unlike cancelOutput, this function skips agent validation and active agent checks, providing a more aggressive cancellation mechanism.
+ *
+ * @param {string} clientId - The ID of the client whose output is to be canceled, validated against active sessions.
+ * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with cancelOutput).
+ * @returns {Promise<void>} A promise that resolves when the output cancellation is complete.
+ * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
+ */
+export function cancelOutputForce(clientId: string) {
+  return cancelOutputForceInternal(clientId);
+}

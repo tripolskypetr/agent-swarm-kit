@@ -6,22 +6,9 @@ import beginContext from "../../utils/beginContext";
 const METHOD_NAME = "function.setup.addEmbedding";
 
 /**
- * Adds a new embedding engine to the embedding registry for use within the swarm system.
- *
- * This function registers a new embedding engine, enabling the swarm to utilize it for tasks such as vector generation or similarity comparisons.
- * Only embeddings registered through this function are recognized by the swarm. The execution is wrapped in `beginContext` to ensure it runs
- * outside of existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled
- * and returns the embedding's name upon successful registration.
- *
- * @param {IEmbeddingSchema} embeddingSchema - The schema defining the embedding engine's properties, including its name (`embeddingName`) and configuration details.
- * @returns {string} The name of the newly added embedding (`embeddingSchema.embeddingName`), confirming its registration.
- * @throws {Error} If the embedding schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate embedding name).
- * @example
- * const embeddingSchema = { embeddingName: "TextEmbedder", model: "bert-base" };
- * const embeddingName = addEmbedding(embeddingSchema);
- * console.log(embeddingName); // Outputs "TextEmbedder"
+ * Function implementation
  */
-export const addEmbedding = beginContext(
+const addEmbeddingInternal = beginContext(
   (embeddingSchema: IEmbeddingSchema) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -43,3 +30,23 @@ export const addEmbedding = beginContext(
     return embeddingSchema.embeddingName;
   }
 );
+
+/**
+ * Adds a new embedding engine to the embedding registry for use within the swarm system.
+ *
+ * This function registers a new embedding engine, enabling the swarm to utilize it for tasks such as vector generation or similarity comparisons.
+ * Only embeddings registered through this function are recognized by the swarm. The execution is wrapped in `beginContext` to ensure it runs
+ * outside of existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled
+ * and returns the embedding's name upon successful registration.
+ *
+ * @param {IEmbeddingSchema} embeddingSchema - The schema defining the embedding engine's properties, including its name (`embeddingName`) and configuration details.
+ * @returns {string} The name of the newly added embedding (`embeddingSchema.embeddingName`), confirming its registration.
+ * @throws {Error} If the embedding schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate embedding name).
+ * @example
+ * const embeddingSchema = { embeddingName: "TextEmbedder", model: "bert-base" };
+ * const embeddingName = addEmbedding(embeddingSchema);
+ * console.log(embeddingName); // Outputs "TextEmbedder"
+ */
+export function addEmbedding(embeddingSchema: IEmbeddingSchema) {
+  return addEmbeddingInternal(embeddingSchema);
+}

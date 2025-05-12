@@ -1,9 +1,27 @@
 import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
-import { getRawHistory } from "./getRawHistory";
+import { getRawHistoryInternal } from "./getRawHistory";
 
 const METHOD_NAME = "function.history.getLastAssistantMessage";
+
+/**
+ * Function implementation
+ */
+const getLastAssistantMessageInternal = beginContext(
+  async (clientId: string): Promise<string | null> => {
+    // Log the operation details if logging is enabled in GLOBAL_CONFIG
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME, {
+        clientId,
+      });
+
+    // Fetch raw history and find the last assistant message
+    const history = await getRawHistoryInternal(clientId, METHOD_NAME);
+    const last = history.findLast(({ role }) => role === "assistant");
+    return last?.content ? last.content : null;
+  }
+);
 
 /**
  * Retrieves the content of the most recent assistant message from a client's session history.
@@ -19,17 +37,6 @@ const METHOD_NAME = "function.history.getLastAssistantMessage";
  * const lastMessage = await getLastAssistantMessage("client-123");
  * console.log(lastMessage); // Outputs the last assistant message or null
  */
-export const getLastAssistantMessage = beginContext(
-  async (clientId: string): Promise<string | null> => {
-    // Log the operation details if logging is enabled in GLOBAL_CONFIG
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME, {
-        clientId,
-      });
-
-    // Fetch raw history and find the last assistant message
-    const history = await getRawHistory(clientId, METHOD_NAME);
-    const last = history.findLast(({ role }) => role === "assistant");
-    return last?.content ? last.content : null;
-  }
-);
+export function getLastAssistantMessage(clientId: string) {
+  return getLastAssistantMessageInternal(clientId);
+}

@@ -42,19 +42,13 @@ interface IScopeOptions {
 }
 
 /**
- * @function fork
- * @description Executes a provided function within a managed scope, handling session creation, validation, and cleanup.
- * @template T - Type of the result returned by the run function.
- * @param {Function} runFn - The function to execute, receiving clientId and agentName as arguments.
- * @param {IScopeOptions} options - Configuration options for the scope operation.
- * @returns {Promise<T | void>} The result of the run function or void if no result is returned.
- * @throws {Error} If a session already exists for the clientId.
+ * Function implementation
  */
-export const fork = beginContext(
+const forkInternal = beginContext(
   async <T = any>(
     runFn: (clientId: string, agentName: AgentName) => Promise<T | void>,
     { clientId, swarmName, onError }: IScopeOptions
-  ): Promise<T> => {
+  ): Promise<any> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         clientId,
@@ -91,7 +85,19 @@ export const fork = beginContext(
 
     return result;
   }
-) as <T = any>(
+);
+
+/**
+ * Executes a provided function within a managed scope, handling session creation, validation, and cleanup.
+ * @template T - Type of the result returned by the run function.
+ * @param {Function} runFn - The function to execute, receiving clientId and agentName as arguments.
+ * @param {IScopeOptions} options - Configuration options for the scope operation.
+ * @returns {Promise<T | void>} The result of the run function or void if no result is returned.
+ * @throws {Error} If a session already exists for the clientId.
+ */
+export function fork<T = any>(
   runFn: (clientId: string, agentName: AgentName) => Promise<T | void>,
   options: IScopeOptions
-) => Promise<T>;
+): Promise<T> {
+  return forkInternal(runFn, options);
+}

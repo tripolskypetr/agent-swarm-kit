@@ -6,6 +6,18 @@ import { PayloadContextService } from "../../lib";
 const METHOD_NAME = "function.common.getPayload";
 
 /**
+ * Function implementation
+ */
+const getPayloadInternal = () => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
+  if (PayloadContextService.hasContext()) {
+    const { payload } = swarm.payloadContextService.context;
+    return payload as unknown;
+  }
+  return null;
+};
+
+/**
  * Retrieves the payload from the current PayloadContextService context.
  * Returns null if no context is available. Logs the operation if logging is enabled.
  * @template Payload - The type of the payload object, defaults to a generic object.
@@ -14,13 +26,8 @@ const METHOD_NAME = "function.common.getPayload";
  * const payload = await getPayload<{ id: number }>();
  * console.log(payload); // { id: number } or null
  */
-export const getPayload = <
+export function getPayload<
   Payload extends object = object
->(): Payload | null => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
-  if (PayloadContextService.hasContext()) {
-    const { payload } = swarm.payloadContextService.context;
-    return payload as Payload;
-  }
-  return null;
-};
+>(): Payload | null {
+  return getPayloadInternal() as Payload;
+}

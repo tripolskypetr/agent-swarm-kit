@@ -39,37 +39,14 @@ const validateClientId = (clientId: string) => {
 };
 
 /**
- * Subscribes to a custom event on the swarm bus service for a single occurrence, executing a callback when the event matches a filter.
- *
- * This function sets up a one-time listener for events with a specified topic on the swarm's bus service, invoking the provided callback with the
- * event's payload when the event is received and passes the filter condition. It is wrapped in `beginContext` for a clean execution environment,
- * logs the operation if enabled, and enforces restrictions on reserved topic names (defined in `DISALLOWED_EVENT_SOURCE_LIST`). The callback is
- * queued to ensure sequential processing, and the listener unsubscribes after the first matching event. The function supports a wildcard client ID
- * ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to cancel the listener prematurely.
- *
- * @template T - The type of the payload data, defaulting to `any` if unspecified.
- * @param {string} clientId - The ID of the client to listen for events from, or "*" to listen to all clients.
- * @param {string} topicName - The name of the event topic to subscribe to (must not be a reserved source).
- * @param {(event: T) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event's payload.
- * @param {(data: T) => void} fn - The callback function to execute once when a matching event is received, passed the event payload.
- * @returns {() => void} A function to unsubscribe from the event listener before it triggers.
- * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus"), or if the `clientId` is not "*" and no session exists.
- * @example
- * const unsubscribe = listenEventOnce(
- *   "client-123",
- *   "custom-topic",
- *   (data) => data.value > 0,
- *   (data) => console.log(data)
- * );
- * // Logs payload once when "custom-topic" event with value > 0 is received
- * unsubscribe(); // Cancels listener if not yet triggered
+ * Function implementation
  */
-export const listenEventOnce = beginContext(
+const listenEventOnceInternal = beginContext(
   (
     clientId: string,
     topicName: string,
-    filterFn: (event: object) => boolean,
-    fn: (data: object) => void
+    filterFn: (event: unknown) => boolean,
+    fn: (data: unknown) => void
   ) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -95,9 +72,40 @@ export const listenEventOnce = beginContext(
       queued(async ({ payload }) => await fn(payload))
     );
   }
-) as <T extends unknown = any>(
+);
+
+
+/**
+ * Subscribes to a custom event on the swarm bus service for a single occurrence, executing a callback when the event matches a filter.
+ *
+ * This function sets up a one-time listener for events with a specified topic on the swarm's bus service, invoking the provided callback with the
+ * event's payload when the event is received and passes the filter condition. It is wrapped in `beginContext` for a clean execution environment,
+ * logs the operation if enabled, and enforces restrictions on reserved topic names (defined in `DISALLOWED_EVENT_SOURCE_LIST`). The callback is
+ * queued to ensure sequential processing, and the listener unsubscribes after the first matching event. The function supports a wildcard client ID
+ * ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to cancel the listener prematurely.
+ *
+ * @template T - The type of the payload data, defaulting to `any` if unspecified.
+ * @param {string} clientId - The ID of the client to listen for events from, or "*" to listen to all clients.
+ * @param {string} topicName - The name of the event topic to subscribe to (must not be a reserved source).
+ * @param {(event: T) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event's payload.
+ * @param {(data: T) => void} fn - The callback function to execute once when a matching event is received, passed the event payload.
+ * @returns {() => void} A function to unsubscribe from the event listener before it triggers.
+ * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus"), or if the `clientId` is not "*" and no session exists.
+ * @example
+ * const unsubscribe = listenEventOnce(
+ *   "client-123",
+ *   "custom-topic",
+ *   (data) => data.value > 0,
+ *   (data) => console.log(data)
+ * );
+ * // Logs payload once when "custom-topic" event with value > 0 is received
+ * unsubscribe(); // Cancels listener if not yet triggered
+ */
+export function listenEventOnce<T extends unknown = any>(
   clientId: string,
   topicName: string,
   filterFn: (event: T) => boolean,
   fn: (data: T) => void
-) => () => void;
+) {
+  return listenEventOnceInternal(clientId, topicName, filterFn, fn);
+}

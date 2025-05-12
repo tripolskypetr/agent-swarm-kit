@@ -10,6 +10,18 @@ type TAgentTool = {
 } & Partial<IAgentTool>;
 
 /**
+ * Function implementation
+ */
+const overrideToolInternal = beginContext((toolSchema: TAgentTool) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      toolSchema,
+    });
+
+  return swarm.toolSchemaService.override(toolSchema.toolName, toolSchema);
+});
+
+/**
  * Overrides an existing tool schema in the swarm system with a new or partial schema.
  * This function updates the configuration of a tool identified by its `toolName`, applying the provided schema properties.
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
@@ -30,11 +42,6 @@ type TAgentTool = {
  * });
  * // Logs the operation (if enabled) and updates the tool schema in the swarm.
  */
-export const overrideTool = beginContext((toolSchema: TAgentTool) => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      toolSchema,
-    });
-
-  return swarm.toolSchemaService.override(toolSchema.toolName, toolSchema);
-});
+export function overrideTool(toolSchema: TAgentTool) {
+  return overrideToolInternal(toolSchema);
+}

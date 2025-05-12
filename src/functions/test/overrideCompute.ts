@@ -24,12 +24,9 @@ type TComputeSchema = {
 } & Partial<IComputeSchema>;
 
 /**
- * @function overrideCompute
- * @description Overrides an existing compute schema with provided partial updates.
- * @param {TComputeSchema} computeSchema - The partial compute schema with updates.
- * @returns {IComputeSchema} The updated compute schema.
+ * Function implementation
  */
-export const overrideCompute = beginContext((computeSchema: TComputeSchema) => {
+const overrideComputeInternal = beginContext((computeSchema: TComputeSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       computeSchema,
@@ -37,3 +34,12 @@ export const overrideCompute = beginContext((computeSchema: TComputeSchema) => {
 
   return swarm.computeSchemaService.override(computeSchema.computeName, computeSchema);
 });
+
+/**
+ * Overrides an existing compute schema with provided partial updates.
+ * @param {TComputeSchema} computeSchema - The partial compute schema with updates.
+ * @returns {IComputeSchema} The updated compute schema.
+ */
+export function overrideCompute(computeSchema: TComputeSchema) {
+  return overrideComputeInternal(computeSchema)
+}

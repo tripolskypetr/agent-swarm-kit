@@ -6,20 +6,9 @@ import swarm from "../../lib";
 const METHOD_NAME = "function.commit.commitFlushForce";
 
 /**
- * Forcefully commits a flush of agent history for a specific client in the swarm system, without checking the active agent.
- * Validates the session and swarm, then proceeds with flushing the history regardless of the current agent state.
- * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
- * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
- * SessionPublicService (history flush), and LoggerService (logging).
- * Unlike commitFlush, this function skips agent validation and active agent checks, providing a more aggressive flush mechanism,
- * analogous to commitAssistantMessageForce vs. commitAssistantMessage.
- *
- * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
- * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with commitFlush).
- * @returns {Promise<void>} A promise that resolves when the history flush is committed.
- * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
+ * Function implementation
  */
-export const commitFlushForce = beginContext(
+const commitFlushForceInternal = beginContext(
   async (clientId: string): Promise<void> => {
     // Log the flush attempt if enabled
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -43,3 +32,21 @@ export const commitFlushForce = beginContext(
     );
   }
 );
+
+/**
+ * Forcefully commits a flush of agent history for a specific client in the swarm system, without checking the active agent.
+ * Validates the session and swarm, then proceeds with flushing the history regardless of the current agent state.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
+ * SessionPublicService (history flush), and LoggerService (logging).
+ * Unlike commitFlush, this function skips agent validation and active agent checks, providing a more aggressive flush mechanism,
+ * analogous to commitAssistantMessageForce vs. commitAssistantMessage.
+ *
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with commitFlush).
+ * @returns {Promise<void>} A promise that resolves when the history flush is committed.
+ * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
+ */
+export function commitFlushForce(clientId: string) {
+  return commitFlushForceInternal(clientId);
+}

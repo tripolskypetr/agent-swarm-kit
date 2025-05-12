@@ -10,6 +10,18 @@ type TStateSchema<T extends unknown = any> = {
 } & Partial<IStateSchema<T>>;
 
 /**
+ * Function implementation
+ */
+const overrideStateInternal = beginContext((stateSchema: TStateSchema) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      stateSchema,
+    });
+
+  return swarm.stateSchemaService.override(stateSchema.stateName, stateSchema);
+});
+
+/**
  * Overrides an existing state schema in the swarm system with a new or partial schema.
  * This function updates the configuration of a state identified by its `stateName`, applying the provided schema properties.
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
@@ -31,13 +43,8 @@ type TStateSchema<T extends unknown = any> = {
  * });
  * // Logs the operation (if enabled) and updates the state schema in the swarm.
  */
-export const overrideState = beginContext((stateSchema: TStateSchema) => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      stateSchema,
-    });
-
-  return swarm.stateSchemaService.override(stateSchema.stateName, stateSchema);
-}) as <T extends unknown = any>(
+export function overrideState<T extends unknown = any>(
   stateSchema: TStateSchema<T>
-) => IStateSchema<T>;
+): IStateSchema<T> {
+  return overrideStateInternal(stateSchema);
+}

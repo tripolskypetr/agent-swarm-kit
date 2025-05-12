@@ -39,27 +39,10 @@ const validateClientId = (clientId: string) => {
 };
 
 /**
- * Subscribes to a custom event on the swarm bus service and executes a callback when the event is received.
- *
- * This function sets up a listener for events with a specified topic on the swarm's bus service, invoking the provided callback with the event's
- * payload when triggered. It is wrapped in `beginContext` for a clean execution environment, logs the operation if enabled, and enforces restrictions
- * on reserved topic names (defined in `DISALLOWED_EVENT_SOURCE_LIST`). The callback is queued to ensure sequential processing of events. The function
- * supports a wildcard client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop
- * listening.
- *
- * @template T - The type of the payload data, defaulting to `any` if unspecified.
- * @param {string} clientId - The ID of the client to listen for events from, or "*" to listen to all clients.
- * @param {string} topicName - The name of the event topic to subscribe to (must not be a reserved source).
- * @param {(data: T) => void} fn - The callback function to execute when the event is received, passed the event payload.
- * @returns {() => void} A function to unsubscribe from the event listener.
- * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus"), or if the `clientId` is not "*" and no session exists.
- * @example
- * const unsubscribe = listenEvent("client-123", "custom-topic", (data) => console.log(data));
- * // Logs payload when "custom-topic" event is received for "client-123"
- * unsubscribe(); // Stops listening
+ * Function implementation
  */
-export const listenEvent = beginContext(
-  (clientId: string, topicName: string, fn: (data: object) => void) => {
+const listenEventInternal = beginContext(
+  (clientId: string, topicName: string, fn: (data: unknown) => void) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
@@ -83,8 +66,32 @@ export const listenEvent = beginContext(
       queued(async ({ payload }) => await fn(payload))
     );
   }
-) as <T extends unknown = any>(
+);
+
+/**
+ * Subscribes to a custom event on the swarm bus service and executes a callback when the event is received.
+ *
+ * This function sets up a listener for events with a specified topic on the swarm's bus service, invoking the provided callback with the event's
+ * payload when triggered. It is wrapped in `beginContext` for a clean execution environment, logs the operation if enabled, and enforces restrictions
+ * on reserved topic names (defined in `DISALLOWED_EVENT_SOURCE_LIST`). The callback is queued to ensure sequential processing of events. The function
+ * supports a wildcard client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop
+ * listening.
+ *
+ * @template T - The type of the payload data, defaulting to `any` if unspecified.
+ * @param {string} clientId - The ID of the client to listen for events from, or "*" to listen to all clients.
+ * @param {string} topicName - The name of the event topic to subscribe to (must not be a reserved source).
+ * @param {(data: T) => void} fn - The callback function to execute when the event is received, passed the event payload.
+ * @returns {() => void} A function to unsubscribe from the event listener.
+ * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus"), or if the `clientId` is not "*" and no session exists.
+ * @example
+ * const unsubscribe = listenEvent("client-123", "custom-topic", (data) => console.log(data));
+ * // Logs payload when "custom-topic" event is received for "client-123"
+ * unsubscribe(); // Stops listening
+ */
+export function listenEvent<T extends unknown = any>(
   clientId: string,
   topicName: string,
   fn: (data: T) => void
-) => () => void;
+) {
+  return listenEventInternal(clientId, topicName, fn);
+}

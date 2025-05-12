@@ -6,18 +6,9 @@ import beginContext from "../../utils/beginContext";
 const METHOD_NAME = "function.commit.cancelOutput";
 
 /**
- * Cancels the awaited output for a specific client and agent by emitting an empty string.
- * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before cancellation.
- * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
- * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
- * SwarmValidationService (swarm validation), and SwarmPublicService (agent retrieval and output cancellation).
- *
- * @param {string} clientId - The ID of the client whose output is to be canceled, validated against active sessions.
- * @param {string} agentName - The name of the agent for which the output is canceled, validated against registered agents.
- * @returns {Promise<void>} A promise that resolves when the output cancellation is complete or skipped (e.g., agent mismatch).
- * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
+ * Function implementation
  */
-export const cancelOutput = beginContext(
+const cancelOutputInternal = beginContext(
   async (clientId: string, agentName: string): Promise<void> => {
     // Log the cancellation attempt if enabled
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -63,3 +54,19 @@ export const cancelOutput = beginContext(
     );
   }
 );
+
+/**
+ * Cancels the awaited output for a specific client and agent by emitting an empty string.
+ * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before cancellation.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
+ * SwarmValidationService (swarm validation), and SwarmPublicService (agent retrieval and output cancellation).
+ *
+ * @param {string} clientId - The ID of the client whose output is to be canceled, validated against active sessions.
+ * @param {string} agentName - The name of the agent for which the output is canceled, validated against registered agents.
+ * @returns {Promise<void>} A promise that resolves when the output cancellation is complete or skipped (e.g., agent mismatch).
+ * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
+ */
+export function cancelOutput(clientId: string, agentName: string) {
+  return cancelOutputInternal(clientId, agentName);
+}

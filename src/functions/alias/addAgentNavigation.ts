@@ -37,17 +37,9 @@ interface IAgentNavigationParams extends INavigateToAgentParams {
 }
 
 /**
- * Creates and registers a navigation tool for an agent to navigate to another specified agent.
- * @function addAgentNavigation
- * @param {IAgentNavigationParams} params - The parameters for configuring the navigation tool.
- * @param {ToolName} params.toolName - The name of the tool.
- * @param {string} params.description - Description of the tool's purpose.
- * @param {AgentName} params.navigateTo - The target agent to navigate to.
- * @param {string} [params.docNote] - Optional documentation note.
- * @param {...INavigateToAgentParams} params.navigateProps - Additional navigation properties.
- * @returns {ReturnType<typeof addTool>} The result of adding the navigation tool.
+ * Function implementation
  */
-export const addAgentNavigation = beginContext(
+const addAgentNavigationInternal = beginContext(
   ({
     toolName,
     docNote,
@@ -83,3 +75,18 @@ export const addAgentNavigation = beginContext(
     });
   }
 );
+
+/**
+ * Creates and registers a navigation tool for an agent to navigate to another specified agent.
+ * @function addAgentNavigation
+ * @param {IAgentNavigationParams} params - The parameters for configuring the navigation tool.
+ * @param {ToolName} params.toolName - The name of the tool.
+ * @param {string} params.description - Description of the tool's purpose.
+ * @param {AgentName} params.navigateTo - The target agent to navigate to.
+ * @param {string} [params.docNote] - Optional documentation note.
+ * @param {...INavigateToAgentParams} params.navigateProps - Additional navigation properties.
+ * @returns {ReturnType<typeof addTool>} The result of adding the navigation tool.
+ */
+export function addAgentNavigation(params: IAgentNavigationParams) {
+  return addAgentNavigationInternal(params);
+}

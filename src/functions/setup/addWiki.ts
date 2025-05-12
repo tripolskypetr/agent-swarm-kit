@@ -7,12 +7,9 @@ import beginContext from "../../utils/beginContext";
 const METHOD_NAME = "function.setup.addWiki";
 
 /**
- * Adds a wiki schema to the system
- * @function addWiki
- * @param {IWikiSchema} wikiSchema - The wiki schema to add
- * @returns {string} The name of the added wiki
+ * Function implementation
  */
-export const addWiki = beginContext(
+const addWikiInternal = beginContext(
   (wikiSchema: IWikiSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
@@ -31,3 +28,13 @@ export const addWiki = beginContext(
     return wikiSchema.wikiName;
   }
 );
+
+/**
+ * Adds a wiki schema to the system
+ * @function addWiki
+ * @param {IWikiSchema} wikiSchema - The wiki schema to add
+ * @returns {string} The name of the added wiki
+ */
+export function addWiki(wikiSchema: IWikiSchema) {
+  return addWikiInternal(wikiSchema);
+}

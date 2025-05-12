@@ -6,21 +6,9 @@ import swarm from "../../lib";
 const METHOD_NAME = "function.common.getAgentHistory";
 
 /**
- * Retrieves the history prepared for a specific agent, incorporating rescue algorithm tweaks.
- *
- * This function fetches the history tailored for a specified agent within a swarm session, applying any rescue strategies defined in the system (e.g., `CC_RESQUE_STRATEGY` from `GLOBAL_CONFIG`).
- * It validates the client session and agent, logs the operation if enabled, and retrieves the history using the agent's prompt configuration via the history public service.
- * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
- *
- * @param {string} clientId - The unique identifier of the client session requesting the history.
- * @param {AgentName} agentName - The name of the agent whose history is being retrieved.
- * @returns {Promise<IModelMessage[]>} A promise that resolves to an array of history messages (`IModelMessage[]`) prepared for the agent, including any rescue algorithm adjustments.
- * @throws {Error} If validation fails (e.g., invalid session or agent) or if the history public service encounters an error during retrieval.
- * @example
- * const history = await getAgentHistory("client-123", "AgentX");
- * console.log(history); // Outputs array of IModelMessage objects
+ * Function implementation
  */
-export const getAgentHistory = beginContext(async (
+const getAgentHistoryInternal = beginContext(async (
   clientId: string,
   agentName: AgentName
 ) => {
@@ -49,3 +37,25 @@ export const getAgentHistory = beginContext(async (
   // Return a shallow copy of the history array
   return [...history];
 });
+
+/**
+ * Retrieves the history prepared for a specific agent, incorporating rescue algorithm tweaks.
+ *
+ * This function fetches the history tailored for a specified agent within a swarm session, applying any rescue strategies defined in the system (e.g., `CC_RESQUE_STRATEGY` from `GLOBAL_CONFIG`).
+ * It validates the client session and agent, logs the operation if enabled, and retrieves the history using the agent's prompt configuration via the history public service.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
+ *
+ * @param {string} clientId - The unique identifier of the client session requesting the history.
+ * @param {AgentName} agentName - The name of the agent whose history is being retrieved.
+ * @returns {Promise<IModelMessage[]>} A promise that resolves to an array of history messages (`IModelMessage[]`) prepared for the agent, including any rescue algorithm adjustments.
+ * @throws {Error} If validation fails (e.g., invalid session or agent) or if the history public service encounters an error during retrieval.
+ * @example
+ * const history = await getAgentHistory("client-123", "AgentX");
+ * console.log(history); // Outputs array of IModelMessage objects
+ */
+export function getAgentHistory(
+  clientId: string,
+  agentName: AgentName
+) {
+  return getAgentHistoryInternal(clientId, agentName);
+} 

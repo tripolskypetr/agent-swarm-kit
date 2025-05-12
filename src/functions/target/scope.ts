@@ -24,14 +24,9 @@ const METHOD_NAME = "function.target.scope";
 type ScopeOptions = Partial<ISchemaContext["registry"]>;
 
 /**
- * @function scope
- * @description Executes a provided function within a schema context, with optional overrides for schema services such as agents, completions, and pipelines.
- * @template T - Type of the result returned by the run function.
- * @param {Function} runFn - The function to execute within the schema context.
- * @param {Partial<ISchemaContext["registry"]>} [options] - Optional overrides for schema services, with defaults from the swarm's schema services.
- * @returns {Promise<T>} The result of the executed function.
+ * Function implementation
  */
-export const scope = beginContext(
+const scopeInternal = beginContext(
   async <T = any>(
     runFn: () => Promise<T | void>,
     {
@@ -48,7 +43,7 @@ export const scope = beginContext(
       toolSchemaService = swarm.toolSchemaService.registry,
       wikiSchemaService = swarm.wikiSchemaService.registry,
     }: ScopeOptions = {}
-  ): Promise<T> => {
+  ): Promise<any> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
     return await SchemaContextService.runInContext(runFn as () => Promise<T>, {
       registry: {
@@ -67,7 +62,18 @@ export const scope = beginContext(
       },
     });
   }
-) as <T = any>(
+);
+
+/**
+ * Executes a provided function within a schema context, with optional overrides for schema services such as agents, completions, and pipelines.
+ * @template T - Type of the result returned by the run function.
+ * @param {Function} runFn - The function to execute within the schema context.
+ * @param {Partial<ISchemaContext["registry"]>} [options] - Optional overrides for schema services, with defaults from the swarm's schema services.
+ * @returns {Promise<T>} The result of the executed function.
+ */
+export function scope<T = any>(
   runFn: () => Promise<T | void>,
   options?: ScopeOptions
-) => Promise<T>;
+): Promise<T> {
+  return scopeInternal(runFn, options);
+}

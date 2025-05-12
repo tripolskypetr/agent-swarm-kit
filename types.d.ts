@@ -11090,7 +11090,7 @@ interface IAgentNavigationParams extends INavigateToAgentParams {
  * @param {...INavigateToAgentParams} params.navigateProps - Additional navigation properties.
  * @returns {ReturnType<typeof addTool>} The result of adding the navigation tool.
  */
-declare const addAgentNavigation: (args_0: IAgentNavigationParams) => string;
+declare function addAgentNavigation(params: IAgentNavigationParams): string;
 
 /**
  * Adds triage navigation functionality to an agent by creating a tool that facilitates navigation to a triage agent.
@@ -11122,7 +11122,7 @@ interface ITriageNavigationParams extends INavigateToTriageParams {
  * @param {...INavigateToTriageParams} params.navigateProps - Additional triage navigation properties.
  * @returns {ReturnType<typeof addTool>} The result of adding the triage navigation tool.
  */
-declare const addTriageNavigation: (args_0: ITriageNavigationParams) => string;
+declare function addTriageNavigation(params: ITriageNavigationParams): string;
 
 /**
  * Adds a wiki schema to the system
@@ -11130,7 +11130,7 @@ declare const addTriageNavigation: (args_0: ITriageNavigationParams) => string;
  * @param {IWikiSchema} wikiSchema - The wiki schema to add
  * @returns {string} The name of the added wiki
  */
-declare const addWiki: (wikiSchema: IWikiSchema) => string;
+declare function addWiki(wikiSchema: IWikiSchema): string;
 
 /**
  * Adds a new agent to the agent registry for use within the swarm system.
@@ -11148,7 +11148,7 @@ declare const addWiki: (wikiSchema: IWikiSchema) => string;
  * const agentName = addAgent(agentSchema);
  * console.log(agentName); // Outputs "AgentX"
  */
-declare const addAgent: (agentSchema: IAgentSchema) => string;
+declare function addAgent(agentSchema: IAgentSchema): string;
 
 /**
  * Adds a completion engine to the registry for use by agents in the swarm system.
@@ -11166,7 +11166,7 @@ declare const addAgent: (agentSchema: IAgentSchema) => string;
  * const completionName = addCompletion(completionSchema);
  * console.log(completionName); // Outputs "OpenAI"
  */
-declare const addCompletion: (completionSchema: ICompletionSchema) => string;
+declare function addCompletion(completionSchema: ICompletionSchema): string;
 
 /**
  * Adds a new swarm to the system for managing client sessions.
@@ -11184,7 +11184,7 @@ declare const addCompletion: (completionSchema: ICompletionSchema) => string;
  * const swarmName = addSwarm(swarmSchema);
  * console.log(swarmName); // Outputs "TaskSwarm"
  */
-declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
+declare function addSwarm(swarmSchema: ISwarmSchema): string;
 
 /**
  * Adds a new tool to the tool registry for use by agents in the swarm system.
@@ -11204,14 +11204,14 @@ declare const addSwarm: (swarmSchema: ISwarmSchema) => string;
  * const toolName = addTool(toolSchema);
  * console.log(toolName); // Outputs "Calculator"
  */
-declare const addTool: <T extends any = Record<string, ToolValue>>(toolSchema: IAgentTool<T>) => string;
+declare function addTool<T extends any = Record<string, ToolValue>>(toolSchema: IAgentTool<T>): string;
 
 /**
  * Registers a new MCP (Model Context Protocol) schema in the system.
  * @param mcpSchema - The MCP schema to register.
  * @returns The name of the registered MCP.
  */
-declare const addMCP: (mcpSchema: IMCPSchema) => string;
+declare function addMCP(mcpSchema: IMCPSchema): string;
 
 /**
  * Adds a new state to the state registry for use within the swarm system.
@@ -11231,7 +11231,7 @@ declare const addMCP: (mcpSchema: IMCPSchema) => string;
  * const stateName = addState(stateSchema);
  * console.log(stateName); // Outputs "UserPrefs"
  */
-declare const addState: <T extends unknown = any>(stateSchema: IStateSchema<T>) => string;
+declare function addState<T extends unknown = any>(stateSchema: IStateSchema<T>): string;
 
 /**
  * Adds a new embedding engine to the embedding registry for use within the swarm system.
@@ -11249,7 +11249,7 @@ declare const addState: <T extends unknown = any>(stateSchema: IStateSchema<T>) 
  * const embeddingName = addEmbedding(embeddingSchema);
  * console.log(embeddingName); // Outputs "TextEmbedder"
  */
-declare const addEmbedding: (embeddingSchema: IEmbeddingSchema) => string;
+declare function addEmbedding(embeddingSchema: IEmbeddingSchema): string;
 
 /**
  * Adds a new storage engine to the storage registry for use within the swarm system.
@@ -11269,7 +11269,7 @@ declare const addEmbedding: (embeddingSchema: IEmbeddingSchema) => string;
  * const storageName = addStorage(storageSchema);
  * console.log(storageName); // Outputs "UserData"
  */
-declare const addStorage: <T extends IStorageData = IStorageData>(storageSchema: IStorageSchema<T>) => string;
+declare function addStorage<T extends IStorageData = IStorageData>(storageSchema: IStorageSchema<T>): string;
 
 /**
  * Adds a new policy for agents in the swarm system by registering it with validation and schema services.
@@ -11283,7 +11283,7 @@ declare const addStorage: <T extends IStorageData = IStorageData>(storageSchema:
  * @returns {string} The name of the policy that was added, as specified in policySchema.policyName.
  * @throws {Error} If policy registration fails due to validation errors in PolicyValidationService or PolicySchemaService.
  */
-declare const addPolicy: (policySchema: IPolicySchema) => string;
+declare function addPolicy(policySchema: IPolicySchema): string;
 
 /**
  * @module addCompute
@@ -11291,13 +11291,12 @@ declare const addPolicy: (policySchema: IPolicySchema) => string;
  */
 
 /**
- * @function addCompute
- * @description Registers a compute schema, validates it, and adds it to the compute schema service.
+ * Registers a compute schema, validates it, and adds it to the compute schema service.
  * @template T - Type extending IComputeData.
  * @param {IComputeSchema<T>} computeSchema - The compute schema to register.
  * @returns {string} The name of the registered compute.
  */
-declare const addCompute: <T extends IComputeData = any>(stateSchema: IComputeSchema<T>) => string;
+declare function addCompute<T extends IComputeData = any>(computeSchema: IComputeSchema<T>): string;
 
 /**
  * @module addPipeline
@@ -11305,13 +11304,12 @@ declare const addCompute: <T extends IComputeData = any>(stateSchema: IComputeSc
  */
 
 /**
- * @function addPipeline
- * @description Registers a pipeline schema, validates it, and adds it to the pipeline schema service.
+ * Registers a pipeline schema, validates it, and adds it to the pipeline schema service.
  * @template Payload - Type extending object for the pipeline payload.
  * @param {IPipelineSchema<Payload>} pipelineSchema - The pipeline schema to register.
  * @returns {string} The name of the registered pipeline.
  */
-declare const addPipeline: <Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>) => string;
+declare function addPipeline<Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>): string;
 
 type TAgentSchema = {
     agentName: IAgentSchema["agentName"];
@@ -11337,7 +11335,7 @@ type TAgentSchema = {
  * });
  * // Logs the operation (if enabled) and updates the agent schema in the swarm.
  */
-declare const overrideAgent: (agentSchema: TAgentSchema) => IAgentSchema;
+declare function overrideAgent(agentSchema: TAgentSchema): IAgentSchema;
 
 type TCompletionSchema = {
     completionName: ICompletionSchema["completionName"];
@@ -11363,7 +11361,7 @@ type TCompletionSchema = {
  * });
  * // Logs the operation (if enabled) and updates the completion schema in the swarm.
  */
-declare const overrideCompletion: (completionSchema: TCompletionSchema) => ICompletionSchema;
+declare function overrideCompletion(completionSchema: TCompletionSchema): ICompletionSchema;
 
 type TEmbeddingSchema = {
     embeddingName: IEmbeddingSchema["embeddingName"];
@@ -11391,7 +11389,7 @@ type TEmbeddingSchema = {
  * });
  * // Logs the operation (if enabled) and updates the embedding schema in the swarm.
  */
-declare const overrideEmbeding: (embeddingSchema: TEmbeddingSchema) => IEmbeddingSchema;
+declare function overrideEmbeding(embeddingSchema: TEmbeddingSchema): IEmbeddingSchema;
 
 type TPolicySchema = {
     policyName: IPolicySchema["policyName"];
@@ -11417,7 +11415,7 @@ type TPolicySchema = {
  * });
  * // Logs the operation (if enabled) and updates the policy schema in the swarm.
  */
-declare const overridePolicy: (policySchema: TPolicySchema) => IPolicySchema;
+declare function overridePolicy(policySchema: TPolicySchema): IPolicySchema;
 
 type TStateSchema<T extends unknown = any> = {
     stateName: IStateSchema<T>["stateName"];
@@ -11444,7 +11442,7 @@ type TStateSchema<T extends unknown = any> = {
  * });
  * // Logs the operation (if enabled) and updates the state schema in the swarm.
  */
-declare const overrideState: <T extends unknown = any>(stateSchema: TStateSchema<T>) => IStateSchema<T>;
+declare function overrideState<T extends unknown = any>(stateSchema: TStateSchema<T>): IStateSchema<T>;
 
 type TStorageSchema<T extends IStorageData = IStorageData> = {
     storageName: IStorageSchema<T>["storageName"];
@@ -11472,7 +11470,7 @@ type TStorageSchema<T extends IStorageData = IStorageData> = {
  * });
  * // Logs the operation (if enabled) and updates the storage schema in the swarm.
  */
-declare const overrideStorage: <T extends IStorageData = IStorageData>(storageSchema: TStorageSchema<T>) => IStorageSchema<T>;
+declare function overrideStorage<T extends IStorageData = IStorageData>(storageSchema: TStorageSchema<T>): IStorageSchema<T>;
 
 type TSwarmSchema = {
     swarmName: ISwarmSchema["swarmName"];
@@ -11498,7 +11496,7 @@ type TSwarmSchema = {
  * });
  * // Logs the operation (if enabled) and updates the swarm schema in the swarm system.
  */
-declare const overrideSwarm: (swarmSchema: TSwarmSchema) => ISwarmSchema;
+declare function overrideSwarm(swarmSchema: TSwarmSchema): ISwarmSchema;
 
 type TAgentTool = {
     toolName: IAgentTool["toolName"];
@@ -11524,7 +11522,7 @@ type TAgentTool = {
  * });
  * // Logs the operation (if enabled) and updates the tool schema in the swarm.
  */
-declare const overrideTool: (toolSchema: TAgentTool) => IAgentTool<Record<string, ToolValue>>;
+declare function overrideTool(toolSchema: TAgentTool): IAgentTool<Record<string, ToolValue>>;
 
 /**
  * Type definition for a partial MCP schema, requiring at least an mcpName.
@@ -11537,7 +11535,7 @@ type TMCPSchema = {
  * @param mcpSchema - The MCP schema containing the name and optional properties to override.
  * @returns The result of the override operation from the MCP schema service.
  */
-declare const overrideMCP: (mcpSchema: TMCPSchema) => IMCPSchema;
+declare function overrideMCP(mcpSchema: TMCPSchema): IMCPSchema;
 
 type TWikiSchema = {
     wikiName: IWikiSchema["wikiName"];
@@ -11563,7 +11561,7 @@ type TWikiSchema = {
  * });
  * // Logs the operation (if enabled) and updates the wiki schema in the swarm.
  */
-declare const overrideWiki: (wikiSchema: TWikiSchema) => IWikiSchema;
+declare function overrideWiki(wikiSchema: TWikiSchema): IWikiSchema;
 
 /**
  * @module overrideCompute
@@ -11578,12 +11576,11 @@ type TComputeSchema = {
     computeName: IComputeSchema["computeName"];
 } & Partial<IComputeSchema>;
 /**
- * @function overrideCompute
- * @description Overrides an existing compute schema with provided partial updates.
+ * Overrides an existing compute schema with provided partial updates.
  * @param {TComputeSchema} computeSchema - The partial compute schema with updates.
  * @returns {IComputeSchema} The updated compute schema.
  */
-declare const overrideCompute: (computeSchema: TComputeSchema) => IComputeSchema<any>;
+declare function overrideCompute(computeSchema: TComputeSchema): IComputeSchema<any>;
 
 /**
  * @module overridePipeline
@@ -11591,13 +11588,12 @@ declare const overrideCompute: (computeSchema: TComputeSchema) => IComputeSchema
  */
 
 /**
- * @function overridePipeline
- * @description Overrides an existing pipeline schema with provided partial updates.
+ * Overrides an existing pipeline schema with provided partial updates.
  * @template Payload - Type extending object for the pipeline payload.
  * @param {IPipelineSchema<Payload>} pipelineSchema - The partial pipeline schema with updates.
  * @returns {IPipelineSchema<Payload>} The updated pipeline schema.
  */
-declare const overridePipeline: <Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>) => IPipelineSchema<Payload>;
+declare function overridePipeline<Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>): IPipelineSchema<Payload>;
 
 /**
  * Marks a client as online in the specified swarm.
@@ -11607,7 +11603,7 @@ declare const overridePipeline: <Payload extends object = any>(pipelineSchema: I
  * @returns {Promise<void>} A promise that resolves when the client is successfully marked online.
  * @throws {Error} Throws an error if the swarm validation fails or if the operation fails.
  */
-declare const markOnline: (clientId: string, swarmName: SwarmName) => Promise<void>;
+declare function markOnline(clientId: string, swarmName: SwarmName): Promise<void>;
 
 /**
  * Marks a client as offline in the specified swarm.
@@ -11621,7 +11617,7 @@ declare const markOnline: (clientId: string, swarmName: SwarmName) => Promise<vo
  * @example
  * await markOffline("client123", "exampleSwarm");
  */
-declare const markOffline: (clientId: string, swarmName: SwarmName) => Promise<void>;
+declare function markOffline(clientId: string, swarmName: SwarmName): Promise<void>;
 
 /**
  * Commits the output of a tool execution to the active agent in a swarm session.
@@ -11639,7 +11635,7 @@ declare const markOffline: (clientId: string, swarmName: SwarmName) => Promise<v
  * @example
  * await commitToolOutput("tool-123", "Tool execution result", "client-456", "AgentX");
  */
-declare const commitToolOutput: (toolId: string, content: string, clientId: string, agentName: string) => Promise<void>;
+declare function commitToolOutput(toolId: string, content: string, clientId: string, agentName: AgentName): Promise<void>;
 
 /**
  * Commits a system-generated message to the active agent in the swarm system.
@@ -11656,7 +11652,7 @@ declare const commitToolOutput: (toolId: string, content: string, clientId: stri
  * @returns {Promise<void>} A promise that resolves when the message is committed or skipped (e.g., agent mismatch).
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
-declare const commitSystemMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
+declare function commitSystemMessage(content: string, clientId: string, agentName: string): Promise<void>;
 
 /**
  * Commits a flush of agent history for a specific client and agent in the swarm system.
@@ -11671,7 +11667,7 @@ declare const commitSystemMessage: (content: string, clientId: string, agentName
  * @returns {Promise<void>} A promise that resolves when the history flush is committed or skipped (e.g., agent mismatch).
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
-declare const commitFlush: (clientId: string, agentName: string) => Promise<void>;
+declare function commitFlush(clientId: string, agentName: string): Promise<void>;
 
 /**
  * Commits a user message to the active agent's history in a swarm session without triggering a response.
@@ -11688,7 +11684,7 @@ declare const commitFlush: (clientId: string, agentName: string) => Promise<void
  * @example
  * await commitUserMessage("User input message", "client-123", "AgentX");
  */
-declare const commitUserMessage: <Payload extends object = object>(content: string, mode: ExecutionMode, clientId: string, agentName: string, payload?: Payload) => Promise<void>;
+declare function commitUserMessage<Payload extends object = object>(content: string, mode: ExecutionMode, clientId: string, agentName: string, payload?: Payload): Promise<void>;
 
 /**
  * Commits the output of a tool execution to the active agent in a swarm session without checking the active agent.
@@ -11705,7 +11701,7 @@ declare const commitUserMessage: <Payload extends object = object>(content: stri
  * @example
  * await commitToolOutputForce("tool-123", "Tool execution result", "client-456");
  */
-declare const commitToolOutputForce: (toolId: string, content: string, clientId: string) => Promise<void>;
+declare function commitToolOutputForce(toolId: string, content: string, clientId: string): Promise<void>;
 
 /**
  * Forcefully commits a system-generated message to a session in the swarm system, without checking the active agent.
@@ -11722,7 +11718,7 @@ declare const commitToolOutputForce: (toolId: string, content: string, clientId:
  * @returns {Promise<void>} A promise that resolves when the message is committed.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
-declare const commitSystemMessageForce: (content: string, clientId: string) => Promise<void>;
+declare function commitSystemMessageForce(content: string, clientId: string): Promise<void>;
 
 /**
  * Forcefully commits a flush of agent history for a specific client in the swarm system, without checking the active agent.
@@ -11738,7 +11734,7 @@ declare const commitSystemMessageForce: (content: string, clientId: string) => P
  * @returns {Promise<void>} A promise that resolves when the history flush is committed.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
-declare const commitFlushForce: (clientId: string) => Promise<void>;
+declare function commitFlushForce(clientId: string): Promise<void>;
 
 /**
  * Commits a user message to the active agent's history in a swarm session without triggering a response and without checking the active agent.
@@ -11754,7 +11750,7 @@ declare const commitFlushForce: (clientId: string) => Promise<void>;
  * @example
  * await commitUserMessageForce("User input message", "client-123");
  */
-declare const commitUserMessageForce: <Payload extends object = object>(content: string, mode: ExecutionMode, clientId: string, payload?: Payload) => Promise<void>;
+declare function commitUserMessageForce<Payload extends object = object>(content: string, mode: ExecutionMode, clientId: string, payload?: Payload): Promise<void>;
 
 /**
  * Commits an assistant-generated message to the active agent in the swarm system.
@@ -11770,7 +11766,7 @@ declare const commitUserMessageForce: <Payload extends object = object>(content:
  * @returns {Promise<void>} A promise that resolves when the message is committed or skipped (e.g., agent mismatch).
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
-declare const commitAssistantMessage: (content: string, clientId: string, agentName: string) => Promise<void>;
+declare function commitAssistantMessage(content: string, clientId: string, agentName: string): Promise<void>;
 
 /**
  * Forcefully commits an assistant-generated message to a session in the swarm system, without checking the active agent.
@@ -11787,7 +11783,7 @@ declare const commitAssistantMessage: (content: string, clientId: string, agentN
  * @returns {Promise<void>} A promise that resolves when the message is committed.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
-declare const commitAssistantMessageForce: (content: string, clientId: string) => Promise<void>;
+declare function commitAssistantMessageForce(content: string, clientId: string): Promise<void>;
 
 /**
  * Cancels the awaited output for a specific client and agent by emitting an empty string.
@@ -11801,7 +11797,7 @@ declare const commitAssistantMessageForce: (content: string, clientId: string) =
  * @returns {Promise<void>} A promise that resolves when the output cancellation is complete or skipped (e.g., agent mismatch).
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
-declare const cancelOutput: (clientId: string, agentName: string) => Promise<void>;
+declare function cancelOutput(clientId: string, agentName: string): Promise<void>;
 
 /**
  * Forcefully cancels the awaited output for a specific client by emitting an empty string, without checking the active agent.
@@ -11816,7 +11812,7 @@ declare const cancelOutput: (clientId: string, agentName: string) => Promise<voi
  * @returns {Promise<void>} A promise that resolves when the output cancellation is complete.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
-declare const cancelOutputForce: (clientId: string) => Promise<void>;
+declare function cancelOutputForce(clientId: string): Promise<void>;
 
 /**
  * Prevents the next tool from being executed for a specific client and agent in the swarm system.
@@ -11831,7 +11827,7 @@ declare const cancelOutputForce: (clientId: string) => Promise<void>;
  * @returns {Promise<void>} A promise that resolves when the tool stop is committed or skipped (e.g., agent mismatch).
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
-declare const commitStopTools: (clientId: string, agentName: string) => Promise<void>;
+declare function commitStopTools(clientId: string, agentName: string): Promise<void>;
 
 /**
  * Forcefully prevents the next tool from being executed for a specific client in the swarm system, without checking the active agent.
@@ -11847,7 +11843,7 @@ declare const commitStopTools: (clientId: string, agentName: string) => Promise<
  * @returns {Promise<void>} A promise that resolves when the tool stop is committed.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
-declare const commitStopToolsForce: (clientId: string) => Promise<void>;
+declare function commitStopToolsForce(clientId: string): Promise<void>;
 
 /**
  * Commits a tool request to the active agent in the swarm system.
@@ -11918,7 +11914,7 @@ declare function commitToolRequestForce(request: IToolRequest[], clientId: strin
  * @example
  * await emitForce("Direct output", "client-123"); // Emits "Direct output" in a makeConnection session
  */
-declare const emitForce: (content: string, clientId: string) => Promise<void>;
+declare function emitForce(content: string, clientId: string): Promise<void>;
 
 /**
  * Sends a message to the active agent in a swarm session as if it originated from the client side, forcing execution regardless of agent activity.
@@ -11936,7 +11932,7 @@ declare const emitForce: (content: string, clientId: string) => Promise<void>;
  * const result = await executeForce("Force this execution", "client-123");
  * console.log(result); // Outputs the agent's response regardless of its active state
  */
-declare const executeForce: (content: string, clientId: string) => Promise<string>;
+declare function executeForce(content: string, clientId: string): Promise<string>;
 
 /**
  * Initiates a question process within a chat context
@@ -11947,7 +11943,7 @@ declare const executeForce: (content: string, clientId: string) => Promise<strin
  * @param {WikiName} wikiName - Name of the wiki context
  * @returns {Promise<string>} The response from the chat process
  */
-declare const question: (message: string, clientId: string, agentName: string, wikiName: string) => Promise<string>;
+declare function question(message: string, clientId: string, agentName: AgentName, wikiName: WikiName): Promise<string>;
 
 /**
  * Initiates a forced question process within a chat context
@@ -11957,7 +11953,7 @@ declare const question: (message: string, clientId: string, agentName: string, w
  * @param {WikiName} wikiName - Name of the wiki context
  * @returns {Promise<string>} The response from the chat process
  */
-declare const questionForce: (message: string, clientId: string, wikiName: string) => Promise<string>;
+declare function questionForce(message: string, clientId: string, wikiName: WikiName): Promise<string>;
 
 /**
  * Interface for the parameters of the makeAutoDispose function.
@@ -12013,7 +12009,7 @@ declare const makeAutoDispose: (clientId: string, swarmName: string, args_2?: Pa
  * const result = await execute("Review this output", "client-123", "AgentX");
  * console.log(result); // Outputs the agent's response or "" if skipped
  */
-declare const execute: (content: string, clientId: string, agentName: string) => Promise<string>;
+declare function execute(content: string, clientId: string, agentName: AgentName): Promise<string>;
 
 /**
  * Emits a string as model output without executing an incoming message, with agent activity validation.
@@ -12031,7 +12027,7 @@ declare const execute: (content: string, clientId: string, agentName: string) =>
  * @example
  * await emit("Direct output", "client-123", "AgentX"); // Emits "Direct output" if AgentX is active
  */
-declare const emit: (content: string, clientId: string, agentName: string) => Promise<void>;
+declare function emit(content: string, clientId: string, agentName: AgentName): Promise<void>;
 
 /**
  * Sends a notification message as output from the swarm session without executing an incoming message.
@@ -12049,7 +12045,7 @@ declare const emit: (content: string, clientId: string, agentName: string) => Pr
  * @example
  * await notify("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active
  */
-declare const notify: (content: string, clientId: string, agentName: string) => Promise<void>;
+declare function notify(content: string, clientId: string, agentName: AgentName): Promise<void>;
 
 /**
  * Sends a notification message as output from the swarm session without executing an incoming message.
@@ -12066,7 +12062,7 @@ declare const notify: (content: string, clientId: string, agentName: string) => 
  * @example
  * await notifyForce("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active
  */
-declare const notifyForce: (content: string, clientId: string) => Promise<void>;
+declare function notifyForce(content: string, clientId: string): Promise<void>;
 
 /**
  * Executes a message statelessly with an agent in a swarm session, bypassing chat history.
@@ -12086,7 +12082,7 @@ declare const notifyForce: (content: string, clientId: string) => Promise<void>;
  * const result = await runStateless("Process this data", "client-123", "AgentX");
  * console.log(result); // Outputs the agent's response without affecting history
  */
-declare const runStateless: (content: string, clientId: string, agentName: string) => Promise<string>;
+declare function runStateless(content: string, clientId: string, agentName: AgentName): Promise<string>;
 
 /**
  * Executes a message statelessly with the active agent in a swarm session, bypassing chat history and forcing execution regardless of agent activity.
@@ -12104,7 +12100,7 @@ declare const runStateless: (content: string, clientId: string, agentName: strin
  * const result = await runStatelessForce("Process this data forcefully", "client-123");
  * console.log(result); // Outputs the agent's response without affecting history
  */
-declare const runStatelessForce: (content: string, clientId: string) => Promise<string>;
+declare function runStatelessForce(content: string, clientId: string): Promise<string>;
 
 /**
  * A connection factory for establishing a client connection to a swarm, returning a function to send messages.
@@ -12289,15 +12285,14 @@ interface IScopeOptions {
     onError?: (error: Error) => void;
 }
 /**
- * @function fork
- * @description Executes a provided function within a managed scope, handling session creation, validation, and cleanup.
+ * Executes a provided function within a managed scope, handling session creation, validation, and cleanup.
  * @template T - Type of the result returned by the run function.
  * @param {Function} runFn - The function to execute, receiving clientId and agentName as arguments.
  * @param {IScopeOptions} options - Configuration options for the scope operation.
  * @returns {Promise<T | void>} The result of the run function or void if no result is returned.
  * @throws {Error} If a session already exists for the clientId.
  */
-declare const fork: <T = any>(runFn: (clientId: string, agentName: AgentName) => Promise<T | void>, options: IScopeOptions) => Promise<T>;
+declare function fork<T = any>(runFn: (clientId: string, agentName: AgentName) => Promise<T | void>, options: IScopeOptions): Promise<T>;
 
 /**
  * @module scope
@@ -12310,14 +12305,13 @@ declare const fork: <T = any>(runFn: (clientId: string, agentName: AgentName) =>
  */
 type ScopeOptions = Partial<ISchemaContext["registry"]>;
 /**
- * @function scope
- * @description Executes a provided function within a schema context, with optional overrides for schema services such as agents, completions, and pipelines.
+ * Executes a provided function within a schema context, with optional overrides for schema services such as agents, completions, and pipelines.
  * @template T - Type of the result returned by the run function.
  * @param {Function} runFn - The function to execute within the schema context.
  * @param {Partial<ISchemaContext["registry"]>} [options] - Optional overrides for schema services, with defaults from the swarm's schema services.
  * @returns {Promise<T>} The result of the executed function.
  */
-declare const scope: <T = any>(runFn: () => Promise<T | void>, options?: ScopeOptions) => Promise<T>;
+declare function scope<T = any>(runFn: () => Promise<T | void>, options?: ScopeOptions): Promise<T>;
 
 /**
  * @module startPipeline
@@ -12335,7 +12329,7 @@ declare const scope: <T = any>(runFn: () => Promise<T | void>, options?: ScopeOp
  * @param {Payload} [payload={}] - Optional payload data for the pipeline.
  * @returns {Promise<T>} The result of the pipeline execution.
  */
-declare const startPipeline: <Payload extends object = any, T = any>(clientId: string, pipelineName: PipelineName, agentName: AgentName, payload?: Payload) => Promise<T>;
+declare function startPipeline<Payload extends object = any, T = any>(clientId: string, pipelineName: PipelineName, agentName: AgentName, payload?: Payload): Promise<T>;
 
 /**
  * Disposes of a client session and all related resources within a swarm.
@@ -12364,7 +12358,7 @@ declare const disposeConnection: (clientId: string, swarmName: string, methodNam
  * @param {string} clientId - The unique identifier of the client whose session is being validated.
  * @returns {boolean} `true` if the session exists, otherwise `false`.
  */
-declare const hasSession: (clientId: string) => boolean;
+declare function hasSession(clientId: string): boolean;
 
 /**
  * Checks if a specific agent is part of the navigation route for a given client.
@@ -12374,7 +12368,7 @@ declare const hasSession: (clientId: string) => boolean;
  * @param {AgentName} agentName - The name of the agent to check within the navigation route.
  * @returns {Promise<boolean>} A promise resolving to true if the agent is in the navigation route, false otherwise.
  */
-declare const hasNavigation: (clientId: string, agentName: AgentName) => Promise<boolean>;
+declare function hasNavigation(clientId: string, agentName: AgentName): Promise<boolean>;
 
 /**
  * Retrieves the payload from the current PayloadContextService context.
@@ -12385,7 +12379,7 @@ declare const hasNavigation: (clientId: string, agentName: AgentName) => Promise
  * const payload = await getPayload<{ id: number }>();
  * console.log(payload); // { id: number } or null
  */
-declare const getPayload: <Payload extends object = object>() => Payload | null;
+declare function getPayload<Payload extends object = object>(): Payload | null;
 
 /**
  * Retrieves the name of the active agent for a given client session in a swarm.
@@ -12401,7 +12395,7 @@ declare const getPayload: <Payload extends object = object>() => Payload | null;
  * const agentName = await getAgentName("client-123");
  * console.log(agentName); // Outputs "AgentX"
  */
-declare const getAgentName: (clientId: string) => Promise<string>;
+declare function getAgentName(clientId: string): Promise<string>;
 
 /**
  * Retrieves the history prepared for a specific agent, incorporating rescue algorithm tweaks.
@@ -12418,7 +12412,7 @@ declare const getAgentName: (clientId: string) => Promise<string>;
  * const history = await getAgentHistory("client-123", "AgentX");
  * console.log(history); // Outputs array of IModelMessage objects
  */
-declare const getAgentHistory: (clientId: string, agentName: string) => Promise<IModelMessage<object>[]>;
+declare function getAgentHistory(clientId: string, agentName: AgentName): Promise<IModelMessage<object>[]>;
 
 /**
  * Retrieves the session mode for a given client session in a swarm.
@@ -12434,7 +12428,7 @@ declare const getAgentHistory: (clientId: string, agentName: string) => Promise<
  * const mode = await getSessionMode("client-123");
  * console.log(mode); // Outputs "session", "makeConnection", or "complete"
  */
-declare const getSessionMode: (clientId: string) => Promise<SessionMode>;
+declare function getSessionMode(clientId: string): Promise<SessionMode>;
 
 /**
  * Represents the session context, encapsulating client, method, and execution metadata.
@@ -12467,7 +12461,7 @@ interface ISessionContext {
  * const context = await getSessionContext();
  * console.log(context); // Outputs { clientId: "client-123", processId: "uuid-xyz", methodContext: {...}, executionContext: {...} }
  */
-declare const getSessionContext: () => Promise<ISessionContext>;
+declare function getSessionContext(): Promise<ISessionContext>;
 
 /**
  * Retrieves the navigation route for a given client and swarm.
@@ -12477,7 +12471,7 @@ declare const getSessionContext: () => Promise<ISessionContext>;
  * @param {SwarmName} swarmName - The name of the swarm context for which the route is retrieved.
  * @returns {Set<string>} A set of `AgentName`s representing the visited agents in the navigation route.
  */
-declare const getNavigationRoute: (clientId: string, swarmName: SwarmName) => Set<string>;
+declare function getNavigationRoute(clientId: string, swarmName: SwarmName): Set<string>;
 
 /**
  * Retrieves the content of the most recent user message from a client's session history.
@@ -12493,7 +12487,7 @@ declare const getNavigationRoute: (clientId: string, swarmName: SwarmName) => Se
  * const lastMessage = await getLastUserMessage("client-123");
  * console.log(lastMessage); // Outputs the last user message or null
  */
-declare const getLastUserMessage: (clientId: string) => Promise<string>;
+declare function getLastUserMessage(clientId: string): Promise<string>;
 
 /**
  * Retrieves the user-specific history entries for a given client session.
@@ -12509,7 +12503,7 @@ declare const getLastUserMessage: (clientId: string) => Promise<string>;
  * const userHistory = await getUserHistory("client-123");
  * console.log(userHistory); // Outputs array of user history entries
  */
-declare const getUserHistory: (clientId: string) => Promise<IModelMessage<object>[]>;
+declare function getUserHistory(clientId: string): Promise<IModelMessage<object>[]>;
 
 /**
  * Retrieves the assistant's history entries for a given client session.
@@ -12525,7 +12519,7 @@ declare const getUserHistory: (clientId: string) => Promise<IModelMessage<object
  * const assistantHistory = await getAssistantHistory("client-123");
  * console.log(assistantHistory); // Outputs array of assistant history entries
  */
-declare const getAssistantHistory: (clientId: string) => Promise<IModelMessage<object>[]>;
+declare function getAssistantHistory(clientId: string): Promise<IModelMessage<object>[]>;
 
 /**
  * Retrieves the content of the most recent assistant message from a client's session history.
@@ -12541,7 +12535,7 @@ declare const getAssistantHistory: (clientId: string) => Promise<IModelMessage<o
  * const lastMessage = await getLastAssistantMessage("client-123");
  * console.log(lastMessage); // Outputs the last assistant message or null
  */
-declare const getLastAssistantMessage: (clientId: string) => Promise<string>;
+declare function getLastAssistantMessage(clientId: string): Promise<string>;
 
 /**
  * Retrieves the content of the most recent system message from a client's session history.
@@ -12557,7 +12551,7 @@ declare const getLastAssistantMessage: (clientId: string) => Promise<string>;
  * const lastMessage = await getLastSystemMessage("client-123");
  * console.log(lastMessage); // Outputs the last system message or null
  */
-declare const getLastSystemMessage: (clientId: string) => Promise<string>;
+declare function getLastSystemMessage(clientId: string): Promise<string>;
 
 /**
  * Retrieves the raw, unmodified history for a given client session.
@@ -12575,7 +12569,7 @@ declare const getLastSystemMessage: (clientId: string) => Promise<string>;
  * const rawHistory = await getRawHistory("client-123");
  * console.log(rawHistory); // Outputs the full raw history array
  */
-declare const getRawHistory: (clientId: string, methodName?: any) => Promise<IModelMessage<object>[]>;
+declare function getRawHistory(clientId: string): Promise<IModelMessage<object>[]>;
 
 /**
  * Emits a custom event to the swarm bus service.
@@ -12595,7 +12589,7 @@ declare const getRawHistory: (clientId: string, methodName?: any) => Promise<IMo
  * await event("client-123", "custom-topic", { message: "Hello, swarm!" });
  * // Emits an event with topic "custom-topic" and payload { message: "Hello, swarm!" }
  */
-declare const event: <T extends unknown = any>(clientId: string, topicName: string, payload: T) => Promise<void>;
+declare function event<T extends unknown = any>(clientId: string, topicName: string, payload: T): Promise<void>;
 
 /**
  * Subscribes to a custom event on the swarm bus service and executes a callback when the event is received.
@@ -12617,7 +12611,7 @@ declare const event: <T extends unknown = any>(clientId: string, topicName: stri
  * // Logs payload when "custom-topic" event is received for "client-123"
  * unsubscribe(); // Stops listening
  */
-declare const listenEvent: <T extends unknown = any>(clientId: string, topicName: string, fn: (data: T) => void) => () => void;
+declare function listenEvent<T extends unknown = any>(clientId: string, topicName: string, fn: (data: T) => void): () => void;
 
 /**
  * Subscribes to a custom event on the swarm bus service for a single occurrence, executing a callback when the event matches a filter.
@@ -12645,7 +12639,7 @@ declare const listenEvent: <T extends unknown = any>(clientId: string, topicName
  * // Logs payload once when "custom-topic" event with value > 0 is received
  * unsubscribe(); // Cancels listener if not yet triggered
  */
-declare const listenEventOnce: <T extends unknown = any>(clientId: string, topicName: string, filterFn: (event: T) => boolean, fn: (data: T) => void) => () => void;
+declare function listenEventOnce<T extends unknown = any>(clientId: string, topicName: string, filterFn: (event: T) => boolean, fn: (data: T) => void): () => void;
 
 /**
  * Changes the active agent for a given client session in a swarm.
@@ -12661,7 +12655,7 @@ declare const listenEventOnce: <T extends unknown = any>(clientId: string, topic
  * @example
  * await changeToAgent("AgentX", "client-123");
  */
-declare const changeToAgent: (agentName: string, clientId: string) => Promise<boolean>;
+declare function changeToAgent(agentName: AgentName, clientId: string): Promise<boolean>;
 
 /**
  * Navigates back to the previous or default agent for a given client session in a swarm.
@@ -12676,7 +12670,7 @@ declare const changeToAgent: (agentName: string, clientId: string) => Promise<bo
  * @example
  * await changeToPrevAgent("client-123");
  */
-declare const changeToPrevAgent: (clientId: string) => Promise<boolean>;
+declare function changeToPrevAgent(clientId: string): Promise<boolean>;
 
 /**
  * Navigates back to the default agent for a given client session in a swarm.
@@ -12691,7 +12685,7 @@ declare const changeToPrevAgent: (clientId: string) => Promise<boolean>;
  * @example
  * await changeToDefaultAgent("client-123");
  */
-declare const changeToDefaultAgent: (clientId: string) => Promise<boolean>;
+declare function changeToDefaultAgent(clientId: string): Promise<boolean>;
 
 /**
  * Subscribes to agent-specific events on the swarm bus service for a specific client and executes a callback for each event.

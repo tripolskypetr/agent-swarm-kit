@@ -91,7 +91,8 @@ export * from "./functions/history/getUserHistory";
 export * from "./functions/history/getAssistantHistory";
 export * from "./functions/history/getLastAssistantMessage";
 export * from "./functions/history/getLastSystemMessage";
-export * from "./functions/history/getRawHistory";
+
+export { getRawHistory } from "./functions/history/getRawHistory";
 
 export * from "./functions/event/event";
 export * from "./functions/event/listenEvent";

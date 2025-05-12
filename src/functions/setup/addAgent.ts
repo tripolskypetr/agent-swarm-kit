@@ -6,6 +6,24 @@ import beginContext from "../../utils/beginContext";
 const METHOD_NAME = "function.setup.addAgent";
 
 /**
+ * Function implementation
+ */
+const addAgentInternal = beginContext((agentSchema: IAgentSchema) => {
+  // Log the operation details if logging is enabled in GLOBAL_CONFIG
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      agentSchema,
+    });
+
+  // Register the agent in the validation and schema services
+  swarm.agentValidationService.addAgent(agentSchema.agentName, agentSchema);
+  swarm.agentSchemaService.register(agentSchema.agentName, agentSchema);
+
+  // Return the agent's name as confirmation of registration
+  return agentSchema.agentName;
+});
+
+/**
  * Adds a new agent to the agent registry for use within the swarm system.
  *
  * This function registers a new agent by adding it to the agent validation and schema services, making it available for swarm operations.
@@ -21,17 +39,6 @@ const METHOD_NAME = "function.setup.addAgent";
  * const agentName = addAgent(agentSchema);
  * console.log(agentName); // Outputs "AgentX"
  */
-export const addAgent = beginContext((agentSchema: IAgentSchema) => {
-  // Log the operation details if logging is enabled in GLOBAL_CONFIG
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      agentSchema,
-    });
-
-  // Register the agent in the validation and schema services
-  swarm.agentValidationService.addAgent(agentSchema.agentName, agentSchema);
-  swarm.agentSchemaService.register(agentSchema.agentName, agentSchema);
-
-  // Return the agent's name as confirmation of registration
-  return agentSchema.agentName;
-});
+export function addAgent(agentSchema: IAgentSchema) {
+  return addAgentInternal(agentSchema);
+}

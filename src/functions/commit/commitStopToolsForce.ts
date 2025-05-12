@@ -6,20 +6,9 @@ import swarm from "../../lib";
 const METHOD_NAME = "function.commit.commitStopToolsForce";
 
 /**
- * Forcefully prevents the next tool from being executed for a specific client in the swarm system, without checking the active agent.
- * Validates the session and swarm, then proceeds with stopping tool execution regardless of the current agent state.
- * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
- * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
- * SessionPublicService (tool execution stop), ToolValidationService (tool context), and LoggerService (logging).
- * Unlike commitStopTools, this function skips agent validation and active agent checks, providing a more aggressive stop mechanism,
- * analogous to commitFlushForce vs. commitFlush.
- *
- * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
- * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with commitStopTools).
- * @returns {Promise<void>} A promise that resolves when the tool stop is committed.
- * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
+ * Function implementation
  */
-export const commitStopToolsForce = beginContext(
+const commitStopToolsForceInternal = beginContext(
   async (clientId: string): Promise<void> => {
     // Log the stop tools attempt if enabled
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -43,3 +32,21 @@ export const commitStopToolsForce = beginContext(
     );
   }
 );
+
+/**
+ * Forcefully prevents the next tool from being executed for a specific client in the swarm system, without checking the active agent.
+ * Validates the session and swarm, then proceeds with stopping tool execution regardless of the current agent state.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
+ * SessionPublicService (tool execution stop), ToolValidationService (tool context), and LoggerService (logging).
+ * Unlike commitStopTools, this function skips agent validation and active agent checks, providing a more aggressive stop mechanism,
+ * analogous to commitFlushForce vs. commitFlush.
+ *
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with commitStopTools).
+ * @returns {Promise<void>} A promise that resolves when the tool stop is committed.
+ * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
+ */
+export function commitStopToolsForce(clientId: string) {
+  return commitStopToolsForceInternal(clientId);
+}

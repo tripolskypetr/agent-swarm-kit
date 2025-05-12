@@ -10,6 +10,18 @@ type TSwarmSchema = {
 } & Partial<ISwarmSchema>;
 
 /**
+ * Function implementation
+ */
+const overrideSwarmInternal = beginContext((swarmSchema: TSwarmSchema) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      swarmSchema,
+    });
+
+  return swarm.swarmSchemaService.override(swarmSchema.swarmName, swarmSchema);
+});
+
+/**
  * Overrides an existing swarm schema in the swarm system with a new or partial schema.
  * This function updates the configuration of a swarm identified by its `swarmName`, applying the provided schema properties.
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
@@ -30,11 +42,6 @@ type TSwarmSchema = {
  * });
  * // Logs the operation (if enabled) and updates the swarm schema in the swarm system.
  */
-export const overrideSwarm = beginContext((swarmSchema: TSwarmSchema) => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      swarmSchema,
-    });
-
-  return swarm.swarmSchemaService.override(swarmSchema.swarmName, swarmSchema);
-});
+export function overrideSwarm(swarmSchema: TSwarmSchema) {
+  return overrideSwarmInternal(swarmSchema);
+}

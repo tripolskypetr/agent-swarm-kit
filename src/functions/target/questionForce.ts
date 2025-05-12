@@ -1,6 +1,5 @@
 import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
-import { AgentName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { IChatArgs, WikiName } from "../../interfaces/Wiki.interface";
 
@@ -8,14 +7,9 @@ import { IChatArgs, WikiName } from "../../interfaces/Wiki.interface";
 const METHOD_NAME = "function.target.questionForce";
 
 /**
- * Initiates a forced question process within a chat context
- * @function questionForce
- * @param {string} message - The message/question to be processed
- * @param {string} clientId - Unique identifier for the client
- * @param {WikiName} wikiName - Name of the wiki context
- * @returns {Promise<string>} The response from the chat process
+ * Function implementation
  */
-export const questionForce = beginContext(
+const questionForceInternal = beginContext(
   async (message: string, clientId: string, wikiName: WikiName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
@@ -51,3 +45,15 @@ export const questionForce = beginContext(
     return await getChat(args);
   }
 );
+
+/**
+ * Initiates a forced question process within a chat context
+ * @function questionForce
+ * @param {string} message - The message/question to be processed
+ * @param {string} clientId - Unique identifier for the client
+ * @param {WikiName} wikiName - Name of the wiki context
+ * @returns {Promise<string>} The response from the chat process
+ */
+export function questionForce(message: string, clientId: string, wikiName: WikiName) {
+  return questionForceInternal(message, clientId, wikiName);
+}

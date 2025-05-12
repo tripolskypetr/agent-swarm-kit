@@ -6,11 +6,9 @@ import beginContext from "../../utils/beginContext";
 const METHOD_NAME = "function.setup.addMCP";
 
 /**
- * Registers a new MCP (Model Context Protocol) schema in the system.
- * @param mcpSchema - The MCP schema to register.
- * @returns The name of the registered MCP.
+ * Function implementation
  */
-export const addMCP = beginContext((mcpSchema: IMCPSchema) => {
+const addMCPInternal = beginContext((mcpSchema: IMCPSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       mcpSchema,
@@ -21,3 +19,12 @@ export const addMCP = beginContext((mcpSchema: IMCPSchema) => {
 
   return mcpSchema.mcpName;
 });
+
+/**
+ * Registers a new MCP (Model Context Protocol) schema in the system.
+ * @param mcpSchema - The MCP schema to register.
+ * @returns The name of the registered MCP.
+ */
+export function addMCP(mcpSchema: IMCPSchema) {
+  return addMCPInternal(mcpSchema);
+}

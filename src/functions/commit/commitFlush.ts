@@ -6,19 +6,9 @@ import swarm from "../../lib";
 const METHOD_NAME = "function.commit.commitFlush";
 
 /**
- * Commits a flush of agent history for a specific client and agent in the swarm system.
- * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before flushing the history.
- * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
- * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
- * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (history flush),
- * and LoggerService (logging). Complements functions like commitAssistantMessage by clearing agent history rather than adding messages.
- *
- * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
- * @param {string} agentName - The name of the agent whose history is to be flushed, validated against registered agents.
- * @returns {Promise<void>} A promise that resolves when the history flush is committed or skipped (e.g., agent mismatch).
- * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
+ * Function implementation
  */
-export const commitFlush = beginContext(
+const commitFlushInternal = beginContext(
   async (clientId: string, agentName: string): Promise<void> => {
     // Log the flush attempt if enabled
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -64,3 +54,20 @@ export const commitFlush = beginContext(
     );
   }
 );
+
+/**
+ * Commits a flush of agent history for a specific client and agent in the swarm system.
+ * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before flushing the history.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
+ * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (history flush),
+ * and LoggerService (logging). Complements functions like commitAssistantMessage by clearing agent history rather than adding messages.
+ *
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent whose history is to be flushed, validated against registered agents.
+ * @returns {Promise<void>} A promise that resolves when the history flush is committed or skipped (e.g., agent mismatch).
+ * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
+ */
+export function commitFlush(clientId: string, agentName: string) {
+  return commitFlushInternal(clientId, agentName);
+}

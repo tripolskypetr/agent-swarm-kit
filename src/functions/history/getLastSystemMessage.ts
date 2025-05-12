@@ -1,9 +1,25 @@
 import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
-import { getRawHistory } from "./getRawHistory";
+import { getRawHistoryInternal } from "./getRawHistory";
 
 const METHOD_NAME = "function.history.getLastSystemMessage";
+
+/**
+ * Function implementation
+ */
+const getLastSystemMessageInternal = beginContext(async (clientId: string): Promise<string | null> => {
+  // Log the operation details if logging is enabled in GLOBAL_CONFIG
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      clientId,
+    });
+
+  // Fetch raw history and find the last system message
+  const history = await getRawHistoryInternal(clientId, METHOD_NAME);
+  const last = history.findLast(({ role }) => role === "system");
+  return last ? last.content : null;
+});
 
 /**
  * Retrieves the content of the most recent system message from a client's session history.
@@ -19,15 +35,6 @@ const METHOD_NAME = "function.history.getLastSystemMessage";
  * const lastMessage = await getLastSystemMessage("client-123");
  * console.log(lastMessage); // Outputs the last system message or null
  */
-export const getLastSystemMessage = beginContext(async (clientId: string): Promise<string | null> => {
-  // Log the operation details if logging is enabled in GLOBAL_CONFIG
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      clientId,
-    });
-
-  // Fetch raw history and find the last system message
-  const history = await getRawHistory(clientId, METHOD_NAME);
-  const last = history.findLast(({ role }) => role === "system");
-  return last ? last.content : null;
-});
+export function getLastSystemMessage(clientId: string) {
+  return getLastSystemMessageInternal(clientId);
+}

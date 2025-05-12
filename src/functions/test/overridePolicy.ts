@@ -10,6 +10,18 @@ type TPolicySchema = {
 } & Partial<IPolicySchema>;
 
 /**
+ * Function implementation
+ */
+const overridePolicyInternal = beginContext((policySchema: TPolicySchema) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      policySchema,
+    });
+
+  return swarm.policySchemaService.override(policySchema.policyName, policySchema);
+});
+
+/**
  * Overrides an existing policy schema in the swarm system with a new or partial schema.
  * This function updates the configuration of a policy identified by its `policyName`, applying the provided schema properties.
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
@@ -30,11 +42,6 @@ type TPolicySchema = {
  * });
  * // Logs the operation (if enabled) and updates the policy schema in the swarm.
  */
-export const overridePolicy = beginContext((policySchema: TPolicySchema) => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      policySchema,
-    });
-
-  return swarm.policySchemaService.override(policySchema.policyName, policySchema);
-});
+export function overridePolicy(policySchema: TPolicySchema) {
+  return overridePolicyInternal(policySchema);
+}

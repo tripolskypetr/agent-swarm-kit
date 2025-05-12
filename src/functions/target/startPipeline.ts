@@ -18,23 +18,15 @@ import { changeToAgent } from "../navigate/changeToAgent";
 const METHOD_NAME = "function.target.startPipeline";
 
 /**
- * @function startPipeline
- * @description Executes a pipeline with the specified name, handling session creation, validation, and lifecycle callbacks.
- * @template Payload - Type extending object for the pipeline payload.
- * @template T - Type of the result returned by the pipeline execution.
- * @param {string} clientId - The client identifier.
- * @param {PipelineName} pipelineName - The name of the pipeline to execute.
- * @param {AgentName} agentName - The name of the agent associated with the pipeline.
- * @param {Payload} [payload={}] - Optional payload data for the pipeline.
- * @returns {Promise<T>} The result of the pipeline execution.
+ * Function implementation
  */
-export const startPipeline = beginContext(
-  async <T = any>(
+const startPipelineInternal = beginContext(
+  async (
     clientId: string,
     pipelineName: PipelineName,
     agentName: AgentName,
     payload: unknown = {}
-  ): Promise<T> => {
+  ): Promise<any> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         clientId,
@@ -81,9 +73,24 @@ export const startPipeline = beginContext(
     }
     return result;
   }
-) as <Payload extends object = any, T = any>(
+);
+
+/**
+ * @function startPipeline
+ * @description Executes a pipeline with the specified name, handling session creation, validation, and lifecycle callbacks.
+ * @template Payload - Type extending object for the pipeline payload.
+ * @template T - Type of the result returned by the pipeline execution.
+ * @param {string} clientId - The client identifier.
+ * @param {PipelineName} pipelineName - The name of the pipeline to execute.
+ * @param {AgentName} agentName - The name of the agent associated with the pipeline.
+ * @param {Payload} [payload={}] - Optional payload data for the pipeline.
+ * @returns {Promise<T>} The result of the pipeline execution.
+ */
+export function startPipeline<Payload extends object = any, T = any>(
   clientId: string,
   pipelineName: PipelineName,
   agentName: AgentName,
   payload?: Payload
-) => Promise<T>;
+): Promise<T> {
+  return startPipelineInternal(clientId, pipelineName, agentName, payload);
+}

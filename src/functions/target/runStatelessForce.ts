@@ -6,22 +6,9 @@ import beginContext from "../../utils/beginContext";
 const METHOD_NAME = "function.target.runStatelessForce";
 
 /**
- * Executes a message statelessly with the active agent in a swarm session, bypassing chat history and forcing execution regardless of agent activity.
- *
- * This function processes a command or message using the active agent without appending it to the chat history, designed to prevent model history
- * overflow when handling storage output or one-off tasks. Unlike `runStateless`, it does not check if the agent is currently active, ensuring execution
- * even if the agent has changed or is inactive. It validates the session and swarm, executes the content with performance tracking and event bus
- * notifications, and is wrapped in `beginContext` for a clean environment and `ExecutionContextService` for metadata tracking.
- *
- * @param {string} content - The content or command to be executed statelessly by the active agent.
- * @param {string} clientId - The unique identifier of the client session requesting the execution.
- * @returns {Promise<string>} A promise that resolves to the result of the execution.
- * @throws {Error} If session or swarm validation fails, or if the execution process encounters an error.
- * @example
- * const result = await runStatelessForce("Process this data forcefully", "client-123");
- * console.log(result); // Outputs the agent's response without affecting history
+ * Function implementation
  */
-export const runStatelessForce = beginContext(
+const runStatelessForceInternal = beginContext(
   async (content: string, clientId: string) => {
     const executionId = randomString();
 
@@ -72,3 +59,24 @@ export const runStatelessForce = beginContext(
     );
   }
 );
+
+
+/**
+ * Executes a message statelessly with the active agent in a swarm session, bypassing chat history and forcing execution regardless of agent activity.
+ *
+ * This function processes a command or message using the active agent without appending it to the chat history, designed to prevent model history
+ * overflow when handling storage output or one-off tasks. Unlike `runStateless`, it does not check if the agent is currently active, ensuring execution
+ * even if the agent has changed or is inactive. It validates the session and swarm, executes the content with performance tracking and event bus
+ * notifications, and is wrapped in `beginContext` for a clean environment and `ExecutionContextService` for metadata tracking.
+ *
+ * @param {string} content - The content or command to be executed statelessly by the active agent.
+ * @param {string} clientId - The unique identifier of the client session requesting the execution.
+ * @returns {Promise<string>} A promise that resolves to the result of the execution.
+ * @throws {Error} If session or swarm validation fails, or if the execution process encounters an error.
+ * @example
+ * const result = await runStatelessForce("Process this data forcefully", "client-123");
+ * console.log(result); // Outputs the agent's response without affecting history
+ */
+export function runStatelessForce(content: string, clientId: string) {
+  return runStatelessForceInternal(content, clientId);
+}

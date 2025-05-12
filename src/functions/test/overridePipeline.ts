@@ -24,13 +24,9 @@ type TPipelineSchema = {
 } & Partial<IPipelineSchema>;
 
 /**
- * @function overridePipeline
- * @description Overrides an existing pipeline schema with provided partial updates.
- * @template Payload - Type extending object for the pipeline payload.
- * @param {IPipelineSchema<Payload>} pipelineSchema - The partial pipeline schema with updates.
- * @returns {IPipelineSchema<Payload>} The updated pipeline schema.
+ * Function implementation
  */
-export const overridePipeline = beginContext(
+const overridePipelineInternal = beginContext(
   (pipelineSchema: TPipelineSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
@@ -42,6 +38,16 @@ export const overridePipeline = beginContext(
       pipelineSchema
     );
   }
-) as <Payload extends object = any>(
+);
+
+/**
+ * Overrides an existing pipeline schema with provided partial updates.
+ * @template Payload - Type extending object for the pipeline payload.
+ * @param {IPipelineSchema<Payload>} pipelineSchema - The partial pipeline schema with updates.
+ * @returns {IPipelineSchema<Payload>} The updated pipeline schema.
+ */
+export function overridePipeline<Payload extends object = any>(
   pipelineSchema: IPipelineSchema<Payload>
-) => IPipelineSchema<Payload>;
+): IPipelineSchema<Payload> {
+  return overridePipelineInternal(pipelineSchema);
+}

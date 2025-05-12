@@ -10,6 +10,23 @@ type TEmbeddingSchema = {
 } & Partial<IEmbeddingSchema>;
 
 /**
+ * Function implementation
+ */
+const overrideEmbedingInternal = beginContext(
+  (embeddingSchema: TEmbeddingSchema) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME, {
+        embeddingSchema,
+      });
+
+    return swarm.embeddingSchemaService.override(
+      embeddingSchema.embeddingName,
+      embeddingSchema
+    );
+  }
+);
+
+/**
  * Overrides an existing embedding schema in the swarm system with a new or partial schema.
  * This function updates the configuration of an embedding mechanism identified by its `embeddingName`, applying the provided schema properties.
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
@@ -32,16 +49,6 @@ type TEmbeddingSchema = {
  * });
  * // Logs the operation (if enabled) and updates the embedding schema in the swarm.
  */
-export const overrideEmbeding = beginContext(
-  (embeddingSchema: TEmbeddingSchema) => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME, {
-        embeddingSchema,
-      });
-
-    return swarm.embeddingSchemaService.override(
-      embeddingSchema.embeddingName,
-      embeddingSchema
-    );
-  }
-);
+export function overrideEmbeding(embeddingSchema: TEmbeddingSchema) {
+  return overrideEmbedingInternal(embeddingSchema);
+}

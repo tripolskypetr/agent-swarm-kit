@@ -1,9 +1,26 @@
 import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
-import { getRawHistory } from "./getRawHistory";
+import { getRawHistoryInternal } from "./getRawHistory";
 
 const METHOD_NAME = "function.history.getLastToolMessage";
+
+/**
+ * Function implementation
+ */
+const getLastToolMessageInternal = beginContext(async (clientId: string): Promise<string | null> => {
+  // Log the operation details if logging is enabled in GLOBAL_CONFIG
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      clientId,
+    });
+
+  // Fetch raw history and find the last tool message
+  const history = await getRawHistoryInternal(clientId, METHOD_NAME);
+  const last = history.findLast(({ role }) => role === "tool");
+  return last?.content ? last.content : null;
+});
+
 
 /**
  * Retrieves the content of the most recent tool message from a client's session history.
@@ -19,15 +36,6 @@ const METHOD_NAME = "function.history.getLastToolMessage";
  * const lastMessage = await getLastToolMessage("client-123");
  * console.log(lastMessage); // Outputs the last tool message or null
  */
-export const getLastToolMessage = beginContext(async (clientId: string): Promise<string | null> => {
-  // Log the operation details if logging is enabled in GLOBAL_CONFIG
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      clientId,
-    });
-
-  // Fetch raw history and find the last tool message
-  const history = await getRawHistory(clientId, METHOD_NAME);
-  const last = history.findLast(({ role }) => role === "tool");
-  return last?.content ? last.content : null;
-});
+export function getLastToolMessage(clientId: string) {
+  return getLastToolMessageInternal(clientId);
+}

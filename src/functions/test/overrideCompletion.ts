@@ -10,6 +10,23 @@ type TCompletionSchema = {
 } & Partial<ICompletionSchema>;
 
 /**
+ * Function implementation
+ */
+const overrideCompletionInternal = beginContext(
+  (completionSchema: TCompletionSchema) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME, {
+        completionSchema,
+      });
+
+    return swarm.completionSchemaService.override(
+      completionSchema.completionName,
+      completionSchema
+    );
+  }
+);
+
+/**
  * Overrides an existing completion schema in the swarm system with a new or partial schema.
  * This function updates the configuration of a completion mechanism identified by its `completionName`, applying the provided schema properties.
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
@@ -30,16 +47,6 @@ type TCompletionSchema = {
  * });
  * // Logs the operation (if enabled) and updates the completion schema in the swarm.
  */
-export const overrideCompletion = beginContext(
-  (completionSchema: TCompletionSchema) => {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-      swarm.loggerService.log(METHOD_NAME, {
-        completionSchema,
-      });
-
-    return swarm.completionSchemaService.override(
-      completionSchema.completionName,
-      completionSchema
-    );
-  }
-);
+export function overrideCompletion(completionSchema: TCompletionSchema) {
+  return overrideCompletionInternal(completionSchema);
+}

@@ -6,6 +6,24 @@ import beginContext from "../../utils/beginContext";
 const METHOD_NAME = "function.setup.addTool";
 
 /**
+ * Function implementation
+ */
+const addToolInternal = beginContext((toolSchema: IAgentTool<unknown>) => {
+  // Log the operation details if logging is enabled in GLOBAL_CONFIG
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+    swarm.loggerService.log(METHOD_NAME, {
+      toolSchema,
+    });
+
+  // Register the tool in the validation and schema services
+  swarm.toolValidationService.addTool(toolSchema.toolName, toolSchema);
+  swarm.toolSchemaService.register(toolSchema.toolName, toolSchema);
+
+  // Return the tool's name as confirmation of registration
+  return toolSchema.toolName;
+});
+
+/**
  * Adds a new tool to the tool registry for use by agents in the swarm system.
  *
  * This function registers a new tool, enabling agents within the swarm to utilize it for performing specific tasks or operations.
@@ -23,17 +41,6 @@ const METHOD_NAME = "function.setup.addTool";
  * const toolName = addTool(toolSchema);
  * console.log(toolName); // Outputs "Calculator"
  */
-export const addTool = beginContext((toolSchema: IAgentTool) => {
-  // Log the operation details if logging is enabled in GLOBAL_CONFIG
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      toolSchema,
-    });
-
-  // Register the tool in the validation and schema services
-  swarm.toolValidationService.addTool(toolSchema.toolName, toolSchema);
-  swarm.toolSchemaService.register(toolSchema.toolName, toolSchema);
-
-  // Return the tool's name as confirmation of registration
-  return toolSchema.toolName;
-}) as <T extends any = Record<string, ToolValue>>(toolSchema: IAgentTool<T>) => string;
+export function addTool<T extends any = Record<string, ToolValue>>(toolSchema: IAgentTool<T>) {
+  return addToolInternal(toolSchema);
+}

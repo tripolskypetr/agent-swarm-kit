@@ -9,13 +9,6 @@ import { disposeSubject } from "../../config/emitters";
 const METHOD_NAME = "function.navigate.changeToPrevAgent";
 
 /**
- * Time-to-live for the change agent function in milliseconds.
- * Defines how long the cached change agent function remains valid before expiring.
- * @constant {number}
- */
-const CHANGE_AGENT_TTL = 15 * 60 * 1_000;
-
-/**
  * Type definition for the previous agent change execution function.
  * @typedef {Function} TChangeToPrevAgentRun
  * @param {string} methodName - The name of the method invoking the change.
@@ -126,19 +119,9 @@ const createGc = singleshot(async () => {
 });
 
 /**
- * Navigates back to the previous or default agent for a given client session in a swarm.
- *
- * This function switches the active agent to the previous agent in the navigation stack, or the default agent if no previous agent exists,
- * as determined by the `navigationPop` method. It validates the session and agent, logs the operation if enabled, and executes the change using a TTL-limited, queued runner.
- * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
- *
- * @param {string} clientId - The unique identifier of the client session.
- * @returns {Promise<boolean>} A promise that resolves when the agent change is complete. If navigation stack contains recursion does nothing
- * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
- * @example
- * await changeToPrevAgent("client-123");
+ * Function implementation
  */
-export const changeToPrevAgent = beginContext(async (clientId: string) => {
+const changeToPrevAgentInternal = beginContext(async (clientId: string) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -162,3 +145,20 @@ export const changeToPrevAgent = beginContext(async (clientId: string) => {
   createGc();
   return await run(METHOD_NAME, agentName, swarmName);
 });
+
+/**
+ * Navigates back to the previous or default agent for a given client session in a swarm.
+ *
+ * This function switches the active agent to the previous agent in the navigation stack, or the default agent if no previous agent exists,
+ * as determined by the `navigationPop` method. It validates the session and agent, logs the operation if enabled, and executes the change using a TTL-limited, queued runner.
+ * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @returns {Promise<boolean>} A promise that resolves when the agent change is complete. If navigation stack contains recursion does nothing
+ * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
+ * @example
+ * await changeToPrevAgent("client-123");
+ */
+export function changeToPrevAgent(clientId: string) {
+  return changeToPrevAgentInternal(clientId);
+}
