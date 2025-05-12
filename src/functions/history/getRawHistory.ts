@@ -52,6 +52,6 @@ export const getRawHistoryInternal = beginContext(async (
  * const rawHistory = await getRawHistory("client-123");
  * console.log(rawHistory); // Outputs the full raw history array
  */
-export function getRawHistory(clientId: string) {
-  return getRawHistoryInternal(clientId, METHOD_NAME);
+export async function getRawHistory(clientId: string) {
+  return await getRawHistoryInternal(clientId, METHOD_NAME);
 }

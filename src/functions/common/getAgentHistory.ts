@@ -53,9 +53,9 @@ const getAgentHistoryInternal = beginContext(async (
  * const history = await getAgentHistory("client-123", "AgentX");
  * console.log(history); // Outputs array of IModelMessage objects
  */
-export function getAgentHistory(
+export async function getAgentHistory(
   clientId: string,
   agentName: AgentName
 ) {
-  return getAgentHistoryInternal(clientId, agentName);
+  return await getAgentHistoryInternal(clientId, agentName);
 } 

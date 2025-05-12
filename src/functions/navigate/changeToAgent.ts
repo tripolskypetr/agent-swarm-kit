@@ -182,6 +182,6 @@ const changeToAgentInternal = beginContext(
  * @example
  * await changeToAgent("AgentX", "client-123");
  */
-export function changeToAgent(agentName: AgentName, clientId: string) {
-  return changeToAgentInternal(agentName, clientId)
+export async function changeToAgent(agentName: AgentName, clientId: string) {
+  return await changeToAgentInternal(agentName, clientId)
 }

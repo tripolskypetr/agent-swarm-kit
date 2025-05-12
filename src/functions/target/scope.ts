@@ -71,9 +71,9 @@ const scopeInternal = beginContext(
  * @param {Partial<ISchemaContext["registry"]>} [options] - Optional overrides for schema services, with defaults from the swarm's schema services.
  * @returns {Promise<T>} The result of the executed function.
  */
-export function scope<T = any>(
+export async function scope<T = any>(
   runFn: () => Promise<T | void>,
   options?: ScopeOptions
 ): Promise<T> {
-  return scopeInternal(runFn, options);
+  return await scopeInternal(runFn, options);
 }

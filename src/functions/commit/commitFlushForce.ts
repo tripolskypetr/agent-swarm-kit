@@ -47,6 +47,6 @@ const commitFlushForceInternal = beginContext(
  * @returns {Promise<void>} A promise that resolves when the history flush is committed.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
-export function commitFlushForce(clientId: string) {
-  return commitFlushForceInternal(clientId);
+export async function commitFlushForce(clientId: string) {
+  return await commitFlushForceInternal(clientId);
 }

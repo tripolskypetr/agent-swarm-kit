@@ -43,6 +43,6 @@ const markOfflineInternal = async (clientId: string, swarmName: SwarmName): Prom
  * @example
  * await markOffline("client123", "exampleSwarm");
  */
-export function markOffline(clientId: string, swarmName: SwarmName) {
-  return markOfflineInternal(clientId, swarmName);
+export async function markOffline(clientId: string, swarmName: SwarmName) {
+  return await markOfflineInternal(clientId, swarmName);
 }

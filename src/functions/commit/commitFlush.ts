@@ -68,6 +68,6 @@ const commitFlushInternal = beginContext(
  * @returns {Promise<void>} A promise that resolves when the history flush is committed or skipped (e.g., agent mismatch).
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
-export function commitFlush(clientId: string, agentName: string) {
-  return commitFlushInternal(clientId, agentName);
+export async function commitFlush(clientId: string, agentName: string) {
+  return await commitFlushInternal(clientId, agentName);
 }

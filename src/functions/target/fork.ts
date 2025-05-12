@@ -95,9 +95,9 @@ const forkInternal = beginContext(
  * @returns {Promise<T | void>} The result of the run function or void if no result is returned.
  * @throws {Error} If a session already exists for the clientId.
  */
-export function fork<T = any>(
+export async function fork<T = any>(
   runFn: (clientId: string, agentName: AgentName) => Promise<T | void>,
   options: IScopeOptions
 ): Promise<T> {
-  return forkInternal(runFn, options);
+  return await forkInternal(runFn, options);
 }

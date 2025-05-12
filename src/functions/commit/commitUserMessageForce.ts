@@ -67,11 +67,11 @@ const commitUserMessageForceInternal = beginContext(
  * @example
  * await commitUserMessageForce("User input message", "client-123");
  */
-export function commitUserMessageForce<Payload extends object = object>(
+export async function commitUserMessageForce<Payload extends object = object>(
   content: string,
   mode: ExecutionMode,
   clientId: string,
   payload?: Payload
 ) {
-  return commitUserMessageForceInternal(content, mode, clientId, payload);
+  return await commitUserMessageForceInternal(content, mode, clientId, payload);
 }

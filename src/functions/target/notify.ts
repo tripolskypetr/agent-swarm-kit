@@ -80,6 +80,6 @@ const notifyInternal = beginContext(
  * @example
  * await notify("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active
  */
-export function notify(content: string, clientId: string, agentName: AgentName) {
-  return notifyInternal(content, clientId, agentName);
+export async function notify(content: string, clientId: string, agentName: AgentName) {
+  return await notifyInternal(content, clientId, agentName);
 }

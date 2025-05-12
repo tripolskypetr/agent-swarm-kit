@@ -78,11 +78,11 @@ const commitToolOutputInternal = beginContext(
  * @example
  * await commitToolOutput("tool-123", "Tool execution result", "client-456", "AgentX");
  */
-export function commitToolOutput(
+export async function commitToolOutput(
   toolId: string,
   content: string,
   clientId: string,
   agentName: AgentName
 ) {
-  return commitToolOutputInternal(toolId, content, clientId, agentName);
+  return await commitToolOutputInternal(toolId, content, clientId, agentName);
 }

@@ -34,6 +34,6 @@ const getAssistantHistoryInternal = beginContext(async (clientId: string) => {
  * const assistantHistory = await getAssistantHistory("client-123");
  * console.log(assistantHistory); // Outputs array of assistant history entries
  */
-export function getAssistantHistory(clientId: string) {
-  return getAssistantHistoryInternal(clientId);
+export async function getAssistantHistory(clientId: string) {
+  return await getAssistantHistoryInternal(clientId);
 }

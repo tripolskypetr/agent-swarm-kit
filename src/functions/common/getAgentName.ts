@@ -41,6 +41,6 @@ const getAgentNameInternal = beginContext(async (clientId: string) => {
  * const agentName = await getAgentName("client-123");
  * console.log(agentName); // Outputs "AgentX"
  */
-export function getAgentName(clientId: string) {
-  return getAgentNameInternal(clientId);
+export async function getAgentName(clientId: string) {
+  return await getAgentNameInternal(clientId);
 }

@@ -46,6 +46,6 @@ const emitForceInternal = beginContext(
  * @example
  * await emitForce("Direct output", "client-123"); // Emits "Direct output" in a makeConnection session
  */
-export function emitForce(content: string, clientId: string) {
-  return emitForceInternal(content, clientId);
+export async function emitForce(content: string, clientId: string) {
+  return await emitForceInternal(content, clientId);
 }

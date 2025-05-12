@@ -35,6 +35,6 @@ const getLastSystemMessageInternal = beginContext(async (clientId: string): Prom
  * const lastMessage = await getLastSystemMessage("client-123");
  * console.log(lastMessage); // Outputs the last system message or null
  */
-export function getLastSystemMessage(clientId: string) {
-  return getLastSystemMessageInternal(clientId);
+export async function getLastSystemMessage(clientId: string) {
+  return await getLastSystemMessageInternal(clientId);
 }

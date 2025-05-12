@@ -101,10 +101,10 @@ export function commitToolRequest(
  * @param {string} agentName - The agent name to commit the request for.
  * @returns {Promise<string[] | null>} A promise resolving with an array of result strings, or null if skipped due to agent mismatch.
  */
-export function commitToolRequest(
+export async function commitToolRequest(
   request: IToolRequest | IToolRequest[],
   clientId: string,
   agentName: string
 ): Promise<string[]> {
-  return commitToolRequestInternal(request, clientId, agentName);
+  return await commitToolRequestInternal(request, clientId, agentName);
 }

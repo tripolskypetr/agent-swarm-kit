@@ -71,6 +71,6 @@ const commitAssistantMessageInternal = beginContext(
  * @returns {Promise<void>} A promise that resolves when the message is committed or skipped (e.g., agent mismatch).
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
-export function commitAssistantMessage(content: string, clientId: string, agentName: string) {
-  return commitAssistantMessageInternal(content, clientId, agentName);
+export async function commitAssistantMessage(content: string, clientId: string, agentName: string) {
+  return await commitAssistantMessageInternal(content, clientId, agentName);
 }

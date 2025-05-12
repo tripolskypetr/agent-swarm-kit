@@ -106,6 +106,6 @@ const runStatelessInternal = beginContext(
  * const result = await runStateless("Process this data", "client-123", "AgentX");
  * console.log(result); // Outputs the agent's response without affecting history
  */
-export function runStateless(content: string, clientId: string, agentName: AgentName) {
-  return runStatelessInternal(content, clientId, agentName);
+export async function runStateless(content: string, clientId: string, agentName: AgentName) {
+  return await runStatelessInternal(content, clientId, agentName);
 }

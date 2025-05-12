@@ -34,6 +34,6 @@ const getUserHistoryInternal = beginContext(async (clientId: string) => {
  * const userHistory = await getUserHistory("client-123");
  * console.log(userHistory); // Outputs array of user history entries
  */
-export function getUserHistory(clientId: string) {
-  return getUserHistoryInternal(clientId);
+export async function getUserHistory(clientId: string) {
+  return await getUserHistoryInternal(clientId);
 }

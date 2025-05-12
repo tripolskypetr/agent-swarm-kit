@@ -69,6 +69,6 @@ const commitStopToolsInternal = beginContext(
  * @returns {Promise<void>} A promise that resolves when the tool stop is committed or skipped (e.g., agent mismatch).
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
-export function commitStopTools(clientId: string, agentName: string) {
-  return commitStopToolsInternal(clientId, agentName);
+export async function commitStopTools(clientId: string, agentName: string) {
+  return await commitStopToolsInternal(clientId, agentName);
 }

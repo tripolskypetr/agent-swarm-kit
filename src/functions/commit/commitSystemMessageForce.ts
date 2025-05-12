@@ -49,6 +49,6 @@ const commitSystemMessageForceInternal = beginContext(
  * @returns {Promise<void>} A promise that resolves when the message is committed.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
-export function commitSystemMessageForce(content: string, clientId: string) {
-  return commitSystemMessageForceInternal(content, clientId);
+export async function commitSystemMessageForce(content: string, clientId: string) {
+  return await commitSystemMessageForceInternal(content, clientId);
 }

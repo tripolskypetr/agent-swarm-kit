@@ -36,6 +36,6 @@ const getLastToolMessageInternal = beginContext(async (clientId: string): Promis
  * const lastMessage = await getLastToolMessage("client-123");
  * console.log(lastMessage); // Outputs the last tool message or null
  */
-export function getLastToolMessage(clientId: string) {
-  return getLastToolMessageInternal(clientId);
+export async function getLastToolMessage(clientId: string) {
+  return await getLastToolMessageInternal(clientId);
 }

@@ -77,6 +77,6 @@ const executeForceInternal = beginContext(
  * const result = await executeForce("Force this execution", "client-123");
  * console.log(result); // Outputs the agent's response regardless of its active state
  */
-export function executeForce(content: string, clientId: string) {
-  return executeForceInternal(content, clientId);
+export async function executeForce(content: string, clientId: string) {
+  return await executeForceInternal(content, clientId);
 }

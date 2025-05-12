@@ -32,6 +32,6 @@ const hasNavigationInternal = async (clientId: string, agentName: AgentName) => 
  * @param {AgentName} agentName - The name of the agent to check within the navigation route.
  * @returns {Promise<boolean>} A promise resolving to true if the agent is in the navigation route, false otherwise.
  */
-export function hasNavigation(clientId: string, agentName: AgentName) {
-  return hasNavigationInternal(clientId, agentName);
+export async function hasNavigation(clientId: string, agentName: AgentName) {
+  return await hasNavigationInternal(clientId, agentName);
 }

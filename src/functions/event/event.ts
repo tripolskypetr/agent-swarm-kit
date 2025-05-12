@@ -24,7 +24,7 @@ const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
  * Function implementation
  */
 const eventInternal = beginContext(
-  (clientId: string, topicName: string, payload: unknown) => {
+  async (clientId: string, topicName: string, payload: unknown) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
@@ -39,7 +39,7 @@ const eventInternal = beginContext(
     }
 
     // Emit the event to the bus service
-    return swarm.busService.emit<ICustomEvent>(clientId, {
+    return await swarm.busService.emit<ICustomEvent>(clientId, {
       source: topicName,
       payload,
       clientId,
@@ -65,10 +65,10 @@ const eventInternal = beginContext(
  * await event("client-123", "custom-topic", { message: "Hello, swarm!" });
  * // Emits an event with topic "custom-topic" and payload { message: "Hello, swarm!" }
  */
-export function event<T extends unknown = any>(
+export async function event<T extends unknown = any>(
   clientId: string,
   topicName: string,
   payload: T
 ) {
-  return eventInternal(clientId, topicName, payload);
+  return await eventInternal(clientId, topicName, payload);
 }

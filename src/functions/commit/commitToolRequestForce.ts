@@ -79,9 +79,9 @@ export function commitToolRequestForce(
  * @returns {Promise<string[]>} A promise that resolves with an array of results if the request is committed.
  * @throws {Error} If session or swarm validation fails.
  */
-export function commitToolRequestForce(
+export async function commitToolRequestForce(
   request: IToolRequest | IToolRequest[],
   clientId: string
 ): Promise<string[]> {
-  return commitToolRequestForceInternal(request, clientId);
+  return await commitToolRequestForceInternal(request, clientId);
 }

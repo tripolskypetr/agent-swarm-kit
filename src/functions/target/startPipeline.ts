@@ -86,11 +86,11 @@ const startPipelineInternal = beginContext(
  * @param {Payload} [payload={}] - Optional payload data for the pipeline.
  * @returns {Promise<T>} The result of the pipeline execution.
  */
-export function startPipeline<Payload extends object = any, T = any>(
+export async function startPipeline<Payload extends object = any, T = any>(
   clientId: string,
   pipelineName: PipelineName,
   agentName: AgentName,
   payload?: Payload
 ): Promise<T> {
-  return startPipelineInternal(clientId, pipelineName, agentName, payload);
+  return await startPipelineInternal(clientId, pipelineName, agentName, payload);
 }

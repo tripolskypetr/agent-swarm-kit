@@ -49,6 +49,6 @@ const commitAssistantMessageForceInternal = beginContext(
  * @returns {Promise<void>} A promise that resolves when the message is committed.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
-export function commitAssistantMessageForce(content: string, clientId: string) {
-  return commitAssistantMessageForceInternal(content, clientId);
+export async function commitAssistantMessageForce(content: string, clientId: string) {
+  return await commitAssistantMessageForceInternal(content, clientId);
 }

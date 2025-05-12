@@ -47,6 +47,6 @@ const commitStopToolsForceInternal = beginContext(
  * @returns {Promise<void>} A promise that resolves when the tool stop is committed.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
-export function commitStopToolsForce(clientId: string) {
-  return commitStopToolsForceInternal(clientId);
+export async function commitStopToolsForce(clientId: string) {
+  return await commitStopToolsForceInternal(clientId);
 }

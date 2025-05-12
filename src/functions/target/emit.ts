@@ -69,6 +69,6 @@ const emitInternal = beginContext(
  * @example
  * await emit("Direct output", "client-123", "AgentX"); // Emits "Direct output" if AgentX is active
  */
-export function emit(content: string, clientId: string, agentName: AgentName) {
-  return emitInternal(content, clientId, agentName);
+export async function emit(content: string, clientId: string, agentName: AgentName) {
+  return await emitInternal(content, clientId, agentName);
 }

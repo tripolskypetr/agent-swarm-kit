@@ -37,6 +37,6 @@ const getLastUserMessageInternal = beginContext(async (clientId: string): Promis
  * const lastMessage = await getLastUserMessage("client-123");
  * console.log(lastMessage); // Outputs the last user message or null
  */
-export function getLastUserMessage(clientId: string) {
-  return getLastUserMessageInternal(clientId);
+export async function getLastUserMessage(clientId: string) {
+  return await getLastUserMessageInternal(clientId);
 }

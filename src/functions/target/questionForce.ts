@@ -54,6 +54,6 @@ const questionForceInternal = beginContext(
  * @param {WikiName} wikiName - Name of the wiki context
  * @returns {Promise<string>} The response from the chat process
  */
-export function questionForce(message: string, clientId: string, wikiName: WikiName) {
-  return questionForceInternal(message, clientId, wikiName);
+export async function questionForce(message: string, clientId: string, wikiName: WikiName) {
+  return await questionForceInternal(message, clientId, wikiName);
 }

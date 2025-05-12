@@ -77,6 +77,6 @@ const runStatelessForceInternal = beginContext(
  * const result = await runStatelessForce("Process this data forcefully", "client-123");
  * console.log(result); // Outputs the agent's response without affecting history
  */
-export function runStatelessForce(content: string, clientId: string) {
-  return runStatelessForceInternal(content, clientId);
+export async function runStatelessForce(content: string, clientId: string) {
+  return await runStatelessForceInternal(content, clientId);
 }

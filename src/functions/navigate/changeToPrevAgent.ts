@@ -159,6 +159,6 @@ const changeToPrevAgentInternal = beginContext(async (clientId: string) => {
  * @example
  * await changeToPrevAgent("client-123");
  */
-export function changeToPrevAgent(clientId: string) {
-  return changeToPrevAgentInternal(clientId);
+export async function changeToPrevAgent(clientId: string) {
+  return await changeToPrevAgentInternal(clientId);
 }

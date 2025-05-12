@@ -67,6 +67,6 @@ const cancelOutputInternal = beginContext(
  * @returns {Promise<void>} A promise that resolves when the output cancellation is complete or skipped (e.g., agent mismatch).
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
-export function cancelOutput(clientId: string, agentName: string) {
-  return cancelOutputInternal(clientId, agentName);
+export async function cancelOutput(clientId: string, agentName: string) {
+  return await cancelOutputInternal(clientId, agentName);
 }

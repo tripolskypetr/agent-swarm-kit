@@ -48,6 +48,6 @@ const commitToolOutputForceInternal = beginContext(
  * @example
  * await commitToolOutputForce("tool-123", "Tool execution result", "client-456");
  */
-export function commitToolOutputForce(toolId: string, content: string, clientId: string) {
-  return commitToolOutputForceInternal(toolId, content, clientId);
+export async function commitToolOutputForce(toolId: string, content: string, clientId: string) {
+  return await commitToolOutputForceInternal(toolId, content, clientId);
 }

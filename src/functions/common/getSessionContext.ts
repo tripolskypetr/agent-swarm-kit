@@ -70,6 +70,6 @@ const getSessionContextInternal = async (): Promise<ISessionContext> => {
  * const context = await getSessionContext();
  * console.log(context); // Outputs { clientId: "client-123", processId: "uuid-xyz", methodContext: {...}, executionContext: {...} }
  */
-export function getSessionContext() {
-  return getSessionContextInternal();
+export async function getSessionContext() {
+  return await getSessionContextInternal();
 }

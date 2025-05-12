@@ -44,6 +44,6 @@ const markOnlineInternal = async (clientId: string, swarmName: SwarmName): Promi
  * @returns {Promise<void>} A promise that resolves when the client is successfully marked online.
  * @throws {Error} Throws an error if the swarm validation fails or if the operation fails.
  */
-export function markOnline(clientId: string, swarmName: SwarmName) {
-  return markOnlineInternal(clientId, swarmName);
+export async function markOnline(clientId: string, swarmName: SwarmName) {
+  return await markOnlineInternal(clientId, swarmName);
 }

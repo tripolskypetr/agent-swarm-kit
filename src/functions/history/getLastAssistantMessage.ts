@@ -37,6 +37,6 @@ const getLastAssistantMessageInternal = beginContext(
  * const lastMessage = await getLastAssistantMessage("client-123");
  * console.log(lastMessage); // Outputs the last assistant message or null
  */
-export function getLastAssistantMessage(clientId: string) {
-  return getLastAssistantMessageInternal(clientId);
+export async function getLastAssistantMessage(clientId: string) {
+  return await getLastAssistantMessageInternal(clientId);
 }

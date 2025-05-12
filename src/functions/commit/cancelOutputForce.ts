@@ -45,6 +45,6 @@ const cancelOutputForceInternal = beginContext(
  * @returns {Promise<void>} A promise that resolves when the output cancellation is complete.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
-export function cancelOutputForce(clientId: string) {
-  return cancelOutputForceInternal(clientId);
+export async function cancelOutputForce(clientId: string) {
+  return await cancelOutputForceInternal(clientId);
 }

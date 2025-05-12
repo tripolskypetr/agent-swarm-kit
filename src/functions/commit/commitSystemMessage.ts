@@ -72,6 +72,6 @@ const commitSystemMessageInternal = beginContext(
  * @returns {Promise<void>} A promise that resolves when the message is committed or skipped (e.g., agent mismatch).
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
-export function commitSystemMessage(content: string, clientId: string, agentName: string) {
-  return commitSystemMessageInternal(content, clientId, agentName);
+export async function commitSystemMessage(content: string, clientId: string, agentName: string) {
+  return await commitSystemMessageInternal(content, clientId, agentName);
 }
