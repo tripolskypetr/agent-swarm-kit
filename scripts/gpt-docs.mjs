@@ -24,8 +24,65 @@ const GPT_CLASS_PROMPT =
 const GPT_INTERFACE_PROMPT =
   "Please write a summary for that Typescript API Reference of AI agent swarm orchestration framework with several sentences in more human way";
 
-const GPT_TOTAL_PROMPT =
-  "Please write a summary for the whole swarm orchestration framework based on API Reference with several sentences in more human way. Describe the core parts like Validation services, Schema services, Connection services, Public services, bus and method context. Describe the IAgent, ISwarm, IAgentTool. Skip the callbacks and lifecycle";
+const GPT_FUNCTION_PROMPT =
+  "Please write a summary for that Typescript API Reference of AI agent swarm orchestration framework with several sentences in more human way";
+
+const HEADER_CONTENT =
+  "# agent-swarm-kit api reference\n" +
+  "\n" +
+  "![schema](../assets/uml.svg)\n" +
+  "\n" +
+  "**Overall Architecture:**\n" +
+  "\n" +
+  "This system built around a distributed, asynchronous architecture. Agents communicate via a message queue, and their interactions are orchestrated through a series of tools and processes. The core concept is to allow agents to perform tasks independently while still being part of a larger, coordinated system.\n" +
+  "\n" +
+  "**Core Concepts & Relationships**\n" +
+  "\n" +
+  "* **Swarm Orchestration:** The entire framework is built around orchestrating agents to perform tasks.\n" +
+  "* **Agent as the Central Unit:** The `IAgent` is the fundamental building block – the individual agent that executes tasks.\n" +
+  "* **Communication (Bus):** The `IAgentParams` interface highlights the importance of the `bus` (a messaging system) for agents to communicate and coordinate.\n" +
+  "* **History Management:** The `IAgent` and `IAgentParams` emphasize the agent's ability to operate without relying on conversation history (using the `run` method).\n" +
+  "* **Tool Execution:** The `IAgent`’s `call` and `execute` methods are central to running tools within the agent.\n" +
+  "* **Schema & Configuration:** The `IAgentSchema` defines the configuration for each agent, including its tools, prompt, and completion mechanism.\n" +
+  "\n" +
+  "**Interface Breakdown & Key Responsibilities**\n" +
+  "\n" +
+  "Here’s a summary of each interface and its role:\n" +
+  "\n" +
+  "* **`IAgent`:** The core runtime agent.  Handles independent execution, tool calls, message commitment, and lifecycle management.\n" +
+  "* **`IAgentParams`:**  Provides the agent with the necessary parameters for operation, including its ID, logging, communication channel, and history management.\n" +
+  "* **`IAgentSchema`:** Defines the configuration settings for an agent (tools, prompt, completion mechanism).\n" +
+  "* **`IAgentSchemaCallbacks`:**  Provides callbacks for managing different stages of an agent’s lifecycle (init, run, output, etc.).\n" +
+  "* **`IAgentConnectionService`:** A type definition for an `AgentConnectionService` – a service that manages connections between the agents.\n" +
+  "\n" +
+  "**Workflow Implications**\n" +
+  "\n" +
+  "Based on these interfaces, here’s a workflow:\n" +
+  "\n" +
+  "1. **Agent Configuration:** An `IAgentSchema` is created to define the agent’s settings.\n" +
+  "2. **Agent Instantiation:** An `IAgent` instance is created based on the schema.\n" +
+  "3. **Agent Execution:** The `IAgent`’s `execute` method is called to initiate independent operation.\n" +
+  "4. **Tool Calls:**  The `IAgent` uses `call` to execute tools.\n" +
+  "5. **Message Handling:** The `IAgent` uses `commitToolOutput`, `commitSystemMessage`, and `commitUserMessage` to manage messages.\n" +
+  "6. **Communication:** The `IAgent` uses the `bus` (via `IAgentParams`) to communicate with other agents.\n" +
+  "\n" +
+  "**Key Concepts & Implications:**\n" +
+  "\n" +
+  "* **State Management:** Agents maintain their own state (conversation history, tool outputs, etc.).\n" +
+  "* **Decoupling:** The interfaces are designed to decouple different components of the system. This allows for flexibility and easier maintenance.\n" +
+  "* **Event-Driven Architecture:** The use of callbacks suggests an event-driven architecture, where components communicate through events rather than direct calls.\n" +
+  "* **State Management:** The interfaces highlight the importance of managing the agent's state, including conversation history, tool output, and system messages.\n" +
+  "* **Tool Integration:** The `tools` property in `IAgentParams` indicates a system designed to integrate with external tools.\n" +
+  "* **Asynchronous Communication:** Agents communicate asynchronously via a bus, allowing them to operate independently.\n" +
+  "* **Flexibility:** The system is designed to be flexible, a\n" +
+  "\n" +
+  "**Potential Use Cases:**\n" +
+  "\n" +
+  "This architecture could be used for a wide range of applications, including:\n" +
+  "\n" +
+  "* **Chatbots:**  Agents could be used to power conversational AI systems.\n" +
+  "* **Content Generation:** Agents could be used to generate text, images, or other content.\n" +
+  "* **Data Analysis:** Agents could be used to analyze data and generate insights.\n";
 
 console.log("Loading model");
 
@@ -143,6 +200,26 @@ output.push("---");
 output.push("");
 
 {
+  const classList = globSync(`./docs/functions/*`);
+  output.push(`# ${MODULE_NAME} functions`);
+  output.push("");
+  if (!classList.length) {
+    output.push("No data available");
+  }
+  for (const classPath of classList) {
+    const className = basename(classPath, extname(classPath));
+    const content = await generateDescription(classPath, GPT_FUNCTION_PROMPT);
+    if (content.trim()) {
+      output.push(`## Function ${className}`);
+      output.push("");
+      output.push(content);
+      output.push("");
+    }
+    fs.writeFileSync(outputPath, output.join("\n"));
+  }
+}
+
+{
   const classList = globSync(`./docs/classes/*`);
   output.push(`# ${MODULE_NAME} classes`);
   output.push("");
@@ -187,7 +264,7 @@ output.push("");
 
 {
   output.unshift("");
-  output.unshift(await generateDescription(outputPath, GPT_TOTAL_PROMPT));
+  output.unshift(HEADER_CONTENT);
   output.unshift("");
   output.unshift("![schema](../assets/uml.svg)");
   output.unshift("");
