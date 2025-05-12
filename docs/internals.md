@@ -1,13 +1,63 @@
-# agent-swarm-kit api reference
-
-![schema](../assets/uml.svg)
-
-
-
 ---
 title: docs/internals
 group: docs
 ---
+
+# agent-swarm-kit api reference
+
+![schema](../assets/uml.svg)
+
+**Overall Architecture:**
+
+This system built around a distributed, asynchronous architecture. Agents communicate via a message queue, and their interactions are orchestrated through a series of tools and processes. The core concept is to allow agents to perform tasks independently while still being part of a larger, coordinated system.
+
+**Core Concepts & Relationships**
+
+* **Swarm Orchestration:** The entire framework is built around orchestrating agents to perform tasks.
+* **Agent as the Central Unit:** The `IAgent` is the fundamental building block – the individual agent that executes tasks.
+* **Communication (Bus):** The `IAgentParams` interface highlights the importance of the `bus` (a messaging system) for agents to communicate and coordinate.
+* **History Management:** The `IAgent` and `IAgentParams` emphasize the agent's ability to operate without relying on conversation history (using the `run` method).
+* **Tool Execution:** The `IAgent`’s `call` and `execute` methods are central to running tools within the agent.
+* **Schema & Configuration:** The `IAgentSchema` defines the configuration for each agent, including its tools, prompt, and completion mechanism.
+
+**Interface Breakdown & Key Responsibilities**
+
+Here’s a summary of each interface and its role:
+
+* **`IAgent`:** The core runtime agent.  Handles independent execution, tool calls, message commitment, and lifecycle management.
+* **`IAgentParams`:**  Provides the agent with the necessary parameters for operation, including its ID, logging, communication channel, and history management.
+* **`IAgentSchema`:** Defines the configuration settings for an agent (tools, prompt, completion mechanism).
+* **`IAgentSchemaCallbacks`:**  Provides callbacks for managing different stages of an agent’s lifecycle (init, run, output, etc.).
+* **`IAgentConnectionService`:** A type definition for an `AgentConnectionService` – a service that manages connections between the agents.
+
+**Workflow Implications**
+
+Based on these interfaces, here’s a workflow:
+
+1. **Agent Configuration:** An `IAgentSchema` is created to define the agent’s settings.
+2. **Agent Instantiation:** An `IAgent` instance is created based on the schema.
+3. **Agent Execution:** The `IAgent`’s `execute` method is called to initiate independent operation.
+4. **Tool Calls:**  The `IAgent` uses `call` to execute tools.
+5. **Message Handling:** The `IAgent` uses `commitToolOutput`, `commitSystemMessage`, and `commitUserMessage` to manage messages.
+6. **Communication:** The `IAgent` uses the `bus` (via `IAgentParams`) to communicate with other agents.
+
+**Key Concepts & Implications:**
+
+* **State Management:** Agents maintain their own state (conversation history, tool outputs, etc.).
+* **Decoupling:** The interfaces are designed to decouple different components of the system. This allows for flexibility and easier maintenance.
+* **Event-Driven Architecture:** The use of callbacks suggests an event-driven architecture, where components communicate through events rather than direct calls.
+* **State Management:** The interfaces highlight the importance of managing the agent's state, including conversation history, tool output, and system messages.
+* **Tool Integration:** The `tools` property in `IAgentParams` indicates a system designed to integrate with external tools.
+* **Asynchronous Communication:** Agents communicate asynchronously via a bus, allowing them to operate independently.
+* **Flexibility:** The system is designed to be flexible, a
+
+**Potential Use Cases:**
+
+This architecture could be used for a wide range of applications, including:
+
+* **Chatbots:**  Agents could be used to power conversational AI systems.
+* **Content Generation:** Agents could be used to generate text, images, or other content.
+* **Data Analysis:** Agents could be used to analyze data and generate insights.
 
 # agent-swarm-kit classes
 
