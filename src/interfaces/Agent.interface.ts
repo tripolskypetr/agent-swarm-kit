@@ -138,6 +138,7 @@ export interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
     params: T;
     toolCalls: IToolCall[];
     abortSignal: TAbortSignal;
+    callReason: string;
     isLast: boolean;
   }): Promise<void>;
 

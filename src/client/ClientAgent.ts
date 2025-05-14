@@ -109,6 +109,7 @@ const createToolCall = async (
   tool: IToolCall,
   toolCalls: IToolCall[],
   targetFn: IAgentTool,
+  reason: string,
   self: ClientAgent
 ) => {
   try {
@@ -119,6 +120,7 @@ const createToolCall = async (
       params: tool.function.arguments,
       isLast: idx === toolCalls.length - 1,
       abortSignal: self._toolAbortController.signal,
+      callReason: reason,
       toolCalls,
     });
     targetFn.callbacks?.onAfterCall &&
@@ -461,7 +463,7 @@ const EXECUTE_FN = async (
             );
           }
         });
-        createToolCall(idx, tool, toolCalls, targetFn, self);
+        createToolCall(idx, tool, toolCalls, targetFn, message.content || "", self);
         const status = await statusAwaiter;
         GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
           self.params.logger.debug(
