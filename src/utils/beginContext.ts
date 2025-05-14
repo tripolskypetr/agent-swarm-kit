@@ -43,6 +43,20 @@ export const beginContext =
     run: T
   ): ((...args: Parameters<T>) => ReturnType<T>) =>
   (...args: Parameters<T>): ReturnType<T> => {
+
+    let fn = () => run(...args);
+
+    if (MethodContextService.hasContext()) {
+      fn = MethodContextService.runOutOfContext(fn);
+    }
+
+    if (ExecutionContextService.hasContext()) {
+      fn = ExecutionContextService.runOutOfContext(fn);
+    }
+
+    /*
+
+    // TODO: wait for asyncLocalStorage.disable() stability
     if (
       MethodContextService.hasContext() ||
       ExecutionContextService.hasContext()
@@ -53,6 +67,10 @@ export const beginContext =
       return result;
     }
     return run(...args);
+
+    */
+
+    return fn();
   };
 
 export default beginContext;
