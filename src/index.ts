@@ -120,7 +120,7 @@ export * from "./events/listenSwarmEventOnce";
 export * from "./events/listenExecutionEventOnce";
 export * from "./events/listenPolicyEventOnce";
 
-export { IAgentSchema } from "./interfaces/Agent.interface";
+export { IAgentSchemaInternal } from "./interfaces/Agent.interface";
 export {
   ICompletionSchema,
   ICompletionArgs,

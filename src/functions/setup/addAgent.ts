@@ -1,19 +1,22 @@
-import { IAgentSchema } from "../../interfaces/Agent.interface";
+import { IAgentSchema, IAgentSchemaInternal } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
+import mapAgentSchema from "src/helpers/mapAgentSchema";
 
 const METHOD_NAME = "function.setup.addAgent";
 
 /**
  * Function implementation
  */
-const addAgentInternal = beginContext((agentSchema: IAgentSchema) => {
+const addAgentInternal = beginContext((publicAgentSchema: IAgentSchema) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
-      agentSchema,
+      agentSchema: publicAgentSchema,
     });
+
+  const agentSchema = mapAgentSchema(publicAgentSchema);
 
   // Register the agent in the validation and schema services
   swarm.agentValidationService.addAgent(agentSchema.agentName, agentSchema);

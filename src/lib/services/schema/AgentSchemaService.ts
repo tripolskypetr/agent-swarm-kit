@@ -1,5 +1,5 @@
 import { ToolRegistry } from "functools-kit";
-import { AgentName, IAgentSchema } from "../../../interfaces/Agent.interface";
+import { AgentName, IAgentSchemaInternal } from "../../../interfaces/Agent.interface";
 import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import { GLOBAL_CONFIG } from "../../../config/params";
@@ -8,7 +8,7 @@ import SchemaContextService, { TSchemaContextService } from "../context/SchemaCo
 
 /**
  * Service class for managing agent schemas in the swarm system.
- * Provides a centralized registry for storing and retrieving IAgentSchema instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
+ * Provides a centralized registry for storing and retrieving IAgentSchemaInternal instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
  * Integrates with AgentConnectionService (agent instantiation using schemas), SwarmConnectionService (swarm agent configuration), ClientAgent (schema-driven execution), and AgentMetaService (meta-level agent management).
  * Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
  * Serves as a foundational service for defining agent behavior, dependencies, and resources (e.g., states, storages, tools) within the swarm ecosystem.
@@ -32,12 +32,12 @@ export class AgentSchemaService {
 
   /**
    * Registry instance for storing agent schemas, initialized with ToolRegistry from functools-kit.
-   * Maps AgentName keys to IAgentSchema values, providing efficient storage and retrieval, used in register and get methods.
+   * Maps AgentName keys to IAgentSchemaInternal values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
-   * @type {ToolRegistry<Record<AgentName, IAgentSchema>>}
+   * @type {ToolRegistry<Record<AgentName, IAgentSchemaInternal>>}
    * @private
    */
-  private _registry = new ToolRegistry<Record<AgentName, IAgentSchema>>(
+  private _registry = new ToolRegistry<Record<AgentName, IAgentSchemaInternal>>(
     "agentSchemaService"
   );
 
@@ -47,7 +47,7 @@ export class AgentSchemaService {
    * Otherwise, it falls back to the private `_registry` instance.
    * 
    * @private
-   * @returns {ToolRegistry<Record<AgentName, IAgentSchema>>} The current registry instance for managing agent schemas.
+   * @returns {ToolRegistry<Record<AgentName, IAgentSchemaInternal>>} The current registry instance for managing agent schemas.
    */
   public get registry() {
     if (SchemaContextService.hasContext()) {
@@ -62,9 +62,9 @@ export class AgentSchemaService {
    * Otherwise, it updates the private `_registry` instance.
    * 
    * @private
-   * @param {ToolRegistry<Record<AgentName, IAgentSchema>>} value - The new registry instance to set for managing agent schemas.
+   * @param {ToolRegistry<Record<AgentName, IAgentSchemaInternal>>} value - The new registry instance to set for managing agent schemas.
    */
-  public set registry(value: ToolRegistry<Record<AgentName, IAgentSchema>>) {
+  public set registry(value: ToolRegistry<Record<AgentName, IAgentSchemaInternal>>) {
     if (SchemaContextService.hasContext()) {
       this.schemaContextService.context.registry.agentSchemaService = value;
       return;
@@ -77,11 +77,11 @@ export class AgentSchemaService {
    * Checks agentName, completion, and prompt as strings; ensures system, dependsOn, states, storages, and tools are arrays of unique strings if present.
    * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentConnectionService’s validation needs.
    * Supports ClientAgent instantiation by ensuring schema validity before registration.
-   * @param {IAgentSchema} agentSchema - The agent schema to validate, sourced from Agent.interface.
+   * @param {IAgentSchemaInternal} agentSchema - The agent schema to validate, sourced from Agent.interface.
    * @throws {Error} If any validation check fails, with detailed messages including agentName and invalid values.
    * @private
    */
-  private validateShallow = (agentSchema: IAgentSchema) => {
+  private validateShallow = (agentSchema: IAgentSchemaInternal) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentSchemaService validateShallow`, {
         agentSchema,
@@ -235,10 +235,10 @@ export class AgentSchemaService {
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentConnectionService’s schema usage.
    * Supports ClientAgent instantiation by providing validated schemas to AgentConnectionService and SwarmConnectionService.
    * @param {AgentName} key - The name of the agent, used as the registry key, sourced from Agent.interface.
-   * @param {IAgentSchema} value - The agent schema to register, sourced from Agent.interface, validated before storage.
+   * @param {IAgentSchemaInternal} value - The agent schema to register, sourced from Agent.interface, validated before storage.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
    */
-  public register = (key: AgentName, value: IAgentSchema) => {
+  public register = (key: AgentName, value: IAgentSchemaInternal) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentSchemaService register`, { key });
     this.validateShallow(value);
@@ -251,10 +251,10 @@ export class AgentSchemaService {
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports dynamic updates to agent schemas for AgentConnectionService and SwarmConnectionService.
    * @param {AgentName} key - The name of the agent, used as the registry key, sourced from Agent.interface.
-   * @param {IAgentSchema} value - The new agent schema to override the existing one, sourced from Agent.interface.
+   * @param {IAgentSchemaInternal} value - The new agent schema to override the existing one, sourced from Agent.interface.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
    */
-  public override = (key: AgentName, value: Partial<IAgentSchema>) => {
+  public override = (key: AgentName, value: Partial<IAgentSchemaInternal>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentSchemaService override`, { key });
     this.registry = this.registry.override(key, value);
@@ -266,10 +266,10 @@ export class AgentSchemaService {
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports AgentConnectionService’s getAgent method by providing schema data for agent instantiation, and SwarmConnectionService’s swarm configuration.
    * @param {AgentName} key - The name of the agent to retrieve, sourced from Agent.interface.
-   * @returns {IAgentSchema} The agent schema associated with the key, sourced from Agent.interface.
+   * @returns {IAgentSchemaInternal} The agent schema associated with the key, sourced from Agent.interface.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
    */
-  public get = (key: AgentName): IAgentSchema => {
+  public get = (key: AgentName): IAgentSchemaInternal => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentSchemaService get`, { key });
     return this.registry.get(key);

@@ -12,7 +12,7 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 import { join } from "path";
 import { execpool, not, trycatch } from "functools-kit";
 import { mkdir, access } from "fs/promises";
-import { IAgentSchema } from "../../../interfaces/Agent.interface";
+import { IAgentSchemaInternal } from "../../../interfaces/Agent.interface";
 import ToolSchemaService from "../schema/ToolSchemaService";
 import StorageSchemaService from "../schema/StorageSchemaService";
 import StateSchemaService from "../schema/StateSchemaService";
@@ -56,7 +56,7 @@ const exists = trycatch(
 
 /**
  * Service class for generating and writing documentation for swarms, agents, and performance data in the swarm system.
- * Produces Markdown files for swarm (ISwarmSchema) and agent (IAgentSchema) schemas, including UML diagrams via CC_FN_PLANTUML, and JSON files for performance metrics via PerfService.
+ * Produces Markdown files for swarm (ISwarmSchema) and agent (IAgentSchemaInternal) schemas, including UML diagrams via CC_FN_PLANTUML, and JSON files for performance metrics via PerfService.
  * Integrates indirectly with ClientAgent by documenting its schema (e.g., tools, prompts) and performance (e.g., via PerfService), using LoggerService for logging gated by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
  * Manages concurrent tasks with a thread pool (THREAD_POOL_SIZE) and organizes output in a directory structure (SUBDIR_LIST), enhancing developer understanding of the system.
  */
@@ -109,7 +109,7 @@ export class DocService {
 
   /**
    * Agent schema service instance, injected via DI.
-   * Retrieves IAgentSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
+   * Retrieves IAgentSchemaInternal objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
    * @type {AgentSchemaService}
    * @private
    */
@@ -349,13 +349,13 @@ export class DocService {
    * Writes Markdown documentation for an agent schema, detailing its name, description, UML diagram, prompts, tools, storages, states, and callbacks.
    * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
    * Outputs to dirName/agent/[agentName].md, with UML images in dirName/image, sourced from agentSchemaService and related services (e.g., toolSchemaService).
-   * @param {IAgentSchema} agentSchema - The agent schema to document, including properties like tools and prompts (e.g., ClientAgent configuration).
+   * @param {IAgentSchemaInternal} agentSchema - The agent schema to document, including properties like tools and prompts (e.g., ClientAgent configuration).
    * @param {string} dirName - The base directory for documentation output.
    * @returns {Promise<void>} A promise resolving when the agent documentation file is written.
    * @private
    */
   private writeAgentDoc = execpool(
-    async (agentSchema: IAgentSchema, prefix: string, dirName: string) => {
+    async (agentSchema: IAgentSchemaInternal, prefix: string, dirName: string) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
         this.loggerService.info("docService writeAgentDoc", {
           agentSchema,

@@ -3409,16 +3409,16 @@ interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
 /**
  * Interface representing the runtime parameters for an agent.
  * Combines schema properties (excluding certain fields) with callbacks and runtime dependencies.
- * @extends {Omit<IAgentSchema, "tools" | "completion" | "validate">}
- * @extends {IAgentSchemaCallbacks}
+ * @extends {Omit<IAgentSchemaInternal, "tools" | "completion" | "validate">}
+ * @extends {IAgentSchemaInternalCallbacks}
  */
-interface IAgentParams extends Omit<IAgentSchema, keyof {
+interface IAgentParams extends Omit<IAgentSchemaInternal, keyof {
     system: never;
     tools: never;
     mcp: never;
     completion: never;
     validate: never;
-}>, IAgentSchemaCallbacks {
+}>, IAgentSchemaInternalCallbacks {
     /** The ID of the client interacting with the agent. */
     clientId: string;
     /** The logger instance for recording agent activity and errors. */
@@ -3444,7 +3444,7 @@ interface IAgentParams extends Omit<IAgentSchema, keyof {
  * Interface representing lifecycle callbacks for an agent.
  * Provides hooks for various stages of agent execution and interaction.
  */
-interface IAgentSchemaCallbacks {
+interface IAgentSchemaInternalCallbacks {
     /**
      * Optional callback triggered when the agent runs statelessly (without history updates).
      * @param {string} clientId - The ID of the client invoking the agent.
@@ -3544,7 +3544,7 @@ interface IAgentSchemaCallbacks {
  * Interface representing the configuration schema for an agent.
  * Defines the agent's properties, tools, and lifecycle behavior.
  */
-interface IAgentSchema {
+interface IAgentSchemaInternal {
     /**
      * Optional function to filter or modify tool calls before execution.
      * @param {IToolCall[]} tool - The array of tool calls to process.
@@ -3610,7 +3610,19 @@ interface IAgentSchema {
      */
     map?: (message: IModelMessage, clientId: string, agentName: AgentName) => Promise<IModelMessage> | IModelMessage;
     /** Optional lifecycle callbacks for the agent, allowing customization of execution flow. */
-    callbacks?: Partial<IAgentSchemaCallbacks>;
+    callbacks?: Partial<IAgentSchemaInternalCallbacks>;
+}
+interface IAgentSchema extends Omit<IAgentSchemaInternal, keyof {
+    system: never;
+    systemStatic: never;
+    systemDynamic: never;
+}> {
+    /** Optional array of system prompts, typically used for tool-calling protocols. */
+    system?: string | string[];
+    /** Optional array of system prompts, alias for `system` */
+    systemStatic?: string | string[];
+    /** Optional dynamic array of system prompts from the callback */
+    systemDynamic?: (clientId: string, agentName: AgentName) => (Promise<string | string[]> | string[] | string);
 }
 /**
  * Interface representing an agent's runtime behavior and interaction methods.
@@ -4147,9 +4159,9 @@ declare class ClientAgent implements IAgent {
 }
 
 interface IOperatorSchema {
-    connectOperator: IAgentSchema["connectOperator"];
+    connectOperator: IAgentSchemaInternal["connectOperator"];
 }
-interface IOperatorParams extends IOperatorSchema, IAgentSchemaCallbacks {
+interface IOperatorParams extends IOperatorSchema, IAgentSchemaInternalCallbacks {
     agentName: AgentName;
     clientId: string;
     logger: ILogger;
@@ -4662,10 +4674,10 @@ interface ISchemaContext {
      */
     registry: {
         /**
-         * @property {ToolRegistry<Record<AgentName, IAgentSchema>>} agentSchemaService
+         * @property {ToolRegistry<Record<AgentName, IAgentSchemaInternal>>} agentSchemaService
          * @description Registry for agent schemas, mapping agent names to their schemas.
          */
-        agentSchemaService: ToolRegistry<Record<AgentName, IAgentSchema>>;
+        agentSchemaService: ToolRegistry<Record<AgentName, IAgentSchemaInternal>>;
         /**
          * @property {ToolRegistry<Record<CompletionName, ICompletionSchema>>} completionSchemaService
          * @description Registry for completion schemas, mapping completion names to their schemas.
@@ -4742,7 +4754,7 @@ type TSchemaContextService = InstanceType<typeof SchemaContextService>;
 
 /**
  * Service class for managing agent schemas in the swarm system.
- * Provides a centralized registry for storing and retrieving IAgentSchema instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
+ * Provides a centralized registry for storing and retrieving IAgentSchemaInternal instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
  * Integrates with AgentConnectionService (agent instantiation using schemas), SwarmConnectionService (swarm agent configuration), ClientAgent (schema-driven execution), and AgentMetaService (meta-level agent management).
  * Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
  * Serves as a foundational service for defining agent behavior, dependencies, and resources (e.g., states, storages, tools) within the swarm ecosystem.
@@ -4766,9 +4778,9 @@ declare class AgentSchemaService {
     };
     /**
      * Registry instance for storing agent schemas, initialized with ToolRegistry from functools-kit.
-     * Maps AgentName keys to IAgentSchema values, providing efficient storage and retrieval, used in register and get methods.
+     * Maps AgentName keys to IAgentSchemaInternal values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
-     * @type {ToolRegistry<Record<AgentName, IAgentSchema>>}
+     * @type {ToolRegistry<Record<AgentName, IAgentSchemaInternal>>}
      * @private
      */
     private _registry;
@@ -4778,24 +4790,24 @@ declare class AgentSchemaService {
      * Otherwise, it falls back to the private `_registry` instance.
      *
      * @private
-     * @returns {ToolRegistry<Record<AgentName, IAgentSchema>>} The current registry instance for managing agent schemas.
+     * @returns {ToolRegistry<Record<AgentName, IAgentSchemaInternal>>} The current registry instance for managing agent schemas.
      */
-    get registry(): ToolRegistry<Record<AgentName, IAgentSchema>>;
+    get registry(): ToolRegistry<Record<AgentName, IAgentSchemaInternal>>;
     /**
      * Sets the registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
      *
      * @private
-     * @param {ToolRegistry<Record<AgentName, IAgentSchema>>} value - The new registry instance to set for managing agent schemas.
+     * @param {ToolRegistry<Record<AgentName, IAgentSchemaInternal>>} value - The new registry instance to set for managing agent schemas.
      */
-    set registry(value: ToolRegistry<Record<AgentName, IAgentSchema>>);
+    set registry(value: ToolRegistry<Record<AgentName, IAgentSchemaInternal>>);
     /**
      * Validates an agent schema shallowly, ensuring required fields and array properties meet basic integrity constraints.
      * Checks agentName, completion, and prompt as strings; ensures system, dependsOn, states, storages, and tools are arrays of unique strings if present.
      * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentConnectionService’s validation needs.
      * Supports ClientAgent instantiation by ensuring schema validity before registration.
-     * @param {IAgentSchema} agentSchema - The agent schema to validate, sourced from Agent.interface.
+     * @param {IAgentSchemaInternal} agentSchema - The agent schema to validate, sourced from Agent.interface.
      * @throws {Error} If any validation check fails, with detailed messages including agentName and invalid values.
      * @private
      */
@@ -4806,29 +4818,29 @@ declare class AgentSchemaService {
      * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentConnectionService’s schema usage.
      * Supports ClientAgent instantiation by providing validated schemas to AgentConnectionService and SwarmConnectionService.
      * @param {AgentName} key - The name of the agent, used as the registry key, sourced from Agent.interface.
-     * @param {IAgentSchema} value - The agent schema to register, sourced from Agent.interface, validated before storage.
+     * @param {IAgentSchemaInternal} value - The agent schema to register, sourced from Agent.interface, validated before storage.
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
      */
-    register: (key: AgentName, value: IAgentSchema) => void;
+    register: (key: AgentName, value: IAgentSchemaInternal) => void;
     /**
      * Overrides an existing agent schema in the registry with a new schema.
      * Replaces the schema associated with the provided key (agentName) in the ToolRegistry.
      * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports dynamic updates to agent schemas for AgentConnectionService and SwarmConnectionService.
      * @param {AgentName} key - The name of the agent, used as the registry key, sourced from Agent.interface.
-     * @param {IAgentSchema} value - The new agent schema to override the existing one, sourced from Agent.interface.
+     * @param {IAgentSchemaInternal} value - The new agent schema to override the existing one, sourced from Agent.interface.
      * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
      */
-    override: (key: AgentName, value: Partial<IAgentSchema>) => IAgentSchema;
+    override: (key: AgentName, value: Partial<IAgentSchemaInternal>) => IAgentSchemaInternal;
     /**
      * Retrieves an agent schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports AgentConnectionService’s getAgent method by providing schema data for agent instantiation, and SwarmConnectionService’s swarm configuration.
      * @param {AgentName} key - The name of the agent to retrieve, sourced from Agent.interface.
-     * @returns {IAgentSchema} The agent schema associated with the key, sourced from Agent.interface.
+     * @returns {IAgentSchemaInternal} The agent schema associated with the key, sourced from Agent.interface.
      * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
      */
-    get: (key: AgentName) => IAgentSchema;
+    get: (key: AgentName) => IAgentSchemaInternal;
 }
 
 /**
@@ -6313,7 +6325,7 @@ declare class AgentValidationService {
     /**
      * Map of agent names to their schemas, used for validation and resource queries.
      * Populated by addAgent, queried by validate, getStorageList, getStateList, etc.
-     * @type {Map<AgentName, IAgentSchema>}
+     * @type {Map<AgentName, IAgentSchemaInternal>}
      * @private
      */
     private _agentMap;
@@ -6365,10 +6377,10 @@ declare class AgentValidationService {
      * Registers a new agent with its schema in the validation service.
      * Logs the operation and updates _agentMap and _agentDepsMap, supporting AgentSchemaService’s agent registration.
      * @param {AgentName} agentName - The name of the agent to add, sourced from Agent.interface.
-     * @param {IAgentSchema} agentSchema - The schema defining the agent’s configuration (tools, storages, states, etc.).
+     * @param {IAgentSchemaInternal} agentSchema - The schema defining the agent’s configuration (tools, storages, states, etc.).
      * @throws {Error} If the agent already exists in _agentMap.
      */
-    addAgent: (agentName: AgentName, agentSchema: IAgentSchema) => void;
+    addAgent: (agentName: AgentName, agentSchema: IAgentSchemaInternal) => void;
     /**
      * Checks if an agent has a registered storage, memoized for performance.
      * Logs the operation and validates agent existence, supporting ClientStorage validation.
@@ -8028,7 +8040,7 @@ declare class SwarmMetaService {
 
 /**
  * Service class for generating and writing documentation for swarms, agents, and performance data in the swarm system.
- * Produces Markdown files for swarm (ISwarmSchema) and agent (IAgentSchema) schemas, including UML diagrams via CC_FN_PLANTUML, and JSON files for performance metrics via PerfService.
+ * Produces Markdown files for swarm (ISwarmSchema) and agent (IAgentSchemaInternal) schemas, including UML diagrams via CC_FN_PLANTUML, and JSON files for performance metrics via PerfService.
  * Integrates indirectly with ClientAgent by documenting its schema (e.g., tools, prompts) and performance (e.g., via PerfService), using LoggerService for logging gated by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
  * Manages concurrent tasks with a thread pool (THREAD_POOL_SIZE) and organizes output in a directory structure (SUBDIR_LIST), enhancing developer understanding of the system.
  */
@@ -8070,7 +8082,7 @@ declare class DocService {
     private readonly swarmSchemaService;
     /**
      * Agent schema service instance, injected via DI.
-     * Retrieves IAgentSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
+     * Retrieves IAgentSchemaInternal objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
      * @type {AgentSchemaService}
      * @private
      */
@@ -8159,7 +8171,7 @@ declare class DocService {
      * Writes Markdown documentation for an agent schema, detailing its name, description, UML diagram, prompts, tools, storages, states, and callbacks.
      * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
      * Outputs to dirName/agent/[agentName].md, with UML images in dirName/image, sourced from agentSchemaService and related services (e.g., toolSchemaService).
-     * @param {IAgentSchema} agentSchema - The agent schema to document, including properties like tools and prompts (e.g., ClientAgent configuration).
+     * @param {IAgentSchemaInternal} agentSchema - The agent schema to document, including properties like tools and prompts (e.g., ClientAgent configuration).
      * @param {string} dirName - The base directory for documentation output.
      * @returns {Promise<void>} A promise resolving when the agent documentation file is written.
      * @private
@@ -10652,7 +10664,7 @@ interface ISwarmDI {
     sharedComputeConnectionService: SharedComputeConnectionService;
     /**
      * Service for defining and managing agent schemas.
-     * Implements `IAgentSchema` to configure agent behavior via `AgentSchemaService`.
+     * Implements `IAgentSchemaInternal` to configure agent behavior via `AgentSchemaService`.
      */
     agentSchemaService: AgentSchemaService;
     /**
@@ -11322,8 +11334,8 @@ type TAgentSchema = {
  * Logs the override operation if logging is enabled in the global configuration.
  *
  * @param {TAgentSchema} agentSchema - The schema containing the agent’s unique name and optional properties to override.
- * @param {string} agentSchema.agentName - The unique identifier of the agent to override, matching `IAgentSchema["agentName"]`.
- * @param {Partial<IAgentSchema>} [agentSchema] - Optional partial schema properties to update, extending `IAgentSchema`.
+ * @param {string} agentSchema.agentName - The unique identifier of the agent to override, matching `IAgentSchemaInternal["agentName"]`.
+ * @param {Partial<IAgentSchemaInternal>} [agentSchema] - Optional partial schema properties to update, extending `IAgentSchemaInternal`.
  * @returns {void} No return value; the override is applied directly to the swarm’s agent schema service.
  * @throws {Error} If the agent schema service encounters an error during the override operation (e.g., invalid agentName or schema).
  *
@@ -11336,7 +11348,7 @@ type TAgentSchema = {
  * });
  * // Logs the operation (if enabled) and updates the agent schema in the swarm.
  */
-declare function overrideAgent(agentSchema: TAgentSchema): IAgentSchema;
+declare function overrideAgent(agentSchema: TAgentSchema): IAgentSchemaInternal;
 
 type TCompletionSchema = {
     completionName: ICompletionSchema["completionName"];
@@ -14666,4 +14678,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchema, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };
+export { Adapter, Chat, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };

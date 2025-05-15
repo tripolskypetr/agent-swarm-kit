@@ -7,7 +7,7 @@ import { scoped } from "di-scoped";
 import { ToolRegistry } from "functools-kit";
 import {
   AgentName,
-  IAgentSchema,
+  IAgentSchemaInternal,
   IAgentTool,
   ToolName,
 } from "../../../interfaces/Agent.interface";
@@ -48,10 +48,10 @@ export interface ISchemaContext {
    */
   registry: {
     /**
-     * @property {ToolRegistry<Record<AgentName, IAgentSchema>>} agentSchemaService
+     * @property {ToolRegistry<Record<AgentName, IAgentSchemaInternal>>} agentSchemaService
      * @description Registry for agent schemas, mapping agent names to their schemas.
      */
-    agentSchemaService: ToolRegistry<Record<AgentName, IAgentSchema>>;
+    agentSchemaService: ToolRegistry<Record<AgentName, IAgentSchemaInternal>>;
 
     /**
      * @property {ToolRegistry<Record<CompletionName, ICompletionSchema>>} completionSchemaService

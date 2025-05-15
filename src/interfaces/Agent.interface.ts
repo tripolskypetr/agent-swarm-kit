@@ -166,12 +166,12 @@ export interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
 /**
  * Interface representing the runtime parameters for an agent.
  * Combines schema properties (excluding certain fields) with callbacks and runtime dependencies.
- * @extends {Omit<IAgentSchema, "tools" | "completion" | "validate">}
- * @extends {IAgentSchemaCallbacks}
+ * @extends {Omit<IAgentSchemaInternal, "tools" | "completion" | "validate">}
+ * @extends {IAgentSchemaInternalCallbacks}
  */
 export interface IAgentParams
   extends Omit<
-    IAgentSchema,
+    IAgentSchemaInternal,
     keyof {
       system: never;
       tools: never;
@@ -180,7 +180,7 @@ export interface IAgentParams
       validate: never;
     }
   >,
-  IAgentSchemaCallbacks {
+  IAgentSchemaInternalCallbacks {
   /** The ID of the client interacting with the agent. */
   clientId: string;
 
@@ -214,7 +214,7 @@ export interface IAgentParams
  * Interface representing lifecycle callbacks for an agent.
  * Provides hooks for various stages of agent execution and interaction.
  */
-export interface IAgentSchemaCallbacks {
+export interface IAgentSchemaInternalCallbacks {
   /**
    * Optional callback triggered when the agent runs statelessly (without history updates).
    * @param {string} clientId - The ID of the client invoking the agent.
@@ -362,7 +362,7 @@ export interface IAgentSchemaCallbacks {
  * Interface representing the configuration schema for an agent.
  * Defines the agent's properties, tools, and lifecycle behavior.
  */
-export interface IAgentSchema {
+export interface IAgentSchemaInternal {
   /**
    * Optional function to filter or modify tool calls before execution.
    * @param {IToolCall[]} tool - The array of tool calls to process.
@@ -461,7 +461,23 @@ export interface IAgentSchema {
   ) => Promise<IModelMessage> | IModelMessage;
 
   /** Optional lifecycle callbacks for the agent, allowing customization of execution flow. */
-  callbacks?: Partial<IAgentSchemaCallbacks>;
+  callbacks?: Partial<IAgentSchemaInternalCallbacks>;
+}
+
+export interface IAgentSchema extends Omit<IAgentSchemaInternal, keyof {
+  system: never;
+  systemStatic: never;
+  systemDynamic: never;
+}> {
+  /** Optional array of system prompts, typically used for tool-calling protocols. */
+  system?: string | string[];
+
+  /** Optional array of system prompts, alias for `system` */
+  systemStatic?: string | string[];
+
+  /** Optional dynamic array of system prompts from the callback */
+  systemDynamic?: (clientId: string, agentName: AgentName) => (Promise<string | string[]> | string[] | string);
+
 }
 
 /**

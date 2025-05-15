@@ -199,7 +199,7 @@ export interface ISwarmDI {
   // Schema Services
   /**
    * Service for defining and managing agent schemas.
-   * Implements `IAgentSchema` to configure agent behavior via `AgentSchemaService`.
+   * Implements `IAgentSchemaInternal` to configure agent behavior via `AgentSchemaService`.
    */
   agentSchemaService: AgentSchemaService;
 

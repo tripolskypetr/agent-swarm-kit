@@ -1,20 +1,20 @@
 import {
   AgentName,
   IAgent,
-  IAgentSchema,
-  IAgentSchemaCallbacks,
+  IAgentSchemaInternal,
+  IAgentSchemaInternalCallbacks,
 } from "./Agent.interface";
 import { IBus } from "./Bus.interface";
 import IHistory from "./History.interface";
 import { ILogger } from "./Logger.interface";
 
 export interface IOperatorSchema {
-  connectOperator: IAgentSchema["connectOperator"];
+  connectOperator: IAgentSchemaInternal["connectOperator"];
 }
 
 export interface IOperatorParams
   extends IOperatorSchema,
-    IAgentSchemaCallbacks {
+    IAgentSchemaInternalCallbacks {
   agentName: AgentName;
   clientId: string;
   logger: ILogger;

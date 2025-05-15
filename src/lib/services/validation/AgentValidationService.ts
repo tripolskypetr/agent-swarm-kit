@@ -3,7 +3,7 @@ import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import {
   AgentName,
-  IAgentSchema,
+  IAgentSchemaInternal,
   ToolName,
 } from "../../../interfaces/Agent.interface";
 import ToolValidationService from "./ToolValidationService";
@@ -93,10 +93,10 @@ export class AgentValidationService {
   /**
    * Map of agent names to their schemas, used for validation and resource queries.
    * Populated by addAgent, queried by validate, getStorageList, getStateList, etc.
-   * @type {Map<AgentName, IAgentSchema>}
+   * @type {Map<AgentName, IAgentSchemaInternal>}
    * @private
    */
-  private _agentMap = new Map<AgentName, IAgentSchema>();
+  private _agentMap = new Map<AgentName, IAgentSchemaInternal>();
 
   /**
    * Map of agent names to their dependency lists, tracking inter-agent dependencies.
@@ -198,10 +198,10 @@ export class AgentValidationService {
    * Registers a new agent with its schema in the validation service.
    * Logs the operation and updates _agentMap and _agentDepsMap, supporting AgentSchemaService’s agent registration.
    * @param {AgentName} agentName - The name of the agent to add, sourced from Agent.interface.
-   * @param {IAgentSchema} agentSchema - The schema defining the agent’s configuration (tools, storages, states, etc.).
+   * @param {IAgentSchemaInternal} agentSchema - The schema defining the agent’s configuration (tools, storages, states, etc.).
    * @throws {Error} If the agent already exists in _agentMap.
    */
-  public addAgent = (agentName: AgentName, agentSchema: IAgentSchema): void => {
+  public addAgent = (agentName: AgentName, agentSchema: IAgentSchemaInternal): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("agentValidationService addAgent", {
         agentName,
