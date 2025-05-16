@@ -310,7 +310,7 @@ const EXECUTE_FN = async (
 ): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
-      `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute begin`,
+      `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} maxToolCalls=${self.params.maxToolCalls} execute begin`,
       { incoming, mode }
     );
   self.params.onExecute &&
