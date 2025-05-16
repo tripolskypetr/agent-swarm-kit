@@ -5,6 +5,29 @@ import {
 } from "../interfaces/Agent.interface";
 
 /**
+ * Removes properties with `undefined` values from an object.
+ *
+ * This function iterates over the entries of the given object and excludes
+ * any properties whose values are `undefined`. The resulting object retains
+ * all other properties and their values.
+ *
+ * @template T - The type of the input object.
+ * @param {T} obj - The object to process and remove `undefined` values from.
+ * @returns {T} A new object with all `undefined` values removed.
+ */
+function removeUndefined<T extends object = any>(obj: T): T {
+  const result = {};
+
+  Object.entries(obj).forEach(([key, value]) => {
+    if (value !== undefined) {
+      result[key] = value;
+    }
+  });
+
+  return result as T;
+}
+
+/**
  * Maps an external agent schema (`IAgentSchema`) to an internal agent schema (`IAgentSchemaInternal`).
  * Ensures that `system`, `systemStatic`, and `systemDynamic` properties are normalized into arrays or functions
  * that return arrays, making them consistent for internal use.
@@ -17,48 +40,49 @@ export const mapAgentSchema = ({
   systemDynamic,
   systemStatic,
   ...schema
-}: IAgentSchema): IAgentSchemaInternal => ({
-  ...schema,
-  /**
-   * Normalizes the `system` property into an array.
-   * If `system` is already an array, it is returned as-is.
-   * If `system` is a single value, it is wrapped in an array.
-   * If `system` is undefined, it is cast to `never`.
-   */
-  system: system
-    ? Array.isArray(system)
-      ? system
-      : [system]
-    : (system as never),
+}: IAgentSchema): IAgentSchemaInternal =>
+  removeUndefined({
+    ...schema,
+    /**
+     * Normalizes the `system` property into an array.
+     * If `system` is already an array, it is returned as-is.
+     * If `system` is a single value, it is wrapped in an array.
+     * If `system` is undefined, it is cast to `never`.
+     */
+    system: system
+      ? Array.isArray(system)
+        ? system
+        : [system]
+      : (system as never),
 
-  /**
-   * Normalizes the `systemStatic` property into an array.
-   * If `systemStatic` is already an array, it is returned as-is.
-   * If `systemStatic` is a single value, it is wrapped in an array.
-   * If `systemStatic` is undefined, it is cast to `never`.
-   */
-  systemStatic: systemStatic
-    ? Array.isArray(systemStatic)
-      ? systemStatic
-      : [systemStatic]
-    : (systemStatic as never),
+    /**
+     * Normalizes the `systemStatic` property into an array.
+     * If `systemStatic` is already an array, it is returned as-is.
+     * If `systemStatic` is a single value, it is wrapped in an array.
+     * If `systemStatic` is undefined, it is cast to `never`.
+     */
+    systemStatic: systemStatic
+      ? Array.isArray(systemStatic)
+        ? systemStatic
+        : [systemStatic]
+      : (systemStatic as never),
 
-  /**
-   * Wraps the `systemDynamic` property in an asynchronous function.
-   * The function resolves the dynamic system configuration and ensures it is returned as an array.
-   * If `systemDynamic` is undefined, it is cast to `never`.
-   */
-  systemDynamic: systemDynamic
-    ? async (clientId: string, agentName: AgentName) => {
-        const system = await systemDynamic(clientId, agentName);
-        const result = system
-          ? Array.isArray(system)
-            ? system
-            : [system]
-          : (system as never);
-        return result;
-      }
-    : (systemDynamic as never),
-});
+    /**
+     * Wraps the `systemDynamic` property in an asynchronous function.
+     * The function resolves the dynamic system configuration and ensures it is returned as an array.
+     * If `systemDynamic` is undefined, it is cast to `never`.
+     */
+    systemDynamic: systemDynamic
+      ? async (clientId: string, agentName: AgentName) => {
+          const system = await systemDynamic(clientId, agentName);
+          const result = system
+            ? Array.isArray(system)
+              ? system
+              : [system]
+            : (system as never);
+          return result;
+        }
+      : (systemDynamic as never),
+  });
 
 export default mapAgentSchema;
