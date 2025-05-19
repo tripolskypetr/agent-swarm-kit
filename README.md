@@ -346,6 +346,67 @@ Here’s a rundown of the demo projects showcasing `agent-swarm-kit` in action:
 
 5. If the agent output do not pass the validation (not existing tool call, tool call with invalid arguments, empty output, XML tags in output or JSON in output by default), the resque algorithm will try to fix the model. At first it will hide the previos messeges from a model, if this will not help, it return a placeholder like `Sorry, I missed that. Could you say it again?`
 
+---
+
+# 🌟 Multithreading
+
+The following example demonstrates how to use a background agent to generate a Bitcoin trading report using a [fork-like mechanism](https://en.wikipedia.org/wiki/Fork_(system_call)), ensuring the process runs independently of the main chat session:
+
+```tsx
+import { inject } from "../../../core/di";
+import { TYPES } from "../../../core/types";
+import { log } from "pinolog";
+import { fork, overrideAgent, scope } from "agent-swarm-kit";
+import { randomString, str, ttl } from "functools-kit";
+import { SwarmName } from "../../../../enum/SwarmName";
+import SwingRangeReportPrivateService from "../private/SwingRangeReportPrivateService";
+import { AgentName } from "../../../../enum/AgentName";
+
+const REPORT_TTL = 30 * 60 * 1_000;
+
+export class SwingRangeReportPublicService {
+  private swingRangeReportPrivateService =
+    inject<SwingRangeReportPrivateService>(
+      TYPES.swingRangeReportPrivateService
+    );
+
+  public getBtcReport = ttl(
+    async () => {
+      log("swingRangeReportPublicService getBtcReport");
+      return await scope(async () => {
+        overrideAgent({
+          agentName: AgentName.ReportAgent,
+          systemDynamic: async () => str.newline([
+            `Current date/time: ${new Date().toISOString()}`,
+            "In the report, be sure to write the date of the indicators you refer to.",
+            "Give priority to the last relevant indicator in the report",
+          ]),
+          mcp: [],
+        });
+        return await fork(
+          async (clientId, agentName) => {
+            return await this.swingRangeReportPrivateService.getBtcReport(
+              clientId,
+              agentName
+            );
+          },
+          {
+            clientId: `swing-range-report_${randomString()}`,
+            swarmName: SwarmName.ReportSwarm,
+          }
+        );
+      });
+    },
+    {
+      timeout: REPORT_TTL,
+    }
+  );
+}
+
+export default SwingRangeReportPublicService;
+```
+
+P.S. [openai threads](https://platform.openai.com/docs/api-reference/threads) doc
 
 ---
 
