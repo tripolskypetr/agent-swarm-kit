@@ -348,7 +348,7 @@ Here’s a rundown of the demo projects showcasing `agent-swarm-kit` in action:
 
 ---
 
-# 🌟 Multithreading
+# ⚡ Multithreading
 
 The following example demonstrates how to use a background agent to generate a Bitcoin trading report using a [fork-like mechanism](https://en.wikipedia.org/wiki/Fork_(system_call)), ensuring the process runs independently of the main chat session:
 
