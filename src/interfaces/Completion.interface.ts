@@ -62,6 +62,9 @@ export interface ICompletionSchema {
    */
   getCompletion(args: ICompletionArgs): Promise<IModelMessage>;
 
+  /** List of flags for llm model. As example, `/no_think` for `lmstudio-community/Qwen3-32B-GGUF`  */
+  flags?: string[];
+
   /** Optional partial set of callbacks for completion events, allowing customization of post-completion behavior. */
   callbacks?: Partial<ICompletionCallbacks>;
 }

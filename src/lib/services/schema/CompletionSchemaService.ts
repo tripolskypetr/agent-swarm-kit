@@ -100,6 +100,16 @@ export class CompletionSchemaService {
         `agent-swarm completion schema validation failed: missing getCompletion for completionName=${completionSchema.completionName}`
       );
     }
+    if (completionSchema.flags && !Array.isArray(completionSchema.flags)) {
+      throw new Error(
+        `agent-swarm completion schema validation failed: invalid flags for computeName=${completionSchema.completionName} flags=${completionSchema.flags}`
+      );
+    }
+    if (completionSchema.flags?.some((value) => typeof value !== "string")) {
+      throw new Error(
+        `agent-swarm completion schema validation failed: invalid flags for computeName=${completionSchema.completionName} flags=[${completionSchema.flags}]`
+      );
+    }
   };
 
   /**

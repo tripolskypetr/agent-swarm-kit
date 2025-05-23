@@ -3071,6 +3071,8 @@ interface ICompletionSchema {
      * @throws {Error} If completion generation fails (e.g., due to invalid arguments, model errors, or tool issues).
      */
     getCompletion(args: ICompletionArgs): Promise<IModelMessage>;
+    /** List of flags for llm model. As example, `/no_think` for `lmstudio-community/Qwen3-32B-GGUF`  */
+    flags?: string[];
     /** Optional partial set of callbacks for completion events, allowing customization of post-completion behavior. */
     callbacks?: Partial<ICompletionCallbacks>;
 }

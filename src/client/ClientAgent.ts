@@ -721,6 +721,11 @@ export class ClientAgent implements IAgent {
         ))
       );
     }
+    if (this.params.completion.flags) {
+      system.push(
+        ...this.params.completion.flags
+      );
+    }
     return system;
   }
 
