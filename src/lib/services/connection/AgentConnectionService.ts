@@ -394,6 +394,21 @@ export class AgentConnectionService implements IAgent {
   };
 
   /**
+   * Prevents the next tool from being executed in the agent’s workflow.
+   * Delegates to ClientAgent.commitCancelOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SessionPublicService’s commitCancelOutput, supporting ClientAgent’s TOOL_EXECUTOR interruption.
+   * @returns {Promise<any>} A promise resolving to the commit result, type determined by ClientAgent’s implementation.
+   */
+  public commitCancelOutput = async () => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`agentConnectionService commitCancelOutput`);
+    return await this.getAgent(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
+    ).commitCancelOutput();
+  };
+
+  /**
    * Commits a flush of the agent’s history, clearing stored data.
    * Delegates to ClientAgent.commitFlush, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitFlush, supporting ClientAgent’s history reset and HistoryPublicService.

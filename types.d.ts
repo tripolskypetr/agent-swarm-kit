@@ -3709,6 +3709,12 @@ interface IAgent {
      * @throws {Error} If committing the agent change fails.
      */
     commitAgentChange(): Promise<void>;
+    /**
+     * Unlocks the execution queue and signals an agent output cancelation, stopping subsequent tool executions.
+     * @returns {Promise<void>} A promise that resolves when the agent change is committed.
+     * @throws {Error} If committing the agent change fails.
+     */
+    commitCancelOutput(): Promise<void>;
 }
 /**
  * Type representing the unique name of an agent within the swarm.
@@ -3932,6 +3938,7 @@ declare class LoggerService implements ILogger {
     setLogger: (logger: ILogger) => void;
 }
 
+declare const CANCEL_OUTPUT_SYMBOL: unique symbol;
 declare const AGENT_CHANGE_SYMBOL: unique symbol;
 declare const MODEL_RESQUE_SYMBOL: unique symbol;
 declare const TOOL_ERROR_SYMBOL: unique symbol;
@@ -4012,6 +4019,12 @@ declare class ClientAgent implements IAgent {
      * @readonly
      */
     readonly _toolStopSubject: Subject<typeof TOOL_STOP_SYMBOL>;
+    /**
+     * Subject for signaling tool execution stops, triggered by commitCancelOutput.
+     * @type {Subject<typeof CANCEL_OUTPUT_SYMBOL>}
+     * @readonly
+     */
+    readonly _cancelOutputSubject: Subject<typeof CANCEL_OUTPUT_SYMBOL>;
     /**
      * Subject for signaling tool output commitments, triggered by commitToolOutput.
      * @type {Subject<void>}
@@ -4106,6 +4119,11 @@ declare class ClientAgent implements IAgent {
      * @returns {Promise<void>} Resolves when the stop is signaled and the event is emitted.
      */
     commitStopTools(): Promise<void>;
+    /**
+     * Signals a stop to prevent further tool executions, emitting an event via _cancelOutputSubject and BusService.
+     * @returns {Promise<void>} Resolves when the stop is signaled and the event is emitted.
+     */
+    commitCancelOutput(): Promise<void>;
     /**
      * Commits a system message to the history, notifying the system via BusService without triggering execution.
      * Supports system-level updates, coordinated with SessionConnectionService.
@@ -4238,6 +4256,11 @@ declare class ClientOperator implements IAgent {
      * @returns {Promise<void>}
      */
     commitStopTools(): Promise<void>;
+    /**
+     * Commits stop tools (not supported)
+     * @returns {Promise<void>}
+     */
+    commitCancelOutput(): Promise<void>;
     /**
      * Commits agent change
      * @returns {Promise<void>}
@@ -4425,6 +4448,13 @@ declare class AgentConnectionService implements IAgent {
      * @returns {Promise<any>} A promise resolving to the commit result, type determined by ClientAgent’s implementation.
      */
     commitStopTools: () => Promise<void>;
+    /**
+     * Prevents the next tool from being executed in the agent’s workflow.
+     * Delegates to ClientAgent.commitCancelOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Mirrors SessionPublicService’s commitCancelOutput, supporting ClientAgent’s TOOL_EXECUTOR interruption.
+     * @returns {Promise<any>} A promise resolving to the commit result, type determined by ClientAgent’s implementation.
+     */
+    commitCancelOutput: () => Promise<void>;
     /**
      * Commits a flush of the agent’s history, clearing stored data.
      * Delegates to ClientAgent.commitFlush, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -5807,6 +5837,16 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @returns {Promise<unknown>} A promise resolving to the stop result.
      */
     commitStopTools: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Commits a stop to prevent the next tool from being executed.
+     * Wraps AgentConnectionService.commitCancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption).
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the stop result.
+     */
+    commitCancelOutput: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Disposes of the agent, cleaning up resources.
      * Wraps AgentConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.

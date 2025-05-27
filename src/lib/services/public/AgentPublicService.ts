@@ -553,6 +553,44 @@ export class AgentPublicService implements TAgentConnectionService {
   };
 
   /**
+   * Commits a stop to prevent the next tool from being executed.
+   * Wraps AgentConnectionService.commitCancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption).
+   * @param {string} methodName - The method name for context and logging.
+   * @param {string} clientId - The client ID for session tracking.
+   * @param {AgentName} agentName - The agent name for identification.
+   * @returns {Promise<unknown>} A promise resolving to the stop result.
+   */
+  public commitCancelOutput = async (
+    methodName: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService commitCancelOutput", {
+        methodName,
+        clientId,
+        agentName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.agentConnectionService.commitCancelOutput();
+      },
+      {
+        methodName,
+        clientId,
+        agentName,
+        policyName: "",
+        swarmName: "",
+        storageName: "",
+        stateName: "",
+        mcpName: "",
+        computeName: "",
+      }
+    );
+  };
+
+  /**
    * Disposes of the agent, cleaning up resources.
    * Wraps AgentConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Aligns with PerfService’s dispose (e.g., session cleanup) and BusService’s dispose (e.g., subscription cleanup).

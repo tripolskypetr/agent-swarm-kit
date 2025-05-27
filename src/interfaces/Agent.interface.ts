@@ -573,6 +573,13 @@ export interface IAgent {
    * @throws {Error} If committing the agent change fails.
    */
   commitAgentChange(): Promise<void>;
+
+  /**
+   * Unlocks the execution queue and signals an agent output cancelation, stopping subsequent tool executions.
+   * @returns {Promise<void>} A promise that resolves when the agent change is committed.
+   * @throws {Error} If committing the agent change fails.
+   */
+  commitCancelOutput(): Promise<void>;
 }
 
 /**

@@ -22,6 +22,7 @@ import { IBusEvent } from "../model/Event.model";
 import { MCPToolProperties } from "../interfaces/MCP.interface";
 import createToolRequest from "../utils/createToolRequest";
 
+const CANCEL_OUTPUT_SYMBOL = Symbol("cancel-output");
 const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
 const MODEL_RESQUE_SYMBOL = Symbol("model-resque");
 const TOOL_ERROR_SYMBOL = Symbol("tool-error");
@@ -450,6 +451,7 @@ const EXECUTE_FN = async (
           self._toolErrorSubject.toPromise(),
           self._toolStopSubject.toPromise(),
           self._resqueSubject.toPromise(),
+          self._cancelOutputSubject.toPromise(),
         ]);
         Promise.race([
           sleep(TOOL_NO_OUTPUT_WARNING_TIMEOUT).then(
@@ -497,6 +499,18 @@ const EXECUTE_FN = async (
           GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
             self.params.logger.debug(
               `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the commitStopTools call`
+            );
+          self.params.callbacks?.onAfterToolCalls &&
+            self.params.callbacks.onAfterToolCalls(
+              self.params.clientId,
+              self.params.agentName,
+              toolCalls
+            );
+        }
+        if (status === CANCEL_OUTPUT_SYMBOL) {
+          GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+            self.params.logger.debug(
+              `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the commitCancelOutput call`
             );
           self.params.callbacks?.onAfterToolCalls &&
             self.params.callbacks.onAfterToolCalls(
@@ -617,6 +631,13 @@ export class ClientAgent implements IAgent {
    * @readonly
    */
   readonly _toolStopSubject = new Subject<typeof TOOL_STOP_SYMBOL>();
+
+  /**
+   * Subject for signaling tool execution stops, triggered by commitCancelOutput.
+   * @type {Subject<typeof CANCEL_OUTPUT_SYMBOL>}
+   * @readonly
+   */
+  readonly _cancelOutputSubject = new Subject<typeof CANCEL_OUTPUT_SYMBOL>();
 
   /**
    * Subject for signaling tool output commitments, triggered by commitToolOutput.
@@ -1168,6 +1189,29 @@ export class ClientAgent implements IAgent {
   }
 
   /**
+   * Signals a stop to prevent further tool executions, emitting an event via _cancelOutputSubject and BusService.
+   * @returns {Promise<void>} Resolves when the stop is signaled and the event is emitted.
+   */
+  async commitCancelOutput(): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitCancelOutput`
+      );
+    this._toolAbortController.abort();
+    await this._cancelOutputSubject.next(CANCEL_OUTPUT_SYMBOL);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-cancel-output",
+      source: "agent-bus",
+      input: {},
+      output: {},
+      context: {
+        agentName: this.params.agentName,
+      },
+      clientId: this.params.clientId,
+    });
+  }
+
+  /**
    * Commits a system message to the history, notifying the system via BusService without triggering execution.
    * Supports system-level updates, coordinated with SessionConnectionService.
    * @param {string} message - The system message to commit, trimmed before storage.
@@ -1365,6 +1409,7 @@ export class ClientAgent implements IAgent {
       this._resqueSubject.unsubscribeAll();
       this._toolErrorSubject.unsubscribeAll();
       this._toolStopSubject.unsubscribeAll();
+      this._cancelOutputSubject.unsubscribeAll();
       this._toolCommitSubject.unsubscribeAll();
       this._outputSubject.unsubscribeAll();
       this._toolAbortController.abort();

@@ -270,6 +270,21 @@ export class ClientOperator implements IAgent {
   }
 
   /**
+   * Commits stop tools (not supported)
+   * @returns {Promise<void>}
+   */
+  commitCancelOutput(): Promise<void> {
+    console.warn(
+      `ClientOperator: commitCancelOutput should not be called for clientId=${this.params.clientId} agentName=${this.params.agentName}`
+    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientOperator agentName=${this.params.agentName} clientId=${this.params.clientId} commitCancelOutput - not supported`
+      );
+    return Promise.resolve();
+  }
+
+  /**
    * Commits agent change
    * @returns {Promise<void>}
    */

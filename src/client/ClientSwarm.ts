@@ -40,6 +40,17 @@ class NoopAgent implements IAgent {
   ) {}
 
   /**
+   * Logs an attempt to cancel output from the missing agent and delegates to the default agent's commitCancelOutput method.
+   * @returns {Promise<string>} The output from the default agent's commitCancelOutput method.
+   * @async
+   */
+  async commitCancelOutput() {
+    const message = `called commitCancelOutput on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    this.logger.log(message);
+    console.error(message);
+  }
+
+  /**
    * Logs an attempt to run the missing agent and delegates to the default agent's run method.
    * @param {string} input - The input string to process.
    * @returns {Promise<unknown>} The result from the default agent's run method.
@@ -413,6 +424,11 @@ export class ClientSwarm implements ISwarm {
       agentName: await this.getAgentName(),
       output: "",
     });
+    await Promise.all(this._agentList
+      .map(async ([, agent]) => {
+        await agent.commitCancelOutput();
+      })
+    );
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "cancel-output",
       source: "swarm-bus",
