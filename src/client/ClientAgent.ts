@@ -8,7 +8,6 @@ import {
   sleep,
   Subject,
 } from "functools-kit";
-import { omit } from "lodash-es";
 import { IModelMessage } from "../model/ModelMessage.model";
 import {
   IAgent,
@@ -21,6 +20,7 @@ import { IToolCall, IToolRequest } from "../model/Tool.model";
 import { IBusEvent } from "../model/Event.model";
 import { MCPToolProperties } from "../interfaces/MCP.interface";
 import createToolRequest from "../utils/createToolRequest";
+import { resolveTools } from "../utils/resolveTools";
 
 const CANCEL_OUTPUT_SYMBOL = Symbol("cancel-output");
 const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
@@ -979,9 +979,7 @@ export class ClientAgent implements IAgent {
       agentName: this.params.agentName,
       messages,
       mode,
-      tools: tools.map((t) =>
-        omit(t, "toolName", "docNote", "call", "validate", "callbacks")
-      ),
+      tools: await resolveTools(this.params.clientId, this.params.agentName, tools),
     };
     const output = await this.params.completion.getCompletion(args);
     if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "flush") {
@@ -1037,9 +1035,7 @@ export class ClientAgent implements IAgent {
         agentName: this.params.agentName,
         messages,
         mode,
-        tools: tools.map((t) =>
-          omit(t, "toolName", "docNote", "call", "validate", "callbacks")
-        ),
+        tools: await resolveTools(this.params.clientId, this.params.agentName, tools),
       };
       const output = await this.params.completion.getCompletion(args);
       this.params.completion.callbacks?.onComplete &&

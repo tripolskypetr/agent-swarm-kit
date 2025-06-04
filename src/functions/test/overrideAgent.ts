@@ -2,7 +2,7 @@ import { IAgentSchema } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
-import mapAgentSchema from "src/helpers/mapAgentSchema";
+import mapAgentSchema from "../../helpers/mapAgentSchema";
 
 const METHOD_NAME = "function.test.overrideAgent";
 

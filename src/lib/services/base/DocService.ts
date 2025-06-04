@@ -478,12 +478,17 @@ export class DocService {
           if (!agentSchema.tools[i]) {
             continue;
           }
-          result.push(`### ${i + 1}. ${agentSchema.tools[i]}`);
           const {
             function: fn,
             docNote,
             callbacks,
           } = this.toolSchemaService.get(agentSchema.tools[i]);
+
+          if (typeof fn === "function") {
+            continue;
+          }
+
+          result.push(`### ${i + 1}. ${agentSchema.tools[i]}`);
 
           if (fn.name) {
             result.push("");

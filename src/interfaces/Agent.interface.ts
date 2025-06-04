@@ -112,7 +112,7 @@ export interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
  * @template T - The type of the parameters for the tool, defaults to a record of ToolValue.
  * @extends {ITool}
  */
-export interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
+export interface IAgentTool<T = Record<string, ToolValue>> {
   /** Optional description for documentation purposes, aiding in tool usage understanding. */
   docNote?: string;
 
@@ -161,6 +161,12 @@ export interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
 
   /** Optional lifecycle callbacks for the tool, allowing customization of execution flow. */
   callbacks?: Partial<IAgentToolCallbacks>;
+
+  /** Tool type defenition. For now, should be `function` */
+  type: ITool['type'];
+
+  /** Optional dynamic factory to resolve tool metadata */
+  function: ITool['function'] | ((clientId: string, agentName: AgentName) => Promise<ITool['function']>);
 }
 
 /**
