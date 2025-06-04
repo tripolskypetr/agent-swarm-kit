@@ -3362,7 +3362,7 @@ interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
  * @template T - The type of the parameters for the tool, defaults to a record of ToolValue.
  * @extends {ITool}
  */
-interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
+interface IAgentTool<T = Record<string, ToolValue>> {
     /** Optional description for documentation purposes, aiding in tool usage understanding. */
     docNote?: string;
     /** The unique name of the tool, used for identification within the agent swarm. */
@@ -3407,6 +3407,10 @@ interface IAgentTool<T = Record<string, ToolValue>> extends ITool {
     }) => Promise<boolean> | boolean;
     /** Optional lifecycle callbacks for the tool, allowing customization of execution flow. */
     callbacks?: Partial<IAgentToolCallbacks>;
+    /** Tool type defenition. For now, should be `function` */
+    type: ITool['type'];
+    /** Optional dynamic factory to resolve tool metadata */
+    function: ITool['function'] | ((clientId: string, agentName: AgentName) => Promise<ITool['function']>);
 }
 /**
  * Interface representing the runtime parameters for an agent.
