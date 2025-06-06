@@ -566,4 +566,10 @@ export interface IGlobalConfig {
    * Disable fetch of data from all storages. Quite usefull for unit tests
    */
   CC_STORAGE_DISABLE_GET_DATA: boolean;
+
+  /**
+   * When the model run more than 10 nested tool call iterations including
+   * navigations throw an exeption
+   */
+  CC_MAX_NESTED_EXECUTIONS: number;
 }

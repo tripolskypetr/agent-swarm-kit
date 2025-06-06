@@ -60,6 +60,7 @@ import SharedComputeConnectionService from "../lib/services/connection/SharedCom
 import PipelineSchemaService from "../lib/services/schema/PipelineSchemaService";
 import PipelineValidationService from "../lib/services/validation/PipelineValidationService";
 import { TSchemaContextService } from "../lib/services/context/SchemaContextService";
+import ExecutionValidationService from "src/lib/services/validation/ExecutionValidationService";
 
 /**
  * Interface defining the structure of the dependency injection container for the swarm system.
@@ -443,4 +444,10 @@ export interface ISwarmDI {
    * Ensures pipeline integrity via `PipelineValidationService`.
    */
   pipelineValidationService: PipelineValidationService;
+
+  /**
+   * Service for validating nested executions
+   * Used to prevent the model to call tools recursively
+   */
+  executionValidationService: ExecutionValidationService;
 }
