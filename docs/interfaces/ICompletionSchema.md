@@ -18,6 +18,14 @@ completionName: string
 
 The unique name of the completion mechanism within the swarm.
 
+### flags
+
+```ts
+flags: string[]
+```
+
+List of flags for llm model. As example, `/no_think` for `lmstudio-community/Qwen3-32B-GGUF`
+
 ### callbacks
 
 ```ts

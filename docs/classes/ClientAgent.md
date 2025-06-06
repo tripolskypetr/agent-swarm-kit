@@ -69,6 +69,14 @@ _toolStopSubject: Subject<unique symbol>
 
 Subject for signaling tool execution stops, triggered by commitStopTools.
 
+### _cancelOutputSubject
+
+```ts
+_cancelOutputSubject: Subject<unique symbol>
+```
+
+Subject for signaling tool execution stops, triggered by commitCancelOutput.
+
 ### _toolCommitSubject
 
 ```ts
@@ -199,6 +207,14 @@ commitStopTools(): Promise<void>;
 
 Signals a stop to prevent further tool executions, emitting an event via _toolStopSubject and BusService.
 Used to interrupt tool call chains, coordinated with ToolSchemaService tools.
+
+### commitCancelOutput
+
+```ts
+commitCancelOutput(): Promise<void>;
+```
+
+Signals a stop to prevent further tool executions, emitting an event via _cancelOutputSubject and BusService.
 
 ### commitSystemMessage
 

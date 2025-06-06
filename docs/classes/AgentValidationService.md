@@ -139,7 +139,7 @@ Logs the operation and validates agent existence, supporting ClientMCP integrati
 ### addAgent
 
 ```ts
-addAgent: (agentName: string, agentSchema: IAgentSchema) => void
+addAgent: (agentName: string, agentSchema: IAgentSchemaInternal) => void
 ```
 
 Registers a new agent with its schema in the validation service.

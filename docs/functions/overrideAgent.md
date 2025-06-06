@@ -6,7 +6,7 @@ group: docs
 # overrideAgent
 
 ```ts
-declare function overrideAgent(agentSchema: TAgentSchema): IAgentSchema;
+declare function overrideAgent(agentSchema: TAgentSchema): IAgentSchemaInternal;
 ```
 
 Overrides an existing agent schema in the swarm system with a new or partial schema.
@@ -18,4 +18,4 @@ Logs the override operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `agentSchema` | Optional partial schema properties to update, extending `IAgentSchema`. |
+| `agentSchema` | Optional partial schema properties to update, extending `IAgentSchemaInternal`. |

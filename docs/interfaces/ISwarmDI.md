@@ -207,7 +207,7 @@ agentSchemaService: AgentSchemaService
 ```
 
 Service for defining and managing agent schemas.
-Implements `IAgentSchema` to configure agent behavior via `AgentSchemaService`.
+Implements `IAgentSchemaInternal` to configure agent behavior via `AgentSchemaService`.
 
 ### toolSchemaService
 
@@ -566,3 +566,12 @@ pipelineValidationService: PipelineValidationService
 
 Service for validating pipeline-related data and configurations.
 Ensures pipeline integrity via `PipelineValidationService`.
+
+### executionValidationService
+
+```ts
+executionValidationService: ExecutionValidationService
+```
+
+Service for validating nested executions
+Used to prevent the model to call tools recursively

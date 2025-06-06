@@ -43,12 +43,28 @@ callbacks: Partial<IAgentToolCallbacks<Record<string, ToolValue>>>
 
 Optional lifecycle callbacks for the tool, allowing customization of execution flow.
 
+### type
+
+```ts
+type: string
+```
+
+Tool type defenition. For now, should be `function`
+
+### function
+
+```ts
+function: { name: string; description: string; parameters: { type: string; required: string[]; properties: { [key: string]: { type: string; description: string; enum?: string[]; }; }; }; } | ((clientId: string, agentName: string) => Promise<...>)
+```
+
+Optional dynamic factory to resolve tool metadata
+
 ## Methods
 
 ### call
 
 ```ts
-call: (dto: { toolId: string; clientId: string; agentName: string; params: T; toolCalls: IToolCall[]; abortSignal: TAbortSignal; isLast: boolean; }) => Promise<void>
+call: (dto: { toolId: string; clientId: string; agentName: string; params: T; toolCalls: IToolCall[]; abortSignal: TAbortSignal; callReason: string; isLast: boolean; }) => Promise<...>
 ```
 
 Executes the tool with the specified parameters and context.

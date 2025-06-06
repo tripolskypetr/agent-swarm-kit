@@ -6,7 +6,7 @@ group: docs
 # AgentSchemaService
 
 Service class for managing agent schemas in the swarm system.
-Provides a centralized registry for storing and retrieving IAgentSchema instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
+Provides a centralized registry for storing and retrieving IAgentSchemaInternal instances using ToolRegistry from functools-kit, with shallow validation to ensure schema integrity.
 Integrates with AgentConnectionService (agent instantiation using schemas), SwarmConnectionService (swarm agent configuration), ClientAgent (schema-driven execution), and AgentMetaService (meta-level agent management).
 Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
 Serves as a foundational service for defining agent behavior, dependencies, and resources (e.g., states, storages, tools) within the swarm ecosystem.
@@ -44,7 +44,7 @@ _registry: any
 ```
 
 Registry instance for storing agent schemas, initialized with ToolRegistry from functools-kit.
-Maps AgentName keys to IAgentSchema values, providing efficient storage and retrieval, used in register and get methods.
+Maps AgentName keys to IAgentSchemaInternal values, providing efficient storage and retrieval, used in register and get methods.
 Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
 
 ### validateShallow
@@ -61,7 +61,7 @@ Supports ClientAgent instantiation by ensuring schema validity before registrati
 ### register
 
 ```ts
-register: (key: string, value: IAgentSchema) => void
+register: (key: string, value: IAgentSchemaInternal) => void
 ```
 
 Registers a new agent schema in the registry after validation.
@@ -72,7 +72,7 @@ Supports ClientAgent instantiation by providing validated schemas to AgentConnec
 ### override
 
 ```ts
-override: (key: string, value: Partial<IAgentSchema>) => IAgentSchema
+override: (key: string, value: Partial<IAgentSchemaInternal>) => IAgentSchemaInternal
 ```
 
 Overrides an existing agent schema in the registry with a new schema.
@@ -83,7 +83,7 @@ Supports dynamic updates to agent schemas for AgentConnectionService and SwarmCo
 ### get
 
 ```ts
-get: (key: string) => IAgentSchema
+get: (key: string) => IAgentSchemaInternal
 ```
 
 Retrieves an agent schema from the registry by its name.

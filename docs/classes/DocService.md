@@ -6,7 +6,7 @@ group: docs
 # DocService
 
 Service class for generating and writing documentation for swarms, agents, and performance data in the swarm system.
-Produces Markdown files for swarm (ISwarmSchema) and agent (IAgentSchema) schemas, including UML diagrams via CC_FN_PLANTUML, and JSON files for performance metrics via PerfService.
+Produces Markdown files for swarm (ISwarmSchema) and agent (IAgentSchemaInternal) schemas, including UML diagrams via CC_FN_PLANTUML, and JSON files for performance metrics via PerfService.
 Integrates indirectly with ClientAgent by documenting its schema (e.g., tools, prompts) and performance (e.g., via PerfService), using LoggerService for logging gated by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
 Manages concurrent tasks with a thread pool (THREAD_POOL_SIZE) and organizes output in a directory structure (SUBDIR_LIST), enhancing developer understanding of the system.
 
@@ -70,7 +70,7 @@ agentSchemaService: any
 ```
 
 Agent schema service instance, injected via DI.
-Retrieves IAgentSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
+Retrieves IAgentSchemaInternal objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
 
 ### mcpSchemaService
 

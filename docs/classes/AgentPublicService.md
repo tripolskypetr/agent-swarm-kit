@@ -158,6 +158,16 @@ Commits a stop to prevent the next tool from being executed.
 Wraps AgentConnectionService.commitStopTools with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption).
 
+### commitCancelOutput
+
+```ts
+commitCancelOutput: (methodName: string, clientId: string, agentName: string) => Promise<void>
+```
+
+Commits a stop to prevent the next tool from being executed.
+Wraps AgentConnectionService.commitCancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption).
+
 ### dispose
 
 ```ts

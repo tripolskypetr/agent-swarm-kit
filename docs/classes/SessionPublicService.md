@@ -38,6 +38,15 @@ perfService: any
 Performance service instance, injected via DI, for tracking execution metrics.
 Used in connect to measure execution duration (startExecution, endExecution), aligning with PerfService’s sessionState tracking.
 
+### executionValidationService
+
+```ts
+executionValidationService: any
+```
+
+Service for execution validation to prevent the model to call the tools
+recursively
+
 ### sessionConnectionService
 
 ```ts

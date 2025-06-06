@@ -101,3 +101,11 @@ commitAgentChange: () => Promise<void>
 ```
 
 Unlocks the execution queue and signals an agent change, stopping subsequent tool executions.
+
+### commitCancelOutput
+
+```ts
+commitCancelOutput: () => Promise<void>
+```
+
+Unlocks the execution queue and signals an agent output cancelation, stopping subsequent tool executions.

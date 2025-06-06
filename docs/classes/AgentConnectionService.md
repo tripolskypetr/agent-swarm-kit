@@ -231,6 +231,16 @@ Prevents the next tool from being executed in the agent’s workflow.
 Delegates to ClientAgent.commitStopTools, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Mirrors SessionPublicService’s commitStopTools, supporting ClientAgent’s TOOL_EXECUTOR interruption.
 
+### commitCancelOutput
+
+```ts
+commitCancelOutput: () => Promise<void>
+```
+
+Prevents the next tool from being executed in the agent’s workflow.
+Delegates to ClientAgent.commitCancelOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Mirrors SessionPublicService’s commitCancelOutput, supporting ClientAgent’s TOOL_EXECUTOR interruption.
+
 ### commitFlush
 
 ```ts

@@ -117,6 +117,14 @@ commitStopTools(): Promise<void>;
 
 Commits stop tools (not supported)
 
+### commitCancelOutput
+
+```ts
+commitCancelOutput(): Promise<void>;
+```
+
+Commits stop tools (not supported)
+
 ### commitAgentChange
 
 ```ts
