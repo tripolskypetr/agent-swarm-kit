@@ -1,7 +1,7 @@
 import * as moduleData from "../build/index.mjs";
 
 {
-  Object.assign(globalThis, moduleData);
+  Object.assign(globalThis, { moduleData });
 }
 
 process.exit = (statuscode) => {
