@@ -183,6 +183,7 @@ export const disposeConnection = beginContext(
     {
       swarm.sessionValidationService.removeSession(clientId);
       swarm.navigationValidationService.dispose(clientId, swarmName);
+      swarm.executionValidationService.dispose(clientId, swarmName);
     }
 
     PersistMemoryAdapter.dispose(clientId);

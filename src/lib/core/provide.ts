@@ -62,6 +62,7 @@ import SharedComputePublicService from "../services/public/SharedComputePublicSe
 import PipelineSchemaService from "../services/schema/PipelineSchemaService";
 import PipelineValidationService from "../services/validation/PipelineValidationService";
 import SchemaContextService from "../services/context/SchemaContextService";
+import ExecutionValidationService from "../services/validation/ExecutionValidationService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -143,5 +144,6 @@ import SchemaContextService from "../services/context/SchemaContextService";
     provide(TYPES.mcpValidationService, () => new MCPValidationService());
     provide(TYPES.computeValidationService, () => new ComputeValidationService());
     provide(TYPES.stateValidationService, () => new StateValidationService());
-    provide(TYPES.pipelineValidationService, () => new PipelineValidationService())
+    provide(TYPES.pipelineValidationService, () => new PipelineValidationService());
+    provide(TYPES.executionValidationService, () => new ExecutionValidationService());
 }

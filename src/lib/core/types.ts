@@ -79,6 +79,7 @@ const validationServices = {
     computeValidationService: Symbol('computeValidationService'),
     stateValidationService: Symbol('stateValidationService'),
     pipelineValidationService: Symbol('pipelineValidationService'),
+    executionValidationService: Symbol('executionValidationService'),
 };
 
 export const TYPES = {

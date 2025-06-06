@@ -1,6 +1,7 @@
 import * as functools_kit from 'functools-kit';
 import { SortedArray, TSubject, Subject, ToolRegistry } from 'functools-kit';
 import * as di_scoped from 'di-scoped';
+import ExecutionValidationService from 'src/lib/services/validation/ExecutionValidationService';
 
 /**
  * Interface representing an incoming message received by the swarm system.
@@ -6007,6 +6008,13 @@ declare class SessionPublicService implements TSessionConnectionService {
      */
     private readonly perfService;
     /**
+     * Service for execution validation to prevent the model to call the tools
+     * recursively
+     * @type {ExecutionValidationService}
+     * @private
+     */
+    private readonly executionValidationService;
+    /**
      * Session connection service instance, injected via DI, for underlying session operations.
      * Provides core functionality (e.g., emit, execute) called by public methods, supporting ClientAgent’s session model.
      * @type {SessionConnectionService}
@@ -10911,6 +10919,11 @@ interface ISwarmDI {
      * Ensures pipeline integrity via `PipelineValidationService`.
      */
     pipelineValidationService: PipelineValidationService;
+    /**
+     * Service for validating nested executions
+     * Used to prevent the model to call tools recursively
+     */
+    executionValidationService: ExecutionValidationService;
 }
 
 /** @inheritDoc */
@@ -13752,6 +13765,11 @@ interface IGlobalConfig {
      * Disable fetch of data from all storages. Quite usefull for unit tests
      */
     CC_STORAGE_DISABLE_GET_DATA: boolean;
+    /**
+     * When the model run more than 10 nested tool call iterations including
+     * navigations throw an exeption
+     */
+    CC_MAX_NESTED_EXECUTIONS: number;
 }
 
 declare const GLOBAL_CONFIG: IGlobalConfig;

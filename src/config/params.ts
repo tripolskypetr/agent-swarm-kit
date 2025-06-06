@@ -226,6 +226,12 @@ const CC_ENABLE_OPERATOR_TIMEOUT = false;
  */
 const CC_STORAGE_DISABLE_GET_DATA = false;
 
+/**
+ * When the model run more than 10 nested tool call iterations including
+ * navigations throw an exeption
+ */
+const CC_MAX_NESTED_EXECUTIONS = 10;
+
 const GLOBAL_CONFIG: IGlobalConfig = {
   CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT,
   CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
@@ -277,6 +283,7 @@ const GLOBAL_CONFIG: IGlobalConfig = {
   CC_DEFAULT_CONNECT_OPERATOR,
   CC_ENABLE_OPERATOR_TIMEOUT,
   CC_STORAGE_DISABLE_GET_DATA,
+  CC_MAX_NESTED_EXECUTIONS,
 };
 
 GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";

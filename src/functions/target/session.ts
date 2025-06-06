@@ -85,6 +85,7 @@ const sessionInternal = (
           if (!isFinished) {
             swarm.perfService.endExecution(executionId, clientId, 0);
           }
+          swarm.executionValidationService.decrementCount(executionId, clientId, swarmName);
         }
       },
       {

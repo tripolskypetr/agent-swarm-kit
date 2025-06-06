@@ -1,5 +1,5 @@
 import { AsyncResource } from "async_hooks";
-import { ExecutionContextService, MethodContextService } from "../lib";
+import swarm, { ExecutionContextService, MethodContextService } from "../lib";
 
 /**
  * A higher-order function that ensures a provided function executes outside of existing method and execution contexts.
@@ -46,6 +46,11 @@ export const beginContext =
 
     let fn = () => run(...args);
 
+    if (ExecutionContextService.hasContext()) {
+      const { clientId, executionId } = swarm.executionContextService.context;
+      swarm.executionValidationService.incrementCount(executionId, clientId);
+    }
+
     if (MethodContextService.hasContext()) {
       fn = MethodContextService.runOutOfContext(fn);
     }
@@ -53,22 +58,6 @@ export const beginContext =
     if (ExecutionContextService.hasContext()) {
       fn = ExecutionContextService.runOutOfContext(fn);
     }
-
-    /*
-
-    // TODO: wait for asyncLocalStorage.disable() stability
-    if (
-      MethodContextService.hasContext() ||
-      ExecutionContextService.hasContext()
-    ) {
-      const resource = new AsyncResource("UNTRACKED");
-      const result = resource.runInAsyncScope(() => run(...args));
-      resource.emitDestroy();
-      return result;
-    }
-    return run(...args);
-
-    */
 
     return fn();
   };

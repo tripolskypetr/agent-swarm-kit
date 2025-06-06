@@ -17,6 +17,7 @@ import PerfService from "../base/PerfService";
 import BusService from "../base/BusService";
 import NavigationValidationService from "../validation/NavigationValidationService";
 import { IToolRequest } from "../../../model/Tool.model";
+import ExecutionValidationService from "../validation/ExecutionValidationService";
 
 /**
  * Interface extending SessionConnectionService for type definition purposes.
@@ -65,6 +66,14 @@ export class SessionPublicService implements TSessionConnectionService {
    * @private
    */
   private readonly perfService = inject<PerfService>(TYPES.perfService);
+
+  /**
+   * Service for execution validation to prevent the model to call the tools
+   * recursively
+   * @type {ExecutionValidationService}
+   * @private
+   */
+  private readonly executionValidationService = inject<ExecutionValidationService>(TYPES.executionValidationService);
 
   /**
    * Session connection service instance, injected via DI, for underlying session operations.
@@ -316,6 +325,7 @@ export class SessionPublicService implements TSessionConnectionService {
             if (!isFinished) {
               this.perfService.endExecution(executionId, clientId, 0);
             }
+            this.executionValidationService.decrementCount(executionId, clientId, swarmName);
           }
         },
         {
