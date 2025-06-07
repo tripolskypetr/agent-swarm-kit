@@ -1,7 +1,6 @@
 import * as functools_kit from 'functools-kit';
 import { SortedArray, TSubject, Subject, ToolRegistry } from 'functools-kit';
 import * as di_scoped from 'di-scoped';
-import ExecutionValidationService from 'src/lib/services/validation/ExecutionValidationService';
 
 /**
  * Interface representing an incoming message received by the swarm system.
@@ -10603,6 +10602,61 @@ declare class PipelineValidationService {
      * @throws {Error} If the pipeline is not found.
      */
     validate: (pipelineName: PipelineName, source: string) => void;
+}
+
+/**
+ * @typedef {string} ExecutionId
+ * @description A unique identifier for an execution instance.
+ */
+type ExecutionId = string;
+/**
+ * @class ExecutionValidationService
+ * @description Manages execution count validation to prevent excessive nested executions within a swarm.
+ */
+declare class ExecutionValidationService {
+    /**
+     * @private
+     * @type {LoggerService}
+     * @description Injected logger service for logging execution-related information.
+     */
+    private readonly loggerService;
+    /**
+     * @private
+     * @type {SessionValidationService}
+     * @description Injected session validation service for checking client sessions and swarm associations.
+     */
+    private readonly sessionValidationService;
+    /**
+     * Retrieves a memoized set of execution IDs for a given client and swarm.
+     * @param {string} clientId - The unique identifier for the client.
+     * @param {SwarmName} swarmName - The name of the swarm associated with the client.
+     * @returns {Set<ExecutionId>} A set containing execution IDs for the client and swarm.
+     */
+    getExecutionCount: ((clientId: string, swarmName: SwarmName) => Set<ExecutionId>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, Set<string>>;
+    /**
+     * Increments the execution count for a client and checks for excessive nested executions.
+     * @param {string} executionId - The unique identifier for the execution.
+     * @param {string} clientId - The unique identifier for the client.
+     * @param {SwarmName} swarmName - The name of the swarm associated with the client.
+     * @throws {Error} If the maximum nested execution limit is reached.
+     * @returns {void}
+     */
+    incrementCount: (executionId: string, clientId: string) => void;
+    /**
+     * Resets the execution count for a client and swarm.
+     * @param {string} executionId - The unique identifier for the execution.
+     * @param {string} clientId - The unique identifier for the client.
+     * @param {SwarmName} swarmName - The name of the swarm associated with the client.
+     * @returns {void}
+     */
+    decrementCount: (executionId: string, clientId: string, swarmName: SwarmName) => void;
+    /**
+     * Clears the memoized execution count for a specific client and swarm.
+     * @param {string} clientId - The unique identifier for the client.
+     * @param {SwarmName} swarmName - The name of the swarm associated with the client.
+     * @returns {void}
+     */
+    dispose: (clientId: string, swarmName: SwarmName) => void;
 }
 
 /**
