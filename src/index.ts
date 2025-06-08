@@ -216,7 +216,7 @@ export { Compute } from "./classes/Compute";
 export { SharedCompute } from "./classes/SharedCompute";
 export { SharedState } from "./classes/SharedState";
 
-export { Chat, IChatInstance, IChatInstanceCallbacks } from "./classes/Chat";
+export { Chat, ChatInstance, IChatInstance, IChatInstanceCallbacks } from "./classes/Chat";
 
 export { Storage } from "./classes/Storage";
 export { SharedStorage } from "./classes/SharedStorage";

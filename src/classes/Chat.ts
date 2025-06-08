@@ -1,9 +1,15 @@
 import { SwarmName } from "../interfaces/Swarm.interface";
 import { session } from "../functions/target/session";
-import { singleshot, Subject } from "functools-kit";
+import { makeExtendable, singleshot, Subject } from "functools-kit";
 import { SessionId } from "../interfaces/Session.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
+
+interface TChatInstance extends IChatInstance {
+  clientId: string;
+  swarmName: SwarmName;
+  callbacks: Partial<IChatInstanceCallbacks>;
+}
 
 /** @typedef {() => void} DisposeFn */
 type DisposeFn = () => void;
@@ -19,7 +25,7 @@ const INACTIVITY_TIMEOUT = 15 * 60 * 1000;
  * @param {ChatInstance} self - Instance of the ChatInstance
  * @returns {Promise<void>}
  */
-const BEGIN_CHAT_FN = (self: ChatInstance) => {
+const BEGIN_CHAT_FN = (self: TChatInstance) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     swarm.loggerService.debug("ChatInstance.beginChat", {
       clientId: self.clientId,
@@ -141,13 +147,13 @@ type TChatInstanceCtor = new (
  * @implements {IChatInstance}
  * @description Implementation of a single chat instance
  */
-class ChatInstance implements IChatInstance {
+export const ChatInstance = makeExtendable(class implements IChatInstance {
   /** @private */
-  private _disposeSubject = new Subject<SessionId>();
+  _disposeSubject = new Subject<SessionId>();
   /** @private */
-  private _chatSession: ReturnType<typeof session>;
+  _chatSession: ReturnType<typeof session>;
   /** @private */
-  private _lastActivity: number = Date.now();
+  _lastActivity: number = Date.now();
 
   /**
    * @constructor
@@ -251,7 +257,7 @@ class ChatInstance implements IChatInstance {
       });
     return this._disposeSubject.once(fn);
   }
-}
+});
 
 /**
  * @class ChatUtils
