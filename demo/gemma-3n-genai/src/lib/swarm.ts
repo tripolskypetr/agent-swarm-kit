@@ -198,7 +198,7 @@ export enum SwarmName {
 
 addAgent({
   docDescription:
-    "This agent acts as a pharmaceutical seller, providing consultations about pharma products to users, utilizing the YandexGPT-5-Lite-8B-instruct-GGUF model running under vLLM for responses, and calling the add-to-cart tool only when necessary to assist with purchases.",
+    "This agent acts as a pharmaceutical seller, providing consultations about pharmaceutical products to users, utilizing the gemma-3n model via the Google AI Studio platform through the genai LangChain package. The gemma-3n model is optimized for low resource consumption and high speed but does not support system prompts or tool calling, limiting interactions to direct user queries and responses.",
   agentName: AgentName.TestAgent,
   completion: CompletionName.GemmaCompletion,
   prompt: str.newline(
@@ -210,7 +210,7 @@ addAgent({
 
 addSwarm({
   docDescription:
-    "This swarm serves as a testing environment for a single-agent system, incorporating the TestAgent as both the sole member and default agent to handle pharmaceutical sales interactions via a WebSocket-based interface, leveraging the YandexGPT-5-Lite-8B-instruct-GGUF model running under vLLM for its responses, while also defining Nemotron Mini and Gemma3 Tools completions that remain available for potential future use or alternative agent configurations.",
+    "This swarm serves as a testing environment for a single-agent system, incorporating the TestAgent as both the sole member and default agent to handle pharmaceutical sales interactions via a WebSocket-based interface. It leverages the gemma-3n model via the Google AI Studio platform through the genai LangChain package, optimized for low resource consumption and speed, but without support for system prompts or tool calling, focusing on streamlined query-response interactions.",
   swarmName: SwarmName.TestSwarm,
   agentList: [AgentName.TestAgent],
   defaultAgent: AgentName.TestAgent,
