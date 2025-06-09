@@ -5,7 +5,8 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tripolskypetr/agent-swarm-kit)
 [![npm](https://img.shields.io/npm/v/agent-swarm-kit.svg?style=flat-square)](https://npmjs.org/package/agent-swarm-kit)
 
-Unleash the power of collaborative AI with `agent-swarm-kit`! This library empowers you to create intelligent, modular agent networks that work together seamlessly—perfect for automating workflows, solving complex problems, or designing next-gen AI systems. With a simple API, robust validation, and flexible architecture, it’s your toolkit for building smarter solutions, faster.
+Unleash the power of collaborative AI with agent-swarm-kit! This library empowers you to create intelligent, modular agent networks that work together seamlessly—perfect for automating workflows, solving complex problems, or designing next-gen AI systems. With a simple API, robust validation, and flexible architecture, it’s your toolkit for building smarter solutions, faster. 🌟
+
 
 📚 **[Full Documentation](https://agent-swarm.github.io/modules.html)** | 🌟 **[Try It Now](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/demo/repl-phone-seller/src/logic/agent/sales.agent.ts)**
 
@@ -13,31 +14,23 @@ Unleash the power of collaborative AI with `agent-swarm-kit`! This library empow
 
 ## ✨ Why Choose Agent Swarm Kit?
 
-- **Conversation Testbed**: Includes a unit testing framework with tool and agent override capabilities, enabling developers to simulate and validate agent interactions and tool integrations in isolated environments.
+- 🧪 **Conversation Testbed**: Includes a unit testing framework with tool and agent override capabilities, enabling developers to simulate and validate agent interactions and tool integrations in isolated environments. ✅
+- 🌐 **Model Context Protocol Ready**: Seamlessly connect agents to multiple remote MCP servers, allowing integration with external tools written in various languages (e.g., C#, Python) via the reusable Model Context Protocol, originally developed for Claude Desktop. 🔗
+- ⚙️ **Automatic Client Session Orchestration**: Automatically manages client sessions, handling message history, agent navigation, and resource disposal for efficient and scalable real-time interactions. 🔄
+- 👥 **Operator Support**: Supports navigation to human operators through tool calls, enabling seamless escalation of conversations from AI agents to human support for enhanced user experience. 🙋
+- 🤖 **Swarm of OpenAI, Grok, and Claude in One Chat**: An agent-agnostic framework that allows a single chat to leverage multiple AI models (e.g., OpenAI, Grok, Claude) within a swarm, providing flexibility and diversity in agent capabilities. 🧠
+- 📝 **Agent Schema to Markdown**: Generates Markdown documentation from agent schemas automatically in CI/CD, keeping project managers and teams updated on agent prompts, tools, and swarm structures without manual reporting. Changes are reflected instantly, streamlining communication and project tracking. 📊
+- 💾 **Redis Storage Integration**: Persists state management, RAG (Retrieval-Augmented Generation) search data, and chat history in Redis, ensuring reliable, scalable, and high-performance storage. This enables safe and consistent access to agent states, vector search results, and conversation histories across distributed systems (Microservices). 🗄️
+- 🔄 **Chat Independent Background Agent Sessions**: Enables the swarm to perform complex data processing computations in isolated contexts, such as financial analytics, allowing agents to handle intensive tasks like market trend analysis or portfolio optimization without interfering with the primary chat flow. Works the same way like [fork in POSIX](https://pubs.opengroup.org/onlinepubs/009696799/functions/fork.html). 🔀
 
-- **Model Context Protocol Ready**: Seamlessly connect agents to multiple remote MCP servers, allowing integration with external tools written in various languages (e.g., C#, Python) via the reusable Model Context Protocol, originally developed for Claude Desktop.
-
-- **Automatic Client Session Orchestration**: Automatically manages client sessions, handling message history, agent navigation, and resource disposal for efficient and scalable real-time interactions.
-
-- **Operator Support**: Supports navigation to human operators through tool calls, enabling seamless escalation of conversations from AI agents to human support for enhanced user experience.
-
-- **Swarm of OpenAI, Grok, and Claude in One Chat**: An agent-agnostic framework that allows a single chat to leverage multiple AI models (e.g., OpenAI, Grok, Claude) within a swarm, providing flexibility and diversity in agent capabilities.
-
-- **Agent Schema to Markdown**: Generates Markdown documentation from agent schemas automatically in CI/CD, keeping project managers and teams updated on agent prompts, tools, and swarm structures without manual reporting. Changes are reflected instantly, streamlining communication and project tracking.
-
-- **Redis Storage Integration**: Persists state management, RAG (Retrieval-Augmented Generation) search data, and chat history in Redis, ensuring reliable, scalable, and high-performance storage. This enables safe and consistent access to agent states, vector search results, and conversation histories across distributed systems (Microservices).
-
-- **Chat Independent Background Agent Sessions**: Enables the swarm to perform complex data processing computations in isolated contexts, such as financial analytics, allowing agents to handle intensive tasks like market trend analysis or portfolio optimization without interfering with the primary chat flow. Works the same way like [fork in POSIX](https://pubs.opengroup.org/onlinepubs/009696799/functions/fork.html)
-
----
 
 ## 🚀 Getting Started
 
-> **Want a real-world demo?** Check out our **[Binance Candle Chat](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/demo/binance-candle-chat/src/lib/swarm.ts)**—a practical example of a sales agent in action!
+> **Want a real-world demo?** Check out our **[Binance Candle Chat](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/demo/binance-candle-chat/src/lib/swarm.ts)**—a practical example of a sales agent in action! 📈
 
 ### First Look
 
-Read the [detailed instructions by the link](https://agent-swarm.github.io/documents/app_getting-started.html)
+Read the [detailed instructions by the link](https://agent-swarm.github.io/documents/app_getting-started.html) 📖
 
 ### Installation
 
@@ -147,7 +140,8 @@ app.get("/api/v1/session/:clientId", upgradeWebSocket((ctx) => {
 
 ```
 
-The feature of this library is dependency inversion for agents injection. The agents are being lazy loaded during runtime, so you can declare them in separate modules and connect them to swarm with a string constant
+The feature of this library is dependency inversion for agents injection. The agents are being lazy loaded during runtime, so you can declare them in separate modules and connect them to swarm with a string constant 🧩
+
 
 ```typescript
 export enum ToolName {
@@ -191,36 +185,38 @@ const { complete, dispose } = session(clientId, SwarmName.TestSwarm)
 complete("I need a refund!").then(console.log);
 ```
 
----
 
 ## 🌟 Key Features
 
-- **Agent Orchestration**: Seamlessly switch between agents (e.g., triage → sales) with a single tool call.
-- **Shared History**: Agents share a rotating 25-message history, scoped to `assistant` and `user` roles.
-- **Custom Tools**: Define tools with validation and execution logic tailored to your needs.
-- **Model Recovery**: Automatically rescues invalid outputs with smart fallbacks like "Sorry, I missed that."
-- **Dependency Inversion**: Lazy-load agents at runtime for modular, scalable designs.
+
+- 🤝 **Agent Orchestration**: Seamlessly switch between agents (e.g., triage → sales) with a single tool call. 🔄
+- 📜 **Shared History**: Agents share a rotating 25-message history, scoped to `assistant` and `user` roles. 🗂️
+- 🛠️ **Custom Tools**: Define tools with validation and execution logic tailored to your needs. 🔧
+- 🛡️ **Model Recovery**: Automatically rescues invalid outputs with smart fallbacks like "Sorry, I missed that." 🚑
+- 📦 **Dependency Inversion**: Lazy-load agents at runtime for modular, scalable designs. 🧩
 
 ---
 
 ## 🎯 Use Cases
 
-- **Workflow Automation**: Automate customer support with triage, sales, and refund agents.
-- **Collaborative AI**: Build systems where agents solve problems together.
-- **Task Distribution**: Assign specialized tasks to dedicated agents.
-- **Chatbots & Beyond**: Create dynamic, multi-role conversational systems.
+
+- 🤖 **Workflow Automation**: Automate customer support with triage, sales, and refund agents. 📞
+- 🤝 **Collaborative AI**: Build systems where agents solve problems together. 🧑‍🤝‍🧑
+- 📋 **Task Distribution**: Assign specialized tasks to dedicated agents. 📤
+- 💬 **Chatbots & Beyond**: Create dynamic, multi-role conversational systems. 🌐
 
 ---
 
 ## 📖 API Highlights
 
-- **`addAgent`**: Define agents with custom prompts, tools, and completions.
-- **`addSwarm`**: Group agents into a coordinated network.
-- **`session`**: Start a client session with real-time message handling.
-- **`addTool`**: Create reusable tools with validation and execution logic.
-- **`Storage.take`**: Search and retrieve data using embeddings (e.g., vector search, RAG).
 
-Check out the **[API Reference](https://agent-swarm.github.io/modules.html)** for more!
+- 🛠️ **`addAgent`**: Define agents with custom prompts, tools, and completions. 🤖
+- 🌐 **`addSwarm`**: Group agents into a coordinated network. 🕸️
+- 🔄 **`session`**: Start a client session with real-time message handling. 📨
+- 🔧 **`addTool`**: Create reusable tools with validation and execution logic. 🛠️
+- 🔍 **`Storage.take`**: Search and retrieve data using embeddings (e.g., vector search, RAG). 📊
+
+Check out the **[API Reference](https://agent-swarm.github.io/modules.html)** for more! 📚
 
 ---
 
@@ -311,42 +307,40 @@ Storage.take<PhoneModel>({
 
 Here’s a rundown of the demo projects showcasing `agent-swarm-kit` in action:
 
-- [**binance-candle-chat**](./demo/binance-candle-chat/): A cryptocurrency trading swarm with a triage agent routing to specialized trader agents (BTC, ETH, BNB, XRP, SOL) that calculate buy/sell orders and predict trends using OpenAI completion.
 
-- [**it-consulting-swarm**](./demo/it-consulting-swarm/): A multi-agent system with a triage agent routing queries to specialized agents for tech trends, cybersecurity, environment, health, and finance, all powered by OpenAI completion.
+- 📈[**binance-candle-chat**](./demo/binance-candle-chat/): A cryptocurrency trading swarm with a triage agent routing to specialized trader agents (BTC, ETH, BNB, XRP, SOL) that calculate buy/sell orders and predict trends using OpenAI completion. 💹
 
-- [**langchain-stream**](./demo/langchain-stream/): A pharma sales demo with a triage agent using Cohere completion and LangChain for real-time token streaming, alongside Ollama and LMStudio, to assist with consultations and cart operations.
+- 🖥️[**it-consulting-swarm**](./demo/it-consulting-swarm/): A multi-agent system with a triage agent routing queries to specialized agents for tech trends, cybersecurity, environment, health, and finance, all powered by OpenAI completion. 🔒
 
-- [**redis-persist-chat**](./demo/redis-persist-chat/): A chat system with a triage agent using Saiga Yandex GPT, persisting chat history and states (like Tic-tac-toe) in Redis, with policies to restrict sensitive topics.
+- 💊 [**langchain-stream**](./demo/langchain-stream/): A pharma sales demo with a triage agent using Cohere completion and LangChain for real-time token streaming, alongside Ollama and LMStudio, to assist with consultations and cart operations. 🛒
 
-- [**nginx-balancer-chat**](./demo/nginx-balancer-chat/): A test environment demonstrating load balancing across 5 chat instances via Nginx, with a single agent reporting the server port using OpenAI completion.
+- 💾[**redis-persist-chat**](./demo/redis-persist-chat/): A chat system with a triage agent using Saiga Yandex GPT, persisting chat history and states (like Tic-tac-toe) in Redis, with policies to restrict sensitive topics. 🎲
 
-- [**cohere-token-rotate**](./demo/cohere-token-rotate/): A pharma sales system with a triage agent using Cohere completion and a token rotation mechanism (10 trial tokens in parallel) for optimized API performance.
+- 🌐[**nginx-balancer-chat**](./demo/nginx-balancer-chat/): A test environment demonstrating load balancing across 5 chat instances via Nginx, with a single agent reporting the server port using OpenAI completion. ⚖️
 
-- [**whisper-voice-chat**](./demo/whisper-voice-chat/): A voice-based chat system using Whisper for real-time transcription and a single test agent powered by Nemotron Mini (via Ollama) to handle user interactions.
+- 🔄[**cohere-token-rotate**](./demo/cohere-token-rotate/): A pharma sales system with a triage agent using Cohere completion and a token rotation mechanism (10 trial tokens in parallel) for optimized API performance. 🔧
 
-- [**telegram-ollama-chat**](./demo/telegram-ollama-chat/): A Telegram-based pharma sales chatbot with a triage agent routing requests to a sales agent, both using Ollama for natural conversations and managing product data from a shared storage.
+- 🎙️[**whisper-voice-chat**](./demo/whisper-voice-chat/): A voice-based chat system using Whisper for real-time transcription and a single test agent powered by Nemotron Mini (via Ollama) to handle user interactions. 🗣️
 
-- [**repl-phone-seller**](./demo/repl-phone-seller/): A REPL terminal app featuring a sales agent that helps users add phones to a cart, leveraging Ollama completions and tools for searching phones by keywords or diagonal size.
+- 📱[**telegram-ollama-chat**](./demo/telegram-ollama-chat/): A Telegram-based pharma sales chatbot with a triage agent routing requests to a sales agent, both using Ollama for natural conversations and managing product data from a shared storage. 💬
 
-- [**client-server-chat**](./demo/client-server-chat/): A WebSocket-based pharma sales demo with a single test agent using Saiga Yandex GPT to provide consultations and manage a cart.
+- 🛍️[**repl-phone-seller**](./demo/repl-phone-seller/): A REPL terminal app featuring a sales agent that helps users add phones to a cart, leveraging Ollama completions and tools for searching phones by keywords or diagonal size. 📲
 
----
+- 🌐[**client-server-chat**](./demo/client-server-chat/): A WebSocket-based pharma sales demo with a single test agent using Saiga Yandex GPT to provide consultations and manage a cart. 🛠️
 
 
 ## ❓ Orchestration Principles
 
-1. Several chatgpt sessions (agents) [execute tool calls](https://ollama.com/blog/tool-support). Each agent can use different model, for example, [mistral 7b](https://ollama.com/library/mistral) for small talk, [nemotron](https://ollama.com/library/nemotron) for business conversation
+1. 🤖 Several chatgpt sessions (agents) [execute tool calls](https://ollama.com/blog/tool-support). Each agent can use different model, for example, [mistral 7b](https://ollama.com/library/mistral) for small talk, [nemotron](https://ollama.com/library/nemotron) for business conversation. 🧠
 
-2. The agent swarm navigate messages to the active chatgpt session (agent) for each `WebSocket` channel [by using `clientId` url parameter](demo/client-server-chat/src/server.ts#L15)
+2. 🌐 The agent swarm navigate messages to the active chatgpt session (agent) for each `WebSocket` channel [by using `clientId` url parameter](demo/client-server-chat/src/server.ts#L15) 🔗
 
-3. The active chatgpt session (agent) in the swarm could be changed [by executing function tool](https://platform.openai.com/docs/assistants/tools/function-calling) 
+3. 🔄 The active chatgpt session (agent) in the swarm could be changed [by executing function tool](https://platform.openai.com/docs/assistants/tools/function-calling). ⚙️
 
-4. Each client sessions [share the same chat message history](https://platform.openai.com/docs/api-reference/messages/getMessage) for all agents. Each client chat history keep the last 25 messages with rotation. Only `assistant` and `user` messages are shared between chatgpt sessions (agents), the `system` and `tool` messages are agent-scoped so each agent knows only those tools related to It. As a result, each chatgpt session (agent) has it's [unique system prompt](https://platform.openai.com/docs/api-reference/messages/createMessage#messages-createmessage-role)
+4. 📜 Each client sessions [share the same chat message history](https://platform.openai.com/docs/api-reference/messages/getMessage) for all agents. Each client chat history keep the last 25 messages with rotation. Only `assistant` and `user` messages are shared between chatgpt sessions (agents), the `system` and `tool` messages are agent-scoped so each agent knows only those tools related to It. As a result, each chatgpt session (agent) has it's [unique system prompt](https://platform.openai.com/docs/api-reference/messages/createMessage#messages-createmessage-role). 🗂️
 
-5. If the agent output do not pass the validation (not existing tool call, tool call with invalid arguments, empty output, XML tags in output or JSON in output by default), the resque algorithm will try to fix the model. At first it will hide the previos messeges from a model, if this will not help, it return a placeholder like `Sorry, I missed that. Could you say it again?`
+5. 🛡️ If the agent output do not pass the validation (not existing tool call, tool call with invalid arguments, empty output, XML tags in output or JSON in output by default), the resque algorithm will try to fix the model. At first it will hide the previos messeges from a model, if this will not help, it return a placeholder like `Sorry, I missed that. Could you say it again?` 🚑
 
----
 
 # ⚡ Multithreading
 
@@ -406,21 +400,19 @@ export class SwingRangeReportPublicService {
 export default SwingRangeReportPublicService;
 ```
 
-P.S. [openai threads](https://platform.openai.com/docs/api-reference/threads) doc
+P.S. [openai threads](https://platform.openai.com/docs/api-reference/threads) doc 📖
 
----
 
 ## ✅ Tested & Reliable
 
 `agent-swarm-kit` comes with a robust test suite covering:
-- **Validation**: Ensures all components (agents, tools, swarms) are properly configured.
-- **Recovery**: Handles edge cases like invalid tool calls or empty outputs.
-- **Navigation**: Smoothly switches between agents without deadlocks.
-- **Performance**: Efficient connection disposal and history management.
+- 🛡️ **Validation**: Ensures all components (agents, tools, swarms) are properly configured. ✅
+- 🚑 **Recovery**: Handles edge cases like invalid tool calls or empty outputs. 🛠️
+- 🔄 **Navigation**: Smoothly switches between agents without deadlocks. 🌐
+- ⚡ **Performance**: Efficient connection disposal and history management. 📈
 
-See the **[Test Cases](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/TEST.md)** section in the docs for details.
 
----
+See the **[Test Cases](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/TEST.md)** section in the docs for details. 📚
 
 ## 🌍 Ecosystem
 
@@ -428,31 +420,31 @@ The `agent-swarm-kit` ecosystem extends beyond the core library, offering comple
 
 ### Agent Tune Dataset Constructor
 
-> **[Explore Agent Tune](https://agent-tune.github.io)**
+> **[Explore Agent Tune](https://agent-tune.github.io)** 🌟
 
-The **Agent Tune Dataset Constructor** is a React-based tool designed for crafting fine-tuning datasets tailored for AI models, published on GitHub Pages at [agent-tune.github.io](https://agent-tune.github.io). It provides a dynamic, user-friendly interface with list and grid layouts, enabling you to define user inputs, preferred and non-preferred outputs, and multi-turn chat histories—complete with tool definitions and calls. Built with the `react-declarative` library and styled using Material-UI, it’s optimized for creating JSONL files compatible with OpenAI’s fine-tuning API.
+The **Agent Tune Dataset Constructor** is a React-based tool designed for crafting fine-tuning datasets tailored for AI models, published on GitHub Pages at [agent-tune.github.io](https://agent-tune.github.io/). It provides a dynamic, user-friendly interface with list and grid layouts, enabling you to define user inputs, preferred and non-preferred outputs, and multi-turn chat histories—complete with tool definitions and calls. Built with the `react-declarative` library and styled using Material-UI, it’s optimized for creating JSONL files compatible with OpenAI’s fine-tuning API. 🛠️
+
 
 #### Key Features
-- **Dynamic Forms**: Build dataset entries with configurable user inputs, outputs, and tools (up to five per entry), featuring autocomplete for tool names and enum values.
-- **Chat History**: Include conversational context with tool calls, supporting up to five messages per entry.
-- **Data Management**: Import/export datasets as JSONL files (`SFT` and `DPO` both), with automatic `tool_call_id` generation, and persist changes to local storage.
-- **Validation**: Ensures tool consistency, message order, and data integrity.
-- **Ease of Use**: Navigate with breadcrumbs, save drafts, and export directly for fine-tuning with commands like `openai api fine_tunes.create`.
+- 📝 **Dynamic Forms**: Build dataset entries with configurable user inputs, outputs, and tools (up to five per entry), featuring autocomplete for tool names and enum values. 💻
+- 💬 **Chat History**: Include conversational context with tool calls, supporting up to five messages per entry. 🗂️
+- 💾 **Data Management**: Import/export datasets as JSONL files (`SFT` and `DPO` both), with automatic `tool_call_id` generation, and persist changes to local storage. 📥
+- ✅ **Validation**: Ensures tool consistency, message order, and data integrity. 🛡️
+- 🚀 **Ease of Use**: Navigate with breadcrumbs, save drafts, and export directly for fine-tuning with commands like openai api fine_tunes.create. 📤
 
 #### Use Case
-Perfect for preparing training data to fine-tune agents within `agent-swarm-kit`, Agent Tune lets you define precise behaviors—like how a sales agent responds or a triage agent routes requests—before integrating them into your swarm. Export your dataset and fine-tune your models to enhance performance across your agent network.
+Perfect for preparing training data to fine-tune agents within `agent-swarm-kit`, Agent Tune lets you define precise behaviors—like how a sales agent responds or a triage agent routes requests—before integrating them into your swarm. Export your dataset and fine-tune your models to enhance performance across your agent network. 🌐
 
 #### Get Started
-Visit [agent-tune.github.io](https://agent-tune.github.io) to try it out, or clone the repository to customize it further. Combine it with `agent-swarm-kit` for a seamless workflow from dataset creation to agent deployment.
+Visit [agent-tune.github.io](https://agent-tune.github.io/) to try it out, or clone the repository to customize it further. Combine it with `agent-swarm-kit` for a seamless workflow from dataset creation to agent deployment. 🚀
 
 ---
 
 ## 🤝 Contribute
 
-We’d love your input! Fork the repo, submit a PR, or open an issue on **[GitHub](https://github.com/tripolskypetr/agent-swarm-kit)**.
+We’d love your input! Fork the repo, submit a PR, or open an issue on **[GitHub](https://github.com/tripolskypetr/agent-swarm-kit)**. 🙌
 
----
 
 ## 📜 License
 
-MIT © [tripolskypetr](https://github.com/tripolskypetr)
+MIT © [tripolskypetr](https://github.com/tripolskypetr) 🖋️
