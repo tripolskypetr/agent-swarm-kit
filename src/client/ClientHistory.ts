@@ -174,7 +174,7 @@ export class ClientHistory implements IHistory {
       .map(({ content, tool_calls, ...other }) => ({
         ...other,
         tool_calls,
-        content: tool_calls?.length ? "" : content,
+        content: content || "",
       }))
       .filter(({ content, tool_calls }) => !!content || !!tool_calls?.length)
       .filter(this._filterCondition)
@@ -198,9 +198,12 @@ export class ClientHistory implements IHistory {
         .flatMap(({ tool_calls }) => tool_calls?.map(({ id }) => id))
     );
     const assistantMessages = assistantRawMessages.filter(
-      ({ tool_call_id }) => {
+      ({ tool_call_id, tool_calls }) => {
         if (tool_call_id) {
           return assistantToolCallSet.has(tool_call_id);
+        }
+        if (tool_calls) {
+          return !!tool_calls.length;
         }
         return true;
       }
