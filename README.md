@@ -441,9 +441,13 @@ The **Agent Tune Dataset Constructor** is a React-based tool designed for crafti
 
 #### Key Features
 - 📝 **Dynamic Forms**: Build dataset entries with configurable user inputs, outputs, and tools (up to five per entry), featuring autocomplete for tool names and enum values. 💻
+
 - 💬 **Chat History**: Include conversational context with tool calls, supporting up to five messages per entry. 🗂️
+
 - 💾 **Data Management**: Import/export datasets as JSONL files (`SFT` and `DPO` both), with automatic `tool_call_id` generation, and persist changes to local storage. 📥
+
 - ✅ **Validation**: Ensures tool consistency, message order, and data integrity. 🛡️
+
 - 🚀 **Ease of Use**: Navigate with breadcrumbs, save drafts, and export directly for fine-tuning with commands like openai api fine_tunes.create. 📤
 
 #### Use Case
