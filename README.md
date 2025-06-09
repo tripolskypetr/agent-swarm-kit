@@ -23,6 +23,7 @@ Unleash the power of collaborative AI with agent-swarm-kit! This library empower
 - 💾 **Redis Storage Integration**: Persists state management, RAG (Retrieval-Augmented Generation) search data, and chat history in Redis, ensuring reliable, scalable, and high-performance storage. This enables safe and consistent access to agent states, vector search results, and conversation histories across distributed systems (Microservices). 🗄️
 - 🔄 **Chat Independent Background Agent Sessions**: Enables the swarm to perform complex data processing computations in isolated contexts, such as financial analytics, allowing agents to handle intensive tasks like market trend analysis or portfolio optimization without interfering with the primary chat flow. Works the same way like [fork in POSIX](https://pubs.opengroup.org/onlinepubs/009696799/functions/fork.html). 🔀
 
+---
 
 ## 🚀 Getting Started
 
@@ -185,6 +186,7 @@ const { complete, dispose } = session(clientId, SwarmName.TestSwarm)
 complete("I need a refund!").then(console.log);
 ```
 
+---
 
 ## 🌟 Key Features
 
@@ -328,6 +330,7 @@ Here’s a rundown of the demo projects showcasing `agent-swarm-kit` in action:
 
 - 🌐[**client-server-chat**](./demo/client-server-chat/): A WebSocket-based pharma sales demo with a single test agent using Saiga Yandex GPT to provide consultations and manage a cart. 🛠️
 
+---
 
 ## ❓ Orchestration Principles
 
@@ -341,8 +344,9 @@ Here’s a rundown of the demo projects showcasing `agent-swarm-kit` in action:
 
 5. 🛡️ If the agent output do not pass the validation (not existing tool call, tool call with invalid arguments, empty output, XML tags in output or JSON in output by default), the resque algorithm will try to fix the model. At first it will hide the previos messeges from a model, if this will not help, it return a placeholder like `Sorry, I missed that. Could you say it again?` 🚑
 
+---
 
-# ⚡ Multithreading
+## ⚡ Multithreading
 
 The following example demonstrates how to use a background agent to generate a Bitcoin trading report using a [fork-like mechanism](https://en.wikipedia.org/wiki/Fork_(system_call)), ensuring the process runs independently of the main chat session:
 
@@ -402,6 +406,7 @@ export default SwingRangeReportPublicService;
 
 P.S. [openai threads](https://platform.openai.com/docs/api-reference/threads) doc 📖
 
+---
 
 ## ✅ Tested & Reliable
 
@@ -413,6 +418,8 @@ P.S. [openai threads](https://platform.openai.com/docs/api-reference/threads) do
 
 
 See the **[Test Cases](https://github.com/tripolskypetr/agent-swarm-kit/blob/master/TEST.md)** section in the docs for details. 📚
+
+---
 
 ## 🌍 Ecosystem
 
