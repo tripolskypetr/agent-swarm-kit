@@ -15,12 +15,19 @@ Unleash the power of collaborative AI with agent-swarm-kit! This library empower
 ## ✨ Why Choose Agent Swarm Kit?
 
 - 🧪 **Conversation Testbed**: Includes a unit testing framework with tool and agent override capabilities, enabling developers to simulate and validate agent interactions and tool integrations in isolated environments. ✅
+
 - 🌐 **Model Context Protocol Ready**: Seamlessly connect agents to multiple remote MCP servers, allowing integration with external tools written in various languages (e.g., C#, Python) via the reusable Model Context Protocol, originally developed for Claude Desktop. 🔗
+
 - ⚙️ **Automatic Client Session Orchestration**: Automatically manages client sessions, handling message history, agent navigation, and resource disposal for efficient and scalable real-time interactions. 🔄
+
 - 👥 **Operator Support**: Supports navigation to human operators through tool calls, enabling seamless escalation of conversations from AI agents to human support for enhanced user experience. 🙋
+
 - 🤖 **Swarm of OpenAI, Grok, and Claude in One Chat**: An agent-agnostic framework that allows a single chat to leverage multiple AI models (e.g., OpenAI, Grok, Claude) within a swarm, providing flexibility and diversity in agent capabilities. 🧠
+
 - 📝 **Agent Schema to Markdown**: Generates Markdown documentation from agent schemas automatically in CI/CD, keeping project managers and teams updated on agent prompts, tools, and swarm structures without manual reporting. Changes are reflected instantly, streamlining communication and project tracking. 📊
+
 - 💾 **Redis Storage Integration**: Persists state management, RAG (Retrieval-Augmented Generation) search data, and chat history in Redis, ensuring reliable, scalable, and high-performance storage. This enables safe and consistent access to agent states, vector search results, and conversation histories across distributed systems (Microservices). 🗄️
+
 - 🔄 **Chat Independent Background Agent Sessions**: Enables the swarm to perform complex data processing computations in isolated contexts, such as financial analytics, allowing agents to handle intensive tasks like market trend analysis or portfolio optimization without interfering with the primary chat flow. Works the same way like [fork in POSIX](https://pubs.opengroup.org/onlinepubs/009696799/functions/fork.html). 🔀
 
 ---
