@@ -98,7 +98,7 @@ export class ToolSchemaService {
         `agent-swarm tool schema validation failed: missing validate for toolName=${toolSchema.toolName}`
       );
     }
-    if (!isObject(toolSchema.function)) {
+    if (!isObject(toolSchema.function) && typeof toolSchema.function !== "function") {
       throw new Error(
         `agent-swarm tool schema validation failed: missing function for toolName=${toolSchema.toolName}`
       );

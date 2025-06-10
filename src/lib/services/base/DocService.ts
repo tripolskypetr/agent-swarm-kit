@@ -403,7 +403,7 @@ export class DocService {
         }
       }
 
-      if (agentSchema.prompt) {
+      if (typeof agentSchema.prompt === "string") {
         result.push(`## Main prompt`);
         result.push("");
         result.push("```");

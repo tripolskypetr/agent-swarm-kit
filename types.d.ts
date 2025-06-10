@@ -3572,7 +3572,7 @@ interface IAgentSchemaInternal {
     /** The name of the completion mechanism used by the agent. REQUIRED WHEN AGENT IS NOT OPERATOR */
     completion?: CompletionName;
     /** The primary prompt guiding the agent's behavior. REQUIRED WHEN AGENT IS NOT OPERATOR */
-    prompt?: string;
+    prompt?: string | ((clientId: string, agentName: AgentName) => (Promise<string> | string));
     /** Optional array of system prompts, typically used for tool-calling protocols. */
     system?: string[];
     /** Optional array of system prompts, alias for `system` */

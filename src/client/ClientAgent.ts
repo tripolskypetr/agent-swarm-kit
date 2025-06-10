@@ -227,8 +227,12 @@ const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
     );
   self.params.onRun &&
     self.params.onRun(self.params.clientId, self.params.agentName, incoming);
+  const prompt =
+    typeof self.params.prompt === "string"
+      ? self.params.prompt
+      : await self.params.prompt(self.params.clientId, self.params.agentName);
   const messages = await self.params.history.toArrayForAgent(
-    self.params.prompt ?? "",
+    prompt,
     await self._resolveSystemPrompt()
   );
   messages.push({
@@ -465,7 +469,14 @@ const EXECUTE_FN = async (
             );
           }
         });
-        createToolCall(idx, tool, toolCalls, targetFn, message.content || "", self);
+        createToolCall(
+          idx,
+          tool,
+          toolCalls,
+          targetFn,
+          message.content || "",
+          self
+        );
         const status = await statusAwaiter;
         GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
           self.params.logger.debug(
@@ -743,9 +754,7 @@ export class ClientAgent implements IAgent {
       );
     }
     if (this.params.completion.flags) {
-      system.push(
-        ...this.params.completion.flags
-      );
+      system.push(...this.params.completion.flags);
     }
     return system;
   }
@@ -970,8 +979,12 @@ export class ClientAgent implements IAgent {
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} getCompletion`
       );
+    const prompt =
+      typeof this.params.prompt === "string"
+        ? this.params.prompt
+        : await this.params.prompt(this.params.clientId, this.params.agentName);
     const messages = await this.params.history.toArrayForAgent(
-      this.params.prompt ?? "",
+      prompt,
       await this._resolveSystemPrompt()
     );
     const args = {
@@ -979,7 +992,11 @@ export class ClientAgent implements IAgent {
       agentName: this.params.agentName,
       messages,
       mode,
-      tools: await resolveTools(this.params.clientId, this.params.agentName, tools),
+      tools: await resolveTools(
+        this.params.clientId,
+        this.params.agentName,
+        tools
+      ),
     };
     const output = await this.params.completion.getCompletion(args);
     if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "flush") {
@@ -1026,8 +1043,15 @@ export class ClientAgent implements IAgent {
         agentName: this.params.agentName,
         content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
       });
+      const prompt =
+        typeof this.params.prompt === "string"
+          ? this.params.prompt
+          : await this.params.prompt(
+              this.params.clientId,
+              this.params.agentName
+            );
       const messages = await this.params.history.toArrayForAgent(
-        this.params.prompt ?? "",
+        prompt,
         await this._resolveSystemPrompt()
       );
       const args = {
@@ -1035,7 +1059,11 @@ export class ClientAgent implements IAgent {
         agentName: this.params.agentName,
         messages,
         mode,
-        tools: await resolveTools(this.params.clientId, this.params.agentName, tools),
+        tools: await resolveTools(
+          this.params.clientId,
+          this.params.agentName,
+          tools
+        ),
       };
       const output = await this.params.completion.getCompletion(args);
       this.params.completion.callbacks?.onComplete &&

@@ -401,7 +401,7 @@ export interface IAgentSchemaInternal {
   completion?: CompletionName;
 
   /** The primary prompt guiding the agent's behavior. REQUIRED WHEN AGENT IS NOT OPERATOR */
-  prompt?: string;
+  prompt?: string | ((clientId: string, agentName: AgentName) => (Promise<string> | string));
 
   /** Optional array of system prompts, typically used for tool-calling protocols. */
   system?: string[];
