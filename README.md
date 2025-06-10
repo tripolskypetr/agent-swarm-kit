@@ -448,7 +448,7 @@ The **Agent Tune Dataset Constructor** is a React-based tool designed for crafti
 
 - ✅ **Validation**: Ensures tool consistency, message order, and data integrity. 🛡️
 
-- 🚀 **Ease of Use**: Navigate with breadcrumbs, save drafts, and export directly for fine-tuning with commands like openai api fine_tunes.create. 📤
+- 🚀 **Ease of Use**: Navigate with breadcrumbs, save drafts, and export directly for fine-tuning with commands like openai api [fine_tunes.create](https://platform.openai.com/docs/api-reference/fine-tuning). 📤
 
 #### Use Case
 Perfect for preparing training data to fine-tune agents within `agent-swarm-kit`, Agent Tune lets you define precise behaviors—like how a sales agent responds or a triage agent routes requests—before integrating them into your swarm. Export your dataset and fine-tune your models to enhance performance across your agent network. 🌐
