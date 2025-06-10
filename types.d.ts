@@ -14323,14 +14323,14 @@ interface IChatControl {
 /**
  * @typedef {new (clientId: SessionId, swarmName: SwarmName, callbacks: IChatInstanceCallbacks, onDispose: DisposeFn) => IChatInstance} TChatInstanceCtor
  */
-type TChatInstanceCtor = new (clientId: SessionId, swarmName: SwarmName, onDispose: DisposeFn, callbacks: IChatInstanceCallbacks) => IChatInstance;
+type TChatInstanceCtor = new <Payload extends any = any>(clientId: SessionId, swarmName: SwarmName, onDispose: DisposeFn, callbacks: IChatInstanceCallbacks, payload: Payload) => IChatInstance;
 /**
  * @class ChatInstance
  * @implements {IChatInstance}
  * @description Implementation of a single chat instance
  */
 declare const ChatInstance: {
-    new (clientId: SessionId, swarmName: SwarmName, onDispose: DisposeFn, callbacks: Partial<IChatInstanceCallbacks>): {
+    new <Payload extends unknown = any>(clientId: SessionId, swarmName: SwarmName, onDispose: DisposeFn, callbacks: Partial<IChatInstanceCallbacks>, payload: Payload): {
         /** @private */
         _disposeSubject: Subject<string>;
         /** @private */
@@ -14341,6 +14341,7 @@ declare const ChatInstance: {
         readonly swarmName: SwarmName;
         readonly onDispose: DisposeFn;
         readonly callbacks: Partial<IChatInstanceCallbacks>;
+        readonly payload: Payload;
         /**
          * Checks if the chat has been active within the timeout period
          * @param {number} now - Current timestamp
@@ -14408,7 +14409,7 @@ declare class ChatUtils implements IChatControl {
      * @param {SwarmName} swarmName - Name of the swarm
      * @returns {Promise<void>}
      */
-    beginChat: (clientId: SessionId, swarmName: SwarmName) => Promise<void>;
+    beginChat: <Payload extends unknown = any>(clientId: SessionId, swarmName: SwarmName, payload?: Payload) => Promise<void>;
     /**
      * Sends a message for a client
      * @param {SessionId} clientId - Unique client identifier
