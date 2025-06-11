@@ -3410,7 +3410,7 @@ interface IAgentTool<T = Record<string, ToolValue>> {
     /** Tool type defenition. For now, should be `function` */
     type: ITool['type'];
     /** Optional dynamic factory to resolve tool metadata */
-    function: ITool['function'] | ((clientId: string, agentName: AgentName) => Promise<ITool['function']>);
+    function: ITool['function'] | ((clientId: string, agentName: AgentName) => (ITool['function'] | Promise<ITool['function']>));
 }
 /**
  * Interface representing the runtime parameters for an agent.
@@ -14323,7 +14323,7 @@ interface IChatControl {
 /**
  * @typedef {new (clientId: SessionId, swarmName: SwarmName, callbacks: IChatInstanceCallbacks, onDispose: DisposeFn) => IChatInstance} TChatInstanceCtor
  */
-type TChatInstanceCtor = new <Payload extends any = any>(clientId: SessionId, swarmName: SwarmName, onDispose: DisposeFn, callbacks: IChatInstanceCallbacks, payload: Payload) => IChatInstance;
+type TChatInstanceCtor = new <Payload extends unknown = any>(clientId: SessionId, swarmName: SwarmName, onDispose: DisposeFn, callbacks: IChatInstanceCallbacks, payload: Payload) => IChatInstance;
 /**
  * @class ChatInstance
  * @implements {IChatInstance}

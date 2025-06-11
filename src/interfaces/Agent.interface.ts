@@ -166,7 +166,7 @@ export interface IAgentTool<T = Record<string, ToolValue>> {
   type: ITool['type'];
 
   /** Optional dynamic factory to resolve tool metadata */
-  function: ITool['function'] | ((clientId: string, agentName: AgentName) => Promise<ITool['function']>);
+  function: ITool['function'] | ((clientId: string, agentName: AgentName) => (ITool['function'] | Promise<ITool['function']>));
 }
 
 /**
