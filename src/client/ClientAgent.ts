@@ -690,9 +690,22 @@ export class ClientAgent implements IAgent {
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _resolveTools`
       );
     const seen = new Set<string>();
-    const agentToolList: IAgentTool[] = this.params.tools
-      ? this.params.tools
-      : [];
+    const agentToolList: IAgentTool[] = [];
+    if (this.params.tools) {
+      await Promise.all(
+        this.params.tools.map(async (tool) => {
+          const { function: upperFn, ...other } = tool;
+          const fn =
+            typeof upperFn === "function"
+              ? await upperFn(this.params.clientId, this.params.agentName)
+              : upperFn;
+          agentToolList.push({
+            ...other,
+            function: fn,
+          });
+        })
+      );
+    }
     const mcpToolList = await this.params.mcp.listTools(this.params.clientId);
     if (mcpToolList.length) {
       return agentToolList
