@@ -14409,7 +14409,7 @@ declare class ChatUtils implements IChatControl {
      * @param {SwarmName} swarmName - Name of the swarm
      * @returns {Promise<void>}
      */
-    beginChat: <Payload extends unknown = any>(clientId: SessionId, swarmName: SwarmName, payload?: Payload) => Promise<void>;
+    beginChat: <Payload extends unknown = any>(clientId: SessionId, swarmName: SwarmName, payload?: Payload) => Promise<boolean>;
     /**
      * Sends a message for a client
      * @param {SessionId} clientId - Unique client identifier

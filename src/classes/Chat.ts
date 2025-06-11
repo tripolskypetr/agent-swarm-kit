@@ -353,8 +353,12 @@ export class ChatUtils implements IChatControl {
         clientId,
         swarmName,
       });
+    if (this._chats.has(clientId)) {
+      return false;
+    }
     this.initializeCleanup();
-    return await this.getChatInstance(clientId, swarmName, payload).beginChat();
+    await this.getChatInstance(clientId, swarmName, payload).beginChat();
+    return true;
   };
 
   /**
