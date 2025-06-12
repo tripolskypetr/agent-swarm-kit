@@ -1,3 +1,41 @@
+# Tool and System Prompt Reflection (v1.1.73, 12/06/2025)
+
+> Github [release link](https://github.com/tripolskypetr/agent-swarm-kit/releases/tag/1.1.73)
+
+🔌 Enhance your LLMs with flexible, runtime-configurable tools and system prompts using `agent-swarm-kit`. The library allows you to define tools with dynamic interfaces, enabling agents to adapt their functionality based on context or agent-specific requirements. This makes it easy to integrate specialized capabilities, like fetching real-time data or generating reports without additional tool arguments, with minimal boilerplate. 🛠️
+
+```tsx
+addTool({
+  toolName: ToolName.FetchShortRangeEmaSignals,
+  type: "function",
+  call: async ({ toolId, clientId, agentName, isLast }) => {
+    const symbol = ioc.signalMetaService.getSymbolForAgent(agentName);
+    const content =
+      await ioc.shortRangeMathService.generateShortRangeReport(symbol);
+    await commitToolOutput(toolId, content, clientId, agentName);
+    if (isLast) {
+      await execute("", clientId, agentName);
+    }
+  },
+  function: (_, agentName) => {
+    const displayName = ioc.signalMetaService.getDispayNameForAgent(agentName);
+    return {
+      name: ToolName.FetchShortRangeEmaSignals,
+      description: `Fetch a short range EMA signals table for ${displayName}.`,
+      parameters: {
+        type: "object",
+        properties: {},
+        required: [],
+      },
+    };
+  },
+});
+```
+
+**Example**: Below is a tool that dynamically fetches short-range EMA (Exponential Moving Average) signals for a trading agent, with a description tailored to the agent's display name 🌐
+
+
+
 # Demo Projects (v1.0.215, 27/03/2025)
 
 > Github [release link](https://github.com/tripolskypetr/agent-swarm-kit/releases/tag/1.0.215)
