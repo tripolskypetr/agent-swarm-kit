@@ -355,7 +355,11 @@ export class DocService {
    * @private
    */
   private writeAgentDoc = execpool(
-    async (agentSchema: IAgentSchemaInternal, prefix: string, dirName: string) => {
+    async (
+      agentSchema: IAgentSchemaInternal,
+      prefix: string,
+      dirName: string
+    ) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
         this.loggerService.info("docService writeAgentDoc", {
           agentSchema,
@@ -403,43 +407,62 @@ export class DocService {
         }
       }
 
-      if (typeof agentSchema.prompt === "string") {
+      const getPrompt = async () => {
+        try {
+          if (typeof agentSchema.prompt === "string") {
+            return agentSchema.prompt;
+          }
+          if (typeof agentSchema.prompt === "function") {
+            return await agentSchema.prompt("docs", agentSchema.agentName);
+          }
+          return null;
+        } catch {
+          return null;
+        }
+      };
+
+      const prompt = await getPrompt();
+
+      if (prompt) {
         result.push(`## Main prompt`);
         result.push("");
         result.push("```");
-        result.push(agentSchema.prompt);
+        result.push(prompt);
         result.push("```");
         result.push("");
       }
 
-      if (agentSchema.systemStatic || agentSchema.system) {
+      const getSystem = async () => {
+        let system: string[] = [];
+        try {
+          if (agentSchema.systemStatic) {
+            system = system.concat(agentSchema.systemStatic);
+          }
+          if (agentSchema.system) {
+            system = system.concat(agentSchema.system);
+          }
+          if (agentSchema.systemDynamic) {
+            system = system.concat(
+              await agentSchema.systemDynamic("docs", agentSchema.agentName)
+            );
+          }
+        } finally {
+          return system;
+        }
+      };
+
+      const system = await getSystem();
+
+      if (system.length) {
         result.push(`## System prompt`);
         result.push("");
-        let offset = 0;
-        if (agentSchema.systemStatic) {
-          for (let i = 0; i !== agentSchema.systemStatic.length; i++) {
-            if (!agentSchema.systemStatic[i]) {
-              continue;
-            }
-            result.push(`${i + 1}. \`${agentSchema.systemStatic[i]}\``);
-            result.push("");
-            offset = i;
+        for (let i = 0; i !== system.length; i++) {
+          if (!system[i]) {
+            continue;
           }
+          result.push(`${i + 1}. \`${system[i]}\``);
+          result.push("");
         }
-        if (agentSchema.system) {
-          for (let i = 0; i !== agentSchema.system.length; i++) {
-            if (!agentSchema.system[i]) {
-              continue;
-            }
-            result.push(`${i + offset + 1}. \`${agentSchema.system[i]}\``);
-            result.push("");
-          }
-        }
-      }
-
-      if (agentSchema.systemDynamic) {
-        result.push("***Dynamic system prompt found***");
-        result.push("");
       }
 
       if (agentSchema.dependsOn) {
@@ -484,22 +507,41 @@ export class DocService {
         }
       }
 
-      if (agentSchema.tools) {
+      const getTools = async () => {
+        try {
+          if (!agentSchema.tools) {
+            return null;
+          }
+          return await Promise.all(
+            agentSchema.tools
+              .map((toolName) => this.toolSchemaService.get(toolName))
+              .map(async (tool) => {
+                const { function: upperFn, ...other } = tool;
+                const fn =
+                  typeof upperFn === "function"
+                    ? await upperFn("docs", agentSchema.agentName)
+                    : upperFn;
+                return {
+                  ...other,
+                  function: fn,
+                };
+              })
+          );
+        } catch {
+          return null;
+        }
+      };
+
+      const tools = await getTools();
+
+      if (tools) {
         result.push(`## Used tools`);
         result.push("");
-        for (let i = 0; i !== agentSchema.tools.length; i++) {
-          if (!agentSchema.tools[i]) {
+        for (let i = 0; i !== tools.length; i++) {
+          if (!tools[i]) {
             continue;
           }
-          const {
-            function: fn,
-            docNote,
-            callbacks,
-          } = this.toolSchemaService.get(agentSchema.tools[i]);
-
-          if (typeof fn === "function") {
-            continue;
-          }
+          const { function: fn, docNote, callbacks } = tools[i];
 
           result.push(`### ${i + 1}. ${agentSchema.tools[i]}`);
 
