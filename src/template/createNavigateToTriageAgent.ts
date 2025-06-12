@@ -48,9 +48,9 @@ const DEFAULT_EXECUTE_MESSAGE = "";
 export interface INavigateToTriageParams {
   lastMessage?: (
     clientId: string,
-    lastMessage: string,
+    lastMessage: string | null,
+    defaultAgent: AgentName,
     lastAgent: AgentName,
-    defaultAgent: AgentName
   ) => string | Promise<string>;
   flushMessage?:
     | string
@@ -73,9 +73,9 @@ const DEFAULT_REJECT_FN = (_: SessionId, defaultAgent: AgentName) =>
 const DEFAULT_LAST_MESSAGE_FN = (
   _: SessionId,
   lastMessage: string,
-  lastAgent: AgentName
+  defaultAgent: AgentName,
 ) =>
-  `I have been talking with ${lastAgent}. The last message was: ${lastMessage}`;
+  `User changed conversation topic. The next message recieved: ${lastMessage}.  Continue conversation based on the last message without navigating to ${defaultAgent}.`;
 
 /**
  * Creates a function to navigate to a triage agent for a specific client, handling navigation, message execution, and tool output.
@@ -149,7 +149,7 @@ export const createNavigateToTriageAgent = ({
         clientId
       );
       await executeForce(
-        await lastMessageFn(clientId, lastMessage, lastAgent, defaultAgent),
+        await lastMessageFn(clientId, lastMessage, defaultAgent, lastAgent),
         clientId
       );
       return;

@@ -51,7 +51,13 @@ export interface INavigateToAgentParams {
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
   toolOutput?:
     | string
-    | ((clientId: string, agentName: AgentName) => string | Promise<string>);
+    | ((clientId: string, lastAgent: AgentName, agentName: AgentName) => string | Promise<string>);
+  lastMessage?: (
+    clientId: string,
+    lastMessage: string | null,
+    lastAgent: AgentName,
+    agentName: AgentName
+  ) => string | Promise<string>;
   emitMessage?:
     | string
     | ((
@@ -77,8 +83,8 @@ export interface INavigateToAgentParams {
  * @param {AgentName} agentName - The name of the agent navigated to.
  * @returns {string} A message confirming navigation to the agent.
  */
-const DEFAULT_TOOL_OUTPUT = (_: SessionId, agentName: AgentName) =>
-  `Successfully navigated to ${agentName}`;
+const DEFAULT_TOOL_OUTPUT = (_: SessionId, lastAgent: AgentName, agentName: AgentName) =>
+  `Successfully navigated from ${lastAgent} to ${agentName}. Please do not call the navigate tool to ${lastAgent} during the next answer`;
 
 /**
  * Default flush message prompting the user to repeat their input.
@@ -89,6 +95,21 @@ const DEFAULT_TOOL_OUTPUT = (_: SessionId, agentName: AgentName) =>
  */
 const DEFAULT_FLUSH_MESSAGE = ({}: SessionId, {}: AgentName) =>
   `Sorry, I missed that. Could you repeat please`;
+
+/**
+ * Default function to retrieve the last user message for navigation scenarios.
+ * Returns the last user message unchanged, ignoring the client and agent parameters.
+ *
+ * @param {SessionId} _ - The client session ID (unused).
+ * @param {string} lastMessage - The last user message to be returned.
+ * @param {AgentName} lastAgent - The previous agent name (unused).
+ * @returns {string} The last user message.
+ */
+const DEFAULT_LAST_MESSAGE_FN = (
+  _: SessionId,
+  lastMessage: string,
+  lastAgent: AgentName
+) => `User changed conversation topic. The next message recieved: ${lastMessage}. Continue conversation without navigation to ${lastAgent}`;
 
 /**
  * Creates a function to navigate to a specified agent for a given client, handling navigation, message execution, emission, and tool output.
@@ -124,6 +145,7 @@ const DEFAULT_FLUSH_MESSAGE = ({}: SessionId, {}: AgentName) =>
  * // Navigates to SupportAgent, commits dynamic tool output, and executes the message with the last user message.
  */
 export const createNavigateToAgent = ({
+  lastMessage: lastMessageFn = DEFAULT_LAST_MESSAGE_FN,
   executeMessage = DEFAULT_EXECUTE_MESSAGE,
   emitMessage,
   flushMessage = DEFAULT_FLUSH_MESSAGE,
@@ -161,14 +183,24 @@ export const createNavigateToAgent = ({
           toolId,
           typeof toolOutput === "string"
             ? toolOutput
-            : await toolOutput(clientId, agentName),
+            : await toolOutput(clientId, lastAgent, agentName),
           clientId
         );
         await changeToAgent(agentName, clientId);
         await executeForce(
           typeof executeMessage === "string"
             ? executeMessage
-            : await executeMessage(clientId, lastMessage, lastAgent, agentName),
+            : await executeMessage(
+                clientId,
+                await lastMessageFn(
+                  clientId,
+                  lastMessage,
+                  lastAgent,
+                  agentName
+                ),
+                lastAgent,
+                agentName
+              ),
           clientId
         );
         return;
@@ -184,14 +216,24 @@ export const createNavigateToAgent = ({
           toolId,
           typeof toolOutput === "string"
             ? toolOutput
-            : await toolOutput(clientId, agentName),
+            : await toolOutput(clientId, lastAgent, agentName),
           clientId
         );
         await changeToAgent(agentName, clientId);
         await emitForce(
           typeof emitMessage === "string"
             ? emitMessage
-            : await emitMessage(clientId, lastMessage, lastAgent, agentName),
+            : await emitMessage(
+                clientId,
+                await lastMessageFn(
+                  clientId,
+                  lastMessage,
+                  lastAgent,
+                  agentName
+                ),
+                lastAgent,
+                agentName
+              ),
           clientId
         );
         return;

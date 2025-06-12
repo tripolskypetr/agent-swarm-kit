@@ -11123,7 +11123,7 @@ declare const dumpClientPerformance: {
  * };
  */
 interface INavigateToTriageParams {
-    lastMessage?: (clientId: string, lastMessage: string, lastAgent: AgentName, defaultAgent: AgentName) => string | Promise<string>;
+    lastMessage?: (clientId: string, lastMessage: string | null, defaultAgent: AgentName, lastAgent: AgentName) => string | Promise<string>;
     flushMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
     executeMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
     toolOutputAccept?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
@@ -11189,7 +11189,8 @@ declare const createNavigateToTriageAgent: ({ flushMessage, lastMessage: lastMes
  */
 interface INavigateToAgentParams {
     flushMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
-    toolOutput?: string | ((clientId: string, agentName: AgentName) => string | Promise<string>);
+    toolOutput?: string | ((clientId: string, lastAgent: AgentName, agentName: AgentName) => string | Promise<string>);
+    lastMessage?: (clientId: string, lastMessage: string | null, lastAgent: AgentName, agentName: AgentName) => string | Promise<string>;
     emitMessage?: string | ((clientId: string, lastMessage: string, lastAgent: string, agentName: AgentName) => string | Promise<string>);
     executeMessage?: string | ((clientId: string, lastMessage: string, lastAgent: string, agentName: AgentName) => string | Promise<string>);
 }
@@ -11226,7 +11227,7 @@ interface INavigateToAgentParams {
  * await navigate("tool-789", "client-012", "SupportAgent");
  * // Navigates to SupportAgent, commits dynamic tool output, and executes the message with the last user message.
  */
-declare const createNavigateToAgent: ({ executeMessage, emitMessage, flushMessage, toolOutput, }: INavigateToAgentParams) => (toolId: string, clientId: string, agentName: string) => Promise<void>;
+declare const createNavigateToAgent: ({ lastMessage: lastMessageFn, executeMessage, emitMessage, flushMessage, toolOutput, }: INavigateToAgentParams) => (toolId: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
  * Adds navigation functionality to an agent by creating a tool that allows navigation to a specified agent.
