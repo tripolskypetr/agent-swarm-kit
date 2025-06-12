@@ -227,7 +227,12 @@ export class DocService {
    * @private
    */
   private writeSwarmDoc = execpool(
-    async (swarmSchema: ISwarmSchema, prefix: string, dirName: string) => {
+    async (
+      swarmSchema: ISwarmSchema,
+      prefix: string,
+      dirName: string,
+      sanitizeMarkdown: (text: string) => string = (t) => t
+    ) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
         this.loggerService.info("docService writeSwarmDoc", {
           swarmSchema,
@@ -236,24 +241,28 @@ export class DocService {
 
       {
         result.push("---");
-        result.push(`title: ${prefix}/${swarmSchema.swarmName}`);
+        result.push(
+          `title: ${prefix}/${sanitizeMarkdown(swarmSchema.swarmName)}`
+        );
         result.push(`group: ${prefix}`);
         result.push("---");
         result.push("");
       }
 
       {
-        result.push(`# ${swarmSchema.swarmName}`);
+        result.push(`# ${sanitizeMarkdown(swarmSchema.swarmName)}`);
         if (swarmSchema.docDescription) {
           result.push("");
-          result.push(`> ${swarmSchema.docDescription}`);
+          result.push(`> ${sanitizeMarkdown(swarmSchema.docDescription)}`);
         }
         result.push("");
       }
 
       {
         const umlSchema = this.swarmMetaService.toUML(swarmSchema.swarmName);
-        const umlName = `swarm_schema_${swarmSchema.swarmName}.svg`;
+        const umlName = `swarm_schema_${sanitizeMarkdown(
+          swarmSchema.swarmName
+        )}.svg`;
         const umlSvg = await GLOBAL_CONFIG.CC_FN_PLANTUML(umlSchema);
         if (umlSvg) {
           await writeFileAtomic(join(dirName, "image", umlName), umlSvg);
@@ -266,14 +275,16 @@ export class DocService {
         result.push("## Default agent");
         result.push("");
         result.push(
-          ` - [${swarmSchema.defaultAgent}](./agent/${swarmSchema.defaultAgent}.md)`
+          ` - [${sanitizeMarkdown(
+            swarmSchema.defaultAgent
+          )}](./agent/${sanitizeMarkdown(swarmSchema.defaultAgent)}.md)`
         );
         const { docDescription } = this.agentSchemaService.get(
           swarmSchema.defaultAgent
         );
         if (docDescription) {
           result.push("");
-          result.push(`\t${docDescription}`);
+          result.push(`\t${sanitizeMarkdown(docDescription)}`);
         }
         result.push("");
       }
@@ -286,16 +297,16 @@ export class DocService {
             continue;
           }
           result.push(
-            `${i + 1}. [${swarmSchema.agentList[i]}](./agent/${
+            `${i + 1}. [${sanitizeMarkdown(
               swarmSchema.agentList[i]
-            }.md)`
+            )}](./agent/${sanitizeMarkdown(swarmSchema.agentList[i])}.md)`
           );
           const { docDescription } = this.agentSchemaService.get(
             swarmSchema.agentList[i]
           );
           if (docDescription) {
             result.push("");
-            result.push(`\t${docDescription}`);
+            result.push(`\t${sanitizeMarkdown(docDescription)}`);
           }
           result.push("");
         }
@@ -308,13 +319,13 @@ export class DocService {
           if (!swarmSchema.policies[i]) {
             continue;
           }
-          result.push(`${i + 1}. ${swarmSchema.policies[i]}`);
+          result.push(`${i + 1}. ${sanitizeMarkdown(swarmSchema.policies[i])}`);
           const { docDescription } = this.policySchemaService.get(
             swarmSchema.policies[i]
           );
           if (docDescription) {
             result.push("");
-            result.push(`\t${docDescription}`);
+            result.push(`\t${sanitizeMarkdown(docDescription)}`);
           }
           result.push("");
         }
@@ -329,13 +340,13 @@ export class DocService {
         result.push("");
         const callbackList = Object.keys(swarmSchema.callbacks);
         for (let i = 0; i !== callbackList.length; i++) {
-          result.push(`${i + 1}. \`${callbackList[i]}\``);
+          result.push(`${i + 1}. \`${sanitizeMarkdown(callbackList[i])}\``);
         }
         result.push("");
       }
 
       await writeFileAtomic(
-        join(dirName, `./${swarmSchema.swarmName}.md`),
+        join(dirName, `./${sanitizeMarkdown(swarmSchema.swarmName)}.md`),
         result.join("\n")
       );
     },
@@ -358,7 +369,8 @@ export class DocService {
     async (
       agentSchema: IAgentSchemaInternal,
       prefix: string,
-      dirName: string
+      dirName: string,
+      sanitizeMarkdown: (text: string) => string = (t) => t
     ) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
         this.loggerService.info("docService writeAgentDoc", {
@@ -368,23 +380,27 @@ export class DocService {
 
       {
         result.push("---");
-        result.push(`title: ${prefix}/${agentSchema.agentName}`);
+        result.push(
+          `title: ${prefix}/${sanitizeMarkdown(agentSchema.agentName)}`
+        );
         result.push(`group: ${prefix}`);
         result.push("---");
         result.push("");
       }
 
       {
-        result.push(`# ${agentSchema.agentName}`);
+        result.push(`# ${sanitizeMarkdown(agentSchema.agentName)}`);
         if (agentSchema.docDescription) {
           result.push("");
-          result.push(`> ${agentSchema.docDescription}`);
+          result.push(`> ${sanitizeMarkdown(agentSchema.docDescription)}`);
         }
         result.push("");
       }
 
       if (agentSchema.completion) {
-        result.push(`**Completion:** \`${agentSchema.completion}\``);
+        result.push(
+          `**Completion:** \`${sanitizeMarkdown(agentSchema.completion)}\``
+        );
         result.push("");
       }
 
@@ -398,7 +414,9 @@ export class DocService {
           agentSchema.agentName,
           true
         );
-        const umlName = `agent_schema_${agentSchema.agentName}.svg`;
+        const umlName = `agent_schema_${sanitizeMarkdown(
+          agentSchema.agentName
+        )}.svg`;
         const umlSvg = await GLOBAL_CONFIG.CC_FN_PLANTUML(umlSchema);
         if (umlSvg) {
           await writeFileAtomic(join(dirName, "image", umlName), umlSvg);
@@ -427,7 +445,7 @@ export class DocService {
         result.push(`## Main prompt`);
         result.push("");
         result.push("```");
-        result.push(prompt);
+        result.push(sanitizeMarkdown(prompt));
         result.push("```");
         result.push("");
       }
@@ -460,7 +478,7 @@ export class DocService {
           if (!system[i]) {
             continue;
           }
-          result.push(`${i + 1}. \`${system[i]}\``);
+          result.push(`${i + 1}. \`${sanitizeMarkdown(system[i])}\``);
           result.push("");
         }
       }
@@ -473,16 +491,16 @@ export class DocService {
             continue;
           }
           result.push(
-            `${i + 1}. [${agentSchema.dependsOn[i]}](./${
+            `${i + 1}. [${sanitizeMarkdown(
               agentSchema.dependsOn[i]
-            }.md)`
+            )}](./${sanitizeMarkdown(agentSchema.dependsOn[i])}.md)`
           );
           const { docDescription } = this.agentSchemaService.get(
             agentSchema.dependsOn[i]
           );
           if (docDescription) {
             result.push("");
-            result.push(docDescription);
+            result.push(sanitizeMarkdown(docDescription));
           }
           result.push("");
         }
@@ -495,13 +513,13 @@ export class DocService {
           if (!agentSchema.mcp[i]) {
             continue;
           }
-          result.push(`${i + 1}. ${agentSchema.mcp[i]}`);
+          result.push(`${i + 1}. ${sanitizeMarkdown(agentSchema.mcp[i])}`);
           const { docDescription } = this.mcpSchemaService.get(
             agentSchema.mcp[i]
           );
           if (docDescription) {
             result.push("");
-            result.push(docDescription);
+            result.push(sanitizeMarkdown(docDescription));
           }
           result.push("");
         }
@@ -543,20 +561,22 @@ export class DocService {
           }
           const { function: fn, docNote, callbacks } = tools[i];
 
-          result.push(`### ${i + 1}. ${agentSchema.tools[i]}`);
+          result.push(
+            `### ${i + 1}. ${sanitizeMarkdown(agentSchema.tools[i])}`
+          );
 
           if (fn.name) {
             result.push("");
             result.push("#### Name for model");
             result.push("");
-            result.push(`\`${fn.name}\``);
+            result.push(`\`${sanitizeMarkdown(fn.name)}\``);
           }
 
           if (fn.description) {
             result.push("");
             result.push("#### Description for model");
             result.push("");
-            result.push(`\`${fn.description}\``);
+            result.push(`\`${sanitizeMarkdown(fn.description)}\``);
           }
 
           if (fn.parameters?.properties) {
@@ -565,18 +585,22 @@ export class DocService {
             const entries = Object.entries(fn.parameters.properties);
             entries.forEach(([key, { type, description, enum: e }], idx) => {
               result.push("");
-              result.push(`> **${idx + 1}. ${key}**`);
+              result.push(`> **${idx + 1}. ${sanitizeMarkdown(key)}**`);
               {
                 result.push("");
-                result.push(`*Type:* \`${type}\``);
+                result.push(`*Type:* \`${sanitizeMarkdown(type)}\``);
               }
               {
                 result.push("");
-                result.push(`*Description:* \`${description}\``);
+                result.push(
+                  `*Description:* \`${sanitizeMarkdown(description)}\``
+                );
               }
               if (e) {
                 result.push("");
-                result.push(`*Enum:* \`${e.join(", ")}\``);
+                result.push(
+                  `*Enum:* \`${e.map(sanitizeMarkdown).join(", ")}\``
+                );
               }
               {
                 result.push("");
@@ -599,7 +623,7 @@ export class DocService {
             result.push("");
             const callbackList = Object.keys(callbacks);
             for (let i = 0; i !== callbackList.length; i++) {
-              result.push(`${i + 1}. \`${callbackList[i]}\``);
+              result.push(`${i + 1}. \`${sanitizeMarkdown(callbackList[i])}\``);
             }
           }
 
@@ -607,7 +631,7 @@ export class DocService {
             result.push("");
             result.push("#### Note for developer");
             result.push("");
-            result.push(`*${docNote}*`);
+            result.push(`*${sanitizeMarkdown(docNote)}*`);
           }
 
           result.push("");
@@ -621,18 +645,20 @@ export class DocService {
           if (!agentSchema.storages[i]) {
             continue;
           }
-          result.push(`### ${i + 1}. ${agentSchema.storages[i]}`);
+          result.push(
+            `### ${i + 1}. ${sanitizeMarkdown(agentSchema.storages[i])}`
+          );
           const { docDescription, embedding, shared, callbacks } =
             this.storageSchemaService.get(agentSchema.storages[i]);
           if (docDescription) {
             result.push("");
             result.push(`#### Storage description`);
             result.push("");
-            result.push(docDescription);
+            result.push(sanitizeMarkdown(docDescription));
           }
           if (embedding) {
             result.push("");
-            result.push(`*Embedding:* \`${embedding}\``);
+            result.push(`*Embedding:* \`${sanitizeMarkdown(embedding)}\``);
           }
           {
             result.push("");
@@ -644,7 +670,7 @@ export class DocService {
             result.push("");
             const callbackList = Object.keys(callbacks);
             for (let i = 0; i !== callbackList.length; i++) {
-              result.push(`${i + 1}. \`${callbackList[i]}\``);
+              result.push(`${i + 1}. \`${sanitizeMarkdown(callbackList[i])}\``);
             }
           }
           result.push("");
@@ -670,14 +696,16 @@ export class DocService {
           if (!agentSchema.states[i]) {
             continue;
           }
-          result.push(`### ${i + 1}. ${agentSchema.states[i]}`);
+          result.push(
+            `### ${i + 1}. ${sanitizeMarkdown(agentSchema.states[i])}`
+          );
           const { docDescription, shared, callbacks } =
             this.stateSchemaService.get(agentSchema.states[i]);
           if (docDescription) {
             result.push("");
             result.push(`#### State description`);
             result.push("");
-            result.push(docDescription);
+            result.push(sanitizeMarkdown(docDescription));
           }
           {
             const computeSchemasCurrentList = computeSchemasTotalList.filter(
@@ -691,10 +719,12 @@ export class DocService {
                 const [, { computeName, docDescription }] =
                   computeSchemasCurrentList[i];
                 result.push("");
-                result.push(`> **${i + 1}. ${computeName}**`);
+                result.push(`> **${i + 1}. ${sanitizeMarkdown(computeName)}**`);
                 {
                   result.push("");
-                  result.push(`*Description:* \`${docDescription}\``);
+                  result.push(
+                    `*Description:* \`${sanitizeMarkdown(docDescription)}\``
+                  );
                 }
               }
               result.push("");
@@ -707,7 +737,9 @@ export class DocService {
               result.push("");
               const callbackList = Object.keys(callbacks);
               for (let i = 0; i !== callbackList.length; i++) {
-                result.push(`${i + 1}. \`${callbackList[i]}\``);
+                result.push(
+                  `${i + 1}. \`${sanitizeMarkdown(callbackList[i])}\``
+                );
               }
             }
           }
@@ -726,7 +758,9 @@ export class DocService {
           if (!agentSchema.wikiList[i]) {
             continue;
           }
-          result.push(`### ${i + 1}. ${agentSchema.wikiList[i]}`);
+          result.push(
+            `### ${i + 1}. ${sanitizeMarkdown(agentSchema.wikiList[i])}`
+          );
           const { docDescription, callbacks } = this.wikiSchemaService.get(
             agentSchema.wikiList[i]
           );
@@ -734,7 +768,7 @@ export class DocService {
             result.push("");
             result.push(`#### Wiki description`);
             result.push("");
-            result.push(docDescription);
+            result.push(sanitizeMarkdown(docDescription));
           }
           if (callbacks) {
             result.push("");
@@ -742,7 +776,7 @@ export class DocService {
             result.push("");
             const callbackList = Object.keys(callbacks);
             for (let i = 0; i !== callbackList.length; i++) {
-              result.push(`${i + 1}. \`${callbackList[i]}\``);
+              result.push(`${i + 1}. \`${sanitizeMarkdown(callbackList[i])}\``);
             }
           }
           result.push("");
@@ -754,13 +788,13 @@ export class DocService {
         result.push("");
         const callbackList = Object.keys(agentSchema.callbacks);
         for (let i = 0; i !== callbackList.length; i++) {
-          result.push(`${i + 1}. \`${callbackList[i]}\``);
+          result.push(`${i + 1}. \`${sanitizeMarkdown(callbackList[i])}\``);
         }
         result.push("");
       }
 
       await writeFileAtomic(
-        join(dirName, `./agent/${agentSchema.agentName}.md`),
+        join(dirName, `./agent/${sanitizeMarkdown(agentSchema.agentName)}.md`),
         result.join("\n")
       );
     },
@@ -779,7 +813,8 @@ export class DocService {
    */
   public dumpDocs = async (
     prefix = "swarm",
-    dirName = join(process.cwd(), "docs/chat")
+    dirName = join(process.cwd(), "docs/chat"),
+    sanitizeMarkdown = (text: string) => text
   ) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("docService dumpDocs", {
@@ -796,7 +831,12 @@ export class DocService {
     await Promise.all(
       this.swarmValidationService.getSwarmList().map(async (swarmName) => {
         const swarmSchema = this.swarmSchemaService.get(swarmName);
-        await this.writeSwarmDoc(swarmSchema, prefix, dirName);
+        await this.writeSwarmDoc(
+          swarmSchema,
+          prefix,
+          dirName,
+          sanitizeMarkdown
+        );
       })
     );
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -804,7 +844,12 @@ export class DocService {
     await Promise.all(
       this.agentValidationService.getAgentList().map(async (agentName) => {
         const agentSchema = this.agentSchemaService.get(agentName);
-        await this.writeAgentDoc(agentSchema, prefix, dirName);
+        await this.writeAgentDoc(
+          agentSchema,
+          prefix,
+          dirName,
+          sanitizeMarkdown
+        );
       })
     );
   };

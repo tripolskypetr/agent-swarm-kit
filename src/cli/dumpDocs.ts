@@ -14,7 +14,8 @@ const METHOD_NAME = "cli.dumpDocs";
 export const dumpDocs = beginContext((
   prefix = "swarm",
   dirName = "./docs/chat",
-  PlantUML?: (uml: string) => Promise<string>
+  PlantUML?: (uml: string) => Promise<string>,
+  sanitizeMarkdown: (text: string) => string = (t) => t,
 ) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -46,5 +47,5 @@ export const dumpDocs = beginContext((
     }
   });
 
-  return swarm.docService.dumpDocs(prefix, dirName);
+  return swarm.docService.dumpDocs(prefix, dirName, sanitizeMarkdown);
 });
