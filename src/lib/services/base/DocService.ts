@@ -412,15 +412,28 @@ export class DocService {
         result.push("");
       }
 
-      if (agentSchema.systemStatic) {
+      if (agentSchema.systemStatic || agentSchema.system) {
         result.push(`## System prompt`);
         result.push("");
-        for (let i = 0; i !== agentSchema.system.length; i++) {
-          if (!agentSchema.system[i]) {
-            continue;
+        let offset = 0;
+        if (agentSchema.systemStatic) {
+          for (let i = 0; i !== agentSchema.systemStatic.length; i++) {
+            if (!agentSchema.systemStatic[i]) {
+              continue;
+            }
+            result.push(`${i + 1}. \`${agentSchema.systemStatic[i]}\``);
+            result.push("");
+            offset = i;
           }
-          result.push(`${i + 1}. \`${agentSchema.system[i]}\``);
-          result.push("");
+        }
+        if (agentSchema.system) {
+          for (let i = 0; i !== agentSchema.system.length; i++) {
+            if (!agentSchema.system[i]) {
+              continue;
+            }
+            result.push(`${i + offset + 1}. \`${agentSchema.system[i]}\``);
+            result.push("");
+          }
         }
       }
 
