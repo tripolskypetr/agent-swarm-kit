@@ -260,9 +260,7 @@ export class DocService {
 
       {
         const umlSchema = this.swarmMetaService.toUML(swarmSchema.swarmName);
-        const umlName = `swarm_schema_${sanitizeMarkdown(
-          swarmSchema.swarmName
-        )}.svg`;
+        const umlName = `swarm_schema_${swarmSchema.swarmName}.svg`;
         const umlSvg = await GLOBAL_CONFIG.CC_FN_PLANTUML(umlSchema);
         if (umlSvg) {
           await writeFileAtomic(join(dirName, "image", umlName), umlSvg);
@@ -275,9 +273,9 @@ export class DocService {
         result.push("## Default agent");
         result.push("");
         result.push(
-          ` - [${sanitizeMarkdown(
+          ` - [${sanitizeMarkdown(swarmSchema.defaultAgent)}](./agent/${
             swarmSchema.defaultAgent
-          )}](./agent/${sanitizeMarkdown(swarmSchema.defaultAgent)}.md)`
+          }.md)`
         );
         const { docDescription } = this.agentSchemaService.get(
           swarmSchema.defaultAgent
@@ -299,7 +297,7 @@ export class DocService {
           result.push(
             `${i + 1}. [${sanitizeMarkdown(
               swarmSchema.agentList[i]
-            )}](./agent/${sanitizeMarkdown(swarmSchema.agentList[i])}.md)`
+            )}](./agent/${swarmSchema.agentList[i]}.md)`
           );
           const { docDescription } = this.agentSchemaService.get(
             swarmSchema.agentList[i]
@@ -346,7 +344,7 @@ export class DocService {
       }
 
       await writeFileAtomic(
-        join(dirName, `./${sanitizeMarkdown(swarmSchema.swarmName)}.md`),
+        join(dirName, `./${swarmSchema.swarmName}.md`),
         result.join("\n")
       );
     },
@@ -414,9 +412,7 @@ export class DocService {
           agentSchema.agentName,
           true
         );
-        const umlName = `agent_schema_${sanitizeMarkdown(
-          agentSchema.agentName
-        )}.svg`;
+        const umlName = `agent_schema_${agentSchema.agentName}.svg`;
         const umlSvg = await GLOBAL_CONFIG.CC_FN_PLANTUML(umlSchema);
         if (umlSvg) {
           await writeFileAtomic(join(dirName, "image", umlName), umlSvg);
@@ -491,9 +487,9 @@ export class DocService {
             continue;
           }
           result.push(
-            `${i + 1}. [${sanitizeMarkdown(
+            `${i + 1}. [${sanitizeMarkdown(agentSchema.dependsOn[i])}](./${
               agentSchema.dependsOn[i]
-            )}](./${sanitizeMarkdown(agentSchema.dependsOn[i])}.md)`
+            }.md)`
           );
           const { docDescription } = this.agentSchemaService.get(
             agentSchema.dependsOn[i]
@@ -794,7 +790,7 @@ export class DocService {
       }
 
       await writeFileAtomic(
-        join(dirName, `./agent/${sanitizeMarkdown(agentSchema.agentName)}.md`),
+        join(dirName, `./agent/${agentSchema.agentName}.md`),
         result.join("\n")
       );
     },
