@@ -42,6 +42,7 @@ const schemaServices = {
     mcpSchemaService: Symbol('mcpSchemaService'),
     computeSchemaService: Symbol('computeSchemaService'),
     pipelineSchemaService: Symbol('pipelineSchemaService'),
+    navigationSchemaService: Symbol('navigationSchemaService'),
 };
 
 const metaServices = {

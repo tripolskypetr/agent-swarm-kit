@@ -63,6 +63,7 @@ import PipelineSchemaService from "../services/schema/PipelineSchemaService";
 import PipelineValidationService from "../services/validation/PipelineValidationService";
 import SchemaContextService from "../services/context/SchemaContextService";
 import ExecutionValidationService from "../services/validation/ExecutionValidationService";
+import NavigationSchemaService from "../services/schema/NavigationSchemaService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -108,6 +109,7 @@ import ExecutionValidationService from "../services/validation/ExecutionValidati
     provide(TYPES.mcpSchemaService, () => new MCPSchemaService());
     provide(TYPES.computeSchemaService, () => new ComputeSchemaService());
     provide(TYPES.pipelineSchemaService, () => new PipelineSchemaService());
+    provide(TYPES.navigationSchemaService, () => new NavigationSchemaService());
 }
 
 {

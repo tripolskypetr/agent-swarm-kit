@@ -61,6 +61,7 @@ import PipelineSchemaService from "../lib/services/schema/PipelineSchemaService"
 import PipelineValidationService from "../lib/services/validation/PipelineValidationService";
 import { TSchemaContextService } from "../lib/services/context/SchemaContextService";
 import ExecutionValidationService from "../lib/services/validation/ExecutionValidationService";
+import NavigationSchemaService from "../lib/services/schema/NavigationSchemaService";
 
 /**
  * Interface defining the structure of the dependency injection container for the swarm system.
@@ -275,6 +276,12 @@ export interface ISwarmDI {
    * Implements `IPipelineSchema` for rule enforcement via `PipelineSchemaService`.
    */
   pipelineSchemaService: PipelineSchemaService;
+
+  /**
+   * Service for defining and managing navigation tools.
+   * When the navigation tool called other one being ignored
+   */
+  navigationSchemaService: NavigationSchemaService;
 
   // Public Services
   /**

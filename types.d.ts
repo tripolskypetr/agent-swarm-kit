@@ -10660,6 +10660,46 @@ declare class ExecutionValidationService {
 }
 
 /**
+ * @class NavigationSchemaService
+ * Manages a collection of navigation tool names using a Set for efficient registration and lookup.
+ * Injects LoggerService via dependency injection for logging operations.
+ * Supports agent navigation functionality within the swarm system by tracking available navigation tools.
+ */
+declare class NavigationSchemaService {
+    /**
+     * @private
+     * @readonly
+     * @type {LoggerService}
+     * Logger service instance, injected via dependency injection, for logging navigation schema operations.
+     * Used in register and hasTool methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     */
+    private readonly loggerService;
+    /**
+     * @private
+     * @type {Set<ToolName>}
+     * Set for storing navigation tool names, ensuring uniqueness and efficient lookup.
+     * Updated via the register method and queried via the hasTool method.
+     */
+    private _navigationToolNameSet;
+    /**
+     * Registers a navigation tool name in the internal Set.
+     * Logs the registration operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * @param {ToolName} toolName - The name of the navigation tool to register, sourced from Agent.interface.
+     * @returns {Promise<void>} A promise that resolves when the tool name is registered.
+     * @async
+     */
+    register: (toolName: ToolName) => void;
+    /**
+     * Checks if a navigation tool name exists in the internal Set.
+     * Logs the lookup operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * @param {ToolName} toolName - The name of the navigation tool to check, sourced from Agent.interface.
+     * @returns {Promise<boolean>} A promise that resolves to true if the tool name exists, false otherwise.
+     * @async
+     */
+    hasTool: (toolName: ToolName) => boolean;
+}
+
+/**
  * Interface defining the structure of the dependency injection container for the swarm system.
  * Aggregates all services providing core functionality, context management, connectivity, schema definitions,
  * public APIs, metadata, and validation for the swarm system.
@@ -10835,6 +10875,11 @@ interface ISwarmDI {
      * Implements `IPipelineSchema` for rule enforcement via `PipelineSchemaService`.
      */
     pipelineSchemaService: PipelineSchemaService;
+    /**
+     * Service for defining and managing navigation tools.
+     * When the navigation tool called other one being ignored
+     */
+    navigationSchemaService: NavigationSchemaService;
     /**
      * Service exposing public APIs for agent operations.
      * Provides methods like `execute` and `runStateless` via `AgentPublicService`.
@@ -11202,8 +11247,6 @@ interface IAgentNavigationParams extends INavigateToAgentParams {
     navigateTo: AgentName;
     /** Optional documentation note for the tool. */
     docNote?: string;
-    /** Optional skip output value when got several navigations. */
-    skipPlaceholder?: string;
 }
 /**
  * Creates and registers a navigation tool for an agent to navigate to another specified agent.
@@ -11235,8 +11278,6 @@ interface ITriageNavigationParams extends INavigateToTriageParams {
     description: string;
     /** Optional documentation note for the tool. */
     docNote?: string;
-    /** Optional skip output value when got several navigations. */
-    skipPlaceholder?: string;
 }
 /**
  * Creates and registers a triage navigation tool for an agent to navigate to a triage agent.

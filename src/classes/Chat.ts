@@ -281,9 +281,10 @@ export class ChatUtils implements IChatControl {
     const handleCleanup = async () => {
       const now = Date.now();
       for (const chat of this._chats.values()) {
-        if (!chat.checkLastActivity(now)) {
-          await chat.dispose();
+        if (await chat.checkLastActivity(now)) {
+          continue;
         }
+        await chat.dispose();
       }
     };
     setInterval(handleCleanup, INACTIVITY_CHECK);

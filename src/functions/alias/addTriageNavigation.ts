@@ -8,15 +8,12 @@ import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
 import { addTool } from "../setup/addTool";
-import { commitToolOutputForce } from "../commit/commitToolOutputForce";
 import {
   createNavigateToTriageAgent,
   INavigateToTriageParams,
 } from "../../template/createNavigateToTriageAgent";
 
 const METHOD_NAME = "function.alias.addTriageNavigation";
-
-const DEFAULT_SKIP_PLACEHOLDER = "Navigation canceled";
 
 /**
  * Parameters for configuring triage navigation.
@@ -30,8 +27,6 @@ interface ITriageNavigationParams extends INavigateToTriageParams {
   description: string;
   /** Optional documentation note for the tool. */
   docNote?: string;
-  /** Optional skip output value when got several navigations. */
-  skipPlaceholder?: string;
 }
 
 /**
@@ -42,20 +37,18 @@ const addTriageNavigationInternal = beginContext(
     toolName,
     docNote,
     description,
-    skipPlaceholder = DEFAULT_SKIP_PLACEHOLDER,
     ...navigateProps
   }: ITriageNavigationParams) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
 
     const navigate = createNavigateToTriageAgent(navigateProps);
 
-    return addTool({
+    const toolSchema = addTool({
       toolName,
       docNote,
-      call: async ({ toolId, clientId, isLast }) => {
-        if (!isLast) {
-          await commitToolOutputForce(toolId, skipPlaceholder, clientId);
-          return;
+      call: async ({ toolId, clientId, toolCalls }) => {
+        if (toolCalls.length > 1) {
+          console.error("agent-swarm addTriageNavigation model called multiple tools within navigation execution");
         }
         await navigate(toolId, clientId);
       },
@@ -70,6 +63,10 @@ const addTriageNavigationInternal = beginContext(
         },
       },
     });
+
+    swarm.navigationSchemaService.register(toolName);
+
+    return toolSchema;
   }
 );
 

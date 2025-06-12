@@ -12,6 +12,7 @@ import { SessionId } from "../interfaces/Session.interface";
 import { changeToAgent } from "../functions/navigate/changeToAgent";
 import { getLastUserMessage } from "../functions/history/getLastUserMessage";
 import { getAgentName } from "../functions/common/getAgentName";
+import { commitStopToolsForce } from "../functions/commit/commitStopToolsForce";
 
 const METHOD_NAME = "function.template.navigateToAgent";
 
@@ -147,6 +148,8 @@ export const createNavigateToAgent = ({
 
       const lastMessage = await getLastUserMessage(clientId);
       const lastAgent = await getAgentName(clientId);
+
+      await commitStopToolsForce(clientId);
 
       if (
         await and(

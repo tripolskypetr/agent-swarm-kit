@@ -73,6 +73,7 @@ import SchemaContextService, {
   TSchemaContextService,
 } from "./services/context/SchemaContextService";
 import ExecutionValidationService from "./services/validation/ExecutionValidationService";
+import NavigationSchemaService from "./services/schema/NavigationSchemaService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -160,6 +161,9 @@ const schemaServices = {
   pipelineSchemaService: inject<PipelineSchemaService>(
     TYPES.pipelineSchemaService
   ),
+  navigationSchemaService: inject<NavigationSchemaService>(
+    TYPES.navigationSchemaService
+  ),
 };
 
 const publicServices = {
@@ -240,7 +244,7 @@ const validationServices = {
     TYPES.pipelineValidationService
   ),
   executionValidationService: inject<ExecutionValidationService>(
-    TYPES.executionValidationService,
+    TYPES.executionValidationService
   ),
 };
 

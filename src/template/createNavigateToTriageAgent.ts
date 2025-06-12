@@ -12,6 +12,7 @@ import beginContext from "../utils/beginContext";
 import { AgentName } from "../interfaces/Agent.interface";
 import { SessionId } from "../interfaces/Session.interface";
 import { getAgentName } from "../functions/common/getAgentName";
+import { commitStopToolsForce } from "../functions/commit/commitStopToolsForce";
 
 const METHOD_NAME = "function.template.navigateToTriageAgent";
 
@@ -134,6 +135,8 @@ export const createNavigateToTriageAgent = ({
     const { defaultAgent } = swarm.swarmSchemaService.get(swarmName);
 
     const lastAgent = await getAgentName(clientId);
+
+    await commitStopToolsForce(clientId);
 
     if (await not(hasNavigation(clientId, defaultAgent))) {
       const lastMessage = await getLastUserMessage(clientId);

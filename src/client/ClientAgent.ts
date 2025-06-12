@@ -21,6 +21,7 @@ import { IBusEvent } from "../model/Event.model";
 import { MCPToolProperties } from "../interfaces/MCP.interface";
 import createToolRequest from "../utils/createToolRequest";
 import { resolveTools } from "../utils/resolveTools";
+import swarm from "../lib";
 
 const CANCEL_OUTPUT_SYMBOL = Symbol("cancel-output");
 const AGENT_CHANGE_SYMBOL = Symbol("agent-change");
@@ -717,10 +718,10 @@ export class ClientAgent implements IAgent {
           }
           return false;
         })
-        .sort(({ function: { name: a } }, { function: { name: b } }) => {
-          const aStarts = a.startsWith("navigate_to_");
-          const bStarts = b.startsWith("navigate_to_");
-          return aStarts === bStarts ? 0 : aStarts ? 1 : -1;
+        .sort(({ toolName: a }, { toolName: b }) => {
+          const aStarts = swarm.navigationSchemaService.hasTool(a);
+          const bStarts = swarm.navigationSchemaService.hasTool(b);
+          return aStarts === bStarts ? 0 : aStarts ? -1 : 1;
         });
     }
     return agentToolList
