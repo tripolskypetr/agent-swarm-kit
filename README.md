@@ -417,9 +417,7 @@ P.S. [openai threads](https://platform.openai.com/docs/api-reference/threads) do
 
 ## 🔌 Tool and System Prompt Reflection
 
-Enhance your LLMs with flexible, runtime-configurable tools and system prompts using `agent-swarm-kit`. The library allows you to define tools with dynamic interfaces, enabling agents to adapt their functionality based on context or agent-specific requirements. This makes it easy to integrate specialized capabilities, like fetching real-time data or generating reports, with minimal boilerplate.
-
-**Example**: Below is a tool that dynamically fetches short-range EMA (Exponential Moving Average) signals for a trading agent, with a description tailored to the agent's display name:
+Enhance your LLMs with flexible, runtime-configurable tools and system prompts using `agent-swarm-kit`. The library allows you to define tools with dynamic interfaces, enabling agents to adapt their functionality based on context or agent-specific requirements. This makes it easy to integrate specialized capabilities, like fetching real-time data or generating reports without additional tool arguments, with minimal boilerplate. 🛠️
 
 ```tsx
 addTool({
@@ -448,6 +446,8 @@ addTool({
   },
 });
 ```
+
+**Example**: Below is a tool that dynamically fetches short-range EMA (Exponential Moving Average) signals for a trading agent, with a description tailored to the agent's display name 🌐
 
 ---
 
