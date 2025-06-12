@@ -48,16 +48,99 @@ type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
  */
 export class AdapterUtils {
   /**
+   * Creates a function to interact with Grok's chat completions API.
+   * @param {any} grok - The Grok client instance.
+   * @param {string} [model="grok-3-mini"] - The model to use for completions (defaults to "grok-3-mini").
+   * @returns {TCompleteFn} A function that processes completion arguments and returns a response from Grok.
+   */
+  fromGrok = (grok: any, model = "grok-3-mini") =>
+    /**
+     * Handles a completion request to Grok, transforming messages and tools into the required format.
+     * Executes requests in a pool to limit concurrency with retry logic for reliability.
+     * @param {ICompletionArgs} args - The arguments for the completion request.
+     * @param {string} args.agentName - The name of the agent making the request.
+     * @param {IModelMessage[]} args.messages - The array of messages to send to Grok.
+     * @param {string} args.mode - The mode of the completion (e.g., "user" or "tool").
+     * @param {any[]} args.tools - The tools available for the completion, if any.
+     * @returns {Promise<IModelMessage>} The response from Grok in `agent-swarm-kit` format.
+     */
+    execpool(
+      retry(
+        async ({
+          agentName,
+          messages: rawMessages,
+          mode,
+          tools,
+          clientId,
+        }: ICompletionArgs): Promise<IModelMessage> => {
+
+          Logger.logClient(
+            clientId,
+            "AdapterUtils fromGrok completion",
+            JSON.stringify(rawMessages)
+          );
+
+          const messages = rawMessages.map(
+            ({ role, tool_call_id, tool_calls, content }) => ({
+              role,
+              tool_call_id,
+              content,
+              tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
+                ...rest,
+                function: {
+                  name: f.name,
+                  arguments: JSON.stringify(f.arguments),
+                },
+              })),
+            })
+          );
+
+          const {
+            choices: [
+              {
+                message: { content, role, tool_calls },
+              },
+            ],
+          } = await grok.chat.completions.create({
+            model,
+            messages: messages as any,
+            tools: tools as any,
+            response_format: {
+              type: "text",
+            },
+          });
+
+          return {
+            content: content!,
+            mode,
+            agentName,
+            role,
+            tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
+              ...rest,
+              function: {
+                name: f.name,
+                arguments: JSON.parse(f.arguments),
+              },
+            })),
+          };
+        },
+        RETRY_COUNT,
+        RETRY_DELAY
+      ),
+      {
+        maxExec: EXECPOOL_SIZE,
+        delay: EXECPOOL_WAIT,
+      }
+    ) as TCompleteFn;
+
+  /**
    * Creates a function to interact with CohereClientV2 chat completions API.
    * @param {any} openai - The CohereClientV2 client instance.
    * @param {string} [model="gpt-3.5-turbo"] - The model to use for completions (defaults to "gpt-3.5-turbo").
    * @param {{ type: string }} [response_format] - Optional response format configuration (e.g., `{ type: "json_object" }`).
    * @returns {TCompleteFn} A function that processes completion arguments and returns a response from CohereClientV2.
    */
-  fromCohereClientV2 = (
-    cohere: any,
-    model = "command-r-08-2024",
-  ) =>
+  fromCohereClientV2 = (cohere: any, model = "command-r-08-2024") =>
     /**
      * Handles a completion request to CohereClientV2, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency.
@@ -83,7 +166,7 @@ export class AdapterUtils {
             "AdapterUtils fromCohereClientV2 completion",
             JSON.stringify(rawMessages)
           );
-      
+
           const messages = rawMessages.map(
             ({ role, tool_call_id, tool_calls, content }) => ({
               role: role as any,
@@ -98,7 +181,7 @@ export class AdapterUtils {
               })),
             })
           );
-      
+
           const tools = rawTools?.map(({ type, function: f }) => ({
             type: type as "function",
             function: {
@@ -106,7 +189,7 @@ export class AdapterUtils {
               parameters: f.parameters,
             },
           }));
-      
+
           const {
             message: { content, role, toolCalls },
           } = await cohere.chat({
@@ -116,7 +199,7 @@ export class AdapterUtils {
             seed: 0,
             temperature: 0,
           });
-      
+
           return {
             content: content ? content[0].text : "",
             mode,

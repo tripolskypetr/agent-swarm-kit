@@ -14752,6 +14752,13 @@ type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
  */
 declare class AdapterUtils {
     /**
+     * Creates a function to interact with Grok's chat completions API.
+     * @param {any} grok - The Grok client instance.
+     * @param {string} [model="grok-3-mini"] - The model to use for completions (defaults to "grok-3-mini").
+     * @returns {TCompleteFn} A function that processes completion arguments and returns a response from Grok.
+     */
+    fromGrok: (grok: any, model?: string) => TCompleteFn;
+    /**
      * Creates a function to interact with CohereClientV2 chat completions API.
      * @param {any} openai - The CohereClientV2 client instance.
      * @param {string} [model="gpt-3.5-turbo"] - The model to use for completions (defaults to "gpt-3.5-turbo").
