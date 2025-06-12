@@ -46,6 +46,12 @@ const DEFAULT_EXECUTE_MESSAGE = "";
  * };
  */
 export interface INavigateToTriageParams {
+  beforeNavigate?: (
+    clientId: string,
+    lastMessage: string | null,
+    lastAgent: AgentName,
+    defaultAgent: AgentName,
+  ) => Promise<void> | void;
   lastMessage?: (
     clientId: string,
     lastMessage: string | null,
@@ -111,6 +117,7 @@ const DEFAULT_LAST_MESSAGE_FN = (
  */
 export const createNavigateToTriageAgent = ({
   flushMessage,
+  beforeNavigate,
   lastMessage: lastMessageFn = DEFAULT_LAST_MESSAGE_FN,
   executeMessage = DEFAULT_EXECUTE_MESSAGE,
   toolOutputAccept = DEFAULT_ACCEPT_FN,
@@ -139,17 +146,19 @@ export const createNavigateToTriageAgent = ({
     await commitStopToolsForce(clientId);
 
     if (await not(hasNavigation(clientId, defaultAgent))) {
-      const lastMessage = await getLastUserMessage(clientId);
-      await changeToDefaultAgent(clientId);
+      const lastMessageRaw = await getLastUserMessage(clientId);
+      const lastMessage = await lastMessageFn(clientId, lastMessageRaw, defaultAgent, lastAgent);
+      beforeNavigate && await beforeNavigate(clientId, lastMessage, lastAgent, defaultAgent);
       await commitToolOutputForce(
         toolId,
         typeof toolOutputAccept === "string"
           ? toolOutputAccept
-          : await toolOutputAccept(clientId, defaultAgent),
+          : await toolOutputAccept(clientId, lastAgent),
         clientId
       );
+      await changeToDefaultAgent(clientId);
       await executeForce(
-        await lastMessageFn(clientId, lastMessage, defaultAgent, lastAgent),
+        lastMessage,
         clientId
       );
       return;

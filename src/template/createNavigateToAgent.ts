@@ -46,6 +46,12 @@ const DEFAULT_EXECUTE_MESSAGE = "";
  * };
  */
 export interface INavigateToAgentParams {
+  beforeNavigate?: (
+    clientId: string,
+    lastMessage: string | null,
+    lastAgent: AgentName,
+    agentName: AgentName
+  ) => void | Promise<void>;
   flushMessage?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
@@ -145,6 +151,7 @@ const DEFAULT_LAST_MESSAGE_FN = (
  * // Navigates to SupportAgent, commits dynamic tool output, and executes the message with the last user message.
  */
 export const createNavigateToAgent = ({
+  beforeNavigate,
   lastMessage: lastMessageFn = DEFAULT_LAST_MESSAGE_FN,
   executeMessage = DEFAULT_EXECUTE_MESSAGE,
   emitMessage,
@@ -168,7 +175,7 @@ export const createNavigateToAgent = ({
           toolId,
         });
 
-      const lastMessage = await getLastUserMessage(clientId);
+      const lastMessageRaw = await getLastUserMessage(clientId);
       const lastAgent = await getAgentName(clientId);
 
       await commitStopToolsForce(clientId);
@@ -179,6 +186,13 @@ export const createNavigateToAgent = ({
           Promise.resolve(!emitMessage)
         )
       ) {
+        const lastMessage = await lastMessageFn(
+          clientId,
+          lastMessageRaw,
+          lastAgent,
+          agentName
+        );
+        beforeNavigate && await beforeNavigate(clientId, lastMessage, lastAgent, agentName);
         await commitToolOutputForce(
           toolId,
           typeof toolOutput === "string"
@@ -192,12 +206,7 @@ export const createNavigateToAgent = ({
             ? executeMessage
             : await executeMessage(
                 clientId,
-                await lastMessageFn(
-                  clientId,
-                  lastMessage,
-                  lastAgent,
-                  agentName
-                ),
+                lastMessage,
                 lastAgent,
                 agentName
               ),
@@ -212,6 +221,13 @@ export const createNavigateToAgent = ({
           Promise.resolve(!!emitMessage)
         )
       ) {
+        const lastMessage = await lastMessageFn(
+          clientId,
+          lastMessageRaw,
+          lastAgent,
+          agentName
+        );
+        beforeNavigate && await beforeNavigate(clientId, lastMessage, lastAgent, agentName);
         await commitToolOutputForce(
           toolId,
           typeof toolOutput === "string"
@@ -225,12 +241,7 @@ export const createNavigateToAgent = ({
             ? emitMessage
             : await emitMessage(
                 clientId,
-                await lastMessageFn(
-                  clientId,
-                  lastMessage,
-                  lastAgent,
-                  agentName
-                ),
+                lastMessage,
                 lastAgent,
                 agentName
               ),
