@@ -246,6 +246,16 @@ export class MergeMCP implements IMCP {
               error
             )}`
           );
+          {
+            const { callbacks = {} } = swarm.agentSchemaService.get(agentName);
+            callbacks.onResurrect &&
+              callbacks.onResurrect(
+                dto.clientId,
+                dto.agentName,
+                "tool",
+                `MCP execution failed toolName=${toolName}`
+              );
+          }
           await commitStopTools(dto.clientId, agentName);
           await commitFlush(dto.clientId, agentName);
           await emit(createPlaceholder(), dto.clientId, agentName);
@@ -279,9 +289,16 @@ export class MCPUtils {
       });
     swarm.mcpValidationService.validate(mcpName, METHOD_NAME_UPDATE);
     if (clientId) {
-      return await swarm.mcpPublicService.updateToolsForClient(METHOD_NAME_UPDATE, clientId, mcpName);
+      return await swarm.mcpPublicService.updateToolsForClient(
+        METHOD_NAME_UPDATE,
+        clientId,
+        mcpName
+      );
     }
-    return await swarm.mcpPublicService.updateToolsForAll(METHOD_NAME_UPDATE, mcpName);
+    return await swarm.mcpPublicService.updateToolsForAll(
+      METHOD_NAME_UPDATE,
+      mcpName
+    );
   }
 }
 
