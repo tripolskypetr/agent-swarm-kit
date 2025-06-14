@@ -265,9 +265,5 @@ output.push("");
 {
   output.unshift("");
   output.unshift(HEADER_CONTENT);
-  output.unshift("");
-  output.unshift("![schema](../assets/uml.svg)");
-  output.unshift("");
-  output.unshift(`# ${MODULE_NAME} api reference`);
   fs.writeFileSync(outputPath, output.join("\n"));
 }
