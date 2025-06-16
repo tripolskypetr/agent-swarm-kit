@@ -248,6 +248,8 @@ export class MergeMCP implements IMCP {
           );
           {
             const { callbacks = {} } = swarm.agentSchemaService.get(agentName);
+            callbacks.onToolError &&
+              callbacks.onToolError(dto.clientId, dto.agentName, error);
             callbacks.onResurrect &&
               callbacks.onResurrect(
                 dto.clientId,

@@ -153,6 +153,12 @@ const createToolCall = async (
         tool.function.arguments,
         error
       );
+    self.params.callbacks?.onToolError &&
+      self.params.callbacks.onToolError(
+        self.params.clientId,
+        self.params.agentName,
+        error
+      );
     self._toolErrorSubject.next(TOOL_ERROR_SYMBOL);
   }
 };
