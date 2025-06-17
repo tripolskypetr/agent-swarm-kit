@@ -294,6 +294,7 @@ export interface IAgentSchemaInternalCallbacks {
   onToolError?: (
     clientId: string,
     agentName: AgentName,
+    toolName: ToolName,
     error: Error,
   ) => void;
 

@@ -3498,7 +3498,7 @@ interface IAgentSchemaInternalCallbacks {
      * @param {AgentName} agentName - The name of the agent making the tool request.
      * @param {IToolRequest} request - The content of the tool request.
      */
-    onToolError?: (clientId: string, agentName: AgentName, error: Error) => void;
+    onToolError?: (clientId: string, agentName: AgentName, toolName: ToolName, error: Error) => void;
     /**
      * Optional callback triggered when an assistant message is committed.
      * @param {string} clientId - The ID of the client interacting with the agent.

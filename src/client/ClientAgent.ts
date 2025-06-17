@@ -157,6 +157,7 @@ const createToolCall = async (
       self.params.callbacks.onToolError(
         self.params.clientId,
         self.params.agentName,
+        targetFn.toolName,
         error
       );
     self._toolErrorSubject.next(TOOL_ERROR_SYMBOL);
