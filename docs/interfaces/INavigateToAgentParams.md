@@ -10,6 +10,12 @@ Defines optional messages or functions to handle flush, emission, execution, and
 
 ## Properties
 
+### beforeNavigate
+
+```ts
+beforeNavigate: (clientId: string, lastMessage: string, lastAgent: string, agentName: string) => void | Promise<void>
+```
+
 ### flushMessage
 
 ```ts
@@ -19,7 +25,13 @@ flushMessage: string | ((clientId: string, defaultAgent: string) => string | Pro
 ### toolOutput
 
 ```ts
-toolOutput: string | ((clientId: string, agentName: string) => string | Promise<string>)
+toolOutput: string | ((clientId: string, lastAgent: string, agentName: string) => string | Promise<string>)
+```
+
+### lastMessage
+
+```ts
+lastMessage: (clientId: string, lastMessage: string, lastAgent: string, agentName: string) => string | Promise<string>
 ```
 
 ### emitMessage

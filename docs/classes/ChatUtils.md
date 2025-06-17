@@ -50,7 +50,7 @@ Gets or creates a chat instance for a client
 ### beginChat
 
 ```ts
-beginChat: (clientId: string, swarmName: string) => Promise<void>
+beginChat: <Payload extends unknown = any>(clientId: string, swarmName: string, payload?: Payload) => Promise<boolean>
 ```
 
 Begins a chat session for a client

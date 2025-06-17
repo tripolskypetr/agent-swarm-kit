@@ -317,6 +317,15 @@ pipelineSchemaService: PipelineSchemaService
 Service for defining and managing pipeline schemas.
 Implements `IPipelineSchema` for rule enforcement via `PipelineSchemaService`.
 
+### navigationSchemaService
+
+```ts
+navigationSchemaService: NavigationSchemaService
+```
+
+Service for defining and managing navigation tools.
+When the navigation tool called other one being ignored
+
 ### agentPublicService
 
 ```ts

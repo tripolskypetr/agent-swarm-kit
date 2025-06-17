@@ -51,6 +51,15 @@ onToolRequest: (clientId: string, agentName: string, request: IToolRequest[]) =>
 Optional callback triggered when a tool request is initiated.
 This callback is used to handle or process tool requests made by the agent.
 
+### onToolError
+
+```ts
+onToolError: (clientId: string, agentName: string, toolName: string, error: Error) => void
+```
+
+Optional callback triggered when a tool throw an error
+This callback is used to log the error before resurrect
+
 ### onAssistantMessage
 
 ```ts

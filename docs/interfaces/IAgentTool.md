@@ -54,7 +54,7 @@ Tool type defenition. For now, should be `function`
 ### function
 
 ```ts
-function: { name: string; description: string; parameters: { type: string; required: string[]; properties: { [key: string]: { type: string; description: string; enum?: string[]; }; }; }; } | ((clientId: string, agentName: string) => Promise<...>)
+function: { name: string; description: string; parameters: { type: string; required: string[]; properties: { [key: string]: { type: string; description: string; enum?: string[]; }; }; }; } | ((clientId: string, agentName: string) => { ...; } | Promise<...>)
 ```
 
 Optional dynamic factory to resolve tool metadata

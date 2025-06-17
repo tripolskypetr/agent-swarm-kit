@@ -15,6 +15,14 @@ constructor();
 
 ## Properties
 
+### fromGrok
+
+```ts
+fromGrok: (grok: any, model?: string) => TCompleteFn
+```
+
+Creates a function to interact with Grok's chat completions API.
+
 ### fromCohereClientV2
 
 ```ts

@@ -10,10 +10,16 @@ Defines optional messages or functions to handle flush, execution, and tool outp
 
 ## Properties
 
+### beforeNavigate
+
+```ts
+beforeNavigate: (clientId: string, lastMessage: string, lastAgent: string, defaultAgent: string) => void | Promise<void>
+```
+
 ### lastMessage
 
 ```ts
-lastMessage: (clientId: string, lastMessage: string, lastAgent: string, defaultAgent: string) => string | Promise<string>
+lastMessage: (clientId: string, lastMessage: string, defaultAgent: string, lastAgent: string) => string | Promise<string>
 ```
 
 ### flushMessage

@@ -40,11 +40,3 @@ docNote: string
 ```
 
 Optional documentation note for the tool.
-
-### skipPlaceholder
-
-```ts
-skipPlaceholder: string
-```
-
-Optional skip output value when got several navigations.

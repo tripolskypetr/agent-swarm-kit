@@ -84,6 +84,7 @@ group: docs
 - [PipelineSchemaService](classes/PipelineSchemaService.md)
 - [PipelineValidationService](classes/PipelineValidationService.md)
 - [ExecutionValidationService](classes/ExecutionValidationService.md)
+- [NavigationSchemaService](classes/NavigationSchemaService.md)
 - [RoundRobin](classes/RoundRobin.md)
 - [MCPUtils](classes/MCPUtils.md)
 - [PolicyUtils](classes/PolicyUtils.md)

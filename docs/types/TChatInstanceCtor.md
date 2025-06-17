@@ -6,7 +6,7 @@ group: docs
 # TChatInstanceCtor
 
 ```ts
-type TChatInstanceCtor = new (clientId: SessionId, swarmName: SwarmName, onDispose: DisposeFn, callbacks: IChatInstanceCallbacks) => IChatInstance;
+type TChatInstanceCtor = new <Payload extends unknown = any>(clientId: SessionId, swarmName: SwarmName, onDispose: DisposeFn, callbacks: IChatInstanceCallbacks, payload: Payload) => IChatInstance;
 ```
 
 

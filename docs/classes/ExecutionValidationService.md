@@ -28,7 +28,7 @@ sessionValidationService: any
 ### getExecutionCount
 
 ```ts
-getExecutionCount: ((clientId: string, swarmName: string) => Set<string>) & IClearableMemoize<string> & IControlMemoize<string, Set<string>>
+getExecutionCount: ((clientId: string, swarmName: string) => { executionSet: Set<string>; executionIgnore: LimitedSet<string>; }) & IClearableMemoize<string> & IControlMemoize<...>
 ```
 
 Retrieves a memoized set of execution IDs for a given client and swarm.
@@ -48,6 +48,16 @@ decrementCount: (executionId: string, clientId: string, swarmName: string) => vo
 ```
 
 Resets the execution count for a client and swarm.
+
+### flushCount
+
+```ts
+flushCount: (clientId: string, swarmName: string) => void
+```
+
+Clears all tracked execution IDs for a specific client and swarm.
+This effectively resets the execution count for the given client and swarm context,
+but does not remove the memoized entry itself.
 
 ### dispose
 
