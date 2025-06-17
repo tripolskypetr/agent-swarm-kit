@@ -10666,6 +10666,16 @@ declare class ExecutionValidationService {
      */
     decrementCount: (executionId: string, clientId: string, swarmName: SwarmName) => void;
     /**
+     * Clears all tracked execution IDs for a specific client and swarm.
+     * This effectively resets the execution count for the given client and swarm context,
+     * but does not remove the memoized entry itself.
+     *
+     * @param {string} clientId - The unique identifier for the client.
+     * @param {SwarmName} swarmName - The name of the swarm associated with the client.
+     * @returns {void}
+     */
+    flushCount: (clientId: string, swarmName: SwarmName) => void;
+    /**
      * Clears the memoized execution count for a specific client and swarm.
      * @param {string} clientId - The unique identifier for the client.
      * @param {SwarmName} swarmName - The name of the swarm associated with the client.

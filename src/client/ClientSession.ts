@@ -11,6 +11,7 @@ import { ISession } from "../interfaces/Session.interface";
 import { IBusEvent } from "../model/Event.model";
 import { GLOBAL_CONFIG } from "../config/params";
 import { IToolRequest } from "../model/Tool.model";
+import swarm from "../lib";
 
 /**
  * Represents a client session in the swarm system, implementing the ISession interface.
@@ -187,6 +188,10 @@ export class ClientSession implements ISession {
     const outputAwaiter = this.params.swarm.waitForOutput();
     agent.execute(message, mode);
     const output = await outputAwaiter;
+    await swarm.executionValidationService.flushCount(
+      this.params.clientId,
+      this.params.swarmName,
+    );
     if (
       await not(
         this.params.policy.validateOutput(
@@ -498,6 +503,10 @@ export class ClientSession implements ISession {
       clientId: this.params.clientId,
     });
     this._notifySubject.subscribe(async (data: string) => {
+      await swarm.executionValidationService.flushCount(
+        this.params.clientId,
+        this.params.swarmName,
+      );
       await connector({
         data,
         agentName: await this.params.swarm.getAgentName(),
@@ -510,6 +519,10 @@ export class ClientSession implements ISession {
           `ClientSession clientId=${this.params.clientId} connect call`
         );
       const data = await this.execute(incoming.data, "user");
+      await swarm.executionValidationService.flushCount(
+        this.params.clientId,
+        this.params.swarmName,
+      );
       if (!data) {
         return "";
       }

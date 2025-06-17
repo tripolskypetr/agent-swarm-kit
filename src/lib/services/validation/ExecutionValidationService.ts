@@ -117,9 +117,32 @@ export class ExecutionValidationService {
     if (!this.sessionValidationService.hasSession(clientId)) {
       return;
     }
-    const { executionSet } = this.getExecutionCount(clientId, swarmName);
+    const { executionSet, executionIgnore } = this.getExecutionCount(clientId, swarmName);
     executionSet.delete(executionId);
+    executionIgnore.add(executionId);
   };
+
+  /**
+   * Clears all tracked execution IDs for a specific client and swarm.
+   * This effectively resets the execution count for the given client and swarm context,
+   * but does not remove the memoized entry itself.
+   *
+   * @param {string} clientId - The unique identifier for the client.
+   * @param {SwarmName} swarmName - The name of the swarm associated with the client.
+   * @returns {void}
+   */
+  public flushCount = (clientId: string, swarmName: SwarmName) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("executionValidationService dispose", {
+        clientId,
+        swarmName,
+      });
+    if (!this.sessionValidationService.hasSession(clientId)) {
+      return;
+    }
+    const { executionSet } = this.getExecutionCount(clientId, swarmName);
+    executionSet.clear();
+  }
 
   /**
    * Clears the memoized execution count for a specific client and swarm.
