@@ -1,5 +1,5 @@
 import * as functools_kit from 'functools-kit';
-import { SortedArray, TSubject, Subject, ToolRegistry } from 'functools-kit';
+import { SortedArray, TSubject, Subject, ToolRegistry, LimitedSet } from 'functools-kit';
 import * as di_scoped from 'di-scoped';
 
 /**
@@ -10641,7 +10641,13 @@ declare class ExecutionValidationService {
      * @param {SwarmName} swarmName - The name of the swarm associated with the client.
      * @returns {Set<ExecutionId>} A set containing execution IDs for the client and swarm.
      */
-    getExecutionCount: ((clientId: string, swarmName: SwarmName) => Set<ExecutionId>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, Set<string>>;
+    getExecutionCount: ((clientId: string, swarmName: SwarmName) => {
+        executionSet: Set<ExecutionId>;
+        executionIgnore: LimitedSet<ExecutionId>;
+    }) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, {
+        executionSet: Set<ExecutionId>;
+        executionIgnore: LimitedSet<ExecutionId>;
+    }>;
     /**
      * Increments the execution count for a client and checks for excessive nested executions.
      * @param {string} executionId - The unique identifier for the execution.

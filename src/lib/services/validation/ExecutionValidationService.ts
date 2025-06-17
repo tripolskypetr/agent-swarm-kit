@@ -6,7 +6,7 @@ import { inject } from "../../../lib/core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../../lib/core/types";
 import { SwarmName } from "../../../interfaces/Swarm.interface";
-import { memoize } from "functools-kit";
+import { LimitedSet, memoize } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import SessionValidationService from "./SessionValidationService";
 
@@ -44,10 +44,18 @@ export class ExecutionValidationService {
    * @returns {Set<ExecutionId>} A set containing execution IDs for the client and swarm.
    */
   public getExecutionCount = memoize<
-    (clientId: string, swarmName: SwarmName) => Set<ExecutionId>
+    (clientId: string, swarmName: SwarmName) => {
+      executionSet: Set<ExecutionId>,
+      executionIgnore: LimitedSet<ExecutionId>,
+    }
   >(
     ([clientId, swarmName]) => `${clientId}-${swarmName}`,
-    () => new Set<ExecutionId>()
+    () => ({
+      executionSet: new Set<ExecutionId>(),
+      executionIgnore: new LimitedSet<ExecutionId>(
+        GLOBAL_CONFIG.CC_MAX_NESTED_EXECUTIONS
+      ),
+    })
   );
 
   /**
@@ -73,9 +81,12 @@ export class ExecutionValidationService {
 
     const swarmName = this.sessionValidationService.getSwarm(clientId);
 
-    const executionSet = this.getExecutionCount(clientId, swarmName).add(
-      executionId
-    );
+    const { executionSet, executionIgnore } = this.getExecutionCount(clientId, swarmName);
+
+    if (!executionIgnore.has(executionId)) {
+      executionSet.add(executionId);
+      executionIgnore.add(executionId);
+    }
 
     if (executionSet.size >= GLOBAL_CONFIG.CC_MAX_NESTED_EXECUTIONS) {
       const ids = [...executionSet].join(",");
@@ -106,7 +117,8 @@ export class ExecutionValidationService {
     if (!this.sessionValidationService.hasSession(clientId)) {
       return;
     }
-    this.getExecutionCount(clientId, swarmName).delete(executionId);
+    const { executionSet } = this.getExecutionCount(clientId, swarmName);
+    executionSet.delete(executionId);
   };
 
   /**
