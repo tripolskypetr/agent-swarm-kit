@@ -73,12 +73,13 @@ export class ExecutionValidationService {
 
     const swarmName = this.sessionValidationService.getSwarm(clientId);
 
-    const { size } = this.getExecutionCount(clientId, swarmName).add(
+    const executionSet = this.getExecutionCount(clientId, swarmName).add(
       executionId
     );
 
-    if (size >= GLOBAL_CONFIG.CC_MAX_NESTED_EXECUTIONS) {
-      const msg = `agent-swarm recursive execution prevented for clientId=${clientId} swarmName=${swarmName} executionId=${executionId} size=${size}`;
+    if (executionSet.size >= GLOBAL_CONFIG.CC_MAX_NESTED_EXECUTIONS) {
+      const ids = [...executionSet].join(",");
+      const msg = `agent-swarm recursive execution prevented for clientId=${clientId} swarmName=${swarmName} executionId=${executionId} size=${executionSet.size} ids=${ids}`;
       console.error(msg);
       throw new Error(msg);
     }
