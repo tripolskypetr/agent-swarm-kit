@@ -1,5 +1,7 @@
 # Advantages of Fractal Star Architecture with Supervisor Compared to Dynamic and Star Architectures
 
+> [Back to agent-swarm-kit](https://github.com/tripolskypetr/agent-swarm-kit)
+
 ![schema](./assets/fractal-supervisor.png)
 
 The fractal star architecture with a supervisor combines hierarchical organization with a recursive structure, where the supervisor manages the top level, and subordinate agents form their own star-shaped substructures. Below are its advantages compared to dynamic and standard star architectures in the context of AI agents, particularly when a shared chat history is involved.
