@@ -91,6 +91,19 @@ export * from "./functions/history/getUserHistory";
 export * from "./functions/history/getAssistantHistory";
 export * from "./functions/history/getLastAssistantMessage";
 export * from "./functions/history/getLastSystemMessage";
+   
+export * from "./functions/dump/getAgent";
+export * from "./functions/dump/getCompletion";
+export * from "./functions/dump/getCompute";
+export * from "./functions/dump/getEmbeding";
+export * from "./functions/dump/getMCP";
+export * from "./functions/dump/getPipeline";
+export * from "./functions/dump/getPolicy";
+export * from "./functions/dump/getState";
+export * from "./functions/dump/getStorage";
+export * from "./functions/dump/getSwarm";
+export * from "./functions/dump/getTool";
+export * from "./functions/dump/getWiki";
 
 export { getRawHistory } from "./functions/history/getRawHistory";
 

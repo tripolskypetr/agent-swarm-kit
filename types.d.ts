@@ -12749,6 +12749,126 @@ declare function getLastAssistantMessage(clientId: string): Promise<string>;
 declare function getLastSystemMessage(clientId: string): Promise<string>;
 
 /**
+ * Retrieves an agent schema by its name from the swarm's agent schema service.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @function getAgent
+ * @param {AgentName} agentName - The name of the agent to retrieve.
+ * @returns The agent schema associated with the provided agent name.
+ */
+declare function getAgent(agentName: AgentName): IAgentSchemaInternal;
+
+/**
+ * Retrieves a completion schema by its name from the swarm's completion schema service.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @function getCompletion
+ * @param {CompletionName} completionName - The name of the completion to retrieve.
+ * @returns The completion schema associated with the provided completion name.
+ */
+declare function getCompletion(completionName: CompletionName): ICompletionSchema;
+
+/**
+ * Retrieves a compute schema by its name from the swarm's compute schema service.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @function getCompute
+ * @param {ComputeName} computeName - The name of the compute to retrieve.
+ * @returns The compute schema associated with the provided compute name.
+ */
+declare function getCompute(computeName: ComputeName): IComputeSchema<any>;
+
+/**
+ * Retrieves an embedding schema by its name from the swarm's embedding schema service.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @function getEmbedding
+ * @param {EmbeddingName} embeddingName - The name of the embedding to retrieve.
+ * @returns The embedding schema associated with the provided embedding name.
+ */
+declare function getEmbeding(embeddingName: EmbeddingName): IEmbeddingSchema;
+
+/**
+ * Retrieves an MCP (Model Context Protocol) schema by its name from the swarm's MCP schema service.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @function getMCP
+ * @param {MCPName} mcpName - The name of the MCP to retrieve.
+ * @returns The MCP schema associated with the provided MCP name.
+ */
+declare function getMCP(mcpName: MCPName): IMCPSchema;
+
+/**
+ * Retrieves a pipeline schema by its name from the swarm's pipeline schema service.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @function getPipeline
+ * @param {PipelineName} pipelineName - The name of the pipeline to retrieve.
+ * @returns The pipeline schema associated with the provided pipeline name.
+ */
+declare function getPipeline(pipelineName: PipelineName): IPipelineSchema<any>;
+
+/**
+ * Retrieves a policy schema by its name from the swarm's policy schema service.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @function getPolicy
+ * @param {PolicyName} policyName - The name of the policy to retrieve.
+ * @returns The policy schema associated with the provided policy name.
+ */
+declare function getPolicy(policyName: PolicyName): IPolicySchema;
+
+/**
+ * Retrieves a state schema by its name from the swarm's state schema service.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @function getState
+ * @param {StateName} stateName - The name of the state to retrieve.
+ * @returns The state schema associated with the provided state name.
+ */
+declare function getState(stateName: StateName): IStateSchema<any>;
+
+/**
+ * Retrieves a storage schema by its name from the swarm's storage schema service.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @function getStorage
+ * @param {StorageName} storageName - The name of the storage to retrieve.
+ * @returns The storage schema associated with the provided storage name.
+ */
+declare function getStorage(storageName: StorageName): IStorageSchema<IStorageData>;
+
+/**
+ * Retrieves a swarm schema by its name from the swarm's swarm schema service.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @function getSwarm
+ * @param {SwarmName} swarmName - The name of the swarm to retrieve.
+ * @returns The swarm schema associated with the provided swarm name.
+ */
+declare function getSwarm(swarmName: SwarmName): ISwarmSchema;
+
+/**
+ * Retrieves a tool schema by its name from the swarm's tool schema service.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @function getTool
+ * @param {ToolName} toolName - The name of the tool to retrieve.
+ * @returns The tool schema associated with the provided tool name.
+ */
+declare function getTool(toolName: ToolName): IAgentTool<Record<string, ToolValue>>;
+
+/**
+ * Retrieves a wiki schema by its name from the swarm's wiki schema service.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @function getWiki
+ * @param {WikiName} wikiName - The name of the wiki to retrieve.
+ * @returns The wiki schema associated with the provided wiki name.
+ */
+declare function getWiki(wikiName: WikiName): IWikiSchema;
+
+/**
  * Retrieves the raw, unmodified history for a given client session.
  *
  * This function fetches the complete history associated with a client’s active agent in a swarm session, without any filtering or modifications.
@@ -14919,4 +15039,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgentHistory, getAgentName, getAssistantHistory, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getNavigationRoute, getPayload, getRawHistory, getSessionContext, getSessionMode, getUserHistory, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };
+export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getUserHistory, getWiki, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };
