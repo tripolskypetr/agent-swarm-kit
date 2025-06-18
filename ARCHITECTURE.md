@@ -2,8 +2,6 @@
 
 > [Back to agent-swarm-kit](https://github.com/tripolskypetr/agent-swarm-kit)
 
-![schema](./assets/fractal-supervisor.png)
-
 The fractal star architecture with a supervisor combines hierarchical organization with a recursive structure, where the supervisor manages the top level, and subordinate agents form their own star-shaped substructures. Below are its advantages compared to dynamic and standard star architectures in the context of AI agents, particularly when a shared chat history is involved.
 
 ## Compared to Dynamic Architecture
@@ -27,6 +25,10 @@ The fractal star architecture with a supervisor combines hierarchical organizati
    - Unlike the dynamic architecture, where an agent unable to respond might redirect the query to another agent (acting as a "pass-the-buck" middleman), in the fractal architecture, an agent clearly states when a topic is outside its expertise and escalates the query to the supervisor or appropriate subnode.  
    - Example: If an agent cannot process a specific request from the chat history, it informs the user or supervisor that the topic is not its domain, ensuring transparency and efficient escalation.
 
+6. **Proven Efficiency and Token Optimization with Portals**:  
+   - The fractal architecture has proven effective in systems like Flux, where its hierarchical and modular design optimizes task distribution. When combined with portals (cross-tree connections between agent substructures), it significantly reduces token usage by enabling direct communication between relevant subtrees, bypassing unnecessary layers.  
+   - Example: In a chat system, a portal between a text analysis subtree and a response generation subtree allows efficient data transfer, minimizing token-heavy interactions through the supervisor.
+
 ## Compared to Standard Star Architecture
 1. **Improved Scalability**:  
    - The standard star architecture is limited by the number of agents directly connected to the central node, which can lead to overload. The fractal architecture distributes the load across levels, with each main agent managing its own group.  
@@ -45,4 +47,4 @@ The fractal star architecture with a supervisor combines hierarchical organizati
    - Example: One main agent can manage a substructure for sentiment analysis in the chat, another for response generation.
 
 ## Conclusion
-The fractal star architecture with a supervisor combines the benefits of centralized control (as in the standard star architecture) and the flexibility of distributed systems (as in the dynamic architecture). It provides scalability, predictability, resilience to overloads, and clear escalation paths, making it particularly suitable for complex AI systems working with a shared chat history, where both global coordination and local autonomy are required.
+The fractal star architecture with a supervisor combines the benefits of centralized control (as in the standard star architecture) and the flexibility of distributed systems (as in the dynamic architecture). It provides scalability, predictability, resilience to overloads, clear escalation paths, and proven efficiency in systems like Flux, particularly when enhanced with portals for token optimization. This makes it particularly suitable for complex AI systems working with a shared chat history, where both global coordination and local autonomy are required.
