@@ -1,6 +1,6 @@
 import { ICompletionArgs } from "../interfaces/Completion.interface";
 import Logger from "./Logger";
-import { execpool, randomString, retry, str } from "functools-kit";
+import { execpool, fetchApi, randomString, retry, str } from "functools-kit";
 import { IModelMessage } from "../model/ModelMessage.model";
 
 /**
@@ -48,6 +48,120 @@ type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
  */
 export class AdapterUtils {
   /**
+   * Creates a function to interact with Cortex's chat completions API.
+   * @param {string} [model="tripolskypetr:gemma-3-12b-it:gemma-3-12b-it-Q4_K_S.gguf"] - The model to use for completions.
+   * @param {string} [baseUrl="http://localhost:39281/"] - The base URL for the Cortex API.
+   * @returns {TCompleteFn} A function that processes completion arguments and returns a response from Cortex.
+   */
+  fromCortex = (
+    model = "tripolskypetr:gemma-3-12b-it:gemma-3-12b-it-Q4_K_S.gguf",
+    baseUrl = "http://localhost:39281/"
+  ) =>
+    /**
+     * Handles a completion request to Cortex, transforming messages and tools into the required format.
+     * Executes requests in a pool to limit concurrency with retry logic for reliability.
+     * @param {ICompletionArgs} args - The arguments for the completion request.
+     * @param {string} args.agentName - The name of the agent making the request.
+     * @param {IModelMessage[]} args.messages - The array of messages to send to Cortex.
+     * @param {string} args.mode - The mode of the completion (e.g., "user" or "tool").
+     * @param {any[]} args.tools - The tools available for the completion, if any.
+     * @param {string} args.clientId - The ID of the client making the request.
+     * @returns {Promise<IModelMessage>} The response from Cortex in `agent-swarm-kit` format.
+     */
+    execpool(
+      retry(
+        async ({
+          agentName,
+          messages: rawMessages,
+          tools: rawTools,
+          mode,
+          clientId,
+        }: ICompletionArgs) => {
+          Logger.logClient(
+            clientId,
+            "AdapterUtils fromCortex completion",
+            JSON.stringify(rawMessages)
+          );
+
+          const url = new URL("v1/chat/completions", baseUrl);
+
+          const messages: any[] = rawMessages
+            .filter(({ role }) => role === "user" || role === "assistant")
+            .map(({ role, tool_call_id, tool_calls, content }) => ({
+              role,
+              tool_call_id,
+              content,
+              tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
+                ...rest,
+                function: {
+                  name: f.name,
+                  arguments: JSON.stringify(f.arguments),
+                },
+              })),
+            }));
+
+          const systemPrompt = rawMessages
+            .filter(({ role }) => role === "system")
+            .reduce((acm, { content }) => str.newline(acm, content), "");
+
+          if (systemPrompt) {
+            messages.unshift({
+              role: "system",
+              content: systemPrompt,
+            });
+          }
+
+          const tools = rawTools?.map(({ type, function: f }) => ({
+            type: type as "function",
+            function: {
+              name: f.name,
+              description: f.description ?? "", // Will throw 500 if not provide
+              parameters: f.parameters,
+            },
+          }));
+
+          const {
+            choices: [
+              {
+                message: { content, role, tool_calls },
+              },
+            ],
+          } = await fetchApi<any>(url, {
+            method: "POST",
+            body: JSON.stringify({
+              model,
+              messages,
+              tools,
+              response_format: {
+                type: "text",
+              },
+            }),
+          });
+
+          return {
+            content: content!,
+            mode,
+            agentName,
+            role,
+            tool_calls: tool_calls?.map(({ function: f, ...rest }) => ({
+              ...rest,
+              function: {
+                name: f.name,
+                arguments: JSON.parse(f.arguments),
+              },
+            })),
+          };
+        },
+        RETRY_COUNT,
+        RETRY_DELAY
+      ),
+      {
+        maxExec: EXECPOOL_SIZE,
+        delay: EXECPOOL_WAIT,
+      }
+    ) as TCompleteFn;
+
+  /**
    * Creates a function to interact with Grok's chat completions API.
    * @param {any} grok - The Grok client instance.
    * @param {string} [model="grok-3-mini"] - The model to use for completions (defaults to "grok-3-mini").
@@ -73,7 +187,6 @@ export class AdapterUtils {
           tools,
           clientId,
         }: ICompletionArgs): Promise<IModelMessage> => {
-
           Logger.logClient(
             clientId,
             "AdapterUtils fromGrok completion",
@@ -186,6 +299,7 @@ export class AdapterUtils {
             type: type as "function",
             function: {
               name: f.name,
+              description: f.description,
               parameters: f.parameters,
             },
           }));

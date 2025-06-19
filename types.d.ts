@@ -14941,6 +14941,13 @@ type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
  */
 declare class AdapterUtils {
     /**
+     * Creates a function to interact with Cortex's chat completions API.
+     * @param {string} [model="tripolskypetr:gemma-3-12b-it:gemma-3-12b-it-Q4_K_S.gguf"] - The model to use for completions.
+     * @param {string} [baseUrl="http://localhost:39281/"] - The base URL for the Cortex API.
+     * @returns {TCompleteFn} A function that processes completion arguments and returns a response from Cortex.
+     */
+    fromCortex: (model?: string, baseUrl?: string) => TCompleteFn;
+    /**
      * Creates a function to interact with Grok's chat completions API.
      * @param {any} grok - The Grok client instance.
      * @param {string} [model="grok-3-mini"] - The model to use for completions (defaults to "grok-3-mini").
