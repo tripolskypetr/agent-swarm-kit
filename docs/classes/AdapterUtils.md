@@ -15,6 +15,14 @@ constructor();
 
 ## Properties
 
+### fromCortex
+
+```ts
+fromCortex: (model?: string, baseUrl?: string) => TCompleteFn
+```
+
+Creates a function to interact with Cortex's chat completions API.
+
 ### fromGrok
 
 ```ts
