@@ -111,6 +111,40 @@ export class AdapterUtils {
             });
           }
 
+          // Merge consecutive assistant messages
+          for (let i = messages.length - 1; i > 0; i--) {
+            if (
+              messages[i].role === "assistant" &&
+              messages[i - 1].role === "assistant"
+            ) {
+              messages[i - 1].content = str.newline(
+                messages[i - 1].content,
+                messages[i].content
+              );
+              // Merge tool_calls if they exist
+              if (messages[i].tool_calls || messages[i - 1].tool_calls) {
+                messages[i - 1].tool_calls = [
+                  ...(messages[i - 1].tool_calls || []),
+                  ...(messages[i].tool_calls || []),
+                ];
+              }
+              messages.splice(i, 1);
+            }
+          }
+
+          for (let i = messages.length - 1; i > 0; i--) {
+            if (
+              messages[i].role === "user" &&
+              messages[i - 1].role === "user"
+            ) {
+              messages[i - 1].content = str.newline(
+                messages[i - 1].content,
+                messages[i].content
+              );
+              messages.splice(i, 1);
+            }
+          }
+
           const tools = rawTools?.map(({ type, function: f }) => ({
             type: type as "function",
             function: {
@@ -135,6 +169,7 @@ export class AdapterUtils {
               response_format: {
                 type: "text",
               },
+              parallel_tool_calls: true,
             }),
           });
 
