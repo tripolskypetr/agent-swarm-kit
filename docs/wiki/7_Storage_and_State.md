@@ -1,5 +1,5 @@
 ---
-title: design/7_storage_and_state
+title: design/07_storage_and_state
 group: design
 ---
 

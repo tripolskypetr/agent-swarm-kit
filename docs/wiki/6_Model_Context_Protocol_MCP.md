@@ -1,5 +1,5 @@
 ---
-title: design/6_model_context_protocol
+title: design/06_model_context_protocol
 group: design
 ---
 

@@ -6,6 +6,8 @@
     "includeVersion": false,
     "logLevel": "Verbose",
     "out": "./docs/wwwroot",
-    "tsconfig": "./tsconfig.docs.json",
-    "plugin": ["typedoc-plugin-mermaid"]
+    "sort": [
+        "alphabetical"
+    ],
+    "tsconfig": "./tsconfig.docs.json"
 }
