@@ -7,7 +7,7 @@ group: design
 
 This document covers the fundamental building blocks of the agent-swarm-kit framework and their orchestration patterns. It explains the core runtime components including agents, swarms, sessions, and data management systems that enable multi-agent AI workflows.
 
-For information about the service architecture and dependency injection system, see [Service Architecture](./3_Client_Agent.md). For AI model integrations and adapters, see [AI Integration](#4). For practical implementation patterns, see [Usage Patterns](./5_Session_Management.md).
+For information about the service architecture and dependency injection system, see [Service Architecture](./3_Client_Agent.md). For AI model integrations and adapters, see [AI Integration](./4_Swarm_Management.md). For practical implementation patterns, see [Usage Patterns](./5_Session_Management.md).
 
 ## Agent System
 
