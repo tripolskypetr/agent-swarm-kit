@@ -1,3 +1,8 @@
+---
+title: design/12_service_architecture
+group: design
+---
+
 # Service Architecture
 
 The agent-swarm-kit framework employs a sophisticated layered service architecture built around dependency injection patterns. This document provides an overview of the service organization, layer interactions, and architectural patterns that enable scalable multi-agent orchestration.

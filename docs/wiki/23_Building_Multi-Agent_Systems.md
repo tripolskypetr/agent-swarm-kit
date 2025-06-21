@@ -1,3 +1,8 @@
+---
+title: design/23_building_multi_agent_systems
+group: design
+---
+
 # Building Multi-Agent Systems
 
 This document provides a comprehensive guide to defining agents, swarms, and orchestrating multi-agent workflows using the agent-swarm-kit framework. It covers the step-by-step process from basic component definition through advanced orchestration patterns.

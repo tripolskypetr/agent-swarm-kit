@@ -1,3 +1,8 @@
+---
+title: design/16_public_serives
+group: design
+---
+
 # Public Services
 
 Public Services form the outermost API layer of the swarm system, providing a controlled interface to core functionality while managing execution context and excluding internal implementation details. These services wrap Connection Services with method-level context management, logging, and validation to create a clean separation between public APIs and internal operations.

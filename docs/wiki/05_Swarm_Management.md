@@ -1,3 +1,8 @@
+---
+title: design/05_swarm_management
+group: design
+---
+
 # Swarm Management
 
 This document covers the swarm management system in agent-swarm-kit, which orchestrates multiple agents, manages navigation between agents, and coordinates multi-agent workflows. Swarms serve as the primary orchestration layer that routes messages to the appropriate agents and maintains conversation state across agent transitions.

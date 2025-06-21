@@ -1,3 +1,8 @@
+---
+title: design/09_persistance_and_history
+group: design
+---
+
 # Persistence and History
 
 This page covers the persistence infrastructure and message history management systems in agent-swarm-kit. It focuses on the low-level persistence layer that stores entities as JSON files, the message history management for conversation continuity, and the logging infrastructure for debugging and monitoring.

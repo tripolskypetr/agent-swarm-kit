@@ -1,3 +1,8 @@
+---
+title: design/10_navigation_system
+group: design
+---
+
 # Navigation System
 
 The Navigation System provides agent switching and routing capabilities within the agent-swarm-kit framework. It enables dynamic transitions between agents in a swarm, maintains navigation history, and integrates with tool execution to facilitate complex multi-agent workflows.

@@ -1,3 +1,8 @@
+---
+title: design/08_storage_and_state
+group: design
+---
+
 # Storage and State
 
 This document covers the storage and state management systems in the agent-swarm-kit framework. These systems provide persistent data storage with embedding-based search capabilities and managed state with middleware support. Both systems support client-specific and shared modes of operation.

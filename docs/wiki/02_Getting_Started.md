@@ -1,3 +1,8 @@
+---
+title: design/02_getting_started
+group: design
+---
+
 # Getting Started
 
 This guide provides a quick introduction to building multi-agent AI systems with agent-swarm-kit. It covers installation, core concepts, and basic usage patterns to get you up and running with your first agent swarm.

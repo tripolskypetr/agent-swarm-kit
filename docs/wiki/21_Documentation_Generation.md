@@ -1,3 +1,8 @@
+---
+title: design/21_documentation_generation
+group: design
+---
+
 # Documentation Generation
 
 The Documentation Generation system provides automated creation of comprehensive documentation for agents, swarms, and system performance metrics. This system generates markdown files with embedded UML diagrams, organizing them in a structured directory layout for developer consumption.

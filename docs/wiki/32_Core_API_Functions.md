@@ -1,3 +1,8 @@
+---
+title: design/32_core_api_functions
+group: design
+---
+
 # Core API Functions
 
 This document covers the primary public API functions that developers use to build multi-agent AI systems with agent-swarm-kit. These functions provide the main interface for defining agents, managing sessions, executing messages, and orchestrating swarm behavior.

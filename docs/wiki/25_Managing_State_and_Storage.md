@@ -1,3 +1,8 @@
+---
+title: design/25_managing_state_and_storage
+group: design
+---
+
 # Managing State and Storage
 
 This document covers patterns and best practices for managing persistent storage and application state within the agent swarm system. It focuses on the `ClientStorage` and `ClientState` implementations, their associated services, and embedding-based retrieval patterns.

@@ -1,3 +1,8 @@
+---
+title: design/19_completion_adapter
+group: design
+---
+
 # Completion Adapters
 
 ## Purpose and Scope

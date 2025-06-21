@@ -1,3 +1,8 @@
+---
+title: design/15_connection_services
+group: design
+---
+
 # Connection Services
 
 Connection Services form a critical architectural layer in the agent-swarm-kit that manages the lifecycle and instantiation of core client components. These services act as a bridge between the schema configuration layer and the actual runtime client implementations, providing memoized instances and dependency injection for components like `ClientAgent`, `ClientSession`, `ClientSwarm`, and related storage/state managers.

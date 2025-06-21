@@ -1,3 +1,8 @@
+---
+title: design/24_tool_integration
+group: design
+---
+
 # Tool Integration
 
 This page covers the creation and integration of tools within the agent-swarm-kit framework. It explains how to create custom tools using `addTool`, integrate with external Model Context Protocol (MCP) servers, and handle tool execution patterns throughout the agent lifecycle.

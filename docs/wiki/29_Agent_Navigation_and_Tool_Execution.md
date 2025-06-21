@@ -1,3 +1,8 @@
+---
+title: design/29_agent_navigation_and_tool_execution
+group: design
+---
+
 # Agent Navigation and Tool Execution
 
 This document covers the dynamic orchestration of agent transitions and tool execution within multi-agent workflows. It explains how agents can navigate between each other, execute tools that trigger further navigation, and coordinate complex workflows through the pipeline system.

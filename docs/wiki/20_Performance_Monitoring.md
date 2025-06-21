@@ -1,3 +1,8 @@
+---
+title: design/20_perfomance_monitoring
+group: design
+---
+
 # Performance Monitoring
 
 This document covers the performance monitoring system in agent-swarm-kit, which tracks execution metrics, response times, and system performance across client sessions and agent operations. The monitoring system provides detailed performance analytics for both individual clients and system-wide aggregation.

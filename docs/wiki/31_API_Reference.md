@@ -1,3 +1,8 @@
+---
+title: design/31_api_reference
+group: design
+---
+
 # API Reference
 
 This document provides complete API documentation for all public functions, interfaces, and configuration options in the agent-swarm-kit library. It covers the primary APIs developers use to build multi-agent AI systems, including agent creation, session management, tool integration, and system configuration.

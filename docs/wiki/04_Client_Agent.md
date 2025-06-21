@@ -1,3 +1,8 @@
+---
+title: design/04_client_agent
+group: design
+---
+
 # Client Agent
 
 This document covers the `ClientAgent` class implementation, which serves as the core execution unit for individual agents within the swarm system. The `ClientAgent` handles message processing, tool execution, history management, and event coordination through an asynchronous, queue-based architecture.

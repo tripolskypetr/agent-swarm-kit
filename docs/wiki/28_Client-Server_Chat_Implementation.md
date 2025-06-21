@@ -1,3 +1,8 @@
+---
+title: design/28_client_server_chat_implementation
+group: design
+---
+
 # Client-Server Chat Implementation
 
 This document provides a complete example of implementing client-server chat functionality using the agent-swarm-kit framework. It demonstrates session management, message processing, agent interactions, and handling multiple concurrent clients through the `Chat` utility class and related components.

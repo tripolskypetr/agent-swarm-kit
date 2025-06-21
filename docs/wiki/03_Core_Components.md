@@ -1,3 +1,8 @@
+---
+title: design/03_core_components
+group: design
+---
+
 # Core Components
 
 This page covers the primary architectural components that implement the agent execution model, session management, and service infrastructure in the agent-swarm-kit system. For information about the public API functions like `addAgent`, `session`, and `complete`, see [Core API Functions](#7.1). For details about the dependency injection container and service layering, see [Service Architecture](#3).

@@ -1,3 +1,8 @@
+---
+title: design/14_schema_services
+group: design
+---
+
 # Schema Services
 
 Schema Services provide centralized registry and validation for all schema types in the agent swarm system. They manage configuration schemas for agents, tools, completions, swarms, and resources using the ToolRegistry pattern from functools-kit. These services ensure schema integrity through validation and support dynamic schema overrides through SchemaContextService integration.

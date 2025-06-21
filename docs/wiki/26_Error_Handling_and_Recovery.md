@@ -1,3 +1,8 @@
+---
+title: design/26_error_handling_and_recovery
+group: design
+---
+
 # Error Handling and Recovery
 
 This document covers the error handling and recovery mechanisms within the agent-swarm-kit system, including tool call failures, model rescue strategies, validation errors, and system recovery patterns. It focuses on how the system maintains stability and provides graceful degradation when failures occur.

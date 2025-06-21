@@ -1,3 +1,8 @@
+---
+title: design/27_examples_and_testing
+group: design
+---
+
 # Examples and Testing
 
 This page demonstrates practical examples of building agent swarm systems using the agent-swarm-kit framework and provides comprehensive testing approaches for multi-agent systems. It covers real-world usage patterns, test implementation strategies, and integration testing methods for ensuring system reliability and correctness.

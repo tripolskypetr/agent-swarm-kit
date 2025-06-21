@@ -1,3 +1,8 @@
+---
+title: design/13_dependency_injection_container
+group: design
+---
+
 # Dependency Injection Container
 
 The dependency injection (DI) container is the central architectural component that manages service lifecycle and provides structured access to all system functionality. It aggregates services across multiple layers - from core infrastructure to public APIs - enabling clean separation of concerns and testable code architecture.
