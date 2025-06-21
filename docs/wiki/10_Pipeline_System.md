@@ -7,7 +7,7 @@ group: design
 
 The Pipeline System provides structured workflow orchestration capabilities within the agent-swarm-kit framework. It enables the execution of predefined, repeatable procedures with specific agents, complete with lifecycle management, scope isolation, and callback handling.
 
-This document covers pipeline definition, execution, schema management, and scope isolation. For information about agent navigation and switching, see [Navigation System](#2.7). For details about agent execution patterns, see [Client Agent](#2.1).
+This document covers pipeline definition, execution, schema management, and scope isolation. For information about agent navigation and switching, see [Navigation System](./2_Core_Components.md). For details about agent execution patterns, see [Client Agent](./2_Core_Components.md).
 
 ## Overview and Architecture
 

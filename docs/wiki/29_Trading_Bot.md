@@ -7,7 +7,7 @@ group: design
 
 This document describes a sophisticated multi-agent cryptocurrency trading system built with the agent-swarm-kit framework. The system implements a specialized trading bot that provides long-term cryptocurrency investment advice and calculations for Bitcoin, Ethereum, Binance Coin, Ripple, and Solana.
 
-The trading bot demonstrates advanced multi-agent orchestration, specialized tool integration, and persistent order tracking. For information about the core agent-swarm-kit framework components, see [Core Components](#2). For general usage patterns, see [Usage Patterns](#5).
+The trading bot demonstrates advanced multi-agent orchestration, specialized tool integration, and persistent order tracking. For information about the core agent-swarm-kit framework components, see [Core Components](./2_Core_Components.md). For general usage patterns, see [Usage Patterns](./5_Session_Management.md).
 
 ## System Architecture
 

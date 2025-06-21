@@ -7,7 +7,7 @@ group: design
 
 This document covers the file-system based persistence layer and message history management within agent-swarm-kit. The persistence system provides reliable JSON-based storage for agent states, conversation history, and swarm metadata, while the history management system handles both in-memory and persistent storage of agent conversations.
 
-For information about client-side data management, see [Storage and State](#2.5). For details about session lifecycle management, see [Session Management](#2.3).
+For information about client-side data management, see [Storage and State](./2_Core_Components.md). For details about session lifecycle management, see [Session Management](./2_Core_Components.md).
 
 ## Core Persistence Architecture
 

@@ -7,7 +7,7 @@ group: design
 
 Public Services form the external API layer of the agent-swarm-kit framework, providing a clean interface for applications to interact with the swarm system. They act as a facade that delegates operations to Connection Services while handling cross-cutting concerns like context scoping, logging, and parameter validation.
 
-For information about the underlying service instances and lifecycle management, see [Connection Services](#3.3). For service registration and dependency injection patterns, see [Dependency Injection](#3.1). For schema-driven service configuration, see [Schema Services](#3.2).
+For information about the underlying service instances and lifecycle management, see [Connection Services](./3_Client_Agent.md). For service registration and dependency injection patterns, see [Dependency Injection](./3_Client_Agent.md). For schema-driven service configuration, see [Schema Services](./3_Client_Agent.md).
 
 ## Architecture Overview
 

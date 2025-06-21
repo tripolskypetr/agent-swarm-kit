@@ -7,7 +7,7 @@ group: design
 
 This document provides comprehensive guidance for developers creating multi-agent AI applications using the agent-swarm-kit framework. It covers the essential patterns, components, and workflows needed to design, implement, and orchestrate systems where multiple AI agents collaborate to solve complex tasks.
 
-For information about the underlying service architecture and dependency injection, see [Service Architecture](#3). For details about AI model integration and completion adapters, see [AI Integration](#4). For specific usage examples, see [Examples](#6).
+For information about the underlying service architecture and dependency injection, see [Service Architecture](./3_Client_Agent.md). For details about AI model integration and completion adapters, see [AI Integration](./4_Swarm_Management.md). For specific usage examples, see [Examples](./6_Model_Context_Protocol_MCP.md).
 
 ## System Architecture Overview
 

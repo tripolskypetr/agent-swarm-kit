@@ -5,7 +5,7 @@ group: design
 
 # Client Agent
 
-The Client Agent is the fundamental building block in the agent-swarm-kit library, providing the core implementation of the agent interface. It handles message execution, tool calls, model completions, history management, and output emission. This document covers the implementation details, architecture, and functionality of the ClientAgent class. For information about coordinating multiple agents, see [Swarm Management](#2.2).
+The Client Agent is the fundamental building block in the agent-swarm-kit library, providing the core implementation of the agent interface. It handles message execution, tool calls, model completions, history management, and output emission. This document covers the implementation details, architecture, and functionality of the ClientAgent class. For information about coordinating multiple agents, see [Swarm Management](./2_Core_Components.md).
 
 ## Core Architecture
 

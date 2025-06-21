@@ -7,7 +7,7 @@ group: design
 
 This page demonstrates real-world applications built with the agent-swarm-kit framework. The examples showcase different integration patterns, from simple WebSocket-based chat systems to complex multi-agent workflows. These examples serve as practical templates for building agent-based applications.
 
-For information about the core framework concepts, see [Core Components](#2). For implementation guidance, see [Usage Patterns](#5).
+For information about the core framework concepts, see [Core Components](./2_Core_Components.md). For implementation guidance, see [Usage Patterns](./5_Session_Management.md).
 
 ## Available Examples Overview
 

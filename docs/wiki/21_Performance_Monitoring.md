@@ -7,7 +7,7 @@ group: design
 
 The Performance Monitoring system provides comprehensive tracking and reporting of execution metrics, response times, and resource usage across the agent swarm framework. This system captures detailed performance data at both the system-wide and client-specific levels, enabling monitoring of AI completion requests, agent executions, and overall system efficiency.
 
-For information about AI completion adapters themselves, see [Completion Adapters](#4.1). For details on overall service architecture, see [Service Architecture](#3).
+For information about AI completion adapters themselves, see [Completion Adapters](./4_Swarm_Management.md). For details on overall service architecture, see [Service Architecture](./3_Client_Agent.md).
 
 ## Core Performance Service
 

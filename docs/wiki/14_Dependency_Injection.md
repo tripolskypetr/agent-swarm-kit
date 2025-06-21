@@ -9,7 +9,7 @@ This document explains the dependency injection (DI) system used in agent-swarm-
 
 The core of the system is the `swarm` object exported from the main library, which provides access to all registered services through a single interface.
 
-For information about specific services and their implementations, see [Core Components](#2).
+For information about specific services and their implementations, see [Core Components](./2_Core_Components.md).
 
 ## Purpose and Overview
 

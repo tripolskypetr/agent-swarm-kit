@@ -7,7 +7,7 @@ group: design
 
 The Navigation System provides agent switching and routing capabilities within the agent-swarm-kit framework. It enables dynamic transitions between agents in a swarm, maintains navigation history, and integrates with tool execution to facilitate complex multi-agent workflows.
 
-This document covers agent navigation functions, navigation templates for tool creation, and the integration points with swarm management and session handling. For information about swarm orchestration and agent lifecycle, see [Swarm Management](#2.2). For session coordination and resource tracking, see [Session Management](#2.3).
+This document covers agent navigation functions, navigation templates for tool creation, and the integration points with swarm management and session handling. For information about swarm orchestration and agent lifecycle, see [Swarm Management](./2_Core_Components.md). For session coordination and resource tracking, see [Session Management](./2_Core_Components.md).
 
 ## Core Navigation Functions
 

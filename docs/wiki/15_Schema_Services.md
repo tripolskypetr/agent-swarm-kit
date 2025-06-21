@@ -7,7 +7,7 @@ group: design
 
 Schema Services provide centralized component definition and configuration management for the agent-swarm-kit framework. They serve as the foundational layer that defines how agents, tools, completions, storages, states, and other system components are configured, validated, and registered within the swarm ecosystem.
 
-For information about how these schemas are used during runtime, see [Connection Services](#3.3). For details on the public APIs that consume these schemas, see [Public Services](#3.4).
+For information about how these schemas are used during runtime, see [Connection Services](./3_Client_Agent.md). For details on the public APIs that consume these schemas, see [Public Services](./3_Client_Agent.md).
 
 ## Architecture Overview
 

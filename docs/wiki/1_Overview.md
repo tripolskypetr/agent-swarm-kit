@@ -7,7 +7,7 @@ group: design
 
 The **agent-swarm-kit** is a TypeScript framework for building orchestrated, multi-agent AI systems that can seamlessly coordinate between different AI models and external tools. This document provides an architectural overview of the framework's core components, service layers, and integration patterns.
 
-The framework enables developers to create swarms of AI agents that can navigate between each other, share conversation history, execute tools, and maintain persistent state across sessions. For specific implementation details of individual components, see [Core Components](#2). For usage patterns and examples, see [Usage Patterns](#5) and [Examples](#6).
+The framework enables developers to create swarms of AI agents that can navigate between each other, share conversation history, execute tools, and maintain persistent state across sessions. For specific implementation details of individual components, see [Core Components](./2_Core_Components.md). For usage patterns and examples, see [Usage Patterns](./5_Session_Management.md) and [Examples](./6_Model_Context_Protocol_MCP.md).
 
 ## Framework Purpose and Architecture
 

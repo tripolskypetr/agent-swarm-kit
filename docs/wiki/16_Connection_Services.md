@@ -5,7 +5,7 @@ group: design
 
 # Connection Services
 
-Connection Services form the instance management layer of the agent-swarm-kit architecture, responsible for creating, caching, and managing the lifecycle of component instances. These services act as a bridge between schema definitions and public APIs on one side, and the actual client implementations (`ClientAgent`, `ClientSession`, `ClientStorage`, etc.) on the other side. For information about the public-facing APIs that build on top of connection services, see [Public Services](#3.4). For details about the schema definitions that configure these services, see [Schema Services](#3.2).
+Connection Services form the instance management layer of the agent-swarm-kit architecture, responsible for creating, caching, and managing the lifecycle of component instances. These services act as a bridge between schema definitions and public APIs on one side, and the actual client implementations (`ClientAgent`, `ClientSession`, `ClientStorage`, etc.) on the other side. For information about the public-facing APIs that build on top of connection services, see [Public Services](./3_Client_Agent.md). For details about the schema definitions that configure these services, see [Schema Services](./3_Client_Agent.md).
 
 ## Architecture Overview
 

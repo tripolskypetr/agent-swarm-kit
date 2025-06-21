@@ -9,7 +9,7 @@ group: design
 
 Validation Services form a critical layer in the agent-swarm-kit framework responsible for ensuring data integrity, schema compliance, and proper configuration validation across all system components. These services validate agent configurations, tool definitions, completion schemas, storage configurations, and their interdependencies before they are used in the system.
 
-This document covers the validation service layer's architecture, core validation services, and integration patterns. For information about schema definition and registration, see [Schema Services](#3.2). For details about service instantiation and lifecycle management, see [Connection Services](#3.3).
+This document covers the validation service layer's architecture, core validation services, and integration patterns. For information about schema definition and registration, see [Schema Services](./3_Client_Agent.md). For details about service instantiation and lifecycle management, see [Connection Services](./3_Client_Agent.md).
 
 ## Validation Service Architecture
 

@@ -7,7 +7,7 @@ group: design
 
 This document demonstrates a WebSocket-based chat application built with the agent-swarm-kit framework, showcasing real-time bidirectional communication between clients and AI agents. The example illustrates how to create a server that manages persistent agent sessions and a client that provides an interactive command-line interface for chatting with agents.
 
-For information about building multi-agent systems with agent orchestration, see [Building Multi-Agent Systems](#5.1). For details about session management and lifecycle, see [Session Management](#2.3).
+For information about building multi-agent systems with agent orchestration, see [Building Multi-Agent Systems](./5_Session_Management.md). For details about session management and lifecycle, see [Session Management](./2_Core_Components.md).
 
 ## Overview
 

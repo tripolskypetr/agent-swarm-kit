@@ -7,7 +7,7 @@ group: design
 
 This document provides practical guidance on building applications with the agent-swarm-kit framework. It covers common architectural patterns, integration strategies, and best practices for creating multi-agent systems.
 
-For detailed information about individual components, see [Core Components](#2). For advanced system design concepts, see [Building Multi-Agent Systems](#5.1) and [Tool Integration](#5.2).
+For detailed information about individual components, see [Core Components](./2_Core_Components.md). For advanced system design concepts, see [Building Multi-Agent Systems](./5_Session_Management.md) and [Tool Integration](./5_Session_Management.md).
 
 ## Client Connection Patterns
 

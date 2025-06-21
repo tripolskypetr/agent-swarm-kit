@@ -7,7 +7,7 @@ group: design
 
 This page documents the testing infrastructure and utilities available in agent-swarm-kit for validating agent behavior, system integration, and concurrent operations. The test suite provides comprehensive coverage of the framework's core functionality including agent orchestration, session management, navigation, and resource cleanup.
 
-For information about integration testing patterns, see [Integration Tests](#7.1). For information about building multi-agent systems in production, see [Building Multi-Agent Systems](#5.1).
+For information about integration testing patterns, see [Integration Tests](./7_Storage_and_State.md). For information about building multi-agent systems in production, see [Building Multi-Agent Systems](./5_Session_Management.md).
 
 ## Test Framework Architecture
 

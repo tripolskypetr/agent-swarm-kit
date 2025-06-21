@@ -7,7 +7,7 @@ group: design
 
 This document covers the completion adapter system that enables the agent-swarm-kit framework to integrate with various AI language model providers. The adapters provide a standardized interface for interacting with different completion APIs while handling provider-specific message formatting, tool calls, and response processing.
 
-For information about performance monitoring of completions, see [Performance Monitoring](#4.2). For broader AI integration patterns, see [AI Integration](#4).
+For information about performance monitoring of completions, see [Performance Monitoring](./4_Swarm_Management.md). For broader AI integration patterns, see [AI Integration](./4_Swarm_Management.md).
 
 ## Overview
 

@@ -7,7 +7,7 @@ group: design
 
 The Documentation Generation system automatically creates comprehensive markdown documentation for agents, swarms, and system components within the agent-swarm-kit framework. This system transforms schema definitions into human-readable documentation with UML diagrams, performance metrics, and structured cross-references between components.
 
-For information about performance monitoring data collection, see [Performance Monitoring](#4.2). For details about schema management and component registration, see [Schema Services](#3.2).
+For information about performance monitoring data collection, see [Performance Monitoring](./4_Swarm_Management.md). For details about schema management and component registration, see [Schema Services](./3_Client_Agent.md).
 
 ## System Architecture
 

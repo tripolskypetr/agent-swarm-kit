@@ -5,7 +5,7 @@ group: design
 
 # Tool Integration
 
-This document covers how to create, register, and integrate tools within the agent-swarm-kit framework. Tools are external functions that agents can invoke to perform specific actions, from simple computations to complex navigation between agents. For information about agent lifecycle and execution patterns, see [Building Multi-Agent Systems](#5.1). For state management during tool execution, see [Managing State and Storage](#5.3).
+This document covers how to create, register, and integrate tools within the agent-swarm-kit framework. Tools are external functions that agents can invoke to perform specific actions, from simple computations to complex navigation between agents. For information about agent lifecycle and execution patterns, see [Building Multi-Agent Systems](./5_Session_Management.md). For state management during tool execution, see [Managing State and Storage](./5_Session_Management.md).
 
 ## Tool Architecture Overview
 

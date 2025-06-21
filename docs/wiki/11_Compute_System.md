@@ -7,7 +7,7 @@ group: design
 
 The Compute System manages computational resources, their lifecycle, and state dependencies within the agent-swarm-kit framework. It provides reactive computation capabilities where compute instances automatically recalculate when their dependent states change, supporting both client-specific and shared computational resources with caching, middleware processing, and event-driven updates.
 
-For information about state management that compute instances depend on, see [Storage and State](#2.5). For details about the service architecture that integrates compute services, see [Service Architecture](#3).
+For information about state management that compute instances depend on, see [Storage and State](./2_Core_Components.md). For details about the service architecture that integrates compute services, see [Service Architecture](./3_Client_Agent.md).
 
 ## Core Concepts
 

@@ -7,7 +7,7 @@ group: design
 
 The Operator System manages specialized agent types that facilitate communication between agents and external systems or human operators. Unlike standard AI agents that generate responses through completion engines, operators serve as bridges for external input and real-time interaction patterns.
 
-This system enables scenarios where human operators or external systems need to participate directly in agent conversations, providing manual responses or specialized processing that cannot be handled by automated agents. For information about standard AI agents and their completion engines, see [Client Agent](#2.1).
+This system enables scenarios where human operators or external systems need to participate directly in agent conversations, providing manual responses or specialized processing that cannot be handled by automated agents. For information about standard AI agents and their completion engines, see [Client Agent](./2_Core_Components.md).
 
 ## Architecture Overview
 

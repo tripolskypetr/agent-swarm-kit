@@ -7,7 +7,7 @@ group: design
 
 This document covers the data management systems in agent-swarm-kit, including storage with embedding-based search capabilities, client and shared state management, session memory handling, and data persistence patterns. It provides guidance on configuring these systems and best practices for managing data across multi-agent applications.
 
-For information about building multi-agent workflows that use these storage and state systems, see [Building Multi-Agent Systems](#5.1). For details on tool integration that may store or retrieve data, see [Tool Integration](#5.2).
+For information about building multi-agent workflows that use these storage and state systems, see [Building Multi-Agent Systems](./5_Session_Management.md). For details on tool integration that may store or retrieve data, see [Tool Integration](./5_Session_Management.md).
 
 ## Storage System Architecture
 

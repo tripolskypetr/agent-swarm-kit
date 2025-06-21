@@ -7,7 +7,7 @@ group: design
 
 The integration test suite validates the complete agent-swarm-kit system by testing interactions between agents, swarms, sessions, tools, and the underlying service infrastructure. These tests ensure that all components work together correctly under various scenarios including concurrent operations, error conditions, and resource management.
 
-For information about test utilities and mock services, see [Test Utilities](#7.2).
+For information about test utilities and mock services, see [Test Utilities](./7_Storage_and_State.md).
 
 ## Test Framework Architecture
 

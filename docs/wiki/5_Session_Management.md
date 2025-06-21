@@ -7,7 +7,7 @@ group: design
 
 Session management provides the coordination layer between clients and agent swarms, handling message flow, policy enforcement, and resource lifecycle. Sessions serve as isolated execution contexts that orchestrate interactions between individual clients and specific swarms, ensuring proper message routing, validation, and cleanup.
 
-For information about individual agent execution within sessions, see [Client Agent](#2.1). For swarm-level coordination across multiple agents, see [Swarm Management](#2.2).
+For information about individual agent execution within sessions, see [Client Agent](./2_Core_Components.md). For swarm-level coordination across multiple agents, see [Swarm Management](./2_Core_Components.md).
 
 ## Session Architecture
 

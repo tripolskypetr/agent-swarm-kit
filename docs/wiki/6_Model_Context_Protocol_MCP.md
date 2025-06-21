@@ -7,7 +7,7 @@ group: design
 
 The Model Context Protocol (MCP) system provides a standardized interface for managing external tools and integrating them with AI agents. It handles tool discovery, execution, and lifecycle management, enabling agents to dynamically access and use external functions through a unified protocol.
 
-For information about tool integration patterns and best practices, see [Tool Integration](#5.2). For details about agent tool execution, see [Client Agent](#2.1).
+For information about tool integration patterns and best practices, see [Tool Integration](./5_Session_Management.md). For details about agent tool execution, see [Client Agent](./2_Core_Components.md).
 
 ## Architecture Overview
 
