@@ -344,11 +344,6 @@ For developers looking to integrate `agent-swarm-kit` into real-life projects, f
   - Modify the code to experiment with custom agents, tools, or completions tailored to your needs.
   - Use the demos as a starting point for your own projects, saving time on initial setup.
 
-- **Real-Life Application**:
-  - **Example 1**: Adapt the CLI demo to create a local chatbot for testing trading strategies with `TradingSwarm`. Add custom tools to fetch live market data.
-  - **Example 2**: Use the WebSocket demo as a foundation for a customer support system, integrating the `RootSwarm` with additional agents for specific departments (e.g., billing, technical support).
-  - **Example 3**: Extend the HTTP API demo to build a backend service for a mobile app, connecting users to a pharmaceutical consultation swarm.
-
 - **How to Get Started**:
   1. **Fork the Repository**: Visit the [agent-swarm-kit GitHub page](https://github.com/tripolskypetr/agent-swarm-kit), click "Fork," and clone it to your local machine:
      ```bash
