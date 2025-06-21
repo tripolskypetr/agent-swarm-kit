@@ -1,28 +1,5 @@
 # Client-Server Chat Implementation
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [src/classes/Chat.ts](src/classes/Chat.ts)
-- [src/functions/alias/addAgentNavigation.ts](src/functions/alias/addAgentNavigation.ts)
-- [src/functions/alias/addTriageNavigation.ts](src/functions/alias/addTriageNavigation.ts)
-- [src/template/createNavigateToAgent.ts](src/template/createNavigateToAgent.ts)
-- [src/template/createNavigateToTriageAgent.ts](src/template/createNavigateToTriageAgent.ts)
-- [test/index.mjs](test/index.mjs)
-- [test/spec/completion.test.mjs](test/spec/completion.test.mjs)
-- [test/spec/connection.test.mjs](test/spec/connection.test.mjs)
-- [test/spec/dispose.test.mjs](test/spec/dispose.test.mjs)
-- [test/spec/ignore.spec.mjs](test/spec/ignore.spec.mjs)
-- [test/spec/navigation.test.mjs](test/spec/navigation.test.mjs)
-- [test/spec/resque.test.mjs](test/spec/resque.test.mjs)
-- [test/spec/validation.test.mjs](test/spec/validation.test.mjs)
-
-</details>
-
-
-
 This document provides a complete example of implementing client-server chat functionality using the agent-swarm-kit framework. It demonstrates session management, message processing, agent interactions, and handling multiple concurrent clients through the `Chat` utility class and related components.
 
 For information about the underlying session and agent execution mechanisms, see [Session and Chat Management](#2.3). For details about agent navigation patterns used in chat implementations, see [Navigation System](#2.7).

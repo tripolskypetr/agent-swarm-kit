@@ -1,39 +1,5 @@
 # Storage and State
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [docs/classes/ClientStorage.md](docs/classes/ClientStorage.md)
-- [docs/classes/HistoryMemoryInstance.md](docs/classes/HistoryMemoryInstance.md)
-- [docs/classes/HistoryPersistInstance.md](docs/classes/HistoryPersistInstance.md)
-- [docs/classes/LoggerInstance.md](docs/classes/LoggerInstance.md)
-- [docs/classes/PersistStateUtils.md](docs/classes/PersistStateUtils.md)
-- [docs/classes/PersistStorageUtils.md](docs/classes/PersistStorageUtils.md)
-- [docs/classes/PersistSwarmUtils.md](docs/classes/PersistSwarmUtils.md)
-- [docs/interfaces/IPersistBase.md](docs/interfaces/IPersistBase.md)
-- [docs/interfaces/IPersistStateControl.md](docs/interfaces/IPersistStateControl.md)
-- [docs/interfaces/IStateSchema.md](docs/interfaces/IStateSchema.md)
-- [docs/interfaces/IStorageSchema.md](docs/interfaces/IStorageSchema.md)
-- [docs/interfaces/ISwarmSchema.md](docs/interfaces/ISwarmSchema.md)
-- [src/client/ClientState.ts](src/client/ClientState.ts)
-- [src/client/ClientStorage.ts](src/client/ClientStorage.ts)
-- [src/interfaces/Embedding.interface.ts](src/interfaces/Embedding.interface.ts)
-- [src/interfaces/State.interface.ts](src/interfaces/State.interface.ts)
-- [src/interfaces/Storage.interface.ts](src/interfaces/Storage.interface.ts)
-- [src/lib/services/connection/SharedStateConnectionService.ts](src/lib/services/connection/SharedStateConnectionService.ts)
-- [src/lib/services/connection/SharedStorageConnectionService.ts](src/lib/services/connection/SharedStorageConnectionService.ts)
-- [src/lib/services/connection/StateConnectionService.ts](src/lib/services/connection/StateConnectionService.ts)
-- [src/lib/services/connection/StorageConnectionService.ts](src/lib/services/connection/StorageConnectionService.ts)
-- [src/lib/services/public/HistoryPublicService.ts](src/lib/services/public/HistoryPublicService.ts)
-- [src/lib/services/public/StatePublicService.ts](src/lib/services/public/StatePublicService.ts)
-- [src/lib/services/public/StoragePublicService.ts](src/lib/services/public/StoragePublicService.ts)
-
-</details>
-
-
-
 This document covers the storage and state management systems in the agent-swarm-kit framework. These systems provide persistent data storage with embedding-based search capabilities and managed state with middleware support. Both systems support client-specific and shared modes of operation.
 
 For information about data persistence to the file system, see [Persistence and History](#2.6). For session-level coordination and lifecycle management, see [Session Management](#2.3). For practical guidance on using these systems, see [Managing State and Storage](#5.3).

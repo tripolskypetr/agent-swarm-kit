@@ -1,35 +1,5 @@
 # Agent Navigation and Tool Execution
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [src/functions/navigate/changeToAgent.ts](src/functions/navigate/changeToAgent.ts)
-- [src/functions/navigate/changeToDefaultAgent.ts](src/functions/navigate/changeToDefaultAgent.ts)
-- [src/functions/navigate/changeToPrevAgent.ts](src/functions/navigate/changeToPrevAgent.ts)
-- [src/functions/setup/addPipeline.ts](src/functions/setup/addPipeline.ts)
-- [src/functions/target/scope.ts](src/functions/target/scope.ts)
-- [src/functions/target/startPipeline.ts](src/functions/target/startPipeline.ts)
-- [src/functions/test/overridePipeline.ts](src/functions/test/overridePipeline.ts)
-- [src/interfaces/History.interface.ts](src/interfaces/History.interface.ts)
-- [src/lib/services/connection/HistoryConnectionService.ts](src/lib/services/connection/HistoryConnectionService.ts)
-- [src/lib/services/schema/PipelineSchemaService.ts](src/lib/services/schema/PipelineSchemaService.ts)
-- [src/lib/services/validation/PipelineValidationService.ts](src/lib/services/validation/PipelineValidationService.ts)
-- [src/model/Pipeline.model.ts](src/model/Pipeline.model.ts)
-- [test/index.mjs](test/index.mjs)
-- [test/spec/completion.test.mjs](test/spec/completion.test.mjs)
-- [test/spec/connection.test.mjs](test/spec/connection.test.mjs)
-- [test/spec/dispose.test.mjs](test/spec/dispose.test.mjs)
-- [test/spec/ignore.spec.mjs](test/spec/ignore.spec.mjs)
-- [test/spec/navigation.test.mjs](test/spec/navigation.test.mjs)
-- [test/spec/resque.test.mjs](test/spec/resque.test.mjs)
-- [test/spec/validation.test.mjs](test/spec/validation.test.mjs)
-
-</details>
-
-
-
 This document covers the dynamic orchestration of agent transitions and tool execution within multi-agent workflows. It explains how agents can navigate between each other, execute tools that trigger further navigation, and coordinate complex workflows through the pipeline system.
 
 For basic agent and swarm setup, see [Building Multi-Agent Systems](#5.1). For tool integration patterns, see [Tool Integration](#5.2). For session management fundamentals, see [Session and Chat Management](#2.3).

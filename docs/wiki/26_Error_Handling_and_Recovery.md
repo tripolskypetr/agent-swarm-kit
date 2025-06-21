@@ -1,38 +1,5 @@
 # Error Handling and Recovery
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [package-lock.json](package-lock.json)
-- [package.json](package.json)
-- [src/client/ClientAgent.ts](src/client/ClientAgent.ts)
-- [src/client/ClientHistory.ts](src/client/ClientHistory.ts)
-- [src/client/ClientSession.ts](src/client/ClientSession.ts)
-- [src/config/params.ts](src/config/params.ts)
-- [src/index.ts](src/index.ts)
-- [src/interfaces/Agent.interface.ts](src/interfaces/Agent.interface.ts)
-- [src/interfaces/Session.interface.ts](src/interfaces/Session.interface.ts)
-- [src/lib/services/connection/AgentConnectionService.ts](src/lib/services/connection/AgentConnectionService.ts)
-- [src/lib/services/connection/SessionConnectionService.ts](src/lib/services/connection/SessionConnectionService.ts)
-- [src/lib/services/public/AgentPublicService.ts](src/lib/services/public/AgentPublicService.ts)
-- [src/lib/services/public/SessionPublicService.ts](src/lib/services/public/SessionPublicService.ts)
-- [src/model/GlobalConfig.model.ts](src/model/GlobalConfig.model.ts)
-- [test/index.mjs](test/index.mjs)
-- [test/spec/completion.test.mjs](test/spec/completion.test.mjs)
-- [test/spec/connection.test.mjs](test/spec/connection.test.mjs)
-- [test/spec/dispose.test.mjs](test/spec/dispose.test.mjs)
-- [test/spec/ignore.spec.mjs](test/spec/ignore.spec.mjs)
-- [test/spec/navigation.test.mjs](test/spec/navigation.test.mjs)
-- [test/spec/resque.test.mjs](test/spec/resque.test.mjs)
-- [test/spec/validation.test.mjs](test/spec/validation.test.mjs)
-- [types.d.ts](types.d.ts)
-
-</details>
-
-
-
 This document covers the error handling and recovery mechanisms within the agent-swarm-kit system, including tool call failures, model rescue strategies, validation errors, and system recovery patterns. It focuses on how the system maintains stability and provides graceful degradation when failures occur.
 
 For information about general system validation, see [Validation Services](#3.5). For details about agent execution lifecycle, see [Client Agent](#2.1). For session management patterns, see [Session and Chat Management](#2.3).

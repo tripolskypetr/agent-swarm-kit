@@ -1,34 +1,5 @@
 # Swarm Management
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [package-lock.json](package-lock.json)
-- [package.json](package.json)
-- [src/client/ClientAgent.ts](src/client/ClientAgent.ts)
-- [src/client/ClientHistory.ts](src/client/ClientHistory.ts)
-- [src/client/ClientSession.ts](src/client/ClientSession.ts)
-- [src/client/ClientSwarm.ts](src/client/ClientSwarm.ts)
-- [src/config/params.ts](src/config/params.ts)
-- [src/index.ts](src/index.ts)
-- [src/interfaces/Agent.interface.ts](src/interfaces/Agent.interface.ts)
-- [src/interfaces/Session.interface.ts](src/interfaces/Session.interface.ts)
-- [src/interfaces/Swarm.interface.ts](src/interfaces/Swarm.interface.ts)
-- [src/lib/services/connection/AgentConnectionService.ts](src/lib/services/connection/AgentConnectionService.ts)
-- [src/lib/services/connection/SessionConnectionService.ts](src/lib/services/connection/SessionConnectionService.ts)
-- [src/lib/services/connection/SwarmConnectionService.ts](src/lib/services/connection/SwarmConnectionService.ts)
-- [src/lib/services/public/AgentPublicService.ts](src/lib/services/public/AgentPublicService.ts)
-- [src/lib/services/public/SessionPublicService.ts](src/lib/services/public/SessionPublicService.ts)
-- [src/lib/services/public/SwarmPublicService.ts](src/lib/services/public/SwarmPublicService.ts)
-- [src/model/GlobalConfig.model.ts](src/model/GlobalConfig.model.ts)
-- [types.d.ts](types.d.ts)
-
-</details>
-
-
-
 This document covers the swarm management system in agent-swarm-kit, which orchestrates multiple agents, manages navigation between agents, and coordinates multi-agent workflows. Swarms serve as the primary orchestration layer that routes messages to the appropriate agents and maintains conversation state across agent transitions.
 
 For information about individual agent execution and tool calling, see [Client Agent](#2.1). For session-level coordination and client isolation, see [Session Management](#2.3).

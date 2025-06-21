@@ -1,27 +1,5 @@
 # Pipeline System
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [src/functions/navigate/changeToAgent.ts](src/functions/navigate/changeToAgent.ts)
-- [src/functions/navigate/changeToDefaultAgent.ts](src/functions/navigate/changeToDefaultAgent.ts)
-- [src/functions/navigate/changeToPrevAgent.ts](src/functions/navigate/changeToPrevAgent.ts)
-- [src/functions/setup/addPipeline.ts](src/functions/setup/addPipeline.ts)
-- [src/functions/target/scope.ts](src/functions/target/scope.ts)
-- [src/functions/target/startPipeline.ts](src/functions/target/startPipeline.ts)
-- [src/functions/test/overridePipeline.ts](src/functions/test/overridePipeline.ts)
-- [src/interfaces/History.interface.ts](src/interfaces/History.interface.ts)
-- [src/lib/services/connection/HistoryConnectionService.ts](src/lib/services/connection/HistoryConnectionService.ts)
-- [src/lib/services/schema/PipelineSchemaService.ts](src/lib/services/schema/PipelineSchemaService.ts)
-- [src/lib/services/validation/PipelineValidationService.ts](src/lib/services/validation/PipelineValidationService.ts)
-- [src/model/Pipeline.model.ts](src/model/Pipeline.model.ts)
-
-</details>
-
-
-
 The Pipeline System provides automated workflow execution capabilities within the agent swarm framework. It enables developers to define, register, and execute background processes that can operate independently of regular agent interactions while maintaining integration with the session management, agent navigation, and validation systems.
 
 For information about agent navigation and routing, see [Navigation System](#2.7). For session and client management patterns, see [Session and Chat Management](#2.3).

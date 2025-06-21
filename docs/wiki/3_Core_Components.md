@@ -1,30 +1,5 @@
 # Core Components
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [package-lock.json](package-lock.json)
-- [package.json](package.json)
-- [src/client/ClientAgent.ts](src/client/ClientAgent.ts)
-- [src/client/ClientHistory.ts](src/client/ClientHistory.ts)
-- [src/client/ClientSession.ts](src/client/ClientSession.ts)
-- [src/config/params.ts](src/config/params.ts)
-- [src/index.ts](src/index.ts)
-- [src/interfaces/Agent.interface.ts](src/interfaces/Agent.interface.ts)
-- [src/interfaces/Session.interface.ts](src/interfaces/Session.interface.ts)
-- [src/lib/services/connection/AgentConnectionService.ts](src/lib/services/connection/AgentConnectionService.ts)
-- [src/lib/services/connection/SessionConnectionService.ts](src/lib/services/connection/SessionConnectionService.ts)
-- [src/lib/services/public/AgentPublicService.ts](src/lib/services/public/AgentPublicService.ts)
-- [src/lib/services/public/SessionPublicService.ts](src/lib/services/public/SessionPublicService.ts)
-- [src/model/GlobalConfig.model.ts](src/model/GlobalConfig.model.ts)
-- [types.d.ts](types.d.ts)
-
-</details>
-
-
-
 This page covers the primary architectural components that implement the agent execution model, session management, and service infrastructure in the agent-swarm-kit system. For information about the public API functions like `addAgent`, `session`, and `complete`, see [Core API Functions](#7.1). For details about the dependency injection container and service layering, see [Service Architecture](#3).
 
 ## Agent Execution Engine

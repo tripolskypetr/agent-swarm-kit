@@ -1,40 +1,5 @@
 # Public Services
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [docs/classes/ClientCompute.md](docs/classes/ClientCompute.md)
-- [docs/classes/DocService.md](docs/classes/DocService.md)
-- [docs/classes/SchemaUtils.md](docs/classes/SchemaUtils.md)
-- [docs/index.md](docs/index.md)
-- [docs/interfaces/IAgentNavigationParams.md](docs/interfaces/IAgentNavigationParams.md)
-- [docs/interfaces/IAgentTool.md](docs/interfaces/IAgentTool.md)
-- [docs/interfaces/INavigateToAgentParams.md](docs/interfaces/INavigateToAgentParams.md)
-- [docs/interfaces/INavigateToTriageParams.md](docs/interfaces/INavigateToTriageParams.md)
-- [docs/interfaces/ISwarmDI.md](docs/interfaces/ISwarmDI.md)
-- [docs/interfaces/ITriageNavigationParams.md](docs/interfaces/ITriageNavigationParams.md)
-- [package-lock.json](package-lock.json)
-- [package.json](package.json)
-- [src/client/ClientAgent.ts](src/client/ClientAgent.ts)
-- [src/client/ClientHistory.ts](src/client/ClientHistory.ts)
-- [src/client/ClientSession.ts](src/client/ClientSession.ts)
-- [src/config/params.ts](src/config/params.ts)
-- [src/index.ts](src/index.ts)
-- [src/interfaces/Agent.interface.ts](src/interfaces/Agent.interface.ts)
-- [src/interfaces/Session.interface.ts](src/interfaces/Session.interface.ts)
-- [src/lib/services/connection/AgentConnectionService.ts](src/lib/services/connection/AgentConnectionService.ts)
-- [src/lib/services/connection/SessionConnectionService.ts](src/lib/services/connection/SessionConnectionService.ts)
-- [src/lib/services/public/AgentPublicService.ts](src/lib/services/public/AgentPublicService.ts)
-- [src/lib/services/public/SessionPublicService.ts](src/lib/services/public/SessionPublicService.ts)
-- [src/model/GlobalConfig.model.ts](src/model/GlobalConfig.model.ts)
-- [types.d.ts](types.d.ts)
-
-</details>
-
-
-
 Public Services form the outermost API layer of the swarm system, providing a controlled interface to core functionality while managing execution context and excluding internal implementation details. These services wrap Connection Services with method-level context management, logging, and validation to create a clean separation between public APIs and internal operations.
 
 For information about the underlying Connection Services that Public Services wrap, see [Connection Services](#3.3). For details about the Schema Services that define configurations, see [Schema Services](#3.2).

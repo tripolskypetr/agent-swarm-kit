@@ -1,22 +1,5 @@
 # Usage Patterns
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [.npmignore](.npmignore)
-- [LICENSE](LICENSE)
-- [README.md](README.md)
-- [build/.gitkeep](build/.gitkeep)
-- [rollup.config.mjs](rollup.config.mjs)
-- [schema.png](schema.png)
-- [src/functions/target/fork.ts](src/functions/target/fork.ts)
-
-</details>
-
-
-
 This document describes common usage patterns and best practices for building multi-agent AI systems with agent-swarm-kit. It covers the fundamental patterns for setting up agents, orchestrating multi-agent workflows, integrating tools, and managing sessions. For specific API details, see [Core API Functions](#7.1). For implementation examples, see [Examples and Testing](#6).
 
 ## Core Setup Patterns

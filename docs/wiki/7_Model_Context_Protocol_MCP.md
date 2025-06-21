@@ -1,20 +1,5 @@
 # Model Context Protocol (MCP)
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [src/classes/MCP.ts](src/classes/MCP.ts)
-- [src/client/ClientMCP.ts](src/client/ClientMCP.ts)
-- [src/interfaces/MCP.interface.ts](src/interfaces/MCP.interface.ts)
-- [src/lib/services/connection/MCPConnectionService.ts](src/lib/services/connection/MCPConnectionService.ts)
-- [src/lib/services/public/MCPPublicService.ts](src/lib/services/public/MCPPublicService.ts)
-
-</details>
-
-
-
 The Model Context Protocol (MCP) system provides a standardized interface for managing external tools and integrating them with AI agents. It handles tool discovery, execution, and lifecycle management, enabling agents to dynamically access and use external functions through a unified protocol.
 
 For information about tool integration patterns and best practices, see page 5.2. For details about agent tool execution, see page 2.1.

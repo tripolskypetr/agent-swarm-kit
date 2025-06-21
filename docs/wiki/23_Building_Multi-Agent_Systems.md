@@ -1,31 +1,5 @@
 # Building Multi-Agent Systems
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [.npmignore](.npmignore)
-- [LICENSE](LICENSE)
-- [README.md](README.md)
-- [build/.gitkeep](build/.gitkeep)
-- [rollup.config.mjs](rollup.config.mjs)
-- [schema.png](schema.png)
-- [scripts/linux/build_demo_docs.sh](scripts/linux/build_demo_docs.sh)
-- [scripts/win/build_demo_docs.bat](scripts/win/build_demo_docs.bat)
-- [src/cli/dumpDocs.ts](src/cli/dumpDocs.ts)
-- [src/functions/setup/addAgent.ts](src/functions/setup/addAgent.ts)
-- [src/functions/target/fork.ts](src/functions/target/fork.ts)
-- [src/functions/test/overrideAgent.ts](src/functions/test/overrideAgent.ts)
-- [src/helpers/mapAgentSchema.ts](src/helpers/mapAgentSchema.ts)
-- [src/lib/services/base/DocService.ts](src/lib/services/base/DocService.ts)
-- [src/lib/services/context/SchemaContextService.ts](src/lib/services/context/SchemaContextService.ts)
-- [src/utils/resolveTools.ts](src/utils/resolveTools.ts)
-
-</details>
-
-
-
 This document provides a comprehensive guide to defining agents, swarms, and orchestrating multi-agent workflows using the agent-swarm-kit framework. It covers the step-by-step process from basic component definition through advanced orchestration patterns.
 
 For information about the underlying service architecture that powers these components, see [Service Architecture](#3). For details about AI model integration and completion adapters, see [AI Integration](#4). For tool integration patterns and MCP server connectivity, see [Tool Integration](#5.2).

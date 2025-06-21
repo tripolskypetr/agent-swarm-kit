@@ -1,32 +1,5 @@
 # Navigation System
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [src/classes/Chat.ts](src/classes/Chat.ts)
-- [src/functions/alias/addAgentNavigation.ts](src/functions/alias/addAgentNavigation.ts)
-- [src/functions/alias/addTriageNavigation.ts](src/functions/alias/addTriageNavigation.ts)
-- [src/functions/navigate/changeToAgent.ts](src/functions/navigate/changeToAgent.ts)
-- [src/functions/navigate/changeToDefaultAgent.ts](src/functions/navigate/changeToDefaultAgent.ts)
-- [src/functions/navigate/changeToPrevAgent.ts](src/functions/navigate/changeToPrevAgent.ts)
-- [src/functions/setup/addPipeline.ts](src/functions/setup/addPipeline.ts)
-- [src/functions/target/scope.ts](src/functions/target/scope.ts)
-- [src/functions/target/startPipeline.ts](src/functions/target/startPipeline.ts)
-- [src/functions/test/overridePipeline.ts](src/functions/test/overridePipeline.ts)
-- [src/interfaces/History.interface.ts](src/interfaces/History.interface.ts)
-- [src/lib/services/connection/HistoryConnectionService.ts](src/lib/services/connection/HistoryConnectionService.ts)
-- [src/lib/services/schema/PipelineSchemaService.ts](src/lib/services/schema/PipelineSchemaService.ts)
-- [src/lib/services/validation/PipelineValidationService.ts](src/lib/services/validation/PipelineValidationService.ts)
-- [src/model/Pipeline.model.ts](src/model/Pipeline.model.ts)
-- [src/template/createNavigateToAgent.ts](src/template/createNavigateToAgent.ts)
-- [src/template/createNavigateToTriageAgent.ts](src/template/createNavigateToTriageAgent.ts)
-
-</details>
-
-
-
 The Navigation System provides agent switching and routing capabilities within the agent-swarm-kit framework. It enables dynamic transitions between agents in a swarm, maintains navigation history, and integrates with tool execution to facilitate complex multi-agent workflows.
 
 This document covers agent navigation functions, navigation templates for tool creation, and the integration points with swarm management and session handling. For information about swarm orchestration and agent lifecycle, see [Swarm Management](#2.2). For session coordination and resource tracking, see [Session Management](#2.3).

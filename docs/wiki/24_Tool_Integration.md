@@ -1,27 +1,5 @@
 # Tool Integration
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [.npmignore](.npmignore)
-- [LICENSE](LICENSE)
-- [README.md](README.md)
-- [build/.gitkeep](build/.gitkeep)
-- [rollup.config.mjs](rollup.config.mjs)
-- [schema.png](schema.png)
-- [src/classes/MCP.ts](src/classes/MCP.ts)
-- [src/client/ClientMCP.ts](src/client/ClientMCP.ts)
-- [src/functions/target/fork.ts](src/functions/target/fork.ts)
-- [src/interfaces/MCP.interface.ts](src/interfaces/MCP.interface.ts)
-- [src/lib/services/connection/MCPConnectionService.ts](src/lib/services/connection/MCPConnectionService.ts)
-- [src/lib/services/public/MCPPublicService.ts](src/lib/services/public/MCPPublicService.ts)
-
-</details>
-
-
-
 This page covers the creation and integration of tools within the agent-swarm-kit framework. It explains how to create custom tools using `addTool`, integrate with external Model Context Protocol (MCP) servers, and handle tool execution patterns throughout the agent lifecycle.
 
 For information about agent navigation between agents using tools, see [Navigation System](#2.7). For details about the MCP protocol implementation, see [Model Context Protocol (MCP)](#2.4).

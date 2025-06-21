@@ -1,25 +1,5 @@
 # AI Integration
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [docs/classes/PersistMemoryUtils.md](docs/classes/PersistMemoryUtils.md)
-- [src/classes/Adapter.ts](src/classes/Adapter.ts)
-- [src/lib/services/base/PerfService.ts](src/lib/services/base/PerfService.ts)
-- [src/model/Performance.model.ts](src/model/Performance.model.ts)
-- [src/utils/isObject.ts](src/utils/isObject.ts)
-- [src/utils/msToTime.ts](src/utils/msToTime.ts)
-- [src/utils/nameToTitle.ts](src/utils/nameToTitle.ts)
-- [src/utils/objectFlat.ts](src/utils/objectFlat.ts)
-- [src/utils/removeXmlTags.ts](src/utils/removeXmlTags.ts)
-- [src/utils/writeFileAtomic.ts](src/utils/writeFileAtomic.ts)
-
-</details>
-
-
-
 This document covers the AI integration layer of the agent-swarm-kit framework, including completion adapters for various AI providers, performance monitoring of AI operations, and execution management patterns. This system enables agents to communicate with different AI models through a unified interface while tracking performance metrics.
 
 For information about agents that utilize these AI integrations, see [Client Agent](#2.1). For details on tool integration with AI models, see [Tool Integration](#5.2).

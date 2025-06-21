@@ -1,34 +1,5 @@
 # Managing State and Storage
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [.npmignore](.npmignore)
-- [LICENSE](LICENSE)
-- [README.md](README.md)
-- [build/.gitkeep](build/.gitkeep)
-- [rollup.config.mjs](rollup.config.mjs)
-- [schema.png](schema.png)
-- [src/client/ClientState.ts](src/client/ClientState.ts)
-- [src/client/ClientStorage.ts](src/client/ClientStorage.ts)
-- [src/functions/target/fork.ts](src/functions/target/fork.ts)
-- [src/interfaces/Embedding.interface.ts](src/interfaces/Embedding.interface.ts)
-- [src/interfaces/State.interface.ts](src/interfaces/State.interface.ts)
-- [src/interfaces/Storage.interface.ts](src/interfaces/Storage.interface.ts)
-- [src/lib/services/connection/SharedStateConnectionService.ts](src/lib/services/connection/SharedStateConnectionService.ts)
-- [src/lib/services/connection/SharedStorageConnectionService.ts](src/lib/services/connection/SharedStorageConnectionService.ts)
-- [src/lib/services/connection/StateConnectionService.ts](src/lib/services/connection/StateConnectionService.ts)
-- [src/lib/services/connection/StorageConnectionService.ts](src/lib/services/connection/StorageConnectionService.ts)
-- [src/lib/services/public/HistoryPublicService.ts](src/lib/services/public/HistoryPublicService.ts)
-- [src/lib/services/public/StatePublicService.ts](src/lib/services/public/StatePublicService.ts)
-- [src/lib/services/public/StoragePublicService.ts](src/lib/services/public/StoragePublicService.ts)
-
-</details>
-
-
-
 This document covers patterns and best practices for managing persistent storage and application state within the agent swarm system. It focuses on the `ClientStorage` and `ClientState` implementations, their associated services, and embedding-based retrieval patterns.
 
 For information about session lifecycle management, see [Session and Chat Management](#2.3). For details about the persistence infrastructure and history management, see [Persistence and History](#2.6).

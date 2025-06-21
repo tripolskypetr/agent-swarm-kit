@@ -1,37 +1,5 @@
 # Core API Functions
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [.npmignore](.npmignore)
-- [LICENSE](LICENSE)
-- [README.md](README.md)
-- [build/.gitkeep](build/.gitkeep)
-- [package-lock.json](package-lock.json)
-- [package.json](package.json)
-- [rollup.config.mjs](rollup.config.mjs)
-- [schema.png](schema.png)
-- [src/client/ClientAgent.ts](src/client/ClientAgent.ts)
-- [src/client/ClientHistory.ts](src/client/ClientHistory.ts)
-- [src/client/ClientSession.ts](src/client/ClientSession.ts)
-- [src/config/params.ts](src/config/params.ts)
-- [src/functions/target/fork.ts](src/functions/target/fork.ts)
-- [src/index.ts](src/index.ts)
-- [src/interfaces/Agent.interface.ts](src/interfaces/Agent.interface.ts)
-- [src/interfaces/Session.interface.ts](src/interfaces/Session.interface.ts)
-- [src/lib/services/connection/AgentConnectionService.ts](src/lib/services/connection/AgentConnectionService.ts)
-- [src/lib/services/connection/SessionConnectionService.ts](src/lib/services/connection/SessionConnectionService.ts)
-- [src/lib/services/public/AgentPublicService.ts](src/lib/services/public/AgentPublicService.ts)
-- [src/lib/services/public/SessionPublicService.ts](src/lib/services/public/SessionPublicService.ts)
-- [src/model/GlobalConfig.model.ts](src/model/GlobalConfig.model.ts)
-- [types.d.ts](types.d.ts)
-
-</details>
-
-
-
 This document covers the primary public API functions that developers use to build multi-agent AI systems with agent-swarm-kit. These functions provide the main interface for defining agents, managing sessions, executing messages, and orchestrating swarm behavior.
 
 For information about the underlying service architecture that powers these APIs, see [Service Architecture](#3). For detailed configuration options and global settings, see [Configuration and Global Settings](#7.2).

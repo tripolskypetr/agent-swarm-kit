@@ -1,33 +1,5 @@
 # Completion Adapters
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [docs/classes/AdapterUtils.md](docs/classes/AdapterUtils.md)
-- [docs/classes/ChatInstance.md](docs/classes/ChatInstance.md)
-- [docs/classes/ChatUtils.md](docs/classes/ChatUtils.md)
-- [docs/classes/ExecutionValidationService.md](docs/classes/ExecutionValidationService.md)
-- [docs/classes/NavigationSchemaService.md](docs/classes/NavigationSchemaService.md)
-- [docs/classes/PersistMemoryUtils.md](docs/classes/PersistMemoryUtils.md)
-- [docs/interfaces/IAgentSchemaInternal.md](docs/interfaces/IAgentSchemaInternal.md)
-- [docs/interfaces/IAgentSchemaInternalCallbacks.md](docs/interfaces/IAgentSchemaInternalCallbacks.md)
-- [docs/types/TChatInstanceCtor.md](docs/types/TChatInstanceCtor.md)
-- [src/classes/Adapter.ts](src/classes/Adapter.ts)
-- [src/lib/services/base/PerfService.ts](src/lib/services/base/PerfService.ts)
-- [src/model/Performance.model.ts](src/model/Performance.model.ts)
-- [src/utils/isObject.ts](src/utils/isObject.ts)
-- [src/utils/msToTime.ts](src/utils/msToTime.ts)
-- [src/utils/nameToTitle.ts](src/utils/nameToTitle.ts)
-- [src/utils/objectFlat.ts](src/utils/objectFlat.ts)
-- [src/utils/removeXmlTags.ts](src/utils/removeXmlTags.ts)
-- [src/utils/writeFileAtomic.ts](src/utils/writeFileAtomic.ts)
-
-</details>
-
-
-
 ## Purpose and Scope
 
 Completion Adapters provide a standardized interface for integrating various AI completion providers (OpenAI, Ollama, Grok, Cohere, etc.) into the agent-swarm-kit system. These adapters handle the translation between the framework's internal message format and each provider's specific API requirements, including message transformation, tool call processing, and error handling.

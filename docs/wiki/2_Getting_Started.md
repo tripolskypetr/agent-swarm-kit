@@ -1,22 +1,5 @@
 # Getting Started
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [.npmignore](.npmignore)
-- [LICENSE](LICENSE)
-- [README.md](README.md)
-- [build/.gitkeep](build/.gitkeep)
-- [rollup.config.mjs](rollup.config.mjs)
-- [schema.png](schema.png)
-- [src/functions/target/fork.ts](src/functions/target/fork.ts)
-
-</details>
-
-
-
 This guide provides a quick introduction to building multi-agent AI systems with agent-swarm-kit. It covers installation, core concepts, and basic usage patterns to get you up and running with your first agent swarm.
 
 For advanced configuration options, see [Configuration and Global Settings](#7.2). For comprehensive examples, see [Examples and Testing](#6). For detailed API documentation, see [API Reference](#7).

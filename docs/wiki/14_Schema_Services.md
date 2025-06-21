@@ -1,35 +1,5 @@
 # Schema Services
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [docs/classes/ClientCompute.md](docs/classes/ClientCompute.md)
-- [docs/classes/DocService.md](docs/classes/DocService.md)
-- [docs/classes/SchemaUtils.md](docs/classes/SchemaUtils.md)
-- [docs/index.md](docs/index.md)
-- [docs/interfaces/IAgentNavigationParams.md](docs/interfaces/IAgentNavigationParams.md)
-- [docs/interfaces/IAgentTool.md](docs/interfaces/IAgentTool.md)
-- [docs/interfaces/INavigateToAgentParams.md](docs/interfaces/INavigateToAgentParams.md)
-- [docs/interfaces/INavigateToTriageParams.md](docs/interfaces/INavigateToTriageParams.md)
-- [docs/interfaces/ISwarmDI.md](docs/interfaces/ISwarmDI.md)
-- [docs/interfaces/ITriageNavigationParams.md](docs/interfaces/ITriageNavigationParams.md)
-- [src/interfaces/Completion.interface.ts](src/interfaces/Completion.interface.ts)
-- [src/lib/services/schema/AgentSchemaService.ts](src/lib/services/schema/AgentSchemaService.ts)
-- [src/lib/services/schema/CompletionSchemaService.ts](src/lib/services/schema/CompletionSchemaService.ts)
-- [src/lib/services/schema/EmbeddingSchemaService.ts](src/lib/services/schema/EmbeddingSchemaService.ts)
-- [src/lib/services/schema/StateSchemaService.ts](src/lib/services/schema/StateSchemaService.ts)
-- [src/lib/services/schema/StorageSchemaService.ts](src/lib/services/schema/StorageSchemaService.ts)
-- [src/lib/services/schema/SwarmSchemaService.ts](src/lib/services/schema/SwarmSchemaService.ts)
-- [src/lib/services/schema/ToolSchemaService.ts](src/lib/services/schema/ToolSchemaService.ts)
-- [test/spec/state.test.mjs](test/spec/state.test.mjs)
-- [test/spec/storage.test.mjs](test/spec/storage.test.mjs)
-
-</details>
-
-
-
 Schema Services provide centralized registry and validation for all schema types in the agent swarm system. They manage configuration schemas for agents, tools, completions, swarms, and resources using the ToolRegistry pattern from functools-kit. These services ensure schema integrity through validation and support dynamic schema overrides through SchemaContextService integration.
 
 For connection lifecycle management of these schemas, see [Connection Services](#3.3). For public API access to schemas, see [Public Services](#3.4).

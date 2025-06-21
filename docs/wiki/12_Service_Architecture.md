@@ -1,33 +1,5 @@
 # Service Architecture
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [docs/classes/ClientCompute.md](docs/classes/ClientCompute.md)
-- [docs/classes/DocService.md](docs/classes/DocService.md)
-- [docs/classes/SchemaUtils.md](docs/classes/SchemaUtils.md)
-- [docs/index.md](docs/index.md)
-- [docs/interfaces/IAgentNavigationParams.md](docs/interfaces/IAgentNavigationParams.md)
-- [docs/interfaces/IAgentTool.md](docs/interfaces/IAgentTool.md)
-- [docs/interfaces/INavigateToAgentParams.md](docs/interfaces/INavigateToAgentParams.md)
-- [docs/interfaces/INavigateToTriageParams.md](docs/interfaces/INavigateToTriageParams.md)
-- [docs/interfaces/ISwarmDI.md](docs/interfaces/ISwarmDI.md)
-- [docs/interfaces/ITriageNavigationParams.md](docs/interfaces/ITriageNavigationParams.md)
-- [src/functions/target/complete.ts](src/functions/target/complete.ts)
-- [src/functions/target/disposeConnection.ts](src/functions/target/disposeConnection.ts)
-- [src/functions/target/makeConnection.ts](src/functions/target/makeConnection.ts)
-- [src/functions/target/session.ts](src/functions/target/session.ts)
-- [src/lib/core/provide.ts](src/lib/core/provide.ts)
-- [src/lib/core/types.ts](src/lib/core/types.ts)
-- [src/lib/index.ts](src/lib/index.ts)
-- [src/model/SwarmDI.model.ts](src/model/SwarmDI.model.ts)
-
-</details>
-
-
-
 The agent-swarm-kit framework employs a sophisticated layered service architecture built around dependency injection patterns. This document provides an overview of the service organization, layer interactions, and architectural patterns that enable scalable multi-agent orchestration.
 
 For detailed information about the dependency injection container implementation, see [Dependency Injection](#3.1). For specifics about individual service layers, see [Schema Services](#3.2), [Connection Services](#3.3), [Public Services](#3.4), and [Validation Services](#3.5).

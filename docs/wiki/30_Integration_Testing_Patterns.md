@@ -1,23 +1,5 @@
 # Integration Testing Patterns
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [test/index.mjs](test/index.mjs)
-- [test/spec/completion.test.mjs](test/spec/completion.test.mjs)
-- [test/spec/connection.test.mjs](test/spec/connection.test.mjs)
-- [test/spec/dispose.test.mjs](test/spec/dispose.test.mjs)
-- [test/spec/ignore.spec.mjs](test/spec/ignore.spec.mjs)
-- [test/spec/navigation.test.mjs](test/spec/navigation.test.mjs)
-- [test/spec/resque.test.mjs](test/spec/resque.test.mjs)
-- [test/spec/validation.test.mjs](test/spec/validation.test.mjs)
-
-</details>
-
-
-
 This document covers integration testing strategies and patterns for multi-agent systems built with the agent-swarm-kit framework. It focuses on testing complete workflows involving agent interactions, session management, tool execution, and AI model integration. For unit testing individual components, see [API Reference](#7). For system performance testing, see [Performance Monitoring](#4.2).
 
 ## Testing Architecture Overview

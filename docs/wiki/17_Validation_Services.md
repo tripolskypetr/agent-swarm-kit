@@ -1,30 +1,5 @@
 # Validation Services
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [docs/classes/ClientCompute.md](docs/classes/ClientCompute.md)
-- [docs/classes/DocService.md](docs/classes/DocService.md)
-- [docs/classes/SchemaUtils.md](docs/classes/SchemaUtils.md)
-- [docs/index.md](docs/index.md)
-- [docs/interfaces/IAgentNavigationParams.md](docs/interfaces/IAgentNavigationParams.md)
-- [docs/interfaces/IAgentTool.md](docs/interfaces/IAgentTool.md)
-- [docs/interfaces/INavigateToAgentParams.md](docs/interfaces/INavigateToAgentParams.md)
-- [docs/interfaces/INavigateToTriageParams.md](docs/interfaces/INavigateToTriageParams.md)
-- [docs/interfaces/ISwarmDI.md](docs/interfaces/ISwarmDI.md)
-- [docs/interfaces/ITriageNavigationParams.md](docs/interfaces/ITriageNavigationParams.md)
-- [src/lib/services/validation/AgentValidationService.ts](src/lib/services/validation/AgentValidationService.ts)
-- [src/lib/services/validation/CompletionValidationService.ts](src/lib/services/validation/CompletionValidationService.ts)
-- [src/lib/services/validation/SessionValidationService.ts](src/lib/services/validation/SessionValidationService.ts)
-- [src/lib/services/validation/SwarmValidationService.ts](src/lib/services/validation/SwarmValidationService.ts)
-- [src/lib/services/validation/ToolValidationService.ts](src/lib/services/validation/ToolValidationService.ts)
-
-</details>
-
-
-
 ## Purpose and Scope
 
 Validation Services provide runtime validation for agents, sessions, swarms, tools, and their dependencies within the agent-swarm-kit framework. These services ensure data integrity, enforce access control, track resource usage, and validate configurations during system operation. Unlike schema services that define structures, validation services actively enforce rules and maintain system state consistency.

@@ -1,43 +1,5 @@
 # Session and Chat Management
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [docs/classes/AdapterUtils.md](docs/classes/AdapterUtils.md)
-- [docs/classes/AgentConnectionService.md](docs/classes/AgentConnectionService.md)
-- [docs/classes/AgentPublicService.md](docs/classes/AgentPublicService.md)
-- [docs/classes/AgentValidationService.md](docs/classes/AgentValidationService.md)
-- [docs/classes/ChatInstance.md](docs/classes/ChatInstance.md)
-- [docs/classes/ChatUtils.md](docs/classes/ChatUtils.md)
-- [docs/classes/ClientAgent.md](docs/classes/ClientAgent.md)
-- [docs/classes/ClientOperator.md](docs/classes/ClientOperator.md)
-- [docs/classes/ClientSession.md](docs/classes/ClientSession.md)
-- [docs/classes/ExecutionValidationService.md](docs/classes/ExecutionValidationService.md)
-- [docs/classes/HistoryConnectionService.md](docs/classes/HistoryConnectionService.md)
-- [docs/classes/NavigationSchemaService.md](docs/classes/NavigationSchemaService.md)
-- [docs/classes/SessionConnectionService.md](docs/classes/SessionConnectionService.md)
-- [docs/classes/SessionPublicService.md](docs/classes/SessionPublicService.md)
-- [docs/interfaces/IAgent.md](docs/interfaces/IAgent.md)
-- [docs/interfaces/IAgentSchema.md](docs/interfaces/IAgentSchema.md)
-- [docs/interfaces/IAgentSchemaCallbacks.md](docs/interfaces/IAgentSchemaCallbacks.md)
-- [docs/interfaces/IAgentSchemaInternal.md](docs/interfaces/IAgentSchemaInternal.md)
-- [docs/interfaces/IAgentSchemaInternalCallbacks.md](docs/interfaces/IAgentSchemaInternalCallbacks.md)
-- [docs/interfaces/ICompletionSchema.md](docs/interfaces/ICompletionSchema.md)
-- [docs/interfaces/IGlobalConfig.md](docs/interfaces/IGlobalConfig.md)
-- [docs/interfaces/ISession.md](docs/interfaces/ISession.md)
-- [docs/types/TChatInstanceCtor.md](docs/types/TChatInstanceCtor.md)
-- [src/classes/Chat.ts](src/classes/Chat.ts)
-- [src/functions/alias/addAgentNavigation.ts](src/functions/alias/addAgentNavigation.ts)
-- [src/functions/alias/addTriageNavigation.ts](src/functions/alias/addTriageNavigation.ts)
-- [src/template/createNavigateToAgent.ts](src/template/createNavigateToAgent.ts)
-- [src/template/createNavigateToTriageAgent.ts](src/template/createNavigateToTriageAgent.ts)
-
-</details>
-
-
-
 Session and chat management provide the coordination layer between clients and agent swarms, handling message flow, policy enforcement, and resource lifecycle. The system operates at two levels: **chat instances** for high-level client interactions with automatic cleanup, and **sessions** for low-level execution contexts that orchestrate interactions between individual clients and specific swarms.
 
 For information about individual agent execution within sessions, see [Client Agent](#2.1). For swarm-level coordination across multiple agents, see [Swarm Management](#2.2).

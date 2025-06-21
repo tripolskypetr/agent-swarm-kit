@@ -1,45 +1,5 @@
 # Client Agent
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [docs/classes/AgentConnectionService.md](docs/classes/AgentConnectionService.md)
-- [docs/classes/AgentPublicService.md](docs/classes/AgentPublicService.md)
-- [docs/classes/AgentValidationService.md](docs/classes/AgentValidationService.md)
-- [docs/classes/ClientAgent.md](docs/classes/ClientAgent.md)
-- [docs/classes/ClientOperator.md](docs/classes/ClientOperator.md)
-- [docs/classes/ClientSession.md](docs/classes/ClientSession.md)
-- [docs/classes/HistoryConnectionService.md](docs/classes/HistoryConnectionService.md)
-- [docs/classes/SessionConnectionService.md](docs/classes/SessionConnectionService.md)
-- [docs/classes/SessionPublicService.md](docs/classes/SessionPublicService.md)
-- [docs/interfaces/IAgent.md](docs/interfaces/IAgent.md)
-- [docs/interfaces/IAgentSchema.md](docs/interfaces/IAgentSchema.md)
-- [docs/interfaces/IAgentSchemaCallbacks.md](docs/interfaces/IAgentSchemaCallbacks.md)
-- [docs/interfaces/ICompletionSchema.md](docs/interfaces/ICompletionSchema.md)
-- [docs/interfaces/IGlobalConfig.md](docs/interfaces/IGlobalConfig.md)
-- [docs/interfaces/ISession.md](docs/interfaces/ISession.md)
-- [package-lock.json](package-lock.json)
-- [package.json](package.json)
-- [src/client/ClientAgent.ts](src/client/ClientAgent.ts)
-- [src/client/ClientHistory.ts](src/client/ClientHistory.ts)
-- [src/client/ClientSession.ts](src/client/ClientSession.ts)
-- [src/config/params.ts](src/config/params.ts)
-- [src/index.ts](src/index.ts)
-- [src/interfaces/Agent.interface.ts](src/interfaces/Agent.interface.ts)
-- [src/interfaces/Session.interface.ts](src/interfaces/Session.interface.ts)
-- [src/lib/services/connection/AgentConnectionService.ts](src/lib/services/connection/AgentConnectionService.ts)
-- [src/lib/services/connection/SessionConnectionService.ts](src/lib/services/connection/SessionConnectionService.ts)
-- [src/lib/services/public/AgentPublicService.ts](src/lib/services/public/AgentPublicService.ts)
-- [src/lib/services/public/SessionPublicService.ts](src/lib/services/public/SessionPublicService.ts)
-- [src/model/GlobalConfig.model.ts](src/model/GlobalConfig.model.ts)
-- [types.d.ts](types.d.ts)
-
-</details>
-
-
-
 This document covers the `ClientAgent` class implementation, which serves as the core execution unit for individual agents within the swarm system. The `ClientAgent` handles message processing, tool execution, history management, and event coordination through an asynchronous, queue-based architecture.
 
 For information about agent configuration and schema definition, see [Agent Schema Services](#3.2). For details on swarm-level coordination and agent orchestration, see [Swarm Management](#2.2). For session-level message handling, see [Session and Chat Management](#2.3).

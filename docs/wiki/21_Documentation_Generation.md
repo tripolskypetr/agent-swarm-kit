@@ -1,24 +1,5 @@
 # Documentation Generation
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [scripts/linux/build_demo_docs.sh](scripts/linux/build_demo_docs.sh)
-- [scripts/win/build_demo_docs.bat](scripts/win/build_demo_docs.bat)
-- [src/cli/dumpDocs.ts](src/cli/dumpDocs.ts)
-- [src/functions/setup/addAgent.ts](src/functions/setup/addAgent.ts)
-- [src/functions/test/overrideAgent.ts](src/functions/test/overrideAgent.ts)
-- [src/helpers/mapAgentSchema.ts](src/helpers/mapAgentSchema.ts)
-- [src/lib/services/base/DocService.ts](src/lib/services/base/DocService.ts)
-- [src/lib/services/context/SchemaContextService.ts](src/lib/services/context/SchemaContextService.ts)
-- [src/utils/resolveTools.ts](src/utils/resolveTools.ts)
-
-</details>
-
-
-
 The Documentation Generation system provides automated creation of comprehensive documentation for agents, swarms, and system performance metrics. This system generates markdown files with embedded UML diagrams, organizing them in a structured directory layout for developer consumption.
 
 For information about agent schema management, see [Schema Services](#3.2). For details on performance monitoring data collection, see [Performance Monitoring](#4.2).

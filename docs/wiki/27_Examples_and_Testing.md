@@ -1,23 +1,5 @@
 # Examples and Testing
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [test/index.mjs](test/index.mjs)
-- [test/spec/completion.test.mjs](test/spec/completion.test.mjs)
-- [test/spec/connection.test.mjs](test/spec/connection.test.mjs)
-- [test/spec/dispose.test.mjs](test/spec/dispose.test.mjs)
-- [test/spec/ignore.spec.mjs](test/spec/ignore.spec.mjs)
-- [test/spec/navigation.test.mjs](test/spec/navigation.test.mjs)
-- [test/spec/resque.test.mjs](test/spec/resque.test.mjs)
-- [test/spec/validation.test.mjs](test/spec/validation.test.mjs)
-
-</details>
-
-
-
 This page demonstrates practical examples of building agent swarm systems using the agent-swarm-kit framework and provides comprehensive testing approaches for multi-agent systems. It covers real-world usage patterns, test implementation strategies, and integration testing methods for ensuring system reliability and correctness.
 
 For information about building multi-agent systems architecture, see [Building Multi-Agent Systems](#5.1). For tool integration patterns, see [Tool Integration](#5.2). For error handling strategies, see [Error Handling and Recovery](#5.4).

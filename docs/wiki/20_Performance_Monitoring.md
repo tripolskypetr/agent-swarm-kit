@@ -1,25 +1,5 @@
 # Performance Monitoring
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [docs/classes/PersistMemoryUtils.md](docs/classes/PersistMemoryUtils.md)
-- [src/classes/Adapter.ts](src/classes/Adapter.ts)
-- [src/lib/services/base/PerfService.ts](src/lib/services/base/PerfService.ts)
-- [src/model/Performance.model.ts](src/model/Performance.model.ts)
-- [src/utils/isObject.ts](src/utils/isObject.ts)
-- [src/utils/msToTime.ts](src/utils/msToTime.ts)
-- [src/utils/nameToTitle.ts](src/utils/nameToTitle.ts)
-- [src/utils/objectFlat.ts](src/utils/objectFlat.ts)
-- [src/utils/removeXmlTags.ts](src/utils/removeXmlTags.ts)
-- [src/utils/writeFileAtomic.ts](src/utils/writeFileAtomic.ts)
-
-</details>
-
-
-
 This document covers the performance monitoring system in agent-swarm-kit, which tracks execution metrics, response times, and system performance across client sessions and agent operations. The monitoring system provides detailed performance analytics for both individual clients and system-wide aggregation.
 
 For information about AI completion adapters and their performance optimizations, see [Completion Adapters](#4.1). For system introspection and documentation generation, see [Documentation Generation](#4.3).

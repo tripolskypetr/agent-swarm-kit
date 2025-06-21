@@ -1,40 +1,5 @@
 # Connection Services
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [docs/classes/ClientCompute.md](docs/classes/ClientCompute.md)
-- [docs/classes/DocService.md](docs/classes/DocService.md)
-- [docs/classes/SchemaUtils.md](docs/classes/SchemaUtils.md)
-- [docs/index.md](docs/index.md)
-- [docs/interfaces/IAgentNavigationParams.md](docs/interfaces/IAgentNavigationParams.md)
-- [docs/interfaces/IAgentTool.md](docs/interfaces/IAgentTool.md)
-- [docs/interfaces/INavigateToAgentParams.md](docs/interfaces/INavigateToAgentParams.md)
-- [docs/interfaces/INavigateToTriageParams.md](docs/interfaces/INavigateToTriageParams.md)
-- [docs/interfaces/ISwarmDI.md](docs/interfaces/ISwarmDI.md)
-- [docs/interfaces/ITriageNavigationParams.md](docs/interfaces/ITriageNavigationParams.md)
-- [package-lock.json](package-lock.json)
-- [package.json](package.json)
-- [src/client/ClientAgent.ts](src/client/ClientAgent.ts)
-- [src/client/ClientHistory.ts](src/client/ClientHistory.ts)
-- [src/client/ClientSession.ts](src/client/ClientSession.ts)
-- [src/config/params.ts](src/config/params.ts)
-- [src/index.ts](src/index.ts)
-- [src/interfaces/Agent.interface.ts](src/interfaces/Agent.interface.ts)
-- [src/interfaces/Session.interface.ts](src/interfaces/Session.interface.ts)
-- [src/lib/services/connection/AgentConnectionService.ts](src/lib/services/connection/AgentConnectionService.ts)
-- [src/lib/services/connection/SessionConnectionService.ts](src/lib/services/connection/SessionConnectionService.ts)
-- [src/lib/services/public/AgentPublicService.ts](src/lib/services/public/AgentPublicService.ts)
-- [src/lib/services/public/SessionPublicService.ts](src/lib/services/public/SessionPublicService.ts)
-- [src/model/GlobalConfig.model.ts](src/model/GlobalConfig.model.ts)
-- [types.d.ts](types.d.ts)
-
-</details>
-
-
-
 Connection Services form a critical architectural layer in the agent-swarm-kit that manages the lifecycle and instantiation of core client components. These services act as a bridge between the schema configuration layer and the actual runtime client implementations, providing memoized instances and dependency injection for components like `ClientAgent`, `ClientSession`, `ClientSwarm`, and related storage/state managers.
 
 For information about the public-facing APIs that wrap these connection services, see [Public Services](#3.4). For details about the underlying schema definitions these services consume, see [Schema Services](#3.2).

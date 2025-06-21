@@ -1,37 +1,5 @@
 # Configuration and Global Settings
 
-<details>
-<summary>Relevant source files</summary>
-
-The following files were used as context for generating this wiki page:
-
-- [docs/interfaces/IHistoryInstanceCallbacks.md](docs/interfaces/IHistoryInstanceCallbacks.md)
-- [docs/internals.md](docs/internals.md)
-- [package-lock.json](package-lock.json)
-- [package.json](package.json)
-- [scripts/dts-docs.cjs](scripts/dts-docs.cjs)
-- [scripts/gpt-docs.mjs](scripts/gpt-docs.mjs)
-- [src/classes/History.ts](src/classes/History.ts)
-- [src/classes/Logger.ts](src/classes/Logger.ts)
-- [src/classes/Persist.ts](src/classes/Persist.ts)
-- [src/client/ClientAgent.ts](src/client/ClientAgent.ts)
-- [src/client/ClientHistory.ts](src/client/ClientHistory.ts)
-- [src/client/ClientSession.ts](src/client/ClientSession.ts)
-- [src/config/params.ts](src/config/params.ts)
-- [src/index.ts](src/index.ts)
-- [src/interfaces/Agent.interface.ts](src/interfaces/Agent.interface.ts)
-- [src/interfaces/Session.interface.ts](src/interfaces/Session.interface.ts)
-- [src/lib/services/connection/AgentConnectionService.ts](src/lib/services/connection/AgentConnectionService.ts)
-- [src/lib/services/connection/SessionConnectionService.ts](src/lib/services/connection/SessionConnectionService.ts)
-- [src/lib/services/public/AgentPublicService.ts](src/lib/services/public/AgentPublicService.ts)
-- [src/lib/services/public/SessionPublicService.ts](src/lib/services/public/SessionPublicService.ts)
-- [src/model/GlobalConfig.model.ts](src/model/GlobalConfig.model.ts)
-- [types.d.ts](types.d.ts)
-
-</details>
-
-
-
 This document covers the global configuration system in agent-swarm-kit, including the `GLOBAL_CONFIG` object, the `setConfig` function, and the various configuration parameters that control system behavior across all components. This includes settings for logging, tool execution, agent behavior, persistence, error recovery, and performance optimization.
 
 For information about individual agent configuration schemas, see [Agent Schema Configuration](#2.1). For swarm-level configuration, see [Swarm Management](#2.2).
