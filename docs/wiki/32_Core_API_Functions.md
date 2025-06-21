@@ -30,8 +30,6 @@ The setup functions define the building blocks of the agent swarm system. These 
 
 ![Mermaid Diagram](./diagrams\32_Core_API_Functions_0.svg)
 
-**Sources**: [src/index.ts:15-26](), [src/lib/services/schema/AgentSchemaService.ts](), [src/lib/services/schema/SwarmSchemaService.ts]()
-
 | Function | Purpose | Returns | Key Parameters |
 |----------|---------|---------|----------------|
 | `addAgent()` | Define an agent with prompt, tools, and completion | `AgentName` | `agentName`, `prompt`, `completion`, `tools` |
@@ -45,8 +43,6 @@ The setup functions define the building blocks of the agent swarm system. These 
 Session management functions create and control client sessions within swarms. The `session()` function is the primary entry point for establishing a connection between a client and a swarm.
 
 ![Mermaid Diagram](./diagrams\32_Core_API_Functions_1.svg)
-
-**Sources**: [src/functions/target/session.ts](), [src/lib/services/public/SessionPublicService.ts](), [src/client/ClientSession.ts]()
 
 The `session()` function returns an object with four key methods:
 
@@ -63,8 +59,6 @@ Execution functions provide different ways to interact with agents and process m
 
 ![Mermaid Diagram](./diagrams\32_Core_API_Functions_2.svg)
 
-**Sources**: [src/functions/target/execute.ts](), [src/functions/target/complete.ts](), [src/functions/target/runStateless.ts](), [src/functions/target/fork.ts](), [src/functions/target/scope.ts]()
-
 | Function | History Update | Context | Use Case |
 |----------|----------------|---------|----------|
 | `execute()` | Yes | Current session | Standard message processing |
@@ -79,15 +73,11 @@ Commit functions provide fine-grained control over conversation history by allow
 
 ![Mermaid Diagram](./diagrams\32_Core_API_Functions_3.svg)
 
-**Sources**: [src/functions/commit/commitUserMessage.ts](), [src/functions/commit/commitAssistantMessage.ts](), [src/functions/commit/commitSystemMessage.ts](), [src/functions/commit/commitToolOutput.ts]()
-
 ### Navigation Functions
 
 Navigation functions control agent transitions within swarms. These functions change which agent is currently active for processing messages in a client session.
 
 ![Mermaid Diagram](./diagrams\32_Core_API_Functions_4.svg)
-
-**Sources**: [src/functions/navigate/changeToAgent.ts](), [src/functions/navigate/changeToPrevAgent.ts](), [src/functions/navigate/changeToDefaultAgent.ts]()
 
 | Function | Purpose | Parameters | Behavior |
 |----------|---------|------------|----------|
@@ -100,8 +90,6 @@ Navigation functions control agent transitions within swarms. These functions ch
 This diagram shows how the core API functions map to their underlying implementation classes and services:
 
 ![Mermaid Diagram](./diagrams\32_Core_API_Functions_5.svg)
-
-**Sources**: [src/functions/target/session.ts](), [src/lib/services/public/SessionPublicService.ts](), [src/lib/services/connection/SessionConnectionService.ts](), [src/client/ClientSession.ts]()
 
 ## Function Usage Patterns
 
@@ -150,8 +138,6 @@ const mySwarm = addSwarm({
 });
 ```
 
-**Sources**: [README.md:55-129](), [src/functions/setup/addAgent.ts](), [src/functions/setup/addSwarm.ts]()
-
 ### Session Management and Execution
 
 ```typescript
@@ -172,8 +158,6 @@ const salesResponse = await complete("What products do you have?");
 // Cleanup
 await dispose();
 ```
-
-**Sources**: [src/functions/target/session.ts](), [src/functions/target/complete.ts](), [src/functions/commit/commitUserMessage.ts]()
 
 ### Advanced Execution Patterns
 
@@ -202,15 +186,11 @@ await scope(async () => {
 });
 ```
 
-**Sources**: [src/functions/target/fork.ts](), [src/functions/target/runStateless.ts](), [src/functions/target/scope.ts]()
-
 ## Error Handling and Validation
 
 The core API functions include built-in validation and error handling mechanisms:
 
 ![Mermaid Diagram](./diagrams\32_Core_API_Functions_6.svg)
-
-**Sources**: [src/lib/services/validation/SessionValidationService.ts](), [src/lib/services/validation/SwarmValidationService.ts](), [src/lib/services/validation/NavigationValidationService.ts]()
 
 Common validation patterns include:
 - Session existence checking before operations
@@ -224,8 +204,6 @@ Common validation patterns include:
 Core API functions operate within execution contexts managed by the dependency injection system:
 
 ![Mermaid Diagram](./diagrams\32_Core_API_Functions_7.svg)
-
-**Sources**: [src/lib/services/context/MethodContextService.ts](), [src/lib/services/context/ExecutionContextService.ts](), [src/lib/services/context/PayloadContextService.ts]()
 
 The context system ensures that:
 - Function calls have access to the correct client and agent context

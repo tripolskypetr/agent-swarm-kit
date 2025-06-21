@@ -17,8 +17,6 @@ The agent-swarm-kit uses a centralized configuration system built around the `GL
 
 ![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_0.svg)
 
-Sources: [src/config/params.ts:298-300](), [src/model/GlobalConfig.model.ts:16-21](), [src/client/ClientAgent.ts:17]()
-
 ### Using setConfig
 
 The `setConfig` function allows runtime modification of global configuration parameters:
@@ -35,8 +33,6 @@ setConfig({
 
 The function performs a shallow merge with the existing `GLOBAL_CONFIG` object, updating only the specified properties.
 
-Sources: [src/config/params.ts:298-300](), [src/index.ts:177]()
-
 ## Logging Configuration
 
 The logging system provides granular control over different log levels and output destinations:
@@ -51,8 +47,6 @@ The logging system provides granular control over different log levels and outpu
 ### Logger Adapter Configuration
 
 ![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_1.svg)
-
-Sources: [src/config/params.ts:108](), [src/config/params.ts:120-127](), [src/model/GlobalConfig.model.ts:218-236]()
 
 ## Agent Behavior Configuration
 
@@ -70,8 +64,6 @@ The system provides multiple strategies for handling tool call failures:
 
 ![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_2.svg)
 
-Sources: [src/config/params.ts:128](), [src/config/params.ts:19-30](), [src/model/GlobalConfig.model.ts:23-56]()
-
 ### Output Transformation and Validation
 
 | Parameter | Default | Description |
@@ -81,8 +73,6 @@ Sources: [src/config/params.ts:128](), [src/config/params.ts:19-30](), [src/mode
 | `CC_AGENT_DEFAULT_VALIDATION` | `validateDefault` | Default output validation function |
 | `CC_EMPTY_OUTPUT_PLACEHOLDERS` | Array of phrases | Fallback responses for empty outputs |
 
-Sources: [src/config/params.ts:72-95](), [src/config/params.ts:32-43]()
-
 ## Storage and State Configuration
 
 ### Default Storage Operations
@@ -90,8 +80,6 @@ Sources: [src/config/params.ts:72-95](), [src/config/params.ts:32-43]()
 The system provides configurable default functions for storage and state persistence:
 
 ![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_3.svg)
-
-Sources: [src/config/params.ts:130-157](), [src/config/params.ts:187-205](), [src/model/GlobalConfig.model.ts:399-467]()
 
 ### Persistence Settings
 
@@ -102,15 +90,11 @@ Sources: [src/config/params.ts:130-157](), [src/config/params.ts:187-205](), [sr
 | `CC_PERSIST_EMBEDDING_CACHE` | `false` | Enable persistence for embedding cache |
 | `CC_SKIP_POSIX_RENAME` | `false` | Skip POSIX rename operations in file writes |
 
-Sources: [src/config/params.ts:167-175](), [src/model/GlobalConfig.model.ts:468-501]()
-
 ## Swarm Navigation Configuration
 
 ### Agent and Navigation Stack Management
 
 ![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_4.svg)
-
-Sources: [src/config/params.ts:45-70](), [src/config/params.ts:17](), [src/model/GlobalConfig.model.ts:135-196]()
 
 ## Performance and System Configuration
 
@@ -127,8 +111,6 @@ Sources: [src/config/params.ts:45-70](), [src/config/params.ts:17](), [src/model
 
 ![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_5.svg)
 
-Sources: [src/config/params.ts:142-144](), [src/config/params.ts:165](), [src/config/params.ts:221-233](), [src/model/GlobalConfig.model.ts:502-548]()
-
 ## Configuration Integration Points
 
 ### Component Configuration Access Pattern
@@ -136,5 +118,3 @@ Sources: [src/config/params.ts:142-144](), [src/config/params.ts:165](), [src/co
 ![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_6.svg)
 
 The configuration system uses direct property access rather than dependency injection, allowing components to access current configuration values at runtime without requiring restart or re-instantiation.
-
-Sources: [src/config/params.ts:298-300](), [src/client/ClientAgent.ts:231](), [src/lib/services/base/LoggerService.ts]()

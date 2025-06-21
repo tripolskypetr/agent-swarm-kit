@@ -15,8 +15,6 @@ The client-server chat implementation in agent-swarm-kit centers around the `Cha
 
 ![Mermaid Diagram](./diagrams\28_Client-Server_Chat_Implementation_0.svg)
 
-Sources: [src/classes/Chat.ts:1-429]()
-
 ## Core Chat Components
 
 ### ChatInstance Class
@@ -33,8 +31,6 @@ The `ChatInstance` constructor creates a session connection and initializes call
 
 ![Mermaid Diagram](./diagrams\28_Client-Server_Chat_Implementation_1.svg)
 
-Sources: [src/classes/Chat.ts:151-184](), [src/classes/Chat.ts:300-319]()
-
 ### Session Lifecycle Management
 
 The chat system implements automatic cleanup with configurable timeouts:
@@ -47,8 +43,6 @@ The `checkLastActivity` method determines if a session should be kept alive:
 
 ![Mermaid Diagram](./diagrams\28_Client-Server_Chat_Implementation_2.svg)
 
-Sources: [src/classes/Chat.ts:191-206](), [src/classes/Chat.ts:239-249]()
-
 ## Message Processing Flow
 
 ### Basic Message Handling
@@ -56,8 +50,6 @@ Sources: [src/classes/Chat.ts:191-206](), [src/classes/Chat.ts:239-249]()
 The `sendMessage` method coordinates message processing through the swarm system:
 
 ![Mermaid Diagram](./diagrams\28_Client-Server_Chat_Implementation_3.svg)
-
-Sources: [src/classes/Chat.ts:221-233]()
 
 ### Connection Patterns
 
@@ -68,8 +60,6 @@ The system supports multiple connection patterns for different use cases:
 | Direct Chat | `Chat.sendMessage()` | Simple client-server messaging |
 | Session-based | `session().complete()` | Stateful conversations |
 | Connection-based | `makeConnection()` | Real-time bidirectional communication |
-
-Sources: [test/spec/connection.test.mjs:190-320](), [test/spec/connection.test.mjs:322-411]()
 
 ## Complete Implementation Example
 
@@ -105,8 +95,6 @@ const CHAT_SWARM = addSwarm({
 });
 ```
 
-Sources: [test/spec/connection.test.mjs:101-128](), [test/spec/connection.test.mjs:130-155]()
-
 ### Basic Chat Implementation
 
 Using the `Chat` utility for simple messaging:
@@ -129,8 +117,6 @@ Chat.listenDispose(clientId, swarmName, (disposedClientId) => {
 });
 ```
 
-Sources: [src/classes/Chat.ts:347-384](), [src/classes/Chat.ts:393-404]()
-
 ### Real-time Connection Pattern
 
 For bidirectional communication with server-side message emission:
@@ -152,8 +138,6 @@ await complete("User message");
 // Server can emit messages independently
 await emit("Server notification", clientId);
 ```
-
-Sources: [test/spec/connection.test.mjs:365-384](), [test/spec/connection.test.mjs:445-472]()
 
 ## Agent Navigation in Chat
 
@@ -188,8 +172,6 @@ const SALES_NAVIGATION_TOOL = addTool({
 });
 ```
 
-Sources: [src/template/createNavigateToAgent.ts:118-192](), [test/spec/navigation.test.mjs:80-96]()
-
 ## Advanced Chat Patterns
 
 ### Concurrent Session Management
@@ -197,8 +179,6 @@ Sources: [src/template/createNavigateToAgent.ts:118-192](), [test/spec/navigatio
 The chat system handles multiple concurrent sessions with proper isolation:
 
 ![Mermaid Diagram](./diagrams\28_Client-Server_Chat_Implementation_5.svg)
-
-Sources: [src/classes/Chat.ts:277-318](), [test/spec/connection.test.mjs:74-188]()
 
 ### Custom Chat Adapters
 
@@ -230,8 +210,6 @@ Chat.useChatCallbacks({
 });
 ```
 
-Sources: [src/classes/Chat.ts:325-339](), [src/classes/Chat.ts:81-115]()
-
 ### Event-Driven Communication
 
 Chat sessions integrate with the event system for advanced communication patterns:
@@ -249,7 +227,5 @@ await event(clientId, "notification", "Important update");
 const history = await getRawHistory(clientId);
 // Only complete() messages appear in history, not events
 ```
-
-Sources: [test/spec/connection.test.mjs:453-472](), [test/spec/connection.test.mjs:475-521]()
 
 This client-server chat implementation provides a robust foundation for building conversational AI applications with automatic session management, concurrent client support, and seamless integration with the agent swarm execution engine.

@@ -17,8 +17,6 @@ The `DocService` class serves as the central orchestrator for all documentation 
 
 The `DocService` maintains a thread pool with configurable concurrency (`THREAD_POOL_SIZE = 5`) to manage parallel documentation generation tasks while balancing performance and resource usage.
 
-**Sources:** [src/lib/services/base/DocService.ts:1-218]()
-
 ## Documentation Generation Workflow
 
 The documentation generation process follows a structured workflow that validates schemas, creates directories, and generates both swarm and agent documentation concurrently.
@@ -27,8 +25,6 @@ The documentation generation process follows a structured workflow that validate
 
 The `dumpDocs` method creates a structured directory layout with subdirectories defined in `SUBDIR_LIST = ["agent", "image"]`, organizing agent markdown files and UML diagram images separately.
 
-**Sources:** [src/lib/services/base/DocService.ts:810-851](), [src/cli/dumpDocs.ts:14-51]()
-
 ## UML Diagram Generation
 
 The system integrates with PlantUML through the `GLOBAL_CONFIG.CC_FN_PLANTUML` function to generate visual schema representations for both swarms and agents.
@@ -36,8 +32,6 @@ The system integrates with PlantUML through the `GLOBAL_CONFIG.CC_FN_PLANTUML` f
 ![Mermaid Diagram](./diagrams\21_Documentation_Generation_2.svg)
 
 For swarm documentation, UML diagrams are generated with the filename pattern `swarm_schema_{swarmName}.svg`, while agent diagrams use `agent_schema_{agentName}.svg`. These images are referenced in the markdown files using relative paths.
-
-**Sources:** [src/lib/services/base/DocService.ts:262-270](), [src/lib/services/base/DocService.ts:411-422]()
 
 ## Agent Documentation Structure
 
@@ -57,8 +51,6 @@ Agent documentation files are generated with comprehensive sections covering all
 
 The `writeAgentDoc` method resolves dynamic content by calling functions with `"docs"` as the `clientId` parameter to generate documentation-specific content without affecting runtime behavior.
 
-**Sources:** [src/lib/services/base/DocService.ts:366-801]()
-
 ## Performance Documentation
 
 The system provides dual-mode performance documentation covering both system-wide and client-specific metrics.
@@ -67,8 +59,6 @@ The system provides dual-mode performance documentation covering both system-wid
 
 The `dumpPerfomance` method creates system-wide performance snapshots, while `dumpClientPerfomance` generates client-specific performance data with timestamped filenames for historical tracking.
 
-**Sources:** [src/lib/services/base/DocService.ts:860-899]()
-
 ## CLI Integration and Configuration
 
 The documentation system integrates with the CLI through the `dumpDocs` command, providing configurable options for output customization.
@@ -76,8 +66,6 @@ The documentation system integrates with the CLI through the `dumpDocs` command,
 ![Mermaid Diagram](./diagrams\21_Documentation_Generation_4.svg)
 
 The CLI performs comprehensive validation before documentation generation, checking all registered agents and swarms, and verifying dependency relationships through `dependsOn` properties.
-
-**Sources:** [src/cli/dumpDocs.ts:1-51]()
 
 ## Thread Pool Management
 
@@ -90,5 +78,3 @@ Documentation generation utilizes a controlled concurrency model to balance perf
 | Execution Method | `execpool` | Function wrapper for concurrency control |
 
 The `writeSwarmDoc` and `writeAgentDoc` methods are wrapped with `execpool` to ensure controlled parallel execution, preventing resource exhaustion during large-scale documentation generation.
-
-**Sources:** [src/lib/services/base/DocService.ts:29-34](), [src/lib/services/base/DocService.ts:229-355](), [src/lib/services/base/DocService.ts:366-801]()

@@ -21,8 +21,6 @@ Tools provide the functional capabilities that agents can execute. Each tool is 
 
 **Tool Registration Flow**
 
-Sources: [src/functions/setup/addAgent.ts:1-47](), [README.md:67-89]()
-
 ### Completion Definition
 
 Completions define AI model integrations that agents use for generating responses. The `addCompletion` function registers completion providers with their configuration.
@@ -31,8 +29,6 @@ Completions define AI model integrations that agents use for generating response
 
 **Completion Provider Integration**
 
-Sources: [README.md:93-102](), [src/lib/services/base/DocService.ts:398-403]()
-
 ### Agent Schema Structure
 
 Agents are defined using `addAgent` with an `IAgentSchema` that specifies their behavior, capabilities, and dependencies. The schema is processed through `mapAgentSchema` to normalize system prompts into arrays.
@@ -40,8 +36,6 @@ Agents are defined using `addAgent` with an `IAgentSchema` that specifies their 
 ![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_2.svg)
 
 **Agent Schema Transformation**
-
-Sources: [src/helpers/mapAgentSchema.ts:31-87](), [src/functions/setup/addAgent.ts:12-27]()
 
 ## Agent Configuration Patterns
 
@@ -63,8 +57,6 @@ More sophisticated agents can include tools, storage, state management, and syst
 
 **Agent Configuration Components**
 
-Sources: [src/lib/services/base/DocService.ts:358-448](), [src/interfaces/Agent.interface.ts]()
-
 ### System Prompt Configuration
 
 Agents support multiple types of system prompts that are processed in a specific order:
@@ -72,8 +64,6 @@ Agents support multiple types of system prompts that are processed in a specific
 1. **Static System Prompts** (`systemStatic`) - Fixed instructions added to every conversation
 2. **Dynamic System Prompts** (`systemDynamic`) - Context-aware instructions generated at runtime
 3. **Regular System Prompts** (`system`) - Standard system-level instructions
-
-Sources: [src/helpers/mapAgentSchema.ts:52-85](), [src/lib/services/base/DocService.ts:449-480]()
 
 ## Swarm Orchestration
 
@@ -92,8 +82,6 @@ Agent navigation within swarms is typically implemented through specialized navi
 ![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_5.svg)
 
 **Agent Navigation Flow**
-
-Sources: [README.md:67-89](), [README.md:125-129](), [src/functions/target/fork.ts:98-103]()
 
 ## Session Management
 
@@ -115,8 +103,6 @@ The `complete` function processes user messages through the active agent in the 
 | `ClientAgent` | AI model interaction and tool execution |
 | `ClientSwarm` | Agent navigation and swarm coordination |
 
-Sources: [README.md:133-149](), [src/functions/target/fork.ts:47-88]()
-
 ## Advanced Orchestration Patterns
 
 ### Schema Override with `overrideAgent`
@@ -126,8 +112,6 @@ The `overrideAgent` function allows temporary modification of agent schemas duri
 ![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_7.svg)
 
 **Agent Schema Override Process**
-
-Sources: [src/functions/test/overrideAgent.ts:16-55]()
 
 ### Background Processing with `fork`
 
@@ -141,8 +125,6 @@ The `fork` function enables isolated agent execution similar to POSIX fork, allo
 
 The framework provides scoped execution contexts that allow temporary configuration changes and isolated processing environments.
 
-Sources: [src/functions/target/fork.ts:90-103](), [README.md:357-413]()
-
 ## Documentation Generation
 
 ### Automatic Schema Documentation
@@ -154,8 +136,6 @@ The `DocService` automatically generates Markdown documentation for all agents a
 **Documentation Generation Pipeline**
 
 The documentation includes tool parameters, system prompts, dependencies, and MCP integrations, providing comprehensive reference material for development teams.
-
-Sources: [src/lib/services/base/DocService.ts:810-851](), [src/cli/dumpDocs.ts:14-51]()
 
 ## Validation and Error Handling
 
@@ -169,5 +149,3 @@ The framework includes comprehensive validation services that ensure schema cons
 | `ToolValidationService` | Tool schema and execution validation |
 
 Multi-agent systems benefit from the framework's automatic model recovery, which handles invalid outputs and tool call failures through rescue algorithms and fallback responses.
-
-Sources: [src/lib/services/base/DocService.ts:86-98](), [README.md:352-353]()

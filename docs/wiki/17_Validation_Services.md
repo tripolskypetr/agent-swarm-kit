@@ -21,8 +21,6 @@ The validation services operate as a coordinated layer within the dependency inj
 
 ![Mermaid Diagram](./diagrams\17_Validation_Services_0.svg)
 
-**Sources:** [docs/interfaces/ISwarmDI.md:455-587](), [src/lib/services/validation/AgentValidationService.ts:46-90]()
-
 ### Validation Service Categories
 
 The 15 validation services are organized into functional categories based on their validation responsibilities:
@@ -33,8 +31,6 @@ The 15 validation services are organized into functional categories based on the
 | **Resources** | `StorageValidationService`, `StateValidationService`, `ComputeValidationService`, `CompletionValidationService` | Validate resource configurations and access permissions |
 | **Protocols** | `MCPValidationService`, `WikiValidationService`, `PolicyValidationService`, `EmbeddingValidationService` | Validate protocol compliance and integration configurations |
 | **Runtime Flow** | `NavigationValidationService`, `ExecutionValidationService`, `PipelineValidationService` | Prevent recursive calls, validate execution flow, and pipeline integrity |
-
-**Sources:** [docs/interfaces/ISwarmDI.md:455-587]()
 
 ## Core Validation Services
 
@@ -48,8 +44,6 @@ The `AgentValidationService` serves as the central coordinator for agent validat
 
 ![Mermaid Diagram](./diagrams\17_Validation_Services_1.svg)
 
-**Sources:** [src/lib/services/validation/AgentValidationService.ts:94-107](), [src/lib/services/validation/AgentValidationService.ts:227-312]()
-
 ### SessionValidationService  
 
 The `SessionValidationService` manages session lifecycle, tracks resource usage per session, and maintains session-to-swarm mappings. It provides comprehensive session state tracking for agents, storages, states, and compute resources.
@@ -58,8 +52,6 @@ The `SessionValidationService` manages session lifecycle, tracks resource usage 
 
 ![Mermaid Diagram](./diagrams\17_Validation_Services_2.svg)
 
-**Sources:** [src/lib/services/validation/SessionValidationService.ts:32-86](), [src/lib/services/validation/SessionValidationService.ts:96-233]()
-
 ### SwarmValidationService
 
 The `SwarmValidationService` validates swarm configurations, manages agent lists within swarms, and coordinates with `AgentValidationService` and `PolicyValidationService` to ensure swarm integrity.
@@ -67,8 +59,6 @@ The `SwarmValidationService` validates swarm configurations, manages agent lists
 #### Swarm Validation Dependencies
 
 ![Mermaid Diagram](./diagrams\17_Validation_Services_3.svg)
-
-**Sources:** [src/lib/services/validation/SwarmValidationService.ts:156-180]()
 
 ## Runtime Validation Patterns
 
@@ -82,13 +72,9 @@ The validation services enforce agent permissions for resource access during run
 
 ![Mermaid Diagram](./diagrams\17_Validation_Services_4.svg)
 
-**Sources:** [src/lib/services/validation/AgentValidationService.ts:227-243](), [test/spec/storage.test.mjs:98-145]()
-
 #### State Access Validation
 
 ![Mermaid Diagram](./diagrams\17_Validation_Services_5.svg)
-
-**Sources:** [src/lib/services/validation/AgentValidationService.ts:298-312](), [test/spec/state.test.mjs:233-272]()
 
 ### Recursive Operation Prevention
 
@@ -97,8 +83,6 @@ Runtime validation services like `NavigationValidationService` and `ExecutionVal
 #### Navigation Recursion Prevention
 
 ![Mermaid Diagram](./diagrams\17_Validation_Services_6.svg)
-
-**Sources:** [docs/interfaces/ISwarmDI.md:554-586]()
 
 ## Validation Error Patterns and Performance Optimization
 
@@ -122,8 +106,6 @@ Validation errors follow a standardized format that provides detailed context fo
 | **Duplicate** | `agent-swarm [type] [name] already exist` | `agent-swarm session clientId=abc123 already exist` |
 | **Dependency** | `agent-swarm [type] [name] [dependency] not in [list]` | `agent-swarm swarm mySwarm default agent not in agent list` |
 
-**Sources:** [src/lib/services/validation/AgentValidationService.ts:331-335](), [src/lib/services/validation/SessionValidationService.ts:509-517](), [src/lib/services/validation/SwarmValidationService.ts:168-172]()
-
 ### Performance Optimization with Memoization
 
 Validation services use `memoize` from `functools-kit` to optimize frequently called validation methods. This is crucial for runtime performance since validation checks occur during every resource access.
@@ -131,8 +113,6 @@ Validation services use `memoize` from `functools-kit` to optimize frequently ca
 #### Memoized Validation Methods
 
 ![Mermaid Diagram](./diagrams\17_Validation_Services_7.svg)
-
-**Sources:** [src/lib/services/validation/AgentValidationService.ts:227-243](), [src/lib/services/validation/SwarmValidationService.ts:103-116](), [src/lib/services/validation/SessionValidationService.ts:501-519]()
 
 ## Runtime Validation Integration
 
@@ -144,8 +124,6 @@ Test cases demonstrate the validation enforcement in action:
 
 ![Mermaid Diagram](./diagrams\17_Validation_Services_8.svg)
 
-**Sources:** [test/spec/storage.test.mjs:98-145](), [test/spec/state.test.mjs:233-272]()
-
 ## Performance Optimization
 
 Validation services use memoization extensively to optimize repeated validation checks, particularly important for resource association queries that may be called frequently during agent execution.
@@ -155,5 +133,3 @@ The `memoize` decorator from `functools-kit` is applied to methods like:
 - `hasState()` - memoized by `${agentName}-${stateName}`
 - `hasDependency()` - memoized by `${targetAgentName}-${depAgentName}`
 - `validate()` - memoized by `agentName`
-
-**Sources:** [src/lib/services/validation/AgentValidationService.ts:227-243](), [src/lib/services/validation/AgentValidationService.ts:322-380]()

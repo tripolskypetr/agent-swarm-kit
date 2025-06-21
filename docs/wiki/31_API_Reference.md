@@ -41,8 +41,6 @@ interface IAgentSchemaInternal {
 }
 ```
 
-Sources: [src/interfaces/Agent.interface.ts:386-491](), [types.d.ts:386-491]()
-
 ### Tool Definition
 
 Tools are defined using `addTool()` with an `IAgentTool` interface that specifies execution logic, validation, and OpenAI-compatible function metadata.
@@ -72,13 +70,9 @@ interface IAgentTool<T = Record<string, ToolValue>> {
 }
 ```
 
-Sources: [src/interfaces/Agent.interface.ts:115-170](), [docs/interfaces/IAgentTool.md:1-71]()
-
 ### Agent Execution Flow
 
 ![Mermaid Diagram](./diagrams\31_API_Reference_2.svg)
-
-Sources: [src/client/ClientAgent.ts:319-606](), [src/client/ClientSession.ts:149-253](), [src/lib/services/public/SessionPublicService.ts:188-350]()
 
 ## Session and Swarm APIs
 
@@ -105,8 +99,6 @@ interface ISession {
 }
 ```
 
-Sources: [src/interfaces/Session.interface.ts:67-142](), [src/client/ClientSession.ts:24-270]()
-
 ### Swarm Configuration
 
 Swarms are configured using `addSwarm()` with an `ISwarmSchema` that defines agents, default agent, policies, and navigation behavior.
@@ -120,8 +112,6 @@ interface ISwarmSchema {
   callbacks?: Partial<ISwarmCallbacks>;
 }
 ```
-
-Sources: [types.d.ts:1264-1291]()
 
 ## Storage and State APIs
 
@@ -151,8 +141,6 @@ interface IState<T extends IStateData = IStateData> {
   clear(): Promise<void>;
 }
 ```
-
-Sources: [types.d.ts:326-374](), [types.d.ts:511-525]()
 
 ## Configuration APIs
 
@@ -186,8 +174,6 @@ setConfig({
 });
 ```
 
-Sources: [src/config/params.ts:235-302](), [src/model/GlobalConfig.model.ts:21-287]()
-
 ## Event System APIs
 
 ### Event Bus
@@ -217,8 +203,6 @@ interface IBusEvent extends IBaseEvent {
   clientId: string;
 }
 ```
-
-Sources: [types.d.ts:697-717](), [types.d.ts:778-798]()
 
 ## Function Reference
 
@@ -257,5 +241,3 @@ Sources: [types.d.ts:697-717](), [types.d.ts:778-798]()
 | `commitToolOutput(toolId: string, content: string)` | Add tool execution result | `Promise<void>` |
 | `commitFlush()` | Clear conversation history | `Promise<void>` |
 | `cancelOutput()` | Cancel current output emission | `Promise<void>` |
-
-Sources: [src/index.ts:15-112](), [docs/index.md:105-196]()

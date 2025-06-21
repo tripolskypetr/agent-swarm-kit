@@ -25,15 +25,11 @@ The system provides three primary navigation functions that handle agent transit
 
 ![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_0.svg)
 
-**Sources:** [src/functions/navigate/changeToAgent.ts:1-188](), [src/functions/navigate/changeToDefaultAgent.ts:1-161](), [src/functions/navigate/changeToPrevAgent.ts:1-165]()
-
 ### Navigation Implementation Details
 
 Each navigation function uses a memoized, queued execution pattern to prevent race conditions and ensure sequential processing per client:
 
 ![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_1.svg)
-
-**Sources:** [src/functions/navigate/changeToAgent.ts:35-105](), [src/functions/navigate/changeToDefaultAgent.ts:35-105](), [src/functions/navigate/changeToPrevAgent.ts:35-105]()
 
 ## Tool Execution Framework
 
@@ -45,15 +41,11 @@ Navigation tools are a common pattern where tool execution triggers agent transi
 
 ![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_2.svg)
 
-**Sources:** [test/spec/navigation.test.mjs:80-114](), [test/spec/connection.test.mjs:77-99](), [test/spec/dispose.test.mjs:30-52]()
-
 ### Tool Execution Lifecycle
 
 The tool execution lifecycle involves validation, execution, and result commitment, with navigation capabilities:
 
 ![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_3.svg)
-
-**Sources:** [test/spec/resque.test.mjs:21-76](), [test/spec/navigation.test.mjs:256-280]()
 
 ## Pipeline-Based Workflows
 
@@ -64,8 +56,6 @@ The pipeline system enables complex workflows with agent navigation and automate
 The `startPipeline` function demonstrates advanced agent orchestration:
 
 ![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_4.svg)
-
-**Sources:** [src/functions/target/startPipeline.ts:23-76](), [src/model/Pipeline.model.ts:13-36]()
 
 ### Pipeline Schema Structure
 
@@ -79,8 +69,6 @@ Pipeline schemas define execution logic and lifecycle callbacks:
 | `callbacks.onEnd` | Post-execution callback | `(clientId, pipelineName, payload, isError) => void` |
 | `callbacks.onError` | Error handling callback | `(clientId, pipelineName, payload, error) => void` |
 
-**Sources:** [src/model/Pipeline.model.ts:8-72](), [src/lib/services/schema/PipelineSchemaService.ts:102-107]()
-
 ## Complex Navigation Patterns
 
 Real-world scenarios involve intricate navigation patterns with multiple agents, tool chains, and error handling.
@@ -91,15 +79,11 @@ This example shows a triage agent that routes users to specialized agents:
 
 ![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_5.svg)
 
-**Sources:** [test/spec/navigation.test.mjs:41-187](), [test/spec/connection.test.mjs:74-188]()
-
 ### Deadlock Prevention Mechanisms
 
 The system includes several mechanisms to prevent deadlocks and race conditions:
 
 ![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_6.svg)
-
-**Sources:** [test/spec/navigation.test.mjs:256-280](), [test/spec/navigation.test.mjs:283-374]()
 
 ## Testing and Validation
 
@@ -111,8 +95,6 @@ The test suite validates that multiple concurrent connections maintain separate 
 
 ![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_7.svg)
 
-**Sources:** [test/spec/connection.test.mjs:74-188](), [test/spec/dispose.test.mjs:24-139]()
-
 ### Queue Management Tests
 
 Message queuing ensures proper execution order even with concurrent operations:
@@ -122,5 +104,3 @@ Message queuing ensures proper execution order even with concurrent operations:
 | Sequential message processing | `["foo", "bar", "baz"]` order maintained | Messages queued per client |
 | Concurrent client isolation | Each client processes independently | No cross-client interference |
 | Agent state consistency | History reflects correct agent transitions | Agent changes don't corrupt history |
-
-**Sources:** [test/spec/connection.test.mjs:190-320](), [test/spec/navigation.test.mjs:189-254]()

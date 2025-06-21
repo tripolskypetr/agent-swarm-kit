@@ -15,8 +15,6 @@ The testing framework validates core system functionality through comprehensive 
 
 ![Mermaid Diagram](./diagrams\27_Examples_and_Testing_0.svg)
 
-Sources: [test/index.mjs:1-19](), [test/spec/connection.test.mjs:1-522](), [test/spec/navigation.test.mjs:1-375]()
-
 ## Basic Agent and Swarm Examples
 
 ### Simple Agent Completion
@@ -27,8 +25,6 @@ The most basic example demonstrates creating an agent with mock completion and t
 
 This pattern is implemented in [test/spec/completion.test.mjs:14-50]() where a mock completion returns a fixed response, and [test/spec/completion.test.mjs:52-116]() demonstrates using different completions for different agents within the same swarm.
 
-Sources: [test/spec/completion.test.mjs:14-50](), [test/spec/completion.test.mjs:52-116]()
-
 ### Multi-Agent System with Navigation
 
 The navigation test demonstrates a triage system with agent routing:
@@ -36,8 +32,6 @@ The navigation test demonstrates a triage system with agent routing:
 ![Mermaid Diagram](./diagrams\27_Examples_and_Testing_2.svg)
 
 The implementation creates tools that handle navigation between agents using `changeToAgent()` and `execute()` functions as shown in [test/spec/navigation.test.mjs:80-114]().
-
-Sources: [test/spec/navigation.test.mjs:41-187](), [test/spec/navigation.test.mjs:228-254]()
 
 ## Connection Management and Session Testing
 
@@ -58,8 +52,6 @@ The connection tests validate that the system properly handles multiple concurre
 
 The disposal tests in [test/spec/dispose.test.mjs:24-371]() verify that all session resources are properly cleaned up, including session lists, agent lists, and history lists.
 
-Sources: [test/spec/connection.test.mjs:28-320](), [test/spec/dispose.test.mjs:24-371]()
-
 ## Tool Execution and Navigation Patterns
 
 ### Navigation Tool Implementation
@@ -77,8 +69,6 @@ The system includes specific tests for preventing deadlock conditions in tool ex
 ![Mermaid Diagram](./diagrams\27_Examples_and_Testing_5.svg)
 
 This deadlock prevention mechanism is validated in [test/spec/navigation.test.mjs:256-280]() and [test/spec/navigation.test.mjs:283-374]().
-
-Sources: [test/spec/navigation.test.mjs:80-114](), [test/spec/navigation.test.mjs:256-280]()
 
 ## Error Recovery and Validation Testing
 
@@ -104,8 +94,6 @@ The validation tests ensure all required dependencies are present:
 
 Each validation test in [test/spec/validation.test.mjs:66-144]() checks for specific missing dependencies and verifies that the system properly rejects invalid configurations.
 
-Sources: [test/spec/resque.test.mjs:21-197](), [test/spec/validation.test.mjs:66-144]()
-
 ## Integration Testing Patterns
 
 ### Message Ordering and Concurrency
@@ -123,8 +111,6 @@ The event system allows for custom message emission outside the normal chat flow
 ![Mermaid Diagram](./diagrams\27_Examples_and_Testing_8.svg)
 
 Event testing is implemented in [test/spec/connection.test.mjs:413-473]() and [test/spec/connection.test.mjs:475-522]() to ensure events are properly delivered to listeners without affecting chat history.
-
-Sources: [test/spec/connection.test.mjs:190-320](), [test/spec/connection.test.mjs:413-522]()
 
 ## Testing Best Practices
 
@@ -152,5 +138,3 @@ Effective mock completions for testing:
 - **State-based Logic**: Use message content to determine tool calls
 - **Async Simulation**: Include realistic delays with `sleep()`
 - **Error Simulation**: Mock various failure conditions
-
-Sources: [test/spec/dispose.test.mjs:122-138](), [test/spec/connection.test.mjs:61-65](), [test/spec/navigation.test.mjs:116-180]()

@@ -17,8 +17,6 @@ Public Services implement a consistent pattern that filters internal methods fro
 
 **Public Service Type Filtering Pattern**
 
-Sources: [src/lib/services/public/SessionPublicService.ts:23-45](), [src/lib/services/public/AgentPublicService.ts:12-34]()
-
 ## Core Public Services
 
 ### AgentPublicService
@@ -38,8 +36,6 @@ The service implements `TAgentConnectionService` which excludes `getAgent` from 
 | `run` | Runs stateless completions | Execution validation |
 | `dispose` | Cleans up agent resources | Resource tracking |
 
-Sources: [src/lib/services/public/AgentPublicService.ts:70-91](), [src/lib/services/public/AgentPublicService.ts:22-34]()
-
 ### SessionPublicService
 
 `SessionPublicService` manages session-level operations with execution validation and navigation control, wrapping `SessionConnectionService` while excluding internal session management.
@@ -53,8 +49,6 @@ Key validation integrations include:
 - **ExecutionValidationService**: Prevents recursive tool calls and manages execution limits
 - **NavigationValidationService**: Controls agent navigation to prevent infinite loops
 - **PerfService**: Tracks execution metrics and performance data
-
-Sources: [src/lib/services/public/SessionPublicService.ts:76-102](), [src/lib/services/public/SessionPublicService.ts:124-183]()
 
 ## Context Management Integration
 
@@ -71,8 +65,6 @@ Public Services integrate multiple context services to provide comprehensive exe
 | `PayloadContextService` | Payload access | Request/response data |
 | `SchemaContextService` | Schema overrides | Temporary schema modifications |
 
-Sources: [src/lib/services/public/SessionPublicService.ts:52-103](), [src/lib/services/context/MethodContextService.ts]()
-
 ## Performance and Logging Integration
 
 Public Services integrate performance monitoring and logging services to provide comprehensive observability across the API layer.
@@ -80,8 +72,6 @@ Public Services integrate performance monitoring and logging services to provide
 ![Mermaid Diagram](./diagrams\16_Public_Services_4.svg)
 
 **Performance Tracking Example**
-
-Sources: [src/lib/services/public/SessionPublicService.ts:67-68](), [src/lib/services/public/SessionPublicService.ts:184-244]()
 
 ## Public Service Catalog
 
@@ -109,8 +99,6 @@ Sources: [src/lib/services/public/SessionPublicService.ts:67-68](), [src/lib/ser
 | `MCPPublicService` | External tool integration | `MCPConnectionService` | `callTool`, `listTools` |
 | `HistoryPublicService` | Message history | `HistoryConnectionService` | `push`, `pop`, `flush` |
 
-Sources: [docs/index.md:32-83](), [docs/interfaces/ISwarmDI.md:96-234]()
-
 ## Method Wrapping Pattern
 
 Public Services implement a consistent method wrapping pattern that adds context management, validation, and logging to all operations.
@@ -125,5 +113,3 @@ The pattern ensures:
 - **Logging**: All operations are logged with context
 - **Error Handling**: Consistent error handling and cleanup
 - **Performance Tracking**: Execution metrics are captured
-
-Sources: [src/lib/services/public/SessionPublicService.ts:105-140](), [src/lib/services/public/AgentPublicService.ts:70-112]()

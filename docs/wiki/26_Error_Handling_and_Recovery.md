@@ -21,8 +21,6 @@ Tool call errors represent one of the most common failure scenarios in the syste
 
 **Tool Call Error Flow in ClientAgent**
 
-Sources: [src/client/ClientAgent.ts:26-32](), [src/client/ClientAgent.ts:109-165](), [src/client/ClientAgent.ts:319-606]()
-
 The system uses specific symbols to coordinate error handling between tool execution and the main agent loop:
 
 | Symbol | Purpose | Trigger Condition |
@@ -33,8 +31,6 @@ The system uses specific symbols to coordinate error handling between tool execu
 | `TOOL_STOP_SYMBOL` | Tool execution stopped | Manual stop via `commitStopTools` |
 | `CANCEL_OUTPUT_SYMBOL` | Output cancelled | Manual cancellation via `commitCancelOutput` |
 
-Sources: [src/client/ClientAgent.ts:26-32]()
-
 ### Model Rescue Strategies
 
 When the AI model produces invalid outputs or tool calls, the system employs configurable rescue strategies to recover gracefully.
@@ -42,8 +38,6 @@ When the AI model produces invalid outputs or tool calls, the system employs con
 ![Mermaid Diagram](./diagrams\26_Error_Handling_and_Recovery_1.svg)
 
 **Model Rescue Strategy Selection**
-
-Sources: [src/config/params.ts:128](), [src/config/params.ts:21-30](), [src/model/GlobalConfig.model.ts:23-34]()
 
 The rescue strategies are configured through global settings:
 
@@ -59,8 +53,6 @@ The system implements multi-layer validation to prevent invalid operations and g
 
 **Validation Error Recovery Mechanisms**
 
-Sources: [src/client/ClientSession.ts:149-179](), [src/lib/services/validation/](), [src/config/params.ts:72]()
-
 ### Session and Connection Error Handling
 
 Session-level errors are handled through policy validation and graceful degradation mechanisms.
@@ -68,8 +60,6 @@ Session-level errors are handled through policy validation and graceful degradat
 ![Mermaid Diagram](./diagrams\26_Error_Handling_and_Recovery_3.svg)
 
 **Session Error Handling Flow**
-
-Sources: [src/client/ClientSession.ts:149-233](), [src/interfaces/Session.interface.ts:67-102]()
 
 ## Recovery Mechanisms
 
@@ -81,8 +71,6 @@ When the system cannot provide a meaningful response due to errors, it employs a
 
 **Placeholder Response Selection**
 
-Sources: [src/client/ClientAgent.ts:91-96](), [src/config/params.ts:32-43]()
-
 ### History and State Recovery
 
 The system maintains conversation context during error scenarios through intelligent history management.
@@ -91,8 +79,6 @@ The system maintains conversation context during error scenarios through intelli
 
 **History Recovery in ClientHistory**
 
-Sources: [src/client/ClientHistory.ts:151-169](), [src/client/ClientHistory.ts:136-243]()
-
 ### Navigation Error Prevention
 
 The system prevents infinite recursion and deadlock conditions in agent navigation through validation services.
@@ -100,8 +86,6 @@ The system prevents infinite recursion and deadlock conditions in agent navigati
 ![Mermaid Diagram](./diagrams\26_Error_Handling_and_Recovery_6.svg)
 
 **Navigation Error Prevention Flow**
-
-Sources: [src/lib/services/validation/NavigationValidationService.ts](), [src/config/params.ts:233-234](), [src/config/params.ts:17]()
 
 ## Error Recovery Configuration
 
@@ -118,8 +102,6 @@ The error handling behavior is highly configurable through global settings:
 | `CC_MAX_NESTED_EXECUTIONS` | Maximum nested executions | 20 |
 | `CC_THROW_WHEN_NAVIGATION_RECURSION` | Throw on navigation recursion | true |
 
-Sources: [src/config/params.ts:128-289](), [src/model/GlobalConfig.model.ts:21-287]()
-
 ### Custom Error Handlers
 
 The system supports custom error handling functions for specialized recovery scenarios:
@@ -127,8 +109,6 @@ The system supports custom error handling functions for specialized recovery sce
 ![Mermaid Diagram](./diagrams\26_Error_Handling_and_Recovery_7.svg)
 
 **Error Recovery Class Relationships**
-
-Sources: [src/client/ClientAgent.ts:608-672](), [src/config/params.ts:27-30](), [src/model/GlobalConfig.model.ts]()
 
 ## Testing Error Scenarios
 
@@ -138,18 +118,12 @@ The system includes comprehensive test coverage for error handling scenarios:
 
 Test scenarios include tool validation failures, missing tools, and execution errors.
 
-Sources: [test/spec/resque.test.mjs:21-76](), [test/spec/validation.test.mjs:66-104]()
-
 ### Navigation Error Tests
 
 Tests cover recursive navigation prevention and deadlock detection.
 
-Sources: [test/spec/navigation.test.mjs:25-26](), [test/spec/connection.test.mjs:74-188]()
-
 ### Recovery Strategy Tests
 
 Tests validate different rescue strategies and their effectiveness.
-
-Sources: [test/spec/resque.test.mjs:78-152](), [test/spec/dispose.test.mjs:24-210]()
 
 The error handling and recovery system in agent-swarm-kit provides robust failure management while maintaining system stability and user experience through configurable recovery strategies, comprehensive validation, and graceful degradation mechanisms.

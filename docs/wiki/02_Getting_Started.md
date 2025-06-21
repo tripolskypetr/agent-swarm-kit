@@ -19,15 +19,11 @@ npm install agent-swarm-kit
 
 The library provides a dependency injection-based architecture where agents, tools, and completions are registered globally and then assembled into swarms for execution.
 
-**Sources:** [README.md:44-49]()
-
 ## Core Architecture Overview
 
 Agent-swarm-kit uses a layered service architecture built around a central dependency injection container. The system orchestrates multiple AI agents that can communicate, share tools, and maintain conversation history.
 
 ![Mermaid Diagram](./diagrams\2_Getting_Started_0.svg)
-
-**Sources:** [README.md:55-65](), [src/functions/target/fork.ts:8]()
 
 ## Core Concepts
 
@@ -43,15 +39,11 @@ Tools are functions that agents can call to perform actions like data retrieval,
 ### Sessions
 Sessions manage client connections, conversation history, and agent state for individual users or conversation threads.
 
-**Sources:** [README.md:219-228]()
-
 ## Basic Usage Pattern
 
 The typical workflow involves four steps: define components, assemble swarm, create session, and process messages.
 
 ![Mermaid Diagram](./diagrams\2_Getting_Started_1.svg)
-
-**Sources:** [README.md:55-149]()
 
 ## Quick Start Example
 
@@ -130,8 +122,6 @@ console.log(response);
 await dispose();
 ```
 
-**Sources:** [README.md:55-149]()
-
 ## String-Based Dependency Injection
 
 Agent-swarm-kit supports modular development through string-based references, allowing you to define components in separate files:
@@ -168,8 +158,6 @@ addSwarm({
 const { complete } = session("client-123", SwarmName.CustomerService);
 ```
 
-**Sources:** [README.md:154-194]()
-
 ## Background Processing
 
 Use `fork()` for isolated background processing that runs independently of main chat sessions:
@@ -189,8 +177,6 @@ const result = await fork(
   }
 );
 ```
-
-**Sources:** [README.md:357-412](), [src/functions/target/fork.ts:98-103]()
 
 ## Session Management
 
@@ -219,8 +205,6 @@ app.get("/api/v1/session/:clientId", upgradeWebSocket((ctx) => {
 }));
 ```
 
-**Sources:** [README.md:133-147]()
-
 ## Next Steps
 
 Now that you have the basics, explore these areas:
@@ -231,5 +215,3 @@ Now that you have the basics, explore these areas:
 - **Examples** - See complete working examples at [Examples and Testing](#6)
 
 The system's modular architecture allows you to start simple and progressively add complexity as your needs grow.
-
-**Sources:** [README.md:197-228]()

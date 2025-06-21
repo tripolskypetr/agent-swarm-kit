@@ -17,8 +17,6 @@ The completion adapter system is built around the `AdapterUtils` class, which pr
 
 ![Mermaid Diagram](./diagrams\19_Completion_Adapters_0.svg)
 
-**Sources:** [src/classes/Adapter.ts:1-654]()
-
 ## Core Components
 
 ### AdapterUtils Class
@@ -43,8 +41,6 @@ The adapter system uses several configuration constants for reliability and perf
 | `RETRY_COUNT` | 5 | Maximum retry attempts |
 | `RETRY_DELAY` | 5000 | Delay between retries (ms) |
 
-**Sources:** [src/classes/Adapter.ts:18-36]()
-
 ## Provider Implementations
 
 ### OpenAI Adapter
@@ -52,8 +48,6 @@ The adapter system uses several configuration constants for reliability and perf
 The `fromOpenAI` method creates an adapter for OpenAI's chat completions API, supporting both GPT models and custom response formats.
 
 ![Mermaid Diagram](./diagrams\19_Completion_Adapters_1.svg)
-
-**Sources:** [src/classes/Adapter.ts:384-466]()
 
 ### Ollama Adapter
 
@@ -64,8 +58,6 @@ Key features:
 - Handles local model persistence with `keep_alive: "24h"`
 - Generates tool call IDs using `randomString()`
 
-**Sources:** [src/classes/Adapter.ts:566-644](), [src/classes/Adapter.ts:11-16]()
-
 ### Other Provider Adapters
 
 | Provider | Method | Key Features |
@@ -74,8 +66,6 @@ Key features:
 | Cortex | `fromCortex` | Local Cortex server with message deduplication |
 | Cohere | `fromCohereClientV2` | Cohere Command-R model support |
 | LMStudio | `fromLMStudio` | OpenAI-compatible local server |
-
-**Sources:** [src/classes/Adapter.ts:205-282](), [src/classes/Adapter.ts:56-197](), [src/classes/Adapter.ts:291-375](), [src/classes/Adapter.ts:475-557]()
 
 ## Message Transformation
 
@@ -90,8 +80,6 @@ All adapters perform similar input transformations to convert from the internal 
 Tool calls require special handling to convert between the internal format and provider-specific representations:
 
 ![Mermaid Diagram](./diagrams\19_Completion_Adapters_3.svg)
-
-**Sources:** [src/classes/Adapter.ts:94-100](), [src/classes/Adapter.ts:420-426](), [src/classes/Adapter.ts:450-456]()
 
 ## Reliability Features
 
@@ -127,8 +115,6 @@ execpool(
 
 Some adapters (like Cortex) implement message deduplication to handle consecutive messages of the same role:
 
-**Sources:** [src/classes/Adapter.ts:115-146]()
-
 ## Integration Points
 
 ### Logging Integration
@@ -150,5 +136,3 @@ Completion adapters are registered and accessed through the completion schema se
 ### Performance Monitoring
 
 Adapter executions are tracked by the performance monitoring system for metrics collection and analysis. See [Performance Monitoring](#4.2) for details on how completion times and throughput are measured.
-
-**Sources:** [src/classes/Adapter.ts:82-84](), [src/classes/Adapter.ts:226-229](), [src/classes/Adapter.ts:410-413](), [src/lib/services/base/PerfService.ts:1-617]()

@@ -15,8 +15,6 @@ The framework provides a unified interface for integrating with multiple AI prov
 
 ![Mermaid Diagram](./diagrams\18_AI_Integration_0.svg)
 
-Sources: [src/classes/Adapter.ts:1-422]()
-
 ### Provider-Specific Adapters
 
 Each adapter method in `AdapterUtils` creates a completion function tailored to a specific AI provider's API format:
@@ -32,8 +30,6 @@ Each adapter method in `AdapterUtils` creates a completion function tailored to 
 
 The adapters handle message transformation, tool call formatting, and response normalization to ensure consistent behavior across different AI providers.
 
-Sources: [src/classes/Adapter.ts:56-197](), [src/classes/Adapter.ts:205-282](), [src/classes/Adapter.ts:291-375](), [src/classes/Adapter.ts:384-466](), [src/classes/Adapter.ts:475-557](), [src/classes/Adapter.ts:566-644]()
-
 ### Execution Pipeline
 
 All completion adapters utilize a robust execution pipeline with pooling and retry mechanisms:
@@ -45,8 +41,6 @@ The execution parameters are configured as constants:
 - `RETRY_COUNT`: 5 retry attempts before failure
 - `RETRY_DELAY`: 5000ms between retry attempts
 
-Sources: [src/classes/Adapter.ts:19-36](), [src/classes/Adapter.ts:72-143]()
-
 ## Tool Call Protocol
 
 The framework implements a standardized tool call protocol that works across different AI providers, with special handling for providers that don't natively support structured tool calls.
@@ -56,8 +50,6 @@ The framework implements a standardized tool call protocol that works across dif
 Each adapter transforms messages between the unified `IModelMessage` format and provider-specific formats:
 
 ![Mermaid Diagram](./diagrams\18_AI_Integration_3.svg)
-
-Sources: [src/classes/Adapter.ts:87-100](), [src/classes/Adapter.ts:183-196]()
 
 ## Performance Monitoring
 
@@ -76,8 +68,6 @@ The performance service tracks AI completion operations from start to finish:
 | `getActiveSessionExecutionCount` | Get execution count for client | - |
 | `getAverageResponseTime` | Calculate average response time | - |
 
-Sources: [src/lib/services/base/PerfService.ts:435-475](), [src/lib/services/base/PerfService.ts:485-530]()
-
 ### Performance Records
 
 The service generates structured performance reports through two main interfaces:
@@ -86,15 +76,11 @@ The service generates structured performance reports through two main interfaces
 
 The `IPerformanceRecord` aggregates system-wide metrics while `IClientPerfomanceRecord` provides per-client breakdowns including session memory, state, and execution statistics.
 
-Sources: [src/model/Performance.model.ts:6-70](), [src/model/Performance.model.ts:77-157]()
-
 ### State Computation
 
 The performance service computes comprehensive client state information by integrating with multiple services:
 
 ![Mermaid Diagram](./diagrams\18_AI_Integration_6.svg)
-
-Sources: [src/lib/services/base/PerfService.ts:181-251](), [src/lib/services/base/PerfService.ts:35-115]()
 
 ## Utilities and Supporting Functions
 
@@ -111,5 +97,3 @@ The AI integration layer includes several utility functions that support robust 
 
 ### Type Safety
 - `isObject`: Validates plain JavaScript objects for safe data handling
-
-Sources: [src/utils/writeFileAtomic.ts:67-144](), [src/utils/removeXmlTags.ts:37-47](), [src/utils/msToTime.ts:33-58](), [src/utils/objectFlat.ts:64-91](), [src/utils/nameToTitle.ts:34-46](), [src/utils/isObject.ts:36-44]()

@@ -26,8 +26,6 @@ The agent execution engine consists of two primary components: `ClientAgent` for
 
 The `ClientAgent` uses a queued execution model to prevent overlapping operations and maintains internal subjects for managing tool execution flow, agent changes, and output cancellation.
 
-**Sources:** [src/client/ClientAgent.ts:1-1088](), [src/interfaces/Agent.interface.ts:1-500]()
-
 ### ClientHistory
 
 `ClientHistory` manages conversation history for agents, providing filtered message arrays optimized for AI completion contexts and maintaining message persistence.
@@ -42,8 +40,6 @@ The `ClientAgent` uses a queued execution model to prevent overlapping operation
 - **Event Broadcasting**: Emits history events for system monitoring
 
 The history system supports both raw message access and agent-optimized arrays that include system prompts and maintain tool call relationships for proper AI completion context.
-
-**Sources:** [src/client/ClientHistory.ts:1-270](), [src/interfaces/History.interface.ts:1-200]()
 
 ## Session Management
 
@@ -61,8 +57,6 @@ The history system supports both raw message access and agent-optimized arrays t
 - **Event Integration**: Broadcasts session events for monitoring and logging
 
 The session maintains separation between stateful execution (with history updates) and stateless completion, while ensuring all communications pass through policy validation layers.
-
-**Sources:** [src/client/ClientSession.ts:1-400](), [src/interfaces/Session.interface.ts:1-194]()
 
 ## Service Infrastructure
 
@@ -82,8 +76,6 @@ Connection services manage the instantiation and lifecycle of core components us
 
 Each connection service uses `memoize` from functools-kit to cache instances by composite keys, ensuring efficient resource usage and consistent state management.
 
-**Sources:** [src/lib/services/connection/AgentConnectionService.ts:1-350](), [src/lib/services/connection/SessionConnectionService.ts:1-300]()
-
 ### Public Services
 
 Public services provide the external API layer with context management and method scoping around connection services.
@@ -99,8 +91,6 @@ Public services provide the external API layer with context management and metho
 
 The public services layer provides a clean separation between external API and internal component management while ensuring consistent context propagation throughout the system.
 
-**Sources:** [src/lib/services/public/AgentPublicService.ts:1-500](), [src/lib/services/public/SessionPublicService.ts:1-600]()
-
 ## Component Integration
 
 The core components work together through a well-defined integration pattern that ensures proper message flow, state management, and error handling.
@@ -115,5 +105,3 @@ The core components work together through a well-defined integration pattern tha
 - **Error Propagation**: Errors bubble up through layers with proper context preservation
 
 This architecture provides clear separation of concerns while maintaining efficient resource usage and proper state management across the entire system.
-
-**Sources:** [src/lib/services/public/SessionPublicService.ts:200-300](), [src/client/ClientSession.ts:140-250](), [src/client/ClientAgent.ts:600-800]()

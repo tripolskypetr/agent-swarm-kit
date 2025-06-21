@@ -27,15 +27,11 @@ The framework provides the `addTool` function for creating custom tools that age
 | `type` | Tool type (always "function") | Yes |
 | `function` | OpenAI function schema definition | Yes |
 
-Sources: [README.md:67-89](), [src/interfaces/MCP.interface.ts:48-61]()
-
 ### Tool Function Schema
 
 Tools use OpenAI-compatible function schemas to define their parameters and descriptions:
 
 ![Mermaid Diagram](./diagrams\24_Tool_Integration_1.svg)
-
-Sources: [README.md:74-88](), [src/interfaces/MCP.interface.ts:17-25]()
 
 ## Model Context Protocol Integration
 
@@ -45,13 +41,9 @@ The framework supports integration with external MCP servers, allowing agents to
 
 ![Mermaid Diagram](./diagrams\24_Tool_Integration_2.svg)
 
-Sources: [src/interfaces/MCP.interface.ts:148-177](), [src/lib/services/connection/MCPConnectionService.ts:22-52](), [src/client/ClientMCP.ts:14-30]()
-
 ### MCP Tool Discovery and Execution
 
 ![Mermaid Diagram](./diagrams\24_Tool_Integration_3.svg)
-
-Sources: [src/lib/services/public/MCPPublicService.ts:44-70](), [src/lib/services/connection/MCPConnectionService.ts:58-132](), [src/client/ClientMCP.ts:57-145]()
 
 ## Tool Execution Lifecycle
 
@@ -60,8 +52,6 @@ Tools are executed within the context of agent conversations, with proper error 
 ### Tool Call Processing
 
 ![Mermaid Diagram](./diagrams\24_Tool_Integration_4.svg)
-
-Sources: [src/classes/MCP.ts:215-271](), [src/functions/commit/commitToolOutput.ts]()
 
 ### Tool Parameter Structure
 
@@ -77,8 +67,6 @@ The framework passes comprehensive context information to tool execution functio
 | `abortSignal` | TAbortSignal | Signal for cancelling execution |
 | `isLast` | boolean | Whether this is the final tool in the batch |
 
-Sources: [src/interfaces/MCP.interface.ts:30-45]()
-
 ## Tool Error Handling
 
 The framework provides comprehensive error handling for tool execution failures.
@@ -86,8 +74,6 @@ The framework provides comprehensive error handling for tool execution failures.
 ### Error Recovery Patterns
 
 ![Mermaid Diagram](./diagrams\24_Tool_Integration_5.svg)
-
-Sources: [src/classes/MCP.ts:243-264]()
 
 ## Advanced Tool Patterns
 
@@ -97,15 +83,11 @@ Tools can provide dynamic function schemas based on the executing agent:
 
 ![Mermaid Diagram](./diagrams\24_Tool_Integration_6.svg)
 
-Sources: [README.md:422-447]()
-
 ### Tool Update Mechanisms
 
 MCP tools support dynamic updates without restarting the system:
 
 ![Mermaid Diagram](./diagrams\24_Tool_Integration_7.svg)
-
-Sources: [src/classes/MCP.ts:279-305](), [src/client/ClientMCP.ts:95-121]()
 
 ### Tool Output Patterns
 
@@ -117,12 +99,8 @@ Tools can return different types of outputs:
 | `undefined` | No output committed | Side effects only |
 | `void` | No output committed | Fire-and-forget operations |
 
-Sources: [src/interfaces/MCP.interface.ts:12-14](), [src/classes/MCP.ts:231-242]()
-
 ### Background Tool Execution
 
 Tools can be executed in isolated contexts using the `fork` mechanism:
 
 ![Mermaid Diagram](./diagrams\24_Tool_Integration_8.svg)
-
-Sources: [src/functions/target/fork.ts:47-103](), [README.md:357-412]()

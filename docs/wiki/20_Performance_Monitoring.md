@@ -19,23 +19,17 @@ The system captures metrics including:
 - Session state and memory usage
 - Client-specific and system-wide aggregations
 
-Sources: [src/lib/services/base/PerfService.ts:1-618](), [src/model/Performance.model.ts:1-165]()
-
 ## Core Architecture
 
 The performance monitoring system follows a layered architecture within the service framework:
 
 ![Mermaid Diagram](./diagrams\20_Performance_Monitoring_0.svg)
 
-Sources: [src/lib/services/base/PerfService.ts:28-116](), [src/model/Performance.model.ts:6-101]()
-
 ## PerfService Class Structure
 
 The `PerfService` class manages performance tracking through several key components:
 
 ![Mermaid Diagram](./diagrams\20_Performance_Monitoring_1.svg)
-
-Sources: [src/lib/services/base/PerfService.ts:28-610](), [src/model/Performance.model.ts:6-157]()
 
 ## Performance Metrics Tracked
 
@@ -59,8 +53,6 @@ The `PerfService` maintains several internal maps for tracking metrics:
 - `executionInputLenMap`: Tracks cumulative input data sizes
 - `executionOutputLenMap`: Tracks cumulative output data sizes
 - `executionTimeMap`: Accumulates total execution times per client
-
-Sources: [src/lib/services/base/PerfService.ts:117-156](), [src/model/Performance.model.ts:102-157]()
 
 ## Execution Lifecycle Integration
 
@@ -93,8 +85,6 @@ const responseTime = endTime - startTime;
 this.totalResponseTime += responseTime;
 this.totalRequestCount += 1;
 ```
-
-Sources: [src/lib/services/base/PerfService.ts:434-530]()
 
 ## Performance Data Structures
 
@@ -136,8 +126,6 @@ interface IClientPerfomanceRecord {
 }
 ```
 
-Sources: [src/model/Performance.model.ts:6-157]()
-
 ## State and Memory Integration
 
 The performance monitoring system integrates with session state and memory systems to provide comprehensive client context:
@@ -161,8 +149,6 @@ const result: Record<string, unknown> = {
     // ... state values from agents
 };
 ```
-
-Sources: [src/lib/services/base/PerfService.ts:181-251](), [src/lib/services/base/PerfService.ts:53-55]()
 
 ## Time Formatting and Utilities
 
@@ -194,8 +180,6 @@ return {
     executionTimeAverage: msToTime(executionTimeAverage),
 };
 ```
-
-Sources: [src/utils/msToTime.ts:33-58](), [src/lib/services/base/PerfService.ts:565-566]()
 
 ## Configuration and Logging Integration
 
@@ -240,8 +224,6 @@ public dispose = (clientId: string): void => {
 };
 ```
 
-Sources: [src/lib/services/base/PerfService.ts:182-185](), [src/lib/services/base/PerfService.ts:582](), [src/lib/services/base/PerfService.ts:601-609]()
-
 ## Performance Adapter Integration
 
 The monitoring system works alongside performance optimizations in the `Adapter` class, which implements execution pooling and retry logic for AI completions:
@@ -259,5 +241,3 @@ const RETRY_DELAY = 5_000;      // Delay between retries
 ### Integration with Performance Tracking
 
 Adapter operations can be monitored through the performance system when integrated with client operations that call `startExecution` and `endExecution`.
-
-Sources: [src/classes/Adapter.ts:19-36]()

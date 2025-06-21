@@ -17,8 +17,6 @@ The `ClientAgent` implements the `IAgent` interface and serves as the primary ex
 
 ![Mermaid Diagram](./diagrams\4_Client_Agent_0.svg)
 
-**Sources:** [src/client/ClientAgent.ts:1-1000](), [src/interfaces/Agent.interface.ts:1-600](), [src/lib/services/connection/AgentConnectionService.ts:1-400]()
-
 ## Execution Lifecycle
 
 The `ClientAgent` follows a structured execution lifecycle with queued processing to prevent overlapping executions. The system supports both stateful execution (via `execute`) and stateless completion (via `run`).
@@ -26,8 +24,6 @@ The `ClientAgent` follows a structured execution lifecycle with queued processin
 ### Execution Flow Diagram
 
 ![Mermaid Diagram](./diagrams\4_Client_Agent_1.svg)
-
-**Sources:** [src/client/ClientAgent.ts:319-606](), [src/client/ClientAgent.ts:230-308]()
 
 ### Queued Execution Pattern
 
@@ -40,8 +36,6 @@ public run = queued(RUN_FN);
 
 This ensures that only one execution can occur at a time per agent instance, maintaining consistency in message processing and tool execution.
 
-**Sources:** [src/client/ClientAgent.ts:750-752]()
-
 ## Tool Call Management
 
 The `ClientAgent` handles tool execution through a sophisticated orchestration system that supports validation, error recovery, and asynchronous coordination.
@@ -49,8 +43,6 @@ The `ClientAgent` handles tool execution through a sophisticated orchestration s
 ### Tool Resolution and Execution
 
 ![Mermaid Diagram](./diagrams\4_Client_Agent_2.svg)
-
-**Sources:** [src/client/ClientAgent.ts:666-703](), [src/client/ClientAgent.ts:109-165]()
 
 ### Tool Abort Controller
 
@@ -73,8 +65,6 @@ class ToolAbortController {
 
 This controller provides `AbortSignal` instances to tool executions, allowing for graceful cancellation when agent changes or errors occur.
 
-**Sources:** [src/client/ClientAgent.ts:41-84]()
-
 ## Message Processing and History
 
 The `ClientAgent` integrates closely with the history system to maintain conversation context and support completion generation.
@@ -82,8 +72,6 @@ The `ClientAgent` integrates closely with the history system to maintain convers
 ### Message Flow and History Integration
 
 ![Mermaid Diagram](./diagrams\4_Client_Agent_3.svg)
-
-**Sources:** [src/client/ClientAgent.ts:336-341](), [src/client/ClientHistory.ts:136-243]()
 
 ### History Filtering and Context Management
 
@@ -94,8 +82,6 @@ The `ClientAgent` works with `ClientHistory` to maintain appropriate context for
 - Tool call consistency (linking tool outputs to tool calls)
 - Message limits (`keepMessages` parameter)
 
-**Sources:** [src/client/ClientHistory.ts:136-243](), [src/config/params.ts:78-89]()
-
 ## Error Recovery and Resurrection
 
 The `ClientAgent` implements a robust error recovery system through the `_resurrectModel` method, which handles various failure scenarios.
@@ -103,8 +89,6 @@ The `ClientAgent` implements a robust error recovery system through the `_resurr
 ### Resurrection Strategies
 
 ![Mermaid Diagram](./diagrams\4_Client_Agent_4.svg)
-
-**Sources:** [src/client/ClientAgent.ts:770-830](), [src/config/params.ts:128-129]()
 
 ### Error Types and Handling
 
@@ -117,8 +101,6 @@ The system handles several types of errors:
 
 Each error type triggers appropriate recovery mechanisms and logging.
 
-**Sources:** [src/client/ClientAgent.ts:412-429](), [src/client/ClientAgent.ts:541-558]()
-
 ## Event Coordination via Subjects
 
 The `ClientAgent` uses `Subject` instances from `functools-kit` for asynchronous coordination between different execution phases.
@@ -126,8 +108,6 @@ The `ClientAgent` uses `Subject` instances from `functools-kit` for asynchronous
 ### Subject-Based Coordination System
 
 ![Mermaid Diagram](./diagrams\4_Client_Agent_5.svg)
-
-**Sources:** [src/client/ClientAgent.ts:717-745](), [src/client/ClientAgent.ts:460-467]()
 
 ### Asynchronous Tool Execution
 
@@ -146,8 +126,6 @@ const statusAwaiter = Promise.race([
 
 This allows for responsive cancellation and error handling during tool execution.
 
-**Sources:** [src/client/ClientAgent.ts:460-467]()
-
 ## Integration with Services
 
 The `ClientAgent` integrates with multiple services through dependency injection and the service layer architecture.
@@ -156,8 +134,6 @@ The `ClientAgent` integrates with multiple services through dependency injection
 
 ![Mermaid Diagram](./diagrams\4_Client_Agent_6.svg)
 
-**Sources:** [src/client/ClientAgent.ts:613-650](), [src/lib/services/connection/AgentConnectionService.ts:148-218]()
-
 ### Lifecycle Management
 
 The `AgentConnectionService` manages `ClientAgent` lifecycle through memoization, ensuring efficient reuse while maintaining proper initialization and disposal:
@@ -165,5 +141,3 @@ The `AgentConnectionService` manages `ClientAgent` lifecycle through memoization
 - **Creation:** Agents are created on-demand and cached by `clientId-agentName` key
 - **Initialization:** Dependencies are resolved and injected during creation
 - **Disposal:** Resources are cleaned up when agents are no longer needed
-
-**Sources:** [src/lib/services/connection/AgentConnectionService.ts:148-218](), [src/lib/services/connection/AgentConnectionService.ts:323-340]()

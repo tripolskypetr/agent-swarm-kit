@@ -15,8 +15,6 @@ The DI container follows a layered architecture with the `swarm` object serving 
 
 ![Mermaid Diagram](./diagrams\13_Dependency_Injection_Container_0.svg)
 
-Sources: [src/lib/index.ts:1-270](), [src/model/SwarmDI.model.ts:66-461](), [src/lib/core/types.ts:1-97]()
-
 ## Service Registration System
 
 The DI system uses a symbol-based registration approach where each service type has a unique symbol identifier. Services are registered during module initialization using the `provide` function.
@@ -36,8 +34,6 @@ The registration process occurs in [src/lib/core/provide.ts:68-151]() with servi
 | Public Services | Lines 116-128 | 12 services |
 | Meta Services | Lines 131-133 | 2 services |
 | Validation Services | Lines 136-151 | 15 services |
-
-Sources: [src/lib/core/provide.ts:68-151](), [src/lib/core/types.ts:86-94]()
 
 ## Central swarm Container
 
@@ -59,8 +55,6 @@ export const swarm: ISwarmDI = {
 };
 ```
 
-Sources: [src/lib/index.ts:252-260](), [src/model/SwarmDI.model.ts:71-460]()
-
 ## Service Layer Architecture
 
 The DI container organizes services into distinct layers that correspond to different architectural concerns:
@@ -79,8 +73,6 @@ Services within the container follow a dependency hierarchy where higher-level s
 | Validation Services | Schema Services | Runtime validation and integrity checks |
 | Context Services | Base Services | Execution context management |
 | Base Services | None | Core infrastructure |
-
-Sources: [src/lib/index.ts:78-249](), [src/lib/core/provide.ts:68-151]()
 
 ## Usage Patterns
 
@@ -112,8 +104,6 @@ The DI container handles service lifecycle through disposal patterns implemented
 
 ![Mermaid Diagram](./diagrams\13_Dependency_Injection_Container_4.svg)
 
-Sources: [src/functions/target/disposeConnection.ts:33-191](), [src/functions/target/session.ts:42-108](), [src/functions/target/complete.ts:33-56]()
-
 ## Container Initialization
 
 The DI container initializes through a two-phase process:
@@ -123,5 +113,3 @@ The DI container initializes through a two-phase process:
 3. **Initialization**: [src/lib/index.ts:262]() calls `init()` to complete setup
 
 The container becomes available as both a default export and named export, enabling flexible import patterns across the codebase.
-
-Sources: [src/lib/index.ts:1-270](), [src/lib/core/provide.ts:1-152]()

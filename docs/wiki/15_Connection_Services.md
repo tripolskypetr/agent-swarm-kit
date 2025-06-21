@@ -17,8 +17,6 @@ Connection Services sit between the Schema Services and the client implementatio
 
 **Connection Services Architecture**
 
-Sources: [src/lib/services/connection/AgentConnectionService.ts:1-40](), [src/lib/services/connection/SessionConnectionService.ts:1-30](), [types.d.ts:1-50]()
-
 ## Core Connection Services
 
 ### AgentConnectionService
@@ -35,8 +33,6 @@ The service uses a memoization strategy with composite keys:
 |--------|-----------|---------|
 | `getAgent` | `${clientId}-${agentName}` | Creates cached `ClientAgent` instances per client-agent pair |
 
-Sources: [src/lib/services/connection/AgentConnectionService.ts:148-169](), [src/lib/services/connection/AgentConnectionService.ts:196-230]()
-
 ### SessionConnectionService 
 
 The `SessionConnectionService` manages `ClientSession` instances with swarm integration:
@@ -44,8 +40,6 @@ The `SessionConnectionService` manages `ClientSession` instances with swarm inte
 ![Mermaid Diagram](./diagrams\15_Connection_Services_2.svg)
 
 **SessionConnectionService Workflow**
-
-Sources: [src/lib/services/connection/SessionConnectionService.ts:96-115](), [src/client/ClientSession.ts:24-41]()
 
 ### SwarmConnectionService
 
@@ -56,8 +50,6 @@ Manages `ClientSwarm` instances and agent navigation within swarms:
 | `getSwarm()` | Creates memoized `ClientSwarm` instances per client-swarm pair |
 | Navigation tracking | Maintains agent navigation stack via `CC_SWARM_STACK_CHANGED` |
 | Agent resolution | Resolves current agent via `CC_SWARM_DEFAULT_AGENT` |
-
-Sources: [src/lib/services/connection/SwarmConnectionService.ts:1-50](), [src/client/ClientSwarm.ts:1-50]()
 
 ## Memoization Strategy
 
@@ -77,8 +69,6 @@ public getAgent = memoize(
 );
 ```
 
-Sources: [src/lib/services/connection/AgentConnectionService.ts:148-150](), [src/lib/services/connection/SessionConnectionService.ts:96-98]()
-
 ## Dependency Injection Patterns
 
 Connection Services follow a consistent DI pattern for resource management:
@@ -92,8 +82,6 @@ Connection Services follow a consistent DI pattern for resource management:
 ![Mermaid Diagram](./diagrams\15_Connection_Services_4.svg)
 
 **Dependency Injection Flow**
-
-Sources: [src/lib/services/connection/AgentConnectionService.ts:39-137](), [src/lib/services/connection/SessionConnectionService.ts:37-85]()
 
 ## Storage and State Connection Services
 
@@ -115,8 +103,6 @@ Manages `ClientState` instances with middleware support:
 | Middleware pipeline | Applies `IStateMiddleware` functions during state operations |
 | Persistence | Integrates with `CC_DEFAULT_STATE_GET`/`CC_DEFAULT_STATE_SET` |
 
-Sources: [src/lib/services/connection/StorageConnectionService.ts:1-50](), [src/lib/services/connection/StateConnectionService.ts:1-50]()
-
 ## Integration with Client Components
 
 Connection Services bridge schema configuration to client implementations:
@@ -130,5 +116,3 @@ The connection layer ensures:
 - **Configuration Binding**: Schema data is properly injected into client constructors
 - **Resource Efficiency**: Memoization prevents duplicate instance creation
 - **Context Propagation**: Client and execution context flows through all layers
-
-Sources: [src/lib/services/connection/AgentConnectionService.ts:174-213](), [src/lib/services/public/AgentPublicService.ts:70-85](), [src/client/ClientAgent.ts:628-650]()

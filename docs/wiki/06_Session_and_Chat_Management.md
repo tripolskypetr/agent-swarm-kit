@@ -17,8 +17,6 @@ Chat management provides a high-level abstraction over sessions with automatic l
 
 The chat layer handles client lifecycle automatically through `beginChat`, `sendMessage`, and `dispose` operations, with configurable callbacks for monitoring chat events and custom chat adapters.
 
-**Sources:** [src/classes/Chat.ts:1-430](), [src/classes/Chat.ts:151-264](), [src/classes/Chat.ts:271-423]()
-
 ## Chat Instance Lifecycle
 
 Chat instances manage their lifecycle automatically with inactivity detection and cleanup. The `ChatInstance` class wraps sessions with timeout handling, callback support, and automatic disposal based on activity patterns.
@@ -26,8 +24,6 @@ Chat instances manage their lifecycle automatically with inactivity detection an
 ![Mermaid Diagram](./diagrams\6_Session_and_Chat_Management_2.svg)
 
 The lifecycle includes automatic cleanup through `INACTIVITY_CHECK` (60 seconds) and `INACTIVITY_TIMEOUT` (15 minutes) constants, with callback hooks for monitoring chat state changes.
-
-**Sources:** [src/classes/Chat.ts:17-21](), [src/classes/Chat.ts:167-184](), [src/classes/Chat.ts:190-206](), [src/classes/Chat.ts:280-291]()
 
 ## Session Lifecycle
 
@@ -37,8 +33,6 @@ Sessions follow a managed lifecycle from creation through disposal, with automat
 
 The lifecycle includes initialization callbacks, active message processing, and disposal with proper cleanup. Session validation services ensure that resources are properly tracked and prevent memory leaks in long-running applications.
 
-**Sources:** [docs/classes/SessionConnectionService.md:75-217](), [docs/classes/SessionPublicService.md:115-205](), [docs/classes/ClientSession.md:16-158]()
-
 ## Message Processing Flow
 
 Sessions handle bidirectional message flow with policy validation, agent execution, and event emission. The `emit` method sends messages to clients via swarms, while `execute` processes incoming messages through agents and returns responses.
@@ -46,8 +40,6 @@ Sessions handle bidirectional message flow with policy validation, agent executi
 ![Mermaid Diagram](./diagrams\6_Session_and_Chat_Management_4.svg)
 
 All message flows include policy validation checkpoints. When validation fails, sessions automatically substitute ban messages and log policy violations through the event system.
-
-**Sources:** [src/client/ClientSession.ts:48-200](), [src/interfaces/Session.interface.ts:63-120](), [src/model/EmitMessage.model.ts:1-60]()
 
 ## Chat Configuration and Callbacks
 
@@ -78,8 +70,6 @@ Chat.useChatAdapter(CustomChatInstance);
 
 The `ChatUtils` class provides singleton access through the `Chat` export, enabling global configuration of chat behavior across the application.
 
-**Sources:** [src/classes/Chat.ts:81-115](), [src/classes/Chat.ts:117-133](), [src/classes/Chat.ts:325-338]()
-
 ## Session Parameters and Configuration
 
 Sessions are configured through `ISessionParams` which combines schema definitions, runtime dependencies, and callback hooks. The parameter structure integrates swarm references, policy enforcement, logging, and event systems.
@@ -95,8 +85,6 @@ Sessions are configured through `ISessionParams` which combines schema definitio
 
 The session schema extends `ISwarmSessionCallbacks` to provide lifecycle hooks for initialization, emission, execution, and disposal events. These callbacks enable custom behavior injection at key session lifecycle points.
 
-**Sources:** [docs/interfaces/ISession.md:1-115](), [docs/classes/ClientSession.md:16-28]()
-
 ## Integration with Agent Execution
 
 Sessions coordinate agent execution through swarms, managing the handoff between session-level message processing and agent-level tool execution. The `execute` method delegates to swarm agents while maintaining session context and policy enforcement.
@@ -104,8 +92,6 @@ Sessions coordinate agent execution through swarms, managing the handoff between
 ![Mermaid Diagram](./diagrams\6_Session_and_Chat_Management_5.svg)
 
 Sessions maintain execution context across agent transitions, ensuring proper client identification and session state preservation during complex multi-agent workflows.
-
-**Sources:** [src/client/ClientSession.ts:140-280](), [src/client/ClientSwarm.ts:300-500](), [src/client/ClientAgent.ts:310-600]()
 
 ## Event System Integration
 
@@ -127,8 +113,6 @@ await this.params.bus.emit<IBusEvent>(this.params.clientId, {
 
 Event types include `"emit"`, `"execute"`, `"connect"`, and `"dispose"` with session-specific context for filtering and monitoring. The event system enables external systems to track session activity and implement custom analytics or logging.
 
-**Sources:** [src/client/ClientSession.ts:125-140](), [src/model/Event.model.ts:60-120](), [src/interfaces/Bus.interface.ts:1-50]()
-
 ## Resource Management and Disposal
 
 Sessions implement comprehensive resource management with automatic cleanup, validation tracking, and memoization clearing. The disposal process ensures proper resource release and prevents memory leaks in long-running applications.
@@ -136,5 +120,3 @@ Sessions implement comprehensive resource management with automatic cleanup, val
 ![Mermaid Diagram](./diagrams\6_Session_and_Chat_Management_6.svg)
 
 The disposal process includes validation service cleanup, callback execution, and memoization clearing to ensure complete resource release. Sessions automatically handle cleanup of associated agents, histories, and event subscriptions.
-
-**Sources:** [src/lib/services/connection/SessionConnectionService.ts:350-400](), [src/lib/services/validation/SessionValidationService.ts:150-250](), [src/client/ClientSession.ts:550-600]()
