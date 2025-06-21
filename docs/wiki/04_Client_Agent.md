@@ -7,7 +7,7 @@ group: design
 
 This document covers the `ClientAgent` class implementation, which serves as the core execution unit for individual agents within the swarm system. The `ClientAgent` handles message processing, tool execution, history management, and event coordination through an asynchronous, queue-based architecture.
 
-For information about agent configuration and schema definition, see [Agent Schema Services](#3.2). For details on swarm-level coordination and agent orchestration, see [Swarm Management](#2.2). For session-level message handling, see [Session and Chat Management](#2.3).
+For information about agent configuration and schema definition, see [Agent Schema Services](./14_Schema_Services.md). For details on swarm-level coordination and agent orchestration, see [Swarm Management](./05_Swarm_Management.md). For session-level message handling, see [Session and Chat Management](./06_Session_and_Chat_Management.md).
 
 ## Core Architecture
 

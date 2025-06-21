@@ -5,7 +5,7 @@ group: design
 
 # Integration Testing Patterns
 
-This document covers integration testing strategies and patterns for multi-agent systems built with the agent-swarm-kit framework. It focuses on testing complete workflows involving agent interactions, session management, tool execution, and AI model integration. For unit testing individual components, see [API Reference](#7). For system performance testing, see [Performance Monitoring](#4.2).
+This document covers integration testing strategies and patterns for multi-agent systems built with the agent-swarm-kit framework. It focuses on testing complete workflows involving agent interactions, session management, tool execution, and AI model integration. For unit testing individual components, see [API Reference](./31_API_Reference.md). For system performance testing, see [Performance Monitoring](./20_Performance_Monitoring.md).
 
 ## Testing Architecture Overview
 

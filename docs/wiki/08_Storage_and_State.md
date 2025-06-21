@@ -7,7 +7,7 @@ group: design
 
 This document covers the storage and state management systems in the agent-swarm-kit framework. These systems provide persistent data storage with embedding-based search capabilities and managed state with middleware support. Both systems support client-specific and shared modes of operation.
 
-For information about data persistence to the file system, see [Persistence and History](#2.6). For session-level coordination and lifecycle management, see [Session Management](#2.3). For practical guidance on using these systems, see [Managing State and Storage](#5.3).
+For information about data persistence to the file system, see [Persistence and History](./09_Persistence_and_History.md). For session-level coordination and lifecycle management, see [Session Management](./06_Session_and_Chat_Management.md). For practical guidance on using these systems, see [Managing State and Storage](./25_Managing_State_and_Storage.md).
 
 ## System Overview
 

@@ -7,7 +7,7 @@ group: design
 
 This document covers the performance monitoring system in agent-swarm-kit, which tracks execution metrics, response times, and system performance across client sessions and agent operations. The monitoring system provides detailed performance analytics for both individual clients and system-wide aggregation.
 
-For information about AI completion adapters and their performance optimizations, see [Completion Adapters](#4.1). For system introspection and documentation generation, see [Documentation Generation](#4.3).
+For information about AI completion adapters and their performance optimizations, see [Completion Adapters](./19_Completion_Adapters.md). For system introspection and documentation generation, see [Documentation Generation](./21_Documentation_Generation.md).
 
 ## Overview
 

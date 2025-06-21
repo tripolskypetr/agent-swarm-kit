@@ -7,7 +7,7 @@ group: design
 
 The agent-swarm-kit framework employs a sophisticated layered service architecture built around dependency injection patterns. This document provides an overview of the service organization, layer interactions, and architectural patterns that enable scalable multi-agent orchestration.
 
-For detailed information about the dependency injection container implementation, see [Dependency Injection](#3.1). For specifics about individual service layers, see [Schema Services](#3.2), [Connection Services](#3.3), [Public Services](#3.4), and [Validation Services](#3.5).
+For detailed information about the dependency injection container implementation, see [Dependency Injection](./13_Dependency_Injection_Container.md). For specifics about individual service layers, see [Schema Services](./14_Schema_Services.md), [Connection Services](./15_Connection_Services.md), [Public Services](./16_Public_Services.md), and [Validation Services](./17_Validation_Services.md).
 
 ## Architecture Overview
 

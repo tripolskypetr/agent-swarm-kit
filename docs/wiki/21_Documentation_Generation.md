@@ -7,7 +7,7 @@ group: design
 
 The Documentation Generation system provides automated creation of comprehensive documentation for agents, swarms, and system performance metrics. This system generates markdown files with embedded UML diagrams, organizing them in a structured directory layout for developer consumption.
 
-For information about agent schema management, see [Schema Services](#3.2). For details on performance monitoring data collection, see [Performance Monitoring](#4.2).
+For information about agent schema management, see [Schema Services](./14_Schema_Services.md). For details on performance monitoring data collection, see [Performance Monitoring](./20_Performance_Monitoring.md).
 
 ## DocService Architecture
 

@@ -7,7 +7,7 @@ group: design
 
 This page covers the creation and integration of tools within the agent-swarm-kit framework. It explains how to create custom tools using `addTool`, integrate with external Model Context Protocol (MCP) servers, and handle tool execution patterns throughout the agent lifecycle.
 
-For information about agent navigation between agents using tools, see [Navigation System](#2.7). For details about the MCP protocol implementation, see [Model Context Protocol (MCP)](#2.4).
+For information about agent navigation between agents using tools, see [Navigation System](./10_Navigation_System.md). For details about the MCP protocol implementation, see [Model Context Protocol (MCP)](./07_Model_Context_Protocol_MCP.md).
 
 ## Custom Tool Creation
 

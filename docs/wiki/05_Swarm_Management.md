@@ -7,7 +7,7 @@ group: design
 
 This document covers the swarm management system in agent-swarm-kit, which orchestrates multiple agents, manages navigation between agents, and coordinates multi-agent workflows. Swarms serve as the primary orchestration layer that routes messages to the appropriate agents and maintains conversation state across agent transitions.
 
-For information about individual agent execution and tool calling, see [Client Agent](#2.1). For session-level coordination and client isolation, see [Session Management](#2.3).
+For information about individual agent execution and tool calling, see [Client Agent](./04_Client_Agent.md). For session-level coordination and client isolation, see [Session Management](./06_Session_and_Chat_Management.md).
 
 ## Core Swarm Architecture
 

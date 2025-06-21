@@ -7,7 +7,7 @@ group: design
 
 This document covers the dynamic orchestration of agent transitions and tool execution within multi-agent workflows. It explains how agents can navigate between each other, execute tools that trigger further navigation, and coordinate complex workflows through the pipeline system.
 
-For basic agent and swarm setup, see [Building Multi-Agent Systems](#5.1). For tool integration patterns, see [Tool Integration](#5.2). For session management fundamentals, see [Session and Chat Management](#2.3).
+For basic agent and swarm setup, see [Building Multi-Agent Systems](./23_Building_Multi-Agent_Systems.md). For tool integration patterns, see [Tool Integration](./24_Tool_Integration.md). For session management fundamentals, see [Session and Chat Management](./06_Session_and_Chat_Management.md).
 
 ## Agent Navigation System
 

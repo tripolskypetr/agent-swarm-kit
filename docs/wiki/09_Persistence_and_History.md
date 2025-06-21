@@ -7,7 +7,7 @@ group: design
 
 This page covers the persistence infrastructure and message history management systems in agent-swarm-kit. It focuses on the low-level persistence layer that stores entities as JSON files, the message history management for conversation continuity, and the logging infrastructure for debugging and monitoring.
 
-For information about higher-level storage operations with embedding-based search, see [Storage and State Management](#2.5). For session lifecycle and chat management patterns, see [Session and Chat Management](#2.3).
+For information about higher-level storage operations with embedding-based search, see [Storage and State Management](./08_Storage_and_State.md). For session lifecycle and chat management patterns, see [Session and Chat Management](./06_Session_and_Chat_Management.md).
 
 ## Persistence Infrastructure
 

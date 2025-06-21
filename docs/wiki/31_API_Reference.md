@@ -7,7 +7,7 @@ group: design
 
 This document provides complete API documentation for all public functions, interfaces, and configuration options in the agent-swarm-kit library. It covers the primary APIs developers use to build multi-agent AI systems, including agent creation, session management, tool integration, and system configuration.
 
-For implementation details and usage patterns, see [Building Multi-Agent Systems](#5.1). For configuration best practices, see [Configuration and Global Settings](#7.2).
+For implementation details and usage patterns, see [Building Multi-Agent Systems](./23_Building_Multi-Agent_Systems.md). For configuration best practices, see [Configuration and Global Settings](./33_Configuration_and_Global_Settings.md).
 
 ## Agent and Tool APIs
 

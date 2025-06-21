@@ -7,7 +7,7 @@ group: design
 
 This guide provides a quick introduction to building multi-agent AI systems with agent-swarm-kit. It covers installation, core concepts, and basic usage patterns to get you up and running with your first agent swarm.
 
-For advanced configuration options, see [Configuration and Global Settings](#7.2). For comprehensive examples, see [Examples and Testing](#6). For detailed API documentation, see [API Reference](#7).
+For advanced configuration options, see [Configuration and Global Settings](./33_Configuration_and_Global_Settings.md). For comprehensive examples, see [Examples and Testing](./27_Examples_and_Testing.md). For detailed API documentation, see [API Reference](./31_API_Reference.md).
 
 ## Installation and Setup
 
@@ -209,9 +209,9 @@ app.get("/api/v1/session/:clientId", upgradeWebSocket((ctx) => {
 
 Now that you have the basics, explore these areas:
 
-- **Multi-Agent Systems** - Learn advanced swarm orchestration patterns at [Building Multi-Agent Systems](#5.1)
-- **Tool Integration** - Create custom tools and MCP server integration at [Tool Integration](#5.2)  
-- **Storage & State** - Implement persistent storage and embeddings at [Managing State and Storage](#5.3)
-- **Examples** - See complete working examples at [Examples and Testing](#6)
+- **Multi-Agent Systems** - Learn advanced swarm orchestration patterns at [Building Multi-Agent Systems](./05_Swarm_Management.md)
+- **Tool Integration** - Create custom tools and MCP server integration at [Tool Integration](./05_Swarm_Management.md)  
+- **Storage & State** - Implement persistent storage and embeddings at [Managing State and Storage](./05_Swarm_Management.md)
+- **Examples** - See complete working examples at [Examples and Testing](./06_Session_and_Chat_Management.md)
 
 The system's modular architecture allows you to start simple and progressively add complexity as your needs grow.

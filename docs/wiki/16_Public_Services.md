@@ -7,7 +7,7 @@ group: design
 
 Public Services form the outermost API layer of the swarm system, providing a controlled interface to core functionality while managing execution context and excluding internal implementation details. These services wrap Connection Services with method-level context management, logging, and validation to create a clean separation between public APIs and internal operations.
 
-For information about the underlying Connection Services that Public Services wrap, see [Connection Services](#3.3). For details about the Schema Services that define configurations, see [Schema Services](#3.2).
+For information about the underlying Connection Services that Public Services wrap, see [Connection Services](./15_Connection_Services.md). For details about the Schema Services that define configurations, see [Schema Services](./14_Schema_Services.md).
 
 ## Architecture Overview
 

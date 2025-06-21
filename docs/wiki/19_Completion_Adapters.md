@@ -9,7 +9,7 @@ group: design
 
 Completion Adapters provide a standardized interface for integrating various AI completion providers (OpenAI, Ollama, Grok, Cohere, etc.) into the agent-swarm-kit system. These adapters handle the translation between the framework's internal message format and each provider's specific API requirements, including message transformation, tool call processing, and error handling.
 
-For information about AI model performance monitoring, see [Performance Monitoring](#4.2). For details about agent-level completion configuration, see [Schema Services](#3.2).
+For information about AI model performance monitoring, see [Performance Monitoring](./20_Performance_Monitoring.md). For details about agent-level completion configuration, see [Schema Services](./14_Schema_Services.md).
 
 ## Architecture Overview
 
@@ -135,4 +135,4 @@ Completion adapters are registered and accessed through the completion schema se
 
 ### Performance Monitoring
 
-Adapter executions are tracked by the performance monitoring system for metrics collection and analysis. See [Performance Monitoring](#4.2) for details on how completion times and throughput are measured.
+Adapter executions are tracked by the performance monitoring system for metrics collection and analysis. See [Performance Monitoring](./04_Client_Agent.md) for details on how completion times and throughput are measured.

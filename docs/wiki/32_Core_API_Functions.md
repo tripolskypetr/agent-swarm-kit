@@ -7,7 +7,7 @@ group: design
 
 This document covers the primary public API functions that developers use to build multi-agent AI systems with agent-swarm-kit. These functions provide the main interface for defining agents, managing sessions, executing messages, and orchestrating swarm behavior.
 
-For information about the underlying service architecture that powers these APIs, see [Service Architecture](#3). For detailed configuration options and global settings, see [Configuration and Global Settings](#7.2).
+For information about the underlying service architecture that powers these APIs, see [Service Architecture](./12_Service_Architecture.md). For detailed configuration options and global settings, see [Configuration and Global Settings](./33_Configuration_and_Global_Settings.md).
 
 ## Overview
 

@@ -5,7 +5,7 @@ group: design
 
 # Usage Patterns
 
-This document describes common usage patterns and best practices for building multi-agent AI systems with agent-swarm-kit. It covers the fundamental patterns for setting up agents, orchestrating multi-agent workflows, integrating tools, and managing sessions. For specific API details, see [Core API Functions](#7.1). For implementation examples, see [Examples and Testing](#6).
+This document describes common usage patterns and best practices for building multi-agent AI systems with agent-swarm-kit. It covers the fundamental patterns for setting up agents, orchestrating multi-agent workflows, integrating tools, and managing sessions. For specific API details, see [Core API Functions](./32_Core_API_Functions.md). For implementation examples, see [Examples and Testing](./27_Examples_and_Testing.md).
 
 ## Core Setup Patterns
 

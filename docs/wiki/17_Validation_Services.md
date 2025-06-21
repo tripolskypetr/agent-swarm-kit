@@ -11,7 +11,7 @@ Validation Services provide runtime validation for agents, sessions, swarms, too
 
 The validation layer consists of 15 specialized services that validate different aspects of the system, from basic configuration validation to complex runtime dependency checking. These services are injected via the dependency injection container and work together to maintain system integrity during agent execution, session management, and resource access.
 
-This document covers the complete validation service architecture, core validation services, runtime enforcement patterns, and integration with other service layers. For schema definition, see [Schema Services](#3.2). For service lifecycle management, see [Connection Services](#3.3).
+This document covers the complete validation service architecture, core validation services, runtime enforcement patterns, and integration with other service layers. For schema definition, see [Schema Services](./14_Schema_Services.md). For service lifecycle management, see [Connection Services](./15_Connection_Services.md).
 
 ## Validation Service Architecture
 

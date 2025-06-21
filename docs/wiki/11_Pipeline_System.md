@@ -7,7 +7,7 @@ group: design
 
 The Pipeline System provides automated workflow execution capabilities within the agent swarm framework. It enables developers to define, register, and execute background processes that can operate independently of regular agent interactions while maintaining integration with the session management, agent navigation, and validation systems.
 
-For information about agent navigation and routing, see [Navigation System](#2.7). For session and client management patterns, see [Session and Chat Management](#2.3).
+For information about agent navigation and routing, see [Navigation System](./10_Navigation_System.md). For session and client management patterns, see [Session and Chat Management](./06_Session_and_Chat_Management.md).
 
 ## Pipeline Schema Structure
 

@@ -7,7 +7,7 @@ group: design
 
 This document covers the AI integration layer of the agent-swarm-kit framework, including completion adapters for various AI providers, performance monitoring of AI operations, and execution management patterns. This system enables agents to communicate with different AI models through a unified interface while tracking performance metrics.
 
-For information about agents that utilize these AI integrations, see [Client Agent](#2.1). For details on tool integration with AI models, see [Tool Integration](#5.2).
+For information about agents that utilize these AI integrations, see [Client Agent](./04_Client_Agent.md). For details on tool integration with AI models, see [Tool Integration](./24_Tool_Integration.md).
 
 ## Completion Adapters
 

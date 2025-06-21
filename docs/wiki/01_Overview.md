@@ -9,7 +9,7 @@ group: design
 
 Agent Swarm Kit is a TypeScript framework for building orchestrated, multi-agent AI systems that can collaborate to solve complex problems. The library provides a comprehensive platform for creating agent networks where specialized AI agents can communicate, navigate between each other, execute tools, and maintain shared state across client sessions.
 
-This document covers the foundational architecture and core components of the system. For specific implementation patterns, see [Building Multi-Agent Systems](#5.1). For API details, see [Core API Functions](#7.1). For integration examples, see [Examples and Testing](#6).
+This document covers the foundational architecture and core components of the system. For specific implementation patterns, see [Building Multi-Agent Systems](./23_Building_Multi-Agent_Systems.md). For API details, see [Core API Functions](./32_Core_API_Functions.md). For integration examples, see [Examples and Testing](./27_Examples_and_Testing.md).
 
 The framework is designed to be framework-agnostic, supporting multiple AI providers (OpenAI, Ollama, Claude, etc.) and offering features like automatic session orchestration, Model Context Protocol (MCP) integration, Redis persistence, and operator escalation capabilities.
 

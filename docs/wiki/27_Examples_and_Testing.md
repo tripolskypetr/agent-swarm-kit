@@ -7,7 +7,7 @@ group: design
 
 This page demonstrates practical examples of building agent swarm systems using the agent-swarm-kit framework and provides comprehensive testing approaches for multi-agent systems. It covers real-world usage patterns, test implementation strategies, and integration testing methods for ensuring system reliability and correctness.
 
-For information about building multi-agent systems architecture, see [Building Multi-Agent Systems](#5.1). For tool integration patterns, see [Tool Integration](#5.2). For error handling strategies, see [Error Handling and Recovery](#5.4).
+For information about building multi-agent systems architecture, see [Building Multi-Agent Systems](./23_Building_Multi-Agent_Systems.md). For tool integration patterns, see [Tool Integration](./24_Tool_Integration.md). For error handling strategies, see [Error Handling and Recovery](./26_Error_Handling_and_Recovery.md).
 
 ## Test Architecture Overview
 

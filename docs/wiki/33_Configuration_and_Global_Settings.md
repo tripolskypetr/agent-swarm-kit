@@ -7,7 +7,7 @@ group: design
 
 This document covers the global configuration system in agent-swarm-kit, including the `GLOBAL_CONFIG` object, the `setConfig` function, and the various configuration parameters that control system behavior across all components. This includes settings for logging, tool execution, agent behavior, persistence, error recovery, and performance optimization.
 
-For information about individual agent configuration schemas, see [Agent Schema Configuration](#2.1). For swarm-level configuration, see [Swarm Management](#2.2).
+For information about individual agent configuration schemas, see [Agent Schema Configuration](./14_Schema_Services.md). For swarm-level configuration, see [Swarm Management](./05_Swarm_Management.md).
 
 ## Configuration System Overview
 

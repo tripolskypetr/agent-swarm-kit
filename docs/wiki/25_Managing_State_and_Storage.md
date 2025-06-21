@@ -7,7 +7,7 @@ group: design
 
 This document covers patterns and best practices for managing persistent storage and application state within the agent swarm system. It focuses on the `ClientStorage` and `ClientState` implementations, their associated services, and embedding-based retrieval patterns.
 
-For information about session lifecycle management, see [Session and Chat Management](#2.3). For details about the persistence infrastructure and history management, see [Persistence and History](#2.6).
+For information about session lifecycle management, see [Session and Chat Management](./06_Session_and_Chat_Management.md). For details about the persistence infrastructure and history management, see [Persistence and History](./09_Persistence_and_History.md).
 
 ## State Management Architecture
 

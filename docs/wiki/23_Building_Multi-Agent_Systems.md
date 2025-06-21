@@ -7,7 +7,7 @@ group: design
 
 This document provides a comprehensive guide to defining agents, swarms, and orchestrating multi-agent workflows using the agent-swarm-kit framework. It covers the step-by-step process from basic component definition through advanced orchestration patterns.
 
-For information about the underlying service architecture that powers these components, see [Service Architecture](#3). For details about AI model integration and completion adapters, see [AI Integration](#4). For tool integration patterns and MCP server connectivity, see [Tool Integration](#5.2).
+For information about the underlying service architecture that powers these components, see [Service Architecture](./12_Service_Architecture.md). For details about AI model integration and completion adapters, see [AI Integration](./18_AI_Integration.md). For tool integration patterns and MCP server connectivity, see [Tool Integration](./24_Tool_Integration.md).
 
 ## Core Building Blocks
 

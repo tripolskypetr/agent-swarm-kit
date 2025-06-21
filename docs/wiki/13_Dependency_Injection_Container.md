@@ -7,7 +7,7 @@ group: design
 
 The dependency injection (DI) container is the central architectural component that manages service lifecycle and provides structured access to all system functionality. It aggregates services across multiple layers - from core infrastructure to public APIs - enabling clean separation of concerns and testable code architecture.
 
-This document covers the central `swarm` DI container object, service registration patterns, and the layered service architecture. For information about individual service categories, see [Schema Services](#3.2), [Connection Services](#3.3), [Public Services](#3.4), and [Validation Services](#3.5).
+This document covers the central `swarm` DI container object, service registration patterns, and the layered service architecture. For information about individual service categories, see [Schema Services](./14_Schema_Services.md), [Connection Services](./15_Connection_Services.md), [Public Services](./16_Public_Services.md), and [Validation Services](./17_Validation_Services.md).
 
 ## Container Architecture
 

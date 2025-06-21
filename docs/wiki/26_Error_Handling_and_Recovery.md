@@ -7,7 +7,7 @@ group: design
 
 This document covers the error handling and recovery mechanisms within the agent-swarm-kit system, including tool call failures, model rescue strategies, validation errors, and system recovery patterns. It focuses on how the system maintains stability and provides graceful degradation when failures occur.
 
-For information about general system validation, see [Validation Services](#3.5). For details about agent execution lifecycle, see [Client Agent](#2.1). For session management patterns, see [Session and Chat Management](#2.3).
+For information about general system validation, see [Validation Services](./17_Validation_Services.md). For details about agent execution lifecycle, see [Client Agent](./04_Client_Agent.md). For session management patterns, see [Session and Chat Management](./06_Session_and_Chat_Management.md).
 
 ## Error Categories and Handling Strategies
 

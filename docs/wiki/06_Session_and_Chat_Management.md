@@ -7,7 +7,7 @@ group: design
 
 Session and chat management provide the coordination layer between clients and agent swarms, handling message flow, policy enforcement, and resource lifecycle. The system operates at two levels: **chat instances** for high-level client interactions with automatic cleanup, and **sessions** for low-level execution contexts that orchestrate interactions between individual clients and specific swarms.
 
-For information about individual agent execution within sessions, see [Client Agent](#2.1). For swarm-level coordination across multiple agents, see [Swarm Management](#2.2).
+For information about individual agent execution within sessions, see [Client Agent](./04_Client_Agent.md). For swarm-level coordination across multiple agents, see [Swarm Management](./05_Swarm_Management.md).
 
 ## Chat Management Overview
 
