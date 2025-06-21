@@ -15,8 +15,6 @@ The integration tests use the `worker-testbed` framework and are organized into 
 
 ![Mermaid Diagram](./diagrams\31_Integration_Tests_0.svg)
 
-Sources: [test/index.mjs:1-18](), [test/spec/connection.test.mjs:1-25](), [test/spec/navigation.test.mjs:1-40]()
-
 ## Connection and Session Testing
 
 The connection tests validate concurrent session management, message queuing, and event handling across multiple client connections. These tests ensure the system maintains proper isolation between clients while handling parallel operations.
@@ -24,8 +22,6 @@ The connection tests validate concurrent session management, message queuing, an
 ### Connection Test Patterns
 
 ![Mermaid Diagram](./diagrams\31_Integration_Tests_1.svg)
-
-Sources: [test/spec/connection.test.mjs:28-72](), [test/spec/connection.test.mjs:190-320](), [test/spec/connection.test.mjs:413-473]()
 
 ### Key Connection Test Cases
 
@@ -36,8 +32,6 @@ Sources: [test/spec/connection.test.mjs:28-72](), [test/spec/connection.test.mjs
 | Message Queuing | Ensures ordered processing | `complete`, `getRawHistory`, `setConfig` |
 | Event System | Validates event handling | `makeConnection`, `listenEvent`, `event` |
 
-Sources: [test/spec/connection.test.mjs:74-188](), [test/spec/connection.test.mjs:322-411]()
-
 ## Navigation and Tool Execution Testing
 
 Navigation tests validate agent transitions, tool execution, and deadlock prevention mechanisms. These tests use a triage-sales-refund agent pattern to simulate real-world navigation scenarios.
@@ -45,8 +39,6 @@ Navigation tests validate agent transitions, tool execution, and deadlock preven
 ### Navigation Test Architecture
 
 ![Mermaid Diagram](./diagrams\31_Integration_Tests_2.svg)
-
-Sources: [test/spec/navigation.test.mjs:41-187](), [test/spec/navigation.test.mjs:228-254]()
 
 ### Navigation Test Scenarios
 
@@ -57,8 +49,6 @@ The navigation tests cover several critical scenarios:
 3. **Previous Agent Navigation**: Tests `changeToPrevAgent` for navigation history
 4. **Deadlock Prevention**: Ensures `commitToolOutput` prevents execution blocking
 
-Sources: [test/spec/navigation.test.mjs:189-226](), [test/spec/navigation.test.mjs:256-280](), [test/spec/navigation.test.mjs:283-374]()
-
 ## Resource Management and Disposal Testing
 
 Disposal tests validate proper cleanup of sessions, connections, and associated resources. These tests ensure no memory leaks occur when connections are terminated.
@@ -66,8 +56,6 @@ Disposal tests validate proper cleanup of sessions, connections, and associated 
 ### Disposal Test Flow
 
 ![Mermaid Diagram](./diagrams\31_Integration_Tests_3.svg)
-
-Sources: [test/spec/dispose.test.mjs:24-139](), [test/spec/dispose.test.mjs:142-257](), [test/spec/dispose.test.mjs:259-370]()
 
 ## Error Recovery and Rescue Testing
 
@@ -81,8 +69,6 @@ The rescue tests validate error handling mechanisms when tools fail, completions
 | Empty Completion Response | Mock completion returns empty content | System applies rescue strategy |
 | Failed Tool Validation | Tool validation returns false | System prevents tool execution and applies rescue |
 
-Sources: [test/spec/resque.test.mjs:21-76](), [test/spec/resque.test.mjs:78-125](), [test/spec/resque.test.mjs:127-197]()
-
 ## Validation Testing
 
 Validation tests ensure the dependency injection system properly validates component dependencies before allowing system operations. These tests verify that missing components are detected and reported.
@@ -90,8 +76,6 @@ Validation tests ensure the dependency injection system properly validates compo
 ### Validation Test Matrix
 
 ![Mermaid Diagram](./diagrams\31_Integration_Tests_4.svg)
-
-Sources: [test/spec/validation.test.mjs:66-77](), [test/spec/validation.test.mjs:79-129](), [test/spec/validation.test.mjs:131-143]()
 
 ## Message Filtering and Agent State Testing
 
@@ -105,8 +89,6 @@ The system maintains agent state per client session and filters messages based o
 2. **Tool Output Filtering**: `commitToolOutput(toolId, output, clientId, agent)` only commits from active agents  
 3. **System Message Filtering**: `commitSystemMessage(message, clientId, agent)` only processes from active agents
 
-Sources: [test/spec/ignore.spec.mjs:17-78](), [test/spec/ignore.spec.mjs:80-146](), [test/spec/ignore.spec.mjs:148-214]()
-
 ## Test Data Management
 
 Integration tests use several strategies for managing test data and ensuring test isolation:
@@ -115,5 +97,3 @@ Integration tests use several strategies for managing test data and ensuring tes
 - **Mock Completions**: Tests create predictable AI responses using `addCompletion` with custom logic
 - **Configuration Control**: Tests use `setConfig()` to modify system behavior for specific scenarios
 - **History Validation**: Tests use `getRawHistory(clientId)` to verify message ordering and content
-
-Sources: [test/spec/connection.test.mjs:32-33](), [test/spec/navigation.test.mjs:20](), [test/spec/resque.test.mjs:23-26]()

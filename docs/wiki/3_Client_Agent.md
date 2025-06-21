@@ -13,8 +13,6 @@ The ClientAgent class implements the IAgent interface, providing the essential f
 
 ![Mermaid Diagram](./diagrams\3_Client_Agent_0.svg)
 
-Sources: [src/client/ClientAgent.ts:1-571](). [src/interfaces/Agent.interface.ts:1-171]().
-
 ## Agent Initialization and Parameters
 
 When initializing a ClientAgent, it requires an instance of IAgentParams which configures its behavior, including:
@@ -32,15 +30,11 @@ When initializing a ClientAgent, it requires an instance of IAgentParams which c
 
 ![Mermaid Diagram](./diagrams\3_Client_Agent_1.svg)
 
-Sources: [src/client/ClientAgent.ts:572-704](). [src/interfaces/Agent.interface.ts:172-211]().
-
 ## Execution Flow
 
 The execution flow in ClientAgent is its core functionality. The execute method processes input, gets model completions, executes tools if needed, and emits output.
 
 ![Mermaid Diagram](./diagrams\3_Client_Agent_2.svg)
-
-Sources: [src/client/ClientAgent.ts:303-570](). [src/client/ClientAgent.ts:952-1044]().
 
 ## Tool Handling
 
@@ -60,8 +54,6 @@ The ClientAgent includes a ToolAbortController class for managing tool execution
 
 ![Mermaid Diagram](./diagrams\3_Client_Agent_3.svg)
 
-Sources: [src/client/ClientAgent.ts:38-81](). [src/client/ClientAgent.ts:106-153](). [src/interfaces/Agent.interface.ts:30-36]().
-
 ## Error Handling and Recovery
 
 ClientAgent includes robust error handling, particularly for tool execution failures. It uses various strategies to recover from errors:
@@ -72,15 +64,11 @@ ClientAgent includes robust error handling, particularly for tool execution fail
 
 ![Mermaid Diagram](./diagrams\3_Client_Agent_4.svg)
 
-Sources: [src/client/ClientAgent.ts:811-866](). [src/config/params.ts:127-129](). [src/config/params.ts:282-282]().
-
 ## Model Context Protocol Integration
 
 ClientAgent integrates with the Model Context Protocol (MCP) system, allowing agents to interact with external tools in various programming languages. MCP tools are mapped to agent tools via the `mapMcpToolCall` function.
 
 ![Mermaid Diagram](./diagrams\3_Client_Agent_5.svg)
-
-Sources: [src/client/ClientAgent.ts:170-208](). [src/interfaces/Agent.interface.ts:115-163](). [src/lib/services/connection/AgentConnectionService.ts:203-205]().
 
 ## Stateless Execution
 
@@ -88,15 +76,11 @@ The `run` method provides stateless execution, which is useful for one-off compu
 
 ![Mermaid Diagram](./diagrams\3_Client_Agent_6.svg)
 
-Sources: [src/client/ClientAgent.ts:218-292]().
-
 ## Integration With Other Components
 
 ClientAgent integrates with several other components in the agent-swarm-kit architecture:
 
 ![Mermaid Diagram](./diagrams\3_Client_Agent_7.svg)
-
-Sources: [src/lib/services/connection/AgentConnectionService.ts:147-216](). [src/lib/services/public/AgentPublicService.ts:69-89](). [src/client/ClientSession.ts:148-228]().
 
 ## Lifecycle Management
 
@@ -107,15 +91,11 @@ ClientAgent manages its lifecycle through various methods:
 3. **Commit Methods**: Updates history with messages of different types
 4. **Disposal**: Releases resources and performs cleanup
 
-Sources: [src/client/ClientAgent.ts:572-704](). [src/client/ClientAgent.ts:1046-1130]().
-
 ## Usage in Services
 
 The ClientAgent is created and managed by the AgentConnectionService, which is exposed via the AgentPublicService. These services provide a clean API for working with agents:
 
 ![Mermaid Diagram](./diagrams\3_Client_Agent_8.svg)
-
-Sources: [src/lib/services/connection/AgentConnectionService.ts:147-216](). [src/lib/services/public/AgentPublicService.ts:69-89](). [src/lib/services/public/AgentPublicService.ts:90-123]().
 
 ## Event System
 
@@ -129,8 +109,6 @@ ClientAgent uses a Subject-based event system for handling asynchronous operatio
 - **_resqueSubject**: Signals model resurrection
 
 ![Mermaid Diagram](./diagrams\3_Client_Agent_9.svg)
-
-Sources: [src/client/ClientAgent.ts:706-751](). [src/client/ClientAgent.ts:1046-1070]().
 
 ## Conclusion
 

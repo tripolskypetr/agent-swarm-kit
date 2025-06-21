@@ -24,8 +24,6 @@ The Compute System operates on several key abstractions that enable reactive com
 
 The system distinguishes between **client-specific compute** instances (isolated per client) and **shared compute** instances (shared across all clients). Compute instances react to state changes through the `IStateChangeContract` interface, automatically clearing their cache and recalculating when dependencies update.
 
-Sources: [src/interfaces/Compute.interface.ts:1-211](), [src/client/ClientCompute.ts:1-209]()
-
 ## Architecture Overview
 
 ![Mermaid Diagram](./diagrams\11_Compute_System_0.svg)
@@ -33,8 +31,6 @@ Sources: [src/interfaces/Compute.interface.ts:1-211](), [src/client/ClientComput
 **Compute System Service Architecture**
 
 This diagram shows how compute services are organized in the dependency injection container, with public APIs wrapping connection services that manage actual compute instances.
-
-Sources: [src/lib/services/public/ComputePublicService.ts:1-224](), [src/lib/services/connection/ComputeConnectionService.ts:1-232](), [src/lib/services/schema/ComputeSchemaService.ts:1-177]()
 
 ## Compute Instance Lifecycle
 
@@ -50,8 +46,6 @@ Key lifecycle methods in `ClientCompute`:
 - `update()` - Manual cache invalidation [src/client/ClientCompute.ts:168-180]()
 - `dispose()` - Resource cleanup [src/client/ClientCompute.ts:188-200]()
 
-Sources: [src/client/ClientCompute.ts:77-209](), [src/interfaces/Compute.interface.ts:176-204]()
-
 ## Configuration and Schema Management
 
 Compute instances are configured through `IComputeSchema` objects that define their behavior, dependencies, and processing pipeline:
@@ -66,8 +60,6 @@ The schema validation ensures required fields and proper types:
 - `middlewares` must be an array of processing functions
 - `dependsOn` must be an array of valid state names
 - `shared` determines if compute is client-specific or shared
-
-Sources: [src/interfaces/Compute.interface.ts:82-173](), [src/lib/services/schema/ComputeSchemaService.ts:84-129]()
 
 ## State Dependencies and Reactive Updates
 
@@ -94,8 +86,6 @@ this.params.binding.forEach(
 ```
 
 When a state changes, the subscribed compute instances receive the `stateName` and trigger recalculation, ensuring data consistency across the system.
-
-Sources: [src/client/ClientCompute.ts:115-121](), [src/contract/StateChange.contract.ts:1-20](), [src/lib/services/connection/ComputeConnectionService.ts:136-138]()
 
 ## Shared vs Client-Specific Compute
 
@@ -126,8 +116,6 @@ if (compute.shared) {
 }
 ```
 
-Sources: [src/lib/services/connection/ComputeConnectionService.ts:126-129](), [src/lib/services/connection/SharedComputeConnectionService.ts:80-106](), [src/lib/services/validation/ComputeValidationService.ts:112-121]()
-
 ## Event System Integration
 
 Compute instances integrate with the event bus system to emit computation results and enable system-wide observability:
@@ -155,5 +143,3 @@ await self.params.bus.emit<IBusEvent>(self.params.clientId, {
 ```
 
 This enables monitoring, debugging, and integration with other system components that need to react to compute results.
-
-Sources: [src/client/ClientCompute.ts:56-68](), [src/model/Event.model.ts]()

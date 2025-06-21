@@ -17,8 +17,6 @@ The MCP system follows a layered architecture that separates tool definition, co
 
 ![Mermaid Diagram](./diagrams\6_Model_Context_Protocol_MCP_0.svg)
 
-Sources: [src/interfaces/MCP.interface.ts:1-194](), [src/classes/MCP.ts:1-292](), [src/client/ClientMCP.ts:1-167](), [src/lib/services/public/MCPPublicService.ts:1-245](), [src/lib/services/connection/MCPConnectionService.ts:1-154]()
-
 ## Core Components
 
 ### MCP Interface
@@ -32,8 +30,6 @@ The `IMCP` interface defines the core protocol for tool management:
 | `callTool` | Execute a tool | `toolName: string, dto: IMCPToolCallDto` | `Promise<MCPToolOutput>` |
 | `updateToolsForAll` | Refresh all tool caches | None | `Promise<void>` |
 | `updateToolsForClient` | Refresh client tool cache | `clientId: string` | `Promise<void>` |
-
-Sources: [src/interfaces/MCP.interface.ts:66-104]()
 
 ### Tool Definition
 
@@ -53,8 +49,6 @@ interface IMCPTool {
 
 The `MCPToolProperties` type defines parameter schemas with validation rules including type constraints, enums, and descriptions.
 
-Sources: [src/interfaces/MCP.interface.ts:48-61](), [src/interfaces/MCP.interface.ts:17-25]()
-
 ### Tool Call Data Transfer
 
 Tool execution uses the `IMCPToolCallDto` interface to pass execution context:
@@ -69,8 +63,6 @@ Tool execution uses the `IMCPToolCallDto` interface to pass execution context:
 | `abortSignal` | `TAbortSignal` | Cancellation signal |
 | `isLast` | `boolean` | Last tool in sequence flag |
 
-Sources: [src/interfaces/MCP.interface.ts:29-45]()
-
 ## MCP Implementations
 
 ### ClientMCP
@@ -81,19 +73,13 @@ The `ClientMCP` class provides the primary implementation of the MCP protocol wi
 
 ![Mermaid Diagram](./diagrams\6_Model_Context_Protocol_MCP_1.svg)
 
-Sources: [src/client/ClientMCP.ts:14-164]()
-
 The `ClientMCP` constructor initializes the MCP with parameters and triggers the `onInit` callback. Tools are fetched and cached using a memoized function keyed by client ID.
-
-Sources: [src/client/ClientMCP.ts:19-30](), [src/client/ClientMCP.ts:37-50]()
 
 ### NoopMCP and MergeMCP
 
 `NoopMCP` provides a no-operation implementation that returns empty results and throws errors on tool calls. It's used as a fallback when no MCP is configured.
 
 `MergeMCP` combines multiple MCP instances, allowing tools from different sources to be accessed through a unified interface. It delegates operations to the appropriate MCP based on tool availability.
-
-Sources: [src/classes/MCP.ts:21-113](), [src/classes/MCP.ts:115-260]()
 
 ## Service Layer Integration
 
@@ -116,8 +102,6 @@ public getMCP = memoize(
 );
 ```
 
-Sources: [src/lib/services/connection/MCPConnectionService.ts:41-52]()
-
 ### Public API
 
 The `MCPPublicService` provides a context-aware public API that wraps MCP operations with method context tracking:
@@ -130,19 +114,13 @@ The `MCPPublicService` provides a context-aware public API that wraps MCP operat
 | `hasTool` | Check tool existence | `methodName, clientId, mcpName, toolName` |
 | `callTool` | Execute tool | `methodName, clientId, mcpName, toolName, dto` |
 
-Sources: [src/lib/services/public/MCPPublicService.ts:45-209]()
-
 ## Tool Execution Flow
 
 ### Tool Call Processing
 
 ![Mermaid Diagram](./diagrams\6_Model_Context_Protocol_MCP_2.svg)
 
-Sources: [src/classes/MCP.ts:227-254]()
-
 When a tool returns a string output, it's automatically committed to the agent using `commitToolOutput`. If the tool call is marked as the last in a sequence (`dto.isLast`), the agent execution continues. Error handling stops tool execution and flushes the agent buffer.
-
-Sources: [src/classes/MCP.ts:231-242](), [src/classes/MCP.ts:243-252]()
 
 ## Schema and Lifecycle Management
 
@@ -163,8 +141,6 @@ interface IMCPSchema {
 }
 ```
 
-Sources: [src/interfaces/MCP.interface.ts:149-177]()
-
 ### Lifecycle Callbacks
 
 The `IMCPCallbacks` interface provides hooks for MCP lifecycle events:
@@ -177,8 +153,6 @@ The `IMCPCallbacks` interface provides hooks for MCP lifecycle events:
 | `onList` | Tool listing | `clientId` |
 | `onCall` | Tool execution | `toolName, dto` |
 | `onUpdate` | Tool cache update | `mcpName, clientId?` |
-
-Sources: [src/interfaces/MCP.interface.ts:108-146]()
 
 ## Utility Functions
 
@@ -204,10 +178,6 @@ export class MCPUtils {
 
 The singleton `MCP` instance provides a convenient interface for updating MCP tool caches.
 
-Sources: [src/classes/MCP.ts:267-285](), [src/classes/MCP.ts:288-291]()
-
 ## Integration with Agent System
 
 MCPs integrate with the broader agent system through the dependency injection container and method context system. The `MethodContextService` provides execution context that includes MCP name, client ID, and agent name for proper tool routing and execution tracking.
-
-Sources: [src/lib/services/public/MCPPublicService.ts:54-69](), [src/lib/services/connection/MCPConnectionService.ts:64-66]()

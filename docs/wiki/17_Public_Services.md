@@ -17,8 +17,6 @@ Public Services implement a consistent delegation pattern where they wrap Connec
 
 ![Mermaid Diagram](./diagrams\17_Public_Services_0.svg)
 
-Sources: [src/lib/services/public/AgentPublicService.ts:1-180](), [src/lib/services/public/SessionPublicService.ts:1-205](), [src/lib/services/connection/SwarmConnectionService.ts:1-277]()
-
 ## Core Public Service Classes
 
 The framework provides twelve main Public Service classes, each responsible for a specific domain of functionality:
@@ -38,8 +36,6 @@ The framework provides twelve main Public Service classes, each responsible for 
 | `ComputePublicService` | Client compute | `ComputeConnectionService` | `setState`, `getState`, `clearState` |
 | `SharedComputePublicService` | Global compute | `SharedComputeConnectionService` | `setState`, `getState`, `clearState` |
 
-Sources: [docs/classes/AgentPublicService.md:1-180](), [docs/classes/SessionPublicService.md:1-205](), [src/lib/services/public/StoragePublicService.ts:1-420](), [src/lib/services/public/StatePublicService.ts:1-150]()
-
 ## Delegation Pattern
 
 Public Services follow a consistent delegation pattern that provides several key benefits:
@@ -50,8 +46,6 @@ Every public method wraps its Connection Service call with `MethodContextService
 
 ![Mermaid Diagram](./diagrams\17_Public_Services_1.svg)
 
-Sources: [src/lib/services/public/AgentPublicService.ts:50-60](), [docs/classes/SessionPublicService.md:96-104]()
-
 ### Type Safety with Internal Key Exclusion
 
 Public Services use TypeScript mapped types to exclude internal methods from their interfaces:
@@ -59,8 +53,6 @@ Public Services use TypeScript mapped types to exclude internal methods from the
 ![Mermaid Diagram](./diagrams\17_Public_Services_2.svg)
 
 This pattern ensures that internal methods like `getAgent()` in `AgentConnectionService` or `getSwarm()` in `SwarmConnectionService` are not exposed in the public API.
-
-Sources: [src/lib/services/public/AgentPublicService.ts:14-33](), [src/lib/services/public/SwarmPublicService.ts:14-33](), [src/lib/services/public/StoragePublicService.ts:14-33]()
 
 ## Context Management
 
@@ -84,8 +76,6 @@ interface IMethodContext {
 
 This context allows Connection Services to operate without requiring these parameters explicitly, as they can retrieve context via dependency injection.
 
-Sources: [src/lib/services/public/AgentPublicService.ts:84-98](), [src/lib/services/public/SessionPublicService.ts:83-97]()
-
 ## Logging Integration
 
 All Public Services integrate with `LoggerService` for consistent logging when `GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO` is enabled:
@@ -93,8 +83,6 @@ All Public Services integrate with `LoggerService` for consistent logging when `
 ![Mermaid Diagram](./diagrams\17_Public_Services_3.svg)
 
 The logging includes method name, parameters, and contextual information for debugging and monitoring.
-
-Sources: [src/lib/services/public/AgentPublicService.ts:56-62](), [docs/classes/SessionPublicService.md:75-85](), [src/lib/services/public/StoragePublicService.ts:73-82]()
 
 ## Service Responsibilities
 
@@ -107,8 +95,6 @@ Provides the primary interface for agent execution and lifecycle management:
 - **Tool Integration**: `commitToolOutput()`, `commitToolRequest()`
 - **Flow Control**: `commitStopTools()`, `commitAgentChange()`, `commitFlush()`
 
-Sources: [docs/classes/AgentPublicService.md:50-180]()
-
 ### Session Management (`SessionPublicService`)
 
 Handles client session lifecycle and communication:
@@ -118,8 +104,6 @@ Handles client session lifecycle and communication:
 - **Connection**: `connect()` for bidirectional communication channels
 - **Performance**: Integration with `PerfService` for execution tracking
 
-Sources: [docs/classes/SessionPublicService.md:76-205]()
-
 ### Storage Operations (`StoragePublicService` / `SharedStoragePublicService`)
 
 Manages data persistence with embedding-based search:
@@ -128,8 +112,6 @@ Manages data persistence with embedding-based search:
 - **Modification**: `upsert()` for insert/update, `remove()` for deletion, `clear()` for reset
 - **Scope**: Client-specific vs. shared storage instances
 
-Sources: [src/lib/services/public/StoragePublicService.ts:62-420](), [src/lib/services/connection/SharedStorageConnectionService.ts:22-200]()
-
 ### State Management (`StatePublicService` / `SharedStatePublicService`)
 
 Provides reactive state management with middleware support:
@@ -137,8 +119,6 @@ Provides reactive state management with middleware support:
 - **State Operations**: `setState()` with dispatch functions, `getState()` for access, `clearState()` for reset
 - **Middleware**: Support for state transformation and validation pipelines
 - **Persistence**: Configurable persistence via schema settings
-
-Sources: [src/lib/services/public/StatePublicService.ts:65-150](), [src/lib/services/connection/SharedStateConnectionService.ts:112-180]()
 
 ## Performance and Validation
 
@@ -152,8 +132,6 @@ Public Services integrate with several cross-cutting concerns:
 
 This tracks execution duration, session state, and performance metrics.
 
-Sources: [docs/classes/SessionPublicService.md:118-125]()
-
 ### Validation Services
 
 Public Services coordinate with validation services for integrity checks:
@@ -162,8 +140,6 @@ Public Services coordinate with validation services for integrity checks:
 - **Execution Validation**: Controls model tool calling behavior
 - **Navigation Validation**: Manages agent switching constraints
 
-Sources: [docs/classes/SessionPublicService.md:42-74]()
-
 ## Integration with Core Components
 
 Public Services serve as the bridge between external applications and the core swarm system:
@@ -171,5 +147,3 @@ Public Services serve as the bridge between external applications and the core s
 ![Mermaid Diagram](./diagrams\17_Public_Services_5.svg)
 
 This architecture ensures clean separation between external interfaces and internal implementation details while providing comprehensive functionality for multi-agent AI systems.
-
-Sources: [docs/index.md:32-83](), [src/lib/services/public/SwarmPublicService.ts:70-350]()

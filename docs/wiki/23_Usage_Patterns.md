@@ -27,8 +27,6 @@ This pattern automatically manages session lifecycle and is ideal for stateless 
 | Quick queries | Automatic cleanup | Limited tool persistence |
 | Batch processing | Minimal resource usage | No real-time updates |
 
-**Sources:** [test/spec/connection.test.mjs:28-72](), [test/spec/dispose.test.mjs:259-370]()
-
 ### Session-Based Pattern
 
 For persistent conversations with managed state and history:
@@ -44,8 +42,6 @@ This pattern maintains conversation context and enables complex multi-turn inter
 | State Management | Client-specific data | Personalization |
 | Resource Tracking | Session validation | Memory management |
 
-**Sources:** [test/spec/connection.test.mjs:74-188](), [test/spec/navigation.test.mjs:189-226]()
-
 ### Real-Time Connection Pattern
 
 For WebSocket-like real-time communication with server-side events:
@@ -60,8 +56,6 @@ This pattern enables real-time bidirectional communication:
 | Server-to-Client | `onMessage(data)` | AI responses |
 | Server Events | `event(clientId, type, data)` | Notifications |
 | External Execution | `execute(message, clientId, agent)` | Background tasks |
-
-**Sources:** [test/spec/connection.test.mjs:322-411](), [test/spec/connection.test.mjs:413-473]()
 
 ## Agent Navigation Patterns
 
@@ -96,8 +90,6 @@ const NAVIGATION_TOOL = {
 }
 ```
 
-**Sources:** [test/spec/navigation.test.mjs:80-114](), [test/spec/connection.test.mjs:77-99]()
-
 ### Direct Navigation API
 
 For programmatic navigation without tool overhead:
@@ -111,8 +103,6 @@ Direct navigation functions provide immediate agent switching:
 | `changeToAgent()` | Switch to specific agent | Directed workflow |
 | `changeToDefaultAgent()` | Return to starting agent | Reset conversation |
 | `changeToPrevAgent()` | Return to previous agent | Undo navigation |
-
-**Sources:** [test/spec/navigation.test.mjs:189-226](), [test/spec/ignore.spec.mjs:17-78]()
 
 ## Concurrency and Message Queuing
 
@@ -134,15 +124,11 @@ This pattern ensures that concurrent clients don't interfere with each other:
 | Shared | Swarm Configuration | Common agent definitions |
 | Shared | Completion Engine | Shared AI provider access |
 
-**Sources:** [test/spec/connection.test.mjs:74-188](), [test/spec/connection.test.mjs:190-320]()
-
 ### Message Ordering Pattern
 
 The framework guarantees message ordering within each client session:
 
 ![Mermaid Diagram](./diagrams\23_Usage_Patterns_6.svg)
-
-**Sources:** [test/spec/connection.test.mjs:190-320]()
 
 ## Tool Integration Patterns
 
@@ -163,8 +149,6 @@ Tool integration requires proper validation and error handling:
 | Execution | `call()` | Exception handling |
 | Output | `commitToolOutput()` | Response formatting |
 
-**Sources:** [test/spec/validation.test.mjs:48-64](), [test/spec/resque.test.mjs:127-197]()
-
 ### Navigation Tool Pattern
 
 Specialized tools for agent navigation with context preservation:
@@ -172,8 +156,6 @@ Specialized tools for agent navigation with context preservation:
 ![Mermaid Diagram](./diagrams\23_Usage_Patterns_8.svg)
 
 Navigation tools provide seamless handoffs between specialized agents while maintaining conversation context.
-
-**Sources:** [test/spec/navigation.test.mjs:62-114]()
 
 ## Error Handling and Rescue Patterns
 
@@ -193,8 +175,6 @@ Rescue strategies are configured through global settings:
 | Retry | `CC_RESQUE_STRATEGY: "retry"` | Attempt new completion |
 | Placeholder | `CC_EMPTY_OUTPUT_PLACEHOLDERS` | Custom error messages |
 
-**Sources:** [test/spec/resque.test.mjs:21-76](), [test/spec/resque.test.mjs:199-235]()
-
 ### Deadlock Prevention Pattern
 
 The framework prevents deadlocks during agent navigation and tool execution:
@@ -202,8 +182,6 @@ The framework prevents deadlocks during agent navigation and tool execution:
 ![Mermaid Diagram](./diagrams\23_Usage_Patterns_10.svg)
 
 The framework automatically detects and resolves potential deadlock conditions when tools perform navigation without properly committing their output.
-
-**Sources:** [test/spec/navigation.test.mjs:256-280](), [test/spec/navigation.test.mjs:283-374]()
 
 ## Event-Driven Communication Patterns
 
@@ -223,8 +201,6 @@ Events provide a mechanism for real-time notifications:
 | `listenEvent()` | Register event handler | Client-side processing |
 | `execute()` | Send message to agent | Stored in history |
 
-**Sources:** [test/spec/connection.test.mjs:413-473](), [test/spec/connection.test.mjs:475-521]()
-
 ## Resource Management Patterns
 
 Proper resource management ensures system stability and prevents memory leaks in long-running applications.
@@ -243,5 +219,3 @@ Resource disposal ensures clean shutdown:
 | Message History | Clear history list | Free memory |
 | Client State | Release state data | Prevent leaks |
 | Event Listeners | Unregister handlers | Stop notifications |
-
-**Sources:** [test/spec/dispose.test.mjs:24-139](), [test/spec/dispose.test.mjs:142-257]()

@@ -13,8 +13,6 @@ Tools in the agent swarm system follow a structured pattern where they are regis
 
 ![Mermaid Diagram](./diagrams\25_Tool_Integration_0.svg)
 
-Sources: [src/functions/setup/addTool.ts](), [src/template/createNavigateToAgent.ts](), [src/template/createNavigateToTriageAgent.ts](), [src/functions/alias/addAgentNavigation.ts](), [src/functions/alias/addTriageNavigation.ts]()
-
 ## Basic Tool Structure
 
 All tools follow a standardized interface that includes identification, execution logic, validation, and OpenAI-compatible function schemas for LLM integration.
@@ -60,15 +58,11 @@ const EXAMPLE_TOOL = addTool({
 })
 ```
 
-Sources: [test/spec/connection.test.mjs:77-98](), [test/spec/navigation.test.mjs:80-114](), [test/spec/validation.test.mjs:48-64]()
-
 ## Tool Execution Lifecycle
 
 The tool execution process involves validation, execution, and output handling within the context of agent conversations and LLM completions.
 
 ![Mermaid Diagram](./diagrams\25_Tool_Integration_1.svg)
-
-Sources: [test/spec/resque.test.mjs:127-197](), [test/spec/navigation.test.mjs:256-280]()
 
 ## Navigation Tools
 
@@ -105,8 +99,6 @@ const navigateToTriage = createNavigateToTriageAgent({
 });
 ```
 
-Sources: [src/template/createNavigateToAgent.ts:153-262](), [src/template/createNavigateToTriageAgent.ts:118-192]()
-
 ## Tool Templates and Aliases
 
 The framework provides high-level aliases that combine tool creation with navigation logic, simplifying the process of adding navigation capabilities to agents.
@@ -137,8 +129,6 @@ const TRIAGE_NAVIGATION_TOOL = addTriageNavigation({
 ### Navigation Registration Flow
 
 ![Mermaid Diagram](./diagrams\25_Tool_Integration_2.svg)
-
-Sources: [src/functions/alias/addAgentNavigation.ts:37-74](), [src/functions/alias/addTriageNavigation.ts:35-71]()
 
 ## Tool Validation and Error Handling
 
@@ -175,8 +165,6 @@ The system includes rescue mechanisms for tool execution failures:
 | `flush` | Tool not found | Clear conversation and retry |
 | `flush` | Empty tool output | Clear conversation and emit rescue message |
 
-Sources: [test/spec/resque.test.mjs:21-76](), [test/spec/resque.test.mjs:127-197](), [test/spec/ignore.spec.mjs:17-78]()
-
 ## Integration with Agent Completions
 
 Tools integrate with agents through the completion system, where LLMs generate `tool_calls` arrays that trigger tool execution.
@@ -205,8 +193,6 @@ LLM responses containing tool calls follow this structure:
   ]
 }
 ```
-
-Sources: [test/spec/connection.test.mjs:101-128](), [test/spec/navigation.test.mjs:116-180](), [test/spec/completion.test.mjs:14-50]()
 
 ## Advanced Tool Patterns
 
@@ -247,5 +233,3 @@ Tools interact with session state through specialized commit functions:
 | `commitFlushForce()` | Clear conversation history |
 | `execute()` | Continue agent conversation |
 | `emitForce()` | Send message without history |
-
-Sources: [src/template/createNavigateToAgent.ts:170-261](), [src/template/createNavigateToTriageAgent.ts:134-192](), [src/functions/alias/addAgentNavigation.ts:52-56]()

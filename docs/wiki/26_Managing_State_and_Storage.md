@@ -42,8 +42,6 @@ The `SharedStorageUtils` class provides system-wide storage without client scopi
 | `list()` | List all items with optional filter | Storage name validation |
 | `clear()` | Remove all items | Storage name validation |
 
-Sources: [src/classes/Storage.ts:46-450](), [src/classes/SharedStorage.ts:46-237](), [src/lib/services/public/SharedStoragePublicService.ts:41-294]()
-
 ## State Management System
 
 The framework provides both client-specific and shared state management with functional update patterns.
@@ -67,8 +65,6 @@ The `SharedStateUtils` class manages system-wide state:
 - `clearState()` - Resets shared state to initial value
 
 Both state systems support functional updates where you can pass a function that receives the previous state and returns the new state:
-
-Sources: [src/classes/State.ts:30-202](), [src/classes/SharedState.ts:29-114](), [src/lib/services/public/SharedStatePublicService.ts:42-174]()
 
 ## Session Memory Management
 
@@ -95,8 +91,6 @@ The `MemorySchemaService` provides the underlying memory operations:
 
 Memory persistence is controlled by the `CC_PERSIST_MEMORY_STORAGE` configuration flag. When enabled, session memory is automatically saved to and loaded from JSON files.
 
-Sources: [src/classes/Schema.ts:49-168](), [src/lib/services/schema/MemorySchemaService.ts:14-114]()
-
 ## Data Persistence and File Storage
 
 All persistent data in the framework is stored as JSON files in the file system, managed through the persistence layer.
@@ -114,8 +108,6 @@ Key configuration options control persistence behavior:
 **Queued Persistence Operations**
 
 The framework uses queued operations to prevent race conditions during concurrent writes. The `SchemaUtils` class demonstrates this pattern with its private queued write function for memory persistence.
-
-Sources: [src/classes/Schema.ts:28-66]()
 
 ## Configuration and Best Practices
 
@@ -195,5 +187,3 @@ The framework handles concurrent operations through:
 - Session memory is automatically cleaned up when sessions are disposed
 - Use `dispose()` methods to explicitly clean up resources
 - Persistence can be disabled for performance-critical applications
-
-Sources: [src/classes/Storage.ts:87-96](), [src/classes/State.ts:122-136](), [src/classes/Schema.ts:129-158](), [test/spec/connection.test.mjs:193-195](), [test/spec/storage.test.mjs](), [test/spec/state.test.mjs]()

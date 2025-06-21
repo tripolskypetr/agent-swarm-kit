@@ -15,8 +15,6 @@ The `PerfService` class serves as the central performance tracking component, im
 
 ![Mermaid Diagram](./diagrams\21_Performance_Monitoring_0.svg)
 
-Sources: [src/lib/services/base/PerfService.ts:28-617]()
-
 ### Performance Data Collection
 
 The service tracks multiple execution maps to capture comprehensive performance metrics:
@@ -29,15 +27,11 @@ The service tracks multiple execution maps to capture comprehensive performance 
 | `executionOutputLenMap` | Total output bytes per client | `clientId` | `number` |
 | `executionTimeMap` | Total execution time per client | `clientId` | `number` (milliseconds) |
 
-Sources: [src/lib/services/base/PerfService.ts:117-156]()
-
 ### Execution Lifecycle Tracking
 
 The performance monitoring integrates with agent execution workflows through `startExecution` and `endExecution` methods:
 
 ![Mermaid Diagram](./diagrams\21_Performance_Monitoring_1.svg)
-
-Sources: [src/lib/services/base/PerfService.ts:435-530]()
 
 ## Performance Data Models
 
@@ -79,15 +73,11 @@ interface IClientPerfomanceRecord {
 }
 ```
 
-Sources: [src/model/Performance.model.ts:6-157]()
-
 ## AI Adapter Performance Integration
 
 The performance monitoring system integrates with AI completion adapters through execution pooling and retry mechanisms:
 
 ![Mermaid Diagram](./diagrams\21_Performance_Monitoring_2.svg)
-
-Sources: [src/classes/Adapter.ts:19-36](), [src/classes/Adapter.ts:72-143](), [src/classes/Adapter.ts:168-234]()
 
 ### Retry and Pooling Mechanics
 
@@ -98,8 +88,6 @@ Each adapter method (`fromOpenAI`, `fromOllama`, `fromCohereClientV2`, `fromLMSt
 - **Logging Integration**: Each completion logs via `Logger.logClient()` for traceability
 
 All adapters use the same `execpool` and `retry` wrapper pattern, ensuring consistent performance behavior across different AI providers.
-
-Sources: [src/classes/Adapter.ts:21-26](), [src/classes/Adapter.ts:30-36](), [src/classes/Adapter.ts:56-134](), [src/classes/Adapter.ts:143-226]()
 
 ## Performance Metrics Computation
 
@@ -126,20 +114,14 @@ The `PerfService` provides multiple methods for retrieving calculated performanc
 | `getTotalExecutionCount()` | `number` | Total executions across all clients |
 | `getTotalResponseTime()` | `number` | Total response time across all clients (ms) |
 
-Sources: [src/lib/services/base/PerfService.ts:259-425]()
-
 ## State and Memory Integration
 
 The performance system computes comprehensive client state by aggregating data from multiple services:
 
 ![Mermaid Diagram](./diagrams\21_Performance_Monitoring_3.svg)
 
-Sources: [src/lib/services/base/PerfService.ts:181-251]()
-
 ## Performance Record Serialization
 
 The `toRecord()` method creates comprehensive performance snapshots using timestamp utilities and global configuration:
 
 ![Mermaid Diagram](./diagrams\21_Performance_Monitoring_4.svg)
-
-Sources: [src/lib/services/base/PerfService.ts:575-593](), [src/utils/msToTime.ts:33-58]()

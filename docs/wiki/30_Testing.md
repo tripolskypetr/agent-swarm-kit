@@ -15,8 +15,6 @@ The testing system validates behavioral contracts across all framework component
 
 ![Mermaid Diagram](./diagrams\30_Testing_0.svg)
 
-Sources: [test/index.mjs:1-18](), [test/spec/connection.test.mjs:1-522](), [test/spec/navigation.test.mjs:1-375](), [test/spec/validation.test.mjs:1-144]()
-
 ## Integration Testing Patterns
 
 ### Connection and Orchestration Testing
@@ -34,8 +32,6 @@ Concurrent Session History Isolation Test Flow
 
 ![Mermaid Diagram](./diagrams\30_Testing_1.svg)
 
-Sources: [test/spec/connection.test.mjs:28-72](), [test/spec/connection.test.mjs:74-188](), [test/spec/connection.test.mjs:190-320]()
-
 ### Navigation Testing
 
 The `navigation.test.mjs` suite validates agent switching mechanisms and deadlock prevention during tool execution across multi-agent workflows.
@@ -50,8 +46,6 @@ Navigation test functions validate these behavioral contracts:
 Agent Navigation with Deadlock Prevention
 
 ![Mermaid Diagram](./diagrams\30_Testing_2.svg)
-
-Sources: [test/spec/navigation.test.mjs:256-281](), [test/spec/navigation.test.mjs:283-374](), [test/spec/navigation.test.mjs:41-187]()
 
 ### Validation Testing
 
@@ -73,7 +67,6 @@ The validation system verifies dependency resolution through these registration 
 - **`addAgent({agentName, completion, tools})`**: Validates completion and tool dependencies
 - **`addTool({toolName, call, validate, function})`**: Registers tool schema for agent reference
 
-Sources: [test/spec/validation.test.mjs:66-144]()
 
 ### Resource Disposal Testing
 
@@ -87,15 +80,11 @@ Disposal tests validate proper cleanup of session resources across different API
 
 The disposal tests verify that `swarm.sessionValidationService` properly tracks and cleans up all session-related resources.
 
-Sources: [test/spec/dispose.test.mjs:24-371]()
-
 ## Test Execution Flow
 
 The test execution follows a structured pattern that validates system behavior across different scenarios and edge cases.
 
 ![Mermaid Diagram](./diagrams\30_Testing_3.svg)
-
-Sources: [test/index.mjs:15-18](), [test/spec/connection.test.mjs:322-473](), [test/spec/navigation.test.mjs:41-187]()
 
 ## Mock Completion Patterns
 
@@ -116,8 +105,6 @@ Mock Completion with Tool Calling Pattern
 
 This pattern enables testing of `changeToAgent()`, tool execution flow, and multi-agent orchestration without requiring actual AI model integration.
 
-Sources: [test/spec/connection.test.mjs:36-47](), [test/spec/navigation.test.mjs:116-180](), [test/spec/resque.test.mjs:28-53]()
-
 ## Rescue Strategy Testing
 
 Rescue strategy tests validate the system's ability to recover from various failure scenarios including non-existent tools, empty outputs, and failed validations.
@@ -129,5 +116,3 @@ Rescue strategy tests validate the system's ability to recover from various fail
 | Failed Tool Validation | Tool `validate: () => false` | Skip tool execution, use placeholder |
 
 The rescue tests ensure that the system gracefully handles edge cases without crashing or hanging indefinitely.
-
-Sources: [test/spec/resque.test.mjs:21-236]()

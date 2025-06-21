@@ -17,8 +17,6 @@ The agent-swarm-kit framework addresses the complexity of building multi-agent A
 
 ![Mermaid Diagram](./diagrams\1_Overview_0.svg)
 
-Sources: [package.json:1-89](), [src/index.ts:1-266](), [src/client/ClientAgent.ts:1-40](), [src/client/ClientSwarm.ts:1-30](), [src/client/ClientSession.ts:1-25]()
-
 ## Core Component Relationships
 
 The framework's core components follow a hierarchical relationship where sessions manage swarms, swarms orchestrate agents, and agents execute tools and interact with AI completions.
@@ -26,8 +24,6 @@ The framework's core components follow a hierarchical relationship where session
 **Component Interaction Flow**
 
 ![Mermaid Diagram](./diagrams\1_Overview_1.svg)
-
-Sources: [src/client/ClientAgent.ts:312-400](), [src/client/ClientSwarm.ts:216-300](), [src/client/ClientSession.ts:148-200](), [src/lib/services/connection/AgentConnectionService.ts:148-200]()
 
 ## Service Architecture Pattern
 
@@ -41,8 +37,6 @@ The framework implements a layered service architecture with three primary servi
 | Validation Services | Dependency checking, integrity | `SessionValidationService`, `SwarmValidationService` | `src/lib/services/validation/` |
 
 The service layer uses dependency injection via the `di-scoped` library, with service registration managed through `TYPES` constants and accessed via the `inject()` function pattern seen throughout the codebase.
-
-Sources: [src/lib/services/public/AgentPublicService.ts:36-60](), [src/lib/services/connection/AgentConnectionService.ts:32-140](), [src/config/params.ts:1-50]()
 
 ## Data Flow and State Management
 
@@ -60,8 +54,6 @@ The framework manages multiple types of state and data persistence:
 
 The history system maintains a rotating buffer of messages (configurable via `CC_KEEP_MESSAGES` in `GLOBAL_CONFIG`) and applies agent-specific filtering through `CC_AGENT_HISTORY_FILTER` to ensure each agent only sees relevant tool calls and system messages.
 
-Sources: [src/client/ClientHistory.ts:46-75](), [src/client/ClientAgent.ts:329-360](), [src/config/params.ts:93-95]()
-
 ## Integration Patterns
 
 The framework supports multiple integration patterns for external systems:
@@ -73,5 +65,3 @@ The framework supports multiple integration patterns for external systems:
 **External Protocol Support**: Model Context Protocol (MCP) integration allows agents to call external tools and services, with automatic tool discovery and execution through `MCPConnectionService`.
 
 **Event System**: The `BusService` provides event-driven communication between components, with typed events (`IBusEvent`) and support for custom event handlers via `listenEvent()` functions.
-
-Sources: [src/interfaces/Agent.interface.ts:115-170](), [src/classes/Adapter.ts](), [src/interfaces/MCP.interface.ts](), [src/model/Event.model.ts]()

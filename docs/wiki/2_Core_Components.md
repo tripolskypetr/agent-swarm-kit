@@ -27,8 +27,6 @@ The `ClientAgent` follows a structured execution pattern defined in the `EXECUTE
 
 Agents integrate with external functions through the `IAgentTool` interface. Tools can be synchronous or asynchronous and support validation, lifecycle callbacks, and abort signals for cancellation.
 
-Sources: [src/client/ClientAgent.ts:1-850](), [src/interfaces/Agent.interface.ts:115-170](), [src/interfaces/Agent.interface.ts:178-217]()
-
 ## Swarm Orchestration
 
 `ClientSwarm` manages collections of agents and coordinates navigation between them. It maintains an active agent reference and a navigation stack to track agent transitions within a client session.
@@ -45,8 +43,6 @@ The swarm supports dynamic agent switching through navigation tools. When an age
 
 ![Mermaid Diagram](./diagrams\2_Core_Components_3.svg)
 
-Sources: [src/client/ClientSwarm.ts:1-450](), [src/interfaces/Swarm.interface.ts:1-200](), [src/client/ClientSwarm.ts:25-206]()
-
 ## Session Management
 
 `ClientSession` provides client isolation and manages the communication channel between users and the swarm. It enforces policies, handles message validation, and coordinates with the underlying swarm for execution.
@@ -58,8 +54,6 @@ Sources: [src/client/ClientSwarm.ts:1-450](), [src/interfaces/Swarm.interface.ts
 **Session Execution Flow**
 
 ![Mermaid Diagram](./diagrams\2_Core_Components_5.svg)
-
-Sources: [src/client/ClientSession.ts:1-350](), [src/interfaces/Session.interface.ts:16-35](), [src/interfaces/Session.interface.ts:67-120]()
 
 ## Data Management Layer
 
@@ -77,8 +71,6 @@ The framework provides three primary data management components: History for mes
 
 ![Mermaid Diagram](./diagrams\2_Core_Components_8.svg)
 
-Sources: [src/client/ClientHistory.ts:1-240](), [src/interfaces/Storage.interface.ts:194-237](), [src/interfaces/State.interface.ts:452-491]()
-
 ## Tool System
 
 The tool system enables agents to interact with external functions and services. Tools are defined through `IAgentTool` interfaces and can be dynamically resolved, validated, and executed within agent workflows.
@@ -94,8 +86,6 @@ The tool system enables agents to interact with external functions and services.
 **MCP Tool Integration**
 
 The framework supports Model Context Protocol (MCP) tools through the `mapMcpToolCall` function, which transforms external MCP tool definitions into `IAgentTool` instances.
-
-Sources: [src/interfaces/Agent.interface.ts:115-170](), [src/client/ClientAgent.ts:175-213](), [src/client/ClientAgent.ts:109-158]()
 
 ## Integration Patterns
 
@@ -113,5 +103,3 @@ The framework uses `memoize` from `functools-kit` to cache component instances b
 - `AgentConnectionService.getAgent`: `${clientId}-${agentName}`
 - `SessionConnectionService.getSession`: `${clientId}-${swarmName}`
 - `SwarmConnectionService.getSwarm`: `${clientId}-${swarmName}`
-
-Sources: [src/lib/services/connection/AgentConnectionService.ts:148-200](), [src/lib/services/connection/SessionConnectionService.ts:89-150](), [src/config/params.ts:1-303]()

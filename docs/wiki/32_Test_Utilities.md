@@ -15,8 +15,6 @@ The testing system is built on `worker-testbed` and provides utilities for creat
 
 ![Mermaid Diagram](./diagrams\32_Test_Utilities_0.svg)
 
-Sources: [test/index.mjs:1-19](), [test/spec/connection.test.mjs:1-522](), [test/spec/navigation.test.mjs:1-375]()
-
 ## Core Test Utilities
 
 The framework provides several categories of utilities for comprehensive testing of agent systems.
@@ -46,8 +44,6 @@ The framework provides several categories of utilities for comprehensive testing
 | `changeToPrevAgent()` | Navigate to previous agent | `await changeToPrevAgent(clientId)` |
 | `getAgentName()` | Get current active agent | `const agent = await getAgentName(clientId)` |
 
-Sources: [test/spec/connection.test.mjs:3-19](), [test/spec/navigation.test.mjs:3-17](), [test/spec/dispose.test.mjs:3-15]()
-
 ## Mock Component Patterns
 
 ### Mock Completion Patterns
@@ -67,15 +63,11 @@ Test agents are configured with specific behaviors for different testing scenari
 | Sales Agent | Echo completion | Navigation tools | Target agent |
 | Refund Agent | Echo completion | Navigation tools | Target agent |
 
-Sources: [test/spec/connection.test.mjs:36-53](), [test/spec/navigation.test.mjs:42-61](), [test/spec/dispose.test.mjs:54-102]()
-
 ## Concurrency Testing Patterns
 
 The test suite includes comprehensive concurrency testing to validate queue management and resource isolation:
 
 ![Mermaid Diagram](./diagrams\32_Test_Utilities_2.svg)
-
-Sources: [test/spec/connection.test.mjs:28-72](), [test/spec/connection.test.mjs:190-320](), [test/spec/queue.test.mjs]()
 
 ## Event System Testing
 
@@ -93,8 +85,6 @@ The framework provides utilities for testing the event system and real-time comm
 
 ![Mermaid Diagram](./diagrams\32_Test_Utilities_3.svg)
 
-Sources: [test/spec/connection.test.mjs:413-473](), [test/spec/connection.test.mjs:475-521]()
-
 ## Resource Management Testing
 
 ### Connection Disposal Validation
@@ -102,8 +92,6 @@ Sources: [test/spec/connection.test.mjs:413-473](), [test/spec/connection.test.m
 The test suite validates proper cleanup of system resources:
 
 ![Mermaid Diagram](./diagrams\32_Test_Utilities_4.svg)
-
-Sources: [test/spec/dispose.test.mjs:24-139](), [test/spec/dispose.test.mjs:142-257](), [test/spec/dispose.test.mjs:259-370]()
 
 ## Configuration Testing Utilities
 
@@ -118,8 +106,6 @@ Sources: [test/spec/dispose.test.mjs:24-139](), [test/spec/dispose.test.mjs:142-
 ### Configuration Testing Pattern
 
 ![Mermaid Diagram](./diagrams\32_Test_Utilities_5.svg)
-
-Sources: [test/spec/connection.test.mjs:193-195](), [test/spec/resque.test.mjs:23-26](), [test/spec/resque.test.mjs:224-226]()
 
 ## Validation Testing Framework
 
@@ -139,5 +125,3 @@ The validation system ensures all component dependencies are properly configured
 ### Validation Test Pattern
 
 ![Mermaid Diagram](./diagrams\32_Test_Utilities_6.svg)
-
-Sources: [test/spec/validation.test.mjs:66-129](), [test/spec/validation.test.mjs:131-143]()

@@ -15,8 +15,6 @@ The Operator System consists of three main components that work together to mana
 
 ![Mermaid Diagram](./diagrams\12_Operator_System_0.svg)
 
-Sources: [src/client/ClientOperator.ts:1-320](), [src/classes/Operator.ts:1-325](), [src/interfaces/Operator.interface.ts:1-26]()
-
 ## Core Components
 
 ### ClientOperator
@@ -24,8 +22,6 @@ Sources: [src/client/ClientOperator.ts:1-320](), [src/classes/Operator.ts:1-325]
 The `ClientOperator` class serves as the primary interface for operator functionality, implementing the `IAgent` interface with specialized behavior for external communication:
 
 ![Mermaid Diagram](./diagrams\12_Operator_System_1.svg)
-
-Sources: [src/client/ClientOperator.ts:77-313]()
 
 ### OperatorSignal
 
@@ -38,23 +34,17 @@ The `OperatorSignal` class manages the communication channel between the operato
 
 The signal system uses the `connectOperator` function from `IOperatorParams` to establish connections and handle message routing.
 
-Sources: [src/client/ClientOperator.ts:23-70]()
-
 ### OperatorInstance
 
 The `OperatorInstance` class provides the base implementation for operator instances with lifecycle management:
 
 ![Mermaid Diagram](./diagrams\12_Operator_System_2.svg)
 
-Sources: [src/classes/Operator.ts:91-235]()
-
 ## Communication Flow
 
 The operator system implements a bidirectional communication pattern between agents and external systems:
 
 ![Mermaid Diagram](./diagrams\12_Operator_System_3.svg)
-
-Sources: [src/client/ClientOperator.ts:116-165](), [src/classes/Operator.ts:300-317]()
 
 ## Timeout Management
 
@@ -68,8 +58,6 @@ The operator system includes configurable timeout handling to prevent indefinite
 
 The timeout mechanism uses `Promise.race()` to compete between the actual response and a timeout delay, ensuring the system remains responsive even when external operators are unavailable.
 
-Sources: [src/client/ClientOperator.ts:13-17](), [src/client/ClientOperator.ts:144-165]()
-
 ## Operator Utilities
 
 The `OperatorUtils` class provides factory and management capabilities for operator instances:
@@ -77,8 +65,6 @@ The `OperatorUtils` class provides factory and management capabilities for opera
 ![Mermaid Diagram](./diagrams\12_Operator_System_4.svg)
 
 The system uses memoization to ensure single operator instances per client-agent combination, managed through the key pattern `${clientId}-${agentName}`.
-
-Sources: [src/classes/Operator.ts:260-318]()
 
 ## Integration Points
 
@@ -100,8 +86,6 @@ The `ClientOperator` implements the `IAgent` interface but restricts several met
 - `commitToolRequest()` - Tool execution not supported
 - `commitAssistantMessage()` - Assistant responses come from external system
 
-Sources: [src/client/ClientOperator.ts:99-285]()
-
 ### Session Integration
 
 Operators integrate with the session management system through the `IOperatorParams` interface, which includes:
@@ -114,8 +98,6 @@ Operators integrate with the session management system through the `IOperatorPar
 | `bus` | `IBus` | Event bus for system communication |
 | `history` | `IHistory` | Message history management |
 | `connectOperator` | `Function` | Connection factory function |
-
-Sources: [src/interfaces/Operator.interface.ts:15-23]()
 
 ## Error Handling and Logging
 
@@ -134,5 +116,3 @@ The operator system includes comprehensive logging and error handling:
 - Disposal of active connections
 
 All logging is controlled by the `CC_LOGGER_ENABLE_DEBUG` global configuration flag and uses the centralized logging service.
-
-Sources: [src/client/ClientOperator.ts:32-35](), [src/client/ClientOperator.ts:157-160](), [src/classes/Operator.ts:114-118]()

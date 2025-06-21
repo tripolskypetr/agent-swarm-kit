@@ -23,21 +23,15 @@ Agent-swarm-kit uses dependency injection to:
 
 The framework uses a custom DI implementation built around the `inject`, `provide`, and `init` functions from the core DI module. All services are registered at startup and accessed through the central `swarm` object.
 
-Sources: [src/lib/index.ts:252-262](), [src/lib/core/di.ts](), [src/model/SwarmDI.model.ts:66-460]()
-
 ## The Swarm Object and Service Registry
 
 ### Central Service Registry Architecture
 
 ![Mermaid Diagram](./diagrams\14_Dependency_Injection_0.svg)
 
-Sources: [src/lib/index.ts:78-260](), [src/model/SwarmDI.model.ts:71-460]()
-
 ### Service Registration Process
 
 ![Mermaid Diagram](./diagrams\14_Dependency_Injection_1.svg)
-
-Sources: [src/lib/core/provide.ts:68-151](), [src/lib/index.ts:78-262](), [src/lib/core/types.ts:1-96]()
 
 ## Service Categories
 
@@ -129,8 +123,6 @@ Enforce rules, constraints, and system integrity:
 - `swarm.pipelineValidationService`: Pipeline execution validation
 - `swarm.executionValidationService`: Execution context validation
 
-Sources: [src/lib/index.ts:78-249](), [src/lib/core/types.ts:1-84](), [src/lib/core/provide.ts:68-151](), [src/model/SwarmDI.model.ts:71-460]()
-
 ## Symbol-Based Service Registration
 
 Services are identified by unique symbols defined in `TYPES` and registered with the DI container through the `provide` function:
@@ -164,8 +156,6 @@ const baseServices = {
 ```
 
 The registration process uses factory functions to create service instances, ensuring proper initialization and lifecycle management.
-
-Sources: [src/lib/core/types.ts:1-96](), [src/lib/core/provide.ts:68-151](), [src/lib/index.ts:78-260]()
 
 ## Public and Connection Services Pattern
 
@@ -233,8 +223,6 @@ export class AgentPublicService implements TAgentConnectionService {
 }
 ```
 
-Sources: [src/lib/services/connection/AgentConnectionService.ts:31-217](), [src/lib/services/public/AgentPublicService.ts:41-129](), [src/lib/services/connection/SessionConnectionService.ts:29-124](), [src/lib/services/public/SessionPublicService.ts:51-104]()
-
 ## Service Dependencies and Injection
 
 ![Mermaid Diagram](./diagrams\14_Dependency_Injection_3.svg)
@@ -246,8 +234,6 @@ Services typically follow these patterns:
 2. Use dependencies to implement service functionality
 3. Expose public methods that align with their respective interface
 4. Add service-specific optimizations (like memoization)
-
-Sources: [src/lib/services/connection/AgentConnectionService.ts:31-136](), [src/lib/services/public/AgentPublicService.ts:41-49](), [src/lib/services/connection/SessionConnectionService.ts:29-73](), [src/lib/services/public/SessionPublicService.ts:51-84]()
 
 ## Context Management
 
@@ -273,8 +259,6 @@ Manages a global execution context for tracking operations across the system, pa
 Stores additional data that needs to be accessed across method boundaries, enabling data sharing without explicit parameter passing.
 
 ![Mermaid Diagram](./diagrams\14_Dependency_Injection_4.svg)
-
-Sources: [src/lib/services/public/SessionPublicService.ts:117-131](), [src/lib/services/public/AgentPublicService.ts:124-143](), [src/lib/index.ts:72-82]()
 
 ## Entry Points and Usage
 
@@ -341,8 +325,6 @@ export const disposeConnection = beginContext(
 
 These entry points provide a client-friendly API that internally leverages the DI system for service access and lifecycle management.
 
-Sources: [src/functions/target/makeConnection.ts:43-85](), [src/functions/target/session.ts:42-165](), [src/functions/target/disposeConnection.ts:33-136](), [src/functions/target/complete.ts:46-67]()
-
 ## Benefits of the DI System
 
 1. **Modularity**: Services can be added, replaced, or mocked without modifying client code
@@ -376,8 +358,6 @@ swarm.sessionValidationService.validate(clientId, methodName);
 const loggerService = inject<LoggerService>(TYPES.loggerService);
 const busService = inject<BusService>(TYPES.busService);
 ```
-
-Sources: [src/lib/index.ts:78-260](), [src/lib/core/types.ts:1-96](), [src/model/SwarmDI.model.ts:71-460]()
 
 ## Summary
 

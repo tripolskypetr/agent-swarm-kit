@@ -15,8 +15,6 @@ The completion adapter system provides a unified interface for interacting with 
 
 ![Mermaid Diagram](./diagrams\20_Completion_Adapters_0.svg)
 
-Sources: [src/classes/Adapter.ts:44-502]()
-
 ## Supported Providers
 
 The framework supports five major AI providers through dedicated adapter methods:
@@ -46,8 +44,6 @@ The [`fromLMStudio`](src/classes/Adapter.ts:326-408) method connects to LMStudio
 #### Ollama Adapter
 The [`fromOllama`](src/classes/Adapter.ts:417-495) method includes special handling for tool calls using the [`TOOL_PROTOCOL_PROMPT`](src/classes/Adapter.ts:11-16) to instruct models on XML-based tool call formatting.
 
-Sources: [src/classes/Adapter.ts:56-495]()
-
 ## Message Transformation
 
 Each adapter performs bidirectional message transformation between the framework's [`IModelMessage`](src/model/ModelMessage.model.ts) format and provider-specific formats.
@@ -67,8 +63,6 @@ The tool call transformation process:
 1. **Outbound**: Framework tool calls → Provider format
 2. **Inbound**: Provider tool calls → Framework format with generated IDs
 
-Sources: [src/classes/Adapter.ts:11-16](), [src/classes/Adapter.ts:84-96](), [src/classes/Adapter.ts:175-182]()
-
 ## Performance and Reliability Features
 
 ### Execution Pooling
@@ -85,8 +79,6 @@ Built-in retry mechanism with:
 Each adapter logs completion requests using [`Logger.logClient`](src/classes/Adapter.ts:77-81) for debugging and monitoring.
 
 ![Mermaid Diagram](./diagrams\20_Completion_Adapters_2.svg)
-
-Sources: [src/classes/Adapter.ts:21-36](), [src/classes/Adapter.ts:67-81]()
 
 ## Integration with Agent System
 
@@ -105,5 +97,3 @@ type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>
 
 ### Singleton Pattern
 The adapters are available through the [`Adapter`](src/classes/Adapter.ts:502) singleton instance, providing a consistent entry point for the entire system.
-
-Sources: [src/classes/Adapter.ts:44](), [src/classes/Adapter.ts:502](), [src/lib/services/base/PerfService.ts:435-475]()

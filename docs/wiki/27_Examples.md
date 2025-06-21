@@ -23,8 +23,6 @@ The agent-swarm-kit repository contains multiple demonstration applications that
 | telegram-ollama-chat | Telegram bot integration | Third-party platform integration |
 | nginx-balancer-chat | Load-balanced chat system | Scalability, load distribution |
 
-Sources: [docs/getting-started.md:321-341]()
-
 ## Client-Server Chat Example
 
 The client-server chat example demonstrates a complete WebSocket-based real-time chat application using the agent-swarm-kit framework. This example showcases session management, real-time bidirectional communication, and proper resource cleanup.
@@ -32,8 +30,6 @@ The client-server chat example demonstrates a complete WebSocket-based real-time
 ### System Architecture
 
 ![Mermaid Diagram](./diagrams\27_Examples_0.svg)
-
-Sources: [demo/client-server-chat/src/server.ts:13-41](), [demo/client-server-chat/src/client.ts:10-56]()
 
 ### Server Implementation
 
@@ -43,8 +39,6 @@ The server implementation uses Bun's WebSocket capabilities to handle real-time 
 
 The server creates sessions using the `session()` function from agent-swarm-kit, which manages the agent lifecycle and handles message processing through the `complete()` method.
 
-Sources: [demo/client-server-chat/src/server.ts:13-23](), [demo/client-server-chat/src/server.ts:25-34]()
-
 ### Client Implementation
 
 The client implementation demonstrates how to build a terminal-based interface that communicates with the agent system:
@@ -52,8 +46,6 @@ The client implementation demonstrates how to build a terminal-based interface t
 ![Mermaid Diagram](./diagrams\27_Examples_2.svg)
 
 The client uses the `Subject` pattern from functools-kit to handle asynchronous message flows and implements a readline interface for user interaction.
-
-Sources: [demo/client-server-chat/src/client.ts:5-8](), [demo/client-server-chat/src/client.ts:37-54]()
 
 ### Session Management Details
 
@@ -68,15 +60,11 @@ The example demonstrates proper session lifecycle management:
 
 The server stores session data in the WebSocket data object, ensuring each connection maintains its own isolated agent context.
 
-Sources: [demo/client-server-chat/src/server.ts:20](), [demo/client-server-chat/src/server.ts:27](), [demo/client-server-chat/src/server.ts:36]()
-
 ### Project Structure
 
 The client-server-chat example follows a standard structure:
 
 ![Mermaid Diagram](./diagrams\27_Examples_3.svg)
-
-Sources: [demo/client-server-chat/package.json:17-23](), [demo/client-server-chat/src/server.ts:1-4](), [demo/client-server-chat/src/client.ts:1-3]()
 
 ### Running the Example
 
@@ -87,8 +75,6 @@ The example provides separate scripts for running the client and server componen
 - `bun run build:docs` - Generates documentation
 
 The server listens on `0.0.0.0:1337` and accepts WebSocket connections with a `clientId` query parameter.
-
-Sources: [demo/client-server-chat/package.json:7-9](), [demo/client-server-chat/src/server.ts:39-41]()
 
 ## Other Example Applications
 
@@ -106,8 +92,6 @@ The `redis-persist-chat` example demonstrates persistent conversation history an
 ### Platform Integration Example
 The `telegram-ollama-chat` example illustrates integration with third-party platforms, specifically Telegram, while using Ollama for local AI model hosting.
 
-Sources: [docs/getting-started.md:322-341]()
-
 ## Integration Patterns
 
 These examples demonstrate several key integration patterns:
@@ -119,5 +103,3 @@ These examples demonstrate several key integration patterns:
 5. **External Service Integration** - Connecting to APIs, databases, and third-party platforms
 
 Each example serves as a template for building similar applications with the agent-swarm-kit framework.
-
-Sources: [docs/getting-started.md:245-313]()

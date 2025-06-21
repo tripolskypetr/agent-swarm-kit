@@ -23,15 +23,11 @@ The navigation system provides three primary functions for agent transitions, ea
 
 ![Mermaid Diagram](./diagrams\9_Navigation_System_0.svg)
 
-**Sources:** [src/functions/navigate/changeToAgent.ts:124-187](), [src/functions/navigate/changeToDefaultAgent.ts:124-160](), [src/functions/navigate/changeToPrevAgent.ts:124-164]()
-
 ### Navigation Implementation Pattern
 
 All navigation functions follow a consistent implementation pattern with memoized, queued execution to prevent race conditions and ensure proper resource cleanup.
 
 ![Mermaid Diagram](./diagrams\9_Navigation_System_1.svg)
-
-**Sources:** [src/functions/navigate/changeToAgent.ts:35-105](), [src/functions/navigate/changeToDefaultAgent.ts:35-105](), [src/functions/navigate/changeToPrevAgent.ts:35-105]()
 
 ## Navigation Templates
 
@@ -40,8 +36,6 @@ The template system provides factory functions for creating navigation handlers 
 ### Navigation Template Architecture
 
 ![Mermaid Diagram](./diagrams\9_Navigation_System_2.svg)
-
-**Sources:** [src/template/createNavigateToAgent.ts:153-262](), [src/template/createNavigateToTriageAgent.ts:118-192]()
 
 ### Template Configuration Options
 
@@ -56,8 +50,6 @@ The navigation templates support extensive configuration for different use cases
 | `emitMessage` | Function/String | Emission message content |
 | `flushMessage` | Function/String | Fallback flush message |
 
-**Sources:** [src/template/createNavigateToAgent.ts:48-83](), [src/template/createNavigateToTriageAgent.ts:48-73]()
-
 ## Navigation Tools and Aliases
 
 The alias system provides convenient functions for creating navigation tools that can be added to agents, enabling tool-based navigation triggers.
@@ -66,15 +58,11 @@ The alias system provides convenient functions for creating navigation tools tha
 
 ![Mermaid Diagram](./diagrams\9_Navigation_System_3.svg)
 
-**Sources:** [src/functions/alias/addAgentNavigation.ts:37-74](), [src/functions/alias/addTriageNavigation.ts:35-71]()
-
 ### Tool Registration and Schema
 
 Navigation tools are registered in both the tool schema service and navigation schema service:
 
 ![Mermaid Diagram](./diagrams\9_Navigation_System_4.svg)
-
-**Sources:** [src/functions/alias/addAgentNavigation.ts:49-73](), [src/functions/alias/addTriageNavigation.ts:46-70]()
 
 ## Integration with System Components
 
@@ -86,23 +74,17 @@ Navigation integrates with pipeline execution through agent switching during pip
 
 ![Mermaid Diagram](./diagrams\9_Navigation_System_5.svg)
 
-**Sources:** [src/functions/target/startPipeline.ts:40-75]()
-
 ### Chat System Integration
 
 The chat system maintains agent context through navigation:
 
 ![Mermaid Diagram](./diagrams\9_Navigation_System_6.svg)
 
-**Sources:** [src/classes/Chat.ts:179-233]()
-
 ### History Management Integration
 
 Navigation triggers history lifecycle events, ensuring proper cleanup and initialization:
 
 ![Mermaid Diagram](./diagrams\9_Navigation_System_7.svg)
-
-**Sources:** [src/lib/services/connection/HistoryConnectionService.ts:78-92](), [src/functions/navigate/changeToAgent.ts:67-94]()
 
 ## Navigation State and Validation
 
@@ -112,12 +94,8 @@ The navigation system includes validation mechanisms to prevent circular navigat
 
 ![Mermaid Diagram](./diagrams\9_Navigation_System_8.svg)
 
-**Sources:** [src/functions/navigate/changeToAgent.ts:136-162](), [src/functions/navigate/changeToAgent.ts:44-53]()
-
 ### Resource Management and Cleanup
 
 Navigation ensures proper resource cleanup through garbage collection and dispose patterns:
 
 ![Mermaid Diagram](./diagrams\9_Navigation_System_9.svg)
-
-**Sources:** [src/functions/navigate/changeToAgent.ts:115-119](), [src/config/emitters.ts:1-4]()

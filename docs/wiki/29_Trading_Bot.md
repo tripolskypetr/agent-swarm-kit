@@ -15,8 +15,6 @@ The trading bot implements a hub-and-spoke architecture with a central triage ag
 
 ![Mermaid Diagram](./diagrams\29_Trading_Bot_0.svg)
 
-**Sources:** [demo/binance-candle-chat/src/lib/swarm.ts:38-57](), [demo/binance-candle-chat/src/lib/swarm.ts:865-879]()
-
 ## Agent Definitions
 
 The system defines six specialized agents through the `AgentName` enum and corresponding `addAgent` calls. Each agent has specific responsibilities and tool access patterns.
@@ -31,8 +29,6 @@ The system defines six specialized agents through the `AgentName` enum and corre
 | `SolTraderAgent` | Solana trading specialist | SOL | Buy/sell calculation, trend analysis, navigation |
 
 ![Mermaid Diagram](./diagrams\29_Trading_Bot_1.svg)
-
-**Sources:** [demo/binance-candle-chat/src/lib/swarm.ts:50-57](), [demo/binance-candle-chat/src/lib/swarm.ts:162-284](), [demo/binance-candle-chat/src/lib/swarm.ts:467-489]()
 
 ## Tool System
 
@@ -49,8 +45,6 @@ Both tools validate the cryptocurrency matches the current agent's specializatio
 
 ![Mermaid Diagram](./diagrams\29_Trading_Bot_2.svg)
 
-**Sources:** [demo/binance-candle-chat/src/lib/swarm.ts:622-717](), [demo/binance-candle-chat/src/lib/swarm.ts:719-814]()
-
 ### Market Analysis Tools
 
 The system provides two analytical tools for market intelligence:
@@ -60,8 +54,6 @@ The system provides two analytical tools for market intelligence:
 
 ![Mermaid Diagram](./diagrams\29_Trading_Bot_3.svg)
 
-**Sources:** [demo/binance-candle-chat/src/lib/swarm.ts:559-619](), [demo/binance-candle-chat/src/lib/swarm.ts:491-557]()
-
 ### Navigation Tools
 
 The system implements bidirectional navigation between the triage agent and specialized traders through dedicated navigation tools:
@@ -70,8 +62,6 @@ The system implements bidirectional navigation between the triage agent and spec
 - `NavigateToTriageTool`: Returns to triage agent from any trader
 
 ![Mermaid Diagram](./diagrams\29_Trading_Bot_4.svg)
-
-**Sources:** [demo/binance-candle-chat/src/lib/swarm.ts:286-464](), [demo/binance-candle-chat/src/lib/swarm.ts:816-863]()
 
 ## Data Storage and Persistence
 
@@ -97,8 +87,6 @@ The `OrderStorage` is configured with embedding-based indexing using the `NomicE
 
 ![Mermaid Diagram](./diagrams\29_Trading_Bot_5.svg)
 
-**Sources:** [demo/binance-candle-chat/src/lib/swarm.ts:148-159](), [demo/binance-candle-chat/src/utils/calculateProfitLoss.ts:1-8]()
-
 ## AI Integration
 
 The trading bot integrates multiple AI systems for natural language processing and semantic search capabilities.
@@ -109,15 +97,11 @@ The system uses OpenAI for natural language processing through the `OpenAiComple
 
 ![Mermaid Diagram](./diagrams\29_Trading_Bot_6.svg)
 
-**Sources:** [demo/binance-candle-chat/src/lib/swarm.ts:110-115](), [demo/binance-candle-chat/src/lib/swarm.ts:85-95]()
-
 ### Embedding System
 
 The system implements semantic search through Ollama's embedding capabilities:
 
 ![Mermaid Diagram](./diagrams\29_Trading_Bot_7.svg)
-
-**Sources:** [demo/binance-candle-chat/src/lib/swarm.ts:117-146](), [demo/binance-candle-chat/src/config/tf.ts:1-4]()
 
 ## User Interface
 
@@ -129,8 +113,6 @@ The interface implements a continuous loop that displays the current active agen
 
 ![Mermaid Diagram](./diagrams\29_Trading_Bot_8.svg)
 
-**Sources:** [demo/binance-candle-chat/src/repl.ts:1-36]()
-
 ## System Execution Flow
 
 The trading bot implements a sophisticated execution flow that handles user requests through multiple agents and tools while maintaining context and state.
@@ -138,8 +120,6 @@ The trading bot implements a sophisticated execution flow that handles user requ
 ### Message Processing Flow
 
 ![Mermaid Diagram](./diagrams\29_Trading_Bot_9.svg)
-
-**Sources:** [demo/binance-candle-chat/src/lib/swarm.ts:286-320](), [demo/binance-candle-chat/src/lib/swarm.ts:622-696](), [demo/binance-candle-chat/src/lib/swarm.ts:559-600]()
 
 ## Configuration and Dependencies
 
@@ -158,5 +138,3 @@ The trading bot requires specific configuration for AI services, TensorFlow back
 ### TensorFlow Configuration
 
 The system configures TensorFlow to use WebAssembly backend for optimal performance in Node.js environments:
-
-**Sources:** [demo/binance-candle-chat/package.json:16-25](), [demo/binance-candle-chat/src/config/tf.ts:1-4]()

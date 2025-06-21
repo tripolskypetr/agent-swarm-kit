@@ -19,8 +19,6 @@ The validation services operate as a coordinated layer that ensures system integ
 
 ![Mermaid Diagram](./diagrams\18_Validation_Services_0.svg)
 
-**Sources:** [src/lib/services/validation/AgentValidationService.ts:1-391]()
-
 ### Core Validation Components
 
 The validation layer consists of specialized services that validate different aspects of the system:
@@ -35,8 +33,6 @@ The validation layer consists of specialized services that validate different as
 | `WikiValidationService` | Wiki configuration validation | Wiki schemas and references |
 | `MCPValidationService` | MCP protocol validation | MCP configurations and protocol compliance |
 
-**Sources:** [src/lib/services/validation/AgentValidationService.ts:46-90]()
-
 ## Agent Validation Service
 
 The `AgentValidationService` serves as the central coordinator for agent validation, managing agent registrations and their complex interdependencies.
@@ -45,15 +41,11 @@ The `AgentValidationService` serves as the central coordinator for agent validat
 
 ![Mermaid Diagram](./diagrams\18_Validation_Services_1.svg)
 
-**Sources:** [src/lib/services/validation/AgentValidationService.ts:322-380]()
-
 ### Agent Resource Association Management
 
 The `AgentValidationService` maintains internal maps to track agent configurations and provides memoized methods for efficient resource lookups:
 
 ![Mermaid Diagram](./diagrams\18_Validation_Services_2.svg)
-
-**Sources:** [src/lib/services/validation/AgentValidationService.ts:94-107](), [src/lib/services/validation/AgentValidationService.ts:227-312]()
 
 ## Schema Validation Integration
 
@@ -62,8 +54,6 @@ Validation services work closely with schema services to ensure that all registe
 ### Schema Validation Flow
 
 ![Mermaid Diagram](./diagrams\18_Validation_Services_3.svg)
-
-**Sources:** [src/lib/services/schema/AgentSchemaService.ts:84-230](), [src/lib/services/schema/CompletionSchemaService.ts:88-113]()
 
 ## Validation Error Patterns
 
@@ -97,8 +87,6 @@ if (agentSchema.tools &&
 }
 ```
 
-**Sources:** [src/lib/services/schema/AgentSchemaService.ts:89-230]()
-
 ## Runtime Validation Integration
 
 Validation services are actively used during runtime operations to ensure system integrity. The framework validates agent permissions before allowing access to resources.
@@ -109,8 +97,6 @@ Test cases demonstrate the validation enforcement in action:
 
 ![Mermaid Diagram](./diagrams\18_Validation_Services_4.svg)
 
-**Sources:** [test/spec/storage.test.mjs:98-145](), [test/spec/state.test.mjs:233-272]()
-
 ## Performance Optimization
 
 Validation services use memoization extensively to optimize repeated validation checks, particularly important for resource association queries that may be called frequently during agent execution.
@@ -120,5 +106,3 @@ The `memoize` decorator from `functools-kit` is applied to methods like:
 - `hasState()` - memoized by `${agentName}-${stateName}`
 - `hasDependency()` - memoized by `${targetAgentName}-${depAgentName}`
 - `validate()` - memoized by `agentName`
-
-**Sources:** [src/lib/services/validation/AgentValidationService.ts:227-243](), [src/lib/services/validation/AgentValidationService.ts:322-380]()

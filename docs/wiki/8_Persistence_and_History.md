@@ -19,15 +19,11 @@ The persistence layer is built around two foundational classes that provide JSON
 
 ![Mermaid Diagram](./diagrams\8_Persistence_and_History_0.svg)
 
-**Sources:** [src/classes/Persist.ts:393-747]()
-
 ### PersistList Class
 
 `PersistList` extends `PersistBase` to provide ordered list semantics with push and pop operations. It maintains sequential numeric keys and supports queue-like operations for message storage and event logging.
 
 ![Mermaid Diagram](./diagrams\8_Persistence_and_History_1.svg)
-
-**Sources:** [src/classes/Persist.ts:761-847]()
 
 ## History Management System
 
@@ -38,8 +34,6 @@ The history management system provides both persistent and in-memory storage opt
 Two primary implementations handle different persistence requirements:
 
 ![Mermaid Diagram](./diagrams\8_Persistence_and_History_2.svg)
-
-**Sources:** [src/classes/History.ts:366-611](), [src/classes/History.ts:622-826]()
 
 ### History Lifecycle and Callbacks
 
@@ -56,8 +50,6 @@ History instances support comprehensive lifecycle management through the `IHisto
 | `onReadEnd` | Iteration completion | After message iteration |
 | `onDispose` | Instance cleanup | During disposal |
 
-**Sources:** [src/classes/History.ts:8-122]()
-
 ## Persistence Utilities
 
 Specialized utility classes provide domain-specific persistence operations for different swarm components.
@@ -68,8 +60,6 @@ Manages active agent tracking and navigation stack persistence per swarm:
 
 ![Mermaid Diagram](./diagrams\8_Persistence_and_History_3.svg)
 
-**Sources:** [src/classes/Persist.ts:1451-1629]()
-
 ### State and Storage Persistence
 
 `PersistStateUtils` and `PersistStorageUtils` provide similar patterns for state management and storage data persistence:
@@ -79,8 +69,6 @@ Manages active agent tracking and navigation stack persistence per swarm:
 
 Both follow the same memoization and factory pattern for efficient resource management.
 
-**Sources:** [src/classes/Persist.ts:1631-1809](), [src/classes/Persist.ts:1811-1989]()
-
 ## File System Organization
 
 The persistence layer organizes data in a hierarchical directory structure under `./logs/data/`:
@@ -89,8 +77,6 @@ The persistence layer organizes data in a hierarchical directory structure under
 
 Each directory contains JSON files named by entity IDs, with atomic write operations ensuring data consistency across concurrent access.
 
-**Sources:** [src/classes/Persist.ts:404-414](), [src/classes/History.ts:408-411]()
-
 ## Integration with Agent System
 
 The persistence and history systems integrate seamlessly with the broader agent architecture:
@@ -98,5 +84,3 @@ The persistence and history systems integrate seamlessly with the broader agent 
 ![Mermaid Diagram](./diagrams\8_Persistence_and_History_5.svg)
 
 This integration ensures that agent conversations, state changes, and navigation history are automatically persisted and can be recovered across system restarts.
-
-**Sources:** [src/classes/History.ts:1-50](), [src/classes/Persist.ts:1-200]()

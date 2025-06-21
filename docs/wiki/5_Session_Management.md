@@ -15,8 +15,6 @@ Sessions implement a three-tier architecture with public APIs, connection servic
 
 Sessions coordinate with swarms to access agents, policies for message validation, and the event bus for system-wide communication. The memoization strategy ensures efficient resource reuse across multiple calls with the same client-swarm combination.
 
-**Sources:** [src/client/ClientSession.ts:1-600](), [src/lib/services/connection/SessionConnectionService.ts:1-400](), [src/lib/services/public/SessionPublicService.ts:1-800]()
-
 ## Session Lifecycle
 
 Sessions follow a managed lifecycle from creation through disposal, with automatic resource tracking and cleanup. The `SessionConnectionService` uses memoization to cache session instances, while validation services track active sessions for proper resource management.
@@ -25,8 +23,6 @@ Sessions follow a managed lifecycle from creation through disposal, with automat
 
 The lifecycle includes initialization callbacks, active message processing, and disposal with proper cleanup. Session validation services ensure that resources are properly tracked and prevent memory leaks in long-running applications.
 
-**Sources:** [src/lib/services/connection/SessionConnectionService.ts:200-350](), [src/lib/services/validation/SessionValidationService.ts:1-200](), [src/client/ClientSession.ts:30-40]()
-
 ## Message Processing Flow
 
 Sessions handle bidirectional message flow with policy validation, agent execution, and event emission. The `emit` method sends messages to clients via swarms, while `execute` processes incoming messages through agents and returns responses.
@@ -34,8 +30,6 @@ Sessions handle bidirectional message flow with policy validation, agent executi
 ![Mermaid Diagram](./diagrams\5_Session_Management_2.svg)
 
 All message flows include policy validation checkpoints. When validation fails, sessions automatically substitute ban messages and log policy violations through the event system.
-
-**Sources:** [src/client/ClientSession.ts:48-200](), [src/interfaces/Session.interface.ts:63-120](), [src/model/EmitMessage.model.ts:1-60]()
 
 ## Session Parameters and Configuration
 
@@ -52,8 +46,6 @@ Sessions are configured through `ISessionParams` which combines schema definitio
 
 The session schema extends `ISwarmSessionCallbacks` to provide lifecycle hooks for initialization, emission, execution, and disposal events. These callbacks enable custom behavior injection at key session lifecycle points.
 
-**Sources:** [src/interfaces/Session.interface.ts:16-42](), [src/client/ClientSession.ts:30-40]()
-
 ## Integration with Agent Execution
 
 Sessions coordinate agent execution through swarms, managing the handoff between session-level message processing and agent-level tool execution. The `execute` method delegates to swarm agents while maintaining session context and policy enforcement.
@@ -61,8 +53,6 @@ Sessions coordinate agent execution through swarms, managing the handoff between
 ![Mermaid Diagram](./diagrams\5_Session_Management_3.svg)
 
 Sessions maintain execution context across agent transitions, ensuring proper client identification and session state preservation during complex multi-agent workflows.
-
-**Sources:** [src/client/ClientSession.ts:140-280](), [src/client/ClientSwarm.ts:300-500](), [src/client/ClientAgent.ts:310-600]()
 
 ## Event System Integration
 
@@ -84,8 +74,6 @@ await this.params.bus.emit<IBusEvent>(this.params.clientId, {
 
 Event types include `"emit"`, `"execute"`, `"connect"`, and `"dispose"` with session-specific context for filtering and monitoring. The event system enables external systems to track session activity and implement custom analytics or logging.
 
-**Sources:** [src/client/ClientSession.ts:125-140](), [src/model/Event.model.ts:60-120](), [src/interfaces/Bus.interface.ts:1-50]()
-
 ## Resource Management and Disposal
 
 Sessions implement comprehensive resource management with automatic cleanup, validation tracking, and memoization clearing. The disposal process ensures proper resource release and prevents memory leaks in long-running applications.
@@ -93,5 +81,3 @@ Sessions implement comprehensive resource management with automatic cleanup, val
 ![Mermaid Diagram](./diagrams\5_Session_Management_4.svg)
 
 The disposal process includes validation service cleanup, callback execution, and memoization clearing to ensure complete resource release. Sessions automatically handle cleanup of associated agents, histories, and event subscriptions.
-
-**Sources:** [src/lib/services/connection/SessionConnectionService.ts:350-400](), [src/lib/services/validation/SessionValidationService.ts:150-250](), [src/client/ClientSession.ts:550-600]()

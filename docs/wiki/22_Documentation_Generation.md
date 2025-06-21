@@ -15,15 +15,11 @@ The documentation generation system centers around the `DocService` class, which
 
 ![Mermaid Diagram](./diagrams\22_Documentation_Generation_0.svg)
 
-**Sources:** [src/lib/services/base/DocService.ts:1-907](), [src/cli/dumpDocs.ts:1-51]()
-
 ## Documentation Generation Workflow
 
 The documentation generation process follows a structured workflow that validates components, processes schemas, and generates output files with concurrent execution for performance optimization.
 
 ![Mermaid Diagram](./diagrams\22_Documentation_Generation_1.svg)
-
-**Sources:** [src/lib/services/base/DocService.ts:810-851](), [src/lib/services/base/DocService.ts:229-355](), [src/lib/services/base/DocService.ts:366-801]()
 
 ## Output Structure and Formats
 
@@ -56,23 +52,17 @@ group: [prefix]
 ## [Component-Specific Sections]
 ```
 
-**Sources:** [src/lib/services/base/DocService.ts:242-250](), [src/lib/services/base/DocService.ts:380-387](), [src/lib/services/base/DocService.ts:41-42]()
-
 ## Schema-Driven Documentation
 
 The documentation generation system leverages the framework's schema services to extract structured information about agents, swarms, and their relationships, creating comprehensive documentation that reflects the actual system configuration.
 
 ![Mermaid Diagram](./diagrams\22_Documentation_Generation_2.svg)
 
-**Sources:** [src/lib/services/base/DocService.ts:424-547](), [src/lib/services/base/DocService.ts:272-344](), [src/utils/resolveTools.ts:1-12]()
-
 ## UML Diagram Generation
 
 The system generates visual representations of agent and swarm schemas using PlantUML, providing developers with clear architectural diagrams that complement the textual documentation.
 
 ![Mermaid Diagram](./diagrams\22_Documentation_Generation_3.svg)
-
-**Sources:** [src/lib/services/base/DocService.ts:262-270](), [src/lib/services/base/DocService.ts:411-422](), [src/lib/services/base/DocService.ts:206-218]()
 
 ## Performance Documentation
 
@@ -90,8 +80,6 @@ The performance documentation captures detailed metrics through the `PerfService
 - **System Performance**: Global performance records via `perfService.toRecord()`  
 - **Client Performance**: Session-specific metrics via `perfService.toClientRecord(clientId)`
 - **Timestamped Output**: Files named with `getMomentStamp()` and `getTimeStamp()` for chronological organization
-
-**Sources:** [src/lib/services/base/DocService.ts:860-874](), [src/lib/services/base/DocService.ts:884-899](), [src/lib/services/base/DocService.ts:77-78]()
 
 ## CLI and Programmatic Access
 
@@ -120,8 +108,6 @@ The system includes automated build scripts for generating documentation across 
 
 These scripts iterate through demo directories, install dependencies, and execute `npm run build:docs` commands.
 
-**Sources:** [src/cli/dumpDocs.ts:14-51](), [scripts/linux/build_demo_docs.sh:1-12](), [scripts/win/build_demo_docs.bat:1-13]()
-
 ## Thread Pool Optimization
 
 Documentation generation employs concurrent processing through thread pools to optimize performance when generating large numbers of documentation files.
@@ -133,5 +119,3 @@ Documentation generation employs concurrent processing through thread pools to o
 | `execpool` | Function wrapper | Manages concurrent execution of `writeSwarmDoc` and `writeAgentDoc` |
 
 The thread pool system ensures efficient resource utilization while preventing system overload during bulk documentation generation operations.
-
-**Sources:** [src/lib/services/base/DocService.ts:29-34](), [src/lib/services/base/DocService.ts:351-355](), [src/lib/services/base/DocService.ts:797-801]()

@@ -17,8 +17,6 @@ The Pipeline System consists of several key components that work together to pro
 
 ![Mermaid Diagram](./diagrams\10_Pipeline_System_0.svg)
 
-Sources: [src/functions/target/startPipeline.ts:1-97](), [src/functions/target/scope.ts:1-80]()
-
 ## Pipeline Execution Flow
 
 The pipeline execution process involves several stages, from validation to cleanup:
@@ -26,8 +24,6 @@ The pipeline execution process involves several stages, from validation to clean
 ### Pipeline Execution Sequence
 
 ![Mermaid Diagram](./diagrams\10_Pipeline_System_1.svg)
-
-Sources: [src/functions/target/startPipeline.ts:23-76](), [src/functions/navigate/changeToAgent.ts:185-187]()
 
 ## Pipeline Schema Definition
 
@@ -49,8 +45,6 @@ Pipelines are defined using the `IPipelineSchema` interface, which specifies the
 | `onEnd` | `clientId, pipelineName, payload, isError` | Called after pipeline completes or fails |
 | `onError` | `clientId, pipelineName, payload, error` | Called when an error occurs during execution |
 
-Sources: [src/functions/target/startPipeline.ts:57-73]()
-
 ## Schema Management Services
 
 The pipeline system uses two primary services for schema management:
@@ -59,15 +53,11 @@ The pipeline system uses two primary services for schema management:
 
 ![Mermaid Diagram](./diagrams\10_Pipeline_System_2.svg)
 
-Sources: [src/lib/services/schema/PipelineSchemaService.ts:79-94](), [src/lib/services/schema/PipelineSchemaService.ts:102-133]()
-
 ### PipelineValidationService
 
 The validation service ensures pipeline uniqueness and existence:
 
 ![Mermaid Diagram](./diagrams\10_Pipeline_System_3.svg)
-
-Sources: [src/lib/services/validation/PipelineValidationService.ts:39-49](), [src/lib/services/validation/PipelineValidationService.ts:58-72]()
 
 ## Scope Management
 
@@ -76,8 +66,6 @@ The `scope` function provides schema context isolation, allowing temporary overr
 ### Schema Context Override Flow
 
 ![Mermaid Diagram](./diagrams\10_Pipeline_System_4.svg)
-
-Sources: [src/functions/target/scope.ts:29-65](), [src/functions/target/scope.ts:24-45]()
 
 ## Integration with Core Systems
 
@@ -107,8 +95,6 @@ The Pipeline System integrates with three types of agent navigation:
 
 All navigation functions use queued execution with memoization and circular route detection to prevent infinite loops.
 
-Sources: [src/functions/target/startPipeline.ts:36-49](), [src/functions/navigate/changeToAgent.ts:124-169](), [src/functions/navigate/changeToPrevAgent.ts:124-147](), [src/functions/navigate/changeToDefaultAgent.ts:124-143]()
-
 ## Pipeline Registration and Setup
 
 ### Context Management Integration
@@ -116,7 +102,5 @@ Sources: [src/functions/target/startPipeline.ts:36-49](), [src/functions/navigat
 The Pipeline System uses `beginContext` to ensure proper execution context isolation:
 
 ![Mermaid Diagram](./diagrams\10_Pipeline_System_5.svg)
-
-Sources: [src/functions/target/startPipeline.ts:23-76](), [src/functions/target/scope.ts:29-65]()
 
 The Pipeline System provides a robust foundation for structured workflow execution within the agent-swarm-kit framework, with comprehensive lifecycle management, schema validation, and integration with the broader system architecture.

@@ -19,8 +19,6 @@ The service architecture follows a clear layered pattern where external applicat
 
 ![Mermaid Diagram](./diagrams\13_Service_Architecture_0.svg)
 
-Sources: [src/lib/index.ts:77-255](), [src/lib/core/provide.ts:67-149](), [src/model/SwarmDI.model.ts:70-453]()
-
 ### Service Type Organization
 
 The framework organizes services into six primary categories, each serving distinct architectural purposes:
@@ -35,8 +33,6 @@ The framework organizes services into six primary categories, each serving disti
 | **Validation Services** | Data integrity and constraint validation | `agentValidationService`, `toolValidationService`, `sessionValidationService`, `swarmValidationService`, `storageValidationService` | 12 |
 | **Meta Services** | Component metadata management | `agentMetaService`, `swarmMetaService` | 2 |
 
-Sources: [src/lib/core/types.ts:1-95](), [src/model/SwarmDI.model.ts:70-453](), [src/lib/index.ts:78-259]()
-
 ## Dependency Injection Container
 
 The service architecture is built around a centralized dependency injection container that manages service instantiation, lifecycle, and inter-service dependencies.
@@ -47,15 +43,11 @@ The DI container follows a three-phase initialization pattern: service registrat
 
 ![Mermaid Diagram](./diagrams\13_Service_Architecture_1.svg)
 
-Sources: [src/lib/core/di.ts](), [src/lib/core/provide.ts:67-149](), [src/lib/index.ts:77-262](), [src/lib/core/types.ts:1-95]()
-
 The `swarm` object exported from the main library serves as the primary dependency injection container, providing access to all registered services through a unified interface defined by `ISwarmDI`. This container aggregates services from all categories into a single, type-safe interface.
 
 ### Container Structure
 
 ![Mermaid Diagram](./diagrams\13_Service_Architecture_2.svg)
-
-Sources: [src/model/SwarmDI.model.ts:66-460](), [src/lib/index.ts:251-262]()
 
 ## Service Layer Interactions
 
@@ -65,23 +57,17 @@ Public services act as the external API surface, delegating operations to connec
 
 ![Mermaid Diagram](./diagrams\13_Service_Architecture_3.svg)
 
-Sources: [src/lib/services/public/AgentPublicService.ts](), [src/lib/services/connection/AgentConnectionService.ts](), [src/lib/services/schema/AgentSchemaService.ts](), [src/lib/services/validation/AgentValidationService.ts]()
-
 ### Service Delegation Flow in Functions
 
 The high-level functions (`session`, `complete`, `makeConnection`) demonstrate the service delegation pattern by accessing services through the `swarm` container.
 
 ![Mermaid Diagram](./diagrams\13_Service_Architecture_4.svg)
 
-Sources: [src/functions/target/session.ts:33-108](), [src/functions/target/complete.ts:88-156](), [src/functions/target/makeConnection.ts:43-86]()
-
 ### Schema and Validation Integration
 
 Schema services provide configuration data while validation services ensure data integrity and constraint compliance. Connection services coordinate between these layers to maintain system consistency.
 
 ![Mermaid Diagram](./diagrams\13_Service_Architecture_5.svg)
-
-Sources: [src/lib/services/connection/AgentConnectionService.ts](), [src/lib/services/schema/AgentSchemaService.ts](), [src/lib/services/validation/AgentValidationService.ts](), [src/functions/target/disposeConnection.ts:42-190]()
 
 ## Context Service Architecture
 
@@ -91,15 +77,11 @@ Context services provide execution-scoped data and utilities that span across se
 
 ![Mermaid Diagram](./diagrams\13_Service_Architecture_6.svg)
 
-Sources: [src/lib/services/context/MethodContextService.ts](), [src/lib/services/context/ExecutionContextService.ts](), [src/lib/services/context/PayloadContextService.ts](), [src/lib/services/context/SchemaContextService.ts](), [src/functions/target/session.ts:63-96](), [src/functions/target/complete.ts:114-145]()
-
 ### Context Service Integration
 
 Context services integrate with the execution flow through the `beginContext` utility and service-specific `runInContext` methods, providing execution isolation and metadata tracking.
 
 ![Mermaid Diagram](./diagrams\13_Service_Architecture_7.svg)
-
-Sources: [src/utils/beginContext.ts](), [src/functions/target/session.ts:144-162](), [src/functions/target/complete.ts:148-155]()
 
 ## Base Service Infrastructure
 
@@ -108,7 +90,5 @@ Base services provide foundational capabilities used throughout the system, incl
 ### Base Service Dependencies
 
 ![Mermaid Diagram](./diagrams\13_Service_Architecture_8.svg)
-
-Sources: [src/lib/services/base/LoggerService.ts](), [src/lib/services/base/BusService.ts](), [src/lib/services/base/PerfService.ts](), [src/lib/services/base/AliveService.ts](), [src/lib/services/base/DocService.ts]()
 
 The service architecture enables scalable, maintainable multi-agent systems through clear separation of concerns, dependency injection, and layered service organization. Each layer has well-defined responsibilities and interfaces, facilitating testing, debugging, and system evolution.
