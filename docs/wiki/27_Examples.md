@@ -1,5 +1,5 @@
 ---
-title: design/examples
+title: design/27_examples
 group: design
 ---
 

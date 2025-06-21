@@ -1,5 +1,5 @@
 ---
-title: design/pipeline_system
+title: design/10_pipeline_system
 group: design
 ---
 

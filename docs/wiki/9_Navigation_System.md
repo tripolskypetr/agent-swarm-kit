@@ -1,5 +1,5 @@
 ---
-title: design/navigation_system
+title: design/9_navigation_system
 group: design
 ---
 

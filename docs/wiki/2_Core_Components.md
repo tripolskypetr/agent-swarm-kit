@@ -1,5 +1,5 @@
 ---
-title: design/core_components
+title: design/2_core_components
 group: design
 ---
 

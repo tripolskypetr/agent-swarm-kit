@@ -1,5 +1,5 @@
 ---
-title: design/trading_bot
+title: design/29_trading_bot
 group: design
 ---
 

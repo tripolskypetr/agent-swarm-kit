@@ -1,5 +1,5 @@
 ---
-title: design/compute_system
+title: design/11_compute_system
 group: design
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: design/multi_agent_systems
+title: design/24_multi_agent_systems
 group: design
 ---
 

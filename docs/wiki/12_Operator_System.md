@@ -1,5 +1,5 @@
 ---
-title: design/operator_system
+title: design/12_operator_system
 group: design
 ---
 

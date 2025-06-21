@@ -1,5 +1,5 @@
 ---
-title: design/usage_patterns
+title: design/23_usage_patterns
 group: design
 ---
 

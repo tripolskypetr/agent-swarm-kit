@@ -1,5 +1,5 @@
 ---
-title: design/dependency_injection
+title: design/14_dependency_injection
 group: design
 ---
 
