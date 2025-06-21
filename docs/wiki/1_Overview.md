@@ -1,67 +1,91 @@
----
-title: design/01_overview
-group: design
----
-
 # Overview
 
-The **agent-swarm-kit** is a TypeScript framework for building orchestrated, multi-agent AI systems that can seamlessly coordinate between different AI models and external tools. This document provides an architectural overview of the framework's core components, service layers, and integration patterns.
+## Purpose and Scope
 
-The framework enables developers to create swarms of AI agents that can navigate between each other, share conversation history, execute tools, and maintain persistent state across sessions. For specific implementation details of individual components, see [Core Components](./2_Core_Components.md). For usage patterns and examples, see [Usage Patterns](./5_Session_Management.md) and [Examples](./6_Model_Context_Protocol_MCP.md).
+Agent Swarm Kit is a TypeScript framework for building orchestrated, multi-agent AI systems that can collaborate to solve complex problems. The library provides a comprehensive platform for creating agent networks where specialized AI agents can communicate, navigate between each other, execute tools, and maintain shared state across client sessions.
 
-## Framework Purpose and Architecture
+This document covers the foundational architecture and core components of the system. For specific implementation patterns, see [Building Multi-Agent Systems](#5.1). For API details, see [Core API Functions](#7.1). For integration examples, see [Examples and Testing](#6).
 
-The agent-swarm-kit framework addresses the complexity of building multi-agent AI systems by providing a modular, service-oriented architecture that separates concerns into distinct layers. The system supports multiple AI providers (OpenAI, Ollama, Claude, etc.) within a single conversation flow, automatic session management, and sophisticated tool execution capabilities.
+The framework is designed to be framework-agnostic, supporting multiple AI providers (OpenAI, Ollama, Claude, etc.) and offering features like automatic session orchestration, Model Context Protocol (MCP) integration, Redis persistence, and operator escalation capabilities.
 
-**System Architecture Overview**
+Sources: [package.json:1-89](), [README.md:1-505](), [src/index.ts:1-279]()
+
+## System Architecture Overview
+
+The agent-swarm-kit follows a layered architecture centered around a dependency injection container that coordinates all system components. The architecture enables scalable multi-agent orchestration with clear separation between public APIs, service layers, and core implementations.
+
+### High-Level System Flow
 
 ![Mermaid Diagram](./diagrams\1_Overview_0.svg)
 
-## Core Component Relationships
+## Core Components
 
-The framework's core components follow a hierarchical relationship where sessions manage swarms, swarms orchestrate agents, and agents execute tools and interact with AI completions.
+### Agent Execution Engine
 
-**Component Interaction Flow**
-
-![Mermaid Diagram](./diagrams\1_Overview_1.svg)
-
-## Service Architecture Pattern
-
-The framework implements a layered service architecture with three primary service types: Public Services (external API), Connection Services (instance management), and Schema Services (configuration management). This pattern provides clear separation of concerns and enables dependency injection throughout the system.
-
-| Service Layer | Responsibility | Key Classes | File Locations |
-|---------------|----------------|-------------|----------------|
-| Public Services | External API, context scoping | `AgentPublicService`, `SessionPublicService` | `src/lib/services/public/` |
-| Connection Services | Instance management, memoization | `AgentConnectionService`, `SessionConnectionService` | `src/lib/services/connection/` |
-| Schema Services | Configuration, validation | `AgentSchemaService`, `ToolSchemaService` | `src/lib/services/schema/` |
-| Validation Services | Dependency checking, integrity | `SessionValidationService`, `SwarmValidationService` | `src/lib/services/validation/` |
-
-The service layer uses dependency injection via the `di-scoped` library, with service registration managed through `TYPES` constants and accessed via the `inject()` function pattern seen throughout the codebase.
-
-## Data Flow and State Management
-
-The framework manages multiple types of state and data persistence:
-
-- **Session State**: Managed by `ClientSession` with automatic cleanup and validation
-- **Agent History**: Handled by `ClientHistory` with message filtering and rotation
-- **Storage**: Embedding-based search via `Storage` classes with similarity scoring
-- **Shared State**: Cross-agent state via `SharedState` and `SharedStorage` classes
-- **Persistence**: JSON file-based storage through `PersistBase` utilities
-
-**Message Flow Through History System**
+The `ClientAgent` class serves as the core execution engine for individual agents, handling message processing, tool calls, and AI model interactions:
 
 ![Mermaid Diagram](./diagrams\1_Overview_2.svg)
 
-The history system maintains a rotating buffer of messages (configurable via `CC_KEEP_MESSAGES` in `GLOBAL_CONFIG`) and applies agent-specific filtering through `CC_AGENT_HISTORY_FILTER` to ensure each agent only sees relevant tool calls and system messages.
+The `ClientAgent` implements sophisticated execution patterns including tool call validation, model recovery strategies, and event-driven communication through subjects for handling agent state changes, tool outputs, and error conditions.
 
-## Integration Patterns
+Sources: [src/client/ClientAgent.ts:1-1058](), [src/interfaces/Agent.interface.ts:1-585]()
 
-The framework supports multiple integration patterns for external systems:
+### Session Management
 
-**Tool Integration**: Tools are defined via `IAgentTool` interface and registered through `addTool()`. Tools can be stateful, validate parameters, and include lifecycle callbacks (`onBeforeCall`, `onAfterCall`, `onCallError`).
+The session layer manages client connections and message flow through the swarm system:
 
-**AI Provider Integration**: Multiple completion providers are supported through the `Adapter` class pattern, with implementations for OpenAI, Ollama, Cohere, and custom providers via `ICompletionSchema`.
+![Mermaid Diagram](./diagrams\1_Overview_3.svg)
 
-**External Protocol Support**: Model Context Protocol (MCP) integration allows agents to call external tools and services, with automatic tool discovery and execution through `MCPConnectionService`.
+The `ClientSession` enforces policy validation for both input and output messages, coordinates with the swarm for agent execution, and provides event-driven messaging capabilities for real-time client communication.
 
-**Event System**: The `BusService` provides event-driven communication between components, with typed events (`IBusEvent`) and support for custom event handlers via `listenEvent()` functions.
+Sources: [src/client/ClientSession.ts:1-387](), [src/interfaces/Session.interface.ts:1-149]()
+
+### Swarm Orchestration
+
+The swarm layer coordinates multiple agents and manages navigation between them:
+
+| Component | Purpose | Key Methods |
+|-----------|---------|-------------|
+| `ClientSwarm` | Agent coordination and navigation | `getAgent()`, `changeToAgent()`, `emit()` |
+| `SwarmConnectionService` | Swarm lifecycle management | `getSwarm()`, navigation stack handling |
+| `SwarmPublicService` | Public swarm API | Agent name resolution, output coordination |
+
+The swarm maintains a navigation stack that allows agents to call each other and return to previous contexts, enabling complex multi-agent workflows with proper state management.
+
+Sources: [src/lib/services/connection/SwarmConnectionService.ts:1-400](), [src/lib/services/public/SwarmPublicService.ts:1-500]()
+
+## Message Processing Flow
+
+The system processes messages through a well-defined pipeline that ensures proper validation, execution, and output handling:
+
+![Mermaid Diagram](./diagrams\1_Overview_4.svg)
+
+This flow demonstrates the coordination between layers and the sophisticated tool execution pipeline that handles both simple completions and complex multi-tool workflows.
+
+Sources: [src/client/ClientAgent.ts:319-530](), [src/client/ClientSession.ts:149-250]()
+
+## Key Integration Points
+
+### AI Model Integration
+
+The framework supports multiple AI providers through the `ICompletion` interface and adapter pattern:
+
+- **OpenAI**: Complete API support including function calling
+- **Ollama**: Local model integration with tool support  
+- **Claude**: Anthropic's models with MCP integration
+- **Custom Models**: Extensible adapter system for any provider
+
+### Storage and Persistence
+
+Multiple storage backends are supported for different use cases:
+
+- **Memory Storage**: Fast in-memory storage for development
+- **Redis Integration**: Production-ready persistence with clustering support
+- **File System**: Local persistence with configurable paths
+- **Custom Storage**: Pluggable storage interface for specialized needs
+
+### External Tool Integration
+
+The Model Context Protocol (MCP) enables integration with external tools and services, allowing agents to access capabilities written in different languages and running on separate systems.
+
+Sources: [src/interfaces/MCP.interface.ts:1-200](), [src/classes/Adapter.ts:1-400](), [README.md:15-35]()
