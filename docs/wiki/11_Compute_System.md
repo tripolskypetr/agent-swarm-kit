@@ -41,10 +41,10 @@ This diagram shows how compute services are organized in the dependency injectio
 The lifecycle begins with initialization where the compute instance subscribes to state change notifications through `IStateChangeContract` bindings. The instance maintains a memoized cache using `ttl()` from functools-kit, automatically clearing when dependencies change or manual updates occur.
 
 Key lifecycle methods in `ClientCompute`:
-- `getComputeData()` - Retrieves cached or computed data [src/client/ClientCompute.ts:136-142]()
-- `calculate(stateName)` - Triggered by state changes [src/client/ClientCompute.ts:149-162]()
-- `update()` - Manual cache invalidation [src/client/ClientCompute.ts:168-180]()
-- `dispose()` - Resource cleanup [src/client/ClientCompute.ts:188-200]()
+- `getComputeData()` - Retrieves cached or computed data 
+- `calculate(stateName)` - Triggered by state changes
+- `update()` - Manual cache invalidation
+- `dispose()` - Resource cleanup
 
 ## Configuration and Schema Management
 
