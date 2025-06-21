@@ -350,9 +350,9 @@ For developers looking to integrate `agent-swarm-kit` into real-life projects, f
   - **Example 3**: Extend the HTTP API demo to build a backend service for a mobile app, connecting users to a pharmaceutical consultation swarm.
 
 - **How to Get Started**:
-  1. **Fork the Repository**: Visit the `agent-swarm-kit` GitHub page (replace with the actual URL if known), click "Fork," and clone it to your local machine:
+  1. **Fork the Repository**: Visit the [agent-swarm-kit GitHub page](https://github.com/tripolskypetr/agent-swarm-kit), click "Fork," and clone it to your local machine:
      ```bash
-     git clone https://github.com/your-username/agent-swarm-kit.git
+     git clone https://github.com/tripolskypetr/agent-swarm-kit.git
      cd agent-swarm-kit
      ```
   2. **Install Dependencies**: Use Bun or npm to install required packages:
