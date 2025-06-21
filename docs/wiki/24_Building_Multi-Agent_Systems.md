@@ -1,6 +1,6 @@
 ---
-title: wiki/multi_agent_systems
-group: wiki
+title: design/multi_agent_systems
+group: design
 ---
 
 # Building Multi-Agent Systems

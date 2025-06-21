@@ -1,6 +1,6 @@
 ---
-title: wiki/navigation_system
-group: wiki
+title: design/navigation_system
+group: design
 ---
 
 # Navigation System

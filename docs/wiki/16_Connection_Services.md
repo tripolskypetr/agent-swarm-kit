@@ -1,6 +1,6 @@
 ---
-title: wiki/connection_services
-group: wiki
+title: design/connection_services
+group: design
 ---
 
 # Connection Services

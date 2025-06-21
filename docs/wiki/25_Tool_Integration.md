@@ -1,6 +1,6 @@
 ---
-title: wiki/tool_integration
-group: wiki
+title: design/tool_integration
+group: design
 ---
 
 # Tool Integration

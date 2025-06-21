@@ -1,6 +1,6 @@
 ---
-title: wiki/core_components
-group: wiki
+title: design/core_components
+group: design
 ---
 
 # Core Components

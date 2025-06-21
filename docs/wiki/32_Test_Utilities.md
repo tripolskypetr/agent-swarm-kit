@@ -1,6 +1,6 @@
 ---
-title: wiki/test_utils
-group: wiki
+title: design/test_utils
+group: design
 ---
 
 # Test Utilities

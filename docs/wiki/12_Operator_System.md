@@ -1,6 +1,6 @@
 ---
-title: wiki/operator_system
-group: wiki
+title: design/operator_system
+group: design
 ---
 
 # Operator System

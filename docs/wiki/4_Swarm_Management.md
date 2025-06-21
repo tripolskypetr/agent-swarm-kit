@@ -1,6 +1,6 @@
 ---
-title: wiki/state_management
-group: wiki
+title: design/state_management
+group: design
 ---
 
 # Swarm Management

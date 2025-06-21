@@ -1,6 +1,6 @@
 ---
-title: wiki/documentation_generation
-group: wiki
+title: design/documentation_generation
+group: design
 ---
 
 # Documentation Generation

@@ -1,6 +1,6 @@
 ---
-title: wiki/completion_adapters
-group: wiki
+title: design/completion_adapters
+group: design
 ---
 
 # Completion Adapters

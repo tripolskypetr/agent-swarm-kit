@@ -1,6 +1,6 @@
 ---
-title: wiki/persistance_and_history
-group: wiki
+title: design/persistance_and_history
+group: design
 ---
 
 # Persistence and History

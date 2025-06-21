@@ -1,6 +1,6 @@
 ---
-title: wiki/testing
-group: wiki
+title: design/testing
+group: design
 ---
 
 # Testing

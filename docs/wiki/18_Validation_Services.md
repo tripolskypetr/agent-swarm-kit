@@ -1,6 +1,6 @@
 ---
-title: wiki/validation_services
-group: wiki
+title: design/validation_services
+group: design
 ---
 
 # Validation Services

@@ -1,6 +1,6 @@
 ---
-title: wiki/state_and_storage
-group: wiki
+title: design/state_and_storage
+group: design
 ---
 
 # Managing State and Storage

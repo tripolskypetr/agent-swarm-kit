@@ -1,6 +1,6 @@
 ---
-title: wiki/overview
-group: wiki
+title: design/overview
+group: design
 ---
 
 # Overview

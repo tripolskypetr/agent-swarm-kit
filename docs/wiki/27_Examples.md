@@ -1,6 +1,6 @@
 ---
-title: wiki/examples
-group: wiki
+title: design/examples
+group: design
 ---
 
 # Examples

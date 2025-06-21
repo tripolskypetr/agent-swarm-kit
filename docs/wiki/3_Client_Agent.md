@@ -1,6 +1,6 @@
 ---
-title: wiki/client_agent
-group: wiki
+title: design/client_agent
+group: design
 ---
 
 # Client Agent

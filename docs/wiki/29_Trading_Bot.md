@@ -1,6 +1,6 @@
 ---
-title: wiki/trading_bot
-group: wiki
+title: design/trading_bot
+group: design
 ---
 
 # Trading Bot

@@ -1,6 +1,6 @@
 ---
-title: wiki/service_architecture
-group: wiki
+title: design/service_architecture
+group: design
 ---
 
 # Service Architecture

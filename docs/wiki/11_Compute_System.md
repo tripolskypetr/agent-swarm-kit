@@ -1,6 +1,6 @@
 ---
-title: wiki/compute_system
-group: wiki
+title: design/compute_system
+group: design
 ---
 
 # Compute System

@@ -1,6 +1,6 @@
 ---
-title: wiki/integration_tests
-group: wiki
+title: design/integration_tests
+group: design
 ---
 
 # Integration Tests

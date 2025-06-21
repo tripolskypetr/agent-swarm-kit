@@ -1,6 +1,6 @@
 ---
-title: wiki/pipeline_system
-group: wiki
+title: design/pipeline_system
+group: design
 ---
 
 # Pipeline System

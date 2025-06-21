@@ -1,6 +1,6 @@
 ---
-title: wiki/model_context_protocol
-group: wiki
+title: design/model_context_protocol
+group: design
 ---
 
 # Model Context Protocol (MCP)

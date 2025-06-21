@@ -1,6 +1,6 @@
 ---
-title: wiki/performance_monitoring
-group: wiki
+title: design/performance_monitoring
+group: design
 ---
 
 # Performance Monitoring

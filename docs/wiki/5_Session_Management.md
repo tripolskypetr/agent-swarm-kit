@@ -1,6 +1,6 @@
 ---
-title: wiki/session_management
-group: wiki
+title: design/session_management
+group: design
 ---
 
 # Session Management

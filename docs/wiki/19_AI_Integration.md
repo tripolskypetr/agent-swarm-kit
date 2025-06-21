@@ -1,6 +1,6 @@
 ---
-title: wiki/ai_integration
-group: wiki
+title: design/ai_integration
+group: design
 ---
 
 # AI Integration

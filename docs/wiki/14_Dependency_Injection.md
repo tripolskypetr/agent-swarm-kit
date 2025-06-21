@@ -1,6 +1,6 @@
 ---
-title: wiki/dependency_injection
-group: wiki
+title: design/dependency_injection
+group: design
 ---
 
 # Dependency Injection

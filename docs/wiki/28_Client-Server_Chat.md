@@ -1,6 +1,6 @@
 ---
-title: wiki/client_server_chat
-group: wiki
+title: design/client_server_chat
+group: design
 ---
 
 # Client-Server Chat

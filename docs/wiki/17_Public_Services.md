@@ -1,6 +1,6 @@
 ---
-title: wiki/public_services
-group: wiki
+title: design/public_services
+group: design
 ---
 
 # Public Services

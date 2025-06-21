@@ -1,6 +1,6 @@
 ---
-title: wiki/usage_patterns
-group: wiki
+title: design/usage_patterns
+group: design
 ---
 
 # Usage Patterns

@@ -1,6 +1,6 @@
 ---
-title: wiki/schema_service
-group: wiki
+title: design/schema_service
+group: design
 ---
 
 # Schema Services
