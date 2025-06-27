@@ -3,8 +3,22 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
 import { AgentName, ToolName } from "../../interfaces/Agent.interface";
 
+/**
+ * Provides a utility to retrieve the model-facing name of a tool for a given agent and client context.
+ * Validates tool and agent existence, logs the operation if enabled, and supports both static and dynamic tool name resolution.
+ */
 const METHOD_NAME = "function.common.getToolNameForModel";
 
+/**
+ * Internal implementation for resolving the model-facing tool name.
+ * Validates the tool and agent, logs the operation, and invokes the tool schema's function property if dynamic.
+ *
+ * @param {ToolName} toolName - The registered tool identifier.
+ * @param {string} clientId - The client session identifier.
+ * @param {AgentName} agentName - The agent identifier.
+ * @returns {Promise<string>} The name of the tool as presented to the model.
+ * @private
+ */
 const getToolNameForModelInternal = beginContext(async (toolName: ToolName, clientId: string, agentName: AgentName) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -26,6 +40,17 @@ const getToolNameForModelInternal = beginContext(async (toolName: ToolName, clie
   return fn.name;
 });
 
+/**
+ * Resolves the model-facing name for a tool, given its name, client, and agent context.
+ * This is the main exported function for external usage.
+ *
+ * @param {ToolName} toolName - The registered tool identifier.
+ * @param {string} clientId - The client session identifier.
+ * @param {AgentName} agentName - The agent identifier.
+ * @returns {Promise<string>} The name of the tool as presented to the model.
+ * @example
+ * const modelToolName = await getToolNameForModel("search-tool", "client-123", "assistant-agent");
+ */
 export async function getToolNameForModel(toolName: ToolName, clientId: string, agentName: AgentName) {
   return await getToolNameForModelInternal(toolName, clientId, agentName);
 }
