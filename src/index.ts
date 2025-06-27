@@ -85,6 +85,7 @@ export * from "./functions/common/getAgentHistory";
 export * from "./functions/common/getSessionMode";
 export * from "./functions/common/getSessionContext";
 export * from "./functions/common/getNavigationRoute";
+export * from "./functions/common/getToolNameForModel";
 
 export * from "./functions/history/getLastUserMessage";
 export * from "./functions/history/getUserHistory";
