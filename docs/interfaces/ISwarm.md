@@ -73,3 +73,13 @@ emit: (message: string) => Promise<void>
 ```
 
 Emits a message to the session's communication channel.
+
+### getCheckBusy
+
+```ts
+getCheckBusy: () => Promise<boolean>
+```
+
+Returns the current busy state of the swarm.
+Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
+Supports debugging and flow control in client applications.
