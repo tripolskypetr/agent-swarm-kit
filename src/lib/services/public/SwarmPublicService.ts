@@ -136,6 +136,43 @@ export class SwarmPublicService implements TSwarmConnectionService {
   };
 
   /**
+   * Returns the current busy state of the swarm.
+   * Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
+   * Supports debugging and flow control in client applications.
+   * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+   * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking, scoping the operation to a specific client.
+   * @param {SwarmName} swarmName - The name of the swarm, sourced from Swarm.interface, used in SwarmMetaService context.
+   * @returns {Promise<boolean>} True if the swarm is busy, false otherwise.
+   */
+  public getCheckBusy = async (
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmPublicService getCheckBusy", {
+        clientId,
+        swarmName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.swarmConnectionService.getCheckBusy();
+      },
+      {
+        methodName,
+        clientId,
+        swarmName,
+        policyName: "",
+        agentName: "",
+        storageName: "",
+        stateName: "",
+        mcpName: "",
+        computeName: "",
+      }
+    );
+  };
+
+  /**
    * Cancels the await of output in the swarm by emitting an empty string, scoped to a client.
    * Wraps SwarmConnectionService.cancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent (e.g., interrupting EXECUTE_FN output) and SessionPublicService (e.g., output control in connect).

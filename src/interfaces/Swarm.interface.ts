@@ -253,6 +253,14 @@ export interface ISwarm {
    * @throws {Error} If the emission fails due to connection issues or invalid message format.
    */
   emit(message: string): Promise<void>;
+
+  /**
+   * Returns the current busy state of the swarm.
+   * Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
+   * Supports debugging and flow control in client applications.
+   * @returns {Promise<boolean>} True if the swarm is busy, false otherwise.
+   */
+  getCheckBusy(): Promise<boolean>;
 }
 
 /**
