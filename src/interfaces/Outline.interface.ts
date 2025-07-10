@@ -1,55 +1,55 @@
 /**
- * Generic type representing arbitrary data for outline operations.
- * Used as a flexible placeholder for input data in outline schemas and arguments.
+ * Generic type representing arbitrary param for outline operations.
+ * Used as a flexible placeholder for input param in outline schemas and arguments.
+ * @typedef {any} IOutlineParam
+ */
+export type IOutlineParam = any;
+
+/**
+ * Generic type representing arbitrary data param for outline operations.
+ * Used as a flexible placeholder for data param in outline schemas and results.
  * @typedef {any} IOutlineData
  */
 export type IOutlineData = any;
 
 /**
- * Generic type representing arbitrary output data for outline operations.
- * Used as a flexible placeholder for output data in outline schemas and results.
- * @typedef {any} IOutlineOutput
- */
-export type IOutlineOutput = any;
-
-/**
  * Interface defining callbacks for outline lifecycle events.
  * Provides hooks for handling attempt initiation, document generation, and validation outcomes.
- * @template Output - The type of the output data, defaults to IOutlineOutput.
- * @template Data - The type of the input data, defaults to IOutlineData.
+ * @template Data - The type of the data param, defaults to IOutlineData.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
  * @interface IOutlineCallbacks
  */
 export interface IOutlineCallbacks<
-  Output extends IOutlineOutput = IOutlineOutput,
-  Data extends IOutlineData = IOutlineData
+  Data extends IOutlineData = IOutlineData,
+  Param extends IOutlineParam = IOutlineParam
 > {
   /**
    * Optional callback triggered when an outline attempt is initiated.
    * Useful for logging or tracking attempt starts.
-   * @param {IOutlineArgs<Data>} args - The arguments for the outline attempt, including data and history.
+   * @param {IOutlineArgs<Param>} args - The arguments for the outline attempt, including param and history.
    */
-  onAttempt?: (args: IOutlineArgs<Data>) => void;
+  onAttempt?: (args: IOutlineArgs<Param>) => void;
 
   /**
    * Optional callback triggered when an outline document is generated.
    * Useful for processing or logging the generated document.
-   * @param {IOutlineResult<Output, Data>} result - The result of the outline operation, including validity and output.
+   * @param {IOutlineResult<Data, Param>} result - The result of the outline operation, including validity and data.
    */
-  onDocument?: (result: IOutlineResult<Output, Data>) => void;
+  onDocument?: (result: IOutlineResult<Data, Param>) => void;
 
   /**
    * Optional callback triggered when a document passes validation.
    * Useful for handling successful validation outcomes.
-   * @param {IOutlineResult<Output, Data>} result - The result of the outline operation with a valid document.
+   * @param {IOutlineResult<Data, Param>} result - The result of the outline operation with a valid document.
    */
-  onValidDocument?: (result: IOutlineResult<Output, Data>) => void;
+  onValidDocument?: (result: IOutlineResult<Data, Param>) => void;
 
   /**
    * Optional callback triggered when a document fails validation.
    * Useful for handling failed validation outcomes or retries.
-   * @param {IOutlineResult<Output, Data>} result - The result of the outline operation with an invalid document.
+   * @param {IOutlineResult<Data, Param>} result - The result of the outline operation with an invalid document.
    */
-  onInvalidDocument?: (result: IOutlineResult<Output, Data>) => void;
+  onInvalidDocument?: (result: IOutlineResult<Data, Param>) => void;
 }
 
 /**
@@ -67,7 +67,7 @@ export interface IOutlineMessage {
 
   /**
    * The content of the message.
-   * Contains the raw text or data of the message, used in history storage or processing.
+   * Contains the raw text or param of the message, used in history storage or processing.
    * @type {string}
    */
   content: string;
@@ -103,17 +103,17 @@ export interface IOutlineHistory {
 
 /**
  * Interface representing the arguments for an outline operation.
- * Encapsulates the input data, attempt number, and history for processing.
- * @template Data - The type of the input data, defaults to IOutlineData.
+ * Encapsulates the input param, attempt number, and history for processing.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
  * @interface IOutlineArgs
  */
-export interface IOutlineArgs<Data extends IOutlineData = IOutlineData> {
+export interface IOutlineArgs<Param extends IOutlineParam = IOutlineParam> {
   /**
-   * The input data for the outline operation.
-   * Contains the raw or structured data to be processed.
-   * @type {Data}
+   * The input param for the outline operation.
+   * Contains the raw or structured param to be processed.
+   * @type {Param}
    */
-  data: Data;
+  param: Param;
 
   /**
    * The current attempt number for the outline operation.
@@ -131,58 +131,58 @@ export interface IOutlineArgs<Data extends IOutlineData = IOutlineData> {
 }
 
 /**
- * Interface extending outline arguments with output data for validation.
- * Used to pass both input and output data to validation functions.
- * @template Output - The type of the output data, defaults to IOutlineOutput.
- * @template Data - The type of the input data, defaults to IOutlineData.
+ * Interface extending outline arguments with data param for validation.
+ * Used to pass both input and data param to validation functions.
+ * @template Data - The type of the data param, defaults to IOutlineData.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
  * @interface IOutlineValidationArgs
- * @extends {IOutlineArgs<Data>}
+ * @extends {IOutlineArgs<Param>}
  */
 export interface IOutlineValidationArgs<
-  Output extends IOutlineOutput = IOutlineOutput,
-  Data extends IOutlineData = IOutlineData
-> extends IOutlineArgs<Data> {
+  Data extends IOutlineData = IOutlineData,
+  Param extends IOutlineParam = IOutlineParam
+> extends IOutlineArgs<Param> {
   /**
-   * The output data generated by the outline operation.
-   * Contains the result to be validated, typically structured data.
-   * @type {Output}
+   * The data param generated by the outline operation.
+   * Contains the result to be validated, typically structured param.
+   * @type {Data}
    */
-  output: Output;
+  data: Data;
 }
 
 /**
  * Type definition for a validation function in the outline system.
- * Validates the output of an outline operation based on input and output arguments.
- * @template Output - The type of the output data, defaults to IOutlineOutput.
- * @template Data - The type of the input data, defaults to IOutlineData.
+ * Validates the data of an outline operation based on input and data arguments.
+ * @template Data - The type of the data param, defaults to IOutlineData.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
  * @callback IOutlineValidationFn
- * @param {IOutlineValidationArgs<Output, Data>} args - The arguments containing input data, output, and history.
+ * @param {IOutlineValidationArgs<Data, Param>} args - The arguments containing input param, data, and history.
  * @returns {void | Promise<void>} A promise or void indicating the completion of validation.
  */
 export interface IOutlineValidationFn<
-  Output extends IOutlineOutput = IOutlineOutput,
-  Data extends IOutlineData = IOutlineData
+  Data extends IOutlineData = IOutlineData,
+  Param extends IOutlineParam = IOutlineParam
 > {
-  (args: IOutlineValidationArgs<Output, Data>): void | Promise<void>;
+  (args: IOutlineValidationArgs<Data, Param>): void | Promise<void>;
 }
 
 /**
  * Interface representing a validation configuration for outline operations.
  * Defines the validation logic and optional documentation for a specific validator.
- * @template Output - The type of the output data, defaults to IOutlineOutput.
- * @template Data - The type of the input data, defaults to IOutlineData.
+ * @template Data - The type of the data param, defaults to IOutlineData.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
  * @interface IOutlineValidation
  */
 export interface IOutlineValidation<
-  Output extends IOutlineOutput = IOutlineOutput,
-  Data extends IOutlineData = IOutlineData
+  Data extends IOutlineData = IOutlineData,
+  Param extends IOutlineParam = IOutlineParam
 > {
   /**
-   * The validation function or configuration to apply to the outline output.
+   * The validation function or configuration to apply to the outline data.
    * Can reference itself or another validation for chained or reusable logic.
-   * @type {IOutlineValidation<Output, Data>}
+   * @type {IOutlineValidation<Data, Param>}
    */
-  validate: IOutlineValidationFn<Output, Data>;
+  validate: IOutlineValidationFn<Data, Param>;
 
   /**
    * Optional description for documentation purposes.
@@ -195,16 +195,16 @@ export interface IOutlineValidation<
 /**
  * Interface representing the result of an outline operation.
  * Encapsulates the outcome, including validity, execution details, and history.
- * @template Output - The type of the output data, defaults to IOutlineOutput.
- * @template Data - The type of the input data, defaults to IOutlineData.
+ * @template Data - The type of the data param, defaults to IOutlineData.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
  * @interface IOutlineResult
  */
 export interface IOutlineResult<
-  Output extends IOutlineOutput = IOutlineOutput,
-  Data extends IOutlineData = IOutlineData
+  Data extends IOutlineData = IOutlineData,
+  Param extends IOutlineParam = IOutlineParam
 > {
   /**
-   * Indicates whether the outline output is valid based on validation checks.
+   * Indicates whether the outline data is valid based on validation checks.
    * True if all validations pass, false otherwise.
    * @type {boolean}
    */
@@ -232,18 +232,18 @@ export interface IOutlineResult<
   error?: string | null;
 
   /**
-   * The input data used for the outline operation.
-   * Reflects the original data provided in the arguments.
-   * @type {Data}
+   * The input param used for the outline operation.
+   * Reflects the original param provided in the arguments.
+   * @type {Param}
    */
-  data: Data;
+  param: Param;
 
   /**
-   * The output data generated by the outline operation.
-   * Null if the operation fails or no output is produced.
-   * @type {Output | null}
+   * The data param generated by the outline operation.
+   * Null if the operation fails or no data is produced.
+   * @type {Data | null}
    */
-  output: Output | null;
+  data: Data | null;
 
   /**
    * The attempt number for this outline operation.
@@ -255,14 +255,14 @@ export interface IOutlineResult<
 
 /**
  * Interface representing the schema for configuring an outline operation.
- * Defines the structure and behavior of an outline, including output generation and validation.
- * @template Output - The type of the output data, defaults to IOutlineOutput.
- * @template Data - The type of the input data, defaults to IOutlineData.
+ * Defines the structure and behavior of an outline, including data generation and validation.
+ * @template Data - The type of the data param, defaults to IOutlineData.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
  * @interface IOutlineSchema
  */
 export interface IOutlineSchema<
-  Output extends IOutlineOutput = IOutlineOutput,
-  Data extends IOutlineData = IOutlineData
+  Data extends IOutlineData = IOutlineData,
+  Param extends IOutlineParam = IOutlineParam
 > {
   /**
    * Optional description for documentation purposes.
@@ -279,21 +279,21 @@ export interface IOutlineSchema<
   outlineName: OutlineName;
 
   /**
-   * Function to generate structured output for the outline operation.
-   * Processes input data and history to produce the desired output.
-   * @param {IOutlineArgs<Data>} args - The arguments containing input data and history.
-   * @returns {Promise<Output>} A promise resolving to the structured output.
+   * Function to generate structured data for the outline operation.
+   * Processes input param and history to produce the desired data.
+   * @param {IOutlineArgs<Param>} args - The arguments containing input param and history.
+   * @returns {Promise<Data>} A promise resolving to the structured data.
    */
-  getStructuredOutput(args: IOutlineArgs<Data>): Promise<Output>;
+  getStructuredOutput(args: IOutlineArgs<Param>): Promise<Data>;
 
   /**
-   * Array of validation functions or configurations to apply to the outline output.
+   * Array of validation functions or configurations to apply to the outline data.
    * Supports both direct validation functions and structured validation configurations.
-   * @type {(IOutlineValidation<Output, Data> | IOutlineValidationFn<Output, Data>)[]}
+   * @type {(IOutlineValidation<Data, Param> | IOutlineValidationFn<Data, Param>)[]}
    */
   validations?: (
-    | IOutlineValidation<Output, Data>
-    | IOutlineValidationFn<Output, Data>
+    | IOutlineValidation<Data, Param>
+    | IOutlineValidationFn<Data, Param>
   )[];
 
   /**

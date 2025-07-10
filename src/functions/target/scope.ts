@@ -42,6 +42,7 @@ const scopeInternal = beginContext(
       swarmSchemaService = swarm.swarmSchemaService.registry,
       toolSchemaService = swarm.toolSchemaService.registry,
       wikiSchemaService = swarm.wikiSchemaService.registry,
+      outlineSchemaService = swarm.outlineSchemaService.registry,
     }: ScopeOptions = {}
   ): Promise<any> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
@@ -59,6 +60,7 @@ const scopeInternal = beginContext(
         swarmSchemaService,
         toolSchemaService,
         wikiSchemaService,
+        outlineSchemaService,
       },
     });
   }

@@ -4709,6 +4709,274 @@ interface IPipelineCallbacks<Payload extends object = any> {
 type PipelineName = string;
 
 /**
+ * Generic type representing arbitrary param for outline operations.
+ * Used as a flexible placeholder for input param in outline schemas and arguments.
+ * @typedef {any} IOutlineParam
+ */
+type IOutlineParam = any;
+/**
+ * Generic type representing arbitrary data param for outline operations.
+ * Used as a flexible placeholder for data param in outline schemas and results.
+ * @typedef {any} IOutlineData
+ */
+type IOutlineData = any;
+/**
+ * Interface defining callbacks for outline lifecycle events.
+ * Provides hooks for handling attempt initiation, document generation, and validation outcomes.
+ * @template Data - The type of the data param, defaults to IOutlineData.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
+ * @interface IOutlineCallbacks
+ */
+interface IOutlineCallbacks<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam> {
+    /**
+     * Optional callback triggered when an outline attempt is initiated.
+     * Useful for logging or tracking attempt starts.
+     * @param {IOutlineArgs<Param>} args - The arguments for the outline attempt, including param and history.
+     */
+    onAttempt?: (args: IOutlineArgs<Param>) => void;
+    /**
+     * Optional callback triggered when an outline document is generated.
+     * Useful for processing or logging the generated document.
+     * @param {IOutlineResult<Data, Param>} result - The result of the outline operation, including validity and data.
+     */
+    onDocument?: (result: IOutlineResult<Data, Param>) => void;
+    /**
+     * Optional callback triggered when a document passes validation.
+     * Useful for handling successful validation outcomes.
+     * @param {IOutlineResult<Data, Param>} result - The result of the outline operation with a valid document.
+     */
+    onValidDocument?: (result: IOutlineResult<Data, Param>) => void;
+    /**
+     * Optional callback triggered when a document fails validation.
+     * Useful for handling failed validation outcomes or retries.
+     * @param {IOutlineResult<Data, Param>} result - The result of the outline operation with an invalid document.
+     */
+    onInvalidDocument?: (result: IOutlineResult<Data, Param>) => void;
+}
+/**
+ * Interface representing a message in the outline system.
+ * Used to structure messages stored in the outline history, typically for user, assistant, or system interactions.
+ * @interface IOutlineMessage
+ */
+interface IOutlineMessage {
+    /**
+     * The role of the message sender, either user, assistant, or system.
+     * Determines the context or source of the message in the outline history.
+     * @type {"user" | "assistant" | "system"}
+     */
+    role: "user" | "assistant" | "system";
+    /**
+     * The content of the message.
+     * Contains the raw text or param of the message, used in history storage or processing.
+     * @type {string}
+     */
+    content: string;
+}
+/**
+ * Interface representing the history management API for outline operations.
+ * Provides methods to manage message history, such as adding, clearing, and listing messages.
+ * @interface IOutlineHistory
+ */
+interface IOutlineHistory {
+    /**
+     * Adds one or more messages to the outline history.
+     * Supports both single messages and arrays of messages for flexibility.
+     * @param {...(IOutlineMessage | IOutlineMessage[])} messages - The message(s) to add to the history.
+     * @returns {Promise<void>} A promise that resolves when the messages are successfully added.
+     */
+    push(...messages: (IOutlineMessage | IOutlineMessage[])[]): Promise<void>;
+    /**
+     * Clears all messages from the outline history.
+     * Resets the history to an empty state.
+     * @returns {Promise<void>} A promise that resolves when the history is cleared.
+     */
+    clear(): Promise<void>;
+    /**
+     * Retrieves all messages in the outline history.
+     * @returns {Promise<IOutlineMessage[]>} A promise resolving to an array of messages in the history.
+     */
+    list(): Promise<IOutlineMessage[]>;
+}
+/**
+ * Interface representing the arguments for an outline operation.
+ * Encapsulates the input param, attempt number, and history for processing.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
+ * @interface IOutlineArgs
+ */
+interface IOutlineArgs<Param extends IOutlineParam = IOutlineParam> {
+    /**
+     * The input param for the outline operation.
+     * Contains the raw or structured param to be processed.
+     * @type {Param}
+     */
+    param: Param;
+    /**
+     * The current attempt number for the outline operation.
+     * Tracks the number of retries or iterations, useful for validation or retry logic.
+     * @type {number}
+     */
+    attempt: number;
+    /**
+     * The history management API for the outline operation.
+     * Provides access to message history for context or logging.
+     * @type {IOutlineHistory}
+     */
+    history: IOutlineHistory;
+}
+/**
+ * Interface extending outline arguments with data param for validation.
+ * Used to pass both input and data param to validation functions.
+ * @template Data - The type of the data param, defaults to IOutlineData.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
+ * @interface IOutlineValidationArgs
+ * @extends {IOutlineArgs<Param>}
+ */
+interface IOutlineValidationArgs<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam> extends IOutlineArgs<Param> {
+    /**
+     * The data param generated by the outline operation.
+     * Contains the result to be validated, typically structured param.
+     * @type {Data}
+     */
+    data: Data;
+}
+/**
+ * Type definition for a validation function in the outline system.
+ * Validates the data of an outline operation based on input and data arguments.
+ * @template Data - The type of the data param, defaults to IOutlineData.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
+ * @callback IOutlineValidationFn
+ * @param {IOutlineValidationArgs<Data, Param>} args - The arguments containing input param, data, and history.
+ * @returns {void | Promise<void>} A promise or void indicating the completion of validation.
+ */
+interface IOutlineValidationFn<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam> {
+    (args: IOutlineValidationArgs<Data, Param>): void | Promise<void>;
+}
+/**
+ * Interface representing a validation configuration for outline operations.
+ * Defines the validation logic and optional documentation for a specific validator.
+ * @template Data - The type of the data param, defaults to IOutlineData.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
+ * @interface IOutlineValidation
+ */
+interface IOutlineValidation<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam> {
+    /**
+     * The validation function or configuration to apply to the outline data.
+     * Can reference itself or another validation for chained or reusable logic.
+     * @type {IOutlineValidation<Data, Param>}
+     */
+    validate: IOutlineValidationFn<Data, Param>;
+    /**
+     * Optional description for documentation purposes.
+     * Aids in understanding the purpose or behavior of the validation.
+     * @type {string | undefined}
+     */
+    docDescription?: string;
+}
+/**
+ * Interface representing the result of an outline operation.
+ * Encapsulates the outcome, including validity, execution details, and history.
+ * @template Data - The type of the data param, defaults to IOutlineData.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
+ * @interface IOutlineResult
+ */
+interface IOutlineResult<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam> {
+    /**
+     * Indicates whether the outline data is valid based on validation checks.
+     * True if all validations pass, false otherwise.
+     * @type {boolean}
+     */
+    isValid: boolean;
+    /**
+     * The unique identifier for the execution instance of the outline operation.
+     * Used for tracking or debugging specific runs.
+     * @type {string}
+     */
+    resultId: string;
+    /**
+     * The history of messages associated with the outline operation.
+     * Contains the sequence of user, assistant, or system messages.
+     * @type {IOutlineMessage[]}
+     */
+    history: IOutlineMessage[];
+    /**
+     * Optional error message if the outline operation or validation fails.
+     * Null if no error occurs.
+     * @type {string | null | undefined}
+     */
+    error?: string | null;
+    /**
+     * The input param used for the outline operation.
+     * Reflects the original param provided in the arguments.
+     * @type {Param}
+     */
+    param: Param;
+    /**
+     * The data param generated by the outline operation.
+     * Null if the operation fails or no data is produced.
+     * @type {Data | null}
+     */
+    data: Data | null;
+    /**
+     * The attempt number for this outline operation.
+     * Tracks the retry or iteration count for the operation.
+     * @type {number}
+     */
+    attempt: number;
+}
+/**
+ * Interface representing the schema for configuring an outline operation.
+ * Defines the structure and behavior of an outline, including data generation and validation.
+ * @template Data - The type of the data param, defaults to IOutlineData.
+ * @template Param - The type of the input param, defaults to IOutlineParam.
+ * @interface IOutlineSchema
+ */
+interface IOutlineSchema<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam> {
+    /**
+     * Optional description for documentation purposes.
+     * Aids in understanding the purpose or behavior of the outline.
+     * @type {string | undefined}
+     */
+    docDescription?: string;
+    /**
+     * The unique name of the outline within the system.
+     * Identifies the specific outline configuration.
+     * @type {OutlineName}
+     */
+    outlineName: OutlineName;
+    /**
+     * Function to generate structured data for the outline operation.
+     * Processes input param and history to produce the desired data.
+     * @param {IOutlineArgs<Param>} args - The arguments containing input param and history.
+     * @returns {Promise<Data>} A promise resolving to the structured data.
+     */
+    getStructuredOutput(args: IOutlineArgs<Param>): Promise<Data>;
+    /**
+     * Array of validation functions or configurations to apply to the outline data.
+     * Supports both direct validation functions and structured validation configurations.
+     * @type {(IOutlineValidation<Data, Param> | IOutlineValidationFn<Data, Param>)[]}
+     */
+    validations?: (IOutlineValidation<Data, Param> | IOutlineValidationFn<Data, Param>)[];
+    /**
+     * Optional maximum number of attempts for the outline operation.
+     * Limits the number of retries if validations fail.
+     * @type {number | undefined}
+     */
+    maxAttempts?: number;
+    /**
+     * Optional set of callbacks for outline lifecycle events.
+     * Allows customization of attempt, document, and validation handling.
+     * @type {IOutlineCallbacks | undefined}
+     */
+    callbacks?: IOutlineCallbacks;
+}
+/**
+ * Type representing the unique name of an outline within the system.
+ * Used to identify specific outline configurations.
+ * @typedef {string} OutlineName
+ */
+type OutlineName = string;
+
+/**
  * @interface ISchemaContext
  * @description Defines the structure of the schema context, containing a registry of schema services for various components.
  */
@@ -4778,6 +5046,11 @@ interface ISchemaContext {
          * @description Registry for wiki schemas, mapping wiki names to their schemas.
          */
         wikiSchemaService: ToolRegistry<Record<WikiName, IWikiSchema>>;
+        /**
+         * @property {ToolRegistry<Record<OutlineName, IOutlineSchema>>} outlineSchemaService
+         * @description Registry for outlines aka structured json outputs
+         */
+        outlineSchemaService: ToolRegistry<Record<OutlineName, IOutlineSchema>>;
     };
 }
 /**
@@ -10724,6 +10997,60 @@ declare class NavigationSchemaService {
     hasTool: (toolName: ToolName) => boolean;
 }
 
+declare class OutlineSchemaService {
+    readonly loggerService: LoggerService;
+    readonly schemaContextService: {
+        readonly context: ISchemaContext;
+    };
+    private _registry;
+    get registry(): ToolRegistry<Record<OutlineName, IOutlineSchema>>;
+    set registry(value: ToolRegistry<Record<OutlineName, IOutlineSchema>>);
+    private validateShallow;
+    register: (key: OutlineName, value: IOutlineSchema) => void;
+    override: (key: OutlineName, value: Partial<IOutlineSchema>) => IOutlineSchema<any, any>;
+    get: (key: OutlineName) => IOutlineSchema;
+}
+
+/**
+ * A service class for managing and validating outline schemas in the agent swarm system.
+ * Provides methods to register and validate outline schemas, ensuring they are unique and exist before validation.
+ * Uses dependency injection to access the logger service and memoization for efficient validation checks.
+ * @class OutlineValidationService
+ */
+declare class OutlineValidationService {
+    /**
+     * The logger service instance for logging outline-related operations and errors.
+     * Injected via dependency injection using the TYPES.loggerService identifier.
+     * @private
+     * @type {LoggerService}
+     */
+    private readonly loggerService;
+    /**
+     * A map storing outline schemas, keyed by their unique outline names.
+     * Used to manage registered outlines and retrieve them for validation.
+     * @private
+     * @type {Map<OutlineName, IOutlineSchema>}
+     */
+    private _outlineMap;
+    /**
+     * Registers a new outline schema with the given name.
+     * Logs the addition if info logging is enabled and throws an error if the outline name already exists.
+     * @param {OutlineName} outlineName - The unique name of the outline to register.
+     * @param {IOutlineSchema} outlineSchema - The outline schema to associate with the name.
+     * @throws {Error} If an outline with the given name already exists in the map.
+     */
+    addOutline: (outlineName: OutlineName, outlineSchema: IOutlineSchema) => void;
+    /**
+     * Validates the existence of an outline schema for the given outline name.
+     * Memoized to cache results based on the outline name for performance.
+     * Logs the validation attempt if info logging is enabled and throws an error if the outline is not found.
+     * @param {OutlineName} outlineName - The name of the outline to validate.
+     * @param {string} source - The source context for the validation, used for error reporting.
+     * @throws {Error} If the outline with the given name is not found in the map.
+     */
+    validate: (outlineName: OutlineName, source: string) => void;
+}
+
 /**
  * Interface defining the structure of the dependency injection container for the swarm system.
  * Aggregates all services providing core functionality, context management, connectivity, schema definitions,
@@ -10906,6 +11233,11 @@ interface ISwarmDI {
      */
     navigationSchemaService: NavigationSchemaService;
     /**
+     * Service for defining and managing outlines
+     * Aka structured json outputs
+     */
+    outlineSchemaService: OutlineSchemaService;
+    /**
      * Service exposing public APIs for agent operations.
      * Provides methods like `execute` and `runStateless` via `AgentPublicService`.
      */
@@ -11035,9 +11367,13 @@ interface ISwarmDI {
      */
     navigationValidationService: NavigationValidationService;
     /**
-     * Service preventing the recursive call of changeToAgent
+     * Service for validating agent wikis
      */
     wikiValidationService: WikiValidationService;
+    /**
+     * Service for validating outlines aka structured JSON outputs
+     */
+    outlineValidationService: OutlineValidationService;
     /**
      * Service for validating pipeline-related data and configurations.
      * Ensures pipeline integrity via `PipelineValidationService`.
@@ -11506,6 +11842,15 @@ declare function addCompute<T extends IComputeData = any>(computeSchema: IComput
  */
 declare function addPipeline<Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>): string;
 
+/**
+ * Adds an outline schema to the swarm system by registering it with the outline validation and schema services.
+ * Ensures the operation runs in a clean context using `beginContext` to avoid interference from existing method or execution contexts.
+ * Logs the operation if logging is enabled in the global configuration.
+ * @param {IOutlineSchema} outlineSchema - The outline schema to register, containing the outline name and configuration.
+ * @returns {string} The name of the registered outline.
+ */
+declare function addOutline(outlineSchema: IOutlineSchema): string;
+
 type TAgentSchema = {
     agentName: IAgentSchema["agentName"];
 } & Partial<IAgentSchema>;
@@ -11789,6 +12134,24 @@ declare function overrideCompute(computeSchema: TComputeSchema): IComputeSchema<
  * @returns {IPipelineSchema<Payload>} The updated pipeline schema.
  */
 declare function overridePipeline<Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>): IPipelineSchema<Payload>;
+
+/**
+ * Type definition for a partial outline schema, requiring an outline name and allowing optional properties from `IOutlineSchema`.
+ * Used to specify the schema details for overriding an existing outline.
+ * @typedef {Object} TOutlineSchema
+ * @property {IOutlineSchema["outlineName"]} outlineName - The unique name of the outline to override.
+ * @property {Partial<IOutlineSchema>} [partial] - Optional partial properties of the `IOutlineSchema` to override.
+ */
+type TOutlineSchema = {
+    outlineName: IOutlineSchema["outlineName"];
+} & Partial<IOutlineSchema>;
+/**
+ * Overrides an existing outline schema in the swarm system by updating it with the provided partial schema.
+ * Ensures the operation runs in a clean context using `beginContext` to avoid interference from existing method or execution contexts.
+ * Logs the operation if logging is enabled in the global configuration.
+ * @param {TOutlineSchema} outlineSchema - The partial outline schema containing the outline name and optional schema properties to override.
+ */
+declare function overrideOutline(outlineSchema: TOutlineSchema): IOutlineSchema<any, any>;
 
 /**
  * Marks a client as online in the specified swarm.
@@ -12149,6 +12512,22 @@ declare function question(message: string, clientId: string, agentName: AgentNam
  * @returns {Promise<string>} The response from the chat process
  */
 declare function questionForce(message: string, clientId: string, wikiName: WikiName): Promise<string>;
+
+/**
+ * Processes an outline request to generate structured JSON data based on a specified outline schema.
+ * Delegates to an internal context-isolated function to ensure clean execution.
+ * @async
+ * @template Data - The type of the outline data, extending IOutlineData.
+ * @template Param - The type of the input param, extending IOutlineParam.
+ * @param {OutlineName} outlineName - The unique name of the outline schema to process.
+ * @param {Param} [param={}] - The input param to process, defaults to an empty object.
+ * @returns {Promise<IOutlineResult<Data, Param>>} A promise resolving to the outline result, containing the processed data, history, and validation status.
+ * @example
+ * // Example usage
+ * const result = await json<"MyOutline", { query: string }>("MyOutline", { query: "example" });
+ * console.log(result.isValid, result.data); // Logs validation status and data
+ */
+declare function json<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineName: OutlineName, param?: IOutlineParam): Promise<IOutlineResult<Data, Param>>;
 
 /**
  * Interface for the parameters of the makeAutoDispose function.
@@ -15059,4 +15438,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };
+export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineHistory, type IOutlineMessage, type IOutlineResult, type IOutlineSchema, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };

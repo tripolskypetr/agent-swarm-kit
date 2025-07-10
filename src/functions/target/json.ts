@@ -3,8 +3,8 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 import {
   IOutlineArgs,
+  IOutlineParam,
   IOutlineData,
-  IOutlineOutput,
   IOutlineHistory,
   OutlineName,
   IOutlineMessage,
@@ -59,19 +59,19 @@ class OutlineHistory implements IOutlineHistory {
 }
 
 /**
- * Internal function to process an outline request and generate structured JSON output.
+ * Internal function to process an outline request and generate structured JSON data.
  * Executes outside existing contexts using `beginContext` to ensure isolation.
- * Attempts to produce a valid structured output based on the outline schema, handling validations and retries up to a configurable maximum.
+ * Attempts to produce a valid structured data based on the outline schema, handling validations and retries up to a configurable maximum.
  * @private
  * @async
  * @param {OutlineName} outlineName - The unique name of the outline schema to process.
- * @param {IOutlineData} data - The input data to process for structured output generation.
+ * @param {IOutlineParam} param - The input param to process for structured data generation.
  * @returns {Promise<IOutlineResult>} A promise resolving to the outline result, indicating success or failure with associated details (e.g., history, error).
  */
 const jsonInternal = beginContext(
   async (
     outlineName: OutlineName,
-    data: IOutlineData
+    param: IOutlineParam
   ): Promise<IOutlineResult> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {});
@@ -92,16 +92,16 @@ const jsonInternal = beginContext(
       history = new OutlineHistory();
       const inputArgs: IOutlineArgs = {
         attempt,
-        data,
+        param,
         history,
       };
       if (callbacks?.onAttempt) {
         callbacks.onAttempt(inputArgs);
       }
-      const output = await getStructuredOutput(inputArgs);
+      const data = await getStructuredOutput(inputArgs);
       const validationArgs: IOutlineValidationArgs = {
         ...inputArgs,
-        output,
+        data,
       };
       for (const validation of validations) {
         const validate =
@@ -115,9 +115,9 @@ const jsonInternal = beginContext(
       return {
         isValid: true,
         attempt,
-        data,
+        param,
         history: await history.list(),
-        output,
+        data,
         resultId,
       };
     }
@@ -126,34 +126,34 @@ const jsonInternal = beginContext(
       isValid: false,
       error: errorMessage ?? "Unknown error",
       attempt: maxAttempts,
-      data,
+      param,
       history: await history.list(),
-      output: null,
+      data: null,
       resultId,
     };
   }
 );
 
 /**
- * Processes an outline request to generate structured JSON output based on a specified outline schema.
+ * Processes an outline request to generate structured JSON data based on a specified outline schema.
  * Delegates to an internal context-isolated function to ensure clean execution.
  * @async
- * @template Output - The type of the outline output, extending IOutlineOutput.
- * @template Data - The type of the input data, extending IOutlineData.
+ * @template Data - The type of the outline data, extending IOutlineData.
+ * @template Param - The type of the input param, extending IOutlineParam.
  * @param {OutlineName} outlineName - The unique name of the outline schema to process.
- * @param {Data} [data={}] - The input data to process, defaults to an empty object.
- * @returns {Promise<IOutlineResult<Output, Data>>} A promise resolving to the outline result, containing the processed output, history, and validation status.
+ * @param {Param} [param={}] - The input param to process, defaults to an empty object.
+ * @returns {Promise<IOutlineResult<Data, Param>>} A promise resolving to the outline result, containing the processed data, history, and validation status.
  * @example
  * // Example usage
  * const result = await json<"MyOutline", { query: string }>("MyOutline", { query: "example" });
- * console.log(result.isValid, result.output); // Logs validation status and output
+ * console.log(result.isValid, result.data); // Logs validation status and data
  */
 export async function json<
-  Output extends IOutlineOutput = IOutlineOutput,
-  Data extends IOutlineData = IOutlineData
+  Data extends IOutlineData = IOutlineData,
+  Param extends IOutlineParam = IOutlineParam
 >(
   outlineName: OutlineName,
-  data = {} as IOutlineData
-): Promise<IOutlineResult<Output, Data>> {
-  return await jsonInternal(outlineName, data);
+  param = {} as IOutlineParam
+): Promise<IOutlineResult<Data, Param>> {
+  return await jsonInternal(outlineName, param);
 }
