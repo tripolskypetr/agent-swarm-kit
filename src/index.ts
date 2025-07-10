@@ -24,6 +24,7 @@ export * from "./functions/setup/addStorage";
 export * from "./functions/setup/addPolicy";
 export * from "./functions/setup/addCompute";
 export * from "./functions/setup/addPipeline";
+export * from "./functions/setup/addOutline";
 
 export * from "./functions/test/overrideAgent";     
 export * from "./functions/test/overrideCompletion";
@@ -37,6 +38,7 @@ export * from "./functions/test/overrideMCP";
 export * from "./functions/test/overrideWiki";  
 export * from "./functions/test/overrideCompute";        
 export * from "./functions/test/overridePipeline";
+export * from "./functions/test/overrideOutline";
 
 export * from "./functions/other/markOnline";
 export * from "./functions/other/markOffline";
