@@ -426,7 +426,7 @@ export class SessionValidationService {
       this.loggerService.info("sessionValidationService getSessionList");
     return [...this._sessionSwarmMap.keys()];
   };
-  
+
   /**
    * Retrieves the list of computes associated with a session.
    * Logs the operation, supporting ClientAgent’s session-specific agent queries.
@@ -435,9 +435,12 @@ export class SessionValidationService {
    */
   public getSessionComputeList = (clientId: SessionId): ComputeName[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info("sessionValidationService getSessionComputeList", {
-        clientId,
-      });
+      this.loggerService.info(
+        "sessionValidationService getSessionComputeList",
+        {
+          clientId,
+        }
+      );
     return this._computeSwarmMap.get(clientId) ?? [];
   };
 
@@ -515,6 +518,7 @@ export class SessionValidationService {
           `agent-swarm session clientId=${clientId} not exist source=${source}`
         );
       }
+      return true as never;
     }
   );
 

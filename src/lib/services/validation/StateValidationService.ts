@@ -68,6 +68,7 @@ export class StateValidationService {
           `agent-swarm state ${stateName} not found source=${source}`
         );
       }
+      return true as never;
     }
   ) as (stateName: StateName, source: string) => void;
 }

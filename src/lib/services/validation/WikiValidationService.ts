@@ -1,10 +1,7 @@
 import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import {
-  WikiName,
-  IWikiSchema,
-} from "../../../interfaces/Wiki.interface";
+import { WikiName, IWikiSchema } from "../../../interfaces/Wiki.interface";
 import { memoize } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../../config/params";
 
@@ -13,15 +10,15 @@ import { GLOBAL_CONFIG } from "../../../config/params";
  * @description Service for managing and validating wiki configurations
  */
 export class WikiValidationService {
-  /** 
-   * @private 
-   * @readonly 
+  /**
+   * @private
+   * @readonly
    * @description Injected logger service instance
    */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-  /** 
-   * @private 
+  /**
+   * @private
    * @description Map storing wiki schemas by wiki name
    */
   private _wikiMap = new Map<WikiName, IWikiSchema>();
@@ -33,10 +30,7 @@ export class WikiValidationService {
    * @param {IWikiSchema} wikiSchema - The wiki schema to add
    * @throws {Error} If wikiName already exists
    */
-  public addWiki = (
-    wikiName: WikiName,
-    wikiSchema: IWikiSchema
-  ): void => {
+  public addWiki = (wikiName: WikiName, wikiSchema: IWikiSchema): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("wikiValidationService addWiki", {
         wikiName,
@@ -70,6 +64,7 @@ export class WikiValidationService {
           `agent-swarm wiki ${wikiName} not found source=${source}`
         );
       }
+      return true as never;
     }
   ) as (wikiName: WikiName, source: string) => void;
 }

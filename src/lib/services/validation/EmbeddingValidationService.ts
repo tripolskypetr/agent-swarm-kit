@@ -75,6 +75,7 @@ export class EmbeddingValidationService {
           `agent-swarm embedding ${embeddingName} not found source=${source}`
         );
       }
+      return true as never;
     }
   ) as (embeddingName: EmbeddingName, source: string) => void;
 }

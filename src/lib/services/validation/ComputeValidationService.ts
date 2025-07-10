@@ -119,6 +119,7 @@ export class ComputeValidationService {
           }
         });
       }
+      return true as never;
     }
   ) as (computeName: ComputeName, source: string) => void;
 }

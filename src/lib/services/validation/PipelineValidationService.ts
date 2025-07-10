@@ -36,7 +36,10 @@ export class PipelineValidationService {
    * @param {IPipelineSchema} pipelineSchema - The pipeline schema to register.
    * @throws {Error} If the pipeline name already exists.
    */
-  public addPipeline = (pipelineName: PipelineName, pipelineSchema: IPipelineSchema): void => {
+  public addPipeline = (
+    pipelineName: PipelineName,
+    pipelineSchema: IPipelineSchema
+  ): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("pipelineValidationService addPipeline", {
         pipelineName,
@@ -68,6 +71,7 @@ export class PipelineValidationService {
           `agent-swarm pipeline ${pipelineName} not found source=${source}`
         );
       }
+      return true as never;
     }
   ) as (pipelineName: PipelineName, source: string) => void;
 }

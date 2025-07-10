@@ -376,6 +376,7 @@ export class AgentValidationService {
         }
         this.mcpValidationService.validate(mcpName, source);
       });
+      return true as never;
     }
   ) as (agentName: AgentName, source: string) => void;
 }

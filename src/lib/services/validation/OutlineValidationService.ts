@@ -41,6 +41,7 @@ export class OutlineValidationService {
           `agent-swarm outline ${outlineName} not found source=${source}`
         );
       }
+      return true as never;
     }
   ) as (outlineName: OutlineName, source: string) => void;
 }
