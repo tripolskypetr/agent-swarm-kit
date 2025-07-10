@@ -10,5 +10,5 @@ group: docs
 ### registry
 
 ```ts
-registry: { agentSchemaService: ToolRegistry<Record<string, IAgentSchemaInternal>>; completionSchemaService: ToolRegistry<Record<string, ICompletionSchema>>; ... 9 more ...; wikiSchemaService: ToolRegistry<...>; }
+registry: { agentSchemaService: ToolRegistry<Record<string, IAgentSchemaInternal>>; completionSchemaService: ToolRegistry<Record<string, ICompletionSchema>>; ... 10 more ...; outlineSchemaService: ToolRegistry<...>; }
 ```

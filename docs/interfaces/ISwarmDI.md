@@ -326,6 +326,15 @@ navigationSchemaService: NavigationSchemaService
 Service for defining and managing navigation tools.
 When the navigation tool called other one being ignored
 
+### outlineSchemaService
+
+```ts
+outlineSchemaService: OutlineSchemaService
+```
+
+Service for defining and managing outlines
+Aka structured json outputs
+
 ### agentPublicService
 
 ```ts
@@ -565,7 +574,15 @@ Service preventing the recursive call of changeToAgent
 wikiValidationService: WikiValidationService
 ```
 
-Service preventing the recursive call of changeToAgent
+Service for validating agent wikis
+
+### outlineValidationService
+
+```ts
+outlineValidationService: OutlineValidationService
+```
+
+Service for validating outlines aka structured JSON outputs
 
 ### pipelineValidationService
 
