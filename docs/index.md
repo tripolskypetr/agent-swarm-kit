@@ -170,6 +170,7 @@ group: docs
 - [hasSession](functions/hasSession.md)
 - [hasNavigation](functions/hasNavigation.md)
 - [getPayload](functions/getPayload.md)
+- [getCheckBusy](functions/getCheckBusy.md)
 - [getAgentName](functions/getAgentName.md)
 - [getAgentHistory](functions/getAgentHistory.md)
 - [getSessionMode](functions/getSessionMode.md)

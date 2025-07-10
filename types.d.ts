@@ -1323,6 +1323,13 @@ interface ISwarm {
      * @throws {Error} If the emission fails due to connection issues or invalid message format.
      */
     emit(message: string): Promise<void>;
+    /**
+     * Returns the current busy state of the swarm.
+     * Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
+     * Supports debugging and flow control in client applications.
+     * @returns {Promise<boolean>} True if the swarm is busy, false otherwise.
+     */
+    getCheckBusy(): Promise<boolean>;
 }
 /**
  * Type representing the unique name of a swarm within the system.
@@ -5249,6 +5256,7 @@ declare class ToolSchemaService {
 
 declare const AGENT_NEED_FETCH: unique symbol;
 declare const STACK_NEED_FETCH: unique symbol;
+declare const SET_BUSY_FN: unique symbol;
 /**
  * Manages a collection of agents within a swarm in the swarm system, implementing the ISwarm interface.
  * Handles agent switching, output waiting, and navigation stack management, with queued operations and event-driven updates via BusService.
@@ -5259,6 +5267,21 @@ declare const STACK_NEED_FETCH: unique symbol;
  */
 declare class ClientSwarm implements ISwarm {
     readonly params: ISwarmParams;
+    private _isBusy;
+    /**
+     * Returns the current busy state of the swarm.
+     * Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
+     * Supports debugging and flow control in client applications.
+     * @returns {Promise<boolean>} True if the swarm is busy, false otherwise.
+     */
+    getCheckBusy(): Promise<boolean>;
+    /**
+     * Sets the busy state of the swarm.
+     * Used internally to indicate when the swarm is processing an operation, such as waiting for output.
+     * Enables coordinated state management and debugging.
+     * @param {boolean} isBusy - True to mark the swarm as busy, false to mark it as idle.
+     */
+    [SET_BUSY_FN](isBusy: boolean): void;
     /**
      * Subject that emits when an agent reference changes, providing the agent name and instance.
      * Used by setAgentRef to notify subscribers (e.g., waitForOutput) of updates to agent instances.
@@ -5441,6 +5464,13 @@ declare class SwarmConnectionService implements ISwarm {
      * @returns {Promise<string>} A promise resolving to the pending agent name for navigation.
      */
     navigationPop: () => Promise<string>;
+    /**
+     * Returns the current busy state of the swarm.
+     * Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
+     * Supports debugging and flow control in client applications.
+     * @returns {Promise<boolean>} True if the swarm is busy, false otherwise.
+     */
+    getCheckBusy: () => Promise<boolean>;
     /**
      * Cancels the pending output by emitting an empty string, interrupting waitForOutput.
      * Delegates to ClientSwarm.cancelOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -6525,6 +6555,16 @@ declare class SwarmPublicService implements TSwarmConnectionService {
      * @returns {Promise<string>} A promise resolving to the pending agent name for navigation.
      */
     navigationPop: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
+    /**
+     * Returns the current busy state of the swarm.
+     * Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
+     * Supports debugging and flow control in client applications.
+     * @param {string} methodName - The name of the method invoking the operation, logged and scoped in context.
+     * @param {string} clientId - The client ID, tying to ClientAgent sessions and PerfService tracking, scoping the operation to a specific client.
+     * @param {SwarmName} swarmName - The name of the swarm, sourced from Swarm.interface, used in SwarmMetaService context.
+     * @returns {Promise<boolean>} True if the swarm is busy, false otherwise.
+     */
+    getCheckBusy: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<boolean>;
     /**
      * Cancels the await of output in the swarm by emitting an empty string, scoped to a client.
      * Wraps SwarmConnectionService.cancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -12956,6 +12996,14 @@ declare function hasNavigation(clientId: string, agentName: AgentName): Promise<
 declare function getPayload<Payload extends object = object>(): Payload | null;
 
 /**
+ * Checks if the swarm associated with the given client ID is currently busy.
+ *
+ * @param {string} clientId - The unique identifier of the client whose swarm status is being checked.
+ * @returns {Promise<boolean>} A promise that resolves to true if the swarm is busy, or false otherwise.
+ */
+declare function getCheckBusy(clientId: string): Promise<boolean>;
+
+/**
  * Retrieves the name of the active agent for a given client session in a swarm.
  *
  * This function fetches the name of the currently active agent associated with the specified client session within a swarm.
@@ -15438,4 +15486,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineHistory, type IOutlineMessage, type IOutlineResult, type IOutlineSchema, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };
+export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineHistory, type IOutlineMessage, type IOutlineResult, type IOutlineSchema, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };
