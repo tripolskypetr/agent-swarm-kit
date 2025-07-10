@@ -182,7 +182,7 @@ export interface IOutlineValidation<
    * Can reference itself or another validation for chained or reusable logic.
    * @type {IOutlineValidation<Output, Data>}
    */
-  validate: IOutlineValidation<Output, Data>;
+  validate: IOutlineValidationFn<Output, Data>;
 
   /**
    * Optional description for documentation purposes.
@@ -215,7 +215,7 @@ export interface IOutlineResult<
    * Used for tracking or debugging specific runs.
    * @type {string}
    */
-  executionId: string;
+  resultId: string;
 
   /**
    * The history of messages associated with the outline operation.
