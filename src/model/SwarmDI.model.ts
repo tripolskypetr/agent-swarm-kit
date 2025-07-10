@@ -63,6 +63,7 @@ import { TSchemaContextService } from "../lib/services/context/SchemaContextServ
 import ExecutionValidationService from "../lib/services/validation/ExecutionValidationService";
 import NavigationSchemaService from "../lib/services/schema/NavigationSchemaService";
 import OutlineSchemaService from "../lib/services/schema/OutlineSchemaService";
+import OutlineValidationService from "../lib/services/validation/OutlineValidationService";
 
 /**
  * Interface defining the structure of the dependency injection container for the swarm system.
@@ -449,9 +450,14 @@ export interface ISwarmDI {
   navigationValidationService: NavigationValidationService;
 
   /**
-   * Service preventing the recursive call of changeToAgent
+   * Service for validating agent wikis
    */
   wikiValidationService: WikiValidationService;
+
+  /**
+   * Service for validating outlines aka structured JSON outputs
+   */
+  outlineValidationService: OutlineValidationService;
 
   /**
    * Service for validating pipeline-related data and configurations.

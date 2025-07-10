@@ -43,7 +43,7 @@ export class WikiValidationService {
         wikiSchema,
       });
     if (this._wikiMap.has(wikiName)) {
-      throw new Error(`wiki-swarm wiki ${wikiName} already exist`);
+      throw new Error(`agent-swarm wiki ${wikiName} already exist`);
     }
     this._wikiMap.set(wikiName, wikiSchema);
   };
@@ -67,7 +67,7 @@ export class WikiValidationService {
       const wiki = this._wikiMap.get(wikiName);
       if (!wiki) {
         throw new Error(
-          `wiki-swarm wiki ${wikiName} not found source=${source}`
+          `agent-swarm wiki ${wikiName} not found source=${source}`
         );
       }
     }
