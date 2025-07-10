@@ -43,6 +43,7 @@ const schemaServices = {
     computeSchemaService: Symbol('computeSchemaService'),
     pipelineSchemaService: Symbol('pipelineSchemaService'),
     navigationSchemaService: Symbol('navigationSchemaService'),
+    outlineSchemaService: Symbol('outlineSchemaService'),
 };
 
 const metaServices = {
