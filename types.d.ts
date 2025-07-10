@@ -11037,17 +11037,79 @@ declare class NavigationSchemaService {
     hasTool: (toolName: ToolName) => boolean;
 }
 
+/**
+ * A service class for managing outline schemas within the agent swarm system.
+ * Provides methods to register, override, and retrieve outline schemas, utilizing a `ToolRegistry` for storage.
+ * Integrates with dependency injection and context services for logging and schema management.
+ * @class
+ */
 declare class OutlineSchemaService {
+    /**
+     * The logger service instance for recording service-related activity and errors.
+     * Injected via dependency injection using `TYPES.loggerService`.
+     * @private
+     * @type {LoggerService}
+     */
     readonly loggerService: LoggerService;
+    /**
+     * The schema context service instance for managing context-specific schema registries.
+     * Injected via dependency injection using `TYPES.schemaContextService`.
+     * @private
+     * @type {TSchemaContextService}
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
+    /**
+     * The internal registry for storing outline schemas, mapping `OutlineName` to `IOutlineSchema`.
+     * @private
+     * @type {ToolRegistry<Record<OutlineName, IOutlineSchema>>}
+     */
     private _registry;
+    /**
+     * Gets the registry for outline schemas, preferring the context-specific registry if a schema context exists.
+     * Falls back to the internal registry if no context is active.
+     * @returns {ToolRegistry<Record<OutlineName, IOutlineSchema>>} The active registry for outline schemas.
+     */
     get registry(): ToolRegistry<Record<OutlineName, IOutlineSchema>>;
+    /**
+     * Sets the registry for outline schemas, updating the context-specific registry if a schema context exists.
+     * Otherwise, updates the internal registry.
+     * @param {ToolRegistry<Record<OutlineName, IOutlineSchema>>} value - The new registry to set.
+     */
     set registry(value: ToolRegistry<Record<OutlineName, IOutlineSchema>>);
+    /**
+     * Validates an outline schema for required properties and correct types.
+     * Ensures `outlineName` is a string, `getStructuredOutput` is a function, and `validations` (if present) is an array of valid validation functions or objects.
+     * Logs validation attempts if `CC_LOGGER_ENABLE_INFO` is enabled.
+     * @private
+     * @param {IOutlineSchema} outlineSchema - The outline schema to validate.
+     * @throws {Error} If validation fails due to missing or invalid properties.
+     */
     private validateShallow;
+    /**
+     * Registers an outline schema with the specified key in the active registry.
+     * Validates the schema before registration and logs the operation if `CC_LOGGER_ENABLE_INFO` is enabled.
+     * @param {OutlineName} key - The unique name of the outline schema.
+     * @param {IOutlineSchema} value - The outline schema to register.
+     * @throws {Error} If the schema fails validation.
+     */
     register: (key: OutlineName, value: IOutlineSchema) => void;
+    /**
+     * Overrides an existing outline schema with partial updates for the specified key.
+     * Logs the operation if `CC_LOGGER_ENABLE_INFO` is enabled and returns the updated schema.
+     * @param {OutlineName} key - The unique name of the outline schema to override.
+     * @param {Partial<IOutlineSchema>} value - The partial schema updates to apply.
+     * @returns {IOutlineSchema} The updated outline schema after applying overrides.
+     */
     override: (key: OutlineName, value: Partial<IOutlineSchema>) => IOutlineSchema<any, any>;
+    /**
+     * Retrieves an outline schema by its key from the active registry.
+     * Logs the operation if `CC_LOGGER_ENABLE_INFO` is enabled.
+     * @param {OutlineName} key - The unique name of the outline schema to retrieve.
+     * @returns {IOutlineSchema} The outline schema associated with the key.
+     * @throws {Error} If the schema is not found in the registry.
+     */
     get: (key: OutlineName) => IOutlineSchema;
 }
 
