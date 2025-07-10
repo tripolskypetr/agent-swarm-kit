@@ -36,6 +36,7 @@ import {
 import { ISwarmSchema, SwarmName } from "../../../interfaces/Swarm.interface";
 import { IWikiSchema, WikiName } from "../../../interfaces/Wiki.interface";
 import { IPipelineSchema, PipelineName } from "../../../model/Pipeline.model";
+import { IOutlineSchema, OutlineName } from "../../../interfaces/Outline.interface";
 
 /**
  * @interface ISchemaContext
@@ -122,6 +123,12 @@ export interface ISchemaContext {
      * @description Registry for wiki schemas, mapping wiki names to their schemas.
      */
     wikiSchemaService: ToolRegistry<Record<WikiName, IWikiSchema>>;
+
+    /**
+     * @property {ToolRegistry<Record<OutlineName, IOutlineSchema>>} outlineSchemaService
+     * @description Registry for outlines aka structured json outputs
+     */
+    outlineSchemaService: ToolRegistry<Record<OutlineName, IOutlineSchema>>;
   };
 }
 

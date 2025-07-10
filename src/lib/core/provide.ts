@@ -64,6 +64,8 @@ import PipelineValidationService from "../services/validation/PipelineValidation
 import SchemaContextService from "../services/context/SchemaContextService";
 import ExecutionValidationService from "../services/validation/ExecutionValidationService";
 import NavigationSchemaService from "../services/schema/NavigationSchemaService";
+import OutlineSchemaService from "../services/schema/OutlineSchemaService";
+import OutlineValidationService from "../services/validation/OutlineValidationService";
 
 {
     provide(TYPES.docService, () => new DocService());
@@ -110,6 +112,7 @@ import NavigationSchemaService from "../services/schema/NavigationSchemaService"
     provide(TYPES.computeSchemaService, () => new ComputeSchemaService());
     provide(TYPES.pipelineSchemaService, () => new PipelineSchemaService());
     provide(TYPES.navigationSchemaService, () => new NavigationSchemaService());
+    provide(TYPES.outlineSchemaService, () => new OutlineSchemaService());
 }
 
 {
@@ -148,4 +151,5 @@ import NavigationSchemaService from "../services/schema/NavigationSchemaService"
     provide(TYPES.stateValidationService, () => new StateValidationService());
     provide(TYPES.pipelineValidationService, () => new PipelineValidationService());
     provide(TYPES.executionValidationService, () => new ExecutionValidationService());
+    provide(TYPES.outlineValidationService, () => new OutlineValidationService());
 }

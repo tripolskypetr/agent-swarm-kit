@@ -97,6 +97,16 @@ Pops the navigation stack or returns the default agent if the stack is empty.
 Delegates to ClientSwarm.navigationPop, using context from MethodContextService to identify the swarm, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Mirrors SwarmPublicService’s navigationPop, supporting ClientAgent’s navigation within swarms.
 
+### getCheckBusy
+
+```ts
+getCheckBusy: () => Promise<boolean>
+```
+
+Returns the current busy state of the swarm.
+Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
+Supports debugging and flow control in client applications.
+
 ### cancelOutput
 
 ```ts

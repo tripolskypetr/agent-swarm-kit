@@ -27,6 +27,12 @@ constructor(params: ISwarmParams);
 params: ISwarmParams
 ```
 
+### _isBusy
+
+```ts
+_isBusy: any
+```
+
 ### _agentChangedSubject
 
 ```ts
@@ -84,6 +90,26 @@ Waits for output from the active agent in a queued manner, delegating to WAIT_FO
 Ensures only one wait operation runs at a time, handling cancellation and agent changes, supporting ClientSession’s output retrieval.
 
 ## Methods
+
+### getCheckBusy
+
+```ts
+getCheckBusy(): Promise<boolean>;
+```
+
+Returns the current busy state of the swarm.
+Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
+Supports debugging and flow control in client applications.
+
+### __@SET_BUSY_FN@1539
+
+```ts
+[SET_BUSY_FN](isBusy: boolean): void;
+```
+
+Sets the busy state of the swarm.
+Used internally to indicate when the swarm is processing an operation, such as waiting for output.
+Enables coordinated state management and debugging.
 
 ### emit
 

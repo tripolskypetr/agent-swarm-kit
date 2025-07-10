@@ -89,6 +89,7 @@ export class StorageValidationService {
         );
       }
       this.embeddingValidationService.validate(storage.embedding, source);
+      return true as never;
     }
   ) as (storageName: StorageName, source: string) => void;
 }

@@ -52,6 +52,7 @@ export class MCPValidationService {
           `agent-swarm mcp ${mcpName} not found source=${source}`
         );
       }
+      return true as never;
     }
   ) as (mcpName: MCPName, source: string) => void;
 }

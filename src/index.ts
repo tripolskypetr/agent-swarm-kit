@@ -24,6 +24,7 @@ export * from "./functions/setup/addStorage";
 export * from "./functions/setup/addPolicy";
 export * from "./functions/setup/addCompute";
 export * from "./functions/setup/addPipeline";
+export * from "./functions/setup/addOutline";
 
 export * from "./functions/test/overrideAgent";     
 export * from "./functions/test/overrideCompletion";
@@ -37,6 +38,7 @@ export * from "./functions/test/overrideMCP";
 export * from "./functions/test/overrideWiki";  
 export * from "./functions/test/overrideCompute";        
 export * from "./functions/test/overridePipeline";
+export * from "./functions/test/overrideOutline";
 
 export * from "./functions/other/markOnline";
 export * from "./functions/other/markOffline";
@@ -62,6 +64,7 @@ export * from "./functions/target/emitForce";
 export * from "./functions/target/executeForce";
 export * from "./functions/target/question";
 export * from "./functions/target/questionForce";
+export * from "./functions/target/json";
 export * from "./functions/target/makeAutoDispose";
 export * from "./functions/target/execute";
 export * from "./functions/target/emit";
@@ -156,6 +159,8 @@ export { IPolicySchema } from "./interfaces/Policy.interface";
 export { IPipelineSchema } from "./model/Pipeline.model";
 
 export { IMCPSchema, IMCPTool, MCPToolProperties, IMCPToolCallDto } from './interfaces/MCP.interface';
+
+export { IOutlineSchema, IOutlineMessage, IOutlineHistory, IOutlineValidationFn, IOutlineResult } from "./interfaces/Outline.interface";
 
 export { IModelMessage } from "./model/ModelMessage.model";
 export { IIncomingMessage, IOutgoingMessage } from "./model/EmitMessage.model";

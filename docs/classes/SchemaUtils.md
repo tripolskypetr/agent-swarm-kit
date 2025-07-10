@@ -16,10 +16,10 @@ constructor();
 
 ## Properties
 
-### __@PERSIST_WRITE_SYMBOL@4148
+### __@PERSIST_WRITE_SYMBOL@4268
 
 ```ts
-__@PERSIST_WRITE_SYMBOL@4148: any
+__@PERSIST_WRITE_SYMBOL@4268: any
 ```
 
 ### writeSessionMemory

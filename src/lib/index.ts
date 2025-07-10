@@ -74,6 +74,8 @@ import SchemaContextService, {
 } from "./services/context/SchemaContextService";
 import ExecutionValidationService from "./services/validation/ExecutionValidationService";
 import NavigationSchemaService from "./services/schema/NavigationSchemaService";
+import OutlineSchemaService from "./services/schema/OutlineSchemaService";
+import OutlineValidationService from "./services/validation/OutlineValidationService";
 
 const baseServices = {
   docService: inject<DocService>(TYPES.docService),
@@ -164,6 +166,9 @@ const schemaServices = {
   navigationSchemaService: inject<NavigationSchemaService>(
     TYPES.navigationSchemaService
   ),
+  outlineSchemaService: inject<OutlineSchemaService>(
+    TYPES.outlineSchemaService
+  ),
 };
 
 const publicServices = {
@@ -245,6 +250,9 @@ const validationServices = {
   ),
   executionValidationService: inject<ExecutionValidationService>(
     TYPES.executionValidationService
+  ),
+  outlineValidationService: inject<OutlineValidationService>(
+    TYPES.outlineValidationService
   ),
 };
 

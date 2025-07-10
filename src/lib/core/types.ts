@@ -43,6 +43,7 @@ const schemaServices = {
     computeSchemaService: Symbol('computeSchemaService'),
     pipelineSchemaService: Symbol('pipelineSchemaService'),
     navigationSchemaService: Symbol('navigationSchemaService'),
+    outlineSchemaService: Symbol('outlineSchemaService'),
 };
 
 const metaServices = {
@@ -81,6 +82,7 @@ const validationServices = {
     stateValidationService: Symbol('stateValidationService'),
     pipelineValidationService: Symbol('pipelineValidationService'),
     executionValidationService: Symbol('executionValidationService'),
+    outlineValidationService: Symbol('outlineValidationService'),
 };
 
 export const TYPES = {

@@ -1,7 +1,10 @@
 import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
-import { IPolicySchema, PolicyName } from "../../../interfaces/Policy.interface";
+import {
+  IPolicySchema,
+  PolicyName,
+} from "../../../interfaces/Policy.interface";
 import { memoize } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../../config/params";
 
@@ -72,6 +75,7 @@ export class PolicyValidationService {
           `agent-swarm policy ${policyName} not found source=${source}`
         );
       }
+      return true as never;
     }
   ) as (policyName: PolicyName, source: string) => void;
 }

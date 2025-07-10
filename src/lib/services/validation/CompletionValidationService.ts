@@ -67,6 +67,7 @@ export class CompletionValidationService {
           `agent-swarm completion ${completionName} not found source=${source}`
         );
       }
+      return true as never;
     }
   ) as (completionName: CompletionName, source: string) => void;
 }

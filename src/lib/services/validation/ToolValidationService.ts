@@ -69,6 +69,7 @@ export class ToolValidationService {
           `agent-swarm tool ${toolName} not found source=${source}`
         );
       }
+      return true as never;
     }
   ) as (toolName: ToolName, source: string) => void;
 }

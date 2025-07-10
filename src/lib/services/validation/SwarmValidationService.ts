@@ -176,6 +176,7 @@ export class SwarmValidationService {
       swarm.policies?.forEach((policyName) =>
         this.policyValidationService.validate(policyName, source)
       );
+      return true as never;
     }
   ) as (swarmName: SwarmName, source: string) => void;
 }
