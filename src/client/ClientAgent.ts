@@ -32,6 +32,13 @@ const TOOL_NO_OUTPUT_WARNING_TIMEOUT = 15_000;
 const TOOL_NO_OUTPUT_WARNING_SYMBOL = Symbol("tool-warning-timeout");
 
 /**
+ * This tool availability function is used as a default for tools that do not specify their availability.
+ * It always returns true, indicating that the tool is available by default.
+ * @returns {boolean} A function that always returns true, indicating the tool is available by default.
+ */
+const TOOL_AVAILABLE_DEFAULT = () => true;
+
+/**
  * A utility class for managing the lifecycle of an `AbortController` instance.
  * Provides a mechanism to signal and handle abort events for asynchronous operations.
  *
@@ -702,13 +709,26 @@ export class ClientAgent implements IAgent {
     if (this.params.tools) {
       await Promise.all(
         this.params.tools.map(async (tool) => {
-          const { function: upperFn, ...other } = tool;
+          const {
+            toolName,
+            function: upperFn,
+            isAvailable = TOOL_AVAILABLE_DEFAULT,
+            ...other
+          } = tool;
+          if (
+            await not(
+              isAvailable(this.params.clientId, this.params.agentName, toolName)
+            )
+          ) {
+            return;
+          }
           const fn =
             typeof upperFn === "function"
               ? await upperFn(this.params.clientId, this.params.agentName)
               : upperFn;
           agentToolList.push({
             ...other,
+            toolName,
             function: fn,
           });
         })

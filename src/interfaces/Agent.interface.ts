@@ -143,6 +143,20 @@ export interface IAgentTool<T = Record<string, ToolValue>> {
   }): Promise<void>;
 
   /**
+   * Checks if the tool is available for execution.
+   * This method can be used to determine if the tool can be executed based on the current context.
+   * @param {string} clientId - The ID of the client invoking the tool.
+   * @param {AgentName} agentName - The name of the agent using the tool.
+   * @param {ToolName} toolName - The name of the tool to check availability for.
+   * @returns {boolean | Promise<boolean>} True if the tool is available, false otherwise
+   */
+  isAvailable?: (
+    clientId: string,
+    agentName: AgentName,
+    toolName: ToolName,
+  ) => (boolean | Promise<boolean>);
+
+  /**
    * Validates the tool parameters before execution.
    * Can return synchronously or asynchronously based on validation complexity.
    * @param {Object} dto - The data transfer object containing validation details.

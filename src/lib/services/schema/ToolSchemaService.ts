@@ -93,9 +93,14 @@ export class ToolSchemaService {
         `agent-swarm tool schema validation failed: missing call for toolName=${toolSchema.toolName}`
       );
     }
+    if (toolSchema.isAvailable && typeof toolSchema.isAvailable !== "function") {
+      throw new Error(
+        `agent-swarm tool schema validation failed: invalid isAvailable for toolName=${toolSchema.toolName}`
+      );
+    }
     if (toolSchema.validate && typeof toolSchema.validate !== "function") {
       throw new Error(
-        `agent-swarm tool schema validation failed: missing validate for toolName=${toolSchema.toolName}`
+        `agent-swarm tool schema validation failed: invalid validate for toolName=${toolSchema.toolName}`
       );
     }
     if (!isObject(toolSchema.function) && typeof toolSchema.function !== "function") {
