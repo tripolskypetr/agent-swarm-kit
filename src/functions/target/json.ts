@@ -103,16 +103,22 @@ const jsonInternal = beginContext(
         ...inputArgs,
         data,
       };
+      let isValid = true;
       for (const validation of validations) {
         const validate =
           typeof validation === "object" ? validation.validate : validation;
         try {
           await validate(validationArgs);
         } catch (error) {
+          isValid = false;
           errorMessage = getErrorMessage(error);
+          break;
         }
       }
-      return {
+      if (!isValid) {
+        continue;
+      }
+      const result = {
         isValid: true,
         attempt,
         param,
@@ -120,9 +126,12 @@ const jsonInternal = beginContext(
         data,
         resultId,
       };
+      if (callbacks?.onValidDocument) {
+        callbacks.onValidDocument(result);
+      }
+      return result;
     }
-
-    return {
+    const result = {
       isValid: false,
       error: errorMessage ?? "Unknown error",
       attempt: maxAttempts,
@@ -131,6 +140,10 @@ const jsonInternal = beginContext(
       data: null,
       resultId,
     };
+    if (callbacks?.onInvalidDocument) {
+      callbacks.onInvalidDocument(result);
+    }
+    return result;
   }
 );
 
