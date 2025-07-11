@@ -13,6 +13,10 @@ const getCheckBusyInternal = beginContext(async (clientId: string) => {
       clientId,
     });
 
+  if (!swarm.sessionValidationService.hasSession(clientId)) {
+    return false;
+  };
+
   swarm.sessionValidationService.validate(clientId, METHOD_NAME);
   const swarmName = swarm.sessionValidationService.getSwarm(clientId);
   swarm.swarmValidationService.validate(swarmName, METHOD_NAME);
