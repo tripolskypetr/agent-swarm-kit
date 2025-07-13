@@ -26,7 +26,11 @@ import ComputeValidationService from "../validation/ComputeValidationService";
 import ComputeSchemaService from "../schema/ComputeSchemaService";
 import OutlineValidationService from "../validation/OutlineValidationService";
 import OutlineSchemaService from "../schema/OutlineSchemaService";
-import { IOutlineSchema } from "../../../interfaces/Outline.interface";
+import {
+  IOutlineSchema,
+  IOutlineValidation,
+} from "../../../interfaces/Outline.interface";
+import isObject from "../../../utils/isObject";
 
 /**
  * Maximum number of concurrent threads for documentation generation tasks.
@@ -494,6 +498,30 @@ export class DocService {
         if (!entries.length) {
           result.push("");
           result.push(`*Empty parameters*`);
+        }
+        result.push("");
+      }
+
+      const getValidations = () => {
+        if (outlineSchema.validations) {
+          return outlineSchema.validations
+            .filter((validation) => typeof validation === "object")
+            .filter((validation) => !!validation.docDescription);
+        }
+        return [];
+      };
+
+      const validations = getValidations();
+
+      if (validations.length) {
+        result.push(`## Validations`);
+        result.push("");
+        for (let i = 0; i !== prompt.length; i++) {
+          if (!validations[i].docDescription) {
+            continue;
+          }
+          result.push(`${i + 1}. \`${sanitizeMarkdown(validations[i].docDescription)}\``);
+          result.push("");
         }
       }
 

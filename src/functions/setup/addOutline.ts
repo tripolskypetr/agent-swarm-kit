@@ -1,4 +1,8 @@
-import { IOutlineSchema } from "../../interfaces/Outline.interface";
+import {
+  IOutlineData,
+  IOutlineParam,
+  IOutlineSchema,
+} from "../../interfaces/Outline.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
@@ -40,6 +44,9 @@ const addOutlineInternal = beginContext((outlineSchema: IOutlineSchema) => {
  * @param {IOutlineSchema} outlineSchema - The outline schema to register, containing the outline name and configuration.
  * @returns {string} The name of the registered outline.
  */
-export function addOutline(outlineSchema: IOutlineSchema) {
+export function addOutline<
+  Data extends IOutlineData = IOutlineData,
+  Param extends IOutlineParam = IOutlineParam
+>(outlineSchema: IOutlineSchema<Data, Param>) {
   return addOutlineInternal(outlineSchema);
 }

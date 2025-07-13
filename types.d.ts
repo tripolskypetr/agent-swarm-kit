@@ -12051,7 +12051,7 @@ declare function addPipeline<Payload extends object = any>(pipelineSchema: IPipe
  * @param {IOutlineSchema} outlineSchema - The outline schema to register, containing the outline name and configuration.
  * @returns {string} The name of the registered outline.
  */
-declare function addOutline(outlineSchema: IOutlineSchema): string;
+declare function addOutline<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineSchema: IOutlineSchema<Data, Param>): string;
 
 type TAgentSchema = {
     agentName: IAgentSchema["agentName"];
