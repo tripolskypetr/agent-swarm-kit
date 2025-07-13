@@ -100,7 +100,7 @@ export class OutlineSchemaService {
         `agent-swarm outline schema validation failed: validations is not an array for outlineName=${outlineSchema.outlineName}`
       );
     }
-    if (outlineSchema.validations && !outlineSchema.validations?.some((validation) => typeof validation !== "function" && !isObject(validation))) {
+    if (outlineSchema.validations && outlineSchema.validations?.some((validation) => typeof validation !== "function" && !isObject(validation))) {
       throw new Error(
         `agent-swarm outline schema validation failed: invalid validations for outlineName=${outlineSchema.outlineName}`
       );
