@@ -4737,6 +4737,41 @@ type IOutlineParam = any;
  */
 type IOutlineData = any;
 /**
+ * Interface representing the format/schema definition for outline data.
+ * Specifies the structure, required fields, and property metadata for outline operations.
+ * Used to enforce and document the expected shape of outline data.
+ */
+interface IOutlineFormat {
+    /**
+     * The root type of the outline format (e.g., "object").
+     */
+    type: string;
+    /**
+     * Array of property names that are required in the outline data.
+     */
+    required: string[];
+    /**
+     * An object mapping property names to their type, description, and optional enum values.
+     * Each property describes a field in the outline data.
+     */
+    properties: {
+        [key: string]: {
+            /**
+             * The type of the property (e.g., "string", "number", "boolean", etc.).
+             */
+            type: string;
+            /**
+             * A human-readable description of the property.
+             */
+            description: string;
+            /**
+             * Optional array of allowed values for the property.
+             */
+            enum?: string[];
+        };
+    };
+}
+/**
  * Interface defining callbacks for outline lifecycle events.
  * Provides hooks for handling attempt initiation, document generation, and validation outcomes.
  * @template Data - The type of the data param, defaults to IOutlineData.
@@ -4832,6 +4867,10 @@ interface IOutlineArgs<Param extends IOutlineParam = IOutlineParam> {
      * @type {number}
      */
     attempt: number;
+    /**
+     * Format of output taken from outline schema
+     */
+    format: IOutlineFormat;
     /**
      * The history management API for the outline operation.
      * Provides access to message history for context or logging.
@@ -4948,6 +4987,14 @@ interface IOutlineResult<Data extends IOutlineData = IOutlineData, Param extends
  */
 interface IOutlineSchema<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam> {
     /**
+     * The prompt or prompt generator for the outline operation.
+     * Can be a string, an array of strings, or a function that returns a string, array of strings, or a promise resolving to either.
+     * If a function is provided, it receives the outline name and can return a prompt dynamically.
+     * Used as the initial instruction or context for the outline process.
+     * @type {string | string[] | ((outlineName: OutlineName) => (string | string[] | Promise<string | string[]>))}
+     */
+    prompt: string | string[] | ((outlineName: OutlineName) => (string | string[] | Promise<string | string[]>));
+    /**
      * Optional description for documentation purposes.
      * Aids in understanding the purpose or behavior of the outline.
      * @type {string | undefined}
@@ -4972,6 +5019,12 @@ interface IOutlineSchema<Data extends IOutlineData = IOutlineData, Param extends
      * @type {(IOutlineValidation<Data, Param> | IOutlineValidationFn<Data, Param>)[]}
      */
     validations?: (IOutlineValidation<Data, Param> | IOutlineValidationFn<Data, Param>)[];
+    /**
+     * The format/schema definition for the outline data.
+     * Specifies the expected structure, required fields, and property metadata for validation and documentation.
+     * @type {IOutlineFormat}
+     */
+    format: IOutlineFormat;
     /**
      * Optional maximum number of attempts for the outline operation.
      * Limits the number of retries if validations fail.
@@ -8458,6 +8511,13 @@ declare class DocService {
      */
     private readonly agentValidationService;
     /**
+     * Outline validation service instance, injected via DI.
+     * Used for validating and managing agent outline schemas, ensuring agent outlines conform to expected structure and constraints.
+     * @type {OutlineValidationService}
+     * @private
+     */
+    private readonly outlineValidationService;
+    /**
      * Swarm schema service instance, injected via DI.
      * Retrieves ISwarmSchema objects for writeSwarmDoc, supplying swarm details like agents and policies.
      * @type {SwarmSchemaService}
@@ -8471,6 +8531,13 @@ declare class DocService {
      * @private
      */
     private readonly agentSchemaService;
+    /**
+     * Outline schema service instance, injected via DI.
+     * Retrieves and manages outline schema objects for agents, supporting documentation and validation of agent outlines.
+     * @type {OutlineSchemaService}
+     * @private
+     */
+    private readonly outlineSchemaService;
     /**
      * Model context protocol service instance, injected via DI.
      * Retrieves IMCPSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
@@ -8551,6 +8618,24 @@ declare class DocService {
      * @private
      */
     private writeSwarmDoc;
+    /**
+     * Writes Markdown documentation for an outline schema, detailing its name, description, main prompt, output format, and callbacks.
+     * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+     * Outputs to dirName/[outlineName].md, sourced from outlineSchemaService.
+     *
+     * - The Markdown includes YAML frontmatter, outline name, description, prompt(s), output format (with types, descriptions, enums, and required fields), and callbacks.
+     * - Handles both string and function-based prompts, and supports array or string prompt types.
+     * - Output format section documents each property, its type, description, enum values, and required status.
+     * - Callback section lists all callback names used by the outline.
+     *
+     * @param {IOutlineSchema} outlineSchema - The outline schema to document, including properties like prompt, format, and callbacks.
+     * @param {string} prefix - The documentation group or prefix for organizing output.
+     * @param {string} dirName - The base directory for documentation output.
+     * @param {(text: string) => string} [sanitizeMarkdown=(t) => t] - Optional function to sanitize Markdown text.
+     * @returns {Promise<void>} A promise resolving when the outline documentation file is written.
+     * @private
+     */
+    private writeOutlineDoc;
     /**
      * Writes Markdown documentation for an agent schema, detailing its name, description, UML diagram, prompts, tools, storages, states, and callbacks.
      * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
@@ -11151,6 +11236,12 @@ declare class OutlineValidationService {
      * @throws {Error} If an outline with the given name already exists in the map.
      */
     addOutline: (outlineName: OutlineName, outlineSchema: IOutlineSchema) => void;
+    /**
+     * Retrieves a list of all registered outline names.
+     * Logs the retrieval operation if info logging is enabled.
+     * @returns {OutlineName[]} An array of registered outline names.
+     */
+    getOutlineList: () => OutlineName[];
     /**
      * Validates the existence of an outline schema for the given outline name.
      * Memoized to cache results based on the outline name for performance.
@@ -15557,4 +15648,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineHistory, type IOutlineMessage, type IOutlineResult, type IOutlineSchema, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };
+export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineResult, type IOutlineSchema, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm };
