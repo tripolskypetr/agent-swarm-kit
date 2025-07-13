@@ -298,6 +298,7 @@ group: docs
 - [IOperatorParams](interfaces/IOperatorParams.md)
 - [IPipelineSchema](interfaces/IPipelineSchema.md)
 - [IPipelineCallbacks](interfaces/IPipelineCallbacks.md)
+- [IOutlineFormat](interfaces/IOutlineFormat.md)
 - [IOutlineCallbacks](interfaces/IOutlineCallbacks.md)
 - [IOutlineMessage](interfaces/IOutlineMessage.md)
 - [IOutlineHistory](interfaces/IOutlineHistory.md)

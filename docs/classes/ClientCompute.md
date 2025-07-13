@@ -21,16 +21,16 @@ constructor(params: IComputeParams<Compute>);
 params: IComputeParams<Compute>
 ```
 
-### __@DISPOSE_SLOT_FN_SYMBOL@3078
+### __@DISPOSE_SLOT_FN_SYMBOL@3100
 
 ```ts
-__@DISPOSE_SLOT_FN_SYMBOL@3078: any
+__@DISPOSE_SLOT_FN_SYMBOL@3100: any
 ```
 
-### __@GET_COMPUTE_DATA_FN_SYMBOL@3079
+### __@GET_COMPUTE_DATA_FN_SYMBOL@3101
 
 ```ts
-__@GET_COMPUTE_DATA_FN_SYMBOL@3079: any
+__@GET_COMPUTE_DATA_FN_SYMBOL@3101: any
 ```
 
 ## Methods

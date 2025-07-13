@@ -101,7 +101,7 @@ Returns the current busy state of the swarm.
 Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
 Supports debugging and flow control in client applications.
 
-### __@SET_BUSY_FN@1539
+### __@SET_BUSY_FN@1558
 
 ```ts
 [SET_BUSY_FN](isBusy: boolean): void;

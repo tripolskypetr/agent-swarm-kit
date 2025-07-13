@@ -10,6 +10,17 @@ Defines the structure and behavior of an outline, including data generation and 
 
 ## Properties
 
+### prompt
+
+```ts
+prompt: string | string[] | ((outlineName: string) => string | string[] | Promise<string | string[]>)
+```
+
+The prompt or prompt generator for the outline operation.
+Can be a string, an array of strings, or a function that returns a string, array of strings, or a promise resolving to either.
+If a function is provided, it receives the outline name and can return a prompt dynamically.
+Used as the initial instruction or context for the outline process.
+
 ### docDescription
 
 ```ts
@@ -36,6 +47,15 @@ validations: (IOutlineValidation<Data, Param> | IOutlineValidationFn<Data, Param
 
 Array of validation functions or configurations to apply to the outline data.
 Supports both direct validation functions and structured validation configurations.
+
+### format
+
+```ts
+format: IOutlineFormat
+```
+
+The format/schema definition for the outline data.
+Specifies the expected structure, required fields, and property metadata for validation and documentation.
 
 ### maxAttempts
 

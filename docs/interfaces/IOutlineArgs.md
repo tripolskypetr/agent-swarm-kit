@@ -28,6 +28,14 @@ attempt: number
 The current attempt number for the outline operation.
 Tracks the number of retries or iterations, useful for validation or retry logic.
 
+### format
+
+```ts
+format: IOutlineFormat
+```
+
+Format of output taken from outline schema
+
 ### history
 
 ```ts

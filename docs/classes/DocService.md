@@ -54,6 +54,15 @@ agentValidationService: any
 Agent validation service instance, injected via DI.
 Provides the list of agent names for dumpDocs, ensuring only valid agents are documented.
 
+### outlineValidationService
+
+```ts
+outlineValidationService: any
+```
+
+Outline validation service instance, injected via DI.
+Used for validating and managing agent outline schemas, ensuring agent outlines conform to expected structure and constraints.
+
 ### swarmSchemaService
 
 ```ts
@@ -71,6 +80,15 @@ agentSchemaService: any
 
 Agent schema service instance, injected via DI.
 Retrieves IAgentSchemaInternal objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
+
+### outlineSchemaService
+
+```ts
+outlineSchemaService: any
+```
+
+Outline schema service instance, injected via DI.
+Retrieves and manages outline schema objects for agents, supporting documentation and validation of agent outlines.
 
 ### mcpSchemaService
 
@@ -171,6 +189,21 @@ writeSwarmDoc: any
 Writes Markdown documentation for a swarm schema, detailing its name, description, UML diagram, agents, policies, and callbacks.
 Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
 Outputs to dirName/[swarmName].md, with UML images in dirName/image, and links to agent docs in dirName/agent, sourced from swarmSchemaService.
+
+### writeOutlineDoc
+
+```ts
+writeOutlineDoc: any
+```
+
+Writes Markdown documentation for an outline schema, detailing its name, description, main prompt, output format, and callbacks.
+Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+Outputs to dirName/[outlineName].md, sourced from outlineSchemaService.
+
+- The Markdown includes YAML frontmatter, outline name, description, prompt(s), output format (with types, descriptions, enums, and required fields), and callbacks.
+- Handles both string and function-based prompts, and supports array or string prompt types.
+- Output format section documents each property, its type, description, enum values, and required status.
+- Callback section lists all callback names used by the outline.
 
 ### writeAgentDoc
 

@@ -26,6 +26,15 @@ toolName: string
 
 The unique name of the tool, used for identification within the agent swarm.
 
+### isAvailable
+
+```ts
+isAvailable: (clientId: string, agentName: string, toolName: string) => boolean | Promise<boolean>
+```
+
+Checks if the tool is available for execution.
+This method can be used to determine if the tool can be executed based on the current context.
+
 ### validate
 
 ```ts
