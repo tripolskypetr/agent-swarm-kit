@@ -26,6 +26,25 @@ loggerService: any
 The logger service instance for logging outline-related operations and errors.
 Injected via dependency injection using the TYPES.loggerService identifier.
 
+### completionSchemaService
+
+```ts
+completionSchemaService: any
+```
+
+Completion schema service instance for managing completion schemas.
+Injected via DI, used in validate method to check outline completions.
+Provides a registry of completion schemas for the swarm.
+
+### completionValidationService
+
+```ts
+completionValidationService: any
+```
+
+Completion validation service instance for validating completion configurations of outlines.
+Injected via DI, used in validate method to check outline completion.
+
 ### _outlineMap
 
 ```ts
@@ -43,6 +62,15 @@ addOutline: (outlineName: string, outlineSchema: IOutlineSchema<any, any>) => vo
 
 Registers a new outline schema with the given name.
 Logs the addition if info logging is enabled and throws an error if the outline name already exists.
+
+### getOutlineList
+
+```ts
+getOutlineList: () => string[]
+```
+
+Retrieves a list of all registered outline names.
+Logs the retrieval operation if info logging is enabled.
 
 ### validate
 

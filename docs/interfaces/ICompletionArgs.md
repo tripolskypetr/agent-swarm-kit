@@ -16,7 +16,9 @@ Encapsulates context and inputs for generating a model response.
 clientId: string
 ```
 
-The unique ID of the client requesting the completion.
+The unique identifier for the client making the request.
+This is used to track the request and associate it with the correct client context.
+For outline completions, this being skipped
 
 ### agentName
 
@@ -24,7 +26,18 @@ The unique ID of the client requesting the completion.
 agentName: string
 ```
 
-The unique name of the agent associated with the completion request.
+The name of the agent for which the completion is requested.
+This is used to identify the agent context in which the completion will be generated.
+
+### outlineName
+
+```ts
+outlineName: string
+```
+
+The outline used for json completions, if applicable.
+This is the name of the outline schema that defines the structure of the expected JSON response.
+Used to ensure that the completion adheres to the specified outline format.
 
 ### mode
 
@@ -37,7 +50,7 @@ The source of the last message, indicating whether it originated from a tool or 
 ### messages
 
 ```ts
-messages: IModelMessage<object>[]
+messages: (IModelMessage<object> | IOutlineMessage)[]
 ```
 
 An array of model messages providing the conversation history or context for the completion.

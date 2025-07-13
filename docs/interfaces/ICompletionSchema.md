@@ -18,6 +18,12 @@ completionName: string
 
 The unique name of the completion mechanism within the swarm.
 
+### json
+
+```ts
+json: boolean
+```
+
 ### flags
 
 ```ts
@@ -39,7 +45,7 @@ Optional partial set of callbacks for completion events, allowing customization 
 ### getCompletion
 
 ```ts
-getCompletion: (args: ICompletionArgs) => Promise<IModelMessage<object>>
+getCompletion: (args: ICompletionArgs) => Promise<IModelMessage<object> | IOutlineMessage>
 ```
 
 Retrieves a completion based on the provided arguments.

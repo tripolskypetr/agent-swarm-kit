@@ -10,6 +10,14 @@ Defines the structure and behavior of an outline, including data generation and 
 
 ## Properties
 
+### completion
+
+```ts
+completion: string
+```
+
+The name of the completion for JSON
+
 ### prompt
 
 ```ts
@@ -77,10 +85,10 @@ Allows customization of attempt, document, and validation handling.
 
 ## Methods
 
-### getStructuredOutput
+### getOutlineHistory
 
 ```ts
-getStructuredOutput: (args: IOutlineArgs<Param>) => Promise<Data>
+getOutlineHistory: (args: IOutlineArgs<Param>) => Promise<void>
 ```
 
 Function to generate structured data for the outline operation.

@@ -50,7 +50,7 @@ validateShallow: any
 ```
 
 Validates an outline schema for required properties and correct types.
-Ensures `outlineName` is a string, `getStructuredOutput` is a function, and `validations` (if present) is an array of valid validation functions or objects.
+Ensures `outlineName` is a string, `getOutlineHistory` is a function, and `validations` (if present) is an array of valid validation functions or objects.
 Logs validation attempts if `CC_LOGGER_ENABLE_INFO` is enabled.
 
 ### register

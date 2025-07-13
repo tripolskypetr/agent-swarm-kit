@@ -29,6 +29,16 @@ loggerService: any
 Logger service instance for logging validation operations and errors.
 Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
 
+### completionSchemaService
+
+```ts
+completionSchemaService: any
+```
+
+Completion schema service instance for managing completion schemas.
+Injected via DI, used in validate method to check agent completions.
+Provides a registry of completion schemas for the swarm.
+
 ### toolValidationService
 
 ```ts
