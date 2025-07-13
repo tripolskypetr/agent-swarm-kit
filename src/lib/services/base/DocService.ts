@@ -24,6 +24,9 @@ import WikiSchemaService from "../schema/WikiSchemaService";
 import MCPSchemaService from "../schema/MCPSchemaService";
 import ComputeValidationService from "../validation/ComputeValidationService";
 import ComputeSchemaService from "../schema/ComputeSchemaService";
+import OutlineValidationService from "../validation/OutlineValidationService";
+import OutlineSchemaService from "../schema/OutlineSchemaService";
+import { IOutlineSchema } from "../../../interfaces/Outline.interface";
 
 /**
  * Maximum number of concurrent threads for documentation generation tasks.
@@ -98,6 +101,16 @@ export class DocService {
   );
 
   /**
+   * Outline validation service instance, injected via DI.
+   * Used for validating and managing agent outline schemas, ensuring agent outlines conform to expected structure and constraints.
+   * @type {OutlineValidationService}
+   * @private
+   */
+  private readonly outlineValidationService = inject<OutlineValidationService>(
+    TYPES.outlineValidationService
+  );
+
+  /**
    * Swarm schema service instance, injected via DI.
    * Retrieves ISwarmSchema objects for writeSwarmDoc, supplying swarm details like agents and policies.
    * @type {SwarmSchemaService}
@@ -115,6 +128,16 @@ export class DocService {
    */
   private readonly agentSchemaService = inject<AgentSchemaService>(
     TYPES.agentSchemaService
+  );
+
+  /**
+   * Outline schema service instance, injected via DI.
+   * Retrieves and manages outline schema objects for agents, supporting documentation and validation of agent outlines.
+   * @type {OutlineSchemaService}
+   * @private
+   */
+  private readonly outlineSchemaService = inject<OutlineSchemaService>(
+    TYPES.outlineSchemaService
   );
 
   /**
@@ -345,6 +368,147 @@ export class DocService {
 
       await writeFileAtomic(
         join(dirName, `./${swarmSchema.swarmName}.md`),
+        result.join("\n")
+      );
+    },
+    {
+      maxExec: THREAD_POOL_SIZE,
+      delay: THREAD_POOL_DELAY,
+    }
+  );
+
+  /**
+   * Writes Markdown documentation for an outline schema, detailing its name, description, main prompt, output format, and callbacks.
+   * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
+   * Outputs to dirName/[outlineName].md, sourced from outlineSchemaService.
+   *
+   * - The Markdown includes YAML frontmatter, outline name, description, prompt(s), output format (with types, descriptions, enums, and required fields), and callbacks.
+   * - Handles both string and function-based prompts, and supports array or string prompt types.
+   * - Output format section documents each property, its type, description, enum values, and required status.
+   * - Callback section lists all callback names used by the outline.
+   *
+   * @param {IOutlineSchema} outlineSchema - The outline schema to document, including properties like prompt, format, and callbacks.
+   * @param {string} prefix - The documentation group or prefix for organizing output.
+   * @param {string} dirName - The base directory for documentation output.
+   * @param {(text: string) => string} [sanitizeMarkdown=(t) => t] - Optional function to sanitize Markdown text.
+   * @returns {Promise<void>} A promise resolving when the outline documentation file is written.
+   * @private
+   */
+  private writeOutlineDoc = execpool(
+    async (
+      outlineSchema: IOutlineSchema,
+      prefix: string,
+      dirName: string,
+      sanitizeMarkdown: (text: string) => string = (t) => t
+    ) => {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+        this.loggerService.info("docService writeOutlineDoc", {
+          outlineSchema,
+        });
+      const result: string[] = [];
+
+      {
+        result.push("---");
+        result.push(
+          `title: ${prefix}/${sanitizeMarkdown(outlineSchema.outlineName)}`
+        );
+        result.push(`group: ${prefix}`);
+        result.push("---");
+        result.push("");
+      }
+
+      {
+        result.push(`# ${sanitizeMarkdown(outlineSchema.outlineName)}`);
+        if (outlineSchema.docDescription) {
+          result.push("");
+          result.push(`> ${sanitizeMarkdown(outlineSchema.docDescription)}`);
+        }
+        result.push("");
+      }
+
+      const getPrompt = async () => {
+        try {
+          if (typeof outlineSchema.prompt === "string") {
+            return outlineSchema.prompt;
+          }
+          if (typeof outlineSchema.prompt === "function") {
+            return await outlineSchema.prompt(outlineSchema.outlineName);
+          }
+          return null;
+        } catch {
+          return null;
+        }
+      };
+
+      const prompt = await getPrompt();
+
+      if (Array.isArray(prompt)) {
+        result.push(`## Main prompt`);
+        result.push("");
+        for (let i = 0; i !== prompt.length; i++) {
+          if (!prompt[i]) {
+            continue;
+          }
+          result.push(`${i + 1}. \`${sanitizeMarkdown(prompt[i])}\``);
+          result.push("");
+        }
+      }
+
+      if (typeof prompt === "string") {
+        result.push(`## Main prompt`);
+        result.push("");
+        result.push("```");
+        result.push(sanitizeMarkdown(prompt));
+        result.push("```");
+        result.push("");
+      }
+
+      if (outlineSchema.format) {
+        result.push("");
+        result.push("## Output format");
+        const entries = Object.entries(outlineSchema.format.properties);
+        entries.forEach(([key, { type, description, enum: e }], idx) => {
+          result.push("");
+          result.push(`> **${idx + 1}. ${sanitizeMarkdown(key)}**`);
+          {
+            result.push("");
+            result.push(`*Type:* \`${sanitizeMarkdown(type)}\``);
+          }
+          {
+            result.push("");
+            result.push(`*Description:* \`${sanitizeMarkdown(description)}\``);
+          }
+          if (e) {
+            result.push("");
+            result.push(`*Enum:* \`${e.map(sanitizeMarkdown).join(", ")}\``);
+          }
+          {
+            result.push("");
+            result.push(
+              `*Required:* [${
+                outlineSchema.format.required.includes(key) ? "x" : " "
+              }]`
+            );
+          }
+        });
+        if (!entries.length) {
+          result.push("");
+          result.push(`*Empty parameters*`);
+        }
+      }
+
+      if (outlineSchema.callbacks) {
+        result.push(`## Used callbacks`);
+        result.push("");
+        const callbackList = Object.keys(outlineSchema.callbacks);
+        for (let i = 0; i !== callbackList.length; i++) {
+          result.push(`${i + 1}. \`${sanitizeMarkdown(callbackList[i])}\``);
+        }
+        result.push("");
+      }
+
+      await writeFileAtomic(
+        join(dirName, `./${outlineSchema.outlineName}.md`),
         result.join("\n")
       );
     },
@@ -847,6 +1011,21 @@ export class DocService {
           sanitizeMarkdown
         );
       })
+    );
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("docService dumpDocs building outline docs");
+    await Promise.all(
+      this.outlineValidationService
+        .getOutlineList()
+        .map(async (outlineName) => {
+          const outlineSchema = this.outlineSchemaService.get(outlineName);
+          await this.writeOutlineDoc(
+            outlineSchema,
+            prefix,
+            dirName,
+            sanitizeMarkdown
+          );
+        })
     );
   };
 

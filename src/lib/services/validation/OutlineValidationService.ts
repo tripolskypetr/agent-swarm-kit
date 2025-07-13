@@ -54,6 +54,17 @@ export class OutlineValidationService {
   };
 
   /**
+   * Retrieves a list of all registered outline names.
+   * Logs the retrieval operation if info logging is enabled.
+   * @returns {OutlineName[]} An array of registered outline names.
+   */
+  public getOutlineList = (): OutlineName[] => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("outlineValidationService getOutlineList");
+    return [...this._outlineMap.keys()];
+  };
+
+  /**
    * Validates the existence of an outline schema for the given outline name.
    * Memoized to cache results based on the outline name for performance.
    * Logs the validation attempt if info logging is enabled and throws an error if the outline is not found.
