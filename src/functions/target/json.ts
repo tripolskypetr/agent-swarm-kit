@@ -116,8 +116,11 @@ const jsonInternal = beginContext(
 
     swarm.completionValidationService.validate(completion, METHOD_NAME);
 
-    const { getCompletion, callbacks: completionCallbacks } =
-      swarm.completionSchemaService.get(completion);
+    const {
+      getCompletion,
+      flags = [],
+      callbacks: completionCallbacks,
+    } = swarm.completionSchemaService.get(completion);
 
     let errorMessage: string = "";
     let history: OutlineHistory;
@@ -125,8 +128,18 @@ const jsonInternal = beginContext(
     const systemPrompt =
       typeof prompt === "function" ? await prompt(outlineName) : prompt;
 
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const makeHistory = async () => {
       history = new OutlineHistory(systemPrompt);
+      for (const flag of flags) {
+        await history.push({
+          role: "system",
+          content: flag,
+        });
+      }
+    };
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      await makeHistory();
       const inputArgs: IOutlineArgs = {
         attempt,
         format,
