@@ -11,7 +11,7 @@ import {
   IOutlineValidationArgs,
   IOutlineResult,
 } from "../../interfaces/Outline.interface";
-import { getErrorMessage, randomString, str } from "functools-kit";
+import { getErrorMessage, randomString } from "functools-kit";
 
 const METHOD_NAME = "function.target.json";
 
@@ -32,11 +32,23 @@ class OutlineHistory implements IOutlineHistory {
    * @param {string} [prompt] - An optional system prompt to initialize the history with.
    * @constructor
    */
-  constructor(prompt?: string) {
-    prompt && this.messages.push({
-      role: "system",
-      content: prompt
-    })
+  constructor(prompt?: string | string[]) {
+    if (!prompt) {
+      return;
+    }
+    if (typeof prompt === "string") {
+      this.messages.push({
+        role: "system",
+        content: prompt,
+      });
+      return;
+    }
+    prompt.forEach((content) => {
+      this.messages.push({
+        role: "system",
+        content,
+      });
+    });
   }
 
   /**
@@ -93,20 +105,25 @@ const jsonInternal = beginContext(
     const resultId = randomString();
 
     const {
-      getStructuredOutput,
+      getOutlineHistory,
+      completion,
       validations = [],
       maxAttempts = MAX_ATTEMPTS,
       format,
       prompt,
-      callbacks,
+      callbacks: outlineCallbacks,
     } = swarm.outlineSchemaService.get(outlineName);
+
+    swarm.completionValidationService.validate(completion, METHOD_NAME);
+
+    const { getCompletion, callbacks: completionCallbacks } =
+      swarm.completionSchemaService.get(completion);
 
     let errorMessage: string = "";
     let history: OutlineHistory;
 
-    const systemPrompt = str.newline(
-      typeof prompt === "function" ? await prompt(outlineName) : prompt
-    );
+    const systemPrompt =
+      typeof prompt === "function" ? await prompt(outlineName) : prompt;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       history = new OutlineHistory(systemPrompt);
@@ -116,41 +133,52 @@ const jsonInternal = beginContext(
         param,
         history,
       };
-      if (callbacks?.onAttempt) {
-        callbacks.onAttempt(inputArgs);
+      if (outlineCallbacks?.onAttempt) {
+        outlineCallbacks.onAttempt(inputArgs);
       }
-      const data = await getStructuredOutput(inputArgs);
-      const validationArgs: IOutlineValidationArgs = {
-        ...inputArgs,
-        data,
-      };
-      let isValid = true;
-      for (const validation of validations) {
-        const validate =
-          typeof validation === "object" ? validation.validate : validation;
-        try {
-          await validate(validationArgs);
-        } catch (error) {
-          isValid = false;
-          errorMessage = getErrorMessage(error);
-          break;
+      await getOutlineHistory(inputArgs);
+      const messages = await history.list();
+      try {
+        const output = await getCompletion({
+          messages: await history.list(),
+          mode: "tool",
+          outlineName,
+        });
+        if (completionCallbacks?.onComplete) {
+          completionCallbacks.onComplete(
+            {
+              messages,
+              mode: "tool",
+              outlineName,
+            },
+            output
+          );
         }
+        const data = JSON.parse(output.content) as IOutlineData;
+        const validationArgs: IOutlineValidationArgs = {
+          ...inputArgs,
+          data,
+        };
+        for (const validation of validations) {
+          const validate =
+            typeof validation === "object" ? validation.validate : validation;
+          await validate(validationArgs);
+        }
+        const result = {
+          isValid: true,
+          attempt,
+          param,
+          history: await history.list(),
+          data,
+          resultId,
+        };
+        if (outlineCallbacks?.onValidDocument) {
+          outlineCallbacks.onValidDocument(result);
+        }
+        return result;
+      } catch (error) {
+        errorMessage = getErrorMessage(error);
       }
-      if (!isValid) {
-        continue;
-      }
-      const result = {
-        isValid: true,
-        attempt,
-        param,
-        history: await history.list(),
-        data,
-        resultId,
-      };
-      if (callbacks?.onValidDocument) {
-        callbacks.onValidDocument(result);
-      }
-      return result;
     }
     const result = {
       isValid: false,
@@ -161,8 +189,8 @@ const jsonInternal = beginContext(
       data: null,
       resultId,
     };
-    if (callbacks?.onInvalidDocument) {
-      callbacks.onInvalidDocument(result);
+    if (outlineCallbacks?.onInvalidDocument) {
+      outlineCallbacks.onInvalidDocument(result);
     }
     return result;
   }

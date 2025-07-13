@@ -263,7 +263,12 @@ const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
     mode: "user" as const,
     tools: [],
   };
-  const rawMessage = await self.params.completion.getCompletion(args);
+  const completionMessage = await self.params.completion.getCompletion(args);
+  const rawMessage: IModelMessage = {
+    agentName: self.params.agentName,
+    mode: "tool",
+    ...completionMessage,
+  };
   self.params.completion.callbacks?.onComplete &&
     self.params.completion.callbacks?.onComplete(args, rawMessage);
   const message = await self.params.map(
@@ -1039,7 +1044,12 @@ export class ClientAgent implements IAgent {
         tools
       ),
     };
-    const output = await this.params.completion.getCompletion(args);
+    const rawMessage = await this.params.completion.getCompletion(args);
+    const output: IModelMessage = {
+      agentName: this.params.agentName,
+      mode: "tool",
+      ...rawMessage,
+    };
     if (GLOBAL_CONFIG.CC_RESQUE_STRATEGY === "flush") {
       this.params.completion.callbacks?.onComplete &&
         this.params.completion.callbacks?.onComplete(args, output);
@@ -1106,7 +1116,12 @@ export class ClientAgent implements IAgent {
           tools
         ),
       };
-      const output = await this.params.completion.getCompletion(args);
+      const rawMessage = await this.params.completion.getCompletion(args);
+      const output: IModelMessage = {
+        agentName: this.params.agentName,
+        mode: "tool",
+        ...rawMessage,
+      };
       this.params.completion.callbacks?.onComplete &&
         this.params.completion.callbacks?.onComplete(args, output);
       return {

@@ -7,6 +7,8 @@ import {
 } from "../../../interfaces/Outline.interface";
 import { memoize } from "functools-kit";
 import { GLOBAL_CONFIG } from "../../../config/params";
+import CompletionSchemaService from "../schema/CompletionSchemaService";
+import CompletionValidationService from "./CompletionValidationService";
 
 /**
  * A service class for managing and validating outline schemas in the agent swarm system.
@@ -22,6 +24,27 @@ export class OutlineValidationService {
    * @type {LoggerService}
    */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+
+  /**
+   * Completion schema service instance for managing completion schemas.
+   * Injected via DI, used in validate method to check outline completions.
+   * Provides a registry of completion schemas for the swarm.
+   * @type {CompletionSchemaService}
+   * @private
+   */
+  private readonly completionSchemaService = inject<CompletionSchemaService>(
+    TYPES.completionSchemaService
+  );
+
+  /**
+   * Completion validation service instance for validating completion configurations of outlines.
+   * Injected via DI, used in validate method to check outline completion.
+   * @type {CompletionValidationService}
+   * @private
+   * @readonly
+   */
+  private readonly completionValidationService =
+    inject<CompletionValidationService>(TYPES.completionValidationService);
 
   /**
    * A map storing outline schemas, keyed by their unique outline names.
@@ -86,6 +109,15 @@ export class OutlineValidationService {
           `agent-swarm outline ${outlineName} not found source=${source}`
         );
       }
+      const completionSchema = this.completionSchemaService.get(
+        outline.completion
+      );
+      if (!completionSchema.json) {
+        throw new Error(
+          `agent-swarm outline ${outlineName} completion schema is not JSON source=${source}`
+        );
+      }
+      this.completionValidationService.validate(outline.completion, source);
       return true as never;
     }
   ) as (outlineName: OutlineName, source: string) => void;

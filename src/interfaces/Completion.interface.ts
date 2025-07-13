@@ -1,6 +1,7 @@
 import { IModelMessage } from "../model/ModelMessage.model";
 import { ITool } from "../model/Tool.model";
 import { AgentName } from "./Agent.interface";
+import { IOutlineMessage, OutlineName } from "./Outline.interface";
 import { ExecutionMode } from "./Session.interface";
 
 /**
@@ -15,17 +16,34 @@ export interface ICompletion extends ICompletionSchema {}
  * Encapsulates context and inputs for generating a model response.
  */
 export interface ICompletionArgs {
-  /** The unique ID of the client requesting the completion. */
-  clientId: string;
+  /**
+   * The unique identifier for the client making the request.
+   * This is used to track the request and associate it with the correct client context.
+   * For outline completions, this being skipped
+   * @type {string}
+   */
+  clientId?: string;
 
-  /** The unique name of the agent associated with the completion request. */
-  agentName: AgentName;
+  /**
+   * The name of the agent for which the completion is requested.
+   * This is used to identify the agent context in which the completion will be generated.
+   * @type {AgentName}
+   */
+  agentName?: AgentName;
+
+  /**
+   * The outline used for json completions, if applicable.
+   * This is the name of the outline schema that defines the structure of the expected JSON response.
+   * Used to ensure that the completion adheres to the specified outline format.
+   * @type {OutlineName}
+   */
+  outlineName?: OutlineName;
 
   /** The source of the last message, indicating whether it originated from a tool or user. */
   mode: ExecutionMode;
 
   /** An array of model messages providing the conversation history or context for the completion. */
-  messages: IModelMessage[];
+  messages: (IModelMessage | IOutlineMessage)[];
 
   /** Optional array of tools available for the completion process (e.g., for tool calls). */
   tools?: ITool[];
@@ -42,7 +60,7 @@ export interface ICompletionCallbacks {
    * @param {ICompletionArgs} args - The arguments used to generate the completion.
    * @param {IModelMessage} output - The model-generated message resulting from the completion.
    */
-  onComplete?: (args: ICompletionArgs, output: IModelMessage) => void;
+  onComplete?: (args: ICompletionArgs, output: IModelMessage | IOutlineMessage) => void;
 }
 
 /**
@@ -60,7 +78,14 @@ export interface ICompletionSchema {
    * @returns {Promise<IModelMessage>} A promise resolving to the generated model message.
    * @throws {Error} If completion generation fails (e.g., due to invalid arguments, model errors, or tool issues).
    */
-  getCompletion(args: ICompletionArgs): Promise<IModelMessage>;
+  getCompletion(args: ICompletionArgs): Promise<IModelMessage | IOutlineMessage>;
+
+  /*
+   * Flag if the completion is a JSON completion.
+   * If true, the completion will be treated as a JSON object.
+   * Should be used for completions that return structured data using Outlines.
+   */
+  json?: boolean;
 
   /** List of flags for llm model. As example, `/no_think` for `lmstudio-community/Qwen3-32B-GGUF`  */
   flags?: string[];

@@ -430,6 +430,13 @@ export class DocService {
         result.push("");
       }
 
+      if (outlineSchema.completion) {
+        result.push(
+          `**Completion:** \`${sanitizeMarkdown(outlineSchema.completion)}\``
+        );
+        result.push("");
+      }
+
       const getPrompt = async () => {
         try {
           if (typeof outlineSchema.prompt === "string") {

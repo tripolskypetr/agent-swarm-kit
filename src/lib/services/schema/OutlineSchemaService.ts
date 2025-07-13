@@ -74,7 +74,7 @@ export class OutlineSchemaService {
 
   /**
    * Validates an outline schema for required properties and correct types.
-   * Ensures `outlineName` is a string, `getStructuredOutput` is a function, and `validations` (if present) is an array of valid validation functions or objects.
+   * Ensures `outlineName` is a string, `getOutlineHistory` is a function, and `validations` (if present) is an array of valid validation functions or objects.
    * Logs validation attempts if `CC_LOGGER_ENABLE_INFO` is enabled.
    * @private
    * @param {IOutlineSchema} outlineSchema - The outline schema to validate.
@@ -90,17 +90,31 @@ export class OutlineSchemaService {
         `agent-swarm outline schema validation failed: missing outlineName`
       );
     }
-    if (typeof outlineSchema.getStructuredOutput !== "function") {
+    if (typeof outlineSchema.completion !== "string") {
       throw new Error(
-        `agent-swarm outline schema validation failed: missing getStructuredOutput for outlineName=${outlineSchema.outlineName}`
+        `agent-swarm outline schema validation failed: missing completion for outlineName=${outlineSchema.outlineName}`
       );
     }
-    if (outlineSchema.validations && !Array.isArray(outlineSchema.validations)) {
+    if (typeof outlineSchema.getOutlineHistory !== "function") {
+      throw new Error(
+        `agent-swarm outline schema validation failed: missing getOutlineHistory for outlineName=${outlineSchema.outlineName}`
+      );
+    }
+    if (
+      outlineSchema.validations &&
+      !Array.isArray(outlineSchema.validations)
+    ) {
       throw new Error(
         `agent-swarm outline schema validation failed: validations is not an array for outlineName=${outlineSchema.outlineName}`
       );
     }
-    if (outlineSchema.validations && outlineSchema.validations?.some((validation) => typeof validation !== "function" && !isObject(validation))) {
+    if (
+      outlineSchema.validations &&
+      outlineSchema.validations?.some(
+        (validation) =>
+          typeof validation !== "function" && !isObject(validation)
+      )
+    ) {
       throw new Error(
         `agent-swarm outline schema validation failed: invalid validations for outlineName=${outlineSchema.outlineName}`
       );

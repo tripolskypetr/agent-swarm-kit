@@ -17,6 +17,7 @@ import WikiValidationService from "./WikiValidationService";
 import { WikiName } from "../../../interfaces/Wiki.interface";
 import MCPValidationService from "./MCPValidationService";
 import { MCPName } from "../../../interfaces/MCP.interface";
+import CompletionSchemaService from "../schema/CompletionSchemaService";
 
 /**
  * Service for validating agents within the swarm system, managing agent schemas and dependencies.
@@ -35,6 +36,18 @@ export class AgentValidationService {
    * @readonly
    */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+
+  /**
+   * Completion schema service instance for managing completion schemas.
+   * Injected via DI, used in validate method to check agent completions.
+   * Provides a registry of completion schemas for the swarm.
+   * @type {CompletionSchemaService}
+   * @private
+   * @readonly
+   */
+  private readonly completionSchemaService = inject<CompletionSchemaService>(
+    TYPES.completionSchemaService
+  );
 
   /**
    * Tool validation service instance for validating tools associated with agents.
@@ -331,6 +344,14 @@ export class AgentValidationService {
       if (!agent) {
         throw new Error(
           `agent-swarm agent ${agentName} not found source=${source}`
+        );
+      }
+      const completionSchema = this.completionSchemaService.get(
+        agent.completion
+      );
+      if (completionSchema.json) {
+        throw new Error(
+          `agent-swarm agent ${agentName} completion schema is JSON source=${source}`
         );
       }
       if (!agent.operator) {

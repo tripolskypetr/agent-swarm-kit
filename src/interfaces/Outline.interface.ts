@@ -1,3 +1,6 @@
+import { IToolCall } from "../model/Tool.model";
+import { CompletionName } from "./Completion.interface";
+
 /**
  * Generic type representing arbitrary param for outline operations.
  * Used as a flexible placeholder for input param in outline schemas and arguments.
@@ -101,9 +104,9 @@ export interface IOutlineMessage {
   /**
    * The role of the message sender, either user, assistant, or system.
    * Determines the context or source of the message in the outline history.
-   * @type {"user" | "assistant" | "system"}
+   * @type {"assistant" | "system" | "tool" | "user"}
    */
-  role: "user" | "assistant" | "system";
+  role: "assistant" | "system" | "tool" | "user";
 
   /**
    * The content of the message.
@@ -111,6 +114,19 @@ export interface IOutlineMessage {
    * @type {string}
    */
   content: string;
+
+  /**
+   * The name of the agent associated with the message.
+   * Allow to attach tool call request to specific message
+   */
+  tool_calls?: IToolCall[];
+
+  /**
+   * Optional ID of the tool call associated with the message.
+   * Used to link the message to a specific tool execution request.
+   * @type {string | undefined}
+   */
+  tool_call_id?: string;
 }
 
 /**
@@ -310,6 +326,9 @@ export interface IOutlineSchema<
   Param extends IOutlineParam = IOutlineParam
 > {
 
+  /** The name of the completion for JSON */
+  completion: CompletionName;
+
   /**
    * The prompt or prompt generator for the outline operation.
    * Can be a string, an array of strings, or a function that returns a string, array of strings, or a promise resolving to either.
@@ -339,7 +358,7 @@ export interface IOutlineSchema<
    * @param {IOutlineArgs<Param>} args - The arguments containing input param and history.
    * @returns {Promise<Data>} A promise resolving to the structured data.
    */
-  getStructuredOutput(args: IOutlineArgs<Param>): Promise<Data>;
+  getOutlineHistory(args: IOutlineArgs<Param>): Promise<void>;
 
   /**
    * Array of validation functions or configurations to apply to the outline data.
