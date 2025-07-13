@@ -143,6 +143,7 @@ const jsonInternal = beginContext(
           messages: await history.list(),
           mode: "tool",
           outlineName,
+          format,
         });
         if (completionCallbacks?.onComplete) {
           completionCallbacks.onComplete(

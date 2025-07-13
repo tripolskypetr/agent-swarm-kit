@@ -1,7 +1,7 @@
 import { IModelMessage } from "../model/ModelMessage.model";
 import { ITool } from "../model/Tool.model";
 import { AgentName } from "./Agent.interface";
-import { IOutlineMessage, OutlineName } from "./Outline.interface";
+import { IOutlineFormat, IOutlineMessage, OutlineName } from "./Outline.interface";
 import { ExecutionMode } from "./Session.interface";
 
 /**
@@ -47,6 +47,15 @@ export interface ICompletionArgs {
 
   /** Optional array of tools available for the completion process (e.g., for tool calls). */
   tools?: ITool[];
+
+  /**
+   * Optional format for the outline, specifying how the completion should be structured.
+   * This is used to define the expected output format for JSON completions.
+   * If not provided, the default outline format will be used.
+   * @type {IOutlineFormat}
+   * @optional
+   */
+  format?: IOutlineFormat;
 }
 
 /**

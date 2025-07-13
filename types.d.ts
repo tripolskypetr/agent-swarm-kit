@@ -3399,6 +3399,14 @@ interface ICompletionArgs {
     messages: (IModelMessage | IOutlineMessage)[];
     /** Optional array of tools available for the completion process (e.g., for tool calls). */
     tools?: ITool[];
+    /**
+     * Optional format for the outline, specifying how the completion should be structured.
+     * This is used to define the expected output format for JSON completions.
+     * If not provided, the default outline format will be used.
+     * @type {IOutlineFormat}
+     * @optional
+     */
+    format?: IOutlineFormat;
 }
 /**
  * Interface representing lifecycle callbacks for completion events.
