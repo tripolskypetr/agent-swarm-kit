@@ -13,6 +13,46 @@ export type IOutlineParam = any;
 export type IOutlineData = any;
 
 /**
+ * Interface representing the format/schema definition for outline data.
+ * Specifies the structure, required fields, and property metadata for outline operations.
+ * Used to enforce and document the expected shape of outline data.
+ */
+export interface IOutlineFormat {
+  /**
+   * The root type of the outline format (e.g., "object").
+   */
+  type: string;
+
+  /**
+   * Array of property names that are required in the outline data.
+   */
+  required: string[];
+
+  /**
+   * An object mapping property names to their type, description, and optional enum values.
+   * Each property describes a field in the outline data.
+   */
+  properties: {
+    [key: string]: {
+      /**
+       * The type of the property (e.g., "string", "number", "boolean", etc.).
+       */
+      type: string;
+
+      /**
+       * A human-readable description of the property.
+       */
+      description: string;
+
+      /**
+       * Optional array of allowed values for the property.
+       */
+      enum?: string[];
+    };
+  };
+}
+
+/**
  * Interface defining callbacks for outline lifecycle events.
  * Provides hooks for handling attempt initiation, document generation, and validation outcomes.
  * @template Data - The type of the data param, defaults to IOutlineData.
@@ -121,6 +161,11 @@ export interface IOutlineArgs<Param extends IOutlineParam = IOutlineParam> {
    * @type {number}
    */
   attempt: number;
+
+  /**
+   * Format of output taken from outline schema
+   */
+  format: IOutlineFormat;
 
   /**
    * The history management API for the outline operation.
@@ -264,6 +309,16 @@ export interface IOutlineSchema<
   Data extends IOutlineData = IOutlineData,
   Param extends IOutlineParam = IOutlineParam
 > {
+
+  /**
+   * The prompt or prompt generator for the outline operation.
+   * Can be a string, an array of strings, or a function that returns a string, array of strings, or a promise resolving to either.
+   * If a function is provided, it receives the outline name and can return a prompt dynamically.
+   * Used as the initial instruction or context for the outline process.
+   * @type {string | string[] | ((outlineName: OutlineName) => (string | string[] | Promise<string | string[]>))}
+   */
+  prompt: string | string[] | ((outlineName: OutlineName) => (string | string[] | Promise<string | string[]>));
+
   /**
    * Optional description for documentation purposes.
    * Aids in understanding the purpose or behavior of the outline.
@@ -295,6 +350,13 @@ export interface IOutlineSchema<
     | IOutlineValidation<Data, Param>
     | IOutlineValidationFn<Data, Param>
   )[];
+
+  /**
+   * The format/schema definition for the outline data.
+   * Specifies the expected structure, required fields, and property metadata for validation and documentation.
+   * @type {IOutlineFormat}
+   */
+  format: IOutlineFormat;
 
   /**
    * Optional maximum number of attempts for the outline operation.

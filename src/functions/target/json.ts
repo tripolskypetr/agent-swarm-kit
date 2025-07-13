@@ -11,7 +11,7 @@ import {
   IOutlineValidationArgs,
   IOutlineResult,
 } from "../../interfaces/Outline.interface";
-import { getErrorMessage, randomString } from "functools-kit";
+import { getErrorMessage, randomString, str } from "functools-kit";
 
 const METHOD_NAME = "function.target.json";
 
@@ -26,6 +26,18 @@ const MAX_ATTEMPTS = 5;
 class OutlineHistory implements IOutlineHistory {
   /** @private */
   private messages: IOutlineMessage[] = [];
+
+  /**
+   * Constructs an OutlineHistory instance, optionally initializing with a system prompt.
+   * @param {string} [prompt] - An optional system prompt to initialize the history with.
+   * @constructor
+   */
+  constructor(prompt?: string) {
+    prompt && this.messages.push({
+      role: "system",
+      content: prompt
+    })
+  }
 
   /**
    * Appends one or more messages to the history.
@@ -76,22 +88,31 @@ const jsonInternal = beginContext(
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {});
 
+    swarm.outlineValidationService.validate(outlineName, METHOD_NAME);
+
     const resultId = randomString();
 
     const {
       getStructuredOutput,
       validations = [],
       maxAttempts = MAX_ATTEMPTS,
+      format,
+      prompt,
       callbacks,
     } = swarm.outlineSchemaService.get(outlineName);
 
     let errorMessage: string = "";
     let history: OutlineHistory;
 
+    const systemPrompt = str.newline(
+      typeof prompt === "function" ? await prompt(outlineName) : prompt
+    );
+
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      history = new OutlineHistory();
+      history = new OutlineHistory(systemPrompt);
       const inputArgs: IOutlineArgs = {
         attempt,
+        format,
         param,
         history,
       };
