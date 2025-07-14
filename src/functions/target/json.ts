@@ -28,30 +28,6 @@ class OutlineHistory implements IOutlineHistory {
   private messages: IOutlineMessage[] = [];
 
   /**
-   * Constructs an OutlineHistory instance, optionally initializing with a system prompt.
-   * @param {string} [prompt] - An optional system prompt to initialize the history with.
-   * @constructor
-   */
-  constructor(prompt?: string | string[]) {
-    if (!prompt) {
-      return;
-    }
-    if (typeof prompt === "string") {
-      this.messages.push({
-        role: "system",
-        content: prompt,
-      });
-      return;
-    }
-    prompt.forEach((content) => {
-      this.messages.push({
-        role: "system",
-        content,
-      });
-    });
-  }
-
-  /**
    * Appends one or more messages to the history.
    * Flattens nested arrays of messages and adds them to the internal message list.
    * @param {...(IOutlineMessage | IOutlineMessage[]): (IOutlineMessage | IOutlineMessage[])} messages - One or more messages or arrays of messages to append.
@@ -111,6 +87,7 @@ const jsonInternal = beginContext(
       maxAttempts = MAX_ATTEMPTS,
       format,
       prompt,
+      system,
       callbacks: outlineCallbacks,
     } = swarm.outlineSchemaService.get(outlineName);
 
@@ -125,11 +102,26 @@ const jsonInternal = beginContext(
     let errorMessage: string = "";
     let history: OutlineHistory;
 
-    const systemPrompt =
+    const modelPrompt =
       typeof prompt === "function" ? await prompt(outlineName) : prompt;
 
+    const systemPrompt =
+      typeof system === "function" ? await system(outlineName) : system;
+
     const makeHistory = async () => {
-      history = new OutlineHistory(systemPrompt);
+      history = new OutlineHistory();
+      if (modelPrompt) {
+        await history.push({
+          role: "system",
+          content: modelPrompt,
+        });
+      }
+      for (const system of systemPrompt ?? []) {
+        await history.push({
+          role: "system",
+          content: system,
+        });
+      }
       for (const flag of flags) {
         await history.push({
           role: "system",

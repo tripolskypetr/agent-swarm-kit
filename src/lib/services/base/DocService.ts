@@ -28,9 +28,7 @@ import OutlineValidationService from "../validation/OutlineValidationService";
 import OutlineSchemaService from "../schema/OutlineSchemaService";
 import {
   IOutlineSchema,
-  IOutlineValidation,
 } from "../../../interfaces/Outline.interface";
-import isObject from "../../../utils/isObject";
 
 /**
  * Maximum number of concurrent threads for documentation generation tasks.
@@ -453,18 +451,6 @@ export class DocService {
 
       const prompt = await getPrompt();
 
-      if (Array.isArray(prompt)) {
-        result.push(`## Main prompt`);
-        result.push("");
-        for (let i = 0; i !== prompt.length; i++) {
-          if (!prompt[i]) {
-            continue;
-          }
-          result.push(`${i + 1}. \`${sanitizeMarkdown(prompt[i])}\``);
-          result.push("");
-        }
-      }
-
       if (typeof prompt === "string") {
         result.push(`## Main prompt`);
         result.push("");
@@ -472,6 +458,31 @@ export class DocService {
         result.push(sanitizeMarkdown(prompt));
         result.push("```");
         result.push("");
+      }
+
+      const getSystem = async () => {
+        try {
+          if (typeof outlineSchema.system === "function") {
+            return await outlineSchema.system(outlineSchema.outlineName);
+          }
+          return outlineSchema.system;
+        } catch {
+          return null;
+        }
+      };
+
+      const system = await getSystem();
+
+      if (system) {
+        result.push(`## System prompt`);
+        result.push("");
+        for (let i = 0; i !== system.length; i++) {
+          if (!system[i]) {
+            continue;
+          }
+          result.push(`${i + 1}. \`${sanitizeMarkdown(system[i])}\``);
+          result.push("");
+        }
       }
 
       if (outlineSchema.format) {
