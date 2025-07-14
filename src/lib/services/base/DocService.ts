@@ -488,6 +488,9 @@ export class DocService {
       if ("properties" in outlineSchema.format) {
         result.push("");
         result.push("## Output format");
+        result.push("");
+        result.push("*Partial template match*");
+        result.push("");
         const entries = Object.entries(outlineSchema.format.properties);
         entries.forEach(([key, { type, description, enum: e }], idx) => {
           result.push("");
@@ -523,6 +526,8 @@ export class DocService {
       if (outlineSchema.format.type === "json_schema") {
         result.push("");
         result.push("## Output format");
+        result.push("");
+        result.push("*Strict template match*");
         result.push("");
         result.push("```json");
         result.push(JSON.stringify(outlineSchema.format, null, 2));
