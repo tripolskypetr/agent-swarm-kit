@@ -160,7 +160,7 @@ export { IPipelineSchema } from "./model/Pipeline.model";
 
 export { IMCPSchema, IMCPTool, MCPToolProperties, IMCPToolCallDto } from './interfaces/MCP.interface';
 
-export { IOutlineSchema, IOutlineMessage, IOutlineHistory, IOutlineValidationFn, IOutlineResult, IOutlineFormat } from "./interfaces/Outline.interface";
+export { IOutlineSchema, IOutlineMessage, IOutlineHistory, IOutlineValidationFn, IOutlineResult, IOutlineFormat, IOutlineSchemaFormat, IOutlineObjectFormat } from "./interfaces/Outline.interface";
 
 export { IModelMessage } from "./model/ModelMessage.model";
 export { IIncomingMessage, IOutgoingMessage } from "./model/EmitMessage.model";

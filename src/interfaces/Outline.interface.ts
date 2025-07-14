@@ -16,13 +16,39 @@ export type IOutlineParam = any;
 export type IOutlineData = any;
 
 /**
+ * Type representing the format definition for outline data.
+ * Can be either a full JSON schema format or an object-based format.
+ * Used to specify the expected structure for outline operations.
+ * @typedef {IOutlineSchemaFormat | IOutlineObjectFormat} IOutlineFormat
+ */
+export type IOutlineFormat = IOutlineSchemaFormat | IOutlineObjectFormat;
+
+/**
+ * Interface representing a format definition using a JSON schema.
+ * Specifies the type and the associated JSON schema object for validation.
+ * Used when the outline format is defined by a complete JSON schema.
+ */
+export interface IOutlineSchemaFormat {
+  /**
+   * The type of the outline format (e.g., "json_schema").
+   */
+  type: string;
+
+  /**
+   * The JSON schema object defining the structure and validation rules.
+   */
+  json_schema: object;
+}
+
+/**
  * Interface representing the format/schema definition for outline data.
  * Specifies the structure, required fields, and property metadata for outline operations.
  * Used to enforce and document the expected shape of outline data.
  */
-export interface IOutlineFormat {
+export interface IOutlineObjectFormat {
   /**
    * The root type of the outline format (e.g., "object").
+   * Should be "json_object" for partial JSON schemas or "json_schema" for full matching schemas.
    */
   type: string;
 
