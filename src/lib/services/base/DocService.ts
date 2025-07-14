@@ -43,7 +43,7 @@ const THREAD_POOL_DELAY = 0;
  * Includes "agent" for agent Markdown files and "image" for UML diagrams, used in dumpDocs to structure the output directory.
  * @type {string[]}
  */
-const SUBDIR_LIST = ["agent", "image"];
+const SUBDIR_LIST = ["agent", "image", "outline"];
 
 /**
  * Utility function to check if a file or directory exists, wrapped in trycatch for error handling.
