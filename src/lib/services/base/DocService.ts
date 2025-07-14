@@ -549,7 +549,7 @@ export class DocService {
       if (validations.length) {
         result.push(`## Validations`);
         result.push("");
-        for (let i = 0; i !== prompt.length; i++) {
+        for (let i = 0; i !== validations.length; i++) {
           if (!validations[i].docDescription) {
             continue;
           }
@@ -569,7 +569,7 @@ export class DocService {
       }
 
       await writeFileAtomic(
-        join(dirName, `./${outlineSchema.outlineName}.md`),
+        join(dirName, `./outline/${outlineSchema.outlineName}.md`),
         result.join("\n")
       );
     },
