@@ -21,13 +21,23 @@ The name of the completion for JSON
 ### prompt
 
 ```ts
-prompt: string | string[] | ((outlineName: string) => string | string[] | Promise<string | string[]>)
+prompt: string | ((outlineName: string) => string | Promise<string>)
 ```
 
-The prompt or prompt generator for the outline operation.
-Can be a string, an array of strings, or a function that returns a string, array of strings, or a promise resolving to either.
-If a function is provided, it receives the outline name and can return a prompt dynamically.
-Used as the initial instruction or context for the outline process.
+The prompt used to initiate the outline operation.
+Can be a static string or a function that generates the prompt dynamically based on the outline name.
+If a function is provided, it may return a string or a Promise resolving to a string.
+This prompt is typically sent to the completion engine or model to guide the generation process.
+
+### system
+
+```ts
+system: string[] | ((outlineName: string) => string[] | Promise<string[]>)
+```
+
+The system prompt(s) provided to the language model for the outline operation.
+Can be a static array of strings or a function that generates the system prompts dynamically based on the outline name.
+These prompts are typically used to set context, instructions, or constraints for the model before user or assistant messages.
 
 ### docDescription
 
