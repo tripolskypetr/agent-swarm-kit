@@ -184,6 +184,10 @@ const jsonInternal = beginContext(
         return result;
       } catch (error) {
         errorMessage = getErrorMessage(error);
+        console.error(`agent-swarm outline error outlineName=${outlineName} attempt=${attempt}`, {
+          param,
+          errorMessage,
+        })
       }
     }
     const result = {
