@@ -27,7 +27,9 @@ import ComputeSchemaService from "../schema/ComputeSchemaService";
 import OutlineValidationService from "../validation/OutlineValidationService";
 import OutlineSchemaService from "../schema/OutlineSchemaService";
 import {
+  IOutlineObjectFormat,
   IOutlineSchema,
+  IOutlineSchemaFormat,
 } from "../../../interfaces/Outline.interface";
 
 /**
@@ -485,55 +487,73 @@ export class DocService {
         }
       }
 
-      if ("properties" in outlineSchema.format) {
-        result.push("");
-        result.push("## Output format");
-        result.push("");
-        result.push("*Partial template match*");
-        result.push("");
-        const entries = Object.entries(outlineSchema.format.properties);
-        entries.forEach(([key, { type, description, enum: e }], idx) => {
+      const writeObjectFormat = (object: IOutlineObjectFormat, strict: boolean) => {
+        if ("properties" in object) {
           result.push("");
-          result.push(`> **${idx + 1}. ${sanitizeMarkdown(key)}**`);
-          {
-            result.push("");
-            result.push(`*Type:* \`${sanitizeMarkdown(type)}\``);
-          }
-          {
-            result.push("");
-            result.push(`*Description:* \`${sanitizeMarkdown(description)}\``);
-          }
-          if (e) {
-            result.push("");
-            result.push(`*Enum:* \`${e.map(sanitizeMarkdown).join(", ")}\``);
-          }
-          if ("required" in outlineSchema.format) {
-            result.push("");
-            result.push(
-              `*Required:* [${
-                outlineSchema.format.required.includes(key) ? "x" : " "
-              }]`
-            );
-          }
-        });
-        if (!entries.length) {
+          result.push("## Output format");
           result.push("");
-          result.push(`*Empty parameters*`);
+          result.push(strict ? "*Strict template match*" : "*Partial template match*");
+          const entries = Object.entries(object.properties);
+          entries.forEach(([key, { type, description, enum: e }], idx) => {
+            result.push("");
+            result.push(`> **${idx + 1}. ${sanitizeMarkdown(key)}**`);
+            {
+              result.push("");
+              result.push(`*Type:* \`${sanitizeMarkdown(type)}\``);
+            }
+            {
+              result.push("");
+              result.push(
+                `*Description:* \`${sanitizeMarkdown(description)}\``
+              );
+            }
+            if (e) {
+              result.push("");
+              result.push(`*Enum:* \`${e.map(sanitizeMarkdown).join(", ")}\``);
+            }
+            if ("required" in object) {
+              result.push("");
+              result.push(
+                `*Required:* [${object.required.includes(key) ? "x" : " "}]`
+              );
+            }
+          });
+          if (!entries.length) {
+            result.push("");
+            result.push(`*Empty parameters*`);
+          }
+          result.push("");
         }
-        result.push("");
+      };
+
+      const writeStrictFormat = (schema: IOutlineSchemaFormat) => {
+        if (schema?.type === "json_schema") {
+          result.push("");
+          result.push("## Output format");
+          result.push("");
+          result.push("*Strict template match*");
+          result.push("");
+          result.push("```json");
+          result.push(JSON.stringify(schema, null, 2));
+          result.push("```");
+          result.push("");
+        }
+      };
+
+      const writeFormat = () => {
+        let object: any = outlineSchema.format;
+        if (object?.json_schema?.schema?.type === "object") {
+          writeObjectFormat(object.json_schema.schema, true);
+          return;
+        }
+        if (object.properties) {
+          writeObjectFormat(object, false);
+          return;
+        }
+        writeStrictFormat(object);
       }
 
-      if (outlineSchema.format.type === "json_schema") {
-        result.push("");
-        result.push("## Output format");
-        result.push("");
-        result.push("*Strict template match*");
-        result.push("");
-        result.push("```json");
-        result.push(JSON.stringify(outlineSchema.format, null, 2));
-        result.push("```");
-        result.push("");
-      }
+      writeFormat();
 
       const getValidations = () => {
         if (outlineSchema.validations) {
@@ -553,7 +573,9 @@ export class DocService {
           if (!validations[i].docDescription) {
             continue;
           }
-          result.push(`${i + 1}. \`${sanitizeMarkdown(validations[i].docDescription)}\``);
+          result.push(
+            `${i + 1}. \`${sanitizeMarkdown(validations[i].docDescription)}\``
+          );
           result.push("");
         }
       }

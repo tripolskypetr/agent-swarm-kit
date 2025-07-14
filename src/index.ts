@@ -283,3 +283,5 @@ export const Utils = {
   PersistPolicyUtils,
   PersistEmbeddingUtils,
 };
+
+export { toJsonSchema } from "./helpers/toJsonSchema";

@@ -48,7 +48,8 @@ export interface IOutlineSchemaFormat {
 export interface IOutlineObjectFormat {
   /**
    * The root type of the outline format (e.g., "object").
-   * Should be "json_object" for partial JSON schemas or "json_schema" for full matching schemas.
+   * If openai used Should be "json_object" for partial JSON schemas or "json_schema" for full matching schemas.
+   * If ollama or `toJsonSchema` function used should just pass "object"
    */
   type: string;
 
