@@ -480,17 +480,25 @@ addOutlineSchema({
     await history.push({ role: "user", content: "Generate JSON based on reports." });
   },
   validations: [
-    ({ data }) => {
-      if (data.action !== "buy") return;
-      if (percentDiff(data.current_price, data.stop_loss_price) > CC_LADDER_STOP_LOSS) {
-        throw new Error(`Stop loss must not exceed -${CC_LADDER_STOP_LOSS}%`);
-      }
+    {
+      validate: ({ data }) => {
+        if (data.action !== "buy") return;
+        const stopLossChange = percentDiff(data.current_price, data.stop_loss_price);
+        if (stopLossChange > CC_LADDER_STOP_LOSS) {
+          throw new Error(`Stop loss must not exceed -${CC_LADDER_STOP_LOSS}%`);
+        }
+      },
+      docDescription: "Checks stop-loss price against max loss percentage.",
     },
-    ({ data }) => {
-      if (data.action !== "buy") return;
-      if (percentDiff(data.current_price, data.take_profit_price) > CC_LADDER_TAKE_PROFIT) {
-        throw new Error(`Take profit must not exceed +${CC_LADDER_TAKE_PROFIT}%`);
-      }
+    {
+      validate: ({ data }) => {
+        if (data.action !== "buy") return;
+        const sellChange = percentDiff(data.current_price, data.take_profit_price);
+        if (sellChange > CC_LADDER_TAKE_PROFIT) {
+          throw new Error(`Take profit must not exceed +${CC_LADDER_TAKE_PROFIT}%`);
+        }
+      },
+      docDescription: "Checks take-profit price against max profit percentage.",
     },
   ],
 });
