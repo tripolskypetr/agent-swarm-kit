@@ -451,6 +451,54 @@ addTool({
 
 ---
 
+# 📝 Structured JSON Output With Validation
+
+Create structured JSON outputs with precise schemas and robust validation! 📝 Ensure AI responses meet your needs with custom rules and automatic retries. 🔄 Integrate seamlessly with OpenAI, Ollama, or Claude. 🌐 Dynamic history guides consistent results for workflows or chatbots. 🗂️ Simple TypeScript API scales effortlessly with error recovery. 🛠️
+
+```tsx
+import { addOutlineSchema } from "agent-swarm-kit";
+
+const format = {
+  type: "object",
+  properties: {
+    take_profit_price: { type: "number", description: "Take profit price in USD" },
+    stop_loss_price: { type: "number", description: "Stop-loss price in USD" },
+    description: { type: "string", description: "User-friendly explanation of risks, min 10 sentences" },
+    reasoning: { type: "string", description: "Technical analysis, min 15 sentences" },
+  },
+  required: ["take_profit_price", "stop_loss_price", "description", "reasoning"],
+};
+
+addOutlineSchema({
+  outlineName: "signal_plutus",
+  format,
+  prompt: "Generate crypto trading signals based on price and volume indicators in JSON format.",
+  completion: "grok-mini-outline",
+  getOutlineHistory: async ({ history, param }) => {
+    const signalReport = await ioc.signalReportService.getSignalReport(param);
+    await commitReports(history, signalReport);
+    await history.push({ role: "user", content: "Generate JSON based on reports." });
+  },
+  validations: [
+    ({ data }) => {
+      if (data.action !== "buy") return;
+      if (percentDiff(data.current_price, data.stop_loss_price) > CC_LADDER_STOP_LOSS) {
+        throw new Error(`Stop loss must not exceed -${CC_LADDER_STOP_LOSS}%`);
+      }
+    },
+    ({ data }) => {
+      if (data.action !== "buy") return;
+      if (percentDiff(data.current_price, data.take_profit_price) > CC_LADDER_TAKE_PROFIT) {
+        throw new Error(`Take profit must not exceed +${CC_LADDER_TAKE_PROFIT}%`);
+      }
+    },
+  ],
+});
+
+```
+
+---
+
 ## ✅ Tested & Reliable
 
 `agent-swarm-kit` comes with a robust test suite covering:
