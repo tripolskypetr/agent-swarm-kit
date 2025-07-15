@@ -284,4 +284,6 @@ export const Utils = {
   PersistEmbeddingUtils,
 };
 
+export { validate } from "./functions/common/validate";
+
 export { toJsonSchema } from "./helpers/toJsonSchema";
