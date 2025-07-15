@@ -201,6 +201,7 @@ group: docs
 - [changeToAgent](functions/changeToAgent.md)
 - [changeToPrevAgent](functions/changeToPrevAgent.md)
 - [changeToDefaultAgent](functions/changeToDefaultAgent.md)
+- [validate](functions/validate.md)
 
 ## Interfaces
 
@@ -270,7 +271,8 @@ group: docs
 - [IHistory](interfaces/IHistory.md)
 - [IHistoryParams](interfaces/IHistoryParams.md)
 - [IHistorySchema](interfaces/IHistorySchema.md)
-- [IOutlineFormat](interfaces/IOutlineFormat.md)
+- [IOutlineSchemaFormat](interfaces/IOutlineSchemaFormat.md)
+- [IOutlineObjectFormat](interfaces/IOutlineObjectFormat.md)
 - [IOutlineCallbacks](interfaces/IOutlineCallbacks.md)
 - [IOutlineMessage](interfaces/IOutlineMessage.md)
 - [IOutlineHistory](interfaces/IOutlineHistory.md)
@@ -375,6 +377,7 @@ group: docs
 - [THistoryMemoryInstance](types/THistoryMemoryInstance.md)
 - [IOutlineParam](types/IOutlineParam.md)
 - [IOutlineData](types/IOutlineData.md)
+- [IOutlineFormat](types/IOutlineFormat.md)
 - [OutlineName](types/OutlineName.md)
 - [CompletionName](types/CompletionName.md)
 - [WikiName](types/WikiName.md)
