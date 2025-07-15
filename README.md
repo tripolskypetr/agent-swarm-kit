@@ -505,6 +505,8 @@ addOutlineSchema({
 
 ```
 
+P.S. [Outlines by dottxt](https://dottxt-ai.github.io/outlines/1.1.0/) doc 📖
+
 ---
 
 ## ✅ Tested & Reliable
