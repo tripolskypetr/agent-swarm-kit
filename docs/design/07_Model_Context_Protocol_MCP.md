@@ -15,7 +15,7 @@ The MCP system follows a layered architecture that separates tool definition, co
 
 ### MCP System Architecture
 
-![Mermaid Diagram](./diagrams\7_Model_Context_Protocol_MCP_0.svg)
+![Mermaid Diagram](./diagrams/7_Model_Context_Protocol_MCP_0.svg)
 
 ## Core Components
 
@@ -71,7 +71,7 @@ The `ClientMCP` class provides the primary implementation of the MCP protocol wi
 
 ### MCP Implementation Flow
 
-![Mermaid Diagram](./diagrams\7_Model_Context_Protocol_MCP_1.svg)
+![Mermaid Diagram](./diagrams/7_Model_Context_Protocol_MCP_1.svg)
 
 The `ClientMCP` constructor initializes the MCP with parameters and triggers the `onInit` callback. Tools are fetched and cached using a memoized function keyed by client ID.
 
@@ -118,7 +118,7 @@ The `MCPPublicService` provides a context-aware public API that wraps MCP operat
 
 ### Tool Call Processing
 
-![Mermaid Diagram](./diagrams\7_Model_Context_Protocol_MCP_2.svg)
+![Mermaid Diagram](./diagrams/7_Model_Context_Protocol_MCP_2.svg)
 
 When a tool returns a string output, it's automatically committed to the agent using `commitToolOutput`. If the tool call is marked as the last in a sequence (`dto.isLast`), the agent execution continues. Error handling stops tool execution and flushes the agent buffer.
 

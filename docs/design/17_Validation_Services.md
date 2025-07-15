@@ -19,7 +19,7 @@ The validation services operate as a coordinated layer within the dependency inj
 
 ### Complete Validation Service Hierarchy
 
-![Mermaid Diagram](./diagrams\17_Validation_Services_0.svg)
+![Mermaid Diagram](./diagrams/17_Validation_Services_0.svg)
 
 ### Validation Service Categories
 
@@ -42,7 +42,7 @@ The `AgentValidationService` serves as the central coordinator for agent validat
 
 #### Agent Validation Internal State
 
-![Mermaid Diagram](./diagrams\17_Validation_Services_1.svg)
+![Mermaid Diagram](./diagrams/17_Validation_Services_1.svg)
 
 ### SessionValidationService  
 
@@ -50,7 +50,7 @@ The `SessionValidationService` manages session lifecycle, tracks resource usage 
 
 #### Session Validation State Management
 
-![Mermaid Diagram](./diagrams\17_Validation_Services_2.svg)
+![Mermaid Diagram](./diagrams/17_Validation_Services_2.svg)
 
 ### SwarmValidationService
 
@@ -58,7 +58,7 @@ The `SwarmValidationService` validates swarm configurations, manages agent lists
 
 #### Swarm Validation Dependencies
 
-![Mermaid Diagram](./diagrams\17_Validation_Services_3.svg)
+![Mermaid Diagram](./diagrams/17_Validation_Services_3.svg)
 
 ## Runtime Validation Patterns
 
@@ -70,11 +70,11 @@ The validation services enforce agent permissions for resource access during run
 
 #### Resource Permission Enforcement
 
-![Mermaid Diagram](./diagrams\17_Validation_Services_4.svg)
+![Mermaid Diagram](./diagrams/17_Validation_Services_4.svg)
 
 #### State Access Validation
 
-![Mermaid Diagram](./diagrams\17_Validation_Services_5.svg)
+![Mermaid Diagram](./diagrams/17_Validation_Services_5.svg)
 
 ### Recursive Operation Prevention
 
@@ -82,7 +82,7 @@ Runtime validation services like `NavigationValidationService` and `ExecutionVal
 
 #### Navigation Recursion Prevention
 
-![Mermaid Diagram](./diagrams\17_Validation_Services_6.svg)
+![Mermaid Diagram](./diagrams/17_Validation_Services_6.svg)
 
 ## Validation Error Patterns and Performance Optimization
 
@@ -112,7 +112,7 @@ Validation services use `memoize` from `functools-kit` to optimize frequently ca
 
 #### Memoized Validation Methods
 
-![Mermaid Diagram](./diagrams\17_Validation_Services_7.svg)
+![Mermaid Diagram](./diagrams/17_Validation_Services_7.svg)
 
 ## Runtime Validation Integration
 
@@ -122,7 +122,7 @@ Validation services are actively used during runtime operations to ensure system
 
 Test cases demonstrate the validation enforcement in action:
 
-![Mermaid Diagram](./diagrams\17_Validation_Services_8.svg)
+![Mermaid Diagram](./diagrams/17_Validation_Services_8.svg)
 
 ## Performance Optimization
 

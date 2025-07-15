@@ -23,7 +23,7 @@ The library provides a dependency injection-based architecture where agents, too
 
 Agent-swarm-kit uses a layered service architecture built around a central dependency injection container. The system orchestrates multiple AI agents that can communicate, share tools, and maintain conversation history.
 
-![Mermaid Diagram](./diagrams\2_Getting_Started_0.svg)
+![Mermaid Diagram](./diagrams/2_Getting_Started_0.svg)
 
 ## Core Concepts
 
@@ -43,7 +43,7 @@ Sessions manage client connections, conversation history, and agent state for in
 
 The typical workflow involves four steps: define components, assemble swarm, create session, and process messages.
 
-![Mermaid Diagram](./diagrams\2_Getting_Started_1.svg)
+![Mermaid Diagram](./diagrams/2_Getting_Started_1.svg)
 
 ## Quick Start Example
 

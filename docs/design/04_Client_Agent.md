@@ -15,7 +15,7 @@ The `ClientAgent` implements the `IAgent` interface and serves as the primary ex
 
 ### ClientAgent Class Structure
 
-![Mermaid Diagram](./diagrams\4_Client_Agent_0.svg)
+![Mermaid Diagram](./diagrams/4_Client_Agent_0.svg)
 
 ## Execution Lifecycle
 
@@ -23,7 +23,7 @@ The `ClientAgent` follows a structured execution lifecycle with queued processin
 
 ### Execution Flow Diagram
 
-![Mermaid Diagram](./diagrams\4_Client_Agent_1.svg)
+![Mermaid Diagram](./diagrams/4_Client_Agent_1.svg)
 
 ### Queued Execution Pattern
 
@@ -42,7 +42,7 @@ The `ClientAgent` handles tool execution through a sophisticated orchestration s
 
 ### Tool Resolution and Execution
 
-![Mermaid Diagram](./diagrams\4_Client_Agent_2.svg)
+![Mermaid Diagram](./diagrams/4_Client_Agent_2.svg)
 
 ### Tool Abort Controller
 
@@ -71,7 +71,7 @@ The `ClientAgent` integrates closely with the history system to maintain convers
 
 ### Message Flow and History Integration
 
-![Mermaid Diagram](./diagrams\4_Client_Agent_3.svg)
+![Mermaid Diagram](./diagrams/4_Client_Agent_3.svg)
 
 ### History Filtering and Context Management
 
@@ -88,7 +88,7 @@ The `ClientAgent` implements a robust error recovery system through the `_resurr
 
 ### Resurrection Strategies
 
-![Mermaid Diagram](./diagrams\4_Client_Agent_4.svg)
+![Mermaid Diagram](./diagrams/4_Client_Agent_4.svg)
 
 ### Error Types and Handling
 
@@ -107,7 +107,7 @@ The `ClientAgent` uses `Subject` instances from `functools-kit` for asynchronous
 
 ### Subject-Based Coordination System
 
-![Mermaid Diagram](./diagrams\4_Client_Agent_5.svg)
+![Mermaid Diagram](./diagrams/4_Client_Agent_5.svg)
 
 ### Asynchronous Tool Execution
 
@@ -132,7 +132,7 @@ The `ClientAgent` integrates with multiple services through dependency injection
 
 ### Service Dependencies
 
-![Mermaid Diagram](./diagrams\4_Client_Agent_6.svg)
+![Mermaid Diagram](./diagrams/4_Client_Agent_6.svg)
 
 ### Lifecycle Management
 

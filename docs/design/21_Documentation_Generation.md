@@ -13,7 +13,7 @@ For information about agent schema management, see [Schema Services](./14_Schema
 
 The `DocService` class serves as the central orchestrator for all documentation generation activities, utilizing dependency injection to access various schema and validation services.
 
-![Mermaid Diagram](./diagrams\21_Documentation_Generation_0.svg)
+![Mermaid Diagram](./diagrams/21_Documentation_Generation_0.svg)
 
 The `DocService` maintains a thread pool with configurable concurrency (`THREAD_POOL_SIZE = 5`) to manage parallel documentation generation tasks while balancing performance and resource usage.
 
@@ -21,7 +21,7 @@ The `DocService` maintains a thread pool with configurable concurrency (`THREAD_
 
 The documentation generation process follows a structured workflow that validates schemas, creates directories, and generates both swarm and agent documentation concurrently.
 
-![Mermaid Diagram](./diagrams\21_Documentation_Generation_1.svg)
+![Mermaid Diagram](./diagrams/21_Documentation_Generation_1.svg)
 
 The `dumpDocs` method creates a structured directory layout with subdirectories defined in `SUBDIR_LIST = ["agent", "image"]`, organizing agent markdown files and UML diagram images separately.
 
@@ -29,7 +29,7 @@ The `dumpDocs` method creates a structured directory layout with subdirectories 
 
 The system integrates with PlantUML through the `GLOBAL_CONFIG.CC_FN_PLANTUML` function to generate visual schema representations for both swarms and agents.
 
-![Mermaid Diagram](./diagrams\21_Documentation_Generation_2.svg)
+![Mermaid Diagram](./diagrams/21_Documentation_Generation_2.svg)
 
 For swarm documentation, UML diagrams are generated with the filename pattern `swarm_schema_{swarmName}.svg`, while agent diagrams use `agent_schema_{agentName}.svg`. These images are referenced in the markdown files using relative paths.
 
@@ -55,7 +55,7 @@ The `writeAgentDoc` method resolves dynamic content by calling functions with `"
 
 The system provides dual-mode performance documentation covering both system-wide and client-specific metrics.
 
-![Mermaid Diagram](./diagrams\21_Documentation_Generation_3.svg)
+![Mermaid Diagram](./diagrams/21_Documentation_Generation_3.svg)
 
 The `dumpPerfomance` method creates system-wide performance snapshots, while `dumpClientPerfomance` generates client-specific performance data with timestamped filenames for historical tracking.
 
@@ -63,7 +63,7 @@ The `dumpPerfomance` method creates system-wide performance snapshots, while `du
 
 The documentation system integrates with the CLI through the `dumpDocs` command, providing configurable options for output customization.
 
-![Mermaid Diagram](./diagrams\21_Documentation_Generation_4.svg)
+![Mermaid Diagram](./diagrams/21_Documentation_Generation_4.svg)
 
 The CLI performs comprehensive validation before documentation generation, checking all registered agents and swarms, and verifying dependency relationships through `dependsOn` properties.
 

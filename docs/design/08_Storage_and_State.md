@@ -13,7 +13,7 @@ For information about data persistence to the file system, see [Persistence and 
 
 The agent-swarm-kit framework provides two primary data management systems: **Storage** for searchable data with embedding-based retrieval, and **State** for managed application state with middleware processing. Both systems operate in two modes: client-specific instances scoped to individual sessions, and shared instances accessible across all clients.
 
-![Mermaid Diagram](./diagrams\8_Storage_and_State_0.svg)
+![Mermaid Diagram](./diagrams/8_Storage_and_State_0.svg)
 
 ## Storage System Architecture
 
@@ -21,7 +21,7 @@ The storage system provides embedding-based data storage with similarity search 
 
 ### Core Storage Implementation
 
-![Mermaid Diagram](./diagrams\8_Storage_and_State_1.svg)
+![Mermaid Diagram](./diagrams/8_Storage_and_State_1.svg)
 
 The `ClientStorage` class uses several key patterns:
 
@@ -31,7 +31,7 @@ The `ClientStorage` class uses several key patterns:
 
 ### Connection Services and Scoping
 
-![Mermaid Diagram](./diagrams\8_Storage_and_State_2.svg)
+![Mermaid Diagram](./diagrams/8_Storage_and_State_2.svg)
 
 The connection services provide instance management with different scoping strategies:
 
@@ -45,7 +45,7 @@ The state system provides managed application state with middleware processing a
 
 ### Core State Implementation
 
-![Mermaid Diagram](./diagrams\8_Storage_and_State_3.svg)
+![Mermaid Diagram](./diagrams/8_Storage_and_State_3.svg)
 
 The `ClientState` class implements several key patterns:
 
@@ -55,7 +55,7 @@ The `ClientState` class implements several key patterns:
 
 ### State Connection Services
 
-![Mermaid Diagram](./diagrams\8_Storage_and_State_4.svg)
+![Mermaid Diagram](./diagrams/8_Storage_and_State_4.svg)
 
 The state connection services follow similar patterns to storage:
 
@@ -115,7 +115,7 @@ const sharedStorageSchema = {
 
 Both storage and state systems integrate with the persistence layer through adapter patterns that enable file system storage and embedding caching.
 
-![Mermaid Diagram](./diagrams\8_Storage_and_State_5.svg)
+![Mermaid Diagram](./diagrams/8_Storage_and_State_5.svg)
 
 The persistence layer provides:
 
@@ -126,7 +126,7 @@ The persistence layer provides:
 
 ### State Dispatch and Middleware Patterns
 
-![Mermaid Diagram](./diagrams\8_Storage_and_State_6.svg)
+![Mermaid Diagram](./diagrams/8_Storage_and_State_6.svg)
 
 State management follows a structured dispatch pattern:
 
@@ -137,7 +137,7 @@ State management follows a structured dispatch pattern:
 
 ### Storage and State Access Validation
 
-![Mermaid Diagram](./diagrams\8_Storage_and_State_7.svg)
+![Mermaid Diagram](./diagrams/8_Storage_and_State_7.svg)
 
 The public services enforce context validation and scope operations:
 
@@ -151,7 +151,7 @@ Storage and state systems integrate with agent execution through utility classes
 
 ### Agent Storage Access
 
-![Mermaid Diagram](./diagrams\8_Storage_and_State_8.svg)
+![Mermaid Diagram](./diagrams/8_Storage_and_State_8.svg)
 
 The utility classes enforce a three-layer validation:
 
@@ -161,7 +161,7 @@ The utility classes enforce a three-layer validation:
 
 ### State Access Patterns
 
-![Mermaid Diagram](./diagrams\8_Storage_and_State_9.svg)
+![Mermaid Diagram](./diagrams/8_Storage_and_State_9.svg)
 
 State utilities support both direct value assignment and function-based dispatch:
 

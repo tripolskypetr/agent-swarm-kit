@@ -15,7 +15,7 @@ The agent-swarm-kit uses a centralized configuration system built around the `GL
 
 ### Configuration Architecture
 
-![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_0.svg)
+![Mermaid Diagram](./diagrams/33_Configuration_and_Global_Settings_0.svg)
 
 ### Using setConfig
 
@@ -46,7 +46,7 @@ The logging system provides granular control over different log levels and outpu
 
 ### Logger Adapter Configuration
 
-![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_1.svg)
+![Mermaid Diagram](./diagrams/33_Configuration_and_Global_Settings_1.svg)
 
 ## Agent Behavior Configuration
 
@@ -62,7 +62,7 @@ The logging system provides granular control over different log levels and outpu
 
 The system provides multiple strategies for handling tool call failures:
 
-![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_2.svg)
+![Mermaid Diagram](./diagrams/33_Configuration_and_Global_Settings_2.svg)
 
 ### Output Transformation and Validation
 
@@ -79,7 +79,7 @@ The system provides multiple strategies for handling tool call failures:
 
 The system provides configurable default functions for storage and state persistence:
 
-![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_3.svg)
+![Mermaid Diagram](./diagrams/33_Configuration_and_Global_Settings_3.svg)
 
 ### Persistence Settings
 
@@ -94,7 +94,7 @@ The system provides configurable default functions for storage and state persist
 
 ### Agent and Navigation Stack Management
 
-![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_4.svg)
+![Mermaid Diagram](./diagrams/33_Configuration_and_Global_Settings_4.svg)
 
 ## Performance and System Configuration
 
@@ -109,12 +109,12 @@ The system provides configurable default functions for storage and state persist
 
 ### Policy Configuration
 
-![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_5.svg)
+![Mermaid Diagram](./diagrams/33_Configuration_and_Global_Settings_5.svg)
 
 ## Configuration Integration Points
 
 ### Component Configuration Access Pattern
 
-![Mermaid Diagram](./diagrams\33_Configuration_and_Global_Settings_6.svg)
+![Mermaid Diagram](./diagrams/33_Configuration_and_Global_Settings_6.svg)
 
 The configuration system uses direct property access rather than dependency injection, allowing components to access current configuration values at runtime without requiring restart or re-instantiation.

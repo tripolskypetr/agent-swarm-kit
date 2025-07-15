@@ -13,7 +13,7 @@ This document covers the central `swarm` DI container object, service registrati
 
 The DI container follows a layered architecture with the `swarm` object serving as the central service registry. All system components access dependencies through this container rather than direct instantiation.
 
-![Mermaid Diagram](./diagrams\13_Dependency_Injection_Container_0.svg)
+![Mermaid Diagram](./diagrams/13_Dependency_Injection_Container_0.svg)
 
 ## Service Registration System
 
@@ -21,7 +21,7 @@ The DI system uses a symbol-based registration approach where each service type 
 
 ### Registration Flow
 
-![Mermaid Diagram](./diagrams\13_Dependency_Injection_Container_1.svg)
+![Mermaid Diagram](./diagrams/13_Dependency_Injection_Container_1.svg)
 
 The registration process occurs in [src/lib/core/provide.ts:68-151]() with services organized by category:
 
@@ -39,7 +39,7 @@ The registration process occurs in [src/lib/core/provide.ts:68-151]() with servi
 
 The `swarm` object exported from the main module serves as the primary DI container, implementing the `ISwarmDI` interface. It provides structured access to all system services through property-based injection.
 
-![Mermaid Diagram](./diagrams\13_Dependency_Injection_Container_2.svg)
+![Mermaid Diagram](./diagrams/13_Dependency_Injection_Container_2.svg)
 
 The container assembly occurs in [src/lib/index.ts:252-260]() using spread operators to merge service categories:
 
@@ -59,7 +59,7 @@ export const swarm: ISwarmDI = {
 
 The DI container organizes services into distinct layers that correspond to different architectural concerns:
 
-![Mermaid Diagram](./diagrams\13_Dependency_Injection_Container_3.svg)
+![Mermaid Diagram](./diagrams/13_Dependency_Injection_Container_3.svg)
 
 ### Service Dependencies
 
@@ -102,7 +102,7 @@ const result = await swarm.sessionPublicService.execute(content, "user", METHOD_
 
 The DI container handles service lifecycle through disposal patterns implemented in connection functions like [src/functions/target/disposeConnection.ts:33-191]():
 
-![Mermaid Diagram](./diagrams\13_Dependency_Injection_Container_4.svg)
+![Mermaid Diagram](./diagrams/13_Dependency_Injection_Container_4.svg)
 
 ## Container Initialization
 

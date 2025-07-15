@@ -15,7 +15,7 @@ The agent execution engine consists of two primary components: `ClientAgent` for
 
 `ClientAgent` is the core execution engine that processes incoming messages, executes tool calls, and generates AI completions. It implements the `IAgent` interface and serves as the primary orchestrator for agent behavior.
 
-![Mermaid Diagram](./diagrams\3_Core_Components_0.svg)
+![Mermaid Diagram](./diagrams/3_Core_Components_0.svg)
 
 **Key responsibilities:**
 - **Message Execution**: Processes user and tool messages through `execute()` method
@@ -30,7 +30,7 @@ The `ClientAgent` uses a queued execution model to prevent overlapping operation
 
 `ClientHistory` manages conversation history for agents, providing filtered message arrays optimized for AI completion contexts and maintaining message persistence.
 
-![Mermaid Diagram](./diagrams\3_Core_Components_1.svg)
+![Mermaid Diagram](./diagrams/3_Core_Components_1.svg)
 
 **Key features:**
 - **Message Filtering**: Applies agent-specific filters to scope relevant messages
@@ -47,7 +47,7 @@ The history system supports both raw message access and agent-optimized arrays t
 
 `ClientSession` orchestrates communication between clients, agents, and swarms while enforcing policies and managing message flows. It implements the `ISession` interface and serves as the primary coordination layer.
 
-![Mermaid Diagram](./diagrams\3_Core_Components_2.svg)
+![Mermaid Diagram](./diagrams/3_Core_Components_2.svg)
 
 **Core capabilities:**
 - **Message Execution**: Coordinates agent execution with policy validation
@@ -66,7 +66,7 @@ The service infrastructure provides the foundation for component lifecycle manag
 
 Connection services manage the instantiation and lifecycle of core components using memoization for efficient reuse.
 
-![Mermaid Diagram](./diagrams\3_Core_Components_3.svg)
+![Mermaid Diagram](./diagrams/3_Core_Components_3.svg)
 
 **Service responsibilities:**
 - **AgentConnectionService**: Creates and manages `ClientAgent` instances with tool and completion dependencies
@@ -80,7 +80,7 @@ Each connection service uses `memoize` from functools-kit to cache instances by 
 
 Public services provide the external API layer with context management and method scoping around connection services.
 
-![Mermaid Diagram](./diagrams\3_Core_Components_4.svg)
+![Mermaid Diagram](./diagrams/3_Core_Components_4.svg)
 
 **Public service features:**
 - **Context Scoping**: Wraps all operations with `MethodContextService.runInContext()` for proper context management
@@ -95,7 +95,7 @@ The public services layer provides a clean separation between external API and i
 
 The core components work together through a well-defined integration pattern that ensures proper message flow, state management, and error handling.
 
-![Mermaid Diagram](./diagrams\3_Core_Components_5.svg)
+![Mermaid Diagram](./diagrams/3_Core_Components_5.svg)
 
 **Integration patterns:**
 - **Layered Delegation**: Public services delegate to connection services which manage component instances

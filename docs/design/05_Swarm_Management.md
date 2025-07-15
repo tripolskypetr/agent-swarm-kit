@@ -15,13 +15,13 @@ A swarm is a collection of agents organized under a single orchestration unit th
 
 ### Swarm Component Structure
 
-![Mermaid Diagram](./diagrams\5_Swarm_Management_0.svg)
+![Mermaid Diagram](./diagrams/5_Swarm_Management_0.svg)
 
 ### Swarm Schema and Configuration
 
 Swarms are defined using the `ISwarmSchema` interface, which specifies the agent collection, default agent, and behavioral configuration:
 
-![Mermaid Diagram](./diagrams\5_Swarm_Management_1.svg)
+![Mermaid Diagram](./diagrams/5_Swarm_Management_1.svg)
 
 ## Agent Navigation and Routing
 
@@ -29,13 +29,13 @@ The swarm manages navigation between agents through a navigation stack and activ
 
 ### Navigation Stack Management
 
-![Mermaid Diagram](./diagrams\5_Swarm_Management_2.svg)
+![Mermaid Diagram](./diagrams/5_Swarm_Management_2.svg)
 
 ### Agent Resolution and Error Handling
 
 The swarm uses a `NoopAgent` fallback mechanism when requested agents are not found in the swarm configuration:
 
-![Mermaid Diagram](./diagrams\5_Swarm_Management_3.svg)
+![Mermaid Diagram](./diagrams/5_Swarm_Management_3.svg)
 
 The `NoopAgent` class provides a safety mechanism that logs attempts to use non-existent agents while delegating operations to the default agent.
 
@@ -45,7 +45,7 @@ The swarm maintains an active agent that handles incoming messages and executes 
 
 ### Active Agent Resolution
 
-![Mermaid Diagram](./diagrams\5_Swarm_Management_4.svg)
+![Mermaid Diagram](./diagrams/5_Swarm_Management_4.svg)
 
 ## Message Flow and Output Handling
 
@@ -53,13 +53,13 @@ Swarms coordinate message flow between agents and manage output emission to exte
 
 ### Message Execution Flow
 
-![Mermaid Diagram](./diagrams\5_Swarm_Management_5.svg)
+![Mermaid Diagram](./diagrams/5_Swarm_Management_5.svg)
 
 ### Output Subject Management
 
 The `ClientSwarm` uses Subject patterns for asynchronous output handling and coordination:
 
-![Mermaid Diagram](./diagrams\5_Swarm_Management_6.svg)
+![Mermaid Diagram](./diagrams/5_Swarm_Management_6.svg)
 
 ## Integration with Service Layer
 
@@ -67,13 +67,13 @@ Swarms integrate with the service architecture through connection services, vali
 
 ### Service Layer Integration
 
-![Mermaid Diagram](./diagrams\5_Swarm_Management_7.svg)
+![Mermaid Diagram](./diagrams/5_Swarm_Management_7.svg)
 
 ### Persistence and State Management
 
 Swarms support persistence of navigation state and active agent information:
 
-![Mermaid Diagram](./diagrams\5_Swarm_Management_8.svg)
+![Mermaid Diagram](./diagrams/5_Swarm_Management_8.svg)
 
 ## Configuration and Lifecycle
 
@@ -81,10 +81,10 @@ Swarms are configured through schema definitions and managed through service lif
 
 ### Swarm Lifecycle Management
 
-![Mermaid Diagram](./diagrams\5_Swarm_Management_9.svg)
+![Mermaid Diagram](./diagrams/5_Swarm_Management_9.svg)
 
 ### Validation and Error Recovery
 
 Swarms include validation mechanisms for agent availability and navigation consistency:
 
-![Mermaid Diagram](./diagrams\5_Swarm_Management_10.svg)
+![Mermaid Diagram](./diagrams/5_Swarm_Management_10.svg)

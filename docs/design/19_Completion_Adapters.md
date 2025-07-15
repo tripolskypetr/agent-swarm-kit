@@ -15,7 +15,7 @@ For information about AI model performance monitoring, see [Performance Monitori
 
 The completion adapter system is built around the `AdapterUtils` class, which provides factory methods that return standardized completion functions. Each adapter method transforms the internal `ICompletionArgs` format into provider-specific requests and converts responses back to the framework's `IModelMessage` format.
 
-![Mermaid Diagram](./diagrams\19_Completion_Adapters_0.svg)
+![Mermaid Diagram](./diagrams/19_Completion_Adapters_0.svg)
 
 ## Core Components
 
@@ -47,7 +47,7 @@ The adapter system uses several configuration constants for reliability and perf
 
 The `fromOpenAI` method creates an adapter for OpenAI's chat completions API, supporting both GPT models and custom response formats.
 
-![Mermaid Diagram](./diagrams\19_Completion_Adapters_1.svg)
+![Mermaid Diagram](./diagrams/19_Completion_Adapters_1.svg)
 
 ### Ollama Adapter
 
@@ -73,13 +73,13 @@ Key features:
 
 All adapters perform similar input transformations to convert from the internal `ICompletionArgs` format:
 
-![Mermaid Diagram](./diagrams\19_Completion_Adapters_2.svg)
+![Mermaid Diagram](./diagrams/19_Completion_Adapters_2.svg)
 
 ### Tool Call Processing
 
 Tool calls require special handling to convert between the internal format and provider-specific representations:
 
-![Mermaid Diagram](./diagrams\19_Completion_Adapters_3.svg)
+![Mermaid Diagram](./diagrams/19_Completion_Adapters_3.svg)
 
 ## Reliability Features
 

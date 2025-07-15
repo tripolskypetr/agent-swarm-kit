@@ -13,7 +13,7 @@ For information about building multi-agent systems architecture, see [Building M
 
 The testing framework validates core system functionality through comprehensive integration tests that exercise real multi-agent workflows, session management, and tool execution patterns.
 
-![Mermaid Diagram](./diagrams\27_Examples_and_Testing_0.svg)
+![Mermaid Diagram](./diagrams/27_Examples_and_Testing_0.svg)
 
 ## Basic Agent and Swarm Examples
 
@@ -21,7 +21,7 @@ The testing framework validates core system functionality through comprehensive 
 
 The most basic example demonstrates creating an agent with mock completion and testing its response:
 
-![Mermaid Diagram](./diagrams\27_Examples_and_Testing_1.svg)
+![Mermaid Diagram](./diagrams/27_Examples_and_Testing_1.svg)
 
 This pattern is implemented in [test/spec/completion.test.mjs:14-50]() where a mock completion returns a fixed response, and [test/spec/completion.test.mjs:52-116]() demonstrates using different completions for different agents within the same swarm.
 
@@ -29,7 +29,7 @@ This pattern is implemented in [test/spec/completion.test.mjs:14-50]() where a m
 
 The navigation test demonstrates a triage system with agent routing:
 
-![Mermaid Diagram](./diagrams\27_Examples_and_Testing_2.svg)
+![Mermaid Diagram](./diagrams/27_Examples_and_Testing_2.svg)
 
 The implementation creates tools that handle navigation between agents using `changeToAgent()` and `execute()` functions as shown in [test/spec/navigation.test.mjs:80-114]().
 
@@ -48,7 +48,7 @@ The connection tests validate that the system properly handles multiple concurre
 
 ### Session Lifecycle Testing
 
-![Mermaid Diagram](./diagrams\27_Examples_and_Testing_3.svg)
+![Mermaid Diagram](./diagrams/27_Examples_and_Testing_3.svg)
 
 The disposal tests in [test/spec/dispose.test.mjs:24-371]() verify that all session resources are properly cleaned up, including session lists, agent lists, and history lists.
 
@@ -58,7 +58,7 @@ The disposal tests in [test/spec/dispose.test.mjs:24-371]() verify that all sess
 
 Navigation tools demonstrate complex multi-step operations:
 
-![Mermaid Diagram](./diagrams\27_Examples_and_Testing_4.svg)
+![Mermaid Diagram](./diagrams/27_Examples_and_Testing_4.svg)
 
 The tool implementation pattern is shown in [test/spec/navigation.test.mjs:80-96]() where tools perform agent navigation and execute follow-up messages.
 
@@ -66,7 +66,7 @@ The tool implementation pattern is shown in [test/spec/navigation.test.mjs:80-96
 
 The system includes specific tests for preventing deadlock conditions in tool execution:
 
-![Mermaid Diagram](./diagrams\27_Examples_and_Testing_5.svg)
+![Mermaid Diagram](./diagrams/27_Examples_and_Testing_5.svg)
 
 This deadlock prevention mechanism is validated in [test/spec/navigation.test.mjs:256-280]() and [test/spec/navigation.test.mjs:283-374]().
 
@@ -90,7 +90,7 @@ Configuration for rescue strategies:
 
 The validation tests ensure all required dependencies are present:
 
-![Mermaid Diagram](./diagrams\27_Examples_and_Testing_6.svg)
+![Mermaid Diagram](./diagrams/27_Examples_and_Testing_6.svg)
 
 Each validation test in [test/spec/validation.test.mjs:66-144]() checks for specific missing dependencies and verifies that the system properly rejects invalid configurations.
 
@@ -100,7 +100,7 @@ Each validation test in [test/spec/validation.test.mjs:66-144]() checks for spec
 
 Integration tests validate that the system maintains message order under concurrent load:
 
-![Mermaid Diagram](./diagrams\27_Examples_and_Testing_7.svg)
+![Mermaid Diagram](./diagrams/27_Examples_and_Testing_7.svg)
 
 This pattern is tested extensively in [test/spec/connection.test.mjs:190-320]() with validation that assistant messages maintain proper order even under concurrent load.
 
@@ -108,7 +108,7 @@ This pattern is tested extensively in [test/spec/connection.test.mjs:190-320]() 
 
 The event system allows for custom message emission outside the normal chat flow:
 
-![Mermaid Diagram](./diagrams\27_Examples_and_Testing_8.svg)
+![Mermaid Diagram](./diagrams/27_Examples_and_Testing_8.svg)
 
 Event testing is implemented in [test/spec/connection.test.mjs:413-473]() and [test/spec/connection.test.mjs:475-522]() to ensure events are properly delivered to listeners without affecting chat history.
 

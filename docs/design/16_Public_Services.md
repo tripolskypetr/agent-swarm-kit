@@ -13,7 +13,7 @@ For information about the underlying Connection Services that Public Services wr
 
 Public Services implement a consistent pattern that filters internal methods from Connection Services and adds contextual wrapping to all public operations. This creates a controlled API surface while maintaining access to core functionality.
 
-![Mermaid Diagram](./diagrams\16_Public_Services_0.svg)
+![Mermaid Diagram](./diagrams/16_Public_Services_0.svg)
 
 **Public Service Type Filtering Pattern**
 
@@ -23,7 +23,7 @@ Public Services implement a consistent pattern that filters internal methods fro
 
 `AgentPublicService` provides the public interface for agent operations, excluding internal methods like `getAgent` while exposing execution, disposal, and messaging capabilities.
 
-![Mermaid Diagram](./diagrams\16_Public_Services_1.svg)
+![Mermaid Diagram](./diagrams/16_Public_Services_1.svg)
 
 **AgentPublicService Method Filtering**
 
@@ -40,7 +40,7 @@ The service implements `TAgentConnectionService` which excludes `getAgent` from 
 
 `SessionPublicService` manages session-level operations with execution validation and navigation control, wrapping `SessionConnectionService` while excluding internal session management.
 
-![Mermaid Diagram](./diagrams\16_Public_Services_2.svg)
+![Mermaid Diagram](./diagrams/16_Public_Services_2.svg)
 
 **SessionPublicService Validation Integration**
 
@@ -54,7 +54,7 @@ Key validation integrations include:
 
 Public Services integrate multiple context services to provide comprehensive execution tracking and method scoping.
 
-![Mermaid Diagram](./diagrams\16_Public_Services_3.svg)
+![Mermaid Diagram](./diagrams/16_Public_Services_3.svg)
 
 **Context Management Flow**
 
@@ -69,7 +69,7 @@ Public Services integrate multiple context services to provide comprehensive exe
 
 Public Services integrate performance monitoring and logging services to provide comprehensive observability across the API layer.
 
-![Mermaid Diagram](./diagrams\16_Public_Services_4.svg)
+![Mermaid Diagram](./diagrams/16_Public_Services_4.svg)
 
 **Performance Tracking Example**
 
@@ -103,7 +103,7 @@ Public Services integrate performance monitoring and logging services to provide
 
 Public Services implement a consistent method wrapping pattern that adds context management, validation, and logging to all operations.
 
-![Mermaid Diagram](./diagrams\16_Public_Services_5.svg)
+![Mermaid Diagram](./diagrams/16_Public_Services_5.svg)
 
 **Method Wrapping Sequence**
 

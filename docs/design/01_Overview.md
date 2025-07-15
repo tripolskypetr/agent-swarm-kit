@@ -19,7 +19,7 @@ The agent-swarm-kit follows a layered architecture centered around a dependency 
 
 ### High-Level System Flow
 
-![Mermaid Diagram](./diagrams\1_Overview_0.svg)
+![Mermaid Diagram](./diagrams/1_Overview_0.svg)
 
 ## Core Components
 
@@ -27,7 +27,7 @@ The agent-swarm-kit follows a layered architecture centered around a dependency 
 
 The `ClientAgent` class serves as the core execution engine for individual agents, handling message processing, tool calls, and AI model interactions:
 
-![Mermaid Diagram](./diagrams\1_Overview_2.svg)
+![Mermaid Diagram](./diagrams/1_Overview_2.svg)
 
 The `ClientAgent` implements sophisticated execution patterns including tool call validation, model recovery strategies, and event-driven communication through subjects for handling agent state changes, tool outputs, and error conditions.
 
@@ -35,7 +35,7 @@ The `ClientAgent` implements sophisticated execution patterns including tool cal
 
 The session layer manages client connections and message flow through the swarm system:
 
-![Mermaid Diagram](./diagrams\1_Overview_3.svg)
+![Mermaid Diagram](./diagrams/1_Overview_3.svg)
 
 The `ClientSession` enforces policy validation for both input and output messages, coordinates with the swarm for agent execution, and provides event-driven messaging capabilities for real-time client communication.
 
@@ -55,7 +55,7 @@ The swarm maintains a navigation stack that allows agents to call each other and
 
 The system processes messages through a well-defined pipeline that ensures proper validation, execution, and output handling:
 
-![Mermaid Diagram](./diagrams\1_Overview_4.svg)
+![Mermaid Diagram](./diagrams/1_Overview_4.svg)
 
 This flow demonstrates the coordination between layers and the sophisticated tool execution pipeline that handles both simple completions and complex multi-tool workflows.
 

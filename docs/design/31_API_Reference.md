@@ -72,7 +72,7 @@ interface IAgentTool<T = Record<string, ToolValue>> {
 
 ### Agent Execution Flow
 
-![Mermaid Diagram](./diagrams\31_API_Reference_2.svg)
+![Mermaid Diagram](./diagrams/31_API_Reference_2.svg)
 
 ## Session and Swarm APIs
 

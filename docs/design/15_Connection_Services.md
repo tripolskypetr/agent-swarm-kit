@@ -13,7 +13,7 @@ For information about the public-facing APIs that wrap these connection services
 
 Connection Services sit between the Schema Services and the client implementation layer, providing lifecycle management and instance caching:
 
-![Mermaid Diagram](./diagrams\15_Connection_Services_0.svg)
+![Mermaid Diagram](./diagrams/15_Connection_Services_0.svg)
 
 **Connection Services Architecture**
 
@@ -23,7 +23,7 @@ Connection Services sit between the Schema Services and the client implementatio
 
 The `AgentConnectionService` manages `ClientAgent` lifecycle and provides memoized agent instances:
 
-![Mermaid Diagram](./diagrams\15_Connection_Services_1.svg)
+![Mermaid Diagram](./diagrams/15_Connection_Services_1.svg)
 
 **AgentConnectionService Workflow**
 
@@ -37,7 +37,7 @@ The service uses a memoization strategy with composite keys:
 
 The `SessionConnectionService` manages `ClientSession` instances with swarm integration:
 
-![Mermaid Diagram](./diagrams\15_Connection_Services_2.svg)
+![Mermaid Diagram](./diagrams/15_Connection_Services_2.svg)
 
 **SessionConnectionService Workflow**
 
@@ -55,7 +55,7 @@ Manages `ClientSwarm` instances and agent navigation within swarms:
 
 Connection Services implement a consistent memoization pattern using `functools-kit`:
 
-![Mermaid Diagram](./diagrams\15_Connection_Services_3.svg)
+![Mermaid Diagram](./diagrams/15_Connection_Services_3.svg)
 
 **Memoization Key Strategy**
 
@@ -79,7 +79,7 @@ Connection Services follow a consistent DI pattern for resource management:
 | Validation Services | `inject<SessionValidationService>(TYPES.sessionValidationService)` | Usage tracking |
 | Base Services | `inject<LoggerService>(TYPES.loggerService)` | Logging and events |
 
-![Mermaid Diagram](./diagrams\15_Connection_Services_4.svg)
+![Mermaid Diagram](./diagrams/15_Connection_Services_4.svg)
 
 **Dependency Injection Flow**
 
@@ -89,7 +89,7 @@ Connection Services follow a consistent DI pattern for resource management:
 
 Manages `ClientStorage` instances with embedding integration:
 
-![Mermaid Diagram](./diagrams\15_Connection_Services_5.svg)
+![Mermaid Diagram](./diagrams/15_Connection_Services_5.svg)
 
 **Storage Connection Workflow**
 
@@ -107,7 +107,7 @@ Manages `ClientState` instances with middleware support:
 
 Connection Services bridge schema configuration to client implementations:
 
-![Mermaid Diagram](./diagrams\15_Connection_Services_6.svg)
+![Mermaid Diagram](./diagrams/15_Connection_Services_6.svg)
 
 **Service Integration Sequence**
 

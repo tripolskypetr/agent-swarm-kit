@@ -13,7 +13,7 @@ For information about the underlying session and agent execution mechanisms, see
 
 The client-server chat implementation in agent-swarm-kit centers around the `Chat` utility class and `ChatInstance` objects that manage individual client sessions. This system provides automatic session lifecycle management, inactivity timeouts, and seamless integration with the swarm's agent execution engine.
 
-![Mermaid Diagram](./diagrams\28_Client-Server_Chat_Implementation_0.svg)
+![Mermaid Diagram](./diagrams/28_Client-Server_Chat_Implementation_0.svg)
 
 ## Core Chat Components
 
@@ -29,7 +29,7 @@ The `ChatInstance` class manages individual client chat sessions with automatic 
 
 The `ChatInstance` constructor creates a session connection and initializes callback handlers:
 
-![Mermaid Diagram](./diagrams\28_Client-Server_Chat_Implementation_1.svg)
+![Mermaid Diagram](./diagrams/28_Client-Server_Chat_Implementation_1.svg)
 
 ### Session Lifecycle Management
 
@@ -41,7 +41,7 @@ The chat system implements automatic cleanup with configurable timeouts:
 
 The `checkLastActivity` method determines if a session should be kept alive:
 
-![Mermaid Diagram](./diagrams\28_Client-Server_Chat_Implementation_2.svg)
+![Mermaid Diagram](./diagrams/28_Client-Server_Chat_Implementation_2.svg)
 
 ## Message Processing Flow
 
@@ -49,7 +49,7 @@ The `checkLastActivity` method determines if a session should be kept alive:
 
 The `sendMessage` method coordinates message processing through the swarm system:
 
-![Mermaid Diagram](./diagrams\28_Client-Server_Chat_Implementation_3.svg)
+![Mermaid Diagram](./diagrams/28_Client-Server_Chat_Implementation_3.svg)
 
 ### Connection Patterns
 
@@ -145,7 +145,7 @@ await emit("Server notification", clientId);
 
 Chat sessions support agent navigation through specialized tools. The system provides templates for common navigation patterns:
 
-![Mermaid Diagram](./diagrams\28_Client-Server_Chat_Implementation_4.svg)
+![Mermaid Diagram](./diagrams/28_Client-Server_Chat_Implementation_4.svg)
 
 ### Navigation Tool Example
 
@@ -178,7 +178,7 @@ const SALES_NAVIGATION_TOOL = addTool({
 
 The chat system handles multiple concurrent sessions with proper isolation:
 
-![Mermaid Diagram](./diagrams\28_Client-Server_Chat_Implementation_5.svg)
+![Mermaid Diagram](./diagrams/28_Client-Server_Chat_Implementation_5.svg)
 
 ### Custom Chat Adapters
 

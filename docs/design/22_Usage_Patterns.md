@@ -13,7 +13,7 @@ The foundation of any agent swarm system involves defining agents, completions, 
 
 ### Basic Agent Definition Pattern
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_0.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_0.svg)
 
 The typical setup sequence follows this pattern:
 
@@ -27,7 +27,7 @@ The typical setup sequence follows this pattern:
 
 The library uses string-based dependency injection to enable modular agent definitions:
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_1.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_1.svg)
 
 This pattern allows agents to be defined in separate modules and connected via string constants, enabling better code organization and testability.
 
@@ -37,13 +37,13 @@ Multi-agent orchestration involves coordinating multiple AI agents within a sing
 
 ### Navigation-Based Agent Switching
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_2.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_2.svg)
 
 The navigation pattern uses specialized tools that call `changeAgent` to switch the active agent for a client session. All agents share the same message history (limited to the last 25 messages with `assistant` and `user` roles).
 
 ### Shared History Management
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_3.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_3.svg)
 
 Each agent maintains its own system prompt and tool context while sharing conversational history, ensuring smooth handoffs between specialized agents.
 
@@ -53,7 +53,7 @@ Background processing enables agents to perform complex computations or data pro
 
 ### Fork Pattern for Isolated Execution
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_4.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_4.svg)
 
 The `fork` function creates completely isolated agent sessions for background processing, with automatic cleanup and error handling.
 
@@ -61,7 +61,7 @@ The `fork` function creates completely isolated agent sessions for background pr
 
 The `scope` pattern allows temporary schema modifications within a controlled context:
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_5.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_5.svg)
 
 ## Tool Integration Patterns
 
@@ -69,13 +69,13 @@ Tools provide extensibility by allowing agents to execute custom functions, inte
 
 ### Dynamic Tool Definition Pattern
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_6.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_6.svg)
 
 Tools can adapt their behavior based on the calling agent and client context, enabling sophisticated integrations.
 
 ### Model Context Protocol (MCP) Integration
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_7.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_7.svg)
 
 MCP integration allows agents to seamlessly interact with external tools and services written in different languages.
 
@@ -85,13 +85,13 @@ Storage patterns enable agents to access persistent data and perform vector-base
 
 ### Vector Storage Setup Pattern
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_8.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_8.svg)
 
 The storage pattern combines embedding models with data sources to enable semantic search capabilities within agent conversations.
 
 ### RAG Implementation Pattern
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_9.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_9.svg)
 
 RAG implementation leverages embedding-based similarity search to provide agents with relevant context for more informed responses.
 
@@ -101,13 +101,13 @@ Session management handles the lifecycle of client connections, message processi
 
 ### WebSocket Session Pattern
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_10.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_10.svg)
 
 The session pattern provides clean separation between transport layer (WebSocket) and business logic (agent execution).
 
 ### Connection Disposal Pattern
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_11.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_11.svg)
 
 Proper connection disposal prevents memory leaks and ensures clean shutdown of agent sessions.
 
@@ -117,12 +117,12 @@ Error handling patterns ensure robust operation when agents produce invalid outp
 
 ### Model Recovery Pattern
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_12.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_12.svg)
 
 The recovery algorithm progressively attempts to fix model outputs, finally falling back to a polite placeholder response when all recovery attempts fail.
 
 ### Validation Service Pattern
 
-![Mermaid Diagram](./diagrams\22_Usage_Patterns_13.svg)
+![Mermaid Diagram](./diagrams/22_Usage_Patterns_13.svg)
 
 Validation services ensure system integrity by checking configurations, dependencies, and runtime state before execution.

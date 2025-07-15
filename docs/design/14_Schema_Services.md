@@ -13,13 +13,13 @@ For connection lifecycle management of these schemas, see [Connection Services](
 
 Schema Services form the configuration backbone of the swarm system, organizing schema management into distinct service classes that follow a consistent ToolRegistry-based pattern.
 
-![Mermaid Diagram](./diagrams\14_Schema_Services_0.svg)
+![Mermaid Diagram](./diagrams/14_Schema_Services_0.svg)
 
 ## ToolRegistry Pattern
 
 All Schema Services implement a consistent pattern using ToolRegistry from functools-kit for schema storage and retrieval. Each service provides validation, registration, override, and retrieval operations.
 
-![Mermaid Diagram](./diagrams\14_Schema_Services_1.svg)
+![Mermaid Diagram](./diagrams/14_Schema_Services_1.svg)
 
 ## Core Schema Services
 
@@ -43,7 +43,7 @@ Manages `IAgentSchemaInternal` schemas that define agent behavior, dependencies,
 
 Manages `IAgentTool` schemas that define tool execution logic and validation. Ensures tools have proper call functions and metadata definitions.
 
-![Mermaid Diagram](./diagrams\14_Schema_Services_2.svg)
+![Mermaid Diagram](./diagrams/14_Schema_Services_2.svg)
 
 ### CompletionSchemaService
 
@@ -71,7 +71,7 @@ Manages `IEmbeddingSchema` instances for similarity calculations and vector oper
 
 Schema Services integrate with `SchemaContextService` to support dynamic schema overrides during pipeline execution. When a schema context exists, services use context-specific registries instead of their private instances.
 
-![Mermaid Diagram](./diagrams\14_Schema_Services_3.svg)
+![Mermaid Diagram](./diagrams/14_Schema_Services_3.svg)
 
 ## Integration with Dependency Injection
 

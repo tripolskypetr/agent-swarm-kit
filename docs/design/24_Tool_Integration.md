@@ -15,7 +15,7 @@ The framework provides the `addTool` function for creating custom tools that age
 
 ### Basic Tool Structure
 
-![Mermaid Diagram](./diagrams\24_Tool_Integration_0.svg)
+![Mermaid Diagram](./diagrams/24_Tool_Integration_0.svg)
 
 **Tool Definition Components**
 
@@ -31,7 +31,7 @@ The framework provides the `addTool` function for creating custom tools that age
 
 Tools use OpenAI-compatible function schemas to define their parameters and descriptions:
 
-![Mermaid Diagram](./diagrams\24_Tool_Integration_1.svg)
+![Mermaid Diagram](./diagrams/24_Tool_Integration_1.svg)
 
 ## Model Context Protocol Integration
 
@@ -39,11 +39,11 @@ The framework supports integration with external MCP servers, allowing agents to
 
 ### MCP Architecture
 
-![Mermaid Diagram](./diagrams\24_Tool_Integration_2.svg)
+![Mermaid Diagram](./diagrams/24_Tool_Integration_2.svg)
 
 ### MCP Tool Discovery and Execution
 
-![Mermaid Diagram](./diagrams\24_Tool_Integration_3.svg)
+![Mermaid Diagram](./diagrams/24_Tool_Integration_3.svg)
 
 ## Tool Execution Lifecycle
 
@@ -51,7 +51,7 @@ Tools are executed within the context of agent conversations, with proper error 
 
 ### Tool Call Processing
 
-![Mermaid Diagram](./diagrams\24_Tool_Integration_4.svg)
+![Mermaid Diagram](./diagrams/24_Tool_Integration_4.svg)
 
 ### Tool Parameter Structure
 
@@ -73,7 +73,7 @@ The framework provides comprehensive error handling for tool execution failures.
 
 ### Error Recovery Patterns
 
-![Mermaid Diagram](./diagrams\24_Tool_Integration_5.svg)
+![Mermaid Diagram](./diagrams/24_Tool_Integration_5.svg)
 
 ## Advanced Tool Patterns
 
@@ -81,13 +81,13 @@ The framework provides comprehensive error handling for tool execution failures.
 
 Tools can provide dynamic function schemas based on the executing agent:
 
-![Mermaid Diagram](./diagrams\24_Tool_Integration_6.svg)
+![Mermaid Diagram](./diagrams/24_Tool_Integration_6.svg)
 
 ### Tool Update Mechanisms
 
 MCP tools support dynamic updates without restarting the system:
 
-![Mermaid Diagram](./diagrams\24_Tool_Integration_7.svg)
+![Mermaid Diagram](./diagrams/24_Tool_Integration_7.svg)
 
 ### Tool Output Patterns
 
@@ -103,4 +103,4 @@ Tools can return different types of outputs:
 
 Tools can be executed in isolated contexts using the `fork` mechanism:
 
-![Mermaid Diagram](./diagrams\24_Tool_Integration_8.svg)
+![Mermaid Diagram](./diagrams/24_Tool_Integration_8.svg)

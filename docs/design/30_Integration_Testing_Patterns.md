@@ -11,7 +11,7 @@ This document covers integration testing strategies and patterns for multi-agent
 
 The agent-swarm-kit employs a comprehensive integration testing approach that validates end-to-end workflows across the entire system stack. Tests verify agent orchestration, session management, concurrent execution, and AI model integration patterns.
 
-![Mermaid Diagram](./diagrams\30_Integration_Testing_Patterns_0.svg)
+![Mermaid Diagram](./diagrams/30_Integration_Testing_Patterns_0.svg)
 
 ## Mock Completion Patterns
 
@@ -19,7 +19,7 @@ Integration tests rely heavily on mock AI completions to provide deterministic, 
 
 ### Basic Mock Completion Structure
 
-![Mermaid Diagram](./diagrams\30_Integration_Testing_Patterns_1.svg)
+![Mermaid Diagram](./diagrams/30_Integration_Testing_Patterns_1.svg)
 
 Mock completions typically follow this pattern:
 
@@ -32,7 +32,7 @@ Mock completions typically follow this pattern:
 
 ### Tool Call Mock Pattern
 
-![Mermaid Diagram](./diagrams\30_Integration_Testing_Patterns_2.svg)
+![Mermaid Diagram](./diagrams/30_Integration_Testing_Patterns_2.svg)
 
 ## Concurrent Execution Testing
 
@@ -40,13 +40,13 @@ The framework includes extensive concurrent execution testing to validate messag
 
 ### Parallel Session Testing Pattern
 
-![Mermaid Diagram](./diagrams\30_Integration_Testing_Patterns_3.svg)
+![Mermaid Diagram](./diagrams/30_Integration_Testing_Patterns_3.svg)
 
 The connection test demonstrates this pattern by running 50 parallel sessions with the same `CLIENT_ID` to verify proper message queuing:
 
 ### Message Queue Validation
 
-![Mermaid Diagram](./diagrams\30_Integration_Testing_Patterns_4.svg)
+![Mermaid Diagram](./diagrams/30_Integration_Testing_Patterns_4.svg)
 
 ## Agent Navigation Testing
 
@@ -54,13 +54,13 @@ Navigation testing validates agent transitions, swarm orchestration, and deadloc
 
 ### Navigation Test Architecture
 
-![Mermaid Diagram](./diagrams\30_Integration_Testing_Patterns_5.svg)
+![Mermaid Diagram](./diagrams/30_Integration_Testing_Patterns_5.svg)
 
 ### Deadlock Prevention Testing
 
 The framework includes specific tests for deadlock prevention when tools don't properly commit their outputs:
 
-![Mermaid Diagram](./diagrams\30_Integration_Testing_Patterns_6.svg)
+![Mermaid Diagram](./diagrams/30_Integration_Testing_Patterns_6.svg)
 
 ## Connection Lifecycle Testing
 
@@ -68,7 +68,7 @@ Connection disposal and cleanup testing ensures proper resource management and p
 
 ### Connection Disposal Pattern
 
-![Mermaid Diagram](./diagrams\30_Integration_Testing_Patterns_7.svg)
+![Mermaid Diagram](./diagrams/30_Integration_Testing_Patterns_7.svg)
 
 ## Error Recovery Testing
 
@@ -76,7 +76,7 @@ The rescue (resque) testing validates error handling, model recovery, and gracef
 
 ### Rescue Strategy Testing
 
-![Mermaid Diagram](./diagrams\30_Integration_Testing_Patterns_8.svg)
+![Mermaid Diagram](./diagrams/30_Integration_Testing_Patterns_8.svg)
 
 ## Validation Testing Patterns
 
@@ -93,7 +93,7 @@ Dependency validation testing ensures that all required components are properly 
 | Missing Tool | `addTool()` call | Validation Error |
 | Invalid Default Agent | Wrong `defaultAgent` reference | Validation Error |
 
-![Mermaid Diagram](./diagrams\30_Integration_Testing_Patterns_9.svg)
+![Mermaid Diagram](./diagrams/30_Integration_Testing_Patterns_9.svg)
 
 ## Event System Testing
 
@@ -101,7 +101,7 @@ Event testing validates the custom event system used for out-of-band communicati
 
 ### Event Flow Testing
 
-![Mermaid Diagram](./diagrams\30_Integration_Testing_Patterns_10.svg)
+![Mermaid Diagram](./diagrams/30_Integration_Testing_Patterns_10.svg)
 
 ## Test Utility Patterns
 
@@ -116,4 +116,4 @@ Event testing validates the custom event system used for out-of-band communicati
 
 ### Test Configuration Management
 
-![Mermaid Diagram](./diagrams\30_Integration_Testing_Patterns_11.svg)
+![Mermaid Diagram](./diagrams/30_Integration_Testing_Patterns_11.svg)

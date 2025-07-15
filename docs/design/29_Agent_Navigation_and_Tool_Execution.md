@@ -23,13 +23,13 @@ The system provides three primary navigation functions that handle agent transit
 | `changeToDefaultAgent` | Return to swarm default agent | Uses swarm schema default agent |
 | `changeToPrevAgent` | Navigate to previous agent | Uses navigation stack with fallback to default |
 
-![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_0.svg)
+![Mermaid Diagram](./diagrams/29_Agent_Navigation_and_Tool_Execution_0.svg)
 
 ### Navigation Implementation Details
 
 Each navigation function uses a memoized, queued execution pattern to prevent race conditions and ensure sequential processing per client:
 
-![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_1.svg)
+![Mermaid Diagram](./diagrams/29_Agent_Navigation_and_Tool_Execution_1.svg)
 
 ## Tool Execution Framework
 
@@ -39,13 +39,13 @@ Tools can trigger agent navigation and execute complex workflows. The tool execu
 
 Navigation tools are a common pattern where tool execution triggers agent transitions:
 
-![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_2.svg)
+![Mermaid Diagram](./diagrams/29_Agent_Navigation_and_Tool_Execution_2.svg)
 
 ### Tool Execution Lifecycle
 
 The tool execution lifecycle involves validation, execution, and result commitment, with navigation capabilities:
 
-![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_3.svg)
+![Mermaid Diagram](./diagrams/29_Agent_Navigation_and_Tool_Execution_3.svg)
 
 ## Pipeline-Based Workflows
 
@@ -55,7 +55,7 @@ The pipeline system enables complex workflows with agent navigation and automate
 
 The `startPipeline` function demonstrates advanced agent orchestration:
 
-![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_4.svg)
+![Mermaid Diagram](./diagrams/29_Agent_Navigation_and_Tool_Execution_4.svg)
 
 ### Pipeline Schema Structure
 
@@ -77,13 +77,13 @@ Real-world scenarios involve intricate navigation patterns with multiple agents,
 
 This example shows a triage agent that routes users to specialized agents:
 
-![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_5.svg)
+![Mermaid Diagram](./diagrams/29_Agent_Navigation_and_Tool_Execution_5.svg)
 
 ### Deadlock Prevention Mechanisms
 
 The system includes several mechanisms to prevent deadlocks and race conditions:
 
-![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_6.svg)
+![Mermaid Diagram](./diagrams/29_Agent_Navigation_and_Tool_Execution_6.svg)
 
 ## Testing and Validation
 
@@ -93,7 +93,7 @@ The system includes comprehensive testing patterns for navigation and tool execu
 
 The test suite validates that multiple concurrent connections maintain separate navigation states:
 
-![Mermaid Diagram](./diagrams\29_Agent_Navigation_and_Tool_Execution_7.svg)
+![Mermaid Diagram](./diagrams/29_Agent_Navigation_and_Tool_Execution_7.svg)
 
 ### Queue Management Tests
 

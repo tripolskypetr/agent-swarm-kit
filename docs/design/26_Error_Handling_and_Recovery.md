@@ -17,7 +17,7 @@ The agent-swarm-kit system implements comprehensive error handling across multip
 
 Tool call errors represent one of the most common failure scenarios in the system. The `ClientAgent` class implements sophisticated error handling for tool execution failures.
 
-![Mermaid Diagram](./diagrams\26_Error_Handling_and_Recovery_0.svg)
+![Mermaid Diagram](./diagrams/26_Error_Handling_and_Recovery_0.svg)
 
 **Tool Call Error Flow in ClientAgent**
 
@@ -35,7 +35,7 @@ The system uses specific symbols to coordinate error handling between tool execu
 
 When the AI model produces invalid outputs or tool calls, the system employs configurable rescue strategies to recover gracefully.
 
-![Mermaid Diagram](./diagrams\26_Error_Handling_and_Recovery_1.svg)
+![Mermaid Diagram](./diagrams/26_Error_Handling_and_Recovery_1.svg)
 
 **Model Rescue Strategy Selection**
 
@@ -49,7 +49,7 @@ The rescue strategies are configured through global settings:
 
 The system implements multi-layer validation to prevent invalid operations and gracefully handle validation failures.
 
-![Mermaid Diagram](./diagrams\26_Error_Handling_and_Recovery_2.svg)
+![Mermaid Diagram](./diagrams/26_Error_Handling_and_Recovery_2.svg)
 
 **Validation Error Recovery Mechanisms**
 
@@ -57,7 +57,7 @@ The system implements multi-layer validation to prevent invalid operations and g
 
 Session-level errors are handled through policy validation and graceful degradation mechanisms.
 
-![Mermaid Diagram](./diagrams\26_Error_Handling_and_Recovery_3.svg)
+![Mermaid Diagram](./diagrams/26_Error_Handling_and_Recovery_3.svg)
 
 **Session Error Handling Flow**
 
@@ -67,7 +67,7 @@ Session-level errors are handled through policy validation and graceful degradat
 
 When the system cannot provide a meaningful response due to errors, it employs a placeholder response system to maintain user engagement.
 
-![Mermaid Diagram](./diagrams\26_Error_Handling_and_Recovery_4.svg)
+![Mermaid Diagram](./diagrams/26_Error_Handling_and_Recovery_4.svg)
 
 **Placeholder Response Selection**
 
@@ -75,7 +75,7 @@ When the system cannot provide a meaningful response due to errors, it employs a
 
 The system maintains conversation context during error scenarios through intelligent history management.
 
-![Mermaid Diagram](./diagrams\26_Error_Handling_and_Recovery_5.svg)
+![Mermaid Diagram](./diagrams/26_Error_Handling_and_Recovery_5.svg)
 
 **History Recovery in ClientHistory**
 
@@ -83,7 +83,7 @@ The system maintains conversation context during error scenarios through intelli
 
 The system prevents infinite recursion and deadlock conditions in agent navigation through validation services.
 
-![Mermaid Diagram](./diagrams\26_Error_Handling_and_Recovery_6.svg)
+![Mermaid Diagram](./diagrams/26_Error_Handling_and_Recovery_6.svg)
 
 **Navigation Error Prevention Flow**
 
@@ -106,7 +106,7 @@ The error handling behavior is highly configurable through global settings:
 
 The system supports custom error handling functions for specialized recovery scenarios:
 
-![Mermaid Diagram](./diagrams\26_Error_Handling_and_Recovery_7.svg)
+![Mermaid Diagram](./diagrams/26_Error_Handling_and_Recovery_7.svg)
 
 **Error Recovery Class Relationships**
 

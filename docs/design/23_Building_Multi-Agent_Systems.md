@@ -17,7 +17,7 @@ Multi-agent systems in agent-swarm-kit are constructed from four fundamental com
 
 Tools provide the functional capabilities that agents can execute. Each tool is defined using the `addTool` function with a schema that includes validation, execution logic, and model-facing function descriptions.
 
-![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_0.svg)
+![Mermaid Diagram](./diagrams/23_Building_Multi-Agent_Systems_0.svg)
 
 **Tool Registration Flow**
 
@@ -25,7 +25,7 @@ Tools provide the functional capabilities that agents can execute. Each tool is 
 
 Completions define AI model integrations that agents use for generating responses. The `addCompletion` function registers completion providers with their configuration.
 
-![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_1.svg)
+![Mermaid Diagram](./diagrams/23_Building_Multi-Agent_Systems_1.svg)
 
 **Completion Provider Integration**
 
@@ -33,7 +33,7 @@ Completions define AI model integrations that agents use for generating response
 
 Agents are defined using `addAgent` with an `IAgentSchema` that specifies their behavior, capabilities, and dependencies. The schema is processed through `mapAgentSchema` to normalize system prompts into arrays.
 
-![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_2.svg)
+![Mermaid Diagram](./diagrams/23_Building_Multi-Agent_Systems_2.svg)
 
 **Agent Schema Transformation**
 
@@ -53,7 +53,7 @@ The simplest agent configuration requires only a name, completion provider, and 
 
 More sophisticated agents can include tools, storage, state management, and system prompts:
 
-![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_3.svg)
+![Mermaid Diagram](./diagrams/23_Building_Multi-Agent_Systems_3.svg)
 
 **Agent Configuration Components**
 
@@ -71,7 +71,7 @@ Agents support multiple types of system prompts that are processed in a specific
 
 Swarms coordinate multiple agents and define navigation patterns between them. The `addSwarm` function creates swarm configurations with agent lists and default routing.
 
-![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_4.svg)
+![Mermaid Diagram](./diagrams/23_Building_Multi-Agent_Systems_4.svg)
 
 **Swarm Schema Structure**
 
@@ -79,7 +79,7 @@ Swarms coordinate multiple agents and define navigation patterns between them. T
 
 Agent navigation within swarms is typically implemented through specialized navigation tools that call `changeAgent` to transfer control between agents:
 
-![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_5.svg)
+![Mermaid Diagram](./diagrams/23_Building_Multi-Agent_Systems_5.svg)
 
 **Agent Navigation Flow**
 
@@ -89,7 +89,7 @@ Agent navigation within swarms is typically implemented through specialized navi
 
 Sessions are created using the `session` function, which establishes a connection between a client and a swarm, returning methods for message processing and resource cleanup.
 
-![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_6.svg)
+![Mermaid Diagram](./diagrams/23_Building_Multi-Agent_Systems_6.svg)
 
 **Session Lifecycle Management**
 
@@ -109,7 +109,7 @@ The `complete` function processes user messages through the active agent in the 
 
 The `overrideAgent` function allows temporary modification of agent schemas during execution, useful for testing and dynamic behavior adjustment:
 
-![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_7.svg)
+![Mermaid Diagram](./diagrams/23_Building_Multi-Agent_Systems_7.svg)
 
 **Agent Schema Override Process**
 
@@ -117,7 +117,7 @@ The `overrideAgent` function allows temporary modification of agent schemas duri
 
 The `fork` function enables isolated agent execution similar to POSIX fork, allowing complex processing without interfering with main conversation flows:
 
-![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_8.svg)
+![Mermaid Diagram](./diagrams/23_Building_Multi-Agent_Systems_8.svg)
 
 **Fork-based Background Processing**
 
@@ -131,7 +131,7 @@ The framework provides scoped execution contexts that allow temporary configurat
 
 The `DocService` automatically generates Markdown documentation for all agents and swarms, including UML diagrams and comprehensive schema details:
 
-![Mermaid Diagram](./diagrams\23_Building_Multi-Agent_Systems_9.svg)
+![Mermaid Diagram](./diagrams/23_Building_Multi-Agent_Systems_9.svg)
 
 **Documentation Generation Pipeline**
 

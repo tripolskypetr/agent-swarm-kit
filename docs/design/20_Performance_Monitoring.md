@@ -23,13 +23,13 @@ The system captures metrics including:
 
 The performance monitoring system follows a layered architecture within the service framework:
 
-![Mermaid Diagram](./diagrams\20_Performance_Monitoring_0.svg)
+![Mermaid Diagram](./diagrams/20_Performance_Monitoring_0.svg)
 
 ## PerfService Class Structure
 
 The `PerfService` class manages performance tracking through several key components:
 
-![Mermaid Diagram](./diagrams\20_Performance_Monitoring_1.svg)
+![Mermaid Diagram](./diagrams/20_Performance_Monitoring_1.svg)
 
 ## Performance Metrics Tracked
 
@@ -58,7 +58,7 @@ The `PerfService` maintains several internal maps for tracking metrics:
 
 Performance monitoring integrates tightly with the agent execution lifecycle through start/end tracking:
 
-![Mermaid Diagram](./diagrams\20_Performance_Monitoring_2.svg)
+![Mermaid Diagram](./diagrams/20_Performance_Monitoring_2.svg)
 
 ### Start Execution Process
 
@@ -130,7 +130,7 @@ interface IClientPerfomanceRecord {
 
 The performance monitoring system integrates with session state and memory systems to provide comprehensive client context:
 
-![Mermaid Diagram](./diagrams\20_Performance_Monitoring_3.svg)
+![Mermaid Diagram](./diagrams/20_Performance_Monitoring_3.svg)
 
 ### Client State Computation
 

@@ -15,11 +15,11 @@ The state management system provides client-scoped and shared state with dispatc
 
 ### State Service Hierarchy
 
-![Mermaid Diagram](./diagrams\25_Managing_State_and_Storage_0.svg)
+![Mermaid Diagram](./diagrams/25_Managing_State_and_Storage_0.svg)
 
 ### State Lifecycle and Operations
 
-![Mermaid Diagram](./diagrams\25_Managing_State_and_Storage_1.svg)
+![Mermaid Diagram](./diagrams/25_Managing_State_and_Storage_1.svg)
 
 ## Storage Management Architecture
 
@@ -27,11 +27,11 @@ The storage system provides embedding-based similarity search, CRUD operations, 
 
 ### Storage Service Hierarchy
 
-![Mermaid Diagram](./diagrams\25_Managing_State_and_Storage_2.svg)
+![Mermaid Diagram](./diagrams/25_Managing_State_and_Storage_2.svg)
 
 ### Embedding-Based Similarity Search
 
-![Mermaid Diagram](./diagrams\25_Managing_State_and_Storage_3.svg)
+![Mermaid Diagram](./diagrams/25_Managing_State_and_Storage_3.svg)
 
 ## Persistence Patterns
 
@@ -48,7 +48,7 @@ State persistence is controlled by the `persist` flag in state schemas and uses 
 
 ### Storage Persistence
 
-![Mermaid Diagram](./diagrams\25_Managing_State_and_Storage_4.svg)
+![Mermaid Diagram](./diagrams/25_Managing_State_and_Storage_4.svg)
 
 ## Client vs Shared Resource Management
 
@@ -56,7 +56,7 @@ State persistence is controlled by the `persist` flag in state schemas and uses 
 
 The system distinguishes between client-specific and shared resources through configuration and service delegation:
 
-![Mermaid Diagram](./diagrams\25_Managing_State_and_Storage_5.svg)
+![Mermaid Diagram](./diagrams/25_Managing_State_and_Storage_5.svg)
 
 ### Memoization and Lifecycle
 

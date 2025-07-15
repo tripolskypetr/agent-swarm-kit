@@ -28,7 +28,7 @@ All core API functions are exported from the main entry point and can be importe
 
 The setup functions define the building blocks of the agent swarm system. These functions register schemas and configurations that are later resolved at runtime through the dependency injection system.
 
-![Mermaid Diagram](./diagrams\32_Core_API_Functions_0.svg)
+![Mermaid Diagram](./diagrams/32_Core_API_Functions_0.svg)
 
 | Function | Purpose | Returns | Key Parameters |
 |----------|---------|---------|----------------|
@@ -42,7 +42,7 @@ The setup functions define the building blocks of the agent swarm system. These 
 
 Session management functions create and control client sessions within swarms. The `session()` function is the primary entry point for establishing a connection between a client and a swarm.
 
-![Mermaid Diagram](./diagrams\32_Core_API_Functions_1.svg)
+![Mermaid Diagram](./diagrams/32_Core_API_Functions_1.svg)
 
 The `session()` function returns an object with four key methods:
 
@@ -57,7 +57,7 @@ The `session()` function returns an object with four key methods:
 
 Execution functions provide different ways to interact with agents and process messages. These functions offer varying levels of control over how messages are processed and whether they affect conversation history.
 
-![Mermaid Diagram](./diagrams\32_Core_API_Functions_2.svg)
+![Mermaid Diagram](./diagrams/32_Core_API_Functions_2.svg)
 
 | Function | History Update | Context | Use Case |
 |----------|----------------|---------|----------|
@@ -71,13 +71,13 @@ Execution functions provide different ways to interact with agents and process m
 
 Commit functions provide fine-grained control over conversation history by allowing manual insertion of specific message types. These functions bypass normal execution flow and directly manipulate the message history.
 
-![Mermaid Diagram](./diagrams\32_Core_API_Functions_3.svg)
+![Mermaid Diagram](./diagrams/32_Core_API_Functions_3.svg)
 
 ### Navigation Functions
 
 Navigation functions control agent transitions within swarms. These functions change which agent is currently active for processing messages in a client session.
 
-![Mermaid Diagram](./diagrams\32_Core_API_Functions_4.svg)
+![Mermaid Diagram](./diagrams/32_Core_API_Functions_4.svg)
 
 | Function | Purpose | Parameters | Behavior |
 |----------|---------|------------|----------|
@@ -89,7 +89,7 @@ Navigation functions control agent transitions within swarms. These functions ch
 
 This diagram shows how the core API functions map to their underlying implementation classes and services:
 
-![Mermaid Diagram](./diagrams\32_Core_API_Functions_5.svg)
+![Mermaid Diagram](./diagrams/32_Core_API_Functions_5.svg)
 
 ## Function Usage Patterns
 
@@ -190,7 +190,7 @@ await scope(async () => {
 
 The core API functions include built-in validation and error handling mechanisms:
 
-![Mermaid Diagram](./diagrams\32_Core_API_Functions_6.svg)
+![Mermaid Diagram](./diagrams/32_Core_API_Functions_6.svg)
 
 Common validation patterns include:
 - Session existence checking before operations
@@ -203,7 +203,7 @@ Common validation patterns include:
 
 Core API functions operate within execution contexts managed by the dependency injection system:
 
-![Mermaid Diagram](./diagrams\32_Core_API_Functions_7.svg)
+![Mermaid Diagram](./diagrams/32_Core_API_Functions_7.svg)
 
 The context system ensures that:
 - Function calls have access to the correct client and agent context

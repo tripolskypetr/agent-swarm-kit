@@ -13,7 +13,7 @@ For information about agent navigation and routing, see [Navigation System](./10
 
 Pipelines are defined using the `IPipelineSchema` interface, which specifies the execution logic and optional lifecycle callbacks.
 
-![Mermaid Diagram](./diagrams\11_Pipeline_System_0.svg)
+![Mermaid Diagram](./diagrams/11_Pipeline_System_0.svg)
 
 The core pipeline schema includes:
 
@@ -27,7 +27,7 @@ The core pipeline schema includes:
 
 Pipelines are registered using the `addPipeline` function and managed through the schema and validation services.
 
-![Mermaid Diagram](./diagrams\11_Pipeline_System_1.svg)
+![Mermaid Diagram](./diagrams/11_Pipeline_System_1.svg)
 
 ### Pipeline Schema Service
 
@@ -48,7 +48,7 @@ The `PipelineValidationService` ensures pipeline uniqueness and existence:
 
 Pipeline execution is handled by the `startPipeline` function, which manages session validation, agent navigation, and lifecycle callbacks.
 
-![Mermaid Diagram](./diagrams\11_Pipeline_System_2.svg)
+![Mermaid Diagram](./diagrams/11_Pipeline_System_2.svg)
 
 ### Key Execution Features
 
@@ -61,7 +61,7 @@ Pipeline execution is handled by the `startPipeline` function, which manages ses
 
 The `scope` function enables temporary schema overrides for pipeline execution, allowing isolated testing and customization.
 
-![Mermaid Diagram](./diagrams\11_Pipeline_System_3.svg)
+![Mermaid Diagram](./diagrams/11_Pipeline_System_3.svg)
 
 The `scope` function allows temporary overrides of:
 
@@ -76,7 +76,7 @@ The `scope` function allows temporary overrides of:
 
 Pipelines integrate with several core systems within the agent swarm framework:
 
-![Mermaid Diagram](./diagrams\11_Pipeline_System_4.svg)
+![Mermaid Diagram](./diagrams/11_Pipeline_System_4.svg)
 
 ### Background Processing Integration
 

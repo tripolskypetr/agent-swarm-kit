@@ -15,13 +15,13 @@ The persistence layer provides a file-system based storage mechanism for various
 
 ### Core Persistence Architecture
 
-![Mermaid Diagram](./diagrams\9_Persistence_and_History_0.svg)
+![Mermaid Diagram](./diagrams/9_Persistence_and_History_0.svg)
 
 ### Entity Storage Patterns
 
 The persistence system organizes data using a structured directory layout where each entity type gets its own subdirectory under the base directory (typically `./logs/data`).
 
-![Mermaid Diagram](./diagrams\9_Persistence_and_History_1.svg)
+![Mermaid Diagram](./diagrams/9_Persistence_and_History_1.svg)
 
 ### Persistence Utilities and Adapters
 
@@ -41,13 +41,13 @@ Message history provides conversation continuity for agents through both in-memo
 
 ### History Architecture
 
-![Mermaid Diagram](./diagrams\9_Persistence_and_History_2.svg)
+![Mermaid Diagram](./diagrams/9_Persistence_and_History_2.svg)
 
 ### Message Storage and Retrieval Flow
 
 The history system provides both transient and persistent storage options with configurable filtering and system prompt injection.
 
-![Mermaid Diagram](./diagrams\9_Persistence_and_History_3.svg)
+![Mermaid Diagram](./diagrams/9_Persistence_and_History_3.svg)
 
 ### History Lifecycle and Callbacks
 
@@ -68,10 +68,10 @@ The logging system provides both global and client-specific logging capabilities
 
 ### Logger Architecture
 
-![Mermaid Diagram](./diagrams\9_Persistence_and_History_4.svg)
+![Mermaid Diagram](./diagrams/9_Persistence_and_History_4.svg)
 
 ## Integration with Swarm Components
 
 The persistence and history systems integrate deeply with the core swarm components to provide data continuity and debugging capabilities.
 
-![Mermaid Diagram](./diagrams\9_Persistence_and_History_5.svg)
+![Mermaid Diagram](./diagrams/9_Persistence_and_History_5.svg)

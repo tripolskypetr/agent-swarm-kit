@@ -21,13 +21,13 @@ The navigation system provides three primary functions for agent transitions, ea
 | `changeToDefaultAgent` | Switch to swarm's default agent | Return to triage/main agent |
 | `changeToPrevAgent` | Switch to previous agent in stack | Navigate back in history |
 
-![Mermaid Diagram](./diagrams\10_Navigation_System_0.svg)
+![Mermaid Diagram](./diagrams/10_Navigation_System_0.svg)
 
 ### Navigation Implementation Pattern
 
 All navigation functions follow a consistent implementation pattern with memoized, queued execution to prevent race conditions and ensure proper resource cleanup.
 
-![Mermaid Diagram](./diagrams\10_Navigation_System_1.svg)
+![Mermaid Diagram](./diagrams/10_Navigation_System_1.svg)
 
 ## Navigation Templates
 
@@ -35,7 +35,7 @@ The template system provides factory functions for creating navigation handlers 
 
 ### Navigation Template Architecture
 
-![Mermaid Diagram](./diagrams\10_Navigation_System_2.svg)
+![Mermaid Diagram](./diagrams/10_Navigation_System_2.svg)
 
 ### Template Configuration Options
 
@@ -56,13 +56,13 @@ The alias system provides convenient functions for creating navigation tools tha
 
 ### Navigation Tool Creation
 
-![Mermaid Diagram](./diagrams\10_Navigation_System_3.svg)
+![Mermaid Diagram](./diagrams/10_Navigation_System_3.svg)
 
 ### Tool Registration and Schema
 
 Navigation tools are registered in both the tool schema service and navigation schema service:
 
-![Mermaid Diagram](./diagrams\10_Navigation_System_4.svg)
+![Mermaid Diagram](./diagrams/10_Navigation_System_4.svg)
 
 ## Integration with System Components
 
@@ -72,19 +72,19 @@ The navigation system integrates deeply with other framework components, providi
 
 Navigation integrates with pipeline execution through agent switching during pipeline runs:
 
-![Mermaid Diagram](./diagrams\10_Navigation_System_5.svg)
+![Mermaid Diagram](./diagrams/10_Navigation_System_5.svg)
 
 ### Chat System Integration
 
 The chat system maintains agent context through navigation:
 
-![Mermaid Diagram](./diagrams\10_Navigation_System_6.svg)
+![Mermaid Diagram](./diagrams/10_Navigation_System_6.svg)
 
 ### History Management Integration
 
 Navigation triggers history lifecycle events, ensuring proper cleanup and initialization:
 
-![Mermaid Diagram](./diagrams\10_Navigation_System_7.svg)
+![Mermaid Diagram](./diagrams/10_Navigation_System_7.svg)
 
 ## Navigation State and Validation
 
@@ -92,10 +92,10 @@ The navigation system includes validation mechanisms to prevent circular navigat
 
 ### Navigation Validation Flow
 
-![Mermaid Diagram](./diagrams\10_Navigation_System_8.svg)
+![Mermaid Diagram](./diagrams/10_Navigation_System_8.svg)
 
 ### Resource Management and Cleanup
 
 Navigation ensures proper resource cleanup through garbage collection and dispose patterns:
 
-![Mermaid Diagram](./diagrams\10_Navigation_System_9.svg)
+![Mermaid Diagram](./diagrams/10_Navigation_System_9.svg)

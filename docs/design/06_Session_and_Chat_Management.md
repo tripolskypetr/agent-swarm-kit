@@ -13,7 +13,7 @@ For information about individual agent execution within sessions, see [Client Ag
 
 Chat management provides a high-level abstraction over sessions with automatic lifecycle management, inactivity detection, and cleanup. The `ChatUtils` class manages multiple `ChatInstance` objects, each wrapping a session with timeout handling and callback support.
 
-![Mermaid Diagram](./diagrams\6_Session_and_Chat_Management_0.svg)
+![Mermaid Diagram](./diagrams/6_Session_and_Chat_Management_0.svg)
 
 The chat layer handles client lifecycle automatically through `beginChat`, `sendMessage`, and `dispose` operations, with configurable callbacks for monitoring chat events and custom chat adapters.
 
@@ -21,7 +21,7 @@ The chat layer handles client lifecycle automatically through `beginChat`, `send
 
 Chat instances manage their lifecycle automatically with inactivity detection and cleanup. The `ChatInstance` class wraps sessions with timeout handling, callback support, and automatic disposal based on activity patterns.
 
-![Mermaid Diagram](./diagrams\6_Session_and_Chat_Management_2.svg)
+![Mermaid Diagram](./diagrams/6_Session_and_Chat_Management_2.svg)
 
 The lifecycle includes automatic cleanup through `INACTIVITY_CHECK` (60 seconds) and `INACTIVITY_TIMEOUT` (15 minutes) constants, with callback hooks for monitoring chat state changes.
 
@@ -29,7 +29,7 @@ The lifecycle includes automatic cleanup through `INACTIVITY_CHECK` (60 seconds)
 
 Sessions follow a managed lifecycle from creation through disposal, with automatic resource tracking and cleanup. The `SessionConnectionService` uses memoization to cache session instances, while validation services track active sessions for proper resource management.
 
-![Mermaid Diagram](./diagrams\6_Session_and_Chat_Management_3.svg)
+![Mermaid Diagram](./diagrams/6_Session_and_Chat_Management_3.svg)
 
 The lifecycle includes initialization callbacks, active message processing, and disposal with proper cleanup. Session validation services ensure that resources are properly tracked and prevent memory leaks in long-running applications.
 
@@ -37,7 +37,7 @@ The lifecycle includes initialization callbacks, active message processing, and 
 
 Sessions handle bidirectional message flow with policy validation, agent execution, and event emission. The `emit` method sends messages to clients via swarms, while `execute` processes incoming messages through agents and returns responses.
 
-![Mermaid Diagram](./diagrams\6_Session_and_Chat_Management_4.svg)
+![Mermaid Diagram](./diagrams/6_Session_and_Chat_Management_4.svg)
 
 All message flows include policy validation checkpoints. When validation fails, sessions automatically substitute ban messages and log policy violations through the event system.
 
@@ -89,7 +89,7 @@ The session schema extends `ISwarmSessionCallbacks` to provide lifecycle hooks f
 
 Sessions coordinate agent execution through swarms, managing the handoff between session-level message processing and agent-level tool execution. The `execute` method delegates to swarm agents while maintaining session context and policy enforcement.
 
-![Mermaid Diagram](./diagrams\6_Session_and_Chat_Management_5.svg)
+![Mermaid Diagram](./diagrams/6_Session_and_Chat_Management_5.svg)
 
 Sessions maintain execution context across agent transitions, ensuring proper client identification and session state preservation during complex multi-agent workflows.
 
@@ -117,6 +117,6 @@ Event types include `"emit"`, `"execute"`, `"connect"`, and `"dispose"` with ses
 
 Sessions implement comprehensive resource management with automatic cleanup, validation tracking, and memoization clearing. The disposal process ensures proper resource release and prevents memory leaks in long-running applications.
 
-![Mermaid Diagram](./diagrams\6_Session_and_Chat_Management_6.svg)
+![Mermaid Diagram](./diagrams/6_Session_and_Chat_Management_6.svg)
 
 The disposal process includes validation service cleanup, callback execution, and memoization clearing to ensure complete resource release. Sessions automatically handle cleanup of associated agents, histories, and event subscriptions.

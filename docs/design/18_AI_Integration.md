@@ -13,7 +13,7 @@ For information about agents that utilize these AI integrations, see [Client Age
 
 The framework provides a unified interface for integrating with multiple AI providers through the `AdapterUtils` class. Each adapter transforms provider-specific APIs into a standardized `TCompleteFn` interface that agents can use consistently.
 
-![Mermaid Diagram](./diagrams\18_AI_Integration_0.svg)
+![Mermaid Diagram](./diagrams/18_AI_Integration_0.svg)
 
 ### Provider-Specific Adapters
 
@@ -34,7 +34,7 @@ The adapters handle message transformation, tool call formatting, and response n
 
 All completion adapters utilize a robust execution pipeline with pooling and retry mechanisms:
 
-![Mermaid Diagram](./diagrams\18_AI_Integration_1.svg)
+![Mermaid Diagram](./diagrams/18_AI_Integration_1.svg)
 
 The execution parameters are configured as constants:
 - `EXECPOOL_SIZE`: 5 concurrent executions maximum
@@ -49,13 +49,13 @@ The framework implements a standardized tool call protocol that works across dif
 
 Each adapter transforms messages between the unified `IModelMessage` format and provider-specific formats:
 
-![Mermaid Diagram](./diagrams\18_AI_Integration_3.svg)
+![Mermaid Diagram](./diagrams/18_AI_Integration_3.svg)
 
 ## Performance Monitoring
 
 The `PerfService` class provides comprehensive performance monitoring for AI operations, tracking execution metrics, response times, and resource usage across all client sessions.
 
-![Mermaid Diagram](./diagrams\18_AI_Integration_4.svg)
+![Mermaid Diagram](./diagrams/18_AI_Integration_4.svg)
 
 ### Execution Tracking
 
@@ -72,7 +72,7 @@ The performance service tracks AI completion operations from start to finish:
 
 The service generates structured performance reports through two main interfaces:
 
-![Mermaid Diagram](./diagrams\18_AI_Integration_5.svg)
+![Mermaid Diagram](./diagrams/18_AI_Integration_5.svg)
 
 The `IPerformanceRecord` aggregates system-wide metrics while `IClientPerfomanceRecord` provides per-client breakdowns including session memory, state, and execution statistics.
 
@@ -80,7 +80,7 @@ The `IPerformanceRecord` aggregates system-wide metrics while `IClientPerfomance
 
 The performance service computes comprehensive client state information by integrating with multiple services:
 
-![Mermaid Diagram](./diagrams\18_AI_Integration_6.svg)
+![Mermaid Diagram](./diagrams/18_AI_Integration_6.svg)
 
 ## Utilities and Supporting Functions
 
