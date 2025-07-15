@@ -456,9 +456,9 @@ addTool({
 Create structured JSON outputs with precise schemas and robust validation! 📝 Ensure AI responses meet your needs with custom rules and automatic retries. 🔄 Integrate seamlessly with OpenAI, Ollama, or Claude. 🌐 Dynamic history guides consistent results for workflows or chatbots. 🗂️ Simple TypeScript API scales effortlessly with error recovery. 🛠️
 
 ```tsx
-import { addOutlineSchema } from "agent-swarm-kit";
+import { addOutlineSchema, IOutlineFormat } from "agent-swarm-kit";
 
-const format = {
+const format: IOutlineFormat = {
   type: "object",
   properties: {
     take_profit_price: { type: "number", description: "Take profit price in USD" },
