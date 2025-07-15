@@ -20,7 +20,7 @@ const updatedMarkdown = markdown.replace(mermaidRegex, (_, mermaidCode) => {
 
   try {
 
-  execSync(`mmdc -i "${mmdFile}" -o "${svgFile}"`);
+  execSync(`npx -y @mermaid-js/mermaid-cli -i "${mmdFile}" -o "${svgFile}"`);
   } catch { }
 
   fs.unlinkSync(mmdFile); // optional: delete .mmd after rendering
