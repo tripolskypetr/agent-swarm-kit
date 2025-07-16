@@ -1,3 +1,8 @@
+---
+title: docs/internals
+group: docs
+---
+
 # agent-swarm-kit api reference
 
 ![schema](../assets/uml.svg)
@@ -53,12 +58,6 @@ This architecture could be used for a wide range of applications, including:
 * **Chatbots:**  Agents could be used to power conversational AI systems.
 * **Content Generation:** Agents could be used to generate text, images, or other content.
 * **Data Analysis:** Agents could be used to analyze data and generate insights.
-
-
----
-title: docs/internals
-group: docs
----
 
 # agent-swarm-kit functions
 

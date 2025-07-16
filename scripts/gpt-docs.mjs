@@ -193,12 +193,6 @@ const generateDescription = retry(
 const outputPath = join(process.cwd(), "docs", `internals.md`);
 const output = [];
 
-output.push("---");
-output.push(`title: docs/internals`);
-output.push(`group: docs`);
-output.push("---");
-output.push("");
-
 {
   const classList = globSync(`./docs/functions/*`);
   output.push(`# ${MODULE_NAME} functions`);
@@ -265,5 +259,13 @@ output.push("");
 {
   output.unshift("");
   output.unshift(HEADER_CONTENT);
-  fs.writeFileSync(outputPath, output.join("\n"));
 }
+{
+  output.unshift("");
+  output.unshift("---");
+  output.unshift(`group: docs`);
+  output.unshift(`title: docs/internals`);
+  output.unshift("---");
+}
+
+fs.writeFileSync(outputPath, output.join("\n"));
