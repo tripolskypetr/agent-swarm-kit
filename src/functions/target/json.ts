@@ -130,6 +130,8 @@ const jsonInternal = beginContext(
       }
     };
 
+    let lastData: unknown = null;
+
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       await makeHistory();
       const inputArgs: IOutlineArgs = {
@@ -161,6 +163,9 @@ const jsonInternal = beginContext(
           );
         }
         const data = JSON.parse(output.content) as IOutlineData;
+        {
+          lastData = data;
+        }
         const validationArgs: IOutlineValidationArgs = {
           ...inputArgs,
           data,
@@ -186,6 +191,7 @@ const jsonInternal = beginContext(
         errorMessage = getErrorMessage(error);
         console.error(`agent-swarm outline error outlineName=${outlineName} attempt=${attempt}`, {
           param,
+          lastData,
           errorMessage,
         })
       }
