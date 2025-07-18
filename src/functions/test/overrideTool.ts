@@ -2,6 +2,7 @@ import { IAgentTool } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
+import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideTool";
 
@@ -12,11 +13,13 @@ type TAgentTool = {
 /**
  * Function implementation
  */
-const overrideToolInternal = beginContext((toolSchema: TAgentTool) => {
+const overrideToolInternal = beginContext((publicToolSchema: TAgentTool) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
-      toolSchema,
+      toolSchema: publicToolSchema,
     });
+
+  const toolSchema = removeUndefined(publicToolSchema);
 
   return swarm.toolSchemaService.override(toolSchema.toolName, toolSchema);
 });

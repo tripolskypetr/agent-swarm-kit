@@ -2,6 +2,7 @@ import { ICompletionSchema } from "../../interfaces/Completion.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
+import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideCompletion";
 
@@ -13,11 +14,13 @@ type TCompletionSchema = {
  * Function implementation
  */
 const overrideCompletionInternal = beginContext(
-  (completionSchema: TCompletionSchema) => {
+  (publicCompletionSchema: TCompletionSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
-        completionSchema,
+        completionSchema: publicCompletionSchema,
       });
+
+    const completionSchema = removeUndefined(publicCompletionSchema);
 
     return swarm.completionSchemaService.override(
       completionSchema.completionName,

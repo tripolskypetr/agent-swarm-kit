@@ -5,6 +5,7 @@ import {
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
+import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideStorage";
 
@@ -16,11 +17,13 @@ type TStorageSchema<T extends IStorageData = IStorageData> = {
  * Function implementation
  */
 const overrideStorageInternal = beginContext(
-  (storageSchema: TStorageSchema<IStorageData>): IStorageSchema<any> => {
+  (publicStorageSchema: TStorageSchema<IStorageData>): IStorageSchema<any> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
-        storageSchema,
+        storageSchema: publicStorageSchema,
       });
+
+    const storageSchema = removeUndefined(publicStorageSchema);
 
     return swarm.storageSchemaService.override(
       storageSchema.storageName,

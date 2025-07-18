@@ -2,6 +2,7 @@ import { IOutlineSchema } from "../../interfaces/Outline.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
+import removeUndefined from "../../helpers/removeUndefined";
 
 /**
  * Constant defining the method name for logging purposes.
@@ -29,11 +30,13 @@ type TOutlineSchema = {
  * @param {TOutlineSchema} outlineSchema - The partial outline schema to apply.
  */
 const overrideOutlineInternal = beginContext(
-  (outlineSchema: TOutlineSchema) => {
+  (publicOutlineSchema: TOutlineSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
-        outlineSchema,
+        outlineSchema: publicOutlineSchema,
       });
+    
+    const outlineSchema = removeUndefined(publicOutlineSchema);
 
     return swarm.outlineSchemaService.override(
       outlineSchema.outlineName,

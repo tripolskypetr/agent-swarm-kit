@@ -2,6 +2,7 @@ import { IStateSchema } from "../../interfaces/State.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
+import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideState";
 
@@ -12,11 +13,13 @@ type TStateSchema<T extends unknown = any> = {
 /**
  * Function implementation
  */
-const overrideStateInternal = beginContext((stateSchema: TStateSchema) => {
+const overrideStateInternal = beginContext((publicStateSchema: TStateSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
-      stateSchema,
+      stateSchema: publicStateSchema,
     });
+
+  const stateSchema = removeUndefined(publicStateSchema);
 
   return swarm.stateSchemaService.override(stateSchema.stateName, stateSchema);
 });

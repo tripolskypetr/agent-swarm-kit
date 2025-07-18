@@ -2,6 +2,7 @@ import { ISwarmSchema } from "../../interfaces/Swarm.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
+import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideSwarm";
 
@@ -12,11 +13,13 @@ type TSwarmSchema = {
 /**
  * Function implementation
  */
-const overrideSwarmInternal = beginContext((swarmSchema: TSwarmSchema) => {
+const overrideSwarmInternal = beginContext((publicSwarmSchema: TSwarmSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
-      swarmSchema,
+      swarmSchema: publicSwarmSchema,
     });
+
+  const swarmSchema = removeUndefined(publicSwarmSchema);
 
   return swarm.swarmSchemaService.override(swarmSchema.swarmName, swarmSchema);
 });

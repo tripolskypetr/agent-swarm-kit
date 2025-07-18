@@ -2,6 +2,7 @@ import { IWikiSchema } from "../../interfaces/Wiki.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
+import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideWiki";
 
@@ -12,11 +13,13 @@ type TWikiSchema = {
 /**
  * Function implementation
  */
-const overrideWikiInternal = beginContext((wikiSchema: TWikiSchema) => {
+const overrideWikiInternal = beginContext((publicWikiSchema: TWikiSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
-      wikiSchema,
+      wikiSchema: publicWikiSchema,
     });
+
+  const wikiSchema = removeUndefined(publicWikiSchema);
 
   return swarm.wikiSchemaService.override(wikiSchema.wikiName, wikiSchema);
 });

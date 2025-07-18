@@ -2,6 +2,7 @@ import { IEmbeddingSchema } from "../../interfaces/Embedding.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
+import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideEmbeding";
 
@@ -13,11 +14,13 @@ type TEmbeddingSchema = {
  * Function implementation
  */
 const overrideEmbedingInternal = beginContext(
-  (embeddingSchema: TEmbeddingSchema) => {
+  (publicEmbeddingSchema: TEmbeddingSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
-        embeddingSchema,
+        embeddingSchema: publicEmbeddingSchema,
       });
+
+    const embeddingSchema = removeUndefined(publicEmbeddingSchema);
 
     return swarm.embeddingSchemaService.override(
       embeddingSchema.embeddingName,
