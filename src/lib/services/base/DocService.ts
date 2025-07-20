@@ -31,6 +31,7 @@ import {
   IOutlineSchema,
   IOutlineSchemaFormat,
 } from "../../../interfaces/Outline.interface";
+import CompletionSchemaService from "../schema/CompletionSchemaService";
 
 /**
  * Maximum number of concurrent threads for documentation generation tasks.
@@ -202,6 +203,16 @@ export class DocService {
    */
   private readonly stateSchemaService = inject<StateSchemaService>(
     TYPES.stateSchemaService
+  );
+
+  /**
+   * Completion schema service instance, injected via DI.
+   * Provides completion details for writeAgentDoc, documenting completion resources used by agents.
+   * @type {CompletionSchemaService}
+   * @private
+   */
+  private readonly completionSchemaService = inject<CompletionSchemaService>(
+    TYPES.completionSchemaService
   );
 
   /**
@@ -437,6 +448,27 @@ export class DocService {
         result.push("");
       }
 
+      
+      if (outlineSchema.completion) {
+        const { flags = [] } = this.completionSchemaService.get(
+          outlineSchema.completion
+        );
+
+        if (flags.length) {
+          result.push(`## Completion flags`);
+          result.push("");
+          for (let i = 0; i !== flags.length; i++) {
+            if (!flags[i]) {
+              continue;
+            }
+            result.push(`${i + 1}. \`${sanitizeMarkdown(flags[i])}\``);
+            result.push("");
+          }
+        }
+
+        result.push("");
+      }
+
       const getPrompt = async () => {
         try {
           if (typeof outlineSchema.prompt === "string") {
@@ -487,12 +519,17 @@ export class DocService {
         }
       }
 
-      const writeObjectFormat = (object: IOutlineObjectFormat, strict: boolean) => {
+      const writeObjectFormat = (
+        object: IOutlineObjectFormat,
+        strict: boolean
+      ) => {
         if ("properties" in object) {
           result.push("");
           result.push("## Output format");
           result.push("");
-          result.push(strict ? "*Strict template match*" : "*Partial template match*");
+          result.push(
+            strict ? "*Strict template match*" : "*Partial template match*"
+          );
           const entries = Object.entries(object.properties);
           entries.forEach(([key, { type, description, enum: e }], idx) => {
             result.push("");
@@ -551,7 +588,7 @@ export class DocService {
           return;
         }
         writeStrictFormat(object);
-      }
+      };
 
       writeFormat();
 
@@ -646,11 +683,32 @@ export class DocService {
         result.push(
           `**Completion:** \`${sanitizeMarkdown(agentSchema.completion)}\``
         );
+
         result.push("");
       }
 
       {
         result.push(`*Operator:* [${agentSchema.operator ? "x" : " "}]`);
+        result.push("");
+      }
+
+      if (agentSchema.completion) {
+        const { flags = [] } = this.completionSchemaService.get(
+          agentSchema.completion
+        );
+
+        if (flags.length) {
+          result.push(`## Completion flags`);
+          result.push("");
+          for (let i = 0; i !== flags.length; i++) {
+            if (!flags[i]) {
+              continue;
+            }
+            result.push(`${i + 1}. \`${sanitizeMarkdown(flags[i])}\``);
+            result.push("");
+          }
+        }
+
         result.push("");
       }
 

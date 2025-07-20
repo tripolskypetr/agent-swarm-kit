@@ -8659,6 +8659,13 @@ declare class DocService {
      */
     private readonly stateSchemaService;
     /**
+     * Completion schema service instance, injected via DI.
+     * Provides completion details for writeAgentDoc, documenting completion resources used by agents.
+     * @type {CompletionSchemaService}
+     * @private
+     */
+    private readonly completionSchemaService;
+    /**
      * Compute schema service instance, injected via DI.
      * Provides compute details for writeAgentDoc, documenting compute resources used by agents.
      * @type {ComputeSchemaService}
