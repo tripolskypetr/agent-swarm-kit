@@ -9,6 +9,12 @@ group: app
 
 Whether you’re building a voice chatbot, a crypto trader, or a pharma consultant, `agent-swarm-kit` has you covered. It’s a modular framework where agents team up in swarms, tapping into tools, completions, and storage to get the job done. Let’s break down each piece, show you how to connect to swarms, and spotlight some handy examples and resources to kickstart your project.
 
+# Ask AI
+
+> DeepWiki is available online just in your web browser: https://deepwiki.com/tripolskypetr/agent-swarm-kit/
+
+This documentation contains a lot of text, which makes it difficult to read manually. Just text any specific question to DeepWiki AI Chat or Cursor and AI will answer you.
+
 ## Core Components
 
 ### 1. Storages
