@@ -11,7 +11,7 @@ Whether you’re building a voice chatbot, a crypto trader, or a pharma consulta
 
 # Ask AI
 
-> DeepWiki is available online just in your web browser: https://deepwiki.com/tripolskypetr/agent-swarm-kit/
+**DeepWiki is available online just in your web browser**: [https://deepwiki.com/tripolskypetr/agent-swarm-kit/](https://deepwiki.com/tripolskypetr/agent-swarm-kit/)
 
 This documentation contains a lot of text, which makes it difficult to read manually. Just ask any specific question to `DeepWiki AI Chat` or `Cursor` and AI will answer you. If it won't, [open the Issue on GitHub](https://github.com/tripolskypetr/agent-swarm-kit/issues) and I will answer you in person
 
