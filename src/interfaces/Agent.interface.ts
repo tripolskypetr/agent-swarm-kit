@@ -125,6 +125,7 @@ export interface IAgentTool<T = Record<string, ToolValue>> {
    * @param {string} dto.toolId - The unique `tool_call_id` for tracking in OpenAI-style history.
    * @param {string} dto.clientId - The ID of the client invoking the tool.
    * @param {AgentName} dto.agentName - The name of the agent using the tool.
+   * @param {ToolName} dto.toolName - The name of the tool associated with the tool call
    * @param {T} dto.params - The parameters for the tool execution.
    * @param {IToolCall[]} dto.toolCalls - The list of tool calls in the current execution context.
    * @param {boolean} dto.isLast - Indicates if this is the last tool call in a sequence.
@@ -135,6 +136,7 @@ export interface IAgentTool<T = Record<string, ToolValue>> {
     toolId: string;
     clientId: string;
     agentName: AgentName;
+    toolName: ToolName;
     params: T;
     toolCalls: IToolCall[];
     abortSignal: TAbortSignal;

@@ -1,5 +1,5 @@
 import { IToolCall } from "../model/Tool.model";
-import { AgentName, TAbortSignal } from "./Agent.interface";
+import { AgentName, TAbortSignal, ToolName } from "./Agent.interface";
 import { IBus } from "./Bus.interface";
 import { ILogger } from "./Logger.interface";
 
@@ -34,6 +34,8 @@ export interface IMCPToolCallDto<T extends MCPToolValue = MCPToolValue> {
   clientId: string;
   /** Name of the agent associated with the tool call. */
   agentName: AgentName;
+  /** Name of the tool associated with the tool call */
+  toolName: ToolName;
   /** Parameters for the tool call. */
   params: T;
   /** Array of tool calls associated with this request. */

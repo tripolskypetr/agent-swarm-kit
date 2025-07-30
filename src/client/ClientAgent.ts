@@ -126,6 +126,7 @@ const createToolCall = async (
       toolId: tool.id,
       clientId: self.params.clientId,
       agentName: self.params.agentName,
+      toolName: tool.function.name,
       params: tool.function.arguments,
       isLast: idx === toolCalls.length - 1,
       abortSignal: self._toolAbortController.signal,
