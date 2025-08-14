@@ -231,7 +231,8 @@ Supports system-level updates, coordinated with SessionConnectionService.
 commitDeveloperMessage(message: string): Promise<void>;
 ```
 
-Commits a developer message to the agent's history or state.
+Commits a developer message to the history, notifying the system via BusService without triggering execution.
+Useful for logging developer notes or debugging information, coordinated with SessionConnectionService.
 
 ### commitToolRequest
 

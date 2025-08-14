@@ -107,6 +107,17 @@ Returns the current busy state of the swarm.
 Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
 Supports debugging and flow control in client applications.
 
+### setBusy
+
+```ts
+setBusy: (isBusy: boolean) => Promise<void>
+```
+
+Sets the busy state of the swarm.
+Used to indicate whether the swarm is currently processing an operation, helping manage flow control and debugging.
+Delegates to ClientSwarm.setBusy, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Mirrors SwarmPublicService’s setBusy, supporting ClientAgent’s busy state management.
+
 ### cancelOutput
 
 ```ts

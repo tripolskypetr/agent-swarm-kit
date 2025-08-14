@@ -83,3 +83,13 @@ getCheckBusy: () => Promise<boolean>
 Returns the current busy state of the swarm.
 Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
 Supports debugging and flow control in client applications.
+
+### setBusy
+
+```ts
+setBusy: (isBusy: boolean) => void
+```
+
+Sets the busy state of the swarm.
+This method is used to indicate whether the swarm is currently processing an operation.
+It helps manage flow control and debugging by signaling when the swarm is occupied.
