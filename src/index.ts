@@ -45,10 +45,12 @@ export * from "./functions/other/markOffline";
 
 export * from "./functions/commit/commitToolOutput";
 export * from "./functions/commit/commitSystemMessage";
+export * from "./functions/commit/commitDeveloperMessage";
 export * from "./functions/commit/commitFlush";
 export * from "./functions/commit/commitUserMessage";
 export * from "./functions/commit/commitToolOutputForce";
 export * from "./functions/commit/commitSystemMessageForce";
+export * from "./functions/commit/commitDeveloperMessageForce";
 export * from "./functions/commit/commitFlushForce";
 export * from "./functions/commit/commitUserMessageForce";
 export * from "./functions/commit/commitAssistantMessage";

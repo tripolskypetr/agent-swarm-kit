@@ -286,6 +286,19 @@ export interface IAgentSchemaInternalCallbacks {
   ) => void;
 
   /**
+   * Optional callback triggered when a developer message is generated.
+   * @param clientId 
+   * @param agentName 
+   * @param message 
+   * @returns 
+   */
+  onDeveloperMessage?: (
+    clientId: string,
+    agentName: AgentName,
+    message: string
+  ) => void;
+
+  /**
    * Optional callback triggered when a tool request is initiated.
    * This callback is used to handle or process tool requests made by the agent.
    * 
@@ -563,6 +576,14 @@ export interface IAgent {
    * @throws {Error} If committing the message fails.
    */
   commitSystemMessage(message: string): Promise<void>;
+
+  /**
+   * Commits a developer message to the agent's history or state.
+   * @param {string} message - The developer message content to commit.
+   * @returns {Promise<void>} A promise that resolves when the message is committed.
+   * @throws {Error} If committing the message fails.
+   */
+  commitDeveloperMessage(message: string): Promise<void>;
 
   /**
    * Commits a user message to the agent's history without triggering a response.

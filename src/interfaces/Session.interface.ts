@@ -170,6 +170,14 @@ export interface ISession {
    * @throws {Error} If committing the message fails.
    */
   commitSystemMessage(message: string): Promise<void>;
+
+  /**
+   * Commits a developer message to the session's history or state.
+   * @param {string} message - The developer message content to commit.
+   * @returns {Promise<void>} A promise that resolves when the message is committed.
+   * @throws {Error} If committing the message fails.
+   */
+  commitDeveloperMessage(message: string): Promise<void>;
 }
 
 /**

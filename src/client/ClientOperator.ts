@@ -195,6 +195,19 @@ export class ClientOperator implements IAgent {
   }
 
   /**
+   * Commits a developer message
+   * @returns {Promise<void>}
+   */
+  commitDeveloperMessage(message: string): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientOperator agentName=${this.params.agentName} clientId=${this.params.clientId} commitDeveloperMessage - not supported`,
+        { message }
+      );
+    return Promise.resolve();
+  }
+
+  /**
    * Commits tool request (not supported)
    * @returns {Promise<string[]>}
    */

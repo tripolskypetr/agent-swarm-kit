@@ -1624,6 +1624,13 @@ interface ISession {
      * @throws {Error} If committing the message fails.
      */
     commitSystemMessage(message: string): Promise<void>;
+    /**
+     * Commits a developer message to the session's history or state.
+     * @param {string} message - The developer message content to commit.
+     * @returns {Promise<void>} A promise that resolves when the message is committed.
+     * @throws {Error} If committing the message fails.
+     */
+    commitDeveloperMessage(message: string): Promise<void>;
 }
 /**
  * Type representing the unique identifier for a session.
@@ -1660,7 +1667,7 @@ interface IModelMessage<Payload extends object = object> {
      * - `"flush"`: Markers for history resets (e.g., commitFlush).
      * @type {"assistant" | "system" | "tool" | "user" | "resque" | "flush"}
      */
-    role: "assistant" | "system" | "tool" | "user" | "resque" | "flush";
+    role: "assistant" | "system" | "tool" | "user" | "resque" | "flush" | "developer";
     /**
      * The name of the agent associated with the message.
      * Links the message to a specific agent instance (e.g., this.params.agentName in ClientAgent), ensuring context within multi-agent swarms.
@@ -3892,6 +3899,14 @@ interface IAgentSchemaInternalCallbacks {
      */
     onSystemMessage?: (clientId: string, agentName: AgentName, message: string) => void;
     /**
+     * Optional callback triggered when a developer message is generated.
+     * @param clientId
+     * @param agentName
+     * @param message
+     * @returns
+     */
+    onDeveloperMessage?: (clientId: string, agentName: AgentName, message: string) => void;
+    /**
      * Optional callback triggered when a tool request is initiated.
      * This callback is used to handle or process tool requests made by the agent.
      *
@@ -4091,6 +4106,13 @@ interface IAgent {
      * @throws {Error} If committing the message fails.
      */
     commitSystemMessage(message: string): Promise<void>;
+    /**
+     * Commits a developer message to the agent's history or state.
+     * @param {string} message - The developer message content to commit.
+     * @returns {Promise<void>} A promise that resolves when the message is committed.
+     * @throws {Error} If committing the message fails.
+     */
+    commitDeveloperMessage(message: string): Promise<void>;
     /**
      * Commits a user message to the agent's history without triggering a response.
      * @param {string} message - The user message content to commit.
@@ -4554,6 +4576,7 @@ declare class ClientAgent implements IAgent {
      * @returns {Promise<void>} Resolves when the message is committed and the event is emitted.
      */
     commitSystemMessage(message: string): Promise<void>;
+    commitDeveloperMessage(message: string): Promise<void>;
     /**
      * Commits a tool request to the agent's history and emits an event via BusService.
      * This method is used to log tool requests and notify the system of the requested tool calls.
@@ -4653,6 +4676,11 @@ declare class ClientOperator implements IAgent {
      * @returns {Promise<void>}
      */
     commitSystemMessage(): Promise<void>;
+    /**
+     * Commits a developer message
+     * @returns {Promise<void>}
+     */
+    commitDeveloperMessage(message: string): Promise<void>;
     /**
      * Commits tool request (not supported)
      * @returns {Promise<string[]>}
@@ -4833,6 +4861,15 @@ declare class AgentConnectionService implements IAgent {
      * @returns {Promise<any>} A promise resolving to the commit result, type determined by ClientAgent’s implementation.
      */
     commitSystemMessage: (message: string) => Promise<void>;
+    /**
+     * Commits a developer message to the agent’s history.
+     * Delegates to ClientAgent.commitDeveloperMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Mirrors SessionPublicService’s commitDeveloperMessage, supporting ClientAgent’s developer-specific messages and HistoryPublicService.
+     * @param {string} message - The developer message to commit.
+     * @returns {Promise<void>} A promise that resolves when the message is committed.
+     * @throws {Error} If committing the message fails.
+     */
+    commitDeveloperMessage: (message: string) => Promise<void>;
     /**
      * Commits a tool request to the agent’s history.
      * Delegates to ClientAgent.commitToolRequest, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -5923,6 +5960,15 @@ declare class ClientSession implements ISession {
      */
     commitSystemMessage(message: string): Promise<void>;
     /**
+     * Commits a developer message to the agent’s history via the swarm’s agent (ClientAgent), logging the action via BusService.
+     * @param message - The developer message to commit, typically for debugging or internal notes.
+     * Commits a developer message to the agent’s history via the swarm’s agent (ClientAgent), logging the action via BusService.
+     * Supports internal debugging or developer notes within the session, enhancing ClientHistory.
+     * @throws {Error} If committing the message fails.
+     * @returns
+     */
+    commitDeveloperMessage(message: string): Promise<void>;
+    /**
      * Commits an assistant message to the agent’s history via the swarm’s agent (ClientAgent) without triggering execution.
      * Logs the action via BusService, supporting ClientHistory for assistant response logging.
      * @param {string} message - The assistant message to commit, typically an agent response.
@@ -6066,6 +6112,15 @@ declare class SessionConnectionService implements ISession {
      * @returns {Promise<void>} A promise resolving when the system message is committed.
      */
     commitSystemMessage: (message: string) => Promise<void>;
+    /**
+     * Commits a developer message to the session’s history.
+     * Delegates to ClientSession.commitDeveloperMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Mirrors SessionPublicService’s commitDeveloperMessage, supporting ClientAgent’s developer updates and HistoryPublicService.
+     * @param {string} message - The developer message to commit.
+     * @returns {Promise<void>} A promise resolving when the developer message is committed.
+     * @throws {Error} If committing the message fails.
+     */
+    commitDeveloperMessage: (message: string) => Promise<void>;
     /**
      * Commits a tool request to the session’s history.
      * Delegates to ClientSession.commitToolRequest, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -6224,6 +6279,17 @@ declare class AgentPublicService implements TAgentConnectionService {
      * @returns {Promise<unknown>} A promise resolving to the commit result.
      */
     commitSystemMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
+    /**
+     * Commits a developer message to the agent’s history.
+     * Wraps AgentConnectionService.commitDeveloperMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used for developer-specific messages, enhancing debugging and tracking in agent operations.
+     * @param {string} message - The developer message to commit.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {AgentName} agentName - The agent name for identification.
+     * @returns {Promise<unknown>} A promise resolving to the commit result.
+     */
+    commitDeveloperMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits a tool request to the agent’s history.
      * Wraps AgentConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -6559,6 +6625,17 @@ declare class SessionPublicService implements TSessionConnectionService {
      * @returns {Promise<void>} A promise resolving when the system message is committed.
      */
     commitSystemMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
+    /**
+     * Commits a developer message to the session’s history or state.
+     * Wraps SessionConnectionService.commitDeveloperMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Supports ClientAgent’s developer-level messaging, allowing for detailed session context updates.
+     * @param {string} message - The developer message content to commit.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID for session tracking.
+     * @param {SwarmName} swarmName - The swarm name for context.
+     * @return {Promise<void>} A promise resolving when the developer message is committed.
+     */
+    commitDeveloperMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits a tool request to the session’s history.
      * Wraps SessionConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -12520,6 +12597,23 @@ declare function commitToolOutput(toolId: string, content: string, clientId: str
 declare function commitSystemMessage(content: string, clientId: string, agentName: string): Promise<void>;
 
 /**
+ * Commits a developer-generated message to the active agent in the swarm system.
+ * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before committing the message.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
+ * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (message committing),
+ * and LoggerService (logging). Complements functions like commitSystemMessage by handling developer messages
+ * (e.g., user or developer instructions) rather than system-generated or assistant-generated responses.
+ *
+ * @param {string} content - The content of the developer message to commit, typically related to user or developer instructions.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @param {string} agentName - The name of the agent to commit the message for, validated against registered agents.
+ * @returns {Promise<void>} A promise that resolves when the message is committed or skipped (e.g., agent mismatch).
+ * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
+ */
+declare function commitDeveloperMessage(content: string, clientId: string, agentName: string): Promise<void>;
+
+/**
  * Commits a flush of agent history for a specific client and agent in the swarm system.
  * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before flushing the history.
  * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
@@ -12584,6 +12678,22 @@ declare function commitToolOutputForce(toolId: string, content: string, clientId
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 declare function commitSystemMessageForce(content: string, clientId: string): Promise<void>;
+
+/**
+ * Forcefully commits a developer-generated message to a session in the swarm system, without checking the active agent.
+ * Validates the session and swarm, then proceeds with committing the message regardless of the current agent state.
+ * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
+ * Integrates with SessionValidationService (session and swarm retrieval), SwarmValidationService (swarm validation),
+ * SessionPublicService (message committing), and LoggerService (logging).
+ * Unlike commitDeveloperMessage, this function skips agent validation and active agent checks, providing a more aggressive commit mechanism,
+ * analogous to commitAssistantMessageForce vs. commitAssistantMessage.
+ *
+ * @param {string} content - The content of the developer message to commit, typically related to developer actions or instructions.
+ * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
+ * @returns {Promise<void>} A promise that resolves when the message is committed.
+ * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
+ */
+declare function commitDeveloperMessageForce(content: string, clientId: string): Promise<void>;
 
 /**
  * Forcefully commits a flush of agent history for a specific client in the swarm system, without checking the active agent.
@@ -15771,4 +15881,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate };
+export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate };

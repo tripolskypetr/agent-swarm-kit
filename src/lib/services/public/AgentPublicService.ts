@@ -308,6 +308,47 @@ export class AgentPublicService implements TAgentConnectionService {
   };
 
   /**
+   * Commits a developer message to the agent’s history.
+   * Wraps AgentConnectionService.commitDeveloperMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Used for developer-specific messages, enhancing debugging and tracking in agent operations.
+   * @param {string} message - The developer message to commit.
+   * @param {string} methodName - The method name for context and logging.
+   * @param {string} clientId - The client ID for session tracking.
+   * @param {AgentName} agentName - The agent name for identification.
+   * @returns {Promise<unknown>} A promise resolving to the commit result.
+   */
+  public commitDeveloperMessage = async (
+    message: string,
+    methodName: string,
+    clientId: string,
+    agentName: AgentName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("agentPublicService commitDeveloperMessage", {
+        methodName,
+        message,
+        clientId,
+        agentName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.agentConnectionService.commitDeveloperMessage(message);
+      },
+      {
+        methodName,
+        clientId,
+        agentName,
+        policyName: "",
+        swarmName: "",
+        storageName: "",
+        stateName: "",
+        mcpName: "",
+        computeName: "",
+      }
+    );
+  };
+
+  /**
    * Commits a tool request to the agent’s history.
    * Wraps AgentConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used for submitting tool requests, typically in scenarios where multiple tools are involved in agent operations.

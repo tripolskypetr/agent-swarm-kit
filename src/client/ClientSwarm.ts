@@ -128,6 +128,20 @@ class NoopAgent implements IAgent {
   }
 
   /**
+   * Logs an attempt to commit a developer message for the missing agent and delegates to the default agent's commitDeveloperMessage method.
+   * @param {string} content - The developer message content to commit.
+   * @returns {Promise<void>} Resolves when the default agent's commitDeveloperMessage method completes.
+   * @async
+   */
+  async commitDeveloperMessage(content: string) {
+    const message = `called commitDeveloperMessage on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
+    const context = { content };
+    this.logger.log(message, context);
+    console.error(message, context);
+    return await this.defaultAgent.commitDeveloperMessage(content);
+  }
+
+  /**
    * Logs an attempt to commit a tool request for the missing agent and delegates to the default agent's commitToolRequest method.
    * @param {IToolRequest[]} request - An array of tool requests to commit.
    * @returns {Promise<void>} Resolves when the default agent's commitToolRequest method completes.

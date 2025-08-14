@@ -448,6 +448,39 @@ export class ClientSession implements ISession {
   }
 
   /**
+   * Commits a developer message to the agent’s history via the swarm’s agent (ClientAgent), logging the action via BusService.
+   * @param message - The developer message to commit, typically for debugging or internal notes.
+   * Commits a developer message to the agent’s history via the swarm’s agent (ClientAgent), logging the action via BusService.
+   * Supports internal debugging or developer notes within the session, enhancing ClientHistory.
+   * @throws {Error} If committing the message fails.
+   * @returns 
+   */
+  async commitDeveloperMessage(message: string): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSession clientId=${this.params.clientId} commitDeveloperMessage`,
+        {
+          message,
+        }
+      );
+    const agent = await this.params.swarm.getAgent();
+    const result = await agent.commitDeveloperMessage(message);
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-developer-message",
+      source: "session-bus",
+      input: {
+        message,
+      },
+      output: {},
+      context: {
+        swarmName: this.params.swarmName,
+      },
+      clientId: this.params.clientId,
+    });
+    return result;
+  }
+
+  /**
    * Commits an assistant message to the agent’s history via the swarm’s agent (ClientAgent) without triggering execution.
    * Logs the action via BusService, supporting ClientHistory for assistant response logging.
    * @param {string} message - The assistant message to commit, typically an agent response.

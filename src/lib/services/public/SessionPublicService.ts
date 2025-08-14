@@ -426,6 +426,47 @@ export class SessionPublicService implements TSessionConnectionService {
   };
 
   /**
+   * Commits a developer message to the session’s history or state.
+   * Wraps SessionConnectionService.commitDeveloperMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Supports ClientAgent’s developer-level messaging, allowing for detailed session context updates.
+   * @param {string} message - The developer message content to commit.
+   * @param {string} methodName - The method name for context and logging.
+   * @param {string} clientId - The client ID for session tracking.
+   * @param {SwarmName} swarmName - The swarm name for context.
+   * @return {Promise<void>} A promise resolving when the developer message is committed.
+   */
+  public commitDeveloperMessage = async (
+    message: string,
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("sessionPublicService commitDeveloperMessage", {
+        methodName,
+        message,
+        clientId,
+        swarmName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.sessionConnectionService.commitDeveloperMessage(message);
+      },
+      {
+        methodName,
+        clientId,
+        swarmName,
+        policyName: "",
+        agentName: "",
+        storageName: "",
+        stateName: "",
+        mcpName: "",
+        computeName: "",
+      }
+    );
+  };
+
+  /**
    * Commits a tool request to the session’s history.
    * Wraps SessionConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent’s tool execution requests, mirrored in AgentPublicService.

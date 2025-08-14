@@ -252,6 +252,25 @@ export class SessionConnectionService implements ISession {
   };
 
   /**
+   * Commits a developer message to the session’s history.
+   * Delegates to ClientSession.commitDeveloperMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SessionPublicService’s commitDeveloperMessage, supporting ClientAgent’s developer updates and HistoryPublicService.
+   * @param {string} message - The developer message to commit.
+   * @returns {Promise<void>} A promise resolving when the developer message is committed.
+   * @throws {Error} If committing the message fails.
+   */
+  public commitDeveloperMessage = async (message: string): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`sessionConnectionService commitDeveloperMessage`, {
+        message,
+      });
+    return await this.getSession(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
+    ).commitDeveloperMessage(message);
+  };
+
+  /**
    * Commits a tool request to the session’s history.
    * Delegates to ClientSession.commitToolRequest, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitToolRequest, supporting ClientAgent’s tool requests and HistoryPublicService integration.

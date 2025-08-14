@@ -1330,6 +1330,38 @@ export class ClientAgent implements IAgent {
     });
   }
 
+  async commitDeveloperMessage(message: string): Promise<void> {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitDeveloperMessage`,
+        { message }
+      );
+    this.params.onDeveloperMessage &&
+      this.params.onDeveloperMessage(
+        this.params.clientId,
+        this.params.agentName,
+        message
+      );
+    await this.params.history.push({
+      role: "developer",
+      agentName: this.params.agentName,
+      mode: "tool",
+      content: message.trim(),
+    });
+    await this.params.bus.emit<IBusEvent>(this.params.clientId, {
+      type: "commit-developer-message",
+      source: "agent-bus",
+      input: {
+        message,
+      },
+      output: {},
+      context: {
+        agentName: this.params.agentName,
+      },
+      clientId: this.params.clientId,
+    });
+  }
+
   /**
    * Commits a tool request to the agent's history and emits an event via BusService.
    * This method is used to log tool requests and notify the system of the requested tool calls.

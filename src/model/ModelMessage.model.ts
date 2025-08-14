@@ -18,7 +18,7 @@ export interface IModelMessage<Payload extends object = object> {
    * - `"flush"`: Markers for history resets (e.g., commitFlush).
    * @type {"assistant" | "system" | "tool" | "user" | "resque" | "flush"}
    */
-  role: "assistant" | "system" | "tool" | "user" | "resque" | "flush";
+  role: "assistant" | "system" | "tool" | "user" | "resque" | "flush" | "developer";
 
   /**
    * The name of the agent associated with the message.

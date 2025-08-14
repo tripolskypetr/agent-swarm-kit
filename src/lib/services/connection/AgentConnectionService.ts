@@ -309,6 +309,25 @@ export class AgentConnectionService implements IAgent {
   };
 
   /**
+   * Commits a developer message to the agent’s history.
+   * Delegates to ClientAgent.commitDeveloperMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SessionPublicService’s commitDeveloperMessage, supporting ClientAgent’s developer-specific messages and HistoryPublicService.
+   * @param {string} message - The developer message to commit.
+   * @returns {Promise<void>} A promise that resolves when the message is committed.
+   * @throws {Error} If committing the message fails.
+   */
+  public commitDeveloperMessage = async (message: string): Promise<void> => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`agentConnectionService commitDeveloperMessage`, {
+        message,
+      });
+    return await this.getAgent(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.agentName
+    ).commitDeveloperMessage(message);
+  }
+
+  /**
    * Commits a tool request to the agent’s history.
    * Delegates to ClientAgent.commitToolRequest, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitToolRequest, supporting ClientAgent’s tool request handling and HistoryPublicService.
