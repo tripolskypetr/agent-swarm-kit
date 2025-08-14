@@ -5468,6 +5468,14 @@ declare class ClientSwarm implements ISwarm {
      */
     setBusy(isBusy: boolean): void;
     /**
+     * Getter for the busy state of the swarm.
+     * Used internally for optimizing performance and flow control.
+     * Returns true if the swarm is currently busy with an operation, false otherwise.
+     * Supports debugging and flow control in client applications.
+     * @returns {boolean} True if the swarm is busy, false otherwise.
+     */
+    getBusy(): boolean;
+    /**
      * Subject that emits when an agent reference changes, providing the agent name and instance.
      * Used by setAgentRef to notify subscribers (e.g., waitForOutput) of updates to agent instances.
      * @type {Subject<[agentName: AgentName, agent: IAgent]>}
@@ -5900,6 +5908,7 @@ declare class CompletionSchemaService {
 declare class ClientSession implements ISession {
     readonly params: ISessionParams;
     private _notifySubject;
+    private AQUIRE_LOCK;
     /**
      * Constructs a new ClientSession instance with the provided parameters.
      * Invokes the onInit callback if defined and logs construction if debugging is enabled.

@@ -1,4 +1,4 @@
-import { not, Subject } from "functools-kit";
+import { not, queued, sleep, Subject } from "functools-kit";
 import { IIncomingMessage } from "../model/EmitMessage.model";
 
 import {
@@ -12,6 +12,30 @@ import { IBusEvent } from "../model/Event.model";
 import { GLOBAL_CONFIG } from "../config/params";
 import { IToolRequest } from "../model/Tool.model";
 import swarm from "../lib";
+import ClientSwarm from "./ClientSwarm";
+
+const BUSY_DELAY = 100;
+
+const AQUIRE_LOCK_FN = async (self: ClientSession) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    self.params.logger.debug(
+      `ClientSession clientId=${self.params.clientId} AQUIRE_LOCK_FN`
+    );
+  const swarm = self.params.swarm as ClientSwarm;
+  while (swarm.getBusy()) {
+    await sleep(BUSY_DELAY);
+  }
+  swarm.setBusy(true);
+}
+
+const RELEASE_LOCK_FN = async (self: ClientSession) => {
+  GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+    self.params.logger.debug(
+      `ClientSession clientId=${self.params.clientId} RELEASE_LOCK_FN`
+    );
+  const swarm = self.params.swarm as ClientSwarm;
+  swarm.setBusy(false);
+}
 
 /**
  * Represents a client session in the swarm system, implementing the ISession interface.
@@ -23,6 +47,8 @@ import swarm from "../lib";
  */
 export class ClientSession implements ISession {
   private _notifySubject = new Subject<string>();
+
+  private AQUIRE_LOCK = queued(AQUIRE_LOCK_FN);
 
   /**
    * Constructs a new ClientSession instance with the provided parameters.
@@ -185,15 +211,23 @@ export class ClientSession implements ISession {
         mode
       );
     const agent = await this.params.swarm.getAgent();
-    this.params.swarm.setBusy(true);
+    if (mode === "user") {
+      await this.AQUIRE_LOCK(this);
+    }
     const outputAwaiter = this.params.swarm.waitForOutput();
     agent.execute(message, mode);
-    const output = await outputAwaiter;
+    let output = "";
+    try {
+      output = await outputAwaiter;
+    } finally {
+      if (mode === "user") {
+        await RELEASE_LOCK_FN(this);
+      }
+    }
     await swarm.executionValidationService.flushCount(
       this.params.clientId,
       this.params.swarmName,
     );
-    this.params.swarm.setBusy(false);
     if (
       await not(
         this.params.policy.validateOutput(

@@ -301,7 +301,7 @@ const WAIT_FOR_OUTPUT_FN = async (self: ClientSwarm): Promise<string> => {
  * @implements {ISwarm}
  */
 export class ClientSwarm implements ISwarm {
-  private _isBusy = false;
+  private _isBusy = 0;
 
   /**
    * Returns the current busy state of the swarm.
@@ -314,7 +314,7 @@ export class ClientSwarm implements ISwarm {
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getCheckBusy`
       );
-    return Promise.resolve(this._isBusy);
+    return Promise.resolve(!!this._isBusy);
   }
 
   /**
@@ -329,7 +329,22 @@ export class ClientSwarm implements ISwarm {
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setBusy`,
         { isBusy }
       );
-    this._isBusy = isBusy;
+    this._isBusy += isBusy ? 1 : -1;
+  }
+
+  /**
+   * Getter for the busy state of the swarm.
+   * Used internally for optimizing performance and flow control.
+   * Returns true if the swarm is currently busy with an operation, false otherwise.
+   * Supports debugging and flow control in client applications.
+   * @returns {boolean} True if the swarm is busy, false otherwise.
+   */
+  public getBusy(): boolean {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} getBusy`,
+      );
+    return !!this._isBusy;
   }
 
   /**
