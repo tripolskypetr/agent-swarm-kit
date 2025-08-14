@@ -1330,6 +1330,12 @@ export class ClientAgent implements IAgent {
     });
   }
 
+  /**
+   * Commits a developer message to the history, notifying the system via BusService without triggering execution.
+   * Useful for logging developer notes or debugging information, coordinated with SessionConnectionService.
+   * @param {string} message - The developer message to commit, trimmed before storage.
+   * @returns {Promise<void>} Resolves when the message is committed and the event is emitted.
+   */
   async commitDeveloperMessage(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
