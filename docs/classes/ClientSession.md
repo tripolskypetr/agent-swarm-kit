@@ -33,6 +33,12 @@ params: ISessionParams
 _notifySubject: any
 ```
 
+### AQUIRE_LOCK
+
+```ts
+AQUIRE_LOCK: any
+```
+
 ## Methods
 
 ### notify

@@ -111,6 +111,17 @@ Sets the busy state of the swarm.
 Used internally to indicate when the swarm is processing an operation, such as waiting for output.
 Enables coordinated state management and debugging.
 
+### getBusy
+
+```ts
+getBusy(): boolean;
+```
+
+Getter for the busy state of the swarm.
+Used internally for optimizing performance and flow control.
+Returns true if the swarm is currently busy with an operation, false otherwise.
+Supports debugging and flow control in client applications.
+
 ### emit
 
 ```ts
