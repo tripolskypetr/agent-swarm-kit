@@ -53,6 +53,14 @@ commitSystemMessage: (message: string) => Promise<void>
 
 Commits a system message to the agent's history or state.
 
+### commitDeveloperMessage
+
+```ts
+commitDeveloperMessage: (message: string) => Promise<void>
+```
+
+Commits a developer message to the agent's history or state.
+
 ### commitUserMessage
 
 ```ts

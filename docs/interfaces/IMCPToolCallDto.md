@@ -33,6 +33,14 @@ agentName: string
 
 Name of the agent associated with the tool call.
 
+### toolName
+
+```ts
+toolName: string
+```
+
+Name of the tool associated with the tool call
+
 ### params
 
 ```ts

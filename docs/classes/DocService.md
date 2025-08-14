@@ -144,6 +144,15 @@ stateSchemaService: any
 State schema service instance, injected via DI.
 Provides state details for writeAgentDoc, documenting state resources used by agents.
 
+### completionSchemaService
+
+```ts
+completionSchemaService: any
+```
+
+Completion schema service instance, injected via DI.
+Provides completion details for writeAgentDoc, documenting completion resources used by agents.
+
 ### computeSchemaService
 
 ```ts

@@ -225,6 +225,14 @@ commitSystemMessage(message: string): Promise<void>;
 Commits a system message to the history, notifying the system via BusService without triggering execution.
 Supports system-level updates, coordinated with SessionConnectionService.
 
+### commitDeveloperMessage
+
+```ts
+commitDeveloperMessage(message: string): Promise<void>;
+```
+
+Commits a developer message to the agent's history or state.
+
 ### commitToolRequest
 
 ```ts

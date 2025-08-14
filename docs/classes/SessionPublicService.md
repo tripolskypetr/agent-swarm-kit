@@ -143,6 +143,16 @@ Commits a system message to the session’s history.
 Wraps SessionConnectionService.commitSystemMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., system prompt updates), mirrored in AgentPublicService.
 
+### commitDeveloperMessage
+
+```ts
+commitDeveloperMessage: (message: string, methodName: string, clientId: string, swarmName: string) => Promise<void>
+```
+
+Commits a developer message to the session’s history or state.
+Wraps SessionConnectionService.commitDeveloperMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Supports ClientAgent’s developer-level messaging, allowing for detailed session context updates.
+
 ### commitToolRequest
 
 ```ts

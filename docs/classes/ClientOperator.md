@@ -77,6 +77,14 @@ commitSystemMessage(): Promise<void>;
 
 Commits system message (not supported)
 
+### commitDeveloperMessage
+
+```ts
+commitDeveloperMessage(message: string): Promise<void>;
+```
+
+Commits a developer message
+
 ### commitToolRequest
 
 ```ts

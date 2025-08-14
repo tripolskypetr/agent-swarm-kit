@@ -128,6 +128,14 @@ commitSystemMessage(message: string): Promise<void>;
 Commits a system message to the agent’s history via the swarm’s agent (ClientAgent), logging via BusService.
 Supports system-level updates within the session, coordinated with ClientHistory.
 
+### commitDeveloperMessage
+
+```ts
+commitDeveloperMessage(message: string): Promise<void>;
+```
+
+Commits a developer message to the agent’s history via the swarm’s agent (ClientAgent), logging the action via BusService.
+
 ### commitAssistantMessage
 
 ```ts

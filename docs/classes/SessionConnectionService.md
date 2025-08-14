@@ -155,6 +155,16 @@ Commits a system message to the session’s history.
 Delegates to ClientSession.commitSystemMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Mirrors SessionPublicService’s commitSystemMessage, supporting ClientAgent’s system updates and HistoryPublicService.
 
+### commitDeveloperMessage
+
+```ts
+commitDeveloperMessage: (message: string) => Promise<void>
+```
+
+Commits a developer message to the session’s history.
+Delegates to ClientSession.commitDeveloperMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Mirrors SessionPublicService’s commitDeveloperMessage, supporting ClientAgent’s developer updates and HistoryPublicService.
+
 ### commitToolRequest
 
 ```ts

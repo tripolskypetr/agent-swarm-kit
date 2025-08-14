@@ -42,6 +42,14 @@ onSystemMessage: (clientId: string, agentName: string, message: string) => void
 
 Optional callback triggered when a system message is generated.
 
+### onDeveloperMessage
+
+```ts
+onDeveloperMessage: (clientId: string, agentName: string, message: string) => void
+```
+
+Optional callback triggered when a developer message is generated.
+
 ### onToolRequest
 
 ```ts

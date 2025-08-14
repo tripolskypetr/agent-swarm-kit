@@ -73,7 +73,7 @@ Optional dynamic factory to resolve tool metadata
 ### call
 
 ```ts
-call: (dto: { toolId: string; clientId: string; agentName: string; params: T; toolCalls: IToolCall[]; abortSignal: TAbortSignal; callReason: string; isLast: boolean; }) => Promise<...>
+call: (dto: { toolId: string; clientId: string; agentName: string; toolName: string; params: T; toolCalls: IToolCall[]; abortSignal: TAbortSignal; callReason: string; isLast: boolean; }) => Promise<...>
 ```
 
 Executes the tool with the specified parameters and context.

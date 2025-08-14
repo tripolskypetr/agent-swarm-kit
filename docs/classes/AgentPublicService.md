@@ -98,6 +98,16 @@ Commits a system message to the agent’s history.
 Wraps AgentConnectionService.commitSystemMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., system prompt updates), documented in DocService (e.g., system prompts).
 
+### commitDeveloperMessage
+
+```ts
+commitDeveloperMessage: (message: string, methodName: string, clientId: string, agentName: string) => Promise<void>
+```
+
+Commits a developer message to the agent’s history.
+Wraps AgentConnectionService.commitDeveloperMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+Used for developer-specific messages, enhancing debugging and tracking in agent operations.
+
 ### commitToolRequest
 
 ```ts
