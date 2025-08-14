@@ -16,8 +16,6 @@ import { IToolRequest } from "../model/Tool.model";
 const AGENT_NEED_FETCH = Symbol("agent-need-fetch");
 const STACK_NEED_FETCH = Symbol("stack-need-fetch");
 
-const SET_BUSY_FN = Symbol("set-busy-fn");
-
 /**
  * A no-operation (noop) agent that serves as a fallback when an agent is not found in the swarm.
  * Implements the {@link IAgent} interface and logs calls to its methods, indicating that the requested agent is unavailable,
@@ -235,8 +233,6 @@ const WAIT_FOR_OUTPUT_FN = async (self: ClientSwarm): Promise<string> => {
       `ClientSwarm swarmName=${self.params.swarmName} clientId=${self.params.clientId} waitForOutput`
     );
 
-  self[SET_BUSY_FN](true);
-
   const [awaiter, { resolve }] = createAwaiter<{
     agentName: AgentName;
     output: string;
@@ -293,8 +289,6 @@ const WAIT_FOR_OUTPUT_FN = async (self: ClientSwarm): Promise<string> => {
     clientId: self.params.clientId,
   });
 
-  self[SET_BUSY_FN](false);
-
   return output;
 };
 
@@ -329,10 +323,10 @@ export class ClientSwarm implements ISwarm {
    * Enables coordinated state management and debugging.
    * @param {boolean} isBusy - True to mark the swarm as busy, false to mark it as idle.
    */
-  public [SET_BUSY_FN](isBusy: boolean) {
+  public setBusy(isBusy: boolean) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
-        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setCheckBusy`,
+        `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setBusy`,
         { isBusy }
       );
     this._isBusy = isBusy;

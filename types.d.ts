@@ -1330,6 +1330,14 @@ interface ISwarm {
      * @returns {Promise<boolean>} True if the swarm is busy, false otherwise.
      */
     getCheckBusy(): Promise<boolean>;
+    /**
+     * Sets the busy state of the swarm.
+     * This method is used to indicate whether the swarm is currently processing an operation.
+     * It helps manage flow control and debugging by signaling when the swarm is occupied.
+     * @param {boolean} isBusy - True to mark the swarm as busy, false to mark it as idle.
+     * @throws {Error} If setting the busy state fails (e.g., due to internal errors).
+     */
+    setBusy(isBusy: boolean): void;
 }
 /**
  * Type representing the unique name of a swarm within the system.
@@ -4576,6 +4584,12 @@ declare class ClientAgent implements IAgent {
      * @returns {Promise<void>} Resolves when the message is committed and the event is emitted.
      */
     commitSystemMessage(message: string): Promise<void>;
+    /**
+     * Commits a developer message to the history, notifying the system via BusService without triggering execution.
+     * Useful for logging developer notes or debugging information, coordinated with SessionConnectionService.
+     * @param {string} message - The developer message to commit, trimmed before storage.
+     * @returns {Promise<void>} Resolves when the message is committed and the event is emitted.
+     */
     commitDeveloperMessage(message: string): Promise<void>;
     /**
      * Commits a tool request to the agent's history and emits an event via BusService.
@@ -5428,7 +5442,6 @@ declare class ToolSchemaService {
 
 declare const AGENT_NEED_FETCH: unique symbol;
 declare const STACK_NEED_FETCH: unique symbol;
-declare const SET_BUSY_FN: unique symbol;
 /**
  * Manages a collection of agents within a swarm in the swarm system, implementing the ISwarm interface.
  * Handles agent switching, output waiting, and navigation stack management, with queued operations and event-driven updates via BusService.
@@ -5453,7 +5466,7 @@ declare class ClientSwarm implements ISwarm {
      * Enables coordinated state management and debugging.
      * @param {boolean} isBusy - True to mark the swarm as busy, false to mark it as idle.
      */
-    [SET_BUSY_FN](isBusy: boolean): void;
+    setBusy(isBusy: boolean): void;
     /**
      * Subject that emits when an agent reference changes, providing the agent name and instance.
      * Used by setAgentRef to notify subscribers (e.g., waitForOutput) of updates to agent instances.
@@ -5643,6 +5656,15 @@ declare class SwarmConnectionService implements ISwarm {
      * @returns {Promise<boolean>} True if the swarm is busy, false otherwise.
      */
     getCheckBusy: () => Promise<boolean>;
+    /**
+     * Sets the busy state of the swarm.
+     * Used to indicate whether the swarm is currently processing an operation, helping manage flow control and debugging.
+     * Delegates to ClientSwarm.setBusy, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Mirrors SwarmPublicService’s setBusy, supporting ClientAgent’s busy state management.
+     * @param {boolean} isBusy - True to mark the swarm as busy, false to mark it as idle.
+     * @returns {Promise<void>} A promise resolving when the busy state is set.
+     */
+    setBusy: (isBusy: boolean) => Promise<void>;
     /**
      * Cancels the pending output by emitting an empty string, interrupting waitForOutput.
      * Delegates to ClientSwarm.cancelOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -6777,6 +6799,17 @@ declare class SwarmPublicService implements TSwarmConnectionService {
      * @returns {Promise<boolean>} True if the swarm is busy, false otherwise.
      */
     getCheckBusy: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<boolean>;
+    /**
+     * Sets the busy state of the swarm, indicating whether it is currently processing an operation.
+     * Wraps SwarmConnectionService.setBusy with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * Used in ClientAgent (e.g., marking swarm busy during EXECUTE_FN) and SessionPublicService (e.g., managing swarm state in connect).
+     * @param {boolean} isBusy - True to mark the swarm as busy, false to mark it as idle.
+     * @param {string} methodName - The method name for context and logging.
+     * @param {string} clientId - The client ID, scoping the operation to a specific client.
+     * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+     * @returns {Promise<void>} A promise resolving when the busy state is set.
+     */
+    setBusy: (isBusy: boolean, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Cancels the await of output in the swarm by emitting an empty string, scoped to a client.
      * Wraps SwarmConnectionService.cancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.

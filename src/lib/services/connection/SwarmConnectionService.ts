@@ -167,6 +167,23 @@ export class SwarmConnectionService implements ISwarm {
   };
 
   /**
+   * Sets the busy state of the swarm.
+   * Used to indicate whether the swarm is currently processing an operation, helping manage flow control and debugging.
+   * Delegates to ClientSwarm.setBusy, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Mirrors SwarmPublicService’s setBusy, supporting ClientAgent’s busy state management.
+   * @param {boolean} isBusy - True to mark the swarm as busy, false to mark it as idle.
+   * @returns {Promise<void>} A promise resolving when the busy state is set.
+   */
+  public setBusy = async (isBusy: boolean) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info(`swarmConnectionService setBusy`, { isBusy });
+    return await this.getSwarm(
+      this.methodContextService.context.clientId,
+      this.methodContextService.context.swarmName
+    ).setBusy(isBusy);
+  };
+
+  /**
    * Cancels the pending output by emitting an empty string, interrupting waitForOutput.
    * Delegates to ClientSwarm.cancelOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SwarmPublicService’s cancelOutput, supporting ClientAgent’s output control.

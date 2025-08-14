@@ -173,6 +173,46 @@ export class SwarmPublicService implements TSwarmConnectionService {
   };
 
   /**
+   * Sets the busy state of the swarm, indicating whether it is currently processing an operation.
+   * Wraps SwarmConnectionService.setBusy with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+   * Used in ClientAgent (e.g., marking swarm busy during EXECUTE_FN) and SessionPublicService (e.g., managing swarm state in connect).
+   * @param {boolean} isBusy - True to mark the swarm as busy, false to mark it as idle.
+   * @param {string} methodName - The method name for context and logging.
+   * @param {string} clientId - The client ID, scoping the operation to a specific client.
+   * @param {SwarmName} swarmName - The name of the swarm, used in SwarmMetaService context.
+   * @returns {Promise<void>} A promise resolving when the busy state is set.
+   */
+  public setBusy = async (
+    isBusy: boolean,
+    methodName: string,
+    clientId: string,
+    swarmName: SwarmName
+  ) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
+      this.loggerService.info("swarmPublicService setBusy", {
+        isBusy,
+        clientId,
+        swarmName,
+      });
+    return await MethodContextService.runInContext(
+      async () => {
+        return await this.swarmConnectionService.setBusy(isBusy);
+      },
+      {
+        methodName,
+        clientId,
+        swarmName,
+        policyName: "",
+        agentName: "",
+        storageName: "",
+        stateName: "",
+        mcpName: "",
+        computeName: "",
+      }
+    );
+  }
+
+  /**
    * Cancels the await of output in the swarm by emitting an empty string, scoped to a client.
    * Wraps SwarmConnectionService.cancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent (e.g., interrupting EXECUTE_FN output) and SessionPublicService (e.g., output control in connect).

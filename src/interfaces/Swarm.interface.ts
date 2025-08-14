@@ -261,6 +261,15 @@ export interface ISwarm {
    * @returns {Promise<boolean>} True if the swarm is busy, false otherwise.
    */
   getCheckBusy(): Promise<boolean>;
+
+  /**
+   * Sets the busy state of the swarm.
+   * This method is used to indicate whether the swarm is currently processing an operation.
+   * It helps manage flow control and debugging by signaling when the swarm is occupied.
+   * @param {boolean} isBusy - True to mark the swarm as busy, false to mark it as idle.
+   * @throws {Error} If setting the busy state fails (e.g., due to internal errors).
+   */
+  setBusy(isBusy: boolean): void;
 }
 
 /**

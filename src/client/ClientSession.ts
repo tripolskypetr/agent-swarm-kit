@@ -185,6 +185,7 @@ export class ClientSession implements ISession {
         mode
       );
     const agent = await this.params.swarm.getAgent();
+    this.params.swarm.setBusy(true);
     const outputAwaiter = this.params.swarm.waitForOutput();
     agent.execute(message, mode);
     const output = await outputAwaiter;
@@ -192,6 +193,7 @@ export class ClientSession implements ISession {
       this.params.clientId,
       this.params.swarmName,
     );
+    this.params.swarm.setBusy(false);
     if (
       await not(
         this.params.policy.validateOutput(
