@@ -15800,6 +15800,13 @@ type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
  */
 declare class AdapterUtils {
     /**
+     * Creates a function to interact with Hugging Face Inference API chat completions.
+     * @param {any} inferenceClient - The Hugging Face inference client instance.
+     * @param {string} [model="openai/gpt-oss-120b"] - The model to use for completions (defaults to "openai/gpt-oss-120b").
+     * @returns {TCompleteFn} A function that processes completion arguments and returns a response from Hugging Face.
+     */
+    fromHf: (inferenceClient: any, model?: string) => TCompleteFn;
+    /**
      * Creates a function to interact with Cortex's chat completions API.
      * @param {string} [model="tripolskypetr:gemma-3-12b-it:gemma-3-12b-it-Q4_K_S.gguf"] - The model to use for completions.
      * @param {string} [baseUrl="http://localhost:39281/"] - The base URL for the Cortex API.

@@ -47,6 +47,121 @@ type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
  * Utility class providing adapter functions for interacting with various AI completion providers.
  */
 export class AdapterUtils {
+
+  /**
+   * Creates a function to interact with Hugging Face Inference API chat completions.
+   * @param {any} inferenceClient - The Hugging Face inference client instance.
+   * @param {string} [model="openai/gpt-oss-120b"] - The model to use for completions (defaults to "openai/gpt-oss-120b").
+   * @returns {TCompleteFn} A function that processes completion arguments and returns a response from Hugging Face.
+   */
+  fromHf = (inferenceClient: any, model = "openai/gpt-oss-120b") =>
+    /**
+     * Handles a completion request to Hugging Face, transforming messages and tools into the required format.
+     * Executes requests in a pool to limit concurrency with retry logic for reliability.
+     * @param {ICompletionArgs} args - The arguments for the completion request.
+     * @param {string} args.agentName - The name of the agent making the request.
+     * @param {IModelMessage[]} args.messages - The array of messages to send to Hugging Face.
+     * @param {string} args.mode - The mode of the completion (e.g., "user" or "tool").
+     * @param {any[]} args.tools - The tools available for the completion, if any.
+     * @param {string} args.clientId - The ID of the client making the request.
+     * @returns {Promise<IModelMessage>} The response from Hugging Face in `agent-swarm-kit` format.
+     */
+    execpool(
+      retry(
+        async ({
+          agentName,
+          messages: rawMessages,
+          mode,
+          tools: rawTools,
+          clientId,
+        }: ICompletionArgs): Promise<IModelMessage> => {
+          Logger.logClient(
+            clientId,
+            "AdapterUtils fromHf completion",
+            JSON.stringify(rawMessages)
+          );
+
+          const messages = rawMessages.map(
+            ({ role, content, tool_calls, tool_call_id }) => {
+              if (role === "tool") {
+                return {
+                  role: "tool" as const,
+                  content,
+                  tool_call_id: tool_call_id!,
+                };
+              }
+              if (role === "assistant" && tool_calls) {
+                return {
+                  role: "assistant" as const,
+                  content,
+                  tool_calls: tool_calls.map((tc) => ({
+                    id: tc.id,
+                    type: tc.type,
+                    function: {
+                      name: tc.function.name,
+                      arguments:
+                        typeof tc.function.arguments === "string"
+                          ? tc.function.arguments
+                          : JSON.stringify(tc.function.arguments),
+                    },
+                  })),
+                };
+              }
+              return {
+                role: role as "user" | "assistant" | "system",
+                content,
+              };
+            }
+          );
+
+          const tools = rawTools?.map(({ function: f }) => ({
+            type: "function" as const,
+            function: {
+              name: f.name,
+              description: f.description,
+              parameters: f.parameters,
+            },
+          }));
+
+          const completion = await inferenceClient.chatCompletion({
+            model,
+            messages,
+            ...(tools && { tools }),
+          });
+
+          const choice = completion.choices[0];
+          const text = choice.message.content || "";
+          const tool_calls = choice.message.tool_calls || [];
+
+          const result = {
+            content: text,
+            mode,
+            agentName: agentName!,
+            role: "assistant" as const,
+            tool_calls: tool_calls.map(({ id, type, function: f }) => ({
+              id: id!,
+              type: type as "function",
+              function: {
+                name: f.name,
+                arguments:
+                  typeof f.arguments === "string"
+                    ? JSON.parse(f.arguments)
+                    : f.arguments,
+              },
+            })),
+          };
+
+          return result;
+        },
+        RETRY_COUNT,
+        RETRY_DELAY
+      ),
+      {
+        maxExec: EXECPOOL_SIZE,
+        delay: EXECPOOL_WAIT,
+      }
+    ) as TCompleteFn;
+  
   /**
    * Creates a function to interact with Cortex's chat completions API.
    * @param {string} [model="tripolskypetr:gemma-3-12b-it:gemma-3-12b-it-Q4_K_S.gguf"] - The model to use for completions.
