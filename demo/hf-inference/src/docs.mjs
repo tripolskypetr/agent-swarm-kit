@@ -3,6 +3,6 @@ import plantuml from "plantuml";
 
 import "./logic/index";
 
-await dumpDocs("demo/langchain-stream", './docs/chat', plantuml);
+await dumpDocs("demo/hf-inference", './docs/chat', plantuml);
 
 process.kill(process.pid);

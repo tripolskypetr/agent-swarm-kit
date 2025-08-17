@@ -1,6 +1,6 @@
 ---
-title: demo/langchain-stream/triage_agent
-group: demo/langchain-stream
+title: demo/hf-inference/triage_agent
+group: demo/hf-inference
 ---
 
 # triage_agent

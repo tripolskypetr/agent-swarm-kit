@@ -1,6 +1,6 @@
 ---
-title: demo/langchain-stream/root_swarm
-group: demo/langchain-stream
+title: demo/hf-inference/root_swarm
+group: demo/hf-inference
 ---
 
 # root_swarm
