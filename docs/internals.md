@@ -1454,7 +1454,9 @@ Essentially, it's the glue that holds the agent system together, ensuring agents
 
 ## Class AdapterUtils
 
-This class offers helpful tools to connect your AI agent swarm to different language models. Think of it as a translator, allowing you to use the same interface regardless of whether you're using OpenAI, Grok, Cohere, LMStudio, or Ollama. Each function, like `fromOpenAI` or `fromGrok`, creates a special function that knows exactly how to talk to that particular AI service, simplifying the process of sending requests and getting responses. You can customize things like the model used and how the responses are formatted to suit your specific needs.
+This class provides convenient ways to connect your AI agent swarm to different AI models. It essentially acts as an adapter, letting you easily use models from providers like Hugging Face, Cortex, Grok, Cohere, OpenAI, LMStudio, and Ollama without needing to write custom connection code each time.
+
+Each function within this class, such as `fromHf`, `fromCortex`, and `fromOpenAI`, generates a specific function you can use to make requests to that provider’s chat completion API. You’ll typically pass in the necessary API client or configuration details for each provider when using these functions. The `model` parameter allows you to specify which particular AI model you want to use from that provider.
 
 # agent-swarm-kit interfaces
 
