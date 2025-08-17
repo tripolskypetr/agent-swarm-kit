@@ -9,6 +9,7 @@ import { InferenceClient } from "@huggingface/inference";
 const client = new InferenceClient(process.env.HF_API_KEY);
 
 addCompletion({
+  docDescription: "This completion integrates with HuggingFace's Inference API to provide cost-effective access to OpenAI's gpt-oss-120b model, offering significant cost savings (approximately $15/month vs $100/month for grok-3-mini) while maintaining compatibility with the OpenAI chat completion format, including support for tool calling and streaming responses.",
   completionName: CompletionName.HfCompletion,
   getCompletion: async ({
     agentName,
