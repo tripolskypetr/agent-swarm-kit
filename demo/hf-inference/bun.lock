@@ -5,7 +5,7 @@
       "name": "cohere-token-rotate",
       "dependencies": {
         "@huggingface/inference": "^4.7.1",
-        "agent-swarm-kit": "^1.1.141",
+        "agent-swarm-kit": "^1.1.142",
         "functools-kit": "^1.0.89",
         "plantuml": "^0.0.2",
       },
@@ -30,7 +30,7 @@
 
     "@types/ws": ["@types/ws@8.5.14", "", { "dependencies": { "@types/node": "*" } }, "sha512-bd/YFLW+URhBzMXurx7lWByOu+xzU9+kb3RboOteXYDfW+tr+JZa99OyNmPINEGB/ahzKrEuc8rcv4gnpJmxTw=="],
 
-    "agent-swarm-kit": ["agent-swarm-kit@1.1.141", "", { "dependencies": { "di-kit": "^1.0.18", "di-scoped": "^1.0.20", "functools-kit": "^1.0.89", "get-moment-stamp": "^1.1.1", "lodash-es": "4.17.21", "xml2js": "0.6.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-GckeFkzVO4EED159c4BfaW+11QVExTcdFjq35G8FGQny+Ook3RjO9bu47usiNDElPPrvLPRe2hkztJ5znMe6XA=="],
+    "agent-swarm-kit": ["agent-swarm-kit@1.1.142", "", { "dependencies": { "di-kit": "^1.0.18", "di-scoped": "^1.0.20", "functools-kit": "^1.0.89", "get-moment-stamp": "^1.1.1", "lodash-es": "4.17.21", "xml2js": "0.6.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-0zyyDiyfQ1/u8eWCgsuVAKhJ7avmonMZ9vH0pRipsbi3HnT/J6/k9bfZGBDYCs1SBXmlna9wkD/nEkH6wcp+mA=="],
 
     "bun-types": ["bun-types@1.2.5", "", { "dependencies": { "@types/node": "*", "@types/ws": "~8.5.10" } }, "sha512-3oO6LVGGRRKI4kHINx5PIdIgnLRb7l/SprhzqXapmoYkFl5m4j6EvALvbDVuuBFaamB46Ap6HCUxIXNLCGy+tg=="],
 

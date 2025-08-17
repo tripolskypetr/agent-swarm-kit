@@ -15,6 +15,14 @@ constructor();
 
 ## Properties
 
+### fromHf
+
+```ts
+fromHf: (inferenceClient: any, model?: string) => TCompleteFn
+```
+
+Creates a function to interact with Hugging Face Inference API chat completions.
+
 ### fromCortex
 
 ```ts
