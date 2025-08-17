@@ -5,35 +5,35 @@ group: demo/vllm-docker-cuda
 
 # VLLM Docker CUDA
 
-Self-hosted inference с VLLM engine, CUDA acceleration и Docker контейнеризацией для local AI deployment.
+Self-hosted inference with VLLM engine, CUDA acceleration and Docker containerization for local AI deployment.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Self-hosted AI inference с VLLM
-- CUDA GPU acceleration для performance
-- Docker контейнеризации AI services
+Demonstrates capabilities:
+- Self-hosted AI inference with VLLM
+- CUDA GPU acceleration for performance
+- Docker containerization of AI services
 - OpenAI-compatible API endpoint
 
-## Ключевые возможности
+## Key Features
 
-- **VLLM Engine**: Optimized inference для large language models
-- **CUDA Support**: GPU acceleration для fast responses
-- **Docker Deployment**: Containerized для easy deployment
-- **OpenAI API Compatible**: Drop-in replacement для OpenAI API
-- **Model Flexibility**: Support для любых HuggingFace models
+- **VLLM Engine**: Optimized inference for large language models
+- **CUDA Support**: GPU acceleration for fast responses
+- **Docker Deployment**: Containerized for easy deployment
+- **OpenAI API Compatible**: Drop-in replacement for OpenAI API
+- **Model Flexibility**: Support for any HuggingFace models
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Inference Engine**: VLLM
 - **GPU Support**: CUDA
-- **Containerization**: Docker с NVIDIA runtime
+- **Containerization**: Docker with NVIDIA runtime
 - **Model Source**: HuggingFace Hub
 
-## Структура проекта
+## Project Structure
 
 ```
 ├── docker-compose.yaml   # Docker services
@@ -45,14 +45,14 @@ Self-hosted inference с VLLM engine, CUDA acceleration и Docker контейн
 └── index.ts            # Entry point
 ```
 
-## Требования к системе
+## System Requirements
 
 - **NVIDIA GPU**: CUDA-compatible
-- **Docker**: с NVIDIA Container Runtime
-- **RAM**: Минимум 8GB (16GB+ рекомендуется)
-- **Storage**: 10GB+ для модели
+- **Docker**: with NVIDIA Container Runtime
+- **RAM**: Minimum 8GB (16GB+ recommended)
+- **Storage**: 10GB+ for model
 
-## Установка и запуск
+## Installation and Setup
 
 ### 1. NVIDIA Container Runtime
 ```bash
@@ -65,27 +65,27 @@ sudo systemctl restart docker
 
 ### 2. Deploy VLLM Service
 ```bash
-# Clone и setup
+# Clone and setup
 git clone <repository>
 cd vllm-docker-cuda
 
-# Запуск VLLM сервера
+# Start VLLM server
 docker-compose up -d vllm-server
 
-# Проверка статуса
+# Check status
 docker-compose logs vllm-server
 ```
 
 ### 3. Agent-Swarm Setup
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск клиента
+# Start client
 bun run src/repl.ts
 ```
 
-## Конфигурация
+## Configuration
 
 ### Docker Compose
 ```yaml
@@ -121,9 +121,9 @@ CUDA_VISIBLE_DEVICES=0
 
 ### Model Selection
 ```bash
-# Замена модели в docker-compose.yaml
+# Replace model in docker-compose.yaml
 --model microsoft/DialoGPT-medium
-# на
+# with
 --model meta-llama/Llama-2-7b-chat-hf
 ```
 
@@ -131,7 +131,7 @@ CUDA_VISIBLE_DEVICES=0
 
 ### GPU Memory Management
 ```bash
-# Мониторинг GPU
+# GPU monitoring
 nvidia-smi
 
 # Memory usage
@@ -166,22 +166,22 @@ curl -X POST http://localhost:8000/v1/chat/completions \
 curl http://localhost:8000/v1/models
 ```
 
-## Применение
+## Use Cases
 
-Идеально для:
+Ideal for:
 - Self-hosted AI applications
 - Privacy-sensitive deployments
 - High-performance inference
 - Cost optimization (no API fees)
 - Custom model deployment
 
-## Преимущества Self-Hosting
+## Self-Hosting Benefits
 
-- **Privacy**: Данные остаются локальными
-- **Cost Control**: Нет per-token charges
+- **Privacy**: Data stays local
+- **Cost Control**: No per-token charges
 - **Customization**: Fine-tuned models
 - **Performance**: Dedicated GPU resources
-- **Reliability**: Полный контроль over infrastructure
+- **Reliability**: Complete infrastructure control
 
 ## Monitoring
 
@@ -203,6 +203,6 @@ curl http://localhost:8000/health
 
 ### Common Issues
 - **CUDA not found**: Install NVIDIA drivers
-- **Out of memory**: Reduce model size или batch size
+- **Out of memory**: Reduce model size or batch size
 - **Model loading fails**: Check HuggingFace model path
 - **API not responding**: Verify container networking

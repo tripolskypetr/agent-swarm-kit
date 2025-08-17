@@ -5,68 +5,68 @@ group: demo/repl-phone-seller
 
 # REPL Phone Seller
 
-Интерактивная система продаж телефонов с comprehensive product database и semantic search.
+Interactive phone sales system with comprehensive product database and semantic search.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- E-commerce sales агента с product knowledge
-- Semantic search по характеристикам товаров
+Demonstrates capabilities:
+- E-commerce sales agent with product knowledge
+- Semantic search by product characteristics
 - Shopping basket management
-- Интерактивного REPL интерфейса для продаж
+- Interactive REPL interface for sales
 
-## Ключевые возможности
+## Key Features
 
-- **Rich Product Database**: iPhone, Samsung, Google Pixel и другие
-- **Semantic Search**: Поиск по любым характеристикам
-- **Diagonal Search**: Специализированный поиск по размеру экрана
-- **Basket Management**: Полноценная корзина покупок
-- **Sales Agent**: Профессиональный продавец с product expertise
+- **Rich Product Database**: iPhone, Samsung, Google Pixel and others
+- **Semantic Search**: Search by any characteristics
+- **Diagonal Search**: Specialized screen size search
+- **Basket Management**: Full shopping cart
+- **Sales Agent**: Professional seller with product expertise
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
-- **ML**: TensorFlow.js для embeddings и search
+- **ML**: TensorFlow.js for embeddings and search
 - **Database**: JSON product catalog
 - **AI Providers**: OpenAI, LMStudio, Ollama
 
-## Структура проекта
+## Project Structure
 
 ```
 ├── data/
 │   └── phones.json        # Product database
 ├── src/
 │   ├── config/
-│   │   ├── openai.ts     # OpenAI конфигурация
-│   │   └── setup.ts      # Система setup
+│   │   ├── openai.ts     # OpenAI configuration
+│   │   └── setup.ts      # System setup
 │   ├── logic/
-│   │   ├── agent/        # Sales агент
+│   │   ├── agent/        # Sales agent
 │   │   ├── completion/   # Multiple AI providers
 │   │   ├── embedding/    # Nomic embeddings
-│   │   ├── storage/      # Phone и basket storage
+│   │   ├── storage/      # Phone and basket storage
 │   │   ├── swarm/        # Root swarm
-│   │   └── tools/        # Search и basket tools
+│   │   └── tools/        # Search and basket tools
 │   ├── main/
-│   │   └── repl.ts       # REPL интерфейс
+│   │   └── repl.ts       # REPL interface
 │   └── model/            # Data models
 └── logs/                 # Client session logs
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск REPL
+# Start REPL
 bun run src/main/repl.ts
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key
@@ -76,7 +76,7 @@ OLLAMA_API_URL=http://localhost:11434
 
 ## Product Database
 
-База содержит детальную информацию о телефонах:
+The database contains detailed phone information:
 
 ```json
 {
@@ -90,57 +90,57 @@ OLLAMA_API_URL=http://localhost:11434
 }
 ```
 
-## Примеры использования
+## Usage Examples
 
 ### Product Search
-- "Покажи iPhone с большим экраном"
-- "Какие Samsung есть до 500 долларов?"
-- "Телефон с хорошей камерой для фото"
+- "Show me iPhones with large screens"
+- "What Samsung phones are under $500?"
+- "Phone with good camera for photos"
 
 ### Diagonal Search
-- "Найди телефоны с диагональю 6.5 дюймов"
-- "Какие модели больше 6 дюймов?"
+- "Find phones with 6.5 inch diagonal"
+- "What models are bigger than 6 inches?"
 
 ### Basket Operations
-- "Добавь iPhone 15 Pro в корзину"
-- "Что у меня в корзине?"
-- "Сколько будет стоить вся корзина?"
+- "Add iPhone 15 Pro to cart"
+- "What's in my cart?"
+- "How much will the whole cart cost?"
 
 ### Product Comparison
-- "Сравни iPhone 15 и Samsung Galaxy S24"
-- "Чем отличается Pixel 8 от Pixel 8 Pro?"
+- "Compare iPhone 15 and Samsung Galaxy S24"
+- "What's the difference between Pixel 8 and Pixel 8 Pro?"
 
 ## AI-Powered Features
 
 ### Semantic Understanding
-- Понимание естественного языка
-- Контекстный поиск по характеристикам
-- Интеллектуальные рекомендации
+- Natural language understanding
+- Contextual search by characteristics
+- Intelligent recommendations
 
 ### Sales Expertise
-- Product knowledge и specifications
-- Price comparisons и recommendations
-- Upselling и cross-selling
+- Product knowledge and specifications
+- Price comparisons and recommendations
+- Upselling and cross-selling
 
 ### Basket Intelligence
 - Smart product suggestions
 - Price optimization recommendations
 - Inventory management
 
-## Применение
+## Use Cases
 
-Идеально для:
+Ideal for:
 - E-commerce platforms
 - Retail sales assistants
 - Product recommendation systems
 - Customer service automation
 - Inventory management
 
-## Расширение возможностей
+## Extension Capabilities
 
-Легко добавить:
-- Больше категорий товаров
+Easy to add:
+- More product categories
 - Payment processing
 - Shipping calculations
-- User accounts и history
-- Review и rating systems
+- User accounts and history
+- Review and rating systems

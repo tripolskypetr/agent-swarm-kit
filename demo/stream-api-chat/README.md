@@ -5,45 +5,45 @@ group: demo/stream-api-chat
 
 # Stream API Chat
 
-REST API с streaming support и Grok integration на базе Hono web framework.
+REST API with streaming support and Grok integration based on Hono web framework.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- REST API интеграции с agent-swarm-kit
-- Streaming и synchronous endpoints
-- Grok (xAI) модель интеграции
-- Production-ready web API архитектуры
+Demonstrates capabilities:
+- REST API integration with agent-swarm-kit
+- Streaming and synchronous endpoints
+- Grok (xAI) model integration
+- Production-ready web API architecture
 
-## Ключевые возможности
+## Key Features
 
-- **Dual API Modes**: Streaming и synchronous endpoints
-- **Grok Integration**: xAI/Grok модели для AI responses
-- **Hono Framework**: Современный, быстрый web framework
-- **WebSocket Support**: Real-time коммуникация
-- **Production Ready**: Готовность к production deployment
+- **Dual API Modes**: Streaming and synchronous endpoints
+- **Grok Integration**: xAI/Grok models for AI responses
+- **Hono Framework**: Modern, fast web framework
+- **WebSocket Support**: Real-time communication
+- **Production Ready**: Ready for production deployment
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Web Framework**: Hono
 - **AI Provider**: xAI/Grok
 - **Protocols**: HTTP REST, WebSocket
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
 ├── config/
-│   ├── app.ts          # App конфигурация
+│   ├── app.ts          # App configuration
 │   ├── grok.ts         # Grok API setup
 │   └── params.ts       # Parameters
 ├── logic/
-│   ├── agent/          # Triage агент
+│   ├── agent/          # Triage agent
 │   ├── completion/     # Grok completions
-│   ├── enum/           # Перечисления
+│   ├── enum/           # Enumerations
 │   └── swarm/          # Root swarm
 ├── main/
 │   └── hono.ts         # Hono server
@@ -53,19 +53,19 @@ src/
 └── index.ts            # Entry point
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск сервера
+# Start server
 bun run src/index.ts
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 GROK_API_KEY=your_grok_api_key
@@ -121,9 +121,9 @@ data: {"chunk": "!", "done": true}
 - **Cost Effective**: Competitive pricing
 - **Real-time**: Excellent for streaming
 
-## Применение
+## Use Cases
 
-Идеально для:
+Ideal for:
 - Web applications requiring AI
 - Mobile app backends
 - Microservices architectures
@@ -132,10 +132,10 @@ data: {"chunk": "!", "done": true}
 
 ## Development Features
 
-- **Hot Reload**: Автоматическая перезагрузка при изменениях
-- **Type Safety**: Полная типизация с TypeScript
+- **Hot Reload**: Automatic reload on changes
+- **Type Safety**: Full typing with TypeScript
 - **Error Handling**: Comprehensive error management
-- **Logging**: Structured logging для debugging
+- **Logging**: Structured logging for debugging
 
 ## Production Deployment
 

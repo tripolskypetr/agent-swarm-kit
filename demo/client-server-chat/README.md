@@ -5,57 +5,57 @@ group: demo/client-server-chat
 
 # Client Server Chat
 
-Базовая реализация клиент-серверного чата с использованием WebSocket и agent-swarm-kit.
+Basic client-server chat implementation using WebSocket and agent-swarm-kit.
 
-## Назначение
+## Purpose
 
-Демонстрирует фундаментальные возможности:
-- Реализации WebSocket соединения между клиентом и сервером
-- Интеграции agent-swarm-kit в клиент-серверную архитектуру
-- Обработки real-time сообщений через агентов
-- Базовой архитектуры для масштабируемых чат-систем
+Demonstrates fundamental capabilities:
+- WebSocket connection implementation between client and server
+- agent-swarm-kit integration in client-server architecture
+- Real-time message processing through agents
+- Basic architecture for scalable chat systems
 
-## Ключевые возможности
+## Key Features
 
-- **WebSocket коммуникация**: Двунаправленная связь в реальном времени
-- **Клиент-серверная архитектура**: Разделение логики клиента и сервера
-- **Agent integration**: Обработка сообщений через агентов
-- **Тестовая среда**: Простая настройка для изучения концепций
+- **WebSocket Communication**: Bidirectional real-time communication
+- **Client-Server Architecture**: Separation of client and server logic
+- **Agent Integration**: Message processing through agents
+- **Testing Environment**: Simple setup for learning concepts
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Protocol**: WebSocket
 - **AI Providers**: Ollama, OpenAI
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
-├── client.ts      # WebSocket клиент
-├── server.ts      # WebSocket сервер
+├── client.ts      # WebSocket client
+├── server.ts      # WebSocket server
 └── lib/
-    └── swarm.ts   # Конфигурация swarm
+    └── swarm.ts   # Swarm configuration
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск сервера (терминал 1)
+# Run server (terminal 1)
 bun run src/server.ts
 
-# Запуск клиента (терминал 2)
+# Run client (terminal 2)
 bun run src/client.ts
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 OLLAMA_API_URL=http://localhost:11434
@@ -63,24 +63,24 @@ OPENAI_API_KEY=your_openai_api_key
 WS_PORT=8080
 ```
 
-## Примеры использования
+## Usage Examples
 
-1. **Отправка сообщения**: Введите текст в клиенте
-2. **Получение ответа**: Агент обработает сообщение и вернет ответ
-3. **Real-time коммуникация**: Мгновенный обмен сообщениями
+1. **Send Message**: Enter text in the client
+2. **Receive Response**: Agent processes message and returns response
+3. **Real-time Communication**: Instant message exchange
 
-## Применение
+## Applications
 
-Этот проект служит основой для:
-- Чат-ботов и виртуальных ассистентов
-- Систем customer support
-- Образовательных платформ
-- Интерактивных веб-приложений
+This project serves as foundation for:
+- Chatbots and virtual assistants
+- Customer support systems
+- Educational platforms
+- Interactive web applications
 
-## Развитие
+## Extension
 
-Может быть расширен добавлением:
-- Аутентификации пользователей
-- Персистентности сообщений
-- Множественных комнат
-- Файловых вложений
+Can be expanded by adding:
+- User authentication
+- Message persistence
+- Multiple rooms
+- File attachments

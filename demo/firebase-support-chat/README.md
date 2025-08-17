@@ -5,58 +5,58 @@ group: demo/firebase-support-chat
 
 # Firebase Support Chat
 
-Система customer support с Firebase real-time database для персистентности сообщений.
+Customer support system with Firebase real-time database for message persistence.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Интеграции Firebase для real-time персистентности
-- Создания professional support системы
-- Обработки customer queries через агентов
-- Масштабируемой архитектуры для support команд
+Demonstrates capabilities:
+- Firebase integration for real-time persistence
+- Creating professional support systems
+- Processing customer queries through agents
+- Scalable architecture for support teams
 
-## Ключевые возможности
+## Key Features
 
-- **Firebase Integration**: Real-time database для сообщений
-- **Support Agent**: Специализированный operator agent
-- **Message Persistence**: Автоматическое сохранение истории
-- **Real-time Updates**: Мгновенная синхронизация между клиентами
-- **Scalable Architecture**: Готовность к масштабированию
+- **Firebase Integration**: Real-time database for messages
+- **Support Agent**: Specialized operator agent
+- **Message Persistence**: Automatic history saving
+- **Real-time Updates**: Instant synchronization between clients
+- **Scalable Architecture**: Ready for scaling
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Database**: Firebase Realtime Database
 - **AI Providers**: OpenAI, Ollama
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
 ├── config/
-│   └── firebase.ts    # Firebase конфигурация
+│   └── firebase.ts    # Firebase configuration
 ├── utils/
-│   ├── saveMessage.ts # Сохранение сообщений
-│   └── watchMessages.ts # Мониторинг изменений
-├── repl.ts           # REPL интерфейс
+│   ├── saveMessage.ts # Message saving
+│   └── watchMessages.ts # Change monitoring
+├── repl.ts           # REPL interface
 └── lib/
-    └── swarm.ts      # Конфигурация swarm
+    └── swarm.ts      # Swarm configuration
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Настройка Firebase
-# 1. Создайте проект в Firebase Console
-# 2. Включите Realtime Database
-# 3. Получите конфигурацию
+# Firebase Setup
+# 1. Create project in Firebase Console
+# 2. Enable Realtime Database
+# 3. Get configuration
 
-# Запуск
+# Run
 bun run src/repl.ts
 ```
 
@@ -72,33 +72,33 @@ FIREBASE_PROJECT_ID=your-project-id
 OPENAI_API_KEY=your_openai_api_key
 ```
 
-## Примеры использования
+## Usage Examples
 
-1. **Support запросы**: "У меня проблема с оплатой"
-2. **Техническая поддержка**: "Не работает функция X"
-3. **Общие вопросы**: "Как пользоваться продуктом?"
-4. **Эскалация**: Передача сложных вопросов оператору
+1. **Support Requests**: "I have a payment issue"
+2. **Technical Support**: "Feature X is not working"
+3. **General Questions**: "How to use the product?"
+4. **Escalation**: Transferring complex issues to operator
 
-## Firebase преимущества
+## Firebase Advantages
 
-- **Real-time синхронизация**: Мгновенные обновления
-- **Автоматическое масштабирование**: Управляемая Google инфраструктура
-- **Offline support**: Работа без подключения к интернету
-- **Security rules**: Гибкая настройка доступа
+- **Real-time Synchronization**: Instant updates
+- **Auto-scaling**: Google-managed infrastructure
+- **Offline Support**: Works without internet connection
+- **Security Rules**: Flexible access configuration
 
-## Применение
+## Applications
 
-Идеально для:
-- Customer support центров
-- Help desk систем
-- Технической поддержки SaaS
+Perfect for:
+- Customer support centers
+- Help desk systems
+- SaaS technical support
 - E-commerce support
-- Образовательных платформ
+- Educational platforms
 
-## Развитие
+## Extension
 
-Может быть расширен:
-- Системой тикетов
-- Приоритизацией запросов
-- Analytics и reporting
+Can be expanded with:
+- Ticketing system
+- Request prioritization
+- Analytics and reporting
 - Multi-language support

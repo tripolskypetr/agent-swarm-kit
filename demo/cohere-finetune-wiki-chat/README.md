@@ -5,77 +5,77 @@ group: demo/cohere-finetune-wiki-chat
 
 # Cohere Finetune Wiki Chat
 
-Чат-система с использованием файнтюн модели Cohere для работы с wiki-подобными знаниями.
+Chat system using Cohere's fine-tuned models for working with wiki-like knowledge.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Интеграции Cohere AI для специализированных знаний
-- Работы с файнтюн моделями для доменной экспертизы
-- Обработки wiki-стиля контента через агентов
-- REPL интерфейса для интерактивного взаимодействия
+Demonstrates capabilities:
+- Cohere AI integration for specialized knowledge
+- Working with fine-tuned models for domain expertise
+- Processing wiki-style content through agents
+- REPL interface for interactive engagement
 
-## Ключевые возможности
+## Key Features
 
-- **Cohere Integration**: Использование Cohere AI для генерации ответов
-- **Finetune Support**: Работа с кастомными обученными моделями
-- **Wiki Knowledge**: Специализация на wiki-подобном контенте
-- **REPL Interface**: Интерактивная командная строка
+- **Cohere Integration**: Using Cohere AI for response generation
+- **Finetune Support**: Working with custom trained models
+- **Wiki Knowledge**: Specialization in wiki-like content
+- **REPL Interface**: Interactive command line
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **AI Provider**: Cohere AI
 - **Interface**: REPL
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
-├── repl.ts        # REPL интерфейс
+├── repl.ts        # REPL interface
 └── lib/
-    └── swarm.ts   # Конфигурация swarm
+    └── swarm.ts   # Swarm configuration
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск REPL
+# Run REPL
 bun run src/repl.ts
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 COHERE_API_KEY=your_cohere_api_key
 COHERE_MODEL=your_finetune_model_id
 ```
 
-## Примеры использования
+## Usage Examples
 
-1. **Wiki запросы**: "Расскажи о квантовой физике"
-2. **Исторические факты**: "Что произошло в 1945 году?"
-3. **Научные концепции**: "Объясни теорию относительности"
-4. **Образовательный контент**: "Как работает ДНК?"
+1. **Wiki Queries**: "Tell me about quantum physics"
+2. **Historical Facts**: "What happened in 1945?"
+3. **Scientific Concepts**: "Explain theory of relativity"
+4. **Educational Content**: "How does DNA work?"
 
-## Преимущества Cohere
+## Cohere Advantages
 
-- Качественная генерация текста
-- Поддержка файнтюна для специфических доменов
-- Эффективная работа с длинными контекстами
-- Многоязычная поддержка
+- High-quality text generation
+- Finetune support for specific domains
+- Efficient work with long contexts
+- Multilingual support
 
-## Применение
+## Applications
 
-Идеально подходит для:
-- Образовательных платформ
-- Корпоративных knowledge base
-- Научных помощников
-- Интеллектуальных справочников
+Perfect for:
+- Educational platforms
+- Corporate knowledge bases
+- Scientific assistants
+- Intelligent reference systems

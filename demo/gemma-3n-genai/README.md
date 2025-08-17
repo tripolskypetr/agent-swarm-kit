@@ -5,35 +5,35 @@ group: demo/gemma-3n-genai
 
 # Gemma 3N GenAI
 
-Интеграция с Google Gemini и xAI моделями через modern web framework Hono с WebSocket поддержкой.
+Integration with Google Gemini and xAI models through modern web framework Hono with WebSocket support.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Google Gemini AI интеграции
+Demonstrates capabilities:
+- Google Gemini AI integration
 - xAI (Grok) model support  
-- Modern web API с Hono framework
-- WebSocket real-time коммуникации
+- Modern web API with Hono framework
+- WebSocket real-time communication
 - Multi-provider AI architecture
 
-## Ключевые возможности
+## Key Features
 
-- **Google Gemini Integration**: Доступ к latest Gemini models
-- **xAI Support**: Grok models для advanced reasoning
+- **Google Gemini Integration**: Access to latest Gemini models
+- **xAI Support**: Grok models for advanced reasoning
 - **Hono Web Framework**: Fast, modern web API
 - **WebSocket Support**: Real-time bidirectional communication
 - **REPL Interface**: Interactive development environment
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Web Framework**: Hono
 - **AI Providers**: Google Gemini, xAI
 - **Protocols**: HTTP, WebSocket
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
@@ -42,19 +42,19 @@ src/
     └── swarm.ts       # Swarm configuration
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск REPL
+# Start REPL
 bun run src/repl.ts
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 GOOGLE_API_KEY=your_google_api_key
@@ -66,11 +66,11 @@ PORT=3000
 
 ## Google Gemini Setup
 
-### Получение API Key
-1. Перейдите в [Google AI Studio](https://makersuite.google.com/)
-2. Создайте новый проект
-3. Получите API ключ
-4. Добавьте в `.env` файл
+### Getting API Key
+1. Go to [Google AI Studio](https://makersuite.google.com/)
+2. Create a new project
+3. Get API key
+4. Add to `.env` file
 
 ### Supported Models
 - **Gemini Pro**: General purpose model
@@ -80,31 +80,31 @@ PORT=3000
 ## xAI Integration
 
 ### API Access
-1. Получите доступ к [xAI API](https://x.ai/)
-2. Создайте API ключ
-3. Выберите Grok model
+1. Get access to [xAI API](https://x.ai/)
+2. Create API key
+3. Select Grok model
 
 ### Grok Models
 - **Grok-2**: Latest reasoning model
 - **Grok-2-Mini**: Faster, cost-effective option
 - **Grok-1**: Previous generation
 
-## Примеры использования
+## Usage Examples
 
 ### General Questions
-- "Объясни квантовые вычисления"
-- "Напиши план бизнеса для стартапа"
-- "Помоги решить математическую задачу"
+- "Explain quantum computing"
+- "Write a business plan for a startup"
+- "Help solve a mathematical problem"
 
 ### Creative Tasks
-- "Напиши стихотворение о природе"
-- "Придумай сюжет для фильма"
-- "Создай описание персонажа"
+- "Write a poem about nature"
+- "Create a movie plot"
+- "Develop a character description"
 
 ### Technical Assistance
-- "Объясни архитектуру микросервисов"
-- "Как оптимизировать React приложение?"
-- "Best practices для TypeScript"
+- "Explain microservices architecture"
+- "How to optimize a React application?"
+- "Best practices for TypeScript"
 
 ## Model Comparison
 
@@ -139,21 +139,21 @@ ws.send(JSON.stringify({
 ## Performance Optimization
 
 ### Model Selection Strategy
-- **Fast Responses**: Grok-2-Mini для quick interactions
-- **Complex Reasoning**: Grok-2 для advanced tasks  
-- **Multimodal**: Gemini Pro Vision для image tasks
-- **Cost Optimization**: Gemini Pro для general use
+- **Fast Responses**: Grok-2-Mini for quick interactions
+- **Complex Reasoning**: Grok-2 for advanced tasks  
+- **Multimodal**: Gemini Pro Vision for image tasks
+- **Cost Optimization**: Gemini Pro for general use
 
 ### Caching
-- Response caching для common queries
-- Model warming для faster startup
-- Connection pooling для efficiency
+- Response caching for common queries
+- Model warming for faster startup
+- Connection pooling for efficiency
 
-## Применение
+## Use Cases
 
-Идеально для:
+Ideal for:
 - Advanced AI applications
-- Research и experimentation
+- Research and experimentation
 - Educational platforms
 - Creative writing tools
 - Technical consulting
@@ -162,7 +162,7 @@ ws.send(JSON.stringify({
 
 ### Hot Reload
 ```bash
-# Development mode с auto-reload
+# Development mode with auto-reload
 bun --watch src/repl.ts
 ```
 

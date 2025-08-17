@@ -5,75 +5,75 @@ group: demo/nginx-balancer-chat
 
 # Nginx Balancer Chat
 
-Production-ready система с nginx load balancing, PM2 process management и Docker контейнеризацией.
+Production-ready system with nginx load balancing, PM2 process management and Docker containerization.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Production deployment архитектуры
-- Load balancing с nginx
-- Process management с PM2  
-- Docker контейнеризации
+Demonstrates capabilities:
+- Production deployment architecture
+- Load balancing with nginx
+- Process management with PM2  
+- Docker containerization
 - High availability setup
 
-## Ключевые возможности
+## Key Features
 
-- **Nginx Load Balancer**: Распределение нагрузки между инстансами
-- **PM2 Process Management**: Управление множественными процессами
-- **Docker Support**: Контейнеризация для развертывания
-- **Health Checks**: Мониторинг состояния серверов
-- **Auto-scaling**: Автоматическое масштабирование
+- **Nginx Load Balancer**: Load distribution between instances
+- **PM2 Process Management**: Managing multiple processes
+- **Docker Support**: Containerization for deployment
+- **Health Checks**: Server status monitoring
+- **Auto-scaling**: Automatic scaling
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Load Balancer**: Nginx
 - **Process Manager**: PM2
 - **Containerization**: Docker & Docker Compose
 
-## Структура проекта
+## Project Structure
 
 ```
 ├── config/
-│   ├── nginx.conf          # Nginx конфигурация
-│   └── ecosystem.config.cjs # PM2 конфигурация
+│   ├── nginx.conf          # Nginx configuration
+│   └── ecosystem.config.cjs # PM2 configuration
 ├── docker/
-│   └── bun/               # Docker образы
+│   └── bun/               # Docker images
 ├── docker-compose.yaml    # Docker Compose
 ├── src/
-│   ├── client.ts         # WebSocket клиент
-│   ├── server.ts         # WebSocket сервер
+│   ├── client.ts         # WebSocket client
+│   ├── server.ts         # WebSocket server
 │   └── lib/
-│       └── swarm.ts      # Swarm конфигурация
-└── logs/                 # Логи nginx и PM2
+│       └── swarm.ts      # Swarm configuration
+└── logs/                 # Nginx and PM2 logs
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ### Local Development
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск с PM2
+# Start with PM2
 pm2 start config/ecosystem.config.cjs
 
-# Запуск nginx
+# Start nginx
 nginx -c $(pwd)/config/nginx.conf
 ```
 
 ### Docker Deployment
 ```bash
-# Сборка и запуск
+# Build and start
 docker-compose up --build
 
-# Масштабирование
+# Scaling
 docker-compose up --scale app=5
 ```
 
-## Конфигурация
+## Configuration
 
 ### Environment Variables
 ```env
@@ -97,28 +97,28 @@ upstream app_servers {
 
 ## Production Features
 
-- **High Availability**: Несколько инстансов для надежности
-- **Load Distribution**: Равномерное распределение запросов
-- **Health Monitoring**: Автоматическое исключение неработающих серверов
-- **Graceful Shutdown**: Корректное завершение процессов
-- **Log Management**: Централизованные логи
+- **High Availability**: Multiple instances for reliability
+- **Load Distribution**: Even request distribution
+- **Health Monitoring**: Automatic exclusion of non-working servers
+- **Graceful Shutdown**: Proper process termination
+- **Log Management**: Centralized logs
 
 ## Monitoring
 
 ```bash
-# PM2 мониторинг
+# PM2 monitoring
 pm2 monit
 
-# Nginx статус
+# Nginx status
 curl http://localhost/nginx_status
 
-# Docker логи
+# Docker logs
 docker-compose logs -f
 ```
 
-## Применение
+## Use Cases
 
-Критично для:
+Critical for:
 - Production deployments
 - High-traffic applications
 - Enterprise solutions
@@ -127,7 +127,7 @@ docker-compose logs -f
 
 ## Scaling Strategy
 
-1. **Horizontal Scaling**: Добавление новых инстансов
-2. **Vertical Scaling**: Увеличение ресурсов существующих
-3. **Auto-scaling**: Автоматическое масштабирование по нагрузке
-4. **Geographic Distribution**: Развертывание в разных регионах
+1. **Horizontal Scaling**: Adding new instances
+2. **Vertical Scaling**: Increasing resources of existing ones
+3. **Auto-scaling**: Automatic scaling based on load
+4. **Geographic Distribution**: Deployment in different regions

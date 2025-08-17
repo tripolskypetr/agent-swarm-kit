@@ -5,96 +5,96 @@ group: demo/hf-inference
 
 # HuggingFace Inference
 
-Экономичная интеграция с HuggingFace Inference API для доступа к OpenAI gpt-oss-120b модели.
+Cost-effective integration with HuggingFace Inference API for accessing OpenAI gpt-oss-120b model.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Интеграции с HuggingFace Inference API
-- Использования OpenAI-совместимых моделей с существенной экономией
-- Cost-effective решения для AI приложений (~$15/месяц vs $100/месяц у grok-3-mini)
-- Seamless перехода от дорогих к доступным AI провайдерам
+Demonstrates capabilities:
+- HuggingFace Inference API integration
+- Using OpenAI-compatible models with significant cost savings
+- Cost-effective solutions for AI applications (~$15/month vs $100/month for grok-3-mini)
+- Seamless transition from expensive to affordable AI providers
 
-## Ключевые возможности
+## Key Features
 
-- **HuggingFace Integration**: Доступ к gpt-oss-120b через HF API
-- **OpenAI Compatibility**: Полная совместимость с OpenAI chat completion format
-- **Tool Calling Support**: Поддержка функций и инструментов
-- **Cost Optimization**: Значительное снижение затрат на AI
-- **Production Ready**: Готовность к production использованию
+- **HuggingFace Integration**: Access to gpt-oss-120b through HF API
+- **OpenAI Compatibility**: Full compatibility with OpenAI chat completion format
+- **Tool Calling Support**: Support for functions and tools
+- **Cost Optimization**: Significant AI cost reduction
+- **Production Ready**: Ready for production use
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Model**: OpenAI gpt-oss-120b via HuggingFace
 - **SDK**: @huggingface/inference
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
 ├── logic/
-│   ├── agent/         # Triage агент для pharma sales
+│   ├── agent/         # Triage agent for pharma sales
 │   ├── completion/    # HuggingFace completion provider
-│   ├── enum/          # Перечисления
-│   ├── swarm/         # Root swarm конфигурация
-│   └── tools/         # Add to cart инструмент
-└── index.ts           # Точка входа
+│   ├── enum/          # Enumerations
+│   ├── swarm/         # Root swarm configuration
+│   └── tools/         # Add to cart tool
+└── index.ts           # Entry point
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск
+# Run
 bun run src/index.ts
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 HF_API_KEY=your_huggingface_api_key
 ```
 
-## Примеры использования
+## Usage Examples
 
-1. **Pharma консультация**: "Посоветуйте лекарство от головной боли"
-2. **Добавление в корзину**: "Добавьте аспирин в корзину"
-3. **Общие вопросы**: "Какие у вас есть витамины?"
-4. **Product search**: "Что поможет от простуды?"
+1. **Pharma Consultation**: "Recommend medicine for headache"
+2. **Add to Cart**: "Add aspirin to cart"
+3. **General Questions**: "What vitamins do you have?"
+4. **Product Search**: "What helps with cold?"
 
-## Экономические преимущества
+## Economic Benefits
 
-- **Драматическое снижение costs**: $15/месяц vs $100/месяц
-- **Сохранение качества**: OpenAI-level модель качества
-- **No vendor lock-in**: Легкий переход между провайдерами
-- **Scalable pricing**: Плати только за использование
+- **Dramatic Cost Reduction**: $15/month vs $100/month
+- **Quality Preservation**: OpenAI-level model quality
+- **No Vendor Lock-in**: Easy transition between providers
+- **Scalable Pricing**: Pay only for usage
 
-## Сравнение провайдеров
+## Provider Comparison
 
-| Провайдер | Модель | Цена/месяц | Качество |
-|-----------|--------|------------|----------|
-| xAI | grok-3-mini | ~$100 | Высокое |
-| HuggingFace | gpt-oss-120b | ~$15 | Сопоставимое |
-| **Экономия** | | **85%** | **Без потерь** |
+| Provider | Model | Price/month | Quality |
+|----------|-------|-------------|----------|
+| xAI | grok-3-mini | ~$100 | High |
+| HuggingFace | gpt-oss-120b | ~$15 | Comparable |
+| **Savings** | | **85%** | **No Loss** |
 
-## Применение
+## Applications
 
-Идеально для:
-- Startups с ограниченным бюджетом
-- MVP и prototype разработки
-- Cost-sensitive production систем
-- Эксперименты с AI без больших затрат
+Perfect for:
+- Startups with limited budget
+- MVP and prototype development
+- Cost-sensitive production systems
+- AI experiments without high costs
 
 ## Migration Guide
 
-Для перехода с OpenAI/xAI:
-1. Замените completion provider на HfCompletion
-2. Обновите API ключи в environment
-3. Никаких изменений в agent логике не требуется
+To migrate from OpenAI/xAI:
+1. Replace completion provider with HfCompletion
+2. Update API keys in environment
+3. No changes required in agent logic

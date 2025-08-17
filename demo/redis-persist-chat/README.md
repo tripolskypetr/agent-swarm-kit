@@ -5,81 +5,81 @@ group: demo/redis-persist-chat
 
 # Redis Persist Chat
 
-Комплексная система персистентности с Redis для всех аспектов agent-swarm: история, состояние, память, embedding кеш.
+Comprehensive persistence system with Redis for all aspects of agent-swarm: history, state, memory, embedding cache.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Полной Redis интеграции для персистентности
-- Комплексной системы storage с TTL
-- Client-server архитектуры с Redis backend
+Demonstrates capabilities:
+- Complete Redis integration for persistence
+- Complex storage system with TTL
+- Client-server architecture with Redis backend
 - Advanced features: policies, states, embeddings
 
-## Ключевые возможности
+## Key Features
 
-- **Complete Redis Integration**: Все данные в Redis
+- **Complete Redis Integration**: All data in Redis
 - **Multiple Storage Types**: History, State, Memory, Embeddings
-- **TTL Support**: Автоматическое истечение данных
-- **Policy System**: Crimea и Putin policies для контента
+- **TTL Support**: Automatic data expiration
+- **Policy System**: Crimea and Putin policies for content
 - **Advanced Features**: Tic-tac-toe game state, fact storage
-- **Embedding Cache**: Кеширование векторных представлений
+- **Embedding Cache**: Vector representation caching
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Database**: Redis (ioredis)
-- **ML**: TensorFlow.js для embeddings
+- **ML**: TensorFlow.js for embeddings
 - **AI Provider**: Saiga/Yandex GPT
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
 ├── config/
-│   ├── logger.ts        # Логирование
-│   ├── persist.ts       # Redis персистентность
-│   └── tf.ts           # TensorFlow конфигурация
+│   ├── logger.ts        # Logging
+│   ├── persist.ts       # Redis persistence
+│   └── tf.ts           # TensorFlow configuration
 ├── logic/
-│   ├── agent/          # Triage агент
+│   ├── agent/          # Triage agent
 │   ├── completion/     # Saiga Yandex GPT
 │   ├── embedding/      # Nomic embeddings
 │   ├── policy/         # Content policies
 │   ├── state/          # Game states
 │   ├── storage/        # Fact storage
 │   ├── swarm/          # Root swarm
-│   └── tools/          # State и storage tools
+│   └── tools/          # State and storage tools
 ├── main/
-│   ├── client.ts       # WebSocket клиент
-│   └── server.ts       # WebSocket сервер
+│   ├── client.ts       # WebSocket client
+│   └── server.ts       # WebSocket server
 └── model/              # Data models
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка Redis
+# Install Redis
 # Ubuntu/Debian: sudo apt install redis-server
 # macOS: brew install redis
 # Windows: Download from Redis website
 
-# Запуск Redis
+# Start Redis
 redis-server
 
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск сервера (терминал 1)
+# Start server (terminal 1)
 bun run src/main/server.ts
 
-# Запуск клиента (терминал 2)
+# Start client (terminal 2)
 bun run src/main/client.ts
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 REDIS_URL=redis://localhost:6379
@@ -88,22 +88,22 @@ YANDEX_GPT_API_KEY=your_yandex_api_key
 YANDEX_FOLDER_ID=your_folder_id
 ```
 
-## Примеры использования
+## Usage Examples
 
 ### Basic Chat
-- "Привет, как дела?"
-- "Расскажи анекдот"
+- "Hello, how are you?"
+- "Tell me a joke"
 
 ### Game State
-- "Начнем игру в крестики-нолики"
-- "Поставь X в центр"
+- "Let's start a tic-tac-toe game"
+- "Put X in the center"
 
 ### Fact Storage
-- "Запомни: моя любимая еда - пицца"
-- "Что ты знаешь обо мне?"
+- "Remember: my favorite food is pizza"
+- "What do you know about me?"
 
 ### Policy Testing
-- "Расскажи про Крым" (сработает Crimea policy)
+- "Tell me about Crimea" (Crimea policy will trigger)
 
 ## Redis Storage Schema
 
@@ -118,8 +118,8 @@ agent-swarm:storage:{storageType}:{key}
 ## Advanced Features
 
 ### Content Policies
-- **Crimea Policy**: Фильтрация контента о Крыме
-- **Putin Policy**: Ограничения на политические темы
+- **Crimea Policy**: Content filtering about Crimea
+- **Putin Policy**: Restrictions on political topics
 
 ### Game State Management
 - Tic-tac-toe состояние в Redis
@@ -127,15 +127,15 @@ agent-swarm:storage:{storageType}:{key}
 - State validation и updates
 
 ### Embedding Cache
-- Vector caching с TTL
-- Nomic embeddings для semantic search
+- Vector caching with TTL
+- Nomic embeddings for semantic search
 - Memory optimization
 
-## Применение
+## Use Cases
 
-Идеально для:
+Ideal for:
 - Production chat systems
-- Gaming applications с persistent state
+- Gaming applications with persistent state
 - Knowledge management systems
 - Content moderation platforms
 - Multi-session applications
@@ -145,4 +145,4 @@ agent-swarm:storage:{storageType}:{key}
 - **Fast Access**: Redis in-memory performance
 - **Scalability**: Redis cluster support
 - **Persistence**: RDB + AOF durability
-- **Memory Efficiency**: TTL для automatic cleanup
+- **Memory Efficiency**: TTL for automatic cleanup

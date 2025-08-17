@@ -5,60 +5,60 @@ group: demo/binance-candle-chat
 
 # Binance Candle Chat
 
-Система автоматизированной торговли криптовалютами с использованием agent-swarm-kit и API Binance.
+Automated cryptocurrency trading system using agent-swarm-kit and Binance API.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности мультиагентной системы для:
-- Анализа рыночных данных в реальном времени
-- Управления торговыми операциями по различным криптовалютам
-- Предсказания трендов с использованием TensorFlow.js
-- Автоматического расчета ордеров на покупку/продажу
+Demonstrates multi-agent system capabilities for:
+- Real-time market data analysis
+- Trading operations management across various cryptocurrencies
+- Trend prediction using TensorFlow.js
+- Automated buy/sell order calculations
 
-## Ключевые возможности
+## Key Features
 
-- **Мультиагентная архитектура**: Специализированные агенты для BTC, ETH, BNB, XRP, SOL
-- **Triage агент**: Маршрутизация пользователей к соответствующим торговым агентам
-- **Интеграция с Binance API**: Получение данных свечей и размещение ордеров в реальном времени
-- **ML предсказания**: Использование TensorFlow.js для анализа трендов
-- **Управление портфелем**: Отслеживание прибыли/убытков и истории ордеров
+- **Multi-Agent Architecture**: Specialized agents for BTC, ETH, BNB, XRP, SOL
+- **Triage Agent**: Routes users to appropriate trading agents
+- **Binance API Integration**: Real-time candle data retrieval and order placement
+- **ML Predictions**: TensorFlow.js for trend analysis
+- **Portfolio Management**: Profit/loss tracking and order history
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **ML**: TensorFlow.js
 - **API**: node-binance-api
 - **AI Providers**: OpenAI, Ollama
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
-├── api/           # API методы для Binance
-├── config/        # Конфигурация Binance и TensorFlow
-├── lib/           # Основная логика swarm
-└── utils/         # Утилиты для расчетов и парсинга
+├── api/           # Binance API methods
+├── config/        # Binance and TensorFlow configuration
+├── lib/           # Main swarm logic
+└── utils/         # Calculation and parsing utilities
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Настройка переменных окружения
+# Set environment variables
 export BINANCE_API_KEY=your_api_key
 export BINANCE_SECRET_KEY=your_secret_key
 
-# Запуск
+# Run
 bun run src/repl.ts
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env` с необходимыми API ключами:
+Create a `.env` file with required API keys:
 
 ```env
 BINANCE_API_KEY=your_binance_api_key
@@ -66,18 +66,16 @@ BINANCE_SECRET_KEY=your_binance_secret_key
 OPENAI_API_KEY=your_openai_api_key
 ```
 
-## Примеры использования
+## Usage Examples
 
-1. **Анализ BTC**: "Покажи анализ Bitcoin"
-2. **Покупка ETH**: "Хочу купить Ethereum на $100"
-3. **Получение цены**: "Какая цена SOL?"
-4. **История ордеров**: "Покажи мои последние сделки"
+1. **BTC Analysis**: "Show Bitcoin analysis"
+2. **ETH Purchase**: "I want to buy Ethereum for $100"
+3. **Price Query**: "What's the SOL price?"
+4. **Order History**: "Show my recent trades"
 
-## Экономические преимущества
+## Economic Benefits
 
-- Автоматизация торговых решений
-- Снижение эмоционального фактора в торговле
-- 24/7 мониторинг рынков
-- Быстрая реакция на изменения цен
-
-⚠️ **Внимание**: Это демонстрационный проект. Используйте на свой страх и риск при работе с реальными средствами.
+- Automated trading decisions
+- Reduced emotional factor in trading
+- 24/7 market monitoring
+- Quick response to price changes

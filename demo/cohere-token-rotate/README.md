@@ -5,58 +5,58 @@ group: demo/cohere-token-rotate
 
 # Cohere Token Rotate
 
-Система ротации токенов с поддержкой множественных AI провайдеров и LangChain интеграцией.
+Token rotation system with multiple AI provider support and LangChain integration.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Ротации API токенов между различными провайдерами
-- Интеграции множественных AI сервисов (Cohere, LMStudio, Ollama)
-- Балансировки нагрузки между провайдерами
-- LangChain streaming интеграции
+Demonstrates capabilities:
+- API token rotation between different providers
+- Multiple AI service integration (Cohere, LMStudio, Ollama)
+- Load balancing between providers
+- LangChain streaming integration
 
-## Ключевые возможности
+## Key Features
 
-- **Token Rotation**: Автоматическая ротация между API ключами
+- **Token Rotation**: Automatic rotation between API keys
 - **Multi-Provider Support**: Cohere, LMStudio, Ollama
-- **LangChain Integration**: Streaming responses через LangChain
-- **Load Balancing**: Распределение запросов между провайдерами
-- **Fallback System**: Автоматическое переключение при ошибках
+- **LangChain Integration**: Streaming responses through LangChain
+- **Load Balancing**: Request distribution between providers
+- **Fallback System**: Automatic switching on errors
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Streaming**: LangChain
 - **AI Providers**: Cohere AI, LMStudio, Ollama
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
 ├── logic/
-│   ├── agent/         # Triage агент
-│   ├── completion/    # Различные провайдеры
-│   ├── enum/          # Перечисления
-│   ├── swarm/         # Конфигурация swarm
-│   └── tools/         # Инструменты
-└── index.ts           # Точка входа
+│   ├── agent/         # Triage agent
+│   ├── completion/    # Various providers
+│   ├── enum/          # Enumerations
+│   ├── swarm/         # Swarm configuration
+│   └── tools/         # Tools
+└── index.ts           # Entry point
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск
+# Run
 bun run src/index.ts
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 COHERE_API_KEY=your_cohere_api_key
@@ -65,24 +65,24 @@ LMSTUDIO_API_URL=http://localhost:1234
 OLLAMA_API_URL=http://localhost:11434
 ```
 
-## Примеры использования
+## Usage Examples
 
-1. **Автоматическая ротация**: Система автоматически переключается между провайдерами
-2. **High Availability**: При недоступности одного провайдера используется другой
-3. **Cost Optimization**: Балансировка для оптимизации затрат
-4. **Performance**: Выбор наиболее быстрого доступного провайдера
+1. **Automatic Rotation**: System automatically switches between providers
+2. **High Availability**: When one provider is unavailable, another is used
+3. **Cost Optimization**: Balancing to optimize costs
+4. **Performance**: Selecting the fastest available provider
 
-## Преимущества ротации
+## Rotation Benefits
 
-- **Надежность**: Устойчивость к сбоям отдельных провайдеров
-- **Экономия**: Распределение запросов для снижения costs
-- **Масштабируемость**: Легкое добавление новых провайдеров
-- **Производительность**: Оптимальное использование ресурсов
+- **Reliability**: Resilience to individual provider failures
+- **Cost Savings**: Request distribution to reduce costs
+- **Scalability**: Easy addition of new providers
+- **Performance**: Optimal resource utilization
 
-## Применение
+## Applications
 
-Критично для:
-- Production-ready систем
-- High-load приложений
-- Enterprise решений
-- SaaS платформ с гарантией uptime
+Critical for:
+- Production-ready systems
+- High-load applications
+- Enterprise solutions
+- SaaS platforms with uptime guarantee

@@ -5,58 +5,58 @@ group: demo/langchain-stream
 
 # LangChain Stream
 
-Интеграция LangChain для streaming responses с поддержкой множественных AI провайдеров.
+LangChain integration for streaming responses with support for multiple AI providers.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- LangChain интеграции для streaming
-- Real-time потоковой передачи токенов
-- Мультипровайдерной архитектуры
-- Seamless интеграции с agent-swarm-kit
+Demonstrates capabilities:
+- LangChain integration for streaming
+- Real-time token streaming
+- Multi-provider architecture
+- Seamless integration with agent-swarm-kit
 
-## Ключевые возможности
+## Key Features
 
-- **LangChain Streaming**: Real-time передача токенов
+- **LangChain Streaming**: Real-time token transmission
 - **Multi-Provider Support**: Cohere, LMStudio, Ollama
-- **Pharmaceutical Sales**: Тематический агент для продаж
-- **Token-by-Token Response**: Плавная генерация ответов
-- **Provider Fallback**: Автоматическое переключение провайдеров
+- **Pharmaceutical Sales**: Thematic agent for sales
+- **Token-by-Token Response**: Smooth response generation
+- **Provider Fallback**: Automatic provider switching
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit + LangChain
 - **Streaming**: LangChain streaming API
 - **AI Providers**: Cohere, LMStudio, Ollama
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
 ├── logic/
-│   ├── agent/         # Triage агент
-│   ├── completion/    # Streaming провайдеры
-│   ├── enum/          # Перечисления
+│   ├── agent/         # Triage agent
+│   ├── completion/    # Streaming providers
+│   ├── enum/          # Enumerations
 │   ├── swarm/         # Root swarm
 │   └── tools/         # Add to cart tool
-└── index.ts           # Точка входа
+└── index.ts           # Entry point
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск
+# Start
 bun run src/index.ts
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 COHERE_API_KEY=your_cohere_api_key
@@ -64,23 +64,23 @@ LMSTUDIO_API_URL=http://localhost:1234
 OLLAMA_API_URL=http://localhost:11434
 ```
 
-## Примеры использования
+## Usage Examples
 
-1. **Pharma консультация**: "Что поможет от головной боли?"
-   - Ответ генерируется token-by-token в реальном времени
+1. **Pharma consultation**: "What helps with headaches?"
+   - Response is generated token-by-token in real-time
 
-2. **Добавление в корзину**: "Добавьте аспирин"
-   - Streaming подтверждение добавления
+2. **Add to cart**: "Add aspirin"
+   - Streaming confirmation of addition
 
-3. **Product questions**: "Какие у вас антибиотики?"
-   - Плавная генерация списка продуктов
+3. **Product questions**: "What antibiotics do you have?"
+   - Smooth generation of product list
 
-## LangChain преимущества
+## LangChain Benefits
 
-- **Streaming Performance**: Мгновенная отдача первых токенов
-- **User Experience**: Отсутствие задержек в ответах
-- **Provider Abstraction**: Единый интерфейс для разных AI
-- **Error Handling**: Graceful fallback при проблемах
+- **Streaming Performance**: Instant delivery of first tokens
+- **User Experience**: No delays in responses
+- **Provider Abstraction**: Unified interface for different AI
+- **Error Handling**: Graceful fallback when issues occur
 
 ## Streaming Architecture
 
@@ -90,9 +90,9 @@ User Request → Agent Processing → LangChain → AI Provider
 Response ← Token Stream ← Completion ← Model Response
 ```
 
-## Применение
+## Use Cases
 
-Критично для:
+Critical for:
 - Interactive chat applications
 - Real-time customer support
 - Live consultations
@@ -101,7 +101,7 @@ Response ← Token Stream ← Completion ← Model Response
 
 ## Performance Benefits
 
-- **Perceived Speed**: Ответы начинаются мгновенно
-- **Engagement**: Пользователи видят прогресс генерации
-- **Responsiveness**: Лучший UX compared to batch responses
-- **Efficiency**: Optimal использование network bandwidth
+- **Perceived Speed**: Responses start instantly
+- **Engagement**: Users see generation progress
+- **Responsiveness**: Better UX compared to batch responses
+- **Efficiency**: Optimal network bandwidth usage

@@ -5,62 +5,62 @@ group: demo/mcp-weather-chat
 
 # MCP Weather Chat
 
-Интеграция Model Context Protocol (MCP) для взаимодействия с внешними weather сервисами.
+Model Context Protocol (MCP) integration for interacting with external weather services.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Интеграции MCP для внешних сервисов
-- Weather API интеграции через протокол
-- Tool calling через MCP server
-- Расширяемой архитектуры для внешних данных
+Demonstrates capabilities:
+- MCP integration for external services
+- Weather API integration through protocol
+- Tool calling through MCP server
+- Extensible architecture for external data
 
-## Ключевые возможности
+## Key Features
 
-- **MCP Integration**: Model Context Protocol для external tools
-- **Weather Service**: Real-time погодные данные
-- **Server Architecture**: Отдельный MCP server
-- **Tool Calling**: Structured function calling для погоды
-- **Extensible Design**: Легкое добавление новых сервисов
+- **MCP Integration**: Model Context Protocol for external tools
+- **Weather Service**: Real-time weather data
+- **Server Architecture**: Separate MCP server
+- **Tool Calling**: Structured function calling for weather
+- **Extensible Design**: Easy addition of new services
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Protocol**: Model Context Protocol (MCP)
 - **External APIs**: Weather services
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
 ├── config/
-│   └── mcp.ts         # MCP конфигурация
-├── repl.ts           # REPL интерфейс
+│   └── mcp.ts         # MCP configuration
+├── repl.ts           # REPL interface
 └── lib/
-    └── swarm.ts      # Swarm конфигурация
+    └── swarm.ts      # Swarm configuration
 server/
 └── src/
     └── index.ts      # MCP server
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск MCP server (терминал 1)
+# Start MCP server (terminal 1)
 cd server && bun run src/index.ts
 
-# Запуск клиента (терминал 2)
+# Start client (terminal 2)
 bun run src/repl.ts
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 WEATHER_API_KEY=your_weather_api_key
@@ -68,32 +68,32 @@ MCP_SERVER_URL=http://localhost:3001
 OPENAI_API_KEY=your_openai_api_key
 ```
 
-## Примеры использования
+## Usage Examples
 
-1. **Текущая погода**: "Какая погода в Москве?"
-2. **Прогноз**: "Прогноз на завтра для Санкт-Петербурга"
-3. **Сравнение**: "Сравни погоду в Москве и Лондоне"
-4. **Планирование**: "Стоит ли брать зонт в Сочи сегодня?"
+1. **Current weather**: "What's the weather in Moscow?"
+2. **Forecast**: "Tomorrow's forecast for St. Petersburg"
+3. **Comparison**: "Compare weather in Moscow and London"
+4. **Planning**: "Should I take an umbrella in Sochi today?"
 
-## MCP Преимущества
+## MCP Benefits
 
-- **Standardized Protocol**: Единый стандарт для внешних сервисов
+- **Standardized Protocol**: Unified standard for external services
 - **Type Safety**: Structured data exchange
-- **Extensibility**: Легкое добавление новых tools
-- **Isolation**: Отдельные серверы для разных сервисов
+- **Extensibility**: Easy addition of new tools
+- **Isolation**: Separate servers for different services
 
-## Применение
+## Use Cases
 
-Отлично для:
+Excellent for:
 - Weather applications
 - Travel planning assistants
 - Outdoor activity recommendations
 - Agricultural advice systems
 - Event planning tools
 
-## Расширение
+## Extension
 
-MCP архитектура позволяет добавить:
+MCP architecture allows adding:
 - News services
 - Stock market data
 - Translation services

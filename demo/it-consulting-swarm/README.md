@@ -5,54 +5,54 @@ group: demo/it-consulting-swarm
 
 # IT Consulting Swarm
 
-Мультидоменная консалтинговая система с 6 специализированными агентами для различных областей экспертизы.
+Multi-domain consulting system with 6 specialized agents for various areas of expertise.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Мультиагентной архитектуры для консалтинга
-- Доменной специализации агентов
-- Интеллектуальной маршрутизации запросов
-- Комплексного consulting решения
+Demonstrates capabilities:
+- Multi-agent architecture for consulting
+- Domain specialization of agents
+- Intelligent request routing
+- Comprehensive consulting solution
 
-## Ключевые возможности
+## Key Features
 
-- **6 Специализированных агентов**:
-  - **Triage Agent**: Маршрутизация запросов
-  - **Tech Trends Agent**: Технологические тренды
-  - **Cybersecurity Agent**: Кибербезопасность
-  - **Environment Agent**: Экологические решения
-  - **Health Agent**: Здравоохранение и медтех
-  - **Finance Agent**: Финансовые технологии
+- **6 Specialized Agents**:
+  - **Triage Agent**: Request routing
+  - **Tech Trends Agent**: Technology trends
+  - **Cybersecurity Agent**: Cybersecurity
+  - **Environment Agent**: Environmental solutions
+  - **Health Agent**: Healthcare and medtech
+  - **Finance Agent**: Financial technologies
 
-- **Domain Expertise**: Глубокие знания в каждой области
-- **Client-Server Architecture**: WebSocket для real-time консультаций
-- **Intelligent Routing**: Автоматическое определение экспертизы
+- **Domain Expertise**: Deep knowledge in each area
+- **Client-Server Architecture**: WebSocket for real-time consultations
+- **Intelligent Routing**: Automatic expertise determination
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Architecture**: Client-Server WebSocket
 - **AI Provider**: OpenAI
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
-├── client.ts          # WebSocket клиент
+├── client.ts          # WebSocket client
 └── lib/
-    └── swarm.ts      # Multi-agent swarm конфигурация
+    └── swarm.ts      # Multi-agent swarm configuration
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск сервера (терминал 1)
+# Run server (terminal 1)
 bun run src/client.ts
 ```
 
@@ -68,24 +68,24 @@ WS_PORT=8080
 ## Примеры использования
 
 ### Tech Trends
-- "Какие технологии будут актуальны в 2025?"
-- "Стоит ли инвестировать в AI/ML сейчас?"
+- "What technologies will be relevant in 2025?"
+- "Should we invest in AI/ML now?"
 
 ### Cybersecurity
-- "Как защитить корпоративную сеть?"
-- "Аудит безопасности для e-commerce"
+- "How to protect corporate network?"
+- "Security audit for e-commerce"
 
 ### Environment
-- "Green IT решения для дата-центра"
-- "Снижение carbon footprint IT инфраструктуры"
+- "Green IT solutions for data center"
+- "Reducing carbon footprint of IT infrastructure"
 
 ### Health
-- "Внедрение телемедицины в клинику"
-- "HIPAA compliance для health app"
+- "Implementing telemedicine in clinic"
+- "HIPAA compliance for health app"
 
 ### Finance
-- "Blockchain решения для банка"
-- "Автоматизация financial reporting"
+- "Blockchain solutions for bank"
+- "Automating financial reporting"
 
 ## Агентная архитектура
 
@@ -98,18 +98,18 @@ graph TD
     A --> F[Finance]
 ```
 
-## Применение
+## Applications
 
-Идеально для:
-- IT консалтинговых компаний
+Perfect for:
+- IT consulting companies
 - Enterprise advisory services
-- Digital transformation проектов
+- Digital transformation projects
 - Technology assessment
 - Strategic planning
 
-## Расширение
+## Extension
 
-Легко добавить новые домены:
+Easy to add new domains:
 - Legal Tech Agent
 - Education Agent
 - Retail/E-commerce Agent

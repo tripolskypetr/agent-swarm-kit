@@ -5,36 +5,36 @@ group: demo/telegram-ollama-chat
 
 # Telegram Ollama Chat
 
-Telegram бот с pharmaceutical sales system, поддержкой multiple interfaces и local Ollama AI.
+Telegram bot with pharmaceutical sales system, multiple interface support and local Ollama AI.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Telegram Bot API интеграции с agent-swarm-kit
+Demonstrates capabilities:
+- Telegram Bot API integration with agent-swarm-kit
 - Multi-interface support (Telegram, REPL, Web)
-- Local AI с Ollama для privacy и cost efficiency
-- Pharmaceutical sales system с product database
+- Local AI with Ollama for privacy and cost efficiency
+- Pharmaceutical sales system with product database
 
-## Ключевые возможности
+## Key Features
 
-- **Telegram Integration**: Полноценный Telegram бот
+- **Telegram Integration**: Full-featured Telegram bot
 - **Multi-Interface**: Telegram, REPL, Web interface
-- **Local AI**: Ollama для privacy и offline work
-- **Pharma Sales**: Специализированная система продаж
-- **Product Database**: База фармацевтических товаров
-- **TensorFlow Embeddings**: Semantic search по продуктам
+- **Local AI**: Ollama for privacy and offline work
+- **Pharma Sales**: Specialized sales system
+- **Product Database**: Pharmaceutical products database
+- **TensorFlow Embeddings**: Semantic product search
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Bot Framework**: Telegraf
 - **Web Framework**: Hono
 - **AI Provider**: Ollama (local)
-- **ML**: TensorFlow.js для embeddings
+- **ML**: TensorFlow.js for embeddings
 
-## Структура проекта
+## Project Structure
 
 ```
 ├── data/
@@ -46,7 +46,7 @@ Telegram бот с pharmaceutical sales system, поддержкой multiple in
 │   │   ├── swarm.ts      # Swarm config
 │   │   └── tf.ts         # TensorFlow config
 │   ├── logic/
-│   │   ├── agent/        # Sales и triage агенты
+│   │   ├── agent/        # Sales and triage agents
 │   │   ├── completion/   # Ollama completion
 │   │   ├── embedding/    # Ollama embeddings
 │   │   ├── storage/      # Pharma storage
@@ -62,31 +62,31 @@ Telegram бот с pharmaceutical sales system, поддержкой multiple in
 └── logs/                 # Application logs
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка Ollama
+# Install Ollama
 curl https://ollama.ai/install.sh | sh
 
-# Скачивание модели
+# Download model
 ollama pull llama2
 
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск Telegram бота
+# Start Telegram bot
 bun run src/main/telegram.ts
 
-# Запуск Web сервера (опционально)
+# Start Web server (optional)
 bun run src/main/hono.ts
 
-# Запуск REPL (опционально)
+# Start REPL (optional)
 bun run src/main/repl.ts
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 TELEGRAM_BOT_TOKEN=your_telegram_bot_token
@@ -95,27 +95,27 @@ OLLAMA_MODEL=llama2
 WEB_PORT=3000
 ```
 
-## Создание Telegram бота
+## Creating Telegram Bot
 
-1. Найдите @BotFather в Telegram
-2. Отправьте `/newbot`
-3. Выберите имя и username для бота
-4. Получите API token
-5. Добавьте token в `.env`
+1. Find @BotFather in Telegram
+2. Send `/newbot`
+3. Choose name and username for bot
+4. Get API token
+5. Add token to `.env`
 
-## Примеры использования
+## Usage Examples
 
-### В Telegram
-- "Привет! Что у вас есть от головной боли?"
-- "Покажи все витамины"
-- "Добавь аспирин в корзину"
-- "Что поможет от простуды?"
+### In Telegram
+- "Hello! What do you have for headaches?"
+- "Show all vitamins"
+- "Add aspirin to cart"
+- "What helps with cold?"
 
-### В Web интерфейсе
-Откройте `http://localhost:3000` для web-версии
+### In Web Interface
+Open `http://localhost:3000` for web version
 
-### В REPL
-Интерактивная командная строка для тестирования
+### In REPL
+Interactive command line for testing
 
 ## Pharmaceutical Database
 
@@ -130,13 +130,13 @@ WEB_PORT=3000
 }
 ```
 
-## Ollama Преимущества
+## Ollama Benefits
 
-- **Privacy**: Данные не покидают ваш сервер
-- **Cost Efficiency**: Никаких API costs
-- **Offline Work**: Работает без интернета
-- **Customization**: Возможность fine-tuning
-- **Performance**: Оптимизирован для локального использования
+- **Privacy**: Data doesn't leave your server
+- **Cost Efficiency**: No API costs
+- **Offline Work**: Works without internet
+- **Customization**: Fine-tuning capability
+- **Performance**: Optimized for local usage
 
 ## Multi-Interface Architecture
 
@@ -146,18 +146,18 @@ Web Interface ←→      ↑       ←→ Storage
 REPL Console ←→       ↓       ←→ Embeddings
 ```
 
-## Применение
+## Use Cases
 
-Идеально для:
+Ideal for:
 - Pharmaceutical businesses
 - Healthcare consultations
 - E-commerce bots
 - Customer service automation
 - Privacy-sensitive applications
 
-## Развитие
+## Development
 
-Может быть расширен:
+Can be extended with:
 - Prescription management
 - Doctor consultations
 - Inventory tracking

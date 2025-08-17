@@ -5,35 +5,35 @@ group: demo/whisper-voice-chat
 
 # Whisper Voice Chat
 
-Voice-to-text chat system с OpenAI Whisper для real-time речевого ввода и обработки.
+Voice-to-text chat system with OpenAI Whisper for real-time speech input and processing.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Speech-to-text с OpenAI Whisper Tiny
-- Voice interface для agent-swarm-kit
+Demonstrates capabilities:
+- Speech-to-text with OpenAI Whisper Tiny
+- Voice interface for agent-swarm-kit
 - Real-time audio processing
 - Multi-modal interaction (voice + text)
 
-## Ключевые возможности
+## Key Features
 
-- **Voice Recognition**: OpenAI Whisper Tiny для transcription
-- **Real-time Processing**: Мгновенная обработка audio input
+- **Voice Recognition**: OpenAI Whisper Tiny for transcription
+- **Real-time Processing**: Instant audio input processing
 - **Web Interface**: HTML5 audio recording interface
-- **Multi-modal**: Voice и text input support
-- **Offline Capable**: Local Whisper model без external API
+- **Multi-modal**: Voice and text input support
+- **Offline Capable**: Local Whisper model without external API
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Speech Recognition**: Xenova Transformers (Whisper)
 - **Audio Processing**: Wavefile
 - **Web Framework**: Hono
 - **Frontend**: HTML5 Web Audio API
 
-## Структура проекта
+## Project Structure
 
 ```
 ├── cache/
@@ -48,22 +48,22 @@ Voice-to-text chat system с OpenAI Whisper для real-time речевого в
 └── package.json
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Первый запуск (загружает Whisper model)
+# First run (downloads Whisper model)
 bun run src/index.ts
 
-# Открыть в браузере
+# Open in browser
 open http://localhost:3000
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 PORT=3000
@@ -73,18 +73,18 @@ OPENAI_API_KEY=your_openai_api_key
 
 ## Web Interface
 
-### Функции интерфейса
-- **Record Button**: Начать/остановить запись
-- **Audio Visualization**: Visual feedback во время записи
-- **Live Transcription**: Real-time отображение результатов
-- **Chat History**: История voice interactions
+### Interface Functions
+- **Record Button**: Start/stop recording
+- **Audio Visualization**: Visual feedback during recording
+- **Live Transcription**: Real-time result display
+- **Chat History**: Voice interaction history
 
-### Использование
-1. Откройте браузер на `http://localhost:3000`
-2. Разрешите доступ к микрофону
-3. Нажмите кнопку записи
-4. Говорите в микрофон
-5. Остановите запись для обработки
+### Usage
+1. Open browser at `http://localhost:3000`
+2. Allow microphone access
+3. Click the record button
+4. Speak into microphone
+5. Stop recording for processing
 
 ## Audio Pipeline
 
@@ -99,8 +99,8 @@ Whisper Transcription → Agent Processing → Response
 - **Size**: ~39MB
 - **Speed**: Fast transcription
 - **Languages**: Multilingual support
-- **Quality**: Good для general use
-- **Offline**: Полностью локальная обработка
+- **Quality**: Good for general use
+- **Offline**: Completely local processing
 
 ### Model Loading
 ```javascript
@@ -117,9 +117,9 @@ const transcriber = await pipeline(
 
 ### Supported Formats
 - **Input**: WAV, MP3, M4A
-- **Sample Rate**: 16kHz (optimal для Whisper)
+- **Sample Rate**: 16kHz (optimal for Whisper)
 - **Channels**: Mono/Stereo
-- **Duration**: До 30 секунд per chunk
+- **Duration**: Up to 30 seconds per chunk
 
 ### Processing Steps
 1. **Audio Capture**: Web Audio API
@@ -152,16 +152,16 @@ ws.send(audioBuffer);
 ### Client-Side
 - **Chunk Processing**: 10-second audio chunks
 - **Compression**: Audio compression before upload
-- **Caching**: Model caching для faster startup
+- **Caching**: Model caching for faster startup
 
 ### Server-Side
 - **Model Warming**: Pre-load Whisper model
 - **Memory Management**: Efficient audio buffer handling
 - **Parallel Processing**: Multiple audio streams
 
-## Применение
+## Use Cases
 
-Идеально для:
+Ideal for:
 - Voice assistants
 - Accessibility applications
 - Hands-free interfaces
@@ -173,12 +173,12 @@ ws.send(audioBuffer);
 ### Supported Features
 - **Chrome/Edge**: Full support
 - **Firefox**: Full support
-- **Safari**: Partial (некоторые audio API limitations)
+- **Safari**: Partial (some audio API limitations)
 - **Mobile**: iOS Safari, Chrome Mobile
 
 ### Required Permissions
 - Microphone access
-- HTTPS для production (WebRTC requirement)
+- HTTPS for production (WebRTC requirement)
 
 ## Development Features
 
@@ -191,14 +191,14 @@ const analyser = audioContext.createAnalyser();
 
 ### Testing
 ```bash
-# Test с sample audio
+# Test with sample audio
 curl -X POST http://localhost:3000/api/transcribe \
   -F "audio=@test-samples/hello.wav"
 ```
 
 ## Privacy Benefits
 
-- **Local Processing**: Audio не покидает ваш сервер
+- **Local Processing**: Audio doesn't leave your server
 - **No External APIs**: Whisper runs locally
-- **Data Control**: Полный контроль над voice data
-- **Offline Capable**: Works без internet connection
+- **Data Control**: Complete control over voice data
+- **Offline Capable**: Works without internet connection

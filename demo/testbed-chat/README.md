@@ -5,34 +5,34 @@ group: demo/testbed-chat
 
 # Testbed Chat
 
-Тестовая среда для agent-swarm-kit с build pipeline, testing framework и Rollup bundling.
+Test environment for agent-swarm-kit with build pipeline, testing framework and Rollup bundling.
 
-## Назначение
+## Purpose
 
-Демонстрирует возможности:
-- Comprehensive testing setup для agent-swarm проектов
-- Build pipeline с Rollup bundler
+Demonstrates capabilities:
+- Comprehensive testing setup for agent-swarm projects
+- Build pipeline with Rollup bundler
 - Test-driven development workflow
-- Production build процесса
+- Production build process
 
-## Ключевые возможности
+## Key Features
 
 - **Testing Framework**: Comprehensive test suite
-- **Rollup Bundling**: Оптимизированная сборка для production
-- **Sales Agent Testing**: Тестирование business logic
-- **Build Pipeline**: Автоматизированная сборка
-- **Development Workflow**: Hot reload и dev tools
+- **Rollup Bundling**: Optimized build for production
+- **Sales Agent Testing**: Business logic testing
+- **Build Pipeline**: Automated build
+- **Development Workflow**: Hot reload and dev tools
 
-## Технологический стек
+## Technology Stack
 
 - **Runtime**: Bun
-- **Язык**: TypeScript
+- **Language**: TypeScript
 - **AI Framework**: agent-swarm-kit
 - **Bundler**: Rollup
 - **Testing**: Custom test framework
 - **AI Provider**: OpenAI
 
-## Структура проекта
+## Project Structure
 
 ```
 ├── build/                # Build output
@@ -44,7 +44,7 @@ group: demo/testbed-chat
 │   │   ├── openai.ts    # OpenAI configuration
 │   │   └── setup.ts     # System setup
 │   ├── logic/
-│   │   ├── agent/       # Sales агент
+│   │   ├── agent/       # Sales agent
 │   │   ├── completion/  # OpenAI completion
 │   │   ├── enum/        # Type definitions
 │   │   ├── swarm/       # Root swarm
@@ -60,28 +60,28 @@ group: demo/testbed-chat
 └── tsconfig.json        # TypeScript config
 ```
 
-## Установка и запуск
+## Installation and Setup
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 bun install
 
-# Запуск тестов
+# Run tests
 bun run test
 
-# Development режим
+# Development mode
 bun run dev
 
 # Production build
 bun run build
 
-# REPL для тестирования
+# REPL for testing
 bun run scripts/repl.mjs
 ```
 
-## Конфигурация
+## Configuration
 
-Создайте файл `.env`:
+Create a `.env` file:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key
@@ -105,13 +105,13 @@ export default async function testAddToBasket() {
 
 ### Running Tests
 ```bash
-# Все тесты
+# All tests
 bun run test
 
-# Конкретный тест
+# Specific test
 bun run test test/spec/add_to_basket.spec.mjs
 
-# С подробным выводом
+# With verbose output
 bun run test --verbose
 ```
 
@@ -128,7 +128,7 @@ bun run dev
 # Optimized bundle
 bun run build
 
-# Output в build/ директории
+# Output in build/ directory
 ls build/
 ```
 
@@ -152,14 +152,14 @@ export default {
 ## Testing Best Practices
 
 ### Unit Tests
-- Тестирование отдельных функций
+- Testing individual functions
 - Mock external dependencies
 - Fast execution
 
 ### Integration Tests
-- Тестирование agent interactions
+- Testing agent interactions
 - End-to-end workflows
-- Real API calls в test environment
+- Real API calls in test environment
 
 ### Performance Tests
 - Response time measurements
@@ -174,12 +174,12 @@ export default {
 4. **Build**: Production optimization
 5. **Deploy**: Automated pipeline
 
-## Применение
+## Use Cases
 
-Идеально для:
+Ideal for:
 - Agent-swarm project templates
 - CI/CD pipeline setup
-- Testing framework демонстрации
+- Testing framework demonstration
 - Development best practices
 - Production deployment preparation
 
