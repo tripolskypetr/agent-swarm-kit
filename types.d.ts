@@ -15920,6 +15920,51 @@ declare function validate(): void;
  */
 declare const toJsonSchema: (name: string, schema: IOutlineObjectFormat) => IOutlineSchemaFormat;
 
+/**
+ * JSON Schema type definition
+ */
+interface JsonSchema {
+    type?: string;
+    properties?: Record<string, any>;
+    required?: string[];
+    additionalProperties?: boolean;
+    [key: string]: any;
+}
+/**
+ * Result of tool arguments validation
+ */
+interface ValidationResult<T = any> {
+    /** Whether validation was successful */
+    success: boolean;
+    /** Parsed and validated data (only present when success is true) */
+    data?: T;
+    /** Error message (only present when success is false) */
+    error?: string;
+}
+/**
+ * Validates tool function arguments against a JSON schema
+ *
+ * @param parsedArguments - Already parsed arguments object
+ * @param schema - JSON schema to validate against
+ * @returns Validation result with validated data or error message
+ *
+ * @example
+ * ```typescript
+ * const result = validateToolArguments({ name: "test" }, {
+ *   type: "object",
+ *   required: ["name"],
+ *   properties: { name: { type: "string" } }
+ * });
+ *
+ * if (result.success) {
+ *   console.log(result.data); // { name: "test" }
+ * } else {
+ *   console.error(result.error);
+ * }
+ * ```
+ */
+declare const validateToolArguments: <T = any>(parsedArguments: unknown, schema: JsonSchema) => ValidationResult<T>;
+
 declare const Utils: {
     PersistStateUtils: typeof PersistStateUtils;
     PersistSwarmUtils: typeof PersistSwarmUtils;
@@ -15930,4 +15975,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate };
+export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type ISessionConfig, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };

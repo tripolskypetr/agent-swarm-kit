@@ -289,3 +289,5 @@ export const Utils = {
 export { validate } from "./functions/common/validate";
 
 export { toJsonSchema } from "./helpers/toJsonSchema";
+
+export { validateToolArguments } from "./validation/validateToolArguments";
