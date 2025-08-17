@@ -1,0 +1,22 @@
+{
+  "name": "hf-inference",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun ./src/index.ts",
+    "build:docs": "bun ./src/docs.mjs"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@huggingface/inference": "^4.7.1",
+    "agent-swarm-kit": "^1.1.141",
+    "functools-kit": "^1.0.89",
+    "plantuml": "^0.0.2"
+  }
+}
