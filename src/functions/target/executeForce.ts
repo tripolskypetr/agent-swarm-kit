@@ -37,7 +37,7 @@ const executeForceInternal = beginContext(
           let result = "";
           let errorValue = null;
 
-          const unError = errorSubject.once(([errorClientId, error]) => {
+          const unError = errorSubject.subscribe(([errorClientId, error]) => {
             if (clientId === errorClientId) {
               errorValue = error;
             }
