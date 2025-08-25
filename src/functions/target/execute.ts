@@ -3,6 +3,7 @@ import { AgentName } from "../../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm, { ExecutionContextService } from "../../lib";
 import beginContext from "../../utils/beginContext";
+import { errorSubject } from "../../config/emitters";
 
 const METHOD_NAME = "function.target.execute";
 
@@ -57,27 +58,45 @@ const executeInternal = beginContext(
             agentName,
             swarmName,
           });
-          const result = await swarm.sessionPublicService.execute(
+
+          let result = "";
+          let errorValue = null;
+
+          const unError = errorSubject.once(([errorClientId, error]) => {
+            if (clientId === errorClientId) {
+              errorValue = error;
+            }
+          });
+
+          result = await swarm.sessionPublicService.execute(
             content,
             "tool",
             METHOD_NAME,
             clientId,
             swarmName
           );
+
+          unError();
+
+          if (errorValue) {
+            throw errorValue;
+          }
+
           isFinished = swarm.perfService.endExecution(
             executionId,
             clientId,
             result.length
           );
-          swarm.busService.commitExecutionEnd(clientId, {
-            agentName,
-            swarmName,
-          });
+
           return result;
         } finally {
           if (!isFinished) {
             swarm.perfService.endExecution(executionId, clientId, 0);
           }
+          swarm.busService.commitExecutionEnd(clientId, {
+            agentName,
+            swarmName,
+          });
           swarm.executionValidationService.decrementCount(executionId, clientId, swarmName);
         }
       },

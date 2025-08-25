@@ -12,6 +12,8 @@ import {
   IOutlineResult,
 } from "../../interfaces/Outline.interface";
 import { getErrorMessage, randomString } from "functools-kit";
+import { errorSubject } from "../../config/emitters";
+import { IModelMessage } from "../../model/ModelMessage.model";
 
 const METHOD_NAME = "function.target.json";
 
@@ -79,6 +81,7 @@ const jsonInternal = beginContext(
     swarm.outlineValidationService.validate(outlineName, METHOD_NAME);
 
     const resultId = randomString();
+    const clientId = `${resultId}_outline`;
 
     const {
       getOutlineHistory,
@@ -146,12 +149,29 @@ const jsonInternal = beginContext(
       await getOutlineHistory(inputArgs);
       const messages = await history.list();
       try {
-        const output = await getCompletion({
+        let output: IModelMessage | IOutlineMessage;
+        let errorValue = null;
+
+        const unError = errorSubject.once(([errorClientId, error]) => {
+          if (clientId === errorClientId) {
+            errorValue = error;
+          }
+        });
+
+        output = await getCompletion({
+          clientId,
           messages: await history.list(),
           mode: "tool",
           outlineName,
           format,
         });
+
+        unError();
+
+        if (errorValue) {
+          throw errorValue;
+        }
+
         if (completionCallbacks?.onComplete) {
           completionCallbacks.onComplete(
             {
@@ -189,11 +209,14 @@ const jsonInternal = beginContext(
         return result;
       } catch (error) {
         errorMessage = getErrorMessage(error);
-        console.error(`agent-swarm outline error outlineName=${outlineName} attempt=${attempt}`, {
-          param,
-          lastData,
-          errorMessage,
-        })
+        console.error(
+          `agent-swarm outline error outlineName=${outlineName} attempt=${attempt}`,
+          {
+            param,
+            lastData,
+            errorMessage,
+          }
+        );
       }
     }
     const result = {

@@ -2,7 +2,7 @@ import { ICompletionSchema } from "../../interfaces/Completion.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
-import removeUndefined from "../../helpers/removeUndefined";
+import mapCompletionSchema from "../../helpers/mapCompletionSchema";
 
 const METHOD_NAME = "function.test.overrideCompletion";
 
@@ -20,7 +20,7 @@ const overrideCompletionInternal = beginContext(
         completionSchema: publicCompletionSchema,
       });
 
-    const completionSchema = removeUndefined(publicCompletionSchema);
+    const completionSchema = mapCompletionSchema(publicCompletionSchema);
 
     return swarm.completionSchemaService.override(
       completionSchema.completionName,

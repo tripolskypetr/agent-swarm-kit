@@ -2,6 +2,7 @@ import { ICompletionSchema } from "../../interfaces/Completion.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
+import mapCompletionSchema from "../../helpers/mapCompletionSchema";
 
 const METHOD_NAME = "function.setup.addCompletion";
 
@@ -9,12 +10,14 @@ const METHOD_NAME = "function.setup.addCompletion";
  * Function implementation
  */
 const addCompletionInternal = beginContext(
-  (completionSchema: ICompletionSchema) => {
+  (completionPublicSchema: ICompletionSchema) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
-        completionSchema,
+        completionSchema: completionPublicSchema,
       });
+
+    const completionSchema = mapCompletionSchema(completionPublicSchema);
 
     // Register the completion in the validation and schema services
     swarm.completionValidationService.addCompletion(
