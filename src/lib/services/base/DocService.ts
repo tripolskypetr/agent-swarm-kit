@@ -311,8 +311,7 @@ export class DocService {
         result.push("## Default agent");
         result.push("");
         result.push(
-          ` - [${sanitizeMarkdown(swarmSchema.defaultAgent)}](./agent/${
-            swarmSchema.defaultAgent
+          ` - [${sanitizeMarkdown(swarmSchema.defaultAgent)}](./agent/${swarmSchema.defaultAgent
           }.md)`
         );
         const { docDescription } = this.agentSchemaService.get(
@@ -448,7 +447,7 @@ export class DocService {
         result.push("");
       }
 
-      
+
       if (outlineSchema.completion) {
         const { flags = [] } = this.completionSchemaService.get(
           outlineSchema.completion
@@ -478,7 +477,8 @@ export class DocService {
             return await outlineSchema.prompt(outlineSchema.outlineName);
           }
           return null;
-        } catch {
+        } catch (error) {
+          console.error(`Error while resolving outline prompt outlineName=${outlineSchema.outlineName}`, error);
           return null;
         }
       };
@@ -500,7 +500,8 @@ export class DocService {
             return await outlineSchema.system(outlineSchema.outlineName);
           }
           return outlineSchema.system;
-        } catch {
+        } catch (error) {
+          console.error(`Error while resolving outline system prompt outlineName=${outlineSchema.outlineName}`, error);
           return null;
         }
       };
@@ -735,7 +736,8 @@ export class DocService {
             return await agentSchema.prompt("docs", agentSchema.agentName);
           }
           return null;
-        } catch {
+        } catch (error) {
+          console.error(`Error while resolving agent prompt agentName=${agentSchema.agentName}`, error);
           return null;
         }
       };
@@ -765,6 +767,8 @@ export class DocService {
               await agentSchema.systemDynamic("docs", agentSchema.agentName)
             );
           }
+        } catch (error) {
+          console.error(`Error while resolving agent system prompt agentName=${agentSchema.agentName}`, error);
         } finally {
           return system;
         }
@@ -792,8 +796,7 @@ export class DocService {
             continue;
           }
           result.push(
-            `${i + 1}. [${sanitizeMarkdown(agentSchema.dependsOn[i])}](./${
-              agentSchema.dependsOn[i]
+            `${i + 1}. [${sanitizeMarkdown(agentSchema.dependsOn[i])}](./${agentSchema.dependsOn[i]
             }.md)`
           );
           const { docDescription } = this.agentSchemaService.get(
@@ -846,7 +849,8 @@ export class DocService {
                 };
               })
           );
-        } catch {
+        } catch (error) {
+          console.error(`Error while resolving agent tools agentName=${agentSchema.agentName}`, error);
           return null;
         }
       };
@@ -906,8 +910,7 @@ export class DocService {
               {
                 result.push("");
                 result.push(
-                  `*Required:* [${
-                    fn.parameters.required.includes(key) ? "x" : " "
+                  `*Required:* [${fn.parameters.required.includes(key) ? "x" : " "
                   }]`
                 );
               }
