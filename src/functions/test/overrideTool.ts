@@ -1,4 +1,4 @@
-import { IAgentTool } from "../../interfaces/Agent.interface";
+import { IAgentTool, ToolValue } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
@@ -6,14 +6,14 @@ import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideTool";
 
-type TAgentTool = {
-  toolName: IAgentTool["toolName"];
-} & Partial<IAgentTool>;
+type TAgentTool<T extends any = Record<string, ToolValue>> = {
+  toolName: IAgentTool<T>["toolName"];
+} & Partial<IAgentTool<T>>;
 
 /**
  * Function implementation
  */
-const overrideToolInternal = beginContext((publicToolSchema: TAgentTool) => {
+const overrideToolInternal = beginContext((publicToolSchema: TAgentTool<unknown>) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       toolSchema: publicToolSchema,
@@ -45,6 +45,6 @@ const overrideToolInternal = beginContext((publicToolSchema: TAgentTool) => {
  * });
  * // Logs the operation (if enabled) and updates the tool schema in the swarm.
  */
-export function overrideTool(toolSchema: TAgentTool) {
+export function overrideTool<T extends any = Record<string, ToolValue>>(toolSchema: TAgentTool<T>) {
   return overrideToolInternal(toolSchema);
 }

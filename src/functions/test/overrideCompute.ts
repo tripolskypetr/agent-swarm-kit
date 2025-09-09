@@ -3,7 +3,7 @@
  * @description Provides a function to override an existing compute schema with partial updates.
  */
 
-import { IComputeSchema } from "../../interfaces/Compute.interface";
+import { IComputeData, IComputeSchema } from "../../interfaces/Compute.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
@@ -20,9 +20,9 @@ const METHOD_NAME = "function.test.overrideCompute";
  * @type TComputeSchema
  * @description Type for partial compute schema updates, requiring computeName and allowing other IComputeSchema properties.
  */
-type TComputeSchema = {
-  computeName: IComputeSchema["computeName"];
-} & Partial<IComputeSchema>;
+type TComputeSchema<T extends IComputeData = any> = {
+  computeName: IComputeSchema<T>["computeName"];
+} & Partial<IComputeSchema<T>>;
 
 /**
  * Function implementation
@@ -43,6 +43,6 @@ const overrideComputeInternal = beginContext((publicComputeSchema: TComputeSchem
  * @param {TComputeSchema} computeSchema - The partial compute schema with updates.
  * @returns {IComputeSchema} The updated compute schema.
  */
-export function overrideCompute(computeSchema: TComputeSchema) {
+export function overrideCompute<T extends IComputeData = any>(computeSchema: TComputeSchema<T>) {
   return overrideComputeInternal(computeSchema)
 }

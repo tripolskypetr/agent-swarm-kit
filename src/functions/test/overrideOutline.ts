@@ -1,4 +1,4 @@
-import { IOutlineSchema } from "../../interfaces/Outline.interface";
+import { IOutlineData, IOutlineParam, IOutlineSchema } from "../../interfaces/Outline.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
@@ -19,9 +19,12 @@ const METHOD_NAME = "function.test.overrideOutline";
  * @property {IOutlineSchema["outlineName"]} outlineName - The unique name of the outline to override.
  * @property {Partial<IOutlineSchema>} [partial] - Optional partial properties of the `IOutlineSchema` to override.
  */
-type TOutlineSchema = {
-  outlineName: IOutlineSchema["outlineName"];
-} & Partial<IOutlineSchema>;
+type TOutlineSchema<
+  Data extends IOutlineData = IOutlineData,
+  Param extends IOutlineParam = IOutlineParam
+> = {
+  outlineName: IOutlineSchema<Data, Param>["outlineName"];
+} & Partial<IOutlineSchema<Data, Param>>;
 
 /**
  * Internal implementation of the outline override logic, wrapped in a clean context.
@@ -35,7 +38,7 @@ const overrideOutlineInternal = beginContext(
       swarm.loggerService.log(METHOD_NAME, {
         outlineSchema: publicOutlineSchema,
       });
-    
+
     const outlineSchema = removeUndefined(publicOutlineSchema);
 
     return swarm.outlineSchemaService.override(
@@ -51,6 +54,9 @@ const overrideOutlineInternal = beginContext(
  * Logs the operation if logging is enabled in the global configuration.
  * @param {TOutlineSchema} outlineSchema - The partial outline schema containing the outline name and optional schema properties to override.
  */
-export function overrideOutline(outlineSchema: TOutlineSchema) {
+export function overrideOutline<
+  Data extends IOutlineData = IOutlineData,
+  Param extends IOutlineParam = IOutlineParam
+>(outlineSchema: TOutlineSchema<Data, Param>) {
   return overrideOutlineInternal(outlineSchema);
 }

@@ -12464,9 +12464,9 @@ type TSwarmSchema = {
  */
 declare function overrideSwarm(swarmSchema: TSwarmSchema): ISwarmSchema;
 
-type TAgentTool = {
-    toolName: IAgentTool["toolName"];
-} & Partial<IAgentTool>;
+type TAgentTool<T extends any = Record<string, ToolValue>> = {
+    toolName: IAgentTool<T>["toolName"];
+} & Partial<IAgentTool<T>>;
 /**
  * Overrides an existing tool schema in the swarm system with a new or partial schema.
  * This function updates the configuration of a tool identified by its `toolName`, applying the provided schema properties.
@@ -12488,7 +12488,7 @@ type TAgentTool = {
  * });
  * // Logs the operation (if enabled) and updates the tool schema in the swarm.
  */
-declare function overrideTool(toolSchema: TAgentTool): IAgentTool<Record<string, ToolValue>>;
+declare function overrideTool<T extends any = Record<string, ToolValue>>(toolSchema: TAgentTool<T>): IAgentTool<Record<string, ToolValue>>;
 
 /**
  * Type definition for a partial MCP schema, requiring at least an mcpName.
@@ -12538,15 +12538,15 @@ declare function overrideWiki(wikiSchema: TWikiSchema): IWikiSchema;
  * @type TComputeSchema
  * @description Type for partial compute schema updates, requiring computeName and allowing other IComputeSchema properties.
  */
-type TComputeSchema = {
-    computeName: IComputeSchema["computeName"];
-} & Partial<IComputeSchema>;
+type TComputeSchema<T extends IComputeData = any> = {
+    computeName: IComputeSchema<T>["computeName"];
+} & Partial<IComputeSchema<T>>;
 /**
  * Overrides an existing compute schema with provided partial updates.
  * @param {TComputeSchema} computeSchema - The partial compute schema with updates.
  * @returns {IComputeSchema} The updated compute schema.
  */
-declare function overrideCompute(computeSchema: TComputeSchema): IComputeSchema<any>;
+declare function overrideCompute<T extends IComputeData = any>(computeSchema: TComputeSchema<T>): IComputeSchema<any>;
 
 /**
  * @module overridePipeline
@@ -12568,16 +12568,16 @@ declare function overridePipeline<Payload extends object = any>(pipelineSchema: 
  * @property {IOutlineSchema["outlineName"]} outlineName - The unique name of the outline to override.
  * @property {Partial<IOutlineSchema>} [partial] - Optional partial properties of the `IOutlineSchema` to override.
  */
-type TOutlineSchema = {
-    outlineName: IOutlineSchema["outlineName"];
-} & Partial<IOutlineSchema>;
+type TOutlineSchema<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam> = {
+    outlineName: IOutlineSchema<Data, Param>["outlineName"];
+} & Partial<IOutlineSchema<Data, Param>>;
 /**
  * Overrides an existing outline schema in the swarm system by updating it with the provided partial schema.
  * Ensures the operation runs in a clean context using `beginContext` to avoid interference from existing method or execution contexts.
  * Logs the operation if logging is enabled in the global configuration.
  * @param {TOutlineSchema} outlineSchema - The partial outline schema containing the outline name and optional schema properties to override.
  */
-declare function overrideOutline(outlineSchema: TOutlineSchema): IOutlineSchema<any, any>;
+declare function overrideOutline<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineSchema: TOutlineSchema<Data, Param>): IOutlineSchema<any, any>;
 
 /**
  * Marks a client as online in the specified swarm.
