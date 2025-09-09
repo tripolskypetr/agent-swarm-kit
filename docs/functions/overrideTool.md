@@ -6,7 +6,7 @@ group: docs
 # overrideTool
 
 ```ts
-declare function overrideTool(toolSchema: TAgentTool): IAgentTool<Record<string, ToolValue>>;
+declare function overrideTool<T extends any = Record<string, ToolValue>>(toolSchema: TAgentTool<T>): IAgentTool<Record<string, ToolValue>>;
 ```
 
 Overrides an existing tool schema in the swarm system with a new or partial schema.

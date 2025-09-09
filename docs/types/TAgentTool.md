@@ -6,9 +6,9 @@ group: docs
 # TAgentTool
 
 ```ts
-type TAgentTool = {
-    toolName: IAgentTool["toolName"];
-} & Partial<IAgentTool>;
+type TAgentTool<T extends any = Record<string, ToolValue>> = {
+    toolName: IAgentTool<T>["toolName"];
+} & Partial<IAgentTool<T>>;
 ```
 
 

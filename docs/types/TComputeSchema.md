@@ -6,9 +6,9 @@ group: docs
 # TComputeSchema
 
 ```ts
-type TComputeSchema = {
-    computeName: IComputeSchema["computeName"];
-} & Partial<IComputeSchema>;
+type TComputeSchema<T extends IComputeData = any> = {
+    computeName: IComputeSchema<T>["computeName"];
+} & Partial<IComputeSchema<T>>;
 ```
 
 

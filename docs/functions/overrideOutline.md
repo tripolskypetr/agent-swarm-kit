@@ -6,7 +6,7 @@ group: docs
 # overrideOutline
 
 ```ts
-declare function overrideOutline(outlineSchema: TOutlineSchema): IOutlineSchema<any, any>;
+declare function overrideOutline<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineSchema: TOutlineSchema<Data, Param>): IOutlineSchema<any, any>;
 ```
 
 Overrides an existing outline schema in the swarm system by updating it with the provided partial schema.

@@ -6,7 +6,7 @@ group: docs
 # overrideCompute
 
 ```ts
-declare function overrideCompute(computeSchema: TComputeSchema): IComputeSchema<any>;
+declare function overrideCompute<T extends IComputeData = any>(computeSchema: TComputeSchema<T>): IComputeSchema<any>;
 ```
 
 Overrides an existing compute schema with provided partial updates.

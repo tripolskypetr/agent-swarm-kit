@@ -6,9 +6,9 @@ group: docs
 # TOutlineSchema
 
 ```ts
-type TOutlineSchema = {
-    outlineName: IOutlineSchema["outlineName"];
-} & Partial<IOutlineSchema>;
+type TOutlineSchema<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam> = {
+    outlineName: IOutlineSchema<Data, Param>["outlineName"];
+} & Partial<IOutlineSchema<Data, Param>>;
 ```
 
 

@@ -350,6 +350,8 @@ group: docs
 - [IChatInstance](interfaces/IChatInstance.md)
 - [IChatInstanceCallbacks](interfaces/IChatInstanceCallbacks.md)
 - [IChatControl](interfaces/IChatControl.md)
+- [JsonSchema](interfaces/JsonSchema.md)
+- [ValidationResult](interfaces/ValidationResult.md)
 
 ## Types
 
