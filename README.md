@@ -1,3 +1,5 @@
+<img src="./assets/saturn.svg" height="85px" align="right">
+
 # 🐝 Agent Swarm Kit
 
 > **A lightweight TypeScript library for building orchestrated, framework-agnostic multi-agent AI systems.**
