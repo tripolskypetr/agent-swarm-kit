@@ -3,6 +3,20 @@ import * as path from "path";
 import { IOutlineResult } from "../interfaces/Outline.interface";
 import beginContext from "../utils/beginContext";
 
+/**
+ * Dumps the outline result into a folder structure with markdown files.
+ * 
+ * - Skips dumping if the result is invalid.
+ * - Creates a subfolder for each result using its resultId.
+ * - Writes a summary file including input parameters, generated data, and system messages.
+ * - Writes each user message to a separate markdown file.
+ * - Writes the full outline result to a markdown file.
+ * 
+ * @function
+ * @param {IOutlineResult} result - The outline result object to dump.
+ * @param {string} [outputDir="./dump/outline"] - The base directory to dump results into.
+ * @returns {Promise<void>}
+ */
 export const dumpOutlineResult = beginContext(
   async (result: IOutlineResult, outputDir = "./dump/outline") => {
     if (!result.isValid) {
