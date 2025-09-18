@@ -3,15 +3,17 @@ import * as path from "path";
 import { IOutlineResult } from "../interfaces/Outline.interface";
 import beginContext from "../utils/beginContext";
 
+const WARN_KB = 10;
+
 /**
  * Dumps the outline result into a folder structure with markdown files.
- * 
+ *
  * - Skips dumping if the result is invalid.
  * - Creates a subfolder for each result using its resultId.
  * - Writes a summary file including input parameters, generated data, and system messages.
  * - Writes each user message to a separate markdown file.
  * - Writes the full outline result to a markdown file.
- * 
+ *
  * @function
  * @param {IOutlineResult} result - The outline result object to dump.
  * @param {string} [outputDir="./dump/outline"] - The base directory to dump results into.
@@ -19,7 +21,6 @@ import beginContext from "../utils/beginContext";
  */
 export const dumpOutlineResult = beginContext(
   async (result: IOutlineResult, outputDir = "./dump/outline") => {
-
     {
       if (!result) {
         return;
@@ -89,6 +90,16 @@ export const dumpOutlineResult = beginContext(
           const messageNum = String(idx + 1).padStart(2, "0");
           const contentFileName = `${messageNum}_user_message.md`;
           const contentFilePath = path.join(subfolderPath, contentFileName);
+
+          {
+            const messageSizeBytes = Buffer.byteLength(message.content, "utf8");
+            const messageSizeKb = Math.floor(messageSizeBytes / 1024);
+            if (messageSizeKb > WARN_KB) {
+              console.warn(
+                `User message ${idx + 1} is ${messageSizeBytes} bytes (${messageSizeKb}kb), which exceeds warning limit`
+              );
+            }
+          }
 
           let content = `# User Input ${idx + 1}\n\n`;
           content += `**ResultId**: ${result.resultId}\n\n`;
