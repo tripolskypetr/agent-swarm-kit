@@ -41,7 +41,6 @@ export const dumpOutlineResult = beginContext(
       {
         summary += `\n`;
         summary += `**ResultId**: ${result.resultId}\n`;
-        summary += `**Generation Date**: ${new Date().toISOString()}\n`;
         summary += `\n`;
       }
 
