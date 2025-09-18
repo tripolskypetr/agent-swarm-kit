@@ -64,18 +64,21 @@ export const dumpOutlineResult = async <
   }
 
   {
-    for (const [idx, message] of userMessages.entries()) {
-      const messageNum = String(idx + 1).padStart(2, "0");
-      const fileName = `${messageNum}_user_message.md`;
-      const filePath = path.join(subfolderPath, fileName);
+    await Promise.all(
+      Array.from(userMessages.entries()).map(async ([idx, message]) => {
+        const messageNum = String(idx + 1).padStart(2, "0");
+        const fileName = `${messageNum}_user_message.md`;
+        const filePath = path.join(subfolderPath, fileName);
 
-      let content = `# User Input ${idx + 1}\n\n`;
-      content += "```\n";
-      content += message.content;
-      content += "\n```\n";
+        let content = `# User Input ${idx + 1}\n\n`;
+        content += `**ResultId**: ${result.resultId}\n\n`;
+        content += "```\n";
+        content += message.content;
+        content += "\n```\n";
 
-      await fs.writeFile(filePath, content, "utf8");
-    }
+        await fs.writeFile(filePath, content, "utf8");
+      })
+    );
   }
 
   {
