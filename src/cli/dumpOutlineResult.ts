@@ -67,8 +67,8 @@ export const dumpOutlineResult = async <
     await Promise.all(
       Array.from(userMessages.entries()).map(async ([idx, message]) => {
         const messageNum = String(idx + 1).padStart(2, "0");
-        const fileName = `${messageNum}_user_message.md`;
-        const filePath = path.join(subfolderPath, fileName);
+        const contentFileName = `${messageNum}_user_message.md`;
+        const contentFilePath = path.join(subfolderPath, contentFileName);
 
         let content = `# User Input ${idx + 1}\n\n`;
         content += `**ResultId**: ${result.resultId}\n\n`;
@@ -76,33 +76,33 @@ export const dumpOutlineResult = async <
         content += message.content;
         content += "\n```\n";
 
-        await fs.writeFile(filePath, content, "utf8");
+        await fs.writeFile(contentFilePath, content, "utf8");
       })
     );
   }
 
   {
     const messageNum = String(userMessages.length + 1).padStart(2, "0");
-    const fullDataFileName = `${messageNum}_llm_output.md`;
-    const fullDataFilePath = path.join(subfolderPath, fullDataFileName);
+    const contentFileName = `${messageNum}_llm_output.md`;
+    const contentFilePath = path.join(subfolderPath, contentFileName);
 
-    let fullDataContent = `# Full Outline Result\n\n`;
-    fullDataContent += `**ResultId**: ${result.resultId}\n\n`;
+    let content = `# Full Outline Result\n\n`;
+    content += `**ResultId**: ${result.resultId}\n\n`;
 
     if (result.param) {
-      fullDataContent += `## Completion Input Data\n\n`;
-      fullDataContent += "```json\n";
-      fullDataContent += JSON.stringify(result.param, null, 2);
-      fullDataContent += "\n```\n\n";
+      content += `## Completion Input Data\n\n`;
+      content += "```json\n";
+      content += JSON.stringify(result.param, null, 2);
+      content += "\n```\n\n";
     }
 
     if (result.data) {
-      fullDataContent += `## Completion Output Data\n\n`;
-      fullDataContent += "```json\n";
-      fullDataContent += JSON.stringify(result.data, null, 2);
-      fullDataContent += "\n```\n";
+      content += `## Completion Output Data\n\n`;
+      content += "```json\n";
+      content += JSON.stringify(result.data, null, 2);
+      content += "\n```\n";
     }
 
-    await fs.writeFile(fullDataFilePath, fullDataContent, "utf8");
+    await fs.writeFile(contentFilePath, content, "utf8");
   }
 };
