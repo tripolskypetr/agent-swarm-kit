@@ -22,11 +22,7 @@ export const dumpOutlineResult = async <
   const userMessages = result.history.filter((m) => m.role === "user");
   const subfolderPath = path.join(outputDir, result.resultId);
 
-  try {
-    await fs.access(subfolderPath);
-  } catch {
-    await fs.mkdir(subfolderPath, { recursive: true });
-  }
+  await fs.mkdir(subfolderPath, { recursive: true });
 
   {
     let summary = `# Outline Result Summary\n`;
