@@ -19,8 +19,19 @@ import beginContext from "../utils/beginContext";
  */
 export const dumpOutlineResult = beginContext(
   async (result: IOutlineResult, outputDir = "./dump/outline") => {
-    if (!result.isValid) {
-      return;
+
+    {
+      if (!result) {
+        return;
+      }
+
+      if (result.isValid === false) {
+        return;
+      }
+
+      if (!result.resultId) {
+        return;
+      }
     }
 
     // Extract system messages and system reminders from existing data
