@@ -3158,6 +3158,7 @@ interface IOutlineMessage {
      * @type {"assistant" | "system" | "tool" | "user"}
      */
     role: "assistant" | "system" | "tool" | "user";
+    images?: Uint8Array[] | string[];
     /**
      * The content of the message.
      * Contains the raw text or param of the message, used in history storage or processing.
