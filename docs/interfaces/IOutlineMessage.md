@@ -19,6 +19,12 @@ role: "tool" | "user" | "assistant" | "system"
 The role of the message sender, either user, assistant, or system.
 Determines the context or source of the message in the outline history.
 
+### images
+
+```ts
+images: string[] | Uint8Array[]
+```
+
 ### content
 
 ```ts
