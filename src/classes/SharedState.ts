@@ -6,7 +6,7 @@ import beginContext from "../utils/beginContext";
 
 /**
  * Type definition for a shared state object, mapping IState keys to unknown values.
- * @typedef {{ [key in keyof IState]: unknown }} TSharedState
+ * Used for type-safe shared state access across multiple clients.
  */
 type TSharedState = {
   [key in keyof IState]: unknown;

@@ -68,7 +68,7 @@ export interface IPipelineCallbacks<Payload extends object = any> {
 }
 
 /**
- * @typedef {string} PipelineName
- * @description Type alias for the pipeline name, represented as a string.
+ * Type alias for the pipeline name, represented as a string.
+ * Used to identify and reference specific pipeline instances.
  */
 export type PipelineName = string;

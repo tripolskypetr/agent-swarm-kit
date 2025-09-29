@@ -3,6 +3,10 @@ import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 
+/**
+ * Function type for cleanup operations.
+ * Called when operator connections need to be disposed.
+ */
 type DisposeFn = () => void;
 
 /**
@@ -42,8 +46,8 @@ interface IOperatorInstance {
 }
 
 /**
- * Constructor type for OperatorInstance
- * @typedef {new (clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>) => IOperatorInstance} TOperatorInstanceCtor
+ * Constructor type for OperatorInstance.
+ * Defines the signature for creating operator instances with client ID, agent name, and callbacks.
  */
 export type TOperatorInstanceCtor = new (
   clientId: string,

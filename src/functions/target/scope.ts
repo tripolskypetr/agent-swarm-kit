@@ -18,8 +18,8 @@ import beginContext from "../../utils/beginContext";
 const METHOD_NAME = "function.target.scope";
 
 /**
- * @typedef {Object} ScopeOptions
- * @description Optional overrides for schema services used within the schema context.
+ * Optional overrides for schema services used within the schema context.
+ * Allows partial customization of the schema registry.
  */
 type ScopeOptions = Partial<ISchemaContext["registry"]>;
 

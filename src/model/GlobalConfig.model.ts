@@ -10,6 +10,10 @@ import { PolicyName } from "../interfaces/Policy.interface";
 import { SessionId } from "../interfaces/Session.interface";
 import { EmbeddingName } from "../interfaces/Embedding.interface";
 
+/**
+ * Function type for cleanup operations.
+ * Called when resources need to be disposed in global config context.
+ */
 type DisposeFn = () => void;
 
 /**

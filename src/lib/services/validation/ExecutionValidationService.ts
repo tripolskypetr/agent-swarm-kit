@@ -11,8 +11,8 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 import SessionValidationService from "./SessionValidationService";
 
 /**
- * @typedef {string} ExecutionId
- * @description A unique identifier for an execution instance.
+ * A unique identifier for an execution instance.
+ * Used to track and manage execution flows within the swarm.
  */
 type ExecutionId = string;
 

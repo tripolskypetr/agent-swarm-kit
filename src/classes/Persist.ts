@@ -24,7 +24,6 @@ import { EmbeddingName } from "../interfaces/Embedding.interface";
 /**
  * Represents an identifier for an entity, which can be either a string or a number.
  * Used across persistence classes to uniquely identify stored entities such as agents, states, or memory records.
- * @typedef {string | number} EntityId
  */
 export type EntityId = string | number;
 

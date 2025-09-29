@@ -147,8 +147,8 @@ export const SchemaContextService = scoped(
 );
 
 /**
- * @typedef {InstanceType<typeof SchemaContextService>} TSchemaContextService
- * @description Type alias for instances of the SchemaContextService class.
+ * Type alias for instances of the SchemaContextService class.
+ * Used for dependency injection and service management.
  */
 export type TSchemaContextService = InstanceType<typeof SchemaContextService>;
 

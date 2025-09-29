@@ -10,7 +10,7 @@ import beginContext from "../utils/beginContext";
 
 /**
  * Type definition for a storage object, mapping IStorage keys to unknown values.
- * @typedef {{ [key in keyof IStorage]: unknown }} TStorage
+ * Used for type-safe storage access within client context.
  */
 type TStorage = {
   [key in keyof IStorage]: unknown;

@@ -9,8 +9,8 @@ import { ILogger } from "./Logger.interface";
 import { StateName } from "./State.interface";
 
 /**
- * @typedef {any} IComputeData
- * @description Generic type for compute data, allowing flexibility in data structure.
+ * Generic type for compute data, allowing flexibility in data structure.
+ * Can be any type to support diverse compute operations.
  */
 export type IComputeData = any;
 
@@ -201,7 +201,7 @@ export interface ICompute<T extends IComputeData = IComputeData> {
 }
 
 /**
- * @typedef {string} ComputeName
- * @description Type alias for the compute name, represented as a string.
+ * Type alias for the compute name, represented as a string.
+ * Used to identify and reference specific compute instances.
  */
 export type ComputeName = string;

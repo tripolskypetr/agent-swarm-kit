@@ -11,7 +11,10 @@ interface TChatInstance extends IChatInstance {
   callbacks: Partial<IChatInstanceCallbacks>;
 }
 
-/** @typedef {() => void} DisposeFn */
+/**
+ * Function type for cleanup operations.
+ * Called when resources need to be disposed.
+ */
 type DisposeFn = () => void;
 
 /** @constant {number} INACTIVITY_CHECK - Interval for checking inactivity in milliseconds (1 minute) */
@@ -133,7 +136,7 @@ export interface IChatControl {
 }
 
 /**
- * @typedef {new (clientId: SessionId, swarmName: SwarmName, callbacks: IChatInstanceCallbacks, onDispose: DisposeFn) => IChatInstance} TChatInstanceCtor
+ * Constructor type for creating chat instances with dispose callback.
  */
 type TChatInstanceCtor = new <Payload extends unknown = any>(
   clientId: SessionId,

@@ -5,8 +5,8 @@ import { sleep, Subject } from "functools-kit";
 import { GLOBAL_CONFIG } from "../config/params";
 
 /**
- * Type definition for dispose function
- * @typedef {() => void} DisposeFn
+ * Type definition for dispose function.
+ * Function called to clean up resources and connections.
  */
 type DisposeFn = () => void;
 

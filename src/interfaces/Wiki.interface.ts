@@ -45,7 +45,7 @@ export interface IWikiSchema {
 }
 
 /**
- * @typedef {string} WikiName
- * @description Type alias for wiki name identifier
+ * Type alias for wiki name identifier.
+ * Used to identify and reference specific wiki instances.
  */
 export type WikiName = string;

@@ -6,7 +6,7 @@ import beginContext from "../utils/beginContext";
 
 /**
  * Type definition for a state object, mapping IState keys to unknown values.
- * @typedef {{ [key in keyof IState]: unknown }} TState
+ * Used for type-safe state access within client context.
  */
 type TState = {
   [key in keyof IState]: unknown;
