@@ -11,4 +11,5 @@ type TSharedState = {
 };
 ```
 
-
+Type definition for a shared state object, mapping IState keys to unknown values.
+Used for type-safe shared state access across multiple clients.

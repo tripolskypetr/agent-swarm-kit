@@ -9,4 +9,5 @@ group: docs
 type ScopeOptions = Partial<ISchemaContext["registry"]>;
 ```
 
-
+Optional overrides for schema services used within the schema context.
+Allows partial customization of the schema registry.

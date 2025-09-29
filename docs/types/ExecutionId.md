@@ -9,4 +9,5 @@ group: docs
 type ExecutionId = string;
 ```
 
-
+A unique identifier for an execution instance.
+Used to track and manage execution flows within the swarm.

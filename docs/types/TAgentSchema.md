@@ -11,4 +11,6 @@ type TAgentSchema = {
 } & Partial<IAgentSchema>;
 ```
 
-
+Type representing a partial agent schema with required agentName.
+Used for overriding existing agent configurations with selective updates.
+Combines required agent name with optional agent properties.

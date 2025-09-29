@@ -9,4 +9,5 @@ group: docs
 type TOperatorInstanceCtor = new (clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>) => IOperatorInstance;
 ```
 
-
+Constructor type for OperatorInstance.
+Defines the signature for creating operator instances with client ID, agent name, and callbacks.

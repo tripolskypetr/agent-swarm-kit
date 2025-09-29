@@ -9,4 +9,5 @@ group: docs
 type TSchemaContextService = InstanceType<typeof SchemaContextService>;
 ```
 
-
+Type alias for instances of the SchemaContextService class.
+Used for dependency injection and service management.

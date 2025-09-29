@@ -11,4 +11,5 @@ type TStorage = {
 };
 ```
 
-
+Type definition for a storage object, mapping IStorage keys to unknown values.
+Used for type-safe storage access within client context.

@@ -11,4 +11,5 @@ type TState = {
 };
 ```
 
-
+Type definition for a state object, mapping IState keys to unknown values.
+Used for type-safe state access within client context.

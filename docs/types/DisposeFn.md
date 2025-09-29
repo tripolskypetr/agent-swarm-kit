@@ -9,4 +9,5 @@ group: docs
 type DisposeFn = () => void;
 ```
 
-
+Function type for cleanup operations.
+Called when resources need to be disposed.
