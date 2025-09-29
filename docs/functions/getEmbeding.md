@@ -16,4 +16,4 @@ Logs the operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `embeddingName` | The name of the embedding to retrieve. |
+| `embeddingName` | |

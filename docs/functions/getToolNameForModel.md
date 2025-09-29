@@ -16,6 +16,6 @@ This is the main exported function for external usage.
 
 | Parameter | Description |
 |-----------|-------------|
-| `toolName` | The registered tool identifier. |
-| `clientId` | The client session identifier. |
-| `agentName` | The agent identifier. |
+| `toolName` | |
+| `clientId` | |
+| `agentName` | |

@@ -18,4 +18,4 @@ Logs the override operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `storageSchema` | Optional partial schema properties to update, extending `IStorageSchema&lt;T&gt;`. |
+| `storageSchema` | |

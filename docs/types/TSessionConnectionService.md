@@ -11,4 +11,5 @@ type TSessionConnectionService = {
 };
 ```
 
-
+Type representing the public interface of SessionPublicService, derived from ISessionConnectionService.
+Excludes internal methods (e.g., getSession) via InternalKeys, ensuring a consistent public API for session operations.

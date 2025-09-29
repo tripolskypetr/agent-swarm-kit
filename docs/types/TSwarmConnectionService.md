@@ -11,4 +11,5 @@ type TSwarmConnectionService = {
 };
 ```
 
-
+Type representing the public interface of SwarmPublicService, derived from ISwarmConnectionService.
+Excludes internal methods (e.g., getSwarm) via InternalKeys, ensuring a consistent public API for swarm-level operations.

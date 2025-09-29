@@ -15,4 +15,4 @@ Registers a pipeline schema, validates it, and adds it to the pipeline schema se
 
 | Parameter | Description |
 |-----------|-------------|
-| `pipelineSchema` | The pipeline schema to register. |
+| `pipelineSchema` | |

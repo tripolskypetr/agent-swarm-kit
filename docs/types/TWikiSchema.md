@@ -11,4 +11,5 @@ type TWikiSchema = {
 } & Partial<IWikiSchema>;
 ```
 
-
+Type representing a partial wiki schema configuration.
+Used for wiki service configuration with optional properties.

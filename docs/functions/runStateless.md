@@ -21,6 +21,6 @@ is skipped, returning an empty string.
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | The content or command to be executed statelessly by the agent. |
-| `clientId` | The unique identifier of the client session requesting the execution. |
-| `agentName` | The name of the agent intended to execute the command. |
+| `content` | |
+| `clientId` | |
+| `agentName` | |

@@ -18,4 +18,4 @@ It then delegates the session validation to the `swarm.sessionValidationService`
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The unique identifier of the client whose session is being validated. |
+| `clientId` | |

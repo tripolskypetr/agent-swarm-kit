@@ -20,5 +20,5 @@ and is wrapped in `beginContext` for a clean environment and `ExecutionContextSe
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | The content or command to be executed by the active agent. |
-| `clientId` | The unique identifier of the client session requesting the execution. |
+| `content` | |
+| `clientId` | |

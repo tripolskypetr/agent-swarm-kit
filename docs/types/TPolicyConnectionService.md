@@ -11,4 +11,5 @@ type TPolicyConnectionService = {
 };
 ```
 
-
+Type representing the public interface of PolicyPublicService, derived from IPolicyConnectionService.
+Excludes internal methods (e.g., getPolicy) via InternalKeys, ensuring a consistent public API for policy operations.

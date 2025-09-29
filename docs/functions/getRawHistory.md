@@ -20,4 +20,4 @@ The result is a fresh copy of the history array.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The unique identifier of the client session whose raw history is to be retrieved. |
+| `clientId` | |

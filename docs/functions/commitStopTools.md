@@ -20,5 +20,5 @@ ToolValidationService (tool context), and LoggerService (logging). Complements f
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The ID of the client associated with the session, validated against active sessions. |
-| `agentName` | The name of the agent whose next tool execution is to be stopped, validated against registered agents. |
+| `clientId` | |
+| `agentName` | |

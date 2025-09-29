@@ -11,4 +11,5 @@ type TSwarmSchema = {
 } & Partial<ISwarmSchema>;
 ```
 
-
+Type representing a partial swarm schema configuration.
+Used for swarm configuration with optional properties.

@@ -9,4 +9,5 @@ group: docs
 type Action = "read" | "write";
 ```
 
-
+Type representing possible actions for ClientState operations.
+Used in dispatch to determine whether to read or write the state.

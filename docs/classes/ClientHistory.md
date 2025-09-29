@@ -46,6 +46,7 @@ push<Payload extends object = object>(message: IModelMessage<Payload>): Promise<
 
 Pushes a message into the history and emits a corresponding event via BusService.
 Adds the message to the underlying storage (params.items) and notifies the system, supporting ClientAgent’s history updates.
+   *
 
 ### pop
 
@@ -76,6 +77,7 @@ Converts the history into an array of messages tailored for the agent, used by C
 Filters messages with _filterCondition, limits to GLOBAL_CONFIG.CC_KEEP_MESSAGES, handles resque/flush resets,
 and prepends prompt and system messages (from params and GLOBAL_CONFIG.CC_AGENT_SYSTEM_PROMPT).
 Ensures tool call consistency by linking tool outputs to calls, supporting CompletionSchemaService’s context needs.
+   *    *
 
 ### dispose
 

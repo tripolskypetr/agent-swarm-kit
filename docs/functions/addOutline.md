@@ -17,4 +17,4 @@ Logs the operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `outlineSchema` | The outline schema to register, containing the outline name and configuration. |
+| `outlineSchema` | |

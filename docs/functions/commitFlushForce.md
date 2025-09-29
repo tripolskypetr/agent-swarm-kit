@@ -21,4 +21,4 @@ analogous to commitAssistantMessageForce vs. commitAssistantMessage.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The ID of the client associated with the session, validated against active sessions. |
+| `clientId` | |

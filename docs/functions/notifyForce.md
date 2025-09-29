@@ -20,5 +20,5 @@ is still active before sending the notification. Will notify even if the agent w
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | The content to be sent as the notification output. |
-| `clientId` | The unique identifier of the client session sending the notification. |
+| `content` | |
+| `clientId` | |

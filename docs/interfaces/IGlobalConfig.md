@@ -65,6 +65,7 @@ CC_AGENT_MAP_TOOLS: (tool: IToolCall[], clientId: string, agentName: string) => 
 
 Function to map tool calls for an agent, used in `ClientAgent.mapToolCalls` (e.g., `EXECUTE_FN`).
 Default implementation returns tools unchanged, allowing customization of `IToolCall` processing via `setConfig`.
+   *    *    *    *
 
 ### CC_GET_AGENT_HISTORY_ADAPTER
 
@@ -74,6 +75,7 @@ CC_GET_AGENT_HISTORY_ADAPTER: (clientId: string, agentName: string) => IHistoryA
 
 Factory function to provide a history adapter for an agent, used in `ClientAgent.history` (e.g., `getCompletion`).
 Returns `HistoryAdapter` by default, implementing `IHistoryAdapter` for message storage and retrieval.
+   *    *    *
 
 ### CC_GET_CLIENT_LOGGER_ADAPTER
 
@@ -83,6 +85,7 @@ CC_GET_CLIENT_LOGGER_ADAPTER: () => ILoggerAdapter
 
 Factory function to provide a logger adapter for clients, used in `ClientAgent.logger` (e.g., debug logging).
 Returns `LoggerAdapter` by default, implementing `ILoggerAdapter` for logging control across the system.
+   *
 
 ### CC_SWARM_AGENT_CHANGED
 
@@ -92,6 +95,7 @@ CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: string, swarmName: string)
 
 Callback function triggered when the active agent changes in a swarm, used in swarm-related logic (e.g., `ISwarmParams`).
 Default implementation is a no-op, observed indirectly in `ClientAgent.commitAgentChange` via `IBus.emit "commit-agent-change"`.
+   *    *    *    *
 
 ### CC_SWARM_DEFAULT_AGENT
 
@@ -101,6 +105,7 @@ CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: string, defaultAgent: stri
 
 Function to determine the default agent for a swarm, used in swarm initialization (e.g., `ISwarmParams`).
 Default implementation returns the provided `defaultAgent`, aligning with swarm-agent hierarchy logic, though not directly observed in `ClientAgent`.
+   *    *    *    *
 
 ### CC_SWARM_DEFAULT_STACK
 
@@ -110,6 +115,7 @@ CC_SWARM_DEFAULT_STACK: (clientId: string, swarmName: string) => Promise<string[
 
 Function to provide the default navigation stack for a swarm, used in `ISwarmParams` initialization.
 Default implementation returns an empty array, part of swarm navigation setup, though not directly used in `ClientAgent`.
+   *    *    *
 
 ### CC_SWARM_STACK_CHANGED
 
@@ -119,6 +125,7 @@ CC_SWARM_STACK_CHANGED: (clientId: string, navigationStack: string[], swarmName:
 
 Callback function triggered when the navigation stack changes in a swarm, used in `ISwarmParams` (e.g., `navigationPop`).
 Default implementation is a no-op, indirectly related to `ClientAgent.commitAgentChange` for stack updates.
+   *    *    *    *
 
 ### CC_AGENT_DEFAULT_VALIDATION
 
@@ -137,6 +144,7 @@ CC_AGENT_HISTORY_FILTER: (agentName: string) => (message: IModelMessage<object>)
 
 Filter function for agent history, used in `ClientAgent.history.toArrayForAgent` to scope messages.
 Ensures only relevant messages (e.g., matching `agentName` for "tool" or `tool_calls`) are included in completions.
+   *    *
 
 ### CC_AGENT_OUTPUT_TRANSFORM
 
@@ -155,6 +163,7 @@ CC_AGENT_OUTPUT_MAP: (message: IModelMessage<object>) => IModelMessage<object> |
 
 Function to map model messages for agent output, used in `ClientAgent.map` (e.g., `RUN_FN`, `EXECUTE_FN`).
 Default implementation returns the message unchanged, allowing customization of `IModelMessage` via `setConfig`.
+   *    *
 
 ### CC_AGENT_SYSTEM_PROMPT
 
@@ -263,6 +272,7 @@ CC_FN_PLANTUML: (uml: string) => Promise<string>
 
 Function to process PlantUML diagrams, potentially for visualization purposes.
 Default returns an empty string, allowing custom UML rendering logic via `setConfig`, though not directly in `ClientAgent`.
+   *    *
 
 ### CC_PROCESS_UUID
 
@@ -290,6 +300,7 @@ CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: string) =>
 
 A custom function to handle tool call exceptions by returning a model message or null, used in `ClientAgent.getCompletion` with the "custom" `CC_RESQUE_STRATEGY`.
 Default implementation returns null, allowing override via `setConfig` to implement specific recovery logic tailored to the application.
+   *    *    *
 
 ### CC_PERSIST_ENABLED_BY_DEFAULT
 
@@ -317,6 +328,7 @@ CC_DEFAULT_STATE_SET: <T = any>(state: T, clientId: string, stateName: string) =
 
 Default function to set state values, used in `IState.setState` for state persistence.
 No-op by default, allowing state updates to be customized via `setConfig`, though not directly in `ClientAgent`.
+   *    *    *    *    *
 
 ### CC_DEFAULT_STATE_GET
 
@@ -326,6 +338,7 @@ CC_DEFAULT_STATE_GET: <T = any>(clientId: string, stateName: string, defaultStat
 
 Default function to get state values, used in `IState.getState` for state retrieval.
 Returns `defaultState` by default, allowing state retrieval to be customized via `setConfig`, though not directly in `ClientAgent`.
+   *    *    *    *    *
 
 ### CC_DEFAULT_POLICY_GET_BAN_CLIENTS
 
@@ -334,6 +347,7 @@ CC_DEFAULT_POLICY_GET_BAN_CLIENTS: (policyName: string, swarmName: string) => st
 ```
 
 Default function to get banned clients for the policy
+   *    *
 
 ### CC_DEFAULT_POLICY_GET
 
@@ -342,6 +356,7 @@ CC_DEFAULT_POLICY_GET: (policyName: string, swarmName: string) => string[] | Pro
 ```
 
 Retrieves the list of currently banned clients under this policy.
+   *    *
 
 ### CC_DEFAULT_POLICY_SET
 
@@ -351,6 +366,7 @@ CC_DEFAULT_POLICY_SET: (clientIds: string[], policyName: string, swarmName: stri
 
 Optional function to set the list of banned clients.
 Overrides default ban list management if provided.
+   *    *    *    *
 
 ### CC_DEFAULT_STORAGE_GET
 
@@ -360,6 +376,7 @@ CC_DEFAULT_STORAGE_GET: <T extends IStorageData = IStorageData>(clientId: string
 
 Default function to get storage data, used in `IStorage.take` for storage retrieval.
 Returns `defaultValue` by default, allowing storage retrieval to be customized via `setConfig`, though not directly in `ClientAgent`.
+   *    *    *    *    *
 
 ### CC_DEFAULT_STORAGE_SET
 
@@ -369,6 +386,7 @@ CC_DEFAULT_STORAGE_SET: <T extends IStorageData = IStorageData>(data: T[], clien
 
 Default function to set storage data, used in `IStorage.upsert` for storage persistence.
 No-op by default, allowing storage updates to be customized via `setConfig`, though not directly in `ClientAgent`.
+   *    *    *    *    *
 
 ### CC_SKIP_POSIX_RENAME
 
@@ -405,6 +423,7 @@ CC_DEFAULT_READ_EMBEDDING_CACHE: (embeddingName: string, stringHash: string) => 
 
 Retrieves the embedding vector for a specific string hash, returning null if not found.
 Used to check if a precomputed embedding exists in the cache.
+   *    *    *
 
 ### CC_DEFAULT_WRITE_EMBEDDING_CACHE
 
@@ -414,6 +433,7 @@ CC_DEFAULT_WRITE_EMBEDDING_CACHE: (embeddings: number[], embeddingName: string, 
 
 Stores an embedding vector for a specific string hash, persisting it for future retrieval.
 Used to cache computed embeddings to avoid redundant processing.
+   *    *    *    *
 
 ### CC_DEFAULT_AGENT_TOOL_VALIDATE
 
@@ -423,6 +443,7 @@ CC_DEFAULT_AGENT_TOOL_VALIDATE: (dto: { clientId: string; agentName: string; too
 
 Validates the tool parameters before execution.
 Can return synchronously or asynchronously based on validation complexity.
+   *    *    *    *    *
 
 ### CC_THROW_WHEN_NAVIGATION_RECURSION
 

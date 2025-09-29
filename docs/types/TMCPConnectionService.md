@@ -11,4 +11,5 @@ type TMCPConnectionService = {
 };
 ```
 
-
+Type representing the MCP connection service interface.
+Handles Model Context Protocol connection operations.

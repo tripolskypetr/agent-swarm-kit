@@ -16,4 +16,4 @@ Logs the operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `completionName` | The name of the completion to retrieve. |
+| `completionName` | |

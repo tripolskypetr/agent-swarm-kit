@@ -11,4 +11,5 @@ type TComputeSchema<T extends IComputeData = any> = {
 } & Partial<IComputeSchema<T>>;
 ```
 
-
+Type representing a partial compute schema with required computeName.
+Used for overriding existing compute configurations with selective updates.

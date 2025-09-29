@@ -15,4 +15,4 @@ Creates and registers a navigation tool for an agent to navigate to another spec
 
 | Parameter | Description |
 |-----------|-------------|
-| `params` | The parameters for configuring the navigation tool. |
+| `params` | |

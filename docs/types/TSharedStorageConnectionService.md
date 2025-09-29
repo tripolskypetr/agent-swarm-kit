@@ -11,4 +11,5 @@ type TSharedStorageConnectionService = {
 };
 ```
 
-
+Type representing the public interface of SharedStoragePublicService, derived from ISharedStorageConnectionService.
+Excludes internal methods (e.g., getStorage, getSharedStorage) via InternalKeys, ensuring a consistent public API for shared storage operations.

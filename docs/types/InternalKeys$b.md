@@ -11,4 +11,5 @@ type InternalKeys$b = keyof {
 };
 ```
 
-
+Type representing keys to exclude from IAgentConnectionService (internal methods).
+Used to filter out non-public methods like getAgent in TAgentConnectionService.

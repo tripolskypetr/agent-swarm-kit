@@ -21,6 +21,6 @@ and LoggerService (logging). Complements functions like commitSystemMessage by h
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | The content of the developer message to commit, typically related to user or developer instructions. |
-| `clientId` | The ID of the client associated with the session, validated against active sessions. |
-| `agentName` | The name of the agent to commit the message for, validated against registered agents. |
+| `content` | |
+| `clientId` | |
+| `agentName` | |

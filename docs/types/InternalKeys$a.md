@@ -12,4 +12,5 @@ type InternalKeys$a = keyof {
 };
 ```
 
-
+Type representing keys to exclude from IHistoryConnectionService (internal methods).
+Used to filter out non-public methods like getHistory and getItems in THistoryConnectionService.

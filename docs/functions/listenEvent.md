@@ -21,6 +21,6 @@ listening.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The ID of the client to listen for events from, or "*" to listen to all clients. |
-| `topicName` | The name of the event topic to subscribe to (must not be a reserved source). |
-| `fn` | The callback function to execute when the event is received, passed the event payload. |
+| `clientId` | |
+| `topicName` | |
+| `fn` | |

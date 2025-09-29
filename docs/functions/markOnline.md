@@ -15,5 +15,5 @@ Marks a client as online in the specified swarm.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The unique identifier of the client to mark as online. |
-| `swarmName` | The name of the swarm where the client is being marked online. |
+| `clientId` | |
+| `swarmName` | |

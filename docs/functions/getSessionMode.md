@@ -19,4 +19,4 @@ The execution is wrapped in `beginContext` to ensure it runs outside of existing
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The unique identifier of the client session whose mode is being retrieved. |
+| `clientId` | |

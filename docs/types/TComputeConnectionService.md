@@ -11,4 +11,4 @@ type TComputeConnectionService = {
 };
 ```
 
-
+* Type for the public compute service, excluding internal keys.

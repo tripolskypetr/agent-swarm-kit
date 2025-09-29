@@ -19,8 +19,8 @@ The execution is wrapped in `beginContext` to ensure it runs outside of existing
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | The content of the user message to be committed. |
+| `content` | |
 | `mode` | |
-| `clientId` | The unique identifier of the client session associated with the operation. |
-| `agentName` | The name of the agent to whose history the message will be committed. |
+| `clientId` | |
+| `agentName` | |
 | `payload` | |

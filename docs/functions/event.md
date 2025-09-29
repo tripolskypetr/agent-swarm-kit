@@ -20,6 +20,6 @@ topic is used. The event is structured as an `ICustomEvent` with the provided `c
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The unique identifier of the client emitting the event. |
-| `topicName` | The name of the event topic (must not be a reserved source). |
-| `payload` | The payload data to be included in the event. |
+| `clientId` | |
+| `topicName` | |
+| `payload` | |

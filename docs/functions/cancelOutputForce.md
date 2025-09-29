@@ -20,4 +20,4 @@ Unlike cancelOutput, this function skips agent validation and active agent check
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The ID of the client whose output is to be canceled, validated against active sessions. |
+| `clientId` | |

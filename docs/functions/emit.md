@@ -20,6 +20,6 @@ logs the operation if enabled, and throws an error if the session mode is not "m
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | The content to be emitted as the model output. |
-| `clientId` | The unique identifier of the client session emitting the content. |
-| `agentName` | The name of the agent intended to emit the content. |
+| `content` | |
+| `clientId` | |
+| `agentName` | |

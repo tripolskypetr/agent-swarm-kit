@@ -20,5 +20,5 @@ and LoggerService (logging). Complements functions like commitAssistantMessage b
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The ID of the client associated with the session, validated against active sessions. |
-| `agentName` | The name of the agent whose history is to be flushed, validated against registered agents. |
+| `clientId` | |
+| `agentName` | |

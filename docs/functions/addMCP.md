@@ -15,4 +15,4 @@ Registers a new MCP (Model Context Protocol) schema in the system.
 
 | Parameter | Description |
 |-----------|-------------|
-| `mcpSchema` | The MCP schema to register. |
+| `mcpSchema` | |

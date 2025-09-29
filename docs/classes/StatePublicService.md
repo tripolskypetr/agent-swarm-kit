@@ -29,6 +29,7 @@ loggerService: any
 
 Logger service instance, injected via DI, for logging state operations.
 Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionPublicService and PerfService logging patterns.
+   *
 
 ### stateConnectionService
 
@@ -38,6 +39,7 @@ stateConnectionService: any
 
 State connection service instance, injected via DI, for underlying state operations.
 Provides core functionality (e.g., setState, getState) called by public methods, supporting ClientAgent’s client-specific state needs.
+   *
 
 ### setState
 
@@ -48,6 +50,7 @@ setState: (dispatchFn: (prevState: T) => Promise<T>, methodName: string, clientI
 Sets the client-specific state using a provided dispatch function, updating the state identified by stateName for a given clientId.
 Wraps StateConnectionService.setState with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., updating client state in EXECUTE_FN) and PerfService (e.g., tracking state changes in sessionState per client).
+   *    *    *    *
 
 ### clearState
 
@@ -58,6 +61,7 @@ clearState: (methodName: string, clientId: string, stateName: string) => Promise
 Resets the client-specific state to its initial value, identified by stateName for a given clientId.
 Wraps StateConnectionService.clearState with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent (e.g., resetting client state in EXECUTE_FN) and PerfService (e.g., clearing sessionState for a specific client).
+   *    *    *
 
 ### getState
 
@@ -68,6 +72,7 @@ getState: (methodName: string, clientId: string, stateName: string) => Promise<T
 Retrieves the current client-specific state identified by stateName for a given clientId.
 Wraps StateConnectionService.getState with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., accessing client state in EXECUTE_FN) and PerfService (e.g., reading sessionState for a specific client).
+   *    *    *
 
 ### dispose
 
@@ -78,3 +83,4 @@ dispose: (methodName: string, clientId: string, stateName: string) => Promise<vo
 Disposes of the client-specific state identified by stateName for a given clientId, cleaning up resources.
 Wraps StateConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Aligns with ClientAgent’s cleanup (e.g., post-EXECUTE_FN) and PerfService’s dispose (e.g., clearing client-specific sessionState).
+   *    *    *

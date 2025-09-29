@@ -15,5 +15,5 @@ Executes a provided function within a schema context, with optional overrides fo
 
 | Parameter | Description |
 |-----------|-------------|
-| `runFn` | The function to execute within the schema context. |
-| `options` | Optional overrides for schema services, with defaults from the swarm's schema services. |
+| `runFn` | |
+| `options` | |

@@ -15,4 +15,4 @@ Registers a compute schema, validates it, and adds it to the compute schema serv
 
 | Parameter | Description |
 |-----------|-------------|
-| `computeSchema` | The compute schema to register. |
+| `computeSchema` | |

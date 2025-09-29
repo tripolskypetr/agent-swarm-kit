@@ -19,4 +19,4 @@ is an array of history objects representing the assistant's contributions in the
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The unique identifier of the client session whose assistant history is to be retrieved. |
+| `clientId` | |

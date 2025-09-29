@@ -4,3 +4,5 @@ group: docs
 ---
 
 # ISharedComputeConnectionService
+
+* Extends SharedComputeConnectionService for type compatibility.

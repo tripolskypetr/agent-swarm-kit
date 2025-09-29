@@ -5,6 +5,8 @@ group: docs
 
 # IPipelineSchema
 
+*  * Defines the schema for a pipeline, including execution logic and optional callbacks.
+
 ## Properties
 
 ### pipelineName
@@ -13,11 +15,16 @@ group: docs
 pipelineName: string
 ```
 
+* The name of the pipeline.
+
 ### execute
 
 ```ts
 execute: <T = any>(clientId: string, agentName: string, payload: Payload) => Promise<void | T>
 ```
+
+* Function to execute the pipeline logic.
+*    *    *    *
 
 ### callbacks
 

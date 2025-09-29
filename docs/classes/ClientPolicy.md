@@ -47,6 +47,7 @@ hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
 
 Checks if a client is banned for a specific swarm, lazily fetching the ban list if not already loaded.
 Used by SwarmConnectionService to enforce swarm-level restrictions defined in SwarmSchemaService’s policies.
+   *    *
 
 ### getBanMessage
 
@@ -56,6 +57,7 @@ getBanMessage(clientId: SessionId, swarmName: SwarmName): Promise<string>;
 
 Retrieves the ban message for a client, using a custom getBanMessage function if provided or falling back to params.banMessage.
 Supports ClientAgent by providing ban feedback when validation fails, enhancing user experience.
+   *    *
 
 ### validateInput
 
@@ -66,6 +68,7 @@ validateInput(incoming: string, clientId: SessionId, swarmName: SwarmName): Prom
 Validates an incoming message from a client, checking ban status and applying custom validation if provided.
 Auto-bans the client via banClient if validation fails and params.autoBan is true, emitting events via BusService.
 Used by ClientAgent to filter incoming messages before processing, ensuring policy compliance.
+   *    *    *
 
 ### validateOutput
 
@@ -76,6 +79,7 @@ validateOutput(outgoing: string, clientId: SessionId, swarmName: SwarmName): Pro
 Validates an outgoing message to a client, checking ban status and applying custom validation if provided.
 Auto-bans the client via banClient if validation fails and params.autoBan is true, emitting events via BusService.
 Used by ClientAgent to ensure outgoing messages comply with swarm policies before emission.
+   *    *    *
 
 ### banClient
 
@@ -86,6 +90,7 @@ banClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
 Bans a client, adding them to the ban set and persisting the change if params.setBannedClients is provided.
 Emits a ban event via BusService and invokes the onBanClient callback, supporting SwarmConnectionService’s access control.
 Skips if the client is already banned to avoid redundant updates.
+   *    *
 
 ### unbanClient
 
@@ -96,3 +101,4 @@ unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
 Unbans a client, removing them from the ban set and persisting the change if params.setBannedClients is provided.
 Emits an unban event via BusService and invokes the onUnbanClient callback, supporting dynamic policy adjustments.
 Skips if the client is not banned to avoid redundant updates.
+   *    *

@@ -12,4 +12,5 @@ type InternalKeys$5 = keyof {
 };
 ```
 
-
+Type representing keys to exclude from ISharedStateConnectionService (internal methods).
+Used to filter out non-public methods like getStateRef and getSharedStateRef in TSharedStateConnectionService.

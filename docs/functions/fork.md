@@ -15,5 +15,5 @@ Executes a provided function within a managed scope, handling session creation, 
 
 | Parameter | Description |
 |-----------|-------------|
-| `runFn` | The function to execute, receiving clientId and agentName as arguments. |
-| `options` | Configuration options for the scope operation. |
+| `runFn` | |
+| `options` | |

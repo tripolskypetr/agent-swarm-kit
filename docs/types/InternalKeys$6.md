@@ -12,4 +12,5 @@ type InternalKeys$6 = keyof {
 };
 ```
 
-
+Type representing keys to exclude from IStateConnectionService (internal methods).
+Used to filter out non-public methods like getStateRef and getSharedStateRef in TStateConnectionService.

@@ -11,4 +11,5 @@ type InternalKeys$2 = keyof {
 };
 ```
 
-
+Internal keys that should be excluded from the public MCP service interface.
+Used to hide internal getMCP method from public API exposure.

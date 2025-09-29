@@ -5,6 +5,8 @@ group: docs
 
 # IPipelineCallbacks
 
+*  * Defines callback functions for pipeline lifecycle events.
+
 ## Properties
 
 ### onStart
@@ -13,11 +15,17 @@ group: docs
 onStart: (clientId: string, pipelineName: string, payload: Payload) => void
 ```
 
+* Called when the pipeline execution starts.
+*    *
+
 ### onEnd
 
 ```ts
 onEnd: (clientId: string, pipelineName: string, payload: Payload, isError: boolean) => void
 ```
+
+* Called when the pipeline execution ends, indicating success or failure.
+*    *    *
 
 ### onError
 

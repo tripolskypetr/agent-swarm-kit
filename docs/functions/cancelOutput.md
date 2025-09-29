@@ -19,5 +19,5 @@ SwarmValidationService (swarm validation), and SwarmPublicService (agent retriev
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The ID of the client whose output is to be canceled, validated against active sessions. |
-| `agentName` | The name of the agent for which the output is canceled, validated against registered agents. |
+| `clientId` | |
+| `agentName` | |

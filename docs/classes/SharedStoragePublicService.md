@@ -28,6 +28,7 @@ loggerService: any
 
 Logger service instance, injected via DI, for logging shared storage operations.
 Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SharedStatePublicService and PerfService logging patterns.
+   *
 
 ### sharedStorageConnectionService
 
@@ -37,6 +38,7 @@ sharedStorageConnectionService: any
 
 Shared storage connection service instance, injected via DI, for underlying storage operations.
 Provides core functionality (e.g., take, upsert) called by public methods, supporting ClientAgent’s storage needs.
+   *
 
 ### take
 
@@ -47,6 +49,7 @@ take: (search: string, total: number, methodName: string, storageName: string, s
 Retrieves a list of storage items based on a search query, total count, and optional score, from a storage identified by storageName.
 Wraps SharedStorageConnectionService.take with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., searching storage in EXECUTE_FN) and DocService (e.g., documenting searchable storage data).
+   *    *    *    *    *
 
 ### upsert
 
@@ -57,6 +60,7 @@ upsert: (item: IStorageData, methodName: string, storageName: string) => Promise
 Upserts (inserts or updates) an item in the shared storage identified by storageName.
 Wraps SharedStorageConnectionService.upsert with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent (e.g., storing data in EXECUTE_FN) and PerfService (e.g., tracking storage updates in sessionState).
+   *    *    *
 
 ### remove
 
@@ -67,6 +71,7 @@ remove: (itemId: StorageId, methodName: string, storageName: string) => Promise<
 Removes an item from the shared storage identified by storageName, using the item’s ID.
 Wraps SharedStorageConnectionService.remove with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., deleting data in EXECUTE_FN) and PerfService (e.g., tracking storage cleanup).
+   *    *    *
 
 ### get
 
@@ -77,6 +82,7 @@ get: (itemId: StorageId, methodName: string, storageName: string) => Promise<ISt
 Retrieves a specific item from the shared storage identified by storageName, using the item’s ID.
 Wraps SharedStorageConnectionService.get with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent (e.g., fetching data in EXECUTE_FN) and PerfService (e.g., reading storage for metrics).
+   *    *    *
 
 ### list
 
@@ -87,6 +93,7 @@ list: (methodName: string, storageName: string, filter?: (item: IStorageData) =>
 Retrieves a list of all items from the shared storage identified by storageName, optionally filtered by a predicate function.
 Wraps SharedStorageConnectionService.list with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., listing storage in EXECUTE_FN) and DocService (e.g., documenting storage contents).
+   *    *    *
 
 ### clear
 
@@ -97,3 +104,4 @@ clear: (methodName: string, storageName: string) => Promise<void>
 Clears all items from the shared storage identified by storageName.
 Wraps SharedStorageConnectionService.clear with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent (e.g., resetting storage in EXECUTE_FN) and PerfService (e.g., clearing storage for performance resets).
+   *    *

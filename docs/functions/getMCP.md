@@ -16,4 +16,4 @@ Logs the operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `mcpName` | The name of the MCP to retrieve. |
+| `mcpName` | |

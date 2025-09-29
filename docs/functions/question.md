@@ -15,7 +15,7 @@ Initiates a question process within a chat context
 
 | Parameter | Description |
 |-----------|-------------|
-| `message` | The message/question to be processed |
-| `clientId` | Unique identifier for the client |
-| `agentName` | Name of the agent handling the question |
-| `wikiName` | Name of the wiki context |
+| `message` | |
+| `clientId` | |
+| `agentName` | |
+| `wikiName` | |

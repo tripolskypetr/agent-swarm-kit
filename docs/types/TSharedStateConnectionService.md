@@ -11,4 +11,5 @@ type TSharedStateConnectionService = {
 };
 ```
 
-
+Type representing the public interface of SharedStatePublicService, derived from ISharedStateConnectionService.
+Excludes internal methods (e.g., getStateRef, getSharedStateRef) via InternalKeys, ensuring a consistent public API for shared state operations.

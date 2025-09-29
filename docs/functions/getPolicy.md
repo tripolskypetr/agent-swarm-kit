@@ -16,4 +16,4 @@ Logs the operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `policyName` | The name of the policy to retrieve. |
+| `policyName` | |

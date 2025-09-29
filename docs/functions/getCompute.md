@@ -16,4 +16,4 @@ Logs the operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `computeName` | The name of the compute to retrieve. |
+| `computeName` | |

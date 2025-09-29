@@ -99,6 +99,7 @@ onOutput: (clientId: string, agentName: string, output: string) => void
 ```
 
 Optional callback triggered when the agent produces output.
+ W
 
 ### onResurrect
 

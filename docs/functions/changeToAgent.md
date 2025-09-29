@@ -19,5 +19,5 @@ The execution is wrapped in `beginContext` to ensure it runs outside of existing
 
 | Parameter | Description |
 |-----------|-------------|
-| `agentName` | The name of the agent to switch to. |
-| `clientId` | The unique identifier of the client session. |
+| `agentName` | |
+| `clientId` | |

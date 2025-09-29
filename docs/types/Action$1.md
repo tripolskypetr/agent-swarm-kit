@@ -9,4 +9,5 @@ group: docs
 type Action$1 = "upsert" | "remove" | "clear";
 ```
 
-
+Type representing possible storage actions for ClientStorage operations.
+Used in dispatch to determine the action type (upsert, remove, or clear).

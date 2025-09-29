@@ -16,4 +16,4 @@ Logs the operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `swarmName` | The name of the swarm to retrieve. |
+| `swarmName` | |

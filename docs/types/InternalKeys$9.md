@@ -11,4 +11,5 @@ type InternalKeys$9 = keyof {
 };
 ```
 
-
+Type representing keys to exclude from ISessionConnectionService (internal methods).
+Used to filter out non-public methods like getSession in TSessionConnectionService.

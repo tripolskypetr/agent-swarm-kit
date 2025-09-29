@@ -36,6 +36,7 @@ An instance of `ToolAbortController` used to manage the lifecycle of abort signa
 Provides an `AbortSignal` to signal and handle abort events for asynchronous operations.
 
 This property is used to control and cancel ongoing tool executions when necessary, such as during agent changes or tool stops.
+   *
 
 ### _agentChangeSubject
 
@@ -44,6 +45,7 @@ _agentChangeSubject: Subject<unique symbol>
 ```
 
 Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.
+   *
 
 ### _resqueSubject
 
@@ -52,6 +54,7 @@ _resqueSubject: Subject<unique symbol>
 ```
 
 Subject for signaling model resurrection events, triggered by _resurrectModel during error recovery.
+   *
 
 ### _toolErrorSubject
 
@@ -60,6 +63,7 @@ _toolErrorSubject: Subject<unique symbol>
 ```
 
 Subject for signaling tool execution errors, emitted by createToolCall on failure.
+   *
 
 ### _toolStopSubject
 
@@ -68,6 +72,7 @@ _toolStopSubject: Subject<unique symbol>
 ```
 
 Subject for signaling tool execution stops, triggered by commitStopTools.
+   *
 
 ### _cancelOutputSubject
 
@@ -76,6 +81,7 @@ _cancelOutputSubject: Subject<unique symbol>
 ```
 
 Subject for signaling tool execution stops, triggered by commitCancelOutput.
+   *
 
 ### _toolCommitSubject
 
@@ -84,6 +90,7 @@ _toolCommitSubject: Subject<void>
 ```
 
 Subject for signaling tool output commitments, triggered by commitToolOutput.
+   *
 
 ### _outputSubject
 
@@ -92,6 +99,7 @@ _outputSubject: Subject<string>
 ```
 
 Subject for emitting transformed outputs, used by _emitOutput and waitForOutput.
+   *
 
 ### execute
 
@@ -101,6 +109,7 @@ execute: (input: string, mode: ExecutionMode) => Promise<void>
 
 Executes the incoming message and processes tool calls if present, queued to prevent overlapping executions.
 Implements IAgent.execute, delegating to EXECUTE_FN with queuing via functools-kit’s queued decorator.
+   *    *
 
 ### run
 
@@ -110,6 +119,7 @@ run: (input: string) => Promise<string>
 
 Runs a stateless completion for the incoming message, queued to prevent overlapping executions.
 Implements IAgent.run, delegating to RUN_FN with queuing via functools-kit’s queued decorator.
+   *
 
 ## Methods
 
@@ -134,6 +144,8 @@ are fetched asynchronously using the `systemDynamic` function.
 This method is used to construct the system-level context for the agent, which can include
 predefined static messages and dynamically generated messages based on the agent's state or configuration.
 
+   * including both static and dynamically generated messages.
+
 ### _emitOutput
 
 ```ts
@@ -143,6 +155,7 @@ _emitOutput(mode: ExecutionMode, rawResult: string): Promise<void>;
 Emits the transformed output after validation, invoking callbacks and emitting events via BusService.
 Attempts model resurrection via _resurrectModel if validation fails, throwing an error if unrecoverable.
 Supports SwarmConnectionService by broadcasting agent outputs within the swarm.
+   *    *    *
 
 ### _resurrectModel
 
@@ -153,6 +166,7 @@ _resurrectModel(mode: ExecutionMode, reason?: string): Promise<string>;
 Resurrects the model in case of failures using configured strategies (flush, recomplete, custom).
 Updates history with failure details and returns a placeholder or transformed result, signaling via _resqueSubject.
 Supports error recovery for CompletionSchemaService’s getCompletion calls.
+   *    *    *
 
 ### waitForOutput
 
@@ -171,6 +185,7 @@ getCompletion(mode: ExecutionMode, tools: IAgentTool[]): Promise<IModelMessage>;
 
 Retrieves a completion message from the model using the current history and tools.
 Applies validation and resurrection strategies (via _resurrectModel) if needed, integrating with CompletionSchemaService.
+   *
 
 ### commitUserMessage
 
@@ -180,6 +195,7 @@ commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
 
 Commits a user message to the history without triggering a response, notifying the system via BusService.
 Supports SessionConnectionService by logging user interactions within a session.
+   *
 
 ### commitFlush
 
@@ -224,6 +240,7 @@ commitSystemMessage(message: string): Promise<void>;
 
 Commits a system message to the history, notifying the system via BusService without triggering execution.
 Supports system-level updates, coordinated with SessionConnectionService.
+   *
 
 ### commitDeveloperMessage
 
@@ -233,6 +250,7 @@ commitDeveloperMessage(message: string): Promise<void>;
 
 Commits a developer message to the history, notifying the system via BusService without triggering execution.
 Useful for logging developer notes or debugging information, coordinated with SessionConnectionService.
+   *
 
 ### commitToolRequest
 
@@ -244,6 +262,8 @@ Commits a tool request to the agent's history and emits an event via BusService.
 This method is used to log tool requests and notify the system of the requested tool calls.
 The tool requests are transformed into tool call objects using the `createToolRequest` utility.
 
+   *
+
 ### commitAssistantMessage
 
 ```ts
@@ -252,6 +272,7 @@ commitAssistantMessage(message: string): Promise<void>;
 
 Commits an assistant message to the history without triggering execution, notifying the system via BusService.
 Useful for logging assistant responses, coordinated with HistoryConnectionService.
+   *
 
 ### commitToolOutput
 
@@ -261,6 +282,7 @@ commitToolOutput(toolId: string, content: string): Promise<void>;
 
 Commits tool output to the history, signaling completion via _toolCommitSubject and notifying the system via BusService.
 Integrates with ToolSchemaService by linking tool output to tool calls.
+   *    *
 
 ### dispose
 

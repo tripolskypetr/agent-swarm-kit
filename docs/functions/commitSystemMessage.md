@@ -21,6 +21,6 @@ rather than assistant-generated responses.
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | The content of the system message to commit, typically related to system state or control instructions. |
-| `clientId` | The ID of the client associated with the session, validated against active sessions. |
-| `agentName` | The name of the agent to commit the message for, validated against registered agents. |
+| `content` | |
+| `clientId` | |
+| `agentName` | |

@@ -12,4 +12,4 @@ type InternalKeys = keyof {
 };
 ```
 
-
+* Defines keys to be excluded from the public interface.

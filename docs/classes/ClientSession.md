@@ -50,6 +50,8 @@ notify(message: string): Promise<void>;
 Sends a notification message to connect listeners via the internal `_notifySubject`.
 Logs the notification if debugging is enabled.
 
+   *
+
 ### emit
 
 ```ts
@@ -59,6 +61,7 @@ emit(message: string): Promise<void>;
 Emits a message to subscribers via swarm _emitSubject after validating it against the policy (ClientPolicy).
 Emits the ban message if validation fails, notifying subscribers and logging via BusService.
 Supports SwarmConnectionService by broadcasting session outputs within the swarm.
+   *
 
 ### execute
 
@@ -69,6 +72,7 @@ execute(message: string, mode: ExecutionMode): Promise<string>;
 Executes a message using the swarm's agent (ClientAgent) and returns the output after policy validation.
 Validates input and output via ClientPolicy, returning a ban message if either fails, with event logging via BusService.
 Coordinates with SwarmConnectionService to fetch the agent and wait for output, supporting session-level execution.
+   *    *
 
 ### run
 
@@ -79,6 +83,7 @@ run(message: string): Promise<string>;
 Runs a stateless completion of a message using the swarm's agent (ClientAgent) and returns the output.
 Does not emit the result but logs the execution via BusService, bypassing output validation for stateless use cases.
 Integrates with SwarmConnectionService to access the agent, supporting lightweight completions.
+   *
 
 ### commitToolOutput
 
@@ -88,6 +93,7 @@ commitToolOutput(toolId: string, content: string): Promise<void>;
 
 Commits tool output to the agent's history via the swarm’s agent (ClientAgent), logging the action via BusService.
 Supports ToolSchemaService by linking tool output to tool calls, integrating with ClientAgent’s history management.
+   *    *
 
 ### commitUserMessage
 
@@ -97,6 +103,7 @@ commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
 
 Commits a user message to the agent’s history via the swarm’s agent (ClientAgent) without triggering a response.
 Logs the action via BusService, supporting SessionConnectionService’s session history tracking.
+   *
 
 ### commitFlush
 
@@ -125,6 +132,8 @@ commitToolRequest(request: IToolRequest[]): Promise<string[]>;
 Commits a tool request to the agent's history via the swarm’s agent (ClientAgent) and logs the action via BusService.
 Supports ToolSchemaService by linking tool requests to tool execution, integrating with ClientAgent’s history management.
 
+   *
+
 ### commitSystemMessage
 
 ```ts
@@ -133,6 +142,7 @@ commitSystemMessage(message: string): Promise<void>;
 
 Commits a system message to the agent’s history via the swarm’s agent (ClientAgent), logging via BusService.
 Supports system-level updates within the session, coordinated with ClientHistory.
+   *
 
 ### commitDeveloperMessage
 
@@ -140,7 +150,8 @@ Supports system-level updates within the session, coordinated with ClientHistory
 commitDeveloperMessage(message: string): Promise<void>;
 ```
 
-Commits a developer message to the agent’s history via the swarm’s agent (ClientAgent), logging the action via BusService.
+Commits a developer message to the agent's history via the swarm's agent (ClientAgent), logging the action via BusService.
+Supports internal debugging or developer notes within the session, enhancing ClientHistory.
 
 ### commitAssistantMessage
 
@@ -150,6 +161,7 @@ commitAssistantMessage(message: string): Promise<void>;
 
 Commits an assistant message to the agent’s history via the swarm’s agent (ClientAgent) without triggering execution.
 Logs the action via BusService, supporting ClientHistory for assistant response logging.
+   *
 
 ### connect
 
@@ -160,6 +172,7 @@ connect(connector: SendMessageFn): ReceiveMessageFn<string>;
 Connects the session to a message connector, subscribing to emitted messages and returning a receiver function.
 Links _emitSubject to the connector for outgoing messages and processes incoming messages via execute, supporting real-time interaction.
 Integrates with SessionConnectionService for session lifecycle and SwarmConnectionService for agent metadata.
+   *
 
 ### dispose
 

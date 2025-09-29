@@ -19,4 +19,4 @@ the content of the last user message as a string, or `null` if no matching user 
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The unique identifier of the client session whose last user message is to be retrieved. |
+| `clientId` | |

@@ -17,5 +17,5 @@ with optional logging based on global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The unique identifier of the client requesting the navigation route. |
-| `swarmName` | The name of the swarm context for which the route is retrieved. |
+| `clientId` | |
+| `swarmName` | |

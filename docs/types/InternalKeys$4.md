@@ -12,4 +12,5 @@ type InternalKeys$4 = keyof {
 };
 ```
 
-
+Type representing keys to exclude from ISharedStorageConnectionService (internal methods).
+Used to filter out non-public methods like getStorage and getSharedStorage in TSharedStorageConnectionService.

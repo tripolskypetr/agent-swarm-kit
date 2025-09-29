@@ -20,4 +20,4 @@ The function logs the operation if enabled and returns the completion's name upo
 
 | Parameter | Description |
 |-----------|-------------|
-| `completionSchema` | The schema defining the completion engine's properties, including its name (`completionName`) and configuration details. |
+| `completionSchema` | |

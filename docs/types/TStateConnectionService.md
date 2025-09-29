@@ -11,4 +11,5 @@ type TStateConnectionService = {
 };
 ```
 
-
+Type representing the public interface of StatePublicService, derived from IStateConnectionService.
+Excludes internal methods (e.g., getStateRef, getSharedStateRef) via InternalKeys, ensuring a consistent public API for client-specific state operations.

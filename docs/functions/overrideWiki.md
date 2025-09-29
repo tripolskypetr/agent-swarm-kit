@@ -18,4 +18,4 @@ Logs the override operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `wikiSchema` | Optional partial schema properties to update, extending `IWikiSchema`. |
+| `wikiSchema` | |

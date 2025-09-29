@@ -20,5 +20,5 @@ is not "makeConnection". The operation is logged if enabled, and resolves when t
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | The content to be emitted as the model output. |
-| `clientId` | The unique identifier of the client session emitting the content. |
+| `content` | |
+| `clientId` | |

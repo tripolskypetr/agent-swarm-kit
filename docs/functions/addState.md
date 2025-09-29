@@ -21,4 +21,4 @@ the state's name upon successful registration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `stateSchema` | The schema defining the state's properties, including its name (`stateName`), shared status (`shared`), and other configuration details. |
+| `stateSchema` | |

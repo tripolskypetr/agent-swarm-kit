@@ -16,5 +16,5 @@ Delegates to an internal context-isolated function to ensure clean execution.
 
 | Parameter | Description |
 |-----------|-------------|
-| `outlineName` | The unique name of the outline schema to process. |
-| `param` | The input param to process, defaults to an empty object. |
+| `outlineName` | |
+| `param` | |

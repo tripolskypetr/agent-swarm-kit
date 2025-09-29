@@ -17,5 +17,5 @@ Logs the operation if enabled by global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The unique identifier of the client whose navigation route is being checked. |
-| `agentName` | The name of the agent to check within the navigation route. |
+| `clientId` | |
+| `agentName` | |

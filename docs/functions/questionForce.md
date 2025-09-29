@@ -15,6 +15,6 @@ Initiates a forced question process within a chat context
 
 | Parameter | Description |
 |-----------|-------------|
-| `message` | The message/question to be processed |
-| `clientId` | Unique identifier for the client |
-| `wikiName` | Name of the wiki context |
+| `message` | |
+| `clientId` | |
+| `wikiName` | |

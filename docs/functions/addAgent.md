@@ -20,4 +20,4 @@ and returns the agent's name upon successful registration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `agentSchema` | The schema defining the agent's properties, including its name (`agentName`) and other configuration details. |
+| `agentSchema` | |

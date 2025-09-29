@@ -16,4 +16,4 @@ Logs the operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `agentName` | The name of the agent to retrieve. |
+| `agentName` | |

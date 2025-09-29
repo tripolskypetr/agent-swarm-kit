@@ -20,6 +20,6 @@ is still active before sending the notification. If the active agent has changed
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | The content to be sent as the notification output. |
-| `clientId` | The unique identifier of the client session sending the notification. |
-| `agentName` | The name of the agent intended to send the notification. |
+| `content` | |
+| `clientId` | |
+| `agentName` | |

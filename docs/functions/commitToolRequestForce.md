@@ -17,5 +17,5 @@ Runs within a beginContext wrapper for execution context management, logging ope
 
 | Parameter | Description |
 |-----------|-------------|
-| `request` | The tool request(s) to commit. |
-| `clientId` | The ID of the client associated with the session. |
+| `request` | |
+| `clientId` | |

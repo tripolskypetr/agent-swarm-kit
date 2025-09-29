@@ -20,4 +20,4 @@ providing a clean execution environment. The function logs the operation if enab
 
 | Parameter | Description |
 |-----------|-------------|
-| `swarmSchema` | The schema defining the swarm's properties, including its name (`swarmName`), default agent, and other configuration details. |
+| `swarmSchema` | |

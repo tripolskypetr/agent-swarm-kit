@@ -7,6 +7,8 @@ group: docs
 
 Implements `ICompute<Compute>`
 
+*  *  * Manages client-side computations, state subscriptions, and lifecycle events.
+
 ## Constructor
 
 ```ts
@@ -27,11 +29,15 @@ params: IComputeParams<Compute>
 __@DISPOSE_SLOT_FN_SYMBOL@3163: any
 ```
 
+* Stores the composed dispose function.
+
 ### __@GET_COMPUTE_DATA_FN_SYMBOL@3164
 
 ```ts
 __@GET_COMPUTE_DATA_FN_SYMBOL@3164: any
 ```
+
+* Memoized function for retrieving compute data.
 
 ## Methods
 
@@ -41,8 +47,8 @@ __@GET_COMPUTE_DATA_FN_SYMBOL@3164: any
 getComputeData(): Promise<any>;
 ```
 
-Retrieves the computed data.
-Returns the current result of the compute operation, either synchronously or asynchronously.
+* Retrieves the computation data using a memoized function.
+*
 
 ### calculate
 
@@ -50,14 +56,21 @@ Returns the current result of the compute operation, either synchronously or asy
 calculate(stateName: StateName): Promise<void>;
 ```
 
+* Triggers a recalculation based on a state change and clears memoized data.
+
 ### update
 
 ```ts
 update(): Promise<void>;
 ```
 
+* Forces an update of the computation and clears memoized data.
+
 ### dispose
 
 ```ts
 dispose(): Promise<void>;
 ```
+
+* Cleans up resources, unsubscribes from state changes, and triggers onDispose callback.
+*

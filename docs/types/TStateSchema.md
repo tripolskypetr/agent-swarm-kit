@@ -11,4 +11,5 @@ type TStateSchema<T extends unknown = any> = {
 } & Partial<IStateSchema<T>>;
 ```
 
-
+Type representing a partial state schema configuration.
+Used for state management with optional properties.

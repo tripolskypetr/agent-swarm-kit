@@ -11,4 +11,4 @@ type TSharedStorage = {
 };
 ```
 
-
+Type definition for a shared storage object, mapping IStorage keys to unknown values.

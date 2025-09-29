@@ -9,4 +9,5 @@ group: docs
 type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
 ```
 
-
+Function type for completing AI model requests.
+Takes completion arguments and returns a promise resolving to a model message response.

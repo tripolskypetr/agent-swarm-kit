@@ -11,4 +11,5 @@ type TStorageSchema<T extends IStorageData = IStorageData> = {
 } & Partial<IStorageSchema<T>>;
 ```
 
-
+Type representing a partial storage schema configuration.
+Used for storage service configuration with optional properties.

@@ -19,4 +19,4 @@ The execution is wrapped in `beginContext` to ensure it runs outside of existing
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | The unique identifier of the client session whose active agent name is being retrieved. |
+| `clientId` | |

@@ -16,4 +16,4 @@ Logs the operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `pipelineName` | The name of the pipeline to retrieve. |
+| `pipelineName` | |

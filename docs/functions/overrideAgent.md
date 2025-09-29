@@ -18,4 +18,4 @@ Logs the override operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `agentSchema` | Optional partial schema properties to update, extending `IAgentSchemaInternal`. |
+| `agentSchema` | |

@@ -21,5 +21,5 @@ analogous to commitAssistantMessageForce vs. commitAssistantMessage.
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | The content of the developer message to commit, typically related to developer actions or instructions. |
-| `clientId` | The ID of the client associated with the session, validated against active sessions. |
+| `content` | |
+| `clientId` | |

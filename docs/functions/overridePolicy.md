@@ -18,4 +18,4 @@ Logs the override operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `policySchema` | Optional partial schema properties to update, extending `IPolicySchema`. |
+| `policySchema` | |

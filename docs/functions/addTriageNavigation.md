@@ -15,4 +15,4 @@ Creates and registers a triage navigation tool for an agent to navigate to a tri
 
 | Parameter | Description |
 |-----------|-------------|
-| `params` | The parameters for configuring the triage navigation tool. |
+| `params` | |

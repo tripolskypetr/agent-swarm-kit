@@ -11,4 +11,5 @@ type InternalKeys$8 = keyof {
 };
 ```
 
-
+Type representing keys to exclude from ISwarmConnectionService (internal methods).
+Used to filter out non-public methods like getSwarm in TSwarmConnectionService.

@@ -19,6 +19,6 @@ The execution is wrapped in `beginContext` to ensure it runs outside of existing
 
 | Parameter | Description |
 |-----------|-------------|
-| `toolId` | The unique identifier of the tool whose output is being committed. |
-| `content` | The content or result of the tool execution to be committed. |
-| `clientId` | The unique identifier of the client session associated with the operation. |
+| `toolId` | |
+| `content` | |
+| `clientId` | |

@@ -21,4 +21,4 @@ successful registration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `storageSchema` | The schema defining the storage engine's properties, including its name (`storageName`), shared status (`shared`), and other configuration details. |
+| `storageSchema` | |

@@ -16,4 +16,4 @@ Logs the operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `wikiName` | The name of the wiki to retrieve. |
+| `wikiName` | |

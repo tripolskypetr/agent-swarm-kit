@@ -16,4 +16,4 @@ Logs the operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `stateName` | The name of the state to retrieve. |
+| `stateName` | |

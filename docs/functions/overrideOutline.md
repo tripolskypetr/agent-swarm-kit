@@ -17,4 +17,4 @@ Logs the operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `outlineSchema` | The partial outline schema containing the outline name and optional schema properties to override. |
+| `outlineSchema` | |

@@ -11,4 +11,5 @@ type InternalKeys$3 = keyof {
 };
 ```
 
-
+Type representing keys to exclude from IPolicyConnectionService (internal methods).
+Used to filter out non-public methods like getPolicy in TPolicyConnectionService.
