@@ -15,5 +15,5 @@ Executes a provided function within a managed scope, handling session creation, 
 
 | Parameter | Description |
 |-----------|-------------|
-| `runFn` | |
-| `options` | |
+| `runFn` | Function to execute within the managed scope, receiving clientId and agentName as arguments. |
+| `options` | Configuration options for the scope operation including clientId, swarmName, and optional callbacks. |

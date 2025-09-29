@@ -20,5 +20,5 @@ ToolValidationService (tool context), and LoggerService (logging). Complements f
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
-| `agentName` | |
+| `clientId` | The unique identifier of the client session. |
+| `agentName` | The name of the agent to use or reference. |

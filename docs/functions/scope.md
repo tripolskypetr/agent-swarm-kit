@@ -15,5 +15,5 @@ Executes a provided function within a schema context, with optional overrides fo
 
 | Parameter | Description |
 |-----------|-------------|
-| `runFn` | |
-| `options` | |
+| `runFn` | Function to execute within the managed scope, receiving clientId and agentName as arguments. |
+| `options` | Configuration options for schema service overrides. |

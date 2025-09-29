@@ -21,4 +21,4 @@ analogous to commitAssistantMessageForce vs. commitAssistantMessage.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
+| `clientId` | The unique identifier of the client session. |

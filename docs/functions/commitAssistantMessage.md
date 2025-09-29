@@ -20,6 +20,6 @@ and LoggerService (logging). Complements functions like cancelOutput by persisti
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | |
-| `clientId` | |
-| `agentName` | |
+| `content` | The content to be processed or stored. |
+| `clientId` | The unique identifier of the client session. |
+| `agentName` | The name of the agent to use or reference. |

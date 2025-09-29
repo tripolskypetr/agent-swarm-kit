@@ -20,6 +20,6 @@ logs the operation if enabled, and throws an error if the session mode is not "m
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | |
-| `clientId` | |
-| `agentName` | |
+| `content` | The content to be processed or stored. |
+| `clientId` | The unique identifier of the client session. |
+| `agentName` | The name of the agent to use or reference. |

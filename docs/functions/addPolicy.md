@@ -20,4 +20,4 @@ complementing runtime functions like commitAssistantMessage by defining operatio
 
 | Parameter | Description |
 |-----------|-------------|
-| `policySchema` | |
+| `policySchema` | The schema definition for policy. |

@@ -18,4 +18,4 @@ Logs the override operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `completionSchema` | |
+| `completionSchema` | The schema definition for completion. |

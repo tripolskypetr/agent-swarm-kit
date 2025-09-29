@@ -13,7 +13,7 @@ declare function startPipeline<Payload extends object = any, T = any>(clientId: 
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
-| `pipelineName` | |
-| `agentName` | |
-| `payload` | |
+| `clientId` | The clientId parameter. |
+| `pipelineName` | The pipelineName parameter. |
+| `agentName` | The agentName parameter. |
+| `payload` | Payload object containing the data to be processed. |

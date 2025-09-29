@@ -21,7 +21,7 @@ queued to ensure sequential processing, and the listener unsubscribes after the 
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
-| `topicName` | |
-| `filterFn` | |
-| `fn` | |
+| `clientId` | The unique identifier of the client session, or "*" for all clients. |
+| `topicName` | The name of the event topic to listen for. |
+| `filterFn` | Filter function that determines if the event should trigger the callback. |
+| `fn` | Callback function executed when a matching event is received. |

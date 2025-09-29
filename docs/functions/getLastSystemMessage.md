@@ -19,4 +19,4 @@ of the last system message as a string, or `null` if no system message exists in
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
+| `clientId` | The unique identifier of the client session. |

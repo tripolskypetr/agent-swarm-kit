@@ -18,4 +18,4 @@ Logs the override operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `agentSchema` | |
+| `agentSchema` | The schema definition for agent. |

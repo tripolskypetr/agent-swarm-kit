@@ -19,4 +19,4 @@ of the last assistant message as a string, or `null` if no assistant message exi
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
+| `clientId` | The unique identifier of the client session. |

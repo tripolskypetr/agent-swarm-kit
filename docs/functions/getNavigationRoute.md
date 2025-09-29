@@ -17,5 +17,5 @@ with optional logging based on global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
-| `swarmName` | |
+| `clientId` | The unique identifier of the client session. |
+| `swarmName` | The name of the swarm to operate on. |

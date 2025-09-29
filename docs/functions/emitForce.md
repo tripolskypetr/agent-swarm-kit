@@ -20,5 +20,5 @@ is not "makeConnection". The operation is logged if enabled, and resolves when t
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | |
-| `clientId` | |
+| `content` | The content to be processed or stored. |
+| `clientId` | The unique identifier of the client session. |

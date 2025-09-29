@@ -18,4 +18,4 @@ Logs the override operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `stateSchema` | |
+| `stateSchema` | Partial state schema with updates to be applied to the existing state configuration. |

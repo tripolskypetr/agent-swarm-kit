@@ -21,4 +21,4 @@ and returns the tool's name upon successful registration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `toolSchema` | |
+| `toolSchema` | Tool schema configuration defining the tool's name, function, and metadata. |

@@ -15,5 +15,5 @@ Marks a client as offline in the specified swarm.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
-| `swarmName` | |
+| `clientId` | The unique identifier of the client session. |
+| `swarmName` | The name of the swarm to operate on. |

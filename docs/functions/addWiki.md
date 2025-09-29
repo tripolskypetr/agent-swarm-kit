@@ -15,4 +15,4 @@ Adds a wiki schema to the system
 
 | Parameter | Description |
 |-----------|-------------|
-| `wikiSchema` | |
+| `wikiSchema` | The schema definition for wiki. |

@@ -18,4 +18,4 @@ Logs the override operation if logging is enabled in the global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `toolSchema` | |
+| `toolSchema` | Tool schema configuration defining the tool's name, function, and metadata. |

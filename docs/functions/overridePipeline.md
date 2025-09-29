@@ -15,4 +15,4 @@ Overrides an existing pipeline schema with provided partial updates.
 
 | Parameter | Description |
 |-----------|-------------|
-| `pipelineSchema` | |
+| `pipelineSchema` | Partial pipeline schema with updates to be applied to the existing pipeline configuration. |

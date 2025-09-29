@@ -15,4 +15,4 @@ Checks if the swarm associated with the given client ID is currently busy.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
+| `clientId` | The unique identifier of the client session. |

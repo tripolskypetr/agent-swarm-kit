@@ -19,7 +19,7 @@ The execution is wrapped in `beginContext` to ensure it runs outside of existing
 
 | Parameter | Description |
 |-----------|-------------|
-| `toolId` | |
-| `content` | |
-| `clientId` | |
-| `agentName` | |
+| `toolId` | The unique identifier of the tool call. |
+| `content` | The content to be processed or stored. |
+| `clientId` | The unique identifier of the client session. |
+| `agentName` | The name of the agent to use or reference. |

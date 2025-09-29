@@ -19,8 +19,8 @@ The execution is wrapped in `beginContext` to ensure it runs outside of existing
 
 | Parameter | Description |
 |-----------|-------------|
-| `content` | |
-| `mode` | |
-| `clientId` | |
-| `agentName` | |
-| `payload` | |
+| `content` | The content parameter. |
+| `mode` | The mode parameter. |
+| `clientId` | The clientId parameter. |
+| `agentName` | The agentName parameter. |
+| `payload` | Payload object containing the data to be processed. |

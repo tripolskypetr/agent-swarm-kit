@@ -15,4 +15,4 @@ Overrides an existing compute schema with provided partial updates.
 
 | Parameter | Description |
 |-----------|-------------|
-| `computeSchema` | |
+| `computeSchema` | Partial compute schema with updates to be applied to the existing compute configuration. |

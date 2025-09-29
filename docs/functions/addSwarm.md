@@ -20,4 +20,4 @@ providing a clean execution environment. The function logs the operation if enab
 
 | Parameter | Description |
 |-----------|-------------|
-| `swarmSchema` | |
+| `swarmSchema` | The schema definition for swarm. |

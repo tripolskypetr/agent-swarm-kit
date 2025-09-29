@@ -20,4 +20,4 @@ The function logs the operation if enabled and returns the completion's name upo
 
 | Parameter | Description |
 |-----------|-------------|
-| `completionSchema` | |
+| `completionSchema` | The schema definition for completion. |

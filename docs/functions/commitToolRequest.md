@@ -20,6 +20,6 @@ Function overloads
 
 | Parameter | Description |
 |-----------|-------------|
-| `request` | |
-| `clientId` | |
-| `agentName` | |
+| `request` | The tool request(s) to be processed. |
+| `clientId` | The unique identifier of the client session. |
+| `agentName` | The name of the agent to use or reference. |

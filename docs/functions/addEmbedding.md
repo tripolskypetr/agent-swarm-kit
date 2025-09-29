@@ -20,4 +20,4 @@ and returns the embedding's name upon successful registration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `embeddingSchema` | |
+| `embeddingSchema` | The schema definition for embedding. |

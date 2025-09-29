@@ -15,4 +15,4 @@ Overrides an existing MCP (Model Context Protocol) schema with a new or partial 
 
 | Parameter | Description |
 |-----------|-------------|
-| `mcpSchema` | |
+| `mcpSchema` | The schema definition for mcp. |

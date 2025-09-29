@@ -21,4 +21,4 @@ the state's name upon successful registration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `stateSchema` | |
+| `stateSchema` | Partial state schema with updates to be applied to the existing state configuration. |

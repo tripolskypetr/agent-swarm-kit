@@ -21,6 +21,6 @@ listening.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
-| `topicName` | |
-| `fn` | |
+| `clientId` | The unique identifier of the client session, or "*" for all clients. |
+| `topicName` | The name of the event topic to listen for. |
+| `fn` | Callback function executed when the event is received. |

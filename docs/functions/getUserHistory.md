@@ -19,4 +19,4 @@ The result is an array of history objects representing the user’s contribution
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
+| `clientId` | The unique identifier of the client session. |

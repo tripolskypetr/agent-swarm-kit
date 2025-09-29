@@ -20,6 +20,6 @@ topic is used. The event is structured as an `ICustomEvent` with the provided `c
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
-| `topicName` | |
-| `payload` | |
+| `clientId` | The clientId parameter. |
+| `topicName` | The topicName parameter. |
+| `payload` | Payload object containing the data to be processed. |

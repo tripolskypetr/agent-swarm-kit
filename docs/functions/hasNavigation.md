@@ -17,5 +17,5 @@ Logs the operation if enabled by global configuration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
-| `agentName` | |
+| `clientId` | The unique identifier of the client session. |
+| `agentName` | The name of the agent to use or reference. |

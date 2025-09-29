@@ -19,5 +19,5 @@ The execution is wrapped in `beginContext` to ensure it runs outside of existing
 
 | Parameter | Description |
 |-----------|-------------|
-| `agentName` | |
-| `clientId` | |
+| `agentName` | The name of the agent to use or reference. |
+| `clientId` | The unique identifier of the client session. |

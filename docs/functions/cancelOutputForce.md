@@ -20,4 +20,4 @@ Unlike cancelOutput, this function skips agent validation and active agent check
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
+| `clientId` | The unique identifier of the client session. |

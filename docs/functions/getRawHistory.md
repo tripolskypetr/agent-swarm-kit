@@ -20,4 +20,4 @@ The result is a fresh copy of the history array.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
+| `clientId` | The unique identifier of the client session. |

@@ -21,4 +21,4 @@ analogous to commitFlushForce vs. commitFlush.
 
 | Parameter | Description |
 |-----------|-------------|
-| `clientId` | |
+| `clientId` | The unique identifier of the client session. |

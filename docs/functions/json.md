@@ -16,5 +16,5 @@ Delegates to an internal context-isolated function to ensure clean execution.
 
 | Parameter | Description |
 |-----------|-------------|
-| `outlineName` | |
-| `param` | |
+| `outlineName` | The outlineName parameter. |
+| `param` | The param parameter. |

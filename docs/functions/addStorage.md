@@ -21,4 +21,4 @@ successful registration.
 
 | Parameter | Description |
 |-----------|-------------|
-| `storageSchema` | |
+| `storageSchema` | Partial storage schema with updates to be applied to the existing storage configuration. |
