@@ -9820,6 +9820,7 @@ interface IAgentNavigationParams extends INavigateToAgentParams {
 /**
  * Creates and registers a navigation tool for an agent to navigate to another specified agent.
  * @function addAgentNavigation
+ * @param {IAgentNavigationParams} params - The parameters or configuration object.
  */
 declare function addAgentNavigation(params: IAgentNavigationParams): string;
 
@@ -9844,12 +9845,14 @@ interface ITriageNavigationParams extends INavigateToTriageParams {
 /**
  * Creates and registers a triage navigation tool for an agent to navigate to a triage agent.
  * @function addTriageNavigation
+ * @param {ITriageNavigationParams} params - The parameters or configuration object.
  */
 declare function addTriageNavigation(params: ITriageNavigationParams): string;
 
 /**
  * Adds a wiki schema to the system
  * @function addWiki
+ * @param {IWikiSchema} wikiSchema - The schema definition for wiki.
  */
 declare function addWiki(wikiSchema: IWikiSchema): string;
 
@@ -9861,6 +9864,8 @@ declare function addWiki(wikiSchema: IWikiSchema): string;
  * outside of existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled
  * and returns the agent's name upon successful registration.
  *
+ *
+ * @param {IAgentSchema} agentSchema - The schema definition for agent.
  * @throws {Error} If the agent schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate agent name).
  * @example
  * const agentSchema = { agentName: "AgentX", prompt: "Handle tasks" };
@@ -9877,6 +9882,8 @@ declare function addAgent(agentSchema: IAgentSchema): string;
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  * The function logs the operation if enabled and returns the completion's name upon successful registration.
  *
+ *
+ * @param {ICompletionSchema} completionSchema - The schema definition for completion.
  * @throws {Error} If the completion schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate completion name).
  * @example
  * const completionSchema = { completionName: "OpenAI", model: "gpt-3.5-turbo" };
@@ -9893,6 +9900,8 @@ declare function addCompletion(completionSchema: ICompletionSchema): string;
  * are recognized by the system. The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts,
  * providing a clean execution environment. The function logs the operation if enabled and returns the swarm's name upon successful registration.
  *
+ *
+ * @param {ISwarmSchema} swarmSchema - The schema definition for swarm.
  * @throws {Error} If the swarm schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate swarm name).
  * @example
  * const swarmSchema = { swarmName: "TaskSwarm", defaultAgent: "AgentX" };
@@ -9910,6 +9919,7 @@ declare function addSwarm(swarmSchema: ISwarmSchema): string;
  * outside of existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled
  * and returns the tool's name upon successful registration.
  *
+ * @param toolSchema Tool schema configuration defining the tool's name, function, and metadata.
  * @template T - The type of the tool's input/output data, defaulting to a record of string keys and `ToolValue` values if unspecified.
  * @throws {Error} If the tool schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate tool name).
  * @example
@@ -9921,6 +9931,7 @@ declare function addTool<T extends any = Record<string, ToolValue>>(toolSchema: 
 
 /**
  * Registers a new MCP (Model Context Protocol) schema in the system.
+ * @param {IMCPSchema} mcpSchema - The schema definition for mcp.
  */
 declare function addMCP(mcpSchema: IMCPSchema): string;
 
@@ -9933,6 +9944,8 @@ declare function addMCP(mcpSchema: IMCPSchema): string;
  * existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled and returns
  * the state's name upon successful registration.
  *
+ *
+ * @param stateSchema Partial state schema with updates to be applied to the existing state configuration.
  * @template T - The type of data stored in the state (defaults to `any` if unspecified).
  * @throws {Error} If the state schema is invalid, registration fails (e.g., duplicate state name), or shared state initialization encounters an error.
  * @example
@@ -9950,6 +9963,8 @@ declare function addState<T extends unknown = any>(stateSchema: IStateSchema<T>)
  * outside of existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled
  * and returns the embedding's name upon successful registration.
  *
+ *
+ * @param {IEmbeddingSchema} embeddingSchema - The schema definition for embedding.
  * @throws {Error} If the embedding schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate embedding name).
  * @example
  * const embeddingSchema = { embeddingName: "TextEmbedder", model: "bert-base" };
@@ -9967,6 +9982,8 @@ declare function addEmbedding(embeddingSchema: IEmbeddingSchema): string;
  * and execution contexts, providing a clean execution environment. The function logs the operation if enabled and returns the storage's name upon
  * successful registration.
  *
+ *
+ * @param storageSchema Partial storage schema with updates to be applied to the existing storage configuration.
  * @template T - The type of data stored in the storage, extending `IStorageData` (defaults to `IStorageData` if unspecified).
  * @throws {Error} If the storage schema is invalid, registration fails (e.g., duplicate storage name), or shared storage initialization encounters an error.
  * @example
@@ -9984,6 +10001,8 @@ declare function addStorage<T extends IStorageData = IStorageData>(storageSchema
  * and LoggerService (logging). Part of the swarm setup process, enabling policies to govern agent behavior,
  * complementing runtime functions like commitAssistantMessage by defining operational rules upfront.
  *
+ *
+ * @param {IPolicySchema} policySchema - The schema definition for policy.
  * @throws {Error} If policy registration fails due to validation errors in PolicyValidationService or PolicySchemaService.
  */
 declare function addPolicy(policySchema: IPolicySchema): string;
@@ -9995,6 +10014,8 @@ declare function addPolicy(policySchema: IPolicySchema): string;
 
 /**
  * Registers a compute schema, validates it, and adds it to the compute schema service.
+ *
+ * @param computeSchema Partial compute schema with updates to be applied to the existing compute configuration.
  * @template T - Type extending IComputeData.
  */
 declare function addCompute<T extends IComputeData = any>(computeSchema: IComputeSchema<T>): string;
@@ -10006,6 +10027,8 @@ declare function addCompute<T extends IComputeData = any>(computeSchema: IComput
 
 /**
  * Registers a pipeline schema, validates it, and adds it to the pipeline schema service.
+ *
+ * @param pipelineSchema Partial pipeline schema with updates to be applied to the existing pipeline configuration.
  * @template Payload - Type extending object for the pipeline payload.
  */
 declare function addPipeline<Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>): string;
@@ -10014,6 +10037,9 @@ declare function addPipeline<Payload extends object = any>(pipelineSchema: IPipe
  * Adds an outline schema to the swarm system by registering it with the outline validation and schema services.
  * Ensures the operation runs in a clean context using `beginContext` to avoid interference from existing method or execution contexts.
  * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @param outlineSchema Partial outline schema with updates to be applied to the existing outline configuration.
+ * @param Param> The Param> parameter.
  */
 declare function addOutline<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineSchema: IOutlineSchema<Data, Param>): string;
 
@@ -10031,6 +10057,8 @@ type TAgentSchema = {
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param {TAgentSchema} agentSchema - The schema definition for agent.
  * @throws {Error} If the agent schema service encounters an error during the override operation (e.g., invalid agentName or schema).
  *
  * @example
@@ -10058,6 +10086,8 @@ type TCompletionSchema = {
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param {TCompletionSchema} completionSchema - The schema definition for completion.
  * @throws {Error} If the completion schema service encounters an error during the override operation (e.g., invalid completionName or schema).
  *
  * @example
@@ -10085,6 +10115,8 @@ type TEmbeddingSchema = {
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param {TEmbeddingSchema} embeddingSchema - The schema definition for embedding.
  * @throws {Error} If the embedding schema service encounters an error during the override operation (e.g., invalid embeddingName or schema).
  *
  * @example
@@ -10114,6 +10146,8 @@ type TPolicySchema = {
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param {TPolicySchema} policySchema - The schema definition for policy.
  * @throws {Error} If the policy schema service encounters an error during the override operation (e.g., invalid policyName or schema).
  *
  * @example
@@ -10140,6 +10174,8 @@ type TStateSchema<T extends unknown = any> = {
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param stateSchema Partial state schema with updates to be applied to the existing state configuration.
  * @template T - The type of the state data, defaults to `any`.
  * @throws {Error} If the state schema service encounters an error during the override operation (e.g., invalid stateName or schema).
  *
@@ -10167,6 +10203,8 @@ type TStorageSchema<T extends IStorageData = IStorageData> = {
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param storageSchema Partial storage schema with updates to be applied to the existing storage configuration.
  * @template T - The type of the storage data, defaults to `IStorageData`.
  * @throws {Error} If the storage schema service encounters an error during the override operation (e.g., invalid storageName or schema).
  *
@@ -10195,6 +10233,8 @@ type TSwarmSchema = {
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param {TSwarmSchema} swarmSchema - The schema definition for swarm.
  * @throws {Error} If the swarm schema service encounters an error during the override operation (e.g., invalid swarmName or schema).
  *
  * @example
@@ -10222,6 +10262,7 @@ type TAgentTool<T extends any = Record<string, ToolValue>> = {
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ * @param toolSchema Tool schema configuration defining the tool's name, function, and metadata.
  * @throws {Error} If the tool schema service encounters an error during the override operation (e.g., invalid toolName or schema).
  *
  * @example
@@ -10243,6 +10284,7 @@ type TMCPSchema = {
 } & Partial<IMCPSchema>;
 /**
  * Overrides an existing MCP (Model Context Protocol) schema with a new or partial schema.
+ * @param {TMCPSchema} mcpSchema - The schema definition for mcp.
  */
 declare function overrideMCP(mcpSchema: TMCPSchema): IMCPSchema;
 
@@ -10259,6 +10301,8 @@ type TWikiSchema = {
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param {TWikiSchema} wikiSchema - The schema definition for wiki.
  * @throws {Error} If the wiki schema service encounters an error during the override operation (e.g., invalid wikiName or schema).
  *
  * @example
@@ -10286,6 +10330,8 @@ type TComputeSchema<T extends IComputeData = any> = {
 } & Partial<IComputeSchema<T>>;
 /**
  * Overrides an existing compute schema with provided partial updates.
+ *
+ * @param computeSchema Partial compute schema with updates to be applied to the existing compute configuration.
  */
 declare function overrideCompute<T extends IComputeData = any>(computeSchema: TComputeSchema<T>): IComputeSchema<any>;
 
@@ -10296,6 +10342,8 @@ declare function overrideCompute<T extends IComputeData = any>(computeSchema: TC
 
 /**
  * Overrides an existing pipeline schema with provided partial updates.
+ *
+ * @param pipelineSchema Partial pipeline schema with updates to be applied to the existing pipeline configuration.
  * @template Payload - Type extending object for the pipeline payload.
  */
 declare function overridePipeline<Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>): IPipelineSchema<Payload>;
@@ -10313,12 +10361,18 @@ type TOutlineSchema<Data extends IOutlineData = IOutlineData, Param extends IOut
  * Overrides an existing outline schema in the swarm system by updating it with the provided partial schema.
  * Ensures the operation runs in a clean context using `beginContext` to avoid interference from existing method or execution contexts.
  * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @param outlineSchema Partial outline schema with updates to be applied to the existing outline configuration.
+ * @param Param> The Param> parameter.
  */
 declare function overrideOutline<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineSchema: TOutlineSchema<Data, Param>): IOutlineSchema<any, any>;
 
 /**
  * Marks a client as online in the specified swarm.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm to operate on.
  * @throws {Error} Throws an error if the swarm validation fails or if the operation fails.
  */
 declare function markOnline(clientId: string, swarmName: SwarmName): Promise<void>;
@@ -10327,6 +10381,9 @@ declare function markOnline(clientId: string, swarmName: SwarmName): Promise<voi
  * Marks a client as offline in the specified swarm.
  *
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm to operate on.
  * @throws {Error} If the swarm validation fails or the operation encounters an issue.
  *
  * @example
@@ -10341,6 +10398,11 @@ declare function markOffline(clientId: string, swarmName: SwarmName): Promise<vo
  * It performs validation checks on the agent, session, and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  *
+ *
+ * @param {string} toolId - The unique identifier of the tool call.
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  * @throws {Error} If validation fails (e.g., invalid agent, session, or swarm) or if the session public service encounters an error during the commit operation.
  * @example
  * await commitToolOutput("tool-123", "Tool execution result", "client-456", "AgentX");
@@ -10356,6 +10418,10 @@ declare function commitToolOutput(toolId: string, content: string, clientId: str
  * and LoggerService (logging). Complements functions like commitAssistantMessage by handling system messages (e.g., configuration or control messages)
  * rather than assistant-generated responses.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 declare function commitSystemMessage(content: string, clientId: string, agentName: string): Promise<void>;
@@ -10369,6 +10435,10 @@ declare function commitSystemMessage(content: string, clientId: string, agentNam
  * and LoggerService (logging). Complements functions like commitSystemMessage by handling developer messages
  * (e.g., user or developer instructions) rather than system-generated or assistant-generated responses.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 declare function commitDeveloperMessage(content: string, clientId: string, agentName: string): Promise<void>;
@@ -10381,6 +10451,9 @@ declare function commitDeveloperMessage(content: string, clientId: string, agent
  * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (history flush),
  * and LoggerService (logging). Complements functions like commitAssistantMessage by clearing agent history rather than adding messages.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 declare function commitFlush(clientId: string, agentName: string): Promise<void>;
@@ -10392,6 +10465,12 @@ declare function commitFlush(clientId: string, agentName: string): Promise<void>
  * It performs validation checks on the agent, session, and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  *
+ *
+ * @param content The content parameter.
+ * @param mode The mode parameter.
+ * @param clientId The clientId parameter.
+ * @param agentName The agentName parameter.
+ * @param payload Payload object containing the data to be processed.
  * @throws {Error} If validation fails (e.g., invalid agent, session, or swarm) or if the session public service encounters an error during the commit operation.
  * @example
  * await commitUserMessage("User input message", "client-123", "AgentX");
@@ -10405,6 +10484,10 @@ declare function commitUserMessage<Payload extends object = object>(content: str
  * It performs validation on the session and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  *
+ *
+ * @param {string} toolId - The unique identifier of the tool call.
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If validation fails (e.g., invalid session or swarm) or if the session public service encounters an error during the commit operation.
  * @example
  * await commitToolOutputForce("tool-123", "Tool execution result", "client-456");
@@ -10420,6 +10503,9 @@ declare function commitToolOutputForce(toolId: string, content: string, clientId
  * Unlike commitSystemMessage, this function skips agent validation and active agent checks, providing a more aggressive commit mechanism,
  * analogous to commitAssistantMessageForce vs. commitAssistantMessage.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 declare function commitSystemMessageForce(content: string, clientId: string): Promise<void>;
@@ -10433,6 +10519,8 @@ declare function commitSystemMessageForce(content: string, clientId: string): Pr
  * Unlike commitDeveloperMessage, this function skips agent validation and active agent checks, providing a more aggressive commit mechanism,
  * analogous to commitAssistantMessageForce vs. commitAssistantMessage.
  *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 declare function commitDeveloperMessageForce(content: string, clientId: string): Promise<void>;
@@ -10446,6 +10534,8 @@ declare function commitDeveloperMessageForce(content: string, clientId: string):
  * Unlike commitFlush, this function skips agent validation and active agent checks, providing a more aggressive flush mechanism,
  * analogous to commitAssistantMessageForce vs. commitAssistantMessage.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 declare function commitFlushForce(clientId: string): Promise<void>;
@@ -10457,6 +10547,11 @@ declare function commitFlushForce(clientId: string): Promise<void>;
  * It performs validation on the session and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  *
+ *
+ * @param content The content parameter.
+ * @param mode The mode parameter.
+ * @param clientId The clientId parameter.
+ * @param payload Payload object containing the data to be processed.
  * @throws {Error} If validation fails (e.g., invalid session or swarm) or if the session public service encounters an error during the commit operation.
  * @example
  * await commitUserMessageForce("User input message", "client-123");
@@ -10471,6 +10566,10 @@ declare function commitUserMessageForce<Payload extends object = object>(content
  * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (message committing),
  * and LoggerService (logging). Complements functions like cancelOutput by persisting assistant messages rather than canceling output.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 declare function commitAssistantMessage(content: string, clientId: string, agentName: string): Promise<void>;
@@ -10484,6 +10583,9 @@ declare function commitAssistantMessage(content: string, clientId: string, agent
  * Unlike commitAssistantMessage, this function skips agent validation and active agent checks, providing a more aggressive commit mechanism,
  * analogous to cancelOutputForce vs. cancelOutput.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 declare function commitAssistantMessageForce(content: string, clientId: string): Promise<void>;
@@ -10495,6 +10597,9 @@ declare function commitAssistantMessageForce(content: string, clientId: string):
  * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
  * SwarmValidationService (swarm validation), and SwarmPublicService (agent retrieval and output cancellation).
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 declare function cancelOutput(clientId: string, agentName: string): Promise<void>;
@@ -10507,6 +10612,8 @@ declare function cancelOutput(clientId: string, agentName: string): Promise<void
  * SwarmPublicService (output cancellation), and LoggerService (logging).
  * Unlike cancelOutput, this function skips agent validation and active agent checks, providing a more aggressive cancellation mechanism.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 declare function cancelOutputForce(clientId: string): Promise<void>;
@@ -10519,6 +10626,9 @@ declare function cancelOutputForce(clientId: string): Promise<void>;
  * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (tool execution stop),
  * ToolValidationService (tool context), and LoggerService (logging). Complements functions like commitFlush by controlling tool flow rather than clearing history.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 declare function commitStopTools(clientId: string, agentName: string): Promise<void>;
@@ -10532,6 +10642,8 @@ declare function commitStopTools(clientId: string, agentName: string): Promise<v
  * Unlike commitStopTools, this function skips agent validation and active agent checks, providing a more aggressive stop mechanism,
  * analogous to commitFlushForce vs. commitFlush.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 declare function commitStopToolsForce(clientId: string): Promise<void>;
@@ -10543,6 +10655,9 @@ declare function commitStopToolsForce(clientId: string): Promise<void>;
  *
  *
  * Function overloads
+ * @param {IToolRequest} request - The tool request(s) to be processed.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  */
 declare function commitToolRequest(request: IToolRequest, clientId: string, agentName: string): Promise<string[]>;
 /**
@@ -10552,6 +10667,9 @@ declare function commitToolRequest(request: IToolRequest, clientId: string, agen
  *
  *
  * Function overloads
+ * @param {IToolRequest[]} request - The tool request(s) to be processed.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  */
 declare function commitToolRequest(request: IToolRequest[], clientId: string, agentName: string): Promise<string[]>;
 
@@ -10560,6 +10678,9 @@ declare function commitToolRequest(request: IToolRequest[], clientId: string, ag
  * Validates the session and swarm, bypassing agent validation to directly commit the request.
  * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
  *
+ *
+ * @param {IToolRequest} request - The tool request(s) to be processed.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails.
  *
  * Function overloads
@@ -10570,6 +10691,9 @@ declare function commitToolRequestForce(request: IToolRequest, clientId: string)
  * Validates the session and swarm, bypassing agent validation to directly commit the request.
  * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
  *
+ *
+ * @param {IToolRequest[]} request - The tool request(s) to be processed.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails.
  *
  * Function overloads
@@ -10584,6 +10708,9 @@ declare function commitToolRequestForce(request: IToolRequest[], clientId: strin
  * The execution is wrapped in `beginContext` for a clean environment, validates the session and swarm, and throws an error if the session mode
  * is not "makeConnection". The operation is logged if enabled, and resolves when the content is successfully emitted.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If the session mode is not "makeConnection", or if session or swarm validation fails.
  * @example
  * await emitForce("Direct output", "client-123"); // Emits "Direct output" in a makeConnection session
@@ -10598,6 +10725,9 @@ declare function emitForce(content: string, clientId: string): Promise<void>;
  * agent has changed or is inactive. It validates the session and swarm, executes the content with performance tracking and event bus notifications,
  * and is wrapped in `beginContext` for a clean environment and `ExecutionContextService` for metadata tracking.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, or if the execution process encounters an error.
  * @example
  * const result = await executeForce("Force this execution", "client-123");
@@ -10608,12 +10738,19 @@ declare function executeForce(content: string, clientId: string): Promise<string
 /**
  * Initiates a question process within a chat context
  * @function question
+ * @param {string} message - The message content to process or send.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
+ * @param {WikiName} wikiName - The name of the wiki.
  */
 declare function question(message: string, clientId: string, agentName: AgentName, wikiName: WikiName): Promise<string>;
 
 /**
  * Initiates a forced question process within a chat context
  * @function questionForce
+ * @param {string} message - The message content to process or send.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {WikiName} wikiName - The name of the wiki.
  */
 declare function questionForce(message: string, clientId: string, wikiName: WikiName): Promise<string>;
 
@@ -10621,6 +10758,9 @@ declare function questionForce(message: string, clientId: string, wikiName: Wiki
  * Processes an outline request to generate structured JSON data based on a specified outline schema.
  * Delegates to an internal context-isolated function to ensure clean execution.
  * @async
+ *
+ * @param outlineName The outlineName parameter.
+ * @param param The param parameter.
  * @template Data - The type of the outline data, extending IOutlineData.
  * @template Param - The type of the input param, extending IOutlineParam.
  * @example
@@ -10672,6 +10812,10 @@ declare const makeAutoDispose: (clientId: string, swarmName: string, args_2?: Pa
  * with performance tracking and event bus notifications. The execution is wrapped in `beginContext` for a clean environment and runs within an
  * `ExecutionContextService` context for metadata tracking. If the active agent has changed, the operation is skipped.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, or if the execution process encounters an error.
  * @example
  * const result = await execute("Review this output", "client-123", "AgentX");
@@ -10687,6 +10831,10 @@ declare function execute(content: string, clientId: string, agentName: AgentName
  * before emitting. If the active agent has changed, the operation is skipped. The execution is wrapped in `beginContext` for a clean environment,
  * logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
  * @example
  * await emit("Direct output", "client-123", "AgentX"); // Emits "Direct output" if AgentX is active
@@ -10701,6 +10849,10 @@ declare function emit(content: string, clientId: string, agentName: AgentName): 
  * is still active before sending the notification. If the active agent has changed, the operation is skipped. The execution is wrapped in
  * `beginContext` for a clean environment, logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
  * @example
  * await notify("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active
@@ -10715,6 +10867,9 @@ declare function notify(content: string, clientId: string, agentName: AgentName)
  * is still active before sending the notification. Will notify even if the agent was changed. The execution is wrapped in
  * `beginContext` for a clean environment, logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
  * @example
  * await notifyForce("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active
@@ -10730,6 +10885,10 @@ declare function notifyForce(content: string, clientId: string): Promise<void>;
  * `beginContext` for a clean environment and `ExecutionContextService` for metadata tracking. If the active agent has changed, the operation
  * is skipped, returning an empty string.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, or if the execution process encounters an error.
  * @example
  * const result = await runStateless("Process this data", "client-123", "AgentX");
@@ -10745,6 +10904,9 @@ declare function runStateless(content: string, clientId: string, agentName: Agen
  * even if the agent has changed or is inactive. It validates the session and swarm, executes the content with performance tracking and event bus
  * notifications, and is wrapped in `beginContext` for a clean environment and `ExecutionContextService` for metadata tracking.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, or if the execution process encounters an error.
  * @example
  * const result = await runStatelessForce("Process this data forcefully", "client-123");
@@ -10909,6 +11071,9 @@ interface IScopeOptions {
 }
 /**
  * Executes a provided function within a managed scope, handling session creation, validation, and cleanup.
+ *
+ * @param runFn Function to execute within the managed scope, receiving clientId and agentName as arguments.
+ * @param options Configuration options for the scope operation including clientId, swarmName, and optional callbacks.
  * @template T - Type of the result returned by the run function.
  * @throws {Error} If a session already exists for the clientId.
  */
@@ -10926,6 +11091,9 @@ declare function fork<T = any>(runFn: (clientId: string, agentName: AgentName) =
 type ScopeOptions = Partial<ISchemaContext["registry"]>;
 /**
  * Executes a provided function within a schema context, with optional overrides for schema services such as agents, completions, and pipelines.
+ *
+ * @param runFn Function to execute within the managed scope, receiving clientId and agentName as arguments.
+ * @param options Configuration options for schema service overrides.
  * @template T - Type of the result returned by the run function.
  */
 declare function scope<T = any>(runFn: () => Promise<T | void>, options?: ScopeOptions): Promise<T>;
@@ -10938,6 +11106,11 @@ declare function scope<T = any>(runFn: () => Promise<T | void>, options?: ScopeO
 /**
  * @function startPipeline
  * Executes a pipeline with the specified name, handling session creation, validation, and lifecycle callbacks.
+ *
+ * @param clientId The clientId parameter.
+ * @param pipelineName The pipelineName parameter.
+ * @param agentName The agentName parameter.
+ * @param payload Payload object containing the data to be processed.
  * @template Payload - Type extending object for the pipeline payload.
  * @template T - Type of the result returned by the pipeline execution.
  */
@@ -10963,6 +11136,7 @@ declare const disposeConnection: (clientId: string, swarmName: string, methodNam
  * This function logs the method name if logging is enabled in the global configuration.
  * It then delegates the session validation to the `swarm.sessionValidationService`.
  *
+ * @param {string} clientId - The unique identifier of the client session.
  */
 declare function hasSession(clientId: string): boolean;
 
@@ -10970,6 +11144,8 @@ declare function hasSession(clientId: string): boolean;
  * Checks if a specific agent is part of the navigation route for a given client.
  * Validates the agent and client session, retrieves the associated swarm, and queries the navigation route.
  * Logs the operation if enabled by global configuration.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  */
 declare function hasNavigation(clientId: string, agentName: AgentName): Promise<boolean>;
 
@@ -10986,6 +11162,7 @@ declare function getPayload<Payload extends object = object>(): Payload | null;
 /**
  * Checks if the swarm associated with the given client ID is currently busy.
  *
+ * @param {string} clientId - The unique identifier of the client session.
  */
 declare function getCheckBusy(clientId: string): Promise<boolean>;
 
@@ -10996,6 +11173,8 @@ declare function getCheckBusy(clientId: string): Promise<boolean>;
  * It validates the client session and swarm, logs the operation if enabled, and delegates the retrieval to the swarm public service.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If the client session is invalid, the swarm validation fails, or the swarm public service encounters an error during retrieval.
  * @example
  * const agentName = await getAgentName("client-123");
@@ -11010,6 +11189,9 @@ declare function getAgentName(clientId: string): Promise<string>;
  * It validates the client session and agent, logs the operation if enabled, and retrieves the history using the agent's prompt configuration via the history public service.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  * @throws {Error} If validation fails (e.g., invalid session or agent) or if the history public service encounters an error during retrieval.
  * @example
  * const history = await getAgentHistory("client-123", "AgentX");
@@ -11024,6 +11206,8 @@ declare function getAgentHistory(clientId: string, agentName: AgentName): Promis
  * It validates the client session and associated swarm, logs the operation if enabled, and fetches the session mode using the session validation service.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If the client session is invalid, the swarm validation fails, or the session validation service encounters an error during mode retrieval.
  * @example
  * const mode = await getSessionMode("client-123");
@@ -11077,6 +11261,8 @@ declare function getSessionContext(): Promise<ISessionContext>;
  * Retrieves the navigation route for a given client and swarm.
  * Delegates to `NavigationValidationService.getNavigationRoute` to obtain a `Set` of visited agent names,
  * with optional logging based on global configuration.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm to operate on.
  */
 declare function getNavigationRoute(clientId: string, swarmName: SwarmName): Set<string>;
 
@@ -11084,6 +11270,10 @@ declare function getNavigationRoute(clientId: string, swarmName: SwarmName): Set
  * Resolves the model-facing name for a tool, given its name, client, and agent context.
  * This is the main exported function for external usage.
  *
+ *
+ * @param {ToolName} toolName - The name of the tool.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  * @example
  * const modelToolName = await getToolNameForModel("search-tool", "client-123", "assistant-agent");
  */
@@ -11096,6 +11286,8 @@ declare function getToolNameForModel(toolName: ToolName, clientId: string, agent
  * is "user". It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The result is
  * the content of the last user message as a string, or `null` if no matching user message exists in the history.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
  * @example
  * const lastMessage = await getLastUserMessage("client-123");
@@ -11110,6 +11302,8 @@ declare function getLastUserMessage(clientId: string): Promise<string>;
  * and mode are "user". It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`.
  * The result is an array of history objects representing the user’s contributions in the session.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
  * @example
  * const userHistory = await getUserHistory("client-123");
@@ -11124,6 +11318,8 @@ declare function getUserHistory(clientId: string): Promise<IModelMessage<object>
  * "assistant". It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The result
  * is an array of history objects representing the assistant's contributions in the session.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
  * @example
  * const assistantHistory = await getAssistantHistory("client-123");
@@ -11138,6 +11334,8 @@ declare function getAssistantHistory(clientId: string): Promise<IModelMessage<ob
  * It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The result is the content
  * of the last assistant message as a string, or `null` if no assistant message exists in the history.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
  * @example
  * const lastMessage = await getLastAssistantMessage("client-123");
@@ -11152,6 +11350,8 @@ declare function getLastAssistantMessage(clientId: string): Promise<string>;
  * It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The result is the content
  * of the last system message as a string, or `null` if no system message exists in the history.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
  * @example
  * const lastMessage = await getLastSystemMessage("client-123");
@@ -11164,6 +11364,7 @@ declare function getLastSystemMessage(clientId: string): Promise<string>;
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getAgent
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  */
 declare function getAgent(agentName: AgentName): IAgentSchemaInternal;
 
@@ -11172,6 +11373,7 @@ declare function getAgent(agentName: AgentName): IAgentSchemaInternal;
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getCompletion
+ * @param {CompletionName} completionName - The name of the completion.
  */
 declare function getCompletion(completionName: CompletionName): ICompletionSchema;
 
@@ -11180,6 +11382,7 @@ declare function getCompletion(completionName: CompletionName): ICompletionSchem
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getCompute
+ * @param {ComputeName} computeName - The name of the compute.
  */
 declare function getCompute(computeName: ComputeName): IComputeSchema<any>;
 
@@ -11188,6 +11391,7 @@ declare function getCompute(computeName: ComputeName): IComputeSchema<any>;
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getEmbedding
+ * @param {EmbeddingName} embeddingName - The name of the embedding.
  */
 declare function getEmbeding(embeddingName: EmbeddingName): IEmbeddingSchema;
 
@@ -11196,6 +11400,7 @@ declare function getEmbeding(embeddingName: EmbeddingName): IEmbeddingSchema;
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getMCP
+ * @param {MCPName} mcpName - The name of the mcp.
  */
 declare function getMCP(mcpName: MCPName): IMCPSchema;
 
@@ -11204,6 +11409,7 @@ declare function getMCP(mcpName: MCPName): IMCPSchema;
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getPipeline
+ * @param {PipelineName} pipelineName - The name of the pipeline.
  */
 declare function getPipeline(pipelineName: PipelineName): IPipelineSchema<any>;
 
@@ -11212,6 +11418,7 @@ declare function getPipeline(pipelineName: PipelineName): IPipelineSchema<any>;
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getPolicy
+ * @param {PolicyName} policyName - The name of the policy.
  */
 declare function getPolicy(policyName: PolicyName): IPolicySchema;
 
@@ -11220,6 +11427,7 @@ declare function getPolicy(policyName: PolicyName): IPolicySchema;
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getState
+ * @param {StateName} stateName - The name of the state.
  */
 declare function getState(stateName: StateName): IStateSchema<any>;
 
@@ -11228,6 +11436,7 @@ declare function getState(stateName: StateName): IStateSchema<any>;
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getStorage
+ * @param {StorageName} storageName - The name of the storage.
  */
 declare function getStorage(storageName: StorageName): IStorageSchema<IStorageData>;
 
@@ -11236,6 +11445,7 @@ declare function getStorage(storageName: StorageName): IStorageSchema<IStorageDa
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getSwarm
+ * @param {SwarmName} swarmName - The name of the swarm to operate on.
  */
 declare function getSwarm(swarmName: SwarmName): ISwarmSchema;
 
@@ -11244,6 +11454,7 @@ declare function getSwarm(swarmName: SwarmName): ISwarmSchema;
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getTool
+ * @param {ToolName} toolName - The name of the tool.
  */
 declare function getTool(toolName: ToolName): IAgentTool<Record<string, ToolValue>>;
 
@@ -11252,6 +11463,7 @@ declare function getTool(toolName: ToolName): IAgentTool<Record<string, ToolValu
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getWiki
+ * @param {WikiName} wikiName - The name of the wiki.
  */
 declare function getWiki(wikiName: WikiName): IWikiSchema;
 
@@ -11263,6 +11475,8 @@ declare function getWiki(wikiName: WikiName): IWikiSchema;
  * the session and swarm, retrieves the current agent, and uses `historyPublicService.toArrayForRaw` to obtain the raw history as an array.
  * The result is a fresh copy of the history array.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, or if history retrieval encounters an issue.
  * @example
  * const rawHistory = await getRawHistory("client-123");
@@ -11278,6 +11492,10 @@ declare function getRawHistory(clientId: string): Promise<IModelMessage<object>[
  * The function enforces a restriction on reserved topic names (defined in `DISALLOWED_EVENT_SOURCE_LIST`), throwing an error if a reserved
  * topic is used. The event is structured as an `ICustomEvent` with the provided `clientId`, `topicName` as the source, and `payload`.
  *
+ *
+ * @param clientId The clientId parameter.
+ * @param topicName The topicName parameter.
+ * @param payload Payload object containing the data to be processed.
  * @template T - The type of the payload, defaulting to `any` if unspecified.
  * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus", "session-bus").
  * @example
@@ -11295,6 +11513,9 @@ declare function event<T extends unknown = any>(clientId: string, topicName: str
  * supports a wildcard client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop
  * listening.
  *
+ * @param {string} clientId - The unique identifier of the client session, or "*" for all clients.
+ * @param {string} topicName - The name of the event topic to listen for.
+ * @param fn - Callback function executed when the event is received.
  * @template T - The type of the payload data, defaulting to `any` if unspecified.
  * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus"), or if the `clientId` is not "*" and no session exists.
  * @example
@@ -11313,6 +11534,10 @@ declare function listenEvent<T extends unknown = any>(clientId: string, topicNam
  * queued to ensure sequential processing, and the listener unsubscribes after the first matching event. The function supports a wildcard client ID
  * ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to cancel the listener prematurely.
  *
+ * @param {string} clientId - The unique identifier of the client session, or "*" for all clients.
+ * @param {string} topicName - The name of the event topic to listen for.
+ * @param filterFn - Filter function that determines if the event should trigger the callback.
+ * @param fn - Callback function executed when a matching event is received.
  * @template T - The type of the payload data, defaulting to `any` if unspecified.
  * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus"), or if the `clientId` is not "*" and no session exists.
  * @example
@@ -11334,6 +11559,9 @@ declare function listenEventOnce<T extends unknown = any>(clientId: string, topi
  * logging the operation if enabled, and executing the change using a TTL-limited, queued runner.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
  *
+ *
+ * @param {AgentName} agentName - The name of the agent to use or reference.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToAgent("AgentX", "client-123");
@@ -11347,6 +11575,8 @@ declare function changeToAgent(agentName: AgentName, clientId: string): Promise<
  * as determined by the `navigationPop` method. It validates the session and agent, logs the operation if enabled, and executes the change using a TTL-limited, queued runner.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToPrevAgent("client-123");
@@ -11360,6 +11590,8 @@ declare function changeToPrevAgent(clientId: string): Promise<boolean>;
  * It validates the session and default agent, logs the operation if enabled, and executes the change using a TTL-limited, queued runner.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToDefaultAgent("client-123");
