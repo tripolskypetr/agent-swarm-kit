@@ -30,6 +30,8 @@ const getLastAssistantMessageInternal = beginContext(
  * It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The result is the content
  * of the last assistant message as a string, or `null` if no assistant message exists in the history.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
  * @example
  * const lastMessage = await getLastAssistantMessage("client-123");

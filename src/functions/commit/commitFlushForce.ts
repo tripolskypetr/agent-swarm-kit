@@ -42,6 +42,8 @@ const commitFlushForceInternal = beginContext(
  * Unlike commitFlush, this function skips agent validation and active agent checks, providing a more aggressive flush mechanism,
  * analogous to commitAssistantMessageForce vs. commitAssistantMessage.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 export async function commitFlushForce(clientId: string) {

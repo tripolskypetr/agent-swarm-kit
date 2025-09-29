@@ -35,6 +35,9 @@ const markOfflineInternal = async (clientId: string, swarmName: SwarmName): Prom
  * Marks a client as offline in the specified swarm.
  *
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {SwarmName} swarmName - The name of the swarm to operate on.
  * @throws {Error} If the swarm validation fails or the operation encounters an issue.
  *
  * @example

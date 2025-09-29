@@ -28,6 +28,8 @@ const getLastSystemMessageInternal = beginContext(async (clientId: string): Prom
  * It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The result is the content
  * of the last system message as a string, or `null` if no system message exists in the history.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
  * @example
  * const lastMessage = await getLastSystemMessage("client-123");

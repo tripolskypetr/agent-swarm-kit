@@ -32,6 +32,7 @@ const addToolInternal = beginContext((toolSchema: IAgentTool<unknown>) => {
  * outside of existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled
  * and returns the tool's name upon successful registration.
  *
+ * @param toolSchema Tool schema configuration defining the tool's name, function, and metadata.
  * @template T - The type of the tool's input/output data, defaulting to a record of string keys and `ToolValue` values if unspecified.
  * @throws {Error} If the tool schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate tool name).
  * @example

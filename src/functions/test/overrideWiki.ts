@@ -34,6 +34,8 @@ const overrideWikiInternal = beginContext((publicWikiSchema: TWikiSchema) => {
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param {TWikiSchema} wikiSchema - The schema definition for wiki.
  * @throws {Error} If the wiki schema service encounters an error during the override operation (e.g., invalid wikiName or schema).
  *
  * @example

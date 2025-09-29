@@ -34,6 +34,8 @@ const overrideSwarmInternal = beginContext((publicSwarmSchema: TSwarmSchema) => 
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param {TSwarmSchema} swarmSchema - The schema definition for swarm.
  * @throws {Error} If the swarm schema service encounters an error during the override operation (e.g., invalid swarmName or schema).
  *
  * @example

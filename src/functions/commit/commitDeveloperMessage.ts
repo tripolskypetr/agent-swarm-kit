@@ -60,6 +60,10 @@ const commitDeveloperMessageInternal = beginContext(
  * and LoggerService (logging). Complements functions like commitSystemMessage by handling developer messages
  * (e.g., user or developer instructions) rather than system-generated or assistant-generated responses.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 export async function commitDeveloperMessage(content: string, clientId: string, agentName: string) {

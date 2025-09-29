@@ -57,7 +57,7 @@ def analyze_md_files():
         for issue in issues_found:
             print(issue)
     else:
-        print("\n✅ All files have proper descriptions!")
+        print("\n[OK] All files have proper descriptions!")
 
 if __name__ == "__main__":
     analyze_md_files()

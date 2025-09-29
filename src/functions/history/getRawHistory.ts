@@ -44,6 +44,8 @@ export const getRawHistoryInternal = beginContext(async (
  * the session and swarm, retrieves the current agent, and uses `historyPublicService.toArrayForRaw` to obtain the raw history as an array.
  * The result is a fresh copy of the history array.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, or if history retrieval encounters an issue.
  * @example
  * const rawHistory = await getRawHistory("client-123");

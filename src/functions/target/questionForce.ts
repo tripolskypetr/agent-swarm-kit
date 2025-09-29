@@ -49,6 +49,9 @@ const questionForceInternal = beginContext(
 /**
  * Initiates a forced question process within a chat context
  * @function questionForce
+ * @param {string} message - The message content to process or send.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {WikiName} wikiName - The name of the wiki.
  */
 export async function questionForce(message: string, clientId: string, wikiName: WikiName) {
   return await questionForceInternal(message, clientId, wikiName);

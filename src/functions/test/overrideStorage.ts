@@ -42,6 +42,8 @@ const overrideStorageInternal = beginContext(
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param storageSchema Partial storage schema with updates to be applied to the existing storage configuration.
  * @template T - The type of the storage data, defaults to `IStorageData`.
  * @throws {Error} If the storage schema service encounters an error during the override operation (e.g., invalid storageName or schema).
  *

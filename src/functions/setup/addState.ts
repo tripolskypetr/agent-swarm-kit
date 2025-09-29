@@ -44,6 +44,8 @@ const addStateInternal = beginContext((stateSchema: IStateSchema) => {
  * existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled and returns
  * the state's name upon successful registration.
  *
+ *
+ * @param stateSchema Partial state schema with updates to be applied to the existing state configuration.
  * @template T - The type of data stored in the state (defaults to `any` if unspecified).
  * @throws {Error} If the state schema is invalid, registration fails (e.g., duplicate state name), or shared state initialization encounters an error.
  * @example

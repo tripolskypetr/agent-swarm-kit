@@ -9,6 +9,7 @@ const METHOD_NAME = "function.dump.getEmbeding";
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getEmbedding
+ * @param {EmbeddingName} embeddingName - The name of the embedding.
  */
 export function getEmbeding(embeddingName: EmbeddingName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

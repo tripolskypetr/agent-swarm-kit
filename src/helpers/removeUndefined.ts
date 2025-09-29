@@ -6,6 +6,8 @@
  * any properties whose values are `undefined`. The resulting object retains
  * all other properties and their values.
  *
+ *
+ * @param obj The obj parameter.
  * @template T - The type of the input object.
  */
 export function removeUndefined<T extends object = any>(obj: T): T {

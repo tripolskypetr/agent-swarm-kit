@@ -50,6 +50,9 @@ const overrideOutlineInternal = beginContext(
  * Overrides an existing outline schema in the swarm system by updating it with the provided partial schema.
  * Ensures the operation runs in a clean context using `beginContext` to avoid interference from existing method or execution contexts.
  * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @param outlineSchema Partial outline schema with updates to be applied to the existing outline configuration.
+ * @param Param> The Param> parameter.
  */
 export function overrideOutline<
   Data extends IOutlineData = IOutlineData,

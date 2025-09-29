@@ -116,6 +116,10 @@ const runStatelessInternal = beginContext(
  * `beginContext` for a clean environment and `ExecutionContextService` for metadata tracking. If the active agent has changed, the operation
  * is skipped, returning an empty string.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, or if the execution process encounters an error.
  * @example
  * const result = await runStateless("Process this data", "client-123", "AgentX");

@@ -55,6 +55,10 @@ const eventInternal = beginContext(
  * The function enforces a restriction on reserved topic names (defined in `DISALLOWED_EVENT_SOURCE_LIST`), throwing an error if a reserved
  * topic is used. The event is structured as an `ICustomEvent` with the provided `clientId`, `topicName` as the source, and `payload`.
  *
+ *
+ * @param clientId The clientId parameter.
+ * @param topicName The topicName parameter.
+ * @param payload Payload object containing the data to be processed.
  * @template T - The type of the payload, defaulting to `any` if unspecified.
  * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus", "session-bus").
  * @example

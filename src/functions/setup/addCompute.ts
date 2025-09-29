@@ -29,6 +29,8 @@ const addComputeInternal = beginContext((computeSchema: IComputeSchema): string 
 
 /**
  * Registers a compute schema, validates it, and adds it to the compute schema service.
+ *
+ * @param computeSchema Partial compute schema with updates to be applied to the existing compute configuration.
  * @template T - Type extending IComputeData.
  */
 export function addCompute<T extends IComputeData = any>(computeSchema: IComputeSchema<T>) {

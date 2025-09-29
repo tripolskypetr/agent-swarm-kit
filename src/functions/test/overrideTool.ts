@@ -35,6 +35,7 @@ const overrideToolInternal = beginContext((publicToolSchema: TAgentTool<unknown>
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ * @param toolSchema Tool schema configuration defining the tool's name, function, and metadata.
  * @throws {Error} If the tool schema service encounters an error during the override operation (e.g., invalid toolName or schema).
  *
  * @example

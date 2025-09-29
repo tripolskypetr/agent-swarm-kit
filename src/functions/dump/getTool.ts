@@ -9,6 +9,7 @@ const METHOD_NAME = "function.dump.getTool";
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getTool
+ * @param {ToolName} toolName - The name of the tool.
  */
 export function getTool(toolName: ToolName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

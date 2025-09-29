@@ -45,6 +45,8 @@ const addStorageInternal = beginContext((storageSchema: IStorageSchema<IStorageD
  * and execution contexts, providing a clean execution environment. The function logs the operation if enabled and returns the storage's name upon
  * successful registration.
  *
+ *
+ * @param storageSchema Partial storage schema with updates to be applied to the existing storage configuration.
  * @template T - The type of data stored in the storage, extending `IStorageData` (defaults to `IStorageData` if unspecified).
  * @throws {Error} If the storage schema is invalid, registration fails (e.g., duplicate storage name), or shared storage initialization encounters an error.
  * @example

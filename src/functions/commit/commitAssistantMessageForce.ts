@@ -43,6 +43,9 @@ const commitAssistantMessageForceInternal = beginContext(
  * Unlike commitAssistantMessage, this function skips agent validation and active agent checks, providing a more aggressive commit mechanism,
  * analogous to cancelOutputForce vs. cancelOutput.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 export async function commitAssistantMessageForce(content: string, clientId: string) {

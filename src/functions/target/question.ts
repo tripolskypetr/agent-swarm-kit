@@ -75,6 +75,10 @@ const questionInternal = beginContext(
 /**
  * Initiates a question process within a chat context
  * @function question
+ * @param {string} message - The message content to process or send.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
+ * @param {WikiName} wikiName - The name of the wiki.
  */
 export async function question(message: string, clientId: string, agentName: AgentName, wikiName: WikiName) {
   return await questionInternal(message, clientId, agentName, wikiName);

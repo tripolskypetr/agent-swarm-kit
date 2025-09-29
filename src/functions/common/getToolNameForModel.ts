@@ -40,6 +40,10 @@ const getToolNameForModelInternal = beginContext(async (toolName: ToolName, clie
  * Resolves the model-facing name for a tool, given its name, client, and agent context.
  * This is the main exported function for external usage.
  *
+ *
+ * @param {ToolName} toolName - The name of the tool.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  * @example
  * const modelToolName = await getToolNameForModel("search-tool", "client-123", "assistant-agent");
  */

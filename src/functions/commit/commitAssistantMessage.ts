@@ -65,6 +65,10 @@ const commitAssistantMessageInternal = beginContext(
  * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (message committing),
  * and LoggerService (logging). Complements functions like cancelOutput by persisting assistant messages rather than canceling output.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 export async function commitAssistantMessage(content: string, clientId: string, agentName: string) {

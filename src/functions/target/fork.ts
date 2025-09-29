@@ -89,6 +89,9 @@ const forkInternal = beginContext(
 
 /**
  * Executes a provided function within a managed scope, handling session creation, validation, and cleanup.
+ *
+ * @param runFn Function to execute within the managed scope, receiving clientId and agentName as arguments.
+ * @param options Configuration options for the scope operation including clientId, swarmName, and optional callbacks.
  * @template T - Type of the result returned by the run function.
  * @throws {Error} If a session already exists for the clientId.
  */

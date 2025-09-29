@@ -40,6 +40,8 @@ const overrideEmbedingInternal = beginContext(
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param {TEmbeddingSchema} embeddingSchema - The schema definition for embedding.
  * @throws {Error} If the embedding schema service encounters an error during the override operation (e.g., invalid embeddingName or schema).
  *
  * @example

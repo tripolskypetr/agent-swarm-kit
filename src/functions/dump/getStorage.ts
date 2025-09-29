@@ -9,6 +9,7 @@ const METHOD_NAME = "function.dump.getStorage";
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getStorage
+ * @param {StorageName} storageName - The name of the storage.
  */
 export function getStorage(storageName: StorageName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

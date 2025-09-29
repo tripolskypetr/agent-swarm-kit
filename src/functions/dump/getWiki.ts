@@ -9,6 +9,7 @@ const METHOD_NAME = "function.dump.getWiki";
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getWiki
+ * @param {WikiName} wikiName - The name of the wiki.
  */
 export function getWiki(wikiName: WikiName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

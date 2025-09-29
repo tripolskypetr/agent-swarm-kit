@@ -44,6 +44,8 @@ const overridePipelineInternal = beginContext(
 
 /**
  * Overrides an existing pipeline schema with provided partial updates.
+ *
+ * @param pipelineSchema Partial pipeline schema with updates to be applied to the existing pipeline configuration.
  * @template Payload - Type extending object for the pipeline payload.
  */
 export function overridePipeline<Payload extends object = any>(

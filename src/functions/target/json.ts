@@ -232,6 +232,9 @@ const jsonInternal = beginContext(
  * Processes an outline request to generate structured JSON data based on a specified outline schema.
  * Delegates to an internal context-isolated function to ensure clean execution.
  * @async
+ *
+ * @param outlineName The outlineName parameter.
+ * @param param The param parameter.
  * @template Data - The type of the outline data, extending IOutlineData.
  * @template Param - The type of the input param, extending IOutlineParam.
  * @example

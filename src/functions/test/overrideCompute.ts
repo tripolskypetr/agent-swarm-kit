@@ -40,6 +40,8 @@ const overrideComputeInternal = beginContext((publicComputeSchema: TComputeSchem
 
 /**
  * Overrides an existing compute schema with provided partial updates.
+ *
+ * @param computeSchema Partial compute schema with updates to be applied to the existing compute configuration.
  */
 export function overrideCompute<T extends IComputeData = any>(computeSchema: TComputeSchema<T>) {
   return overrideComputeInternal(computeSchema)

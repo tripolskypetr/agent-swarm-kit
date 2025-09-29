@@ -32,6 +32,7 @@ const addWikiInternal = beginContext(
 /**
  * Adds a wiki schema to the system
  * @function addWiki
+ * @param {IWikiSchema} wikiSchema - The schema definition for wiki.
  */
 export function addWiki(wikiSchema: IWikiSchema) {
   return addWikiInternal(wikiSchema);

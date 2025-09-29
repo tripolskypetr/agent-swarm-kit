@@ -68,6 +68,9 @@ const scopeInternal = beginContext(
 
 /**
  * Executes a provided function within a schema context, with optional overrides for schema services such as agents, completions, and pipelines.
+ *
+ * @param runFn Function to execute within the managed scope, receiving clientId and agentName as arguments.
+ * @param options Configuration options for schema service overrides.
  * @template T - Type of the result returned by the run function.
  */
 export async function scope<T = any>(

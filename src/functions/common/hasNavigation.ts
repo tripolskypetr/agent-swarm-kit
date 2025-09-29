@@ -28,6 +28,8 @@ const hasNavigationInternal = async (clientId: string, agentName: AgentName) => 
  * Checks if a specific agent is part of the navigation route for a given client.
  * Validates the agent and client session, retrieves the associated swarm, and queries the navigation route.
  * Logs the operation if enabled by global configuration.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  */
 export async function hasNavigation(clientId: string, agentName: AgentName) {
   return await hasNavigationInternal(clientId, agentName);

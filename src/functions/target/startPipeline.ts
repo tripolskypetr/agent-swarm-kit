@@ -78,6 +78,11 @@ const startPipelineInternal = beginContext(
 /**
  * @function startPipeline
  * Executes a pipeline with the specified name, handling session creation, validation, and lifecycle callbacks.
+ *
+ * @param clientId The clientId parameter.
+ * @param pipelineName The pipelineName parameter.
+ * @param agentName The agentName parameter.
+ * @param payload Payload object containing the data to be processed.
  * @template Payload - Type extending object for the pipeline payload.
  * @template T - Type of the result returned by the pipeline execution.
  */

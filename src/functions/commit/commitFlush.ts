@@ -63,6 +63,9 @@ const commitFlushInternal = beginContext(
  * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (history flush),
  * and LoggerService (logging). Complements functions like commitAssistantMessage by clearing agent history rather than adding messages.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 export async function commitFlush(clientId: string, agentName: string) {

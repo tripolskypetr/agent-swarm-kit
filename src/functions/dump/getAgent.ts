@@ -9,6 +9,7 @@ const METHOD_NAME = "function.dump.getAgent";
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getAgent
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  */
 export function getAgent(agentName: AgentName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

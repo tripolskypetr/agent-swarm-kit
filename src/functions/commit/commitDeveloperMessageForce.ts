@@ -10,6 +10,9 @@ const METHOD_NAME = "function.commit.commitDeveloperMessageForce";
  * Logs the operation if enabled, validates the session and swarm, and commits the message via SessionPublicService.
  * Skips agent validation and active agent checks, providing a more aggressive commit mechanism.
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails.
  */
 const commitDeveloperMessageForceInternal = beginContext(
@@ -43,6 +46,8 @@ const commitDeveloperMessageForceInternal = beginContext(
  * Unlike commitDeveloperMessage, this function skips agent validation and active agent checks, providing a more aggressive commit mechanism,
  * analogous to commitAssistantMessageForce vs. commitAssistantMessage.
  *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 export async function commitDeveloperMessageForce(content: string, clientId: string) {

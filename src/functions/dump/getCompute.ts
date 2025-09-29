@@ -9,6 +9,7 @@ const METHOD_NAME = "function.dump.getCompute";
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getCompute
+ * @param {ComputeName} computeName - The name of the compute.
  */
 export function getCompute(computeName: ComputeName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

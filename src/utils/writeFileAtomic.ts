@@ -22,6 +22,10 @@ interface Options {
  * Atomically writes data to a file, ensuring the operation either fully completes or leaves the original file unchanged.
  * Uses a temporary file with a rename strategy on POSIX systems for atomicity, or direct writing with sync on Windows (or when POSIX rename is skipped).
  *
+ *
+ * @param {string} file - The file parameter.
+ * @param {string | Buffer} data - The data to be processed or validated.
+ * @param {Options | BufferEncoding} options - The options parameter (optional).
  * @throws {Error} Throws an error if the write, sync, or rename operation fails, after attempting cleanup of temporary files.
  *
  * @example

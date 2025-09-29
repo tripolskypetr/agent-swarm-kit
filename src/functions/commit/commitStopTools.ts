@@ -64,6 +64,9 @@ const commitStopToolsInternal = beginContext(
  * SwarmValidationService (swarm validation), SwarmPublicService (agent retrieval), SessionPublicService (tool execution stop),
  * ToolValidationService (tool context), and LoggerService (logging). Complements functions like commitFlush by controlling tool flow rather than clearing history.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 export async function commitStopTools(clientId: string, agentName: string) {

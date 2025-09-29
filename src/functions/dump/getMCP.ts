@@ -9,6 +9,7 @@ const METHOD_NAME = "function.dump.getMCP";
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getMCP
+ * @param {MCPName} mcpName - The name of the mcp.
  */
 export function getMCP(mcpName: MCPName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

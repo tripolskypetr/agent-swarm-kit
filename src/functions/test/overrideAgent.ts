@@ -40,6 +40,8 @@ const overrideAgentInternal = beginContext(
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param {TAgentSchema} agentSchema - The schema definition for agent.
  * @throws {Error} If the agent schema service encounters an error during the override operation (e.g., invalid agentName or schema).
  *
  * @example

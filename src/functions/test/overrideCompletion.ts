@@ -40,6 +40,8 @@ const overrideCompletionInternal = beginContext(
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param {TCompletionSchema} completionSchema - The schema definition for completion.
  * @throws {Error} If the completion schema service encounters an error during the override operation (e.g., invalid completionName or schema).
  *
  * @example

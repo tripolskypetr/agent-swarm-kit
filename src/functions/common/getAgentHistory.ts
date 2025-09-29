@@ -49,6 +49,9 @@ const getAgentHistoryInternal = beginContext(
  * It validates the client session and agent, logs the operation if enabled, and retrieves the history using the agent's prompt configuration via the history public service.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  * @throws {Error} If validation fails (e.g., invalid session or agent) or if the history public service encounters an error during retrieval.
  * @example
  * const history = await getAgentHistory("client-123", "AgentX");

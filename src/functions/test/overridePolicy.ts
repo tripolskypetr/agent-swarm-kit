@@ -35,6 +35,8 @@ const overridePolicyInternal = beginContext((publicPolicySchema: TPolicySchema) 
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param {TPolicySchema} policySchema - The schema definition for policy.
  * @throws {Error} If the policy schema service encounters an error during the override operation (e.g., invalid policyName or schema).
  *
  * @example

@@ -24,6 +24,10 @@ const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
 /**
  * Validates the client ID for event listening, allowing wildcard "*" or checking for an active session.
  *
+ *
+ * @param clientId The clientId parameter.
+ * @param topicName The topicName parameter.
+ * @param fn The fn parameter.
  * @throws {Error} If the client ID is not "*" and no active session exists for it.
  */
 const validateClientId = (clientId: string) => {
@@ -76,6 +80,9 @@ const listenEventInternal = beginContext(
  * supports a wildcard client ID ("*") for listening to all clients or validates a specific client session. It returns an unsubscribe function to stop
  * listening.
  *
+ * @param {string} clientId - The unique identifier of the client session, or "*" for all clients.
+ * @param {string} topicName - The name of the event topic to listen for.
+ * @param fn - Callback function executed when the event is received.
  * @template T - The type of the payload data, defaulting to `any` if unspecified.
  * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus"), or if the `clientId` is not "*" and no session exists.
  * @example

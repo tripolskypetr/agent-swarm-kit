@@ -38,6 +38,8 @@ const addPipelineInternal = beginContext((pipelineSchema: IPipelineSchema) => {
 
 /**
  * Registers a pipeline schema, validates it, and adds it to the pipeline schema service.
+ *
+ * @param pipelineSchema Partial pipeline schema with updates to be applied to the existing pipeline configuration.
  * @template Payload - Type extending object for the pipeline payload.
  */
 export function addPipeline<Payload extends object = any>(

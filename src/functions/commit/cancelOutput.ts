@@ -62,6 +62,9 @@ const cancelOutputInternal = beginContext(
  * Integrates with AgentValidationService (agent validation), SessionValidationService (session and swarm retrieval),
  * SwarmValidationService (swarm validation), and SwarmPublicService (agent retrieval and output cancellation).
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 export async function cancelOutput(clientId: string, agentName: string) {

@@ -72,6 +72,10 @@ const notifyInternal = beginContext(
  * is still active before sending the notification. If the active agent has changed, the operation is skipped. The execution is wrapped in
  * `beginContext` for a clean environment, logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
  *
+ *
+ * @param {string} content - The content to be processed or stored.
+ * @param {string} clientId - The unique identifier of the client session.
+ * @param {AgentName} agentName - The name of the agent to use or reference.
  * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
  * @example
  * await notify("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active

@@ -39,6 +39,8 @@ const addEmbeddingInternal = beginContext(
  * outside of existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled
  * and returns the embedding's name upon successful registration.
  *
+ *
+ * @param {IEmbeddingSchema} embeddingSchema - The schema definition for embedding.
  * @throws {Error} If the embedding schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate embedding name).
  * @example
  * const embeddingSchema = { embeddingName: "TextEmbedder", model: "bert-base" };

@@ -167,6 +167,9 @@ const changeToAgentInternal = beginContext(
  * logging the operation if enabled, and executing the change using a TTL-limited, queued runner.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
  *
+ *
+ * @param {AgentName} agentName - The name of the agent to use or reference.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToAgent("AgentX", "client-123");

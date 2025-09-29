@@ -76,6 +76,7 @@ const addAgentNavigationInternal = beginContext(
 /**
  * Creates and registers a navigation tool for an agent to navigate to another specified agent.
  * @function addAgentNavigation
+ * @param {IAgentNavigationParams} params - The parameters or configuration object.
  */
 export function addAgentNavigation(params: IAgentNavigationParams) {
   return addAgentNavigationInternal(params);

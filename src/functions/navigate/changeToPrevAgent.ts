@@ -145,6 +145,8 @@ const changeToPrevAgentInternal = beginContext(async (clientId: string) => {
  * as determined by the `navigationPop` method. It validates the session and agent, logs the operation if enabled, and executes the change using a TTL-limited, queued runner.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
  *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToPrevAgent("client-123");

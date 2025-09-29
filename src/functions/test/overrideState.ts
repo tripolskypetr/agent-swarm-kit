@@ -34,6 +34,8 @@ const overrideStateInternal = beginContext((publicStateSchema: TStateSchema) => 
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
+ *
+ * @param stateSchema Partial state schema with updates to be applied to the existing state configuration.
  * @template T - The type of the state data, defaults to `any`.
  * @throws {Error} If the state schema service encounters an error during the override operation (e.g., invalid stateName or schema).
  *

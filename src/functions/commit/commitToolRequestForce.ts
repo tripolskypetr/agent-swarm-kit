@@ -40,6 +40,9 @@ const commitToolRequestForceInternal = beginContext(
  * Validates the session and swarm, bypassing agent validation to directly commit the request.
  * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
  *
+ *
+ * @param {IToolRequest} request - The tool request(s) to be processed.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails.
  * 
  * Function overloads
@@ -54,6 +57,9 @@ export function commitToolRequestForce(
  * Validates the session and swarm, bypassing agent validation to directly commit the request.
  * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
  *
+ *
+ * @param {IToolRequest[]} request - The tool request(s) to be processed.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails.
  * 
  * Function overloads
@@ -68,6 +74,9 @@ export function commitToolRequestForce(
  * Validates the session and swarm, bypassing agent validation to directly commit the request.
  * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
  *
+ *
+ * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to be processed.
+ * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails.
  */
 export async function commitToolRequestForce(

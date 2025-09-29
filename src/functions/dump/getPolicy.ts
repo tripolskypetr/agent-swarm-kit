@@ -9,6 +9,7 @@ const METHOD_NAME = "function.dump.getPolicy";
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getPolicy
+ * @param {PolicyName} policyName - The name of the policy.
  */
 export function getPolicy(policyName: PolicyName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
