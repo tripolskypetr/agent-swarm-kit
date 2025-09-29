@@ -46,27 +46,51 @@ const DEFAULT_EXECUTE_MESSAGE = "";
  * };
  */
 export interface INavigateToTriageParams {
+  /**
+   * Optional callback function executed before navigation begins.
+   * Allows for custom pre-navigation logic and validation before changing to the default agent.
+   */
   beforeNavigate?: (
     clientId: string,
     lastMessage: string | null,
     lastAgent: AgentName,
     defaultAgent: AgentName,
   ) => Promise<void> | void;
+  /**
+   * Optional function to transform the last user message for navigation context.
+   * Customizes how the previous message is processed when navigating to the triage agent.
+   */
   lastMessage?: (
     clientId: string,
     lastMessage: string | null,
     defaultAgent: AgentName,
     lastAgent: AgentName,
   ) => string | Promise<string>;
+  /**
+   * Optional message or function to emit after flushing the session.
+   * Used when navigation cannot be completed and the session needs to be reset.
+   */
   flushMessage?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
+  /**
+   * Optional message or function to execute when no navigation is needed.
+   * Used when already on the default agent and execution should continue.
+   */
   executeMessage?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
+  /**
+   * Optional message or function for tool output when navigation to the default agent occurs.
+   * Provides feedback when successful navigation to the triage agent happens.
+   */
   toolOutputAccept?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
+  /**
+   * Optional message or function for tool output when already on the default agent.
+   * Used to inform the user that no navigation was needed since they're already on the target agent.
+   */
   toolOutputReject?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
@@ -89,7 +113,7 @@ const DEFAULT_LAST_MESSAGE_FN = (
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the navigation operation if logging is enabled in the global configuration.
  *
- * @param {IFactoryParams} params - Configuration parameters for the navigation handler.
+ * @param {INavigateToTriageParams} params - Configuration parameters for the navigation handler.
  * @param {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [params.flushMessage] - Optional message or function to emit after flushing the session.
  * @param {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [params.executeMessage] - Optional message or function to execute if no navigation is needed.
  * @param {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [params.toolOutputAccept] - Optional message or function for tool output when navigation occurs, defaults to `DEFAULT_ACCEPT_FN`.

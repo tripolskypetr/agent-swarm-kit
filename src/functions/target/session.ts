@@ -170,12 +170,13 @@ const session = <Payload extends object = object>(
 
 /**
  * Configuration interface for scheduled or rate-limited sessions.
- *
- * @interface ISessionConfig
- * @property {number} [delay] - The delay in milliseconds for scheduling or rate-limiting session completions (optional).
  */
 export interface ISessionConfig {
   delay?: number;
+  /**
+   * Optional callback function invoked when the session is disposed.
+   * Called during session cleanup to perform any necessary resource cleanup operations.
+   */
   onDispose?: () => void;
 }
 

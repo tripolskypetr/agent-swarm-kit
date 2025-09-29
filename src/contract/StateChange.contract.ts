@@ -12,8 +12,8 @@ import { StateName } from "../interfaces/State.interface";
  */
 export interface IStateChangeContract {
   /**
-   * @property {TSubject<StateName>} stateChanged
-   * @description A subject that emits state names when changes occur, allowing subscribers to react to state updates.
+   * A subject that emits state names when changes occur, allowing subscribers to react to state updates.
+   * Provides reactive state change notifications throughout the system.
    */
   stateChanged: TSubject<StateName>;
 }

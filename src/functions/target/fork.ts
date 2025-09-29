@@ -21,22 +21,22 @@ const METHOD_NAME = "function.target.fork";
  * @interface IScopeOptions
  * @description Options for the scope operation, including client ID, swarm name, and optional error handler.
  */
-interface IScopeOptions {
+export interface IScopeOptions {
   /**
-   * @property {string} clientId
-   * @description The client identifier for the scope operation.
+   * The client identifier for the scope operation.
+   * Unique identifier used to track and manage the session within the scope.
    */
   clientId: string;
 
   /**
-   * @property {SwarmName} swarmName
-   * @description The name of the swarm associated with the scope.
+   * The name of the swarm associated with the scope.
+   * Identifies which swarm configuration to use for the scoped operation.
    */
   swarmName: SwarmName;
 
   /**
-   * @property {(error: Error) => void} [onError]
-   * @description Optional callback function to handle errors during execution.
+   * Optional callback function to handle errors during execution.
+   * Called when an error occurs during the scope operation, allowing for custom error handling.
    */
   onError?: (error: Error) => void;
 }

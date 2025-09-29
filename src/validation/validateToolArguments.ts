@@ -2,10 +2,14 @@
 /**
  * JSON Schema type definition
  */
-interface JsonSchema {
+export interface JsonSchema {
   type?: string;
   properties?: Record<string, any>;
   required?: string[];
+  /**
+   * Whether additional properties are allowed in the schema.
+   * Controls validation strictness for object schemas.
+   */
   additionalProperties?: boolean;
   [key: string]: any;
 }

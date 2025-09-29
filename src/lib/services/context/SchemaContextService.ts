@@ -44,8 +44,8 @@ import { IOutlineSchema, OutlineName } from "../../../interfaces/Outline.interfa
  */
 export interface ISchemaContext {
   /**
-   * @property {Object} registry
-   * @description A collection of registries for different schema types, each managing specific schema records.
+   * A collection of registries for different schema types, each managing specific schema records.
+   * Provides centralized access to all schema services within the swarm system.
    */
   registry: {
     /**

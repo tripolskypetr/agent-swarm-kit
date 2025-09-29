@@ -135,12 +135,11 @@ export interface IOutlineMessage {
    */
   role: "assistant" | "system" | "tool" | "user";
 
-  /*
+  /**
    * Optional array of images associated with the message, represented as binary data or base64 strings.
    * Likely used for messages involving visual content (e.g., user-uploaded images or tool-generated visuals).
-   * Supports `Uint8Array` for raw binary data or `string` for encoded formats (e.g., base64).
+   * Supports Uint8Array for raw binary data or string for encoded formats (e.g., base64).
    * Undefined if no images are included in the message.
-   * @type {Uint8Array[] | string[] | undefined}
    */
   images?: Uint8Array[] | string[];
 

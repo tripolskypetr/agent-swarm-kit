@@ -15,12 +15,13 @@ const DEFAULT_TIMEOUT = 15 * 60;
 
 /**
  * Interface for the parameters of the makeAutoDispose function.
- * @interface IMakeDisposeParams
- * @property {number} timeoutSeconds - Timeout in seconds before auto-dispose is triggered.
- * @property {(clientId: string, swarmName: SwarmName) => void} [onDestroy] - Optional callback invoked when the session is closed.
  */
 export interface IMakeDisposeParams {
   timeoutSeconds: number;
+  /**
+   * Optional callback invoked when the session is closed.
+   * Called after the auto-dispose mechanism triggers and the session is successfully disposed.
+   */
   onDestroy?: (clientId: string, swarmName: SwarmName) => void;
 }
 

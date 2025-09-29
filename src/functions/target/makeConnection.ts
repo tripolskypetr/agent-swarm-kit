@@ -134,11 +134,12 @@ const makeConnection = <Payload extends object = object>(
 
 /**
  * Configuration interface for scheduling or rate-limiting messages.
- *
- * @interface IMakeConnectionConfig
- * @property {number} [delay] - The delay in milliseconds for scheduling or rate-limiting messages (optional).
  */
 export interface IMakeConnectionConfig {
+  /**
+   * The delay in milliseconds for scheduling or rate-limiting messages.
+   * Controls the timing interval for scheduled or rate-limited message sending operations.
+   */
   delay?: number;
 }
 

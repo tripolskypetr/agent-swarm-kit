@@ -9,6 +9,10 @@ const METHOD_NAME = "cli.dumpAgent";
  * The config for UML generation
  */
 interface IConfig {
+  /**
+   * Whether to include subtree information in the UML diagram.
+   * Controls the level of detail and hierarchy shown in the generated visualization.
+   */
   withSubtree: boolean;
 }
 

@@ -46,24 +46,44 @@ const DEFAULT_EXECUTE_MESSAGE = "";
  * };
  */
 export interface INavigateToAgentParams {
+  /**
+   * Optional callback function executed before navigation begins.
+   * Allows for custom pre-navigation logic and validation.
+   */
   beforeNavigate?: (
     clientId: string,
     lastMessage: string | null,
     lastAgent: AgentName,
     agentName: AgentName
   ) => void | Promise<void>;
+  /**
+   * Optional message or function to emit after flushing the session.
+   * Used when navigation cannot be completed and the session needs to be reset.
+   */
   flushMessage?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
+  /**
+   * Optional message or function for tool output when navigation occurs.
+   * Provides feedback about the navigation operation to the model.
+   */
   toolOutput?:
     | string
     | ((clientId: string, lastAgent: AgentName, agentName: AgentName) => string | Promise<string>);
+  /**
+   * Optional function to transform the last user message for navigation context.
+   * Allows customization of how the previous message is processed.
+   */
   lastMessage?: (
     clientId: string,
     lastMessage: string | null,
     lastAgent: AgentName,
     agentName: AgentName
   ) => string | Promise<string>;
+  /**
+   * Optional message or function to emit when navigation occurs without execution.
+   * Used for navigation scenarios that only require message emission.
+   */
   emitMessage?:
     | string
     | ((
@@ -72,6 +92,10 @@ export interface INavigateToAgentParams {
         lastAgent: string,
         agentName: AgentName
       ) => string | Promise<string>);
+  /**
+   * Optional message or function to execute when navigation occurs with execution.
+   * Used to define what message should be executed on the target agent after navigation.
+   */
   executeMessage?:
     | string
     | ((
@@ -123,7 +147,7 @@ const DEFAULT_LAST_MESSAGE_FN = (
  * It validates the presence of either `emitMessage` or `executeMessage` to ensure proper navigation behavior.
  * Logs the navigation operation if logging is enabled in the global configuration.
  *
- * @param {IFactoryParams} params - Configuration parameters for the navigation handler.
+ * @param {INavigateToAgentParams} params - Configuration parameters for the navigation handler.
  * @param {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [params.flushMessage] - Optional message or function to emit after flushing the session, defaults to `DEFAULT_FLUSH_MESSAGE`.
  * @param {string | ((clientId: string, agentName: AgentName) => string | Promise<string>)} [params.toolOutput] - Optional message or function for tool output when navigation occurs, defaults to `DEFAULT_TOOL_OUTPUT`.
  * @param {string | ((clientId: string, lastMessage: string, agentName: AgentName) => string | Promise<string>)} [params.emitMessage] - Optional message or function to emit when navigation occurs without execution.

@@ -70,10 +70,8 @@ export interface IComputeCallbacks<T extends IComputeData = IComputeData> {
   onCalculate: (stateName: StateName, clientId: string, computeName: ComputeName) => void;
 
   /**
-   * @method onUpdate
-   * @description Called when the compute is updated.
-   * @param {string} clientId - The client identifier.
-   * @param {ComputeName} computeName - The name of the compute.
+   * Called when the compute is updated.
+   * Triggered whenever compute data or configuration changes, allowing for reactive updates.
    */
   onUpdate: (clientId: string, computeName: ComputeName) => void;
 }
@@ -133,8 +131,8 @@ export interface IComputeSchema<T extends IComputeData = IComputeData> {
   middlewares?: IComputeMiddleware<T>[];
 
   /**
-   * @property {Partial<IComputeCallbacks<T>>} [callbacks]
-   * @description Optional callbacks for compute lifecycle events.
+   * Optional callbacks for compute lifecycle events.
+   * Provides hooks for handling compute updates, data changes, and other lifecycle events.
    */
   callbacks?: Partial<IComputeCallbacks<T>>;
 }
@@ -166,8 +164,8 @@ export interface IComputeParams<T extends IComputeData = IComputeData>
   bus: IBus;
 
   /**
-   * @property {IStateChangeContract[]} binding
-   * @description Array of state change contracts for state dependencies.
+   * Array of state change contracts for state dependencies.
+   * Defines which state changes trigger compute recalculation and data updates.
    */
   binding: IStateChangeContract[];
 }
@@ -196,9 +194,8 @@ export interface ICompute<T extends IComputeData = IComputeData> {
   update: (clientId: string, computeName: ComputeName) => Promise<void>;
 
   /**
-   * @method getComputeData
-   * @description Retrieves the computed data.
-   * @returns {T | Promise<T>} The computed data or a promise resolving to it.
+   * Retrieves the computed data.
+   * Returns the current result of the compute operation, either synchronously or asynchronously.
    */
   getComputeData: () => T | Promise<T>;
 }

@@ -29,8 +29,8 @@ export interface IPipelineSchema<Payload extends object = any> {
   execute: <T = any>(clientId: string, agentName: AgentName, payload: Payload) => Promise<T | void>;
 
   /**
-   * @property {Partial<IPipelineCallbacks<Payload>>} [callbacks]
-   * @description Optional callbacks for pipeline lifecycle events.
+   * Optional callbacks for pipeline lifecycle events.
+   * Provides hooks for monitoring pipeline execution, handling errors, and customizing behavior.
    */
   callbacks?: Partial<IPipelineCallbacks<Payload>>;
 }
@@ -61,12 +61,8 @@ export interface IPipelineCallbacks<Payload extends object = any> {
   onEnd: (clientId: string, pipelineName: PipelineName, payload: Payload, isError: boolean) => void;
 
   /**
-   * @method onError
-   * @description Called when an error occurs during pipeline execution.
-   * @param {string} clientId - The client identifier.
-   * @param {PipelineName} pipelineName - The name of the pipeline.
-   * @param {Payload} payload - The payload data for the pipeline.
-   * @param {Error} error - The error that occurred.
+   * Called when an error occurs during pipeline execution.
+   * Provides error handling capabilities for pipeline failures and debugging.
    */
   onError: (clientId: string, pipelineName: PipelineName, payload: Payload, error: Error) => void;
 }
