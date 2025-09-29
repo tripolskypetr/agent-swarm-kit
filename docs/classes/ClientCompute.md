@@ -41,6 +41,9 @@ __@GET_COMPUTE_DATA_FN_SYMBOL@3164: any
 getComputeData(): Promise<any>;
 ```
 
+Retrieves the computed data.
+Returns the current result of the compute operation, either synchronously or asynchronously.
+
 ### calculate
 
 ```ts

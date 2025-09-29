@@ -14,3 +14,6 @@ The config for UML generation
 ```ts
 withSubtree: boolean
 ```
+
+Whether to include subtree information in the UML diagram.
+Controls the level of detail and hierarchy shown in the generated visualization.

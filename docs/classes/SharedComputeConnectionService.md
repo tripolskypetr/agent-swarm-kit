@@ -57,6 +57,9 @@ getComputeRef: ((computeName: string) => ClientCompute<any>) & IClearableMemoize
 getComputeData: () => Promise<any>
 ```
 
+Retrieves the computed data.
+Returns the current result of the compute operation, either synchronously or asynchronously.
+
 ### calculate
 
 ```ts

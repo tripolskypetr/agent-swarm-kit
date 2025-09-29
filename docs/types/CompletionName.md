@@ -9,4 +9,5 @@ group: docs
 type CompletionName = string;
 ```
 
-
+Type representing the unique name of a completion mechanism within the swarm.
+Used to identify and reference specific completion implementations.

@@ -9,4 +9,5 @@ group: docs
 type EmbeddingName = string;
 ```
 
-
+Type representing the unique name of an embedding mechanism within the swarm.
+Used to identify and reference specific embedding implementations.

@@ -36,3 +36,6 @@ onCalculate: (stateName: string, clientId: string, computeName: string) => void
 ```ts
 onUpdate: (clientId: string, computeName: string) => void
 ```
+
+Called when the compute is updated.
+Triggered whenever compute data or configuration changes, allowing for reactive updates.

@@ -36,3 +36,6 @@ bus: IBus
 ```ts
 history: IHistory
 ```
+
+History management service for tracking and storing conversation messages.
+Provides access to message history for context and logging operations.

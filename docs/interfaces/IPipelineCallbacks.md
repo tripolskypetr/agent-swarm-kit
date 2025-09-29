@@ -24,3 +24,6 @@ onEnd: (clientId: string, pipelineName: string, payload: Payload, isError: boole
 ```ts
 onError: (clientId: string, pipelineName: string, payload: Payload, error: Error) => void
 ```
+
+Called when an error occurs during pipeline execution.
+Provides error handling capabilities for pipeline failures and debugging.

@@ -32,3 +32,6 @@ required: string[]
 ```ts
 additionalProperties: boolean
 ```
+
+Whether additional properties are allowed in the schema.
+Controls validation strictness for object schemas.

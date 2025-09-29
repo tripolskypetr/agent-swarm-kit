@@ -9,4 +9,5 @@ group: docs
 type OutlineName = string;
 ```
 
-
+Type representing the unique name of an outline within the system.
+Used to identify and reference specific outline configurations.

@@ -54,3 +54,6 @@ middlewares: IComputeMiddleware<T>[]
 ```ts
 callbacks: Partial<IComputeCallbacks<T>>
 ```
+
+Optional callbacks for compute lifecycle events.
+Provides hooks for handling compute updates, data changes, and other lifecycle events.

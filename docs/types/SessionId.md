@@ -9,4 +9,5 @@ group: docs
 type SessionId = string;
 ```
 
-
+Type representing the unique identifier for a session.
+Used to track and reference specific session instances.

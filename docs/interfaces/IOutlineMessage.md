@@ -25,6 +25,11 @@ Determines the context or source of the message in the outline history.
 images: string[] | Uint8Array[]
 ```
 
+Optional array of images associated with the message, represented as binary data or base64 strings.
+Likely used for messages involving visual content (e.g., user-uploaded images or tool-generated visuals).
+Supports Uint8Array for raw binary data or string for encoded formats (e.g., base64).
+Undefined if no images are included in the message.
+
 ### content
 
 ```ts

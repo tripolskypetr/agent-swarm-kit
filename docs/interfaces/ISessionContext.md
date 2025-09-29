@@ -18,11 +18,17 @@ the current method context (if available), and the execution context (if availab
 clientId: string
 ```
 
+The unique identifier of the client session, or null if not available from either context.
+Derived from either the method context or execution context.
+
 ### processId
 
 ```ts
 processId: string
 ```
+
+The unique identifier of the process, sourced from GLOBAL_CONFIG.CC_PROCESS_UUID.
+Identifies the current swarm process instance.
 
 ### methodContext
 
@@ -30,8 +36,14 @@ processId: string
 methodContext: IMethodContext
 ```
 
+The current method context, or null if no method context is active.
+Provides access to method-specific metadata and client information.
+
 ### executionContext
 
 ```ts
 executionContext: IExecutionContext
 ```
+
+The current execution context, or null if no execution context is active.
+Provides access to execution-specific metadata and state information.

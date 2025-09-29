@@ -20,3 +20,6 @@ delay: number
 ```ts
 onDispose: () => void
 ```
+
+Optional callback function invoked when the session is disposed.
+Called during session cleanup to perform any necessary resource cleanup operations.

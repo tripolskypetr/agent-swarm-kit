@@ -30,3 +30,6 @@ bus: IBus
 ```ts
 binding: IStateChangeContract[]
 ```
+
+Array of state change contracts for state dependencies.
+Defines which state changes trigger compute recalculation and data updates.

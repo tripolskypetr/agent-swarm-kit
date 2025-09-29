@@ -24,3 +24,6 @@ update: (clientId: string, computeName: string) => Promise<void>
 ```ts
 getComputeData: () => T | Promise<T>
 ```
+
+Retrieves the computed data.
+Returns the current result of the compute operation, either synchronously or asynchronously.

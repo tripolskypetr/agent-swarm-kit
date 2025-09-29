@@ -9,4 +9,5 @@ group: docs
 type StorageName = string;
 ```
 
-
+Type representing the unique name of a storage within the swarm.
+Used to identify and reference specific storage instances.

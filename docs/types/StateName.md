@@ -9,4 +9,5 @@ group: docs
 type StateName = string;
 ```
 
-
+Type representing the unique name of a state within the swarm.
+Used to identify and reference specific state instances.

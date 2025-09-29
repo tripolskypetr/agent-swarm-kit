@@ -9,4 +9,5 @@ group: docs
 type ExecutionMode = "tool" | "user";
 ```
 
-
+Type representing the source of execution within a session.
+Tools emit "tool" messages (ignored in user history), while users emit "user" messages.

@@ -20,3 +20,6 @@ timeoutSeconds: number
 ```ts
 onDestroy: (clientId: string, swarmName: string) => void
 ```
+
+Optional callback invoked when the session is closed.
+Called after the auto-dispose mechanism triggers and the session is successfully disposed.
