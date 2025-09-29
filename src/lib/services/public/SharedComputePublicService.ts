@@ -1,6 +1,5 @@
 /**
- * @module SharedComputePublicService
- * @description Provides a public interface for interacting with shared compute services, wrapping operations in a method context.
+ *  * Provides a public interface for interacting with shared compute services, wrapping operations in a method context.
  */
 
 import { inject } from "../../core/di";
@@ -13,14 +12,12 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 import { StateName } from "../../../interfaces/State.interface";
 
 /**
- * @interface ISharedComputeConnectionService
- * @description Extends SharedComputeConnectionService for type compatibility.
+ *  * Extends SharedComputeConnectionService for type compatibility.
  */
 interface ISharedComputeConnectionService extends SharedComputeConnectionService {}
 
 /**
- * @type InternalKeys
- * @description Defines keys to be excluded from the public interface.
+ *  * Defines keys to be excluded from the public interface.
  */
 type InternalKeys = keyof {
   getComputeRef: never;
@@ -28,45 +25,32 @@ type InternalKeys = keyof {
 };
 
 /**
- * @type TSharedComputeConnectionService
- * @description Type for the shared compute public service, excluding internal keys.
+ *  * Type for the shared compute public service, excluding internal keys.
  */
 type TSharedComputeConnectionService = {
   [key in Exclude<keyof ISharedComputeConnectionService, InternalKeys>]: unknown;
 };
 
 /**
- * @class SharedComputePublicService
- * @template T - Type extending IComputeData.
- * @implements {TSharedComputeConnectionService}
- * @description Public service for managing shared compute operations with context-aware execution.
+ *  *  *  * Public service for managing shared compute operations with context-aware execution.
  */
 export class SharedComputePublicService<T extends IComputeData = IComputeData>
   implements TSharedComputeConnectionService
 {
   /**
-   * @property {LoggerService} loggerService
-   * @description Injected logger service for logging operations.
-   * @private
-   */
+   *    * Injected logger service for logging operations.
+   * */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
-   * @property {SharedComputeConnectionService} sharedComputeConnectionService
-   * @description Injected shared compute connection service for compute operations.
-   * @private
-   */
+   *    * Injected shared compute connection service for compute operations.
+   * */
   private readonly sharedComputeConnectionService =
     inject<SharedComputeConnectionService>(TYPES.sharedComputeConnectionService);
 
   /**
-   * @method getComputeData
-   * @description Retrieves computed data for a shared compute within a method context.
-   * @param {string} methodName - Name of the method for context.
-   * @param {ComputeName} computeName - Name of the shared compute.
-   * @returns {Promise<T>} The computed data.
-   * @async
-   */
+   *    * Retrieves computed data for a shared compute within a method context.
+   *    *    *    * */
   public getComputeData = async (
     methodName: string,
     computeName: ComputeName
@@ -95,14 +79,8 @@ export class SharedComputePublicService<T extends IComputeData = IComputeData>
   };
 
   /**
-   * @method calculate
-   * @description Triggers a recalculation for the shared compute instance within a method context.
-   * @param {StateName} stateName - The name of the state that changed.
-   * @param {string} methodName - Name of the method for context.
-   * @param {ComputeName} computeName - Name of the shared compute.
-   * @returns {Promise<void>}
-   * @async
-   */
+   *    * Triggers a recalculation for the shared compute instance within a method context.
+   *    *    *    *    * */
   public calculate = async (
     stateName: StateName,
     methodName: string,
@@ -133,13 +111,8 @@ export class SharedComputePublicService<T extends IComputeData = IComputeData>
   };
 
   /**
-   * @method update
-   * @description Forces an update of the shared compute instance within a method context.
-   * @param {string} methodName - Name of the method for context.
-   * @param {ComputeName} computeName - Name of the shared compute.
-   * @returns {Promise<void>}
-   * @async
-   */
+   *    * Forces an update of the shared compute instance within a method context.
+   *    *    *    * */
   public update = async (
     methodName: string,
     computeName: ComputeName
@@ -168,8 +141,6 @@ export class SharedComputePublicService<T extends IComputeData = IComputeData>
 }
 
 /**
- * @export
- * @default SharedComputePublicService
- * @description Exports the SharedComputePublicService class as the default export.
+ * *  * Exports the SharedComputePublicService class as the default export.
  */
 export default SharedComputePublicService;

@@ -6,6 +6,11 @@ import mapAgentSchema from "../../helpers/mapAgentSchema";
 
 const METHOD_NAME = "function.test.overrideAgent";
 
+/**
+ * Type representing a partial agent schema with required agentName.
+ * Used for overriding existing agent configurations with selective updates.
+ * Combines required agent name with optional agent properties.
+ */
 type TAgentSchema = {
   agentName: IAgentSchema["agentName"];
 } & Partial<IAgentSchema>;

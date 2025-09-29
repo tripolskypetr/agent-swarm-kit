@@ -6,6 +6,11 @@ import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideEmbeding";
 
+/**
+ * Type representing a partial embedding schema with required embeddingName.
+ * Used for overriding existing embedding configurations with selective updates.
+ * Combines required embedding name with optional embedding properties.
+ */
 type TEmbeddingSchema = {
   embeddingName: IEmbeddingSchema["embeddingName"];
 } & Partial<IEmbeddingSchema>;

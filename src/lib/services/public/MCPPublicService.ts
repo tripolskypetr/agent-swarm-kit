@@ -37,11 +37,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Lists available tools for a given client within a specified context.
-   * @param methodName - The name of the method for context tracking.
-   * @param clientId - The ID of the client requesting the tool list.
-   * @param mcpName - The name of the MCP to query.
-   * @returns A promise resolving to an array of IMCPTool objects.
-   */
+   *    *    *    *    */
   async listTools(
     methodName: string,
     clientId: string,
@@ -71,10 +67,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Updates the list of tools for all clients within a specified context.
-   * @param methodName - The name of the method for context tracking.
-   * @param mcpName - The name of the MCP to query.
-   * @returns A promise resolving when the update is complete.
-   */
+   *    *    *    */
   async updateToolsForAll(methodName: string, mcpName: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpPublicService updateToolsForAll`, {
@@ -100,11 +93,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Updates the list of tools for a specific client within a specified context.
-   * @param methodName - The name of the method for context tracking.
-   * @param clientId - The ID of the client whose tools are to be updated.
-   * @param mcpName - The name of the MCP to query.
-   * @returns A promise resolving when the update is complete.
-   */
+   *    *    *    *    */
   async updateToolsForClient(
     methodName: string,
     clientId: string,
@@ -134,12 +123,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Checks if a specific tool exists for a given client within a specified context.
-   * @param methodName - The name of the method for context tracking.
-   * @param clientId - The ID of the client.
-   * @param mcpName - The name of the MCP to query.
-   * @param toolName - The name of the tool to check.
-   * @returns A promise resolving to true if the tool exists, false otherwise.
-   */
+   *    *    *    *    *    */
   async hasTool(
     methodName: string,
     clientId: string,
@@ -171,13 +155,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Calls a specific tool with the provided parameters within a specified context.
-   * @param methodName - The name of the method for context tracking.
-   * @param clientId - The ID of the client.
-   * @param mcpName - The name of the MCP to query.
-   * @param toolName - The name of the tool to call.
-   * @param dto - The data transfer object containing tool call parameters.
-   * @returns A promise resolving when the tool call is complete.
-   */
+   *    *    *    *    *    *    */
   async callTool<T extends MCPToolValue = MCPToolValue>(
     methodName: string,
     clientId: string,
@@ -210,11 +188,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Disposes of resources associated with a client within a specified context.
-   * @param methodName - The name of the method for context tracking.
-   * @param clientId - The ID of the client whose resources are to be disposed.
-   * @param mcpName - The name of the MCP to query.
-   * @returns A promise resolving when the disposal is complete.
-   */
+   *    *    *    *    */
   public dispose = async (
     methodName: string,
     clientId: string,
