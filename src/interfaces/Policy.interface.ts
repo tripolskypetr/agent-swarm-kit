@@ -254,7 +254,7 @@ export interface IPolicyParams extends IPolicySchema, IPolicyCallbacks {
 
 /**
  * Type representing the unique name of a policy within the swarm.
- * @typedef {string} PolicyName
+ * Used to identify and reference specific policy implementations.
  */
 export type PolicyName = string;
 

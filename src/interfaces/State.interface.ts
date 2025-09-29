@@ -4,7 +4,6 @@ import { ILogger } from "./Logger.interface";
 /**
  * Type representing the data structure of a state.
  * Can be any type, serving as a generic placeholder for state values.
- * @typedef {any} IStateData
  */
 export type IStateData = any;
 
@@ -188,6 +187,6 @@ export interface IState<T extends IStateData = IStateData> {
 
 /**
  * Type representing the unique name of a state within the swarm.
- * @typedef {string} StateName
+ * Used to identify and reference specific state instances.
  */
 export type StateName = string;

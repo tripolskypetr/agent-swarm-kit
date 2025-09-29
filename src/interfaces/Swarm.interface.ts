@@ -274,7 +274,7 @@ export interface ISwarm {
 
 /**
  * Type representing the unique name of a swarm within the system.
- * @typedef {string} SwarmName
+ * Used to identify and reference specific swarm instances.
  */
 export type SwarmName = string;
 

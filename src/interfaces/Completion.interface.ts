@@ -105,6 +105,6 @@ export interface ICompletionSchema {
 
 /**
  * Type representing the unique name of a completion mechanism within the swarm.
- * @typedef {string} CompletionName
+ * Used to identify and reference specific completion implementations.
  */
 export type CompletionName = string;

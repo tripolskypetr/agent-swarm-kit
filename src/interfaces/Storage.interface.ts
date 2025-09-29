@@ -9,7 +9,7 @@ import { IBus } from "./Bus.interface";
 
 /**
  * Type representing the unique identifier for storage items.
- * @typedef {string | number} StorageId
+ * Can be either a string or number for flexible item identification.
  */
 type StorageId = string | number;
 
@@ -262,6 +262,6 @@ export interface IStorage<T extends IStorageData = IStorageData> {
 
 /**
  * Type representing the unique name of a storage within the swarm.
- * @typedef {string} StorageName
+ * Used to identify and reference specific storage instances.
  */
 export type StorageName = string;

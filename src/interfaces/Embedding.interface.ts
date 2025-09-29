@@ -7,7 +7,6 @@ import { IStorageCallbacks, IStorageSchema } from "./Storage.interface";
 /**
  * Type representing an array of numbers as embeddings.
  * Used to encode text or data for similarity comparisons in storage or search operations.
- * @typedef {number[]} Embeddings
  */
 export type Embeddings = number[];
 
@@ -120,6 +119,6 @@ export interface IEmbeddingSchema {
 
 /**
  * Type representing the unique name of an embedding mechanism within the swarm.
- * @typedef {string} EmbeddingName
+ * Used to identify and reference specific embedding implementations.
  */
 export type EmbeddingName = string;

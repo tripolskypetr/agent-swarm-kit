@@ -182,20 +182,18 @@ export interface ISession {
 
 /**
  * Type representing the unique identifier for a session.
- * @typedef {string} SessionId
+ * Used to track and reference specific session instances.
  */
 export type SessionId = string;
 
 /**
  * Type representing the operational mode of a session.
- * Defines the session's behavior: full session, connection setup, or single completion.
- * @typedef {"session" | "makeConnection" | "complete"} SessionMode
+ * Defines the session's behavior: full session, connection setup, single completion, or scoped operation.
  */
 export type SessionMode = "session" | "makeConnection" | "complete" | "scope";
 
 /**
  * Type representing the source of execution within a session.
  * Tools emit "tool" messages (ignored in user history), while users emit "user" messages.
- * @typedef {"tool" | "user"} ExecutionMode
  */
 export type ExecutionMode = "tool" | "user";

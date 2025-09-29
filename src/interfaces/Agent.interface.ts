@@ -31,7 +31,7 @@ export interface TAbortSignal extends AbortSignal { }
 
 /**
  * Type representing possible values for tool parameters.
- * @typedef {string | number | boolean | null} ToolValue
+ * Supports basic data types for flexible parameter passing.
  */
 export type ToolValue = string | number | boolean | null;
 
@@ -642,12 +642,12 @@ export interface IAgent {
 
 /**
  * Type representing the unique name of an agent within the swarm.
- * @typedef {string} AgentName
+ * Used to identify and reference specific agent instances.
  */
 export type AgentName = string;
 
 /**
  * Type representing the unique name of a tool within the swarm.
- * @typedef {string} ToolName
+ * Used to identify and reference specific tool implementations.
  */
 export type ToolName = string;

@@ -4,14 +4,12 @@ import { CompletionName } from "./Completion.interface";
 /**
  * Generic type representing arbitrary param for outline operations.
  * Used as a flexible placeholder for input param in outline schemas and arguments.
- * @typedef {any} IOutlineParam
  */
 export type IOutlineParam = any;
 
 /**
  * Generic type representing arbitrary data param for outline operations.
  * Used as a flexible placeholder for data param in outline schemas and results.
- * @typedef {any} IOutlineData
  */
 export type IOutlineData = any;
 
@@ -19,7 +17,6 @@ export type IOutlineData = any;
  * Type representing the format definition for outline data.
  * Can be either a full JSON schema format or an object-based format.
  * Used to specify the expected structure for outline operations.
- * @typedef {IOutlineSchemaFormat | IOutlineObjectFormat} IOutlineFormat
  */
 export type IOutlineFormat = IOutlineSchemaFormat | IOutlineObjectFormat;
 
@@ -437,7 +434,6 @@ export interface IOutlineSchema<
 
 /**
  * Type representing the unique name of an outline within the system.
- * Used to identify specific outline configurations.
- * @typedef {string} OutlineName
+ * Used to identify and reference specific outline configurations.
  */
 export type OutlineName = string;
