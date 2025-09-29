@@ -179,9 +179,6 @@ const CC_DEFAULT_AGENT_TOOL_VALIDATE = () => true;
 /**
  * Retrieves the embedding vector for a specific string hash, returning null if not found.
  * Used to check if a precomputed embedding exists in the cache.
- * @param embeddingName - The identifier of the embedding type.
- * @param stringHash - The hash of the string for which the embedding was generated.
- * @returns A promise resolving to the embedding vector or null if not cached.
  * @throws {Error} If reading from storage fails (e.g., file corruption).
  */
 const CC_DEFAULT_READ_EMBEDDING_CACHE = (
@@ -192,10 +189,6 @@ const CC_DEFAULT_READ_EMBEDDING_CACHE = (
 /**
  * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
  * Used to cache computed embeddings to avoid redundant processing.
- * @param embeddings - Array of numerical values representing the embedding vector.
- * @param embeddingName - The identifier of the embedding type.
- * @param stringHash - The hash of the string for which the embedding was generated.
- * @returns A promise that resolves when the embedding vector is persisted.
  * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
  */
 const CC_DEFAULT_WRITE_EMBEDDING_CACHE = (
@@ -209,9 +202,6 @@ const CC_DEFAULT_WRITE_EMBEDDING_CACHE = (
  * Establishes a connection between a client and an agent, allowing messages to be sent
  * and answers to be received via a callback mechanism.
  *
- * @param {string} clientId - The unique identifier of the client initiating the connection.
- * @param {AgentName} agentName - The name of the agent to connect with.
- * @returns {(message: string, next: (answer: string) => void) => DisposeFn} 
  */
 const CC_DEFAULT_CONNECT_OPERATOR = (clientId: string, agentName: AgentName) =>
   OperatorAdapter.connectOperator(clientId, agentName);
@@ -292,7 +282,6 @@ GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";
  * Updates the global configuration object with the provided partial configuration.
  * This function merges the given configuration into the existing `GLOBAL_CONFIG` object.
  *
- * @param {Partial<IGlobalConfig>} config - A partial configuration object containing the properties to update.
  * Only the specified properties will be updated, leaving the rest of the `GLOBAL_CONFIG` unchanged.
  */
 export const setConfig = (config: Partial<IGlobalConfig>) => {

@@ -21,7 +21,6 @@ export class OutlineValidationService {
    * The logger service instance for logging outline-related operations and errors.
    * Injected via dependency injection using the TYPES.loggerService identifier.
    * @private
-   * @type {LoggerService}
    */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
@@ -29,7 +28,6 @@ export class OutlineValidationService {
    * Completion schema service instance for managing completion schemas.
    * Injected via DI, used in validate method to check outline completions.
    * Provides a registry of completion schemas for the swarm.
-   * @type {CompletionSchemaService}
    * @private
    */
   private readonly completionSchemaService = inject<CompletionSchemaService>(
@@ -39,7 +37,6 @@ export class OutlineValidationService {
   /**
    * Completion validation service instance for validating completion configurations of outlines.
    * Injected via DI, used in validate method to check outline completion.
-   * @type {CompletionValidationService}
    * @private
    * @readonly
    */
@@ -50,15 +47,12 @@ export class OutlineValidationService {
    * A map storing outline schemas, keyed by their unique outline names.
    * Used to manage registered outlines and retrieve them for validation.
    * @private
-   * @type {Map<OutlineName, IOutlineSchema>}
    */
   private _outlineMap = new Map<OutlineName, IOutlineSchema>();
 
   /**
    * Registers a new outline schema with the given name.
    * Logs the addition if info logging is enabled and throws an error if the outline name already exists.
-   * @param {OutlineName} outlineName - The unique name of the outline to register.
-   * @param {IOutlineSchema} outlineSchema - The outline schema to associate with the name.
    * @throws {Error} If an outline with the given name already exists in the map.
    */
   public addOutline = (
@@ -79,7 +73,6 @@ export class OutlineValidationService {
   /**
    * Retrieves a list of all registered outline names.
    * Logs the retrieval operation if info logging is enabled.
-   * @returns {OutlineName[]} An array of registered outline names.
    */
   public getOutlineList = (): OutlineName[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -91,8 +84,6 @@ export class OutlineValidationService {
    * Validates the existence of an outline schema for the given outline name.
    * Memoized to cache results based on the outline name for performance.
    * Logs the validation attempt if info logging is enabled and throws an error if the outline is not found.
-   * @param {OutlineName} outlineName - The name of the outline to validate.
-   * @param {string} source - The source context for the validation, used for error reporting.
    * @throws {Error} If the outline with the given name is not found in the map.
    */
   public validate = memoize(
@@ -125,6 +116,5 @@ export class OutlineValidationService {
 
 /**
  * The default export of the OutlineValidationService class.
- * @type {OutlineValidationService}
  */
 export default OutlineValidationService;

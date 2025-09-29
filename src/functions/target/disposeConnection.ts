@@ -22,10 +22,6 @@ const METHOD_NAME = "function.target.disposeConnection";
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  * The function logs the operation if enabled and resolves when all disposal tasks are complete.
  *
- * @param {string} clientId - The unique identifier of the client session to dispose of.
- * @param {SwarmName} swarmName - The name of the swarm associated with the session.
- * @param {string} [methodName="function.target.disposeConnection"] - The name of the method invoking the disposal (defaults to `METHOD_NAME`).
- * @returns {Promise<void>} A promise that resolves when the session and all related resources are fully disposed.
  * @throws {Error} If session or swarm validation fails, or if any disposal operation encounters an error.
  * @example
  * await disposeConnection("client-123", "TaskSwarm");

@@ -15,9 +15,6 @@ import { markOnline } from "../other/markOnline";
 
 /**
  * Type definition for the complete function used in session objects.
- * @typedef {Function} TComplete
- * @param {string} content - The content to process in the session.
- * @returns {Promise<string>} A promise that resolves with the result of the session execution.
  */
 type TComplete = (content: string) => Promise<string>;
 
@@ -35,9 +32,6 @@ const METHOD_NAME = "function.target.session";
  * Creates a session with queued execution capabilities, initializing it in "session" mode and providing methods to complete and dispose of the session.
  * The `complete` method executes content with performance tracking and event bus notifications, wrapped in an execution context.
  *
- * @param {string} clientId - The unique identifier of the client session.
- * @param {SwarmName} swarmName - The name of the swarm to connect to.
- * @returns {Object} An object containing `complete` and `dispose` methods for session management.
  */
 const sessionInternal = (
   clientId: string,
@@ -113,9 +107,6 @@ const sessionInternal = (
  * This factory establishes a session in "session" mode, allowing content execution with queuing for sequential processing.
  * It returns an object with `complete` to process content and `dispose` to clean up the session.
  *
- * @param {string} clientId - The unique identifier of the client session.
- * @param {SwarmName} swarmName - The name of the swarm to connect to.
- * @returns {{ complete: TComplete, dispose: () => Promise<void> }} An object with `complete` and `dispose` methods.
  * @throws {Error} If swarm or session validation fails, or if execution/disposal encounters an error.
  * @example
  * const { complete, dispose } = session("client-123", "TaskSwarm");
@@ -186,10 +177,6 @@ export interface ISessionConfig {
  * This factory extends `session` by adding scheduling capabilities, delaying `complete` calls based on the configured delay.
  * It commits messages to the agent's history immediately via `commitUserMessage` and executes them after the delay if the session remains active.
  *
- * @param {string} clientId - The unique identifier of the client session.
- * @param {SwarmName} swarmName - The name of the swarm to connect to.
- * @param {Partial<ISessionConfig>} [config] - Configuration object with an optional delay (defaults to `SCHEDULED_DELAY`).
- * @returns {{ complete: TComplete, dispose: () => Promise<void> }} An object with scheduled `complete` and `dispose` methods.
  * @throws {Error} If swarm or session validation fails, or if execution/disposal encounters an error.
  * @example
  * const { complete, dispose } = session.scheduled("client-123", "TaskSwarm", { delay: 2000 });
@@ -284,10 +271,6 @@ session.scheduled = <Payload extends object = object>(
  * This factory extends `session` by adding rate-limiting capabilities, throttling `complete` calls based on the configured delay.
  * If the rate limit is exceeded, it warns and returns an empty string instead of throwing an error.
  *
- * @param {string} clientId - The unique identifier of the client session.
- * @param {SwarmName} swarmName - The name of the swarm to connect to.
- * @param {Partial<ISessionConfig>} [config] - Configuration object with an optional delay (defaults to `SCHEDULED_DELAY`).
- * @returns {{ complete: TComplete, dispose: () => Promise<void> }} An object with rate-limited `complete` and `dispose` methods.
  * @throws {Error} If swarm or session validation fails, or if execution/disposal encounters a non-rate-limit error.
  * @example
  * const { complete, dispose } = session.rate("client-123", "TaskSwarm", { delay: 5000 });

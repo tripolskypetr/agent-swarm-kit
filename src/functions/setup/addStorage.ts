@@ -46,8 +46,6 @@ const addStorageInternal = beginContext((storageSchema: IStorageSchema<IStorageD
  * successful registration.
  *
  * @template T - The type of data stored in the storage, extending `IStorageData` (defaults to `IStorageData` if unspecified).
- * @param {IStorageSchema<T>} storageSchema - The schema defining the storage engine's properties, including its name (`storageName`), shared status (`shared`), and other configuration details.
- * @returns {string} The name of the newly added storage (`storageSchema.storageName`), confirming its registration.
  * @throws {Error} If the storage schema is invalid, registration fails (e.g., duplicate storage name), or shared storage initialization encounters an error.
  * @example
  * const storageSchema = { storageName: "UserData", shared: true, type: "key-value" };

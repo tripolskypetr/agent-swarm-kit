@@ -74,7 +74,6 @@ const getSessionContextInternal = async (): Promise<ISessionContext> => {
  * It logs the operation if enabled, checks for active contexts using the `MethodContextService` and `ExecutionContextService`, and derives the client ID from either context if available.
  * Unlike other functions, it does not perform explicit validation or require a `clientId` parameter, as it relies on the current execution environment's state.
  *
- * @returns {Promise<ISessionContext>} A promise that resolves to an object containing the session context, including `clientId`, `processId`, `methodContext`, and `executionContext`.
  * @throws {Error} If an unexpected error occurs while accessing the method or execution context services (though typically none are thrown in this implementation).
  * @example
  * const context = await getSessionContext();

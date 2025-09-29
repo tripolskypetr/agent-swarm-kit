@@ -15,9 +15,6 @@ const WARN_KB = 10;
  * - Writes the full outline result to a markdown file.
  *
  * @function
- * @param {IOutlineResult} result - The outline result object to dump.
- * @param {string} [outputDir="./dump/outline"] - The base directory to dump results into.
- * @returns {Promise<void>}
  */
 export const dumpOutlineResult = beginContext(
   async (result: IOutlineResult, outputDir = "./dump/outline") => {

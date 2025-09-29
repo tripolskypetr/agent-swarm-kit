@@ -21,7 +21,6 @@ const getPayloadInternal = () => {
  * Retrieves the payload from the current PayloadContextService context.
  * Returns null if no context is available. Logs the operation if logging is enabled.
  * @template Payload - The type of the payload object, defaults to a generic object.
- * @returns the payload data from the context, or null if no context exists.
  * @example
  * const payload = await getPayload<{ id: number }>();
  * console.log(payload); // { id: number } or null

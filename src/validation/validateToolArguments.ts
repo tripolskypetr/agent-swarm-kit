@@ -29,9 +29,6 @@ export interface ValidationResult<T = any> {
 /**
  * Validates tool function arguments against a JSON schema
  * 
- * @param parsedArguments - Already parsed arguments object
- * @param schema - JSON schema to validate against
- * @returns Validation result with validated data or error message
  * 
  * @example
  * ```typescript

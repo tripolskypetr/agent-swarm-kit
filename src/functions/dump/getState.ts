@@ -9,8 +9,6 @@ const METHOD_NAME = "function.dump.getState";
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getState
- * @param {StateName} stateName - The name of the state to retrieve.
- * @returns The state schema associated with the provided state name.
  */
 export function getState(stateName: StateName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

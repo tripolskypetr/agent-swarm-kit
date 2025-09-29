@@ -17,7 +17,6 @@ export class StateSchemaService {
   /**
    * Logger service instance, injected via DI, for logging state schema operations.
    * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StateConnectionService and PerfService logging patterns.
-   * @type {LoggerService}
    * @readonly
    */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -25,7 +24,6 @@ export class StateSchemaService {
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
-   * @type {TSchemaContextService}
    * @readonly
    */
   readonly schemaContextService = inject<TSchemaContextService>(
@@ -36,7 +34,6 @@ export class StateSchemaService {
    * Registry instance for storing state schemas, initialized with ToolRegistry from functools-kit.
    * Maps StateName keys to IStateSchema values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
-   * @type {ToolRegistry<Record<StateName, IStateSchema>>}
    * @private
    */
   private _registry = new ToolRegistry<Record<StateName, IStateSchema>>(
@@ -73,7 +70,6 @@ export class StateSchemaService {
    * Checks stateName as a string and getState as a function (required for state retrieval), and ensures middlewares, if present, is an array of functions.
    * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StateConnectionService’s configuration needs.
    * Supports ClientState instantiation in StateConnectionService and SharedStateConnectionService by ensuring schema validity before registration.
-   * @param {IStateSchema} stateSchema - The state schema to validate, sourced from State.interface.
    * @throws {Error} If any validation check fails, with detailed messages including stateName.
    * @private
    */
@@ -109,8 +105,6 @@ export class StateSchemaService {
    * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (stateName).
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StateConnectionService’s state management.
    * Supports ClientAgent execution by providing validated state schemas to StateConnectionService and SharedStateConnectionService for ClientState configuration.
-   * @param {StateName} key - The name of the state, used as the registry key, sourced from State.interface.
-   * @param {IStateSchema} value - The state schema to register, sourced from State.interface, validated before storage.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
    */
   public register = (key: StateName, value: IStateSchema) => {
@@ -125,8 +119,6 @@ export class StateSchemaService {
    * Replaces the schema associated with the provided key (stateName) in the ToolRegistry.
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports dynamic updates to state schemas for StateConnectionService and SharedStateConnectionService.
-   * @param {StateName} key - The name of the state to override, sourced from State.interface.
-   * @param {IStateSchema} value - The new state schema to replace the existing one, sourced from State.interface.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
    */
   public override = (key: StateName, value: Partial<IStateSchema>) => {
@@ -140,8 +132,6 @@ export class StateSchemaService {
    * Retrieves a state schema from the registry by its name.
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports StateConnectionService and SharedStateConnectionService by providing state configuration (e.g., getState, middlewares) for ClientState instantiation, referenced in AgentSchemaService schemas.
-   * @param {StateName} key - The name of the state to retrieve, sourced from State.interface.
-   * @returns {IStateSchema} The state schema associated with the key, sourced from State.interface, including getState and optional middlewares.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
    */
   public get = (key: StateName): IStateSchema => {
@@ -154,6 +144,5 @@ export class StateSchemaService {
 /**
  * Default export of the StateSchemaService class.
  * Provides the primary service for managing state schemas in the swarm system, integrating with StateConnectionService, SharedStateConnectionService, ClientAgent, AgentSchemaService, and StatePublicService, with validated schema storage via ToolRegistry.
- * @type {typeof StateSchemaService}
  */
 export default StateSchemaService;

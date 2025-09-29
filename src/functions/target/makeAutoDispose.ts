@@ -33,10 +33,6 @@ export interface IMakeDisposeParams {
  * The mechanism uses a `Source` from `functools-kit` to manage the timer, which can be reset or stopped manually. The execution is wrapped
  * in `beginContext` for a clean environment, and an optional callback (`onDestroy`) can be provided to handle post-disposal actions.
  *
- * @param {string} clientId - The unique identifier of the client session.
- * @param {SwarmName} swarmName - The name of the swarm associated with the session.
- * @param {Partial<IMakeDisposeParams>} [params={}] - Optional parameters for configuring the auto-dispose behavior, including timeout and callback.
- * @returns {{ tick: () => void, destroy: () => void }} An object with `tick` to signal activity and `destroy` to stop the auto-dispose mechanism.
  * @throws {Error} If disposal via `disposeConnection` fails when triggered automatically.
  * @example
  * const { tick, destroy } = makeAutoDispose("client-123", "TaskSwarm", { 

@@ -1,6 +1,6 @@
 /**
  * @module ExecutionValidationService
- * @description Service for validating and managing execution counts for client sessions in a swarm context.
+ * Service for validating and managing execution counts for client sessions in a swarm context.
  */
 import { inject } from "../../../lib/core/di";
 import LoggerService from "../base/LoggerService";
@@ -18,20 +18,18 @@ type ExecutionId = string;
 
 /**
  * @class ExecutionValidationService
- * @description Manages execution count validation to prevent excessive nested executions within a swarm.
+ * Manages execution count validation to prevent excessive nested executions within a swarm.
  */
 export class ExecutionValidationService {
   /**
    * @private
-   * @type {LoggerService}
-   * @description Injected logger service for logging execution-related information.
+   * Injected logger service for logging execution-related information.
    */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * @private
-   * @type {SessionValidationService}
-   * @description Injected session validation service for checking client sessions and swarm associations.
+   * Injected session validation service for checking client sessions and swarm associations.
    */
   private readonly sessionValidationService = inject<SessionValidationService>(
     TYPES.sessionValidationService
@@ -39,9 +37,6 @@ export class ExecutionValidationService {
 
   /**
    * Retrieves a memoized set of execution IDs for a given client and swarm.
-   * @param {string} clientId - The unique identifier for the client.
-   * @param {SwarmName} swarmName - The name of the swarm associated with the client.
-   * @returns {Set<ExecutionId>} A set containing execution IDs for the client and swarm.
    */
   public getExecutionCount = memoize<
     (clientId: string, swarmName: SwarmName) => {
@@ -60,11 +55,7 @@ export class ExecutionValidationService {
 
   /**
    * Increments the execution count for a client and checks for excessive nested executions.
-   * @param {string} executionId - The unique identifier for the execution.
-   * @param {string} clientId - The unique identifier for the client.
-   * @param {SwarmName} swarmName - The name of the swarm associated with the client.
    * @throws {Error} If the maximum nested execution limit is reached.
-   * @returns {void}
    */
   public incrementCount = (
     executionId: string,
@@ -98,10 +89,6 @@ export class ExecutionValidationService {
 
   /**
    * Resets the execution count for a client and swarm.
-   * @param {string} executionId - The unique identifier for the execution.
-   * @param {string} clientId - The unique identifier for the client.
-   * @param {SwarmName} swarmName - The name of the swarm associated with the client.
-   * @returns {void}
    */
   public decrementCount = (
     executionId: string,
@@ -127,9 +114,6 @@ export class ExecutionValidationService {
    * This effectively resets the execution count for the given client and swarm context,
    * but does not remove the memoized entry itself.
    *
-   * @param {string} clientId - The unique identifier for the client.
-   * @param {SwarmName} swarmName - The name of the swarm associated with the client.
-   * @returns {void}
    */
   public flushCount = (clientId: string, swarmName: SwarmName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -146,9 +130,6 @@ export class ExecutionValidationService {
 
   /**
    * Clears the memoized execution count for a specific client and swarm.
-   * @param {string} clientId - The unique identifier for the client.
-   * @param {SwarmName} swarmName - The name of the swarm associated with the client.
-   * @returns {void}
    */
   public dispose = (clientId: string, swarmName: SwarmName): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&

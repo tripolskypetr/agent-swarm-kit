@@ -9,8 +9,6 @@ const METHOD_NAME = "function.dump.getCompletion";
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getCompletion
- * @param {CompletionName} completionName - The name of the completion to retrieve.
- * @returns The completion schema associated with the provided completion name.
  */
 export function getCompletion(completionName: CompletionName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

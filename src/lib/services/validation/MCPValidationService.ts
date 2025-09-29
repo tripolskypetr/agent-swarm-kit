@@ -17,8 +17,6 @@ export class MCPValidationService {
 
   /**
    * Adds a new MCP schema to the map.
-   * @param mcpName - The name of the MCP to add.
-   * @param mcpSchema - The MCP schema to store.
    * @throws Error if an MCP with the same name already exists.
    */
   public addMCP = (mcpName: MCPName, mcpSchema: IMCPSchema): void => {
@@ -35,8 +33,6 @@ export class MCPValidationService {
 
   /**
    * Validates the existence of an MCP schema by its name.
-   * @param mcpName - The name of the MCP to validate.
-   * @param source - The source context or identifier for the validation request.
    * @throws Error if the MCP does not exist in the map.
    */
   public validate = memoize(

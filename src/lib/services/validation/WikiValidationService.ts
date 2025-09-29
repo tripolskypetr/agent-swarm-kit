@@ -7,27 +7,25 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * @class WikiValidationService
- * @description Service for managing and validating wiki configurations
+ * Service for managing and validating wiki configurations
  */
 export class WikiValidationService {
   /**
    * @private
    * @readonly
-   * @description Injected logger service instance
+   * Injected logger service instance
    */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * @private
-   * @description Map storing wiki schemas by wiki name
+   * Map storing wiki schemas by wiki name
    */
   private _wikiMap = new Map<WikiName, IWikiSchema>();
 
   /**
    * Adds a wiki schema to the validation service
    * @public
-   * @param {WikiName} wikiName - The name of the wiki
-   * @param {IWikiSchema} wikiSchema - The wiki schema to add
    * @throws {Error} If wikiName already exists
    */
   public addWiki = (wikiName: WikiName, wikiSchema: IWikiSchema): void => {
@@ -45,10 +43,8 @@ export class WikiValidationService {
   /**
    * Validates the existence of a wiki
    * @public
-   * @param {WikiName} wikiName - The name of the wiki to validate
-   * @param {string} source - The source requesting validation
    * @throws {Error} If wikiName is not found
-   * @description Memoized function to cache validation results
+   * Memoized function to cache validation results
    */
   public validate = memoize(
     ([wikiName]) => wikiName,
@@ -71,6 +67,6 @@ export class WikiValidationService {
 
 /**
  * @exports WikiValidationService
- * @description Default export of WikiValidationService class
+ * Default export of WikiValidationService class
  */
 export default WikiValidationService;

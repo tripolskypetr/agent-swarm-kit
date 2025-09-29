@@ -6,6 +6,10 @@ import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideWiki";
 
+/**
+ * Type representing a partial wiki schema configuration.
+ * Used for wiki service configuration with optional properties.
+ */
 type TWikiSchema = {
   wikiName: IWikiSchema["wikiName"];
 } & Partial<IWikiSchema>;
@@ -30,10 +34,6 @@ const overrideWikiInternal = beginContext((publicWikiSchema: TWikiSchema) => {
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
- * @param {TWikiSchema} wikiSchema - The schema containing the wiki’s unique name and optional properties to override.
- * @param {string} wikiSchema.wikiName - The unique identifier of the wiki to override, matching `IWikiSchema["wikiName"]`.
- * @param {Partial<IWikiSchema>} [wikiSchema] - Optional partial schema properties to update, extending `IWikiSchema`.
- * @returns {void} No return value; the override is applied directly to the swarm’s wiki schema service.
  * @throws {Error} If the wiki schema service encounters an error during the override operation (e.g., invalid wikiName or schema).
  *
  * @example

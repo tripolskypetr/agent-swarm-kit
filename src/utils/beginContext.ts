@@ -7,8 +7,6 @@ import swarm, { ExecutionContextService, MethodContextService } from "../lib";
  * using `AsyncResource` to create a new, untracked async scope when necessary.
  *
  * @template T - The type of the function to be wrapped, extending any function with arbitrary arguments and return type.
- * @param {T} run - The function to execute outside of existing contexts.
- * @returns {(...args: Parameters<T>) => ReturnType<T>} A wrapped function that preserves the original function's signature
  *   and executes it outside of any existing contexts if detected, otherwise runs it directly.
  * @throws {any} Propagates any errors thrown by the wrapped `run` function during execution.
  *

@@ -8,19 +8,18 @@ import SchemaContextService, { TSchemaContextService } from "../context/SchemaCo
 
 /**
  * @class WikiSchemaService
- * @description Service for managing wiki schema registrations and retrieval
+ * Service for managing wiki schema registrations and retrieval
  */
 export class WikiSchemaService {
   /**
    * @readonly
-   * @description Injected logger service instance
+   * Injected logger service instance
    */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
-   * @type {TSchemaContextService}
    * @readonly
    */
   readonly schemaContextService = inject<TSchemaContextService>(
@@ -29,7 +28,7 @@ export class WikiSchemaService {
 
   /**
    * @private
-   * @description Registry for storing wiki schemas
+   * Registry for storing wiki schemas
    */
   private _registry = new ToolRegistry<Record<WikiName, IWikiSchema>>(
     "wikiSchemaService"
@@ -63,7 +62,6 @@ export class WikiSchemaService {
   /**
    * Validates basic requirements of a wiki schema
    * @private
-   * @param {IWikiSchema} wikiSchema - The wiki schema to validate
    * @throws {Error} If validation fails
    */
   private validateShallow = (wikiSchema: IWikiSchema) => {
@@ -86,8 +84,6 @@ export class WikiSchemaService {
   /**
    * Registers a wiki schema with a given key
    * @public
-   * @param {WikiName} key - The key to register the schema under
-   * @param {IWikiSchema} value - The wiki schema to register
    */
   public register = (key: WikiName, value: IWikiSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -99,9 +95,7 @@ export class WikiSchemaService {
   /**
    * Overrides an existing wiki schema with a new value for a given key
    * @public
-   * @param {WikiName} key - The key of the schema to override
-   * @param {IWikiSchema} value - The new wiki schema to set
-   * @description Logs the override operation and updates the registry with the new schema
+   * Logs the override operation and updates the registry with the new schema
    */
   public override = (key: WikiName, value: Partial<IWikiSchema>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -113,8 +107,6 @@ export class WikiSchemaService {
   /**
    * Retrieves a wiki schema by key
    * @public
-   * @param {WikiName} key - The key of the schema to retrieve
-   * @returns {IWikiSchema} The registered wiki schema
    */
   public get = (key: WikiName): IWikiSchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -125,6 +117,6 @@ export class WikiSchemaService {
 
 /**
  * @exports WikiSchemaService
- * @description Default export of WikiSchemaService class
+ * Default export of WikiSchemaService class
  */
 export default WikiSchemaService;

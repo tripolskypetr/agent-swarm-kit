@@ -29,8 +29,6 @@ const overrideMCPInternal = beginContext((publicMcpSchema: TMCPSchema) => {
 
 /**
  * Overrides an existing MCP (Model Context Protocol) schema with a new or partial schema.
- * @param mcpSchema - The MCP schema containing the name and optional properties to override.
- * @returns The result of the override operation from the MCP schema service.
  */
 export function overrideMCP(mcpSchema: TMCPSchema) {
   return overrideMCPInternal(mcpSchema);

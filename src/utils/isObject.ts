@@ -2,8 +2,6 @@
  * Checks if a given value is a plain JavaScript object.
  * Returns `true` only for objects that inherit directly from `Object.prototype`, excluding arrays, null, and other non-object types.
  *
- * @param {any} obj - The value to check for being a plain object.
- * @returns {boolean} Returns `true` if the value is a plain object (e.g., `{}` or `{ key: "value" }`), otherwise `false`.
  *
  * @example
  * // Basic usage with various types

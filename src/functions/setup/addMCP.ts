@@ -22,8 +22,6 @@ const addMCPInternal = beginContext((mcpSchema: IMCPSchema) => {
 
 /**
  * Registers a new MCP (Model Context Protocol) schema in the system.
- * @param mcpSchema - The MCP schema to register.
- * @returns The name of the registered MCP.
  */
 export function addMCP(mcpSchema: IMCPSchema) {
   return addMCPInternal(mcpSchema);

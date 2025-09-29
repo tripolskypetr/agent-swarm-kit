@@ -20,7 +20,6 @@ export class EmbeddingSchemaService {
   /**
    * Logger service instance, injected via DI, for logging embedding schema operations.
    * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StorageConnectionService and PerfService logging patterns.
-   * @type {LoggerService}
    * @private
    * @readonly
    */
@@ -29,7 +28,6 @@ export class EmbeddingSchemaService {
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
-   * @type {TSchemaContextService}
    * @readonly
    */
   readonly schemaContextService = inject<TSchemaContextService>(
@@ -40,7 +38,6 @@ export class EmbeddingSchemaService {
    * Registry instance for storing embedding schemas, initialized with ToolRegistry from functools-kit.
    * Maps EmbeddingName keys to IEmbeddingSchema values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
-   * @type {ToolRegistry<Record<EmbeddingName, IEmbeddingSchema>>}
    * @private
    */
   private _registry = new ToolRegistry<Record<EmbeddingName, IEmbeddingSchema>>(
@@ -79,7 +76,6 @@ export class EmbeddingSchemaService {
    * Checks embeddingName as a string and calculateSimilarity and createEmbedding as functions, critical for storage operations in StorageConnectionService and SharedStorageConnectionService.
    * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with storage service needs.
    * Supports storage similarity searches (e.g., take method) by ensuring embedding schema validity before registration.
-   * @param {IEmbeddingSchema} embeddingSchema - The embedding schema to validate, sourced from Embedding.interface.
    * @throws {Error} If any validation check fails, with detailed messages including embeddingName.
    * @private
    */
@@ -110,8 +106,6 @@ export class EmbeddingSchemaService {
    * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (embeddingName).
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StorageConnectionService’s embedding usage.
    * Supports storage operations (e.g., similarity-based retrieval in ClientStorage) by providing validated embedding schemas to StorageConnectionService and SharedStorageConnectionService.
-   * @param {EmbeddingName} key - The name of the embedding, used as the registry key, sourced from Embedding.interface.
-   * @param {IEmbeddingSchema} value - The embedding schema to register, sourced from Embedding.interface, validated before storage.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
    */
   public register = (key: EmbeddingName, value: IEmbeddingSchema) => {
@@ -126,8 +120,6 @@ export class EmbeddingSchemaService {
    * Replaces the schema associated with the provided key in the ToolRegistry.
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports updating embedding logic (e.g., calculateSimilarity and createEmbedding) for storage operations in StorageConnectionService and SharedStorageConnectionService.
-   * @param {EmbeddingName} key - The name of the embedding to override, sourced from Embedding.interface.
-   * @param {IEmbeddingSchema} value - The new embedding schema to associate with the key, sourced from Embedding.interface.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
    */
   public override = (key: EmbeddingName, value: Partial<IEmbeddingSchema>) => {
@@ -141,8 +133,6 @@ export class EmbeddingSchemaService {
    * Retrieves an embedding schema from the registry by its name.
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports StorageConnectionService and SharedStorageConnectionService by providing embedding logic (calculateSimilarity and createEmbedding) for storage operations like take, referenced in storage schemas.
-   * @param {EmbeddingName} key - The name of the embedding to retrieve, sourced from Embedding.interface.
-   * @returns {IEmbeddingSchema} The embedding schema associated with the key, sourced from Embedding.interface, including calculateSimilarity and createEmbedding functions.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
    */
   public get = (key: EmbeddingName): IEmbeddingSchema => {
@@ -155,6 +145,5 @@ export class EmbeddingSchemaService {
 /**
  * Default export of the EmbeddingSchemaService class.
  * Provides the primary service for managing embedding schemas in the swarm system, integrating with StorageConnectionService, SharedStorageConnectionService, ClientAgent, and AgentSchemaService, with validated schema storage via ToolRegistry.
- * @type {typeof EmbeddingSchemaService}
  */
 export default EmbeddingSchemaService;

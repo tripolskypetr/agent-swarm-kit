@@ -68,24 +68,16 @@ export interface IMCPTool<Properties = MCPToolProperties> {
 export interface IMCP {
   /**
    * Lists available tools for a given client.
-   * @param clientId - The ID of the client requesting the tool list.
-   * @returns A promise resolving to an array of IMCPTool objects.
    */
   listTools(clientId: string): Promise<IMCPTool[]>;
 
   /**
    * Checks if a specific tool exists for a given client.
-   * @param toolName - The name of the tool to check.
-   * @param clientId - The ID of the client.
-   * @returns A promise resolving to true if the tool exists, false otherwise.
    */
   hasTool(toolName: string, clientId: string): Promise<boolean>;
 
   /**
    * Calls a specific tool with the provided parameters.
-   * @param toolName - The name of the tool to call.
-   * @param dto - The data transfer object containing tool call parameters.
-   * @returns A promise resolving when the tool call is complete.
    */
   callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
@@ -94,13 +86,11 @@ export interface IMCP {
 
   /**
    * Updates the list of tools by clearing the cache and invoking the update callback.
-   * @returns A promise resolving when the update is complete.
    */
   updateToolsForAll(): Promise<void>;
 
   /**
    * Updates the list of tools by clearing the cache and invoking the update callback.
-   * @returns A promise resolving when the update is complete.
    */
   updateToolsForClient(clientId: string): Promise<void>;
 }
@@ -114,26 +104,21 @@ export interface IMCPCallbacks {
 
   /**
    * Called when the MCP resources for a client are disposed.
-   * @param clientId - The ID of the client.
    */
   onDispose(clientId: string): void;
 
   /**
    * Called when tools are fetched for a client.
-   * @param clientId - The ID of the client.
    */
   onFetch(clientId: string): void;
 
   /**
    * Called when listing tools for a client.
-   * @param clientId - The ID of the client.
    */
   onList(clientId: string): void;
 
   /**
    * Called when a tool is invoked.
-   * @param toolName - The name of the tool being called.
-   * @param dto - The data transfer object containing tool call parameters.
    */
   onCall<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
@@ -142,7 +127,6 @@ export interface IMCPCallbacks {
 
   /**
    * Called when the list of tools is updated.
-   * @param clientId - The ID of the client.
    */
   onUpdate(mcpName: MCPName, clientId: string | undefined): void;
 }
@@ -158,16 +142,11 @@ export interface IMCPSchema {
 
   /**
    * Function to list available tools for a client.
-   * @param clientId - The ID of the client.
-   * @returns A promise resolving to an array of IMCPTool objects.
    */
   listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
 
   /**
    * Function to call a specific tool with the provided parameters.
-   * @param toolName - The name of the tool to call.
-   * @param dto - The data transfer object containing tool call parameters.
-   * @returns A promise resolving when the tool call is complete.
    */
   callTool: <T extends MCPToolValue = MCPToolValue>(
     toolName: string,

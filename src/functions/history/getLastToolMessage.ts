@@ -29,8 +29,6 @@ const getLastToolMessageInternal = beginContext(async (clientId: string): Promis
  * It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The result is the content
  * of the last tool message as a string, or `null` if no tool message exists in the history.
  *
- * @param {string} clientId - The unique identifier of the client session whose last tool message is to be retrieved.
- * @returns {Promise<string | null>} A promise that resolves to the content of the last tool message, or `null` if none is found.
  * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
  * @example
  * const lastMessage = await getLastToolMessage("client-123");

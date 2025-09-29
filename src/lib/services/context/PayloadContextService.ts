@@ -20,7 +20,6 @@ export const PayloadContextService = scoped(
   class {
     /**
      * Creates a new instance of PayloadContextService with the provided context.
-     * @param context - The payload context containing client, execution, process IDs, and payload data.
      */
     constructor(readonly context: IPayloadContext) {}
   }
@@ -35,6 +34,5 @@ export type TPayloadContextService = InstanceType<typeof PayloadContextService>;
 /**
  * Default export of the PayloadContextService class.
  * Provides a scoped service for managing payload contexts in dependency injection scenarios.
- * @type {typeof PayloadContextService}
  */
 export default PayloadContextService;

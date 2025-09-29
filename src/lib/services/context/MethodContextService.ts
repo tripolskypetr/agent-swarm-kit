@@ -15,55 +15,46 @@ import { ComputeName } from "../../../interfaces/Compute.interface";
 export interface IMethodContext {
   /**
    * The unique identifier of the client session, tying to ClientAgent’s clientId and PerfService’s execution tracking.
-   * @type {string}
    */
   clientId: string;
 
   /**
    * The name of the method being invoked, used in LoggerService (e.g., log method context) and PerfService (e.g., METHOD_NAME_COMPUTE_STATE).
-   * @type {string}
    */
   methodName: string;
 
   /**
    * The name of the agent involved in the method call, sourced from Agent.interface, used in ClientAgent (e.g., agent-specific execution) and DocService (e.g., agent docs).
-   * @type {AgentName}
    */
   agentName: AgentName;
 
   /**
    * The name of the swarm involved in the method call, sourced from Swarm.interface, used in PerfService (e.g., computeClientState) and DocService (e.g., swarm docs).
-   * @type {SwarmName}
    */
   swarmName: SwarmName;
 
   /**
    * The name of the storage resource involved, sourced from Storage.interface, used in ClientAgent (e.g., storage access) and DocService (e.g., storage docs).
-   * @type {StorageName}
    */
   storageName: StorageName;
 
   /**
    * The name of the state resource involved, sourced from State.interface, used in PerfService (e.g., sessionState) and DocService (e.g., state docs).
-   * @type {StateName}
    */
   stateName: StateName;
 
   /**
    * The name of the compute resource involved, sourced from Compute.interface, used in PerfService (e.g., sessionState) and DocService (e.g., compute docs).
-   * @type {ComputeName}
    */
   computeName: ComputeName;
 
   /**
    * The name of the policy involved, sourced from Policy.interface, used in PerfService (e.g., policyBans) and DocService (e.g., policy docs).
-   * @type {PolicyName}
    */
   policyName: PolicyName;
 
   /**
    * The name of the mcp involved, sourced from MCP.interface
-   * @type {PolicyName}
    */
   mcpName: MCPName;
 }
@@ -79,7 +70,6 @@ export const MethodContextService = scoped(
     /**
      * Creates an instance of MethodContextService with the provided method context.
      * Stores the context immutably, making it available to dependent services like LoggerService and PerfService via DI.
-     * @param {IMethodContext} context - The method context object containing clientId, methodName, agentName, swarmName, storageName, stateName, and policyName.
      */
     constructor(readonly context: IMethodContext) {}
   }
@@ -88,13 +78,11 @@ export const MethodContextService = scoped(
 /**
  * Type alias representing an instance of MethodContextService.
  * Used in dependency injection (e.g., LoggerService, PerfService) to type the injected service, ensuring type safety across the swarm system.
- * @typedef {InstanceType<typeof MethodContextService>} TMethodContextService
  */
 export type TMethodContextService = InstanceType<typeof MethodContextService>;
 
 /**
  * Default export of the MethodContextService scoped service.
  * Provides the primary interface for accessing method call context in the swarm system, integrating with ClientAgent, PerfService, LoggerService, and DocService.
- * @type {typeof MethodContextService}
  */
 export default MethodContextService;

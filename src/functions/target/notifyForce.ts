@@ -50,9 +50,6 @@ const notifyForceInternal = beginContext(
  * is still active before sending the notification. Will notify even if the agent was changed. The execution is wrapped in
  * `beginContext` for a clean environment, logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
  *
- * @param {string} content - The content to be sent as the notification output.
- * @param {string} clientId - The unique identifier of the client session sending the notification.
- * @returns {Promise<void>} A promise that resolves when the notification is sent
  * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
  * @example
  * await notifyForce("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active

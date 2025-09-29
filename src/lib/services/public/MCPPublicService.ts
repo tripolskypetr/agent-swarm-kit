@@ -13,10 +13,18 @@ import {
 
 interface IMCPConnectionService extends MCPConnectionService {}
 
+/**
+ * Internal keys that should be excluded from the public MCP service interface.
+ * Used to hide internal getMCP method from public API exposure.
+ */
 type InternalKeys = keyof {
   getMCP: never;
 };
 
+/**
+ * Type representing the MCP connection service interface.
+ * Handles Model Context Protocol connection operations.
+ */
 type TMCPConnectionService = {
   [key in Exclude<keyof IMCPConnectionService, InternalKeys>]: unknown;
 };

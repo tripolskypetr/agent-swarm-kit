@@ -301,6 +301,6 @@ export class ClientOperator implements IAgent {
 }
 
 /**
- * s ClientOperator
- * 
+ * Default export of the ClientOperator class.
+ */
 export default ClientOperator;

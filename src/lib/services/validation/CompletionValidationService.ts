@@ -16,7 +16,6 @@ export class CompletionValidationService {
   /**
    * Logger service instance for logging validation operations and errors.
    * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
-   * @type {LoggerService}
    * @private
    * @readonly
    */
@@ -25,7 +24,6 @@ export class CompletionValidationService {
   /**
    * Set of registered completion names, used to track and validate completions.
    * Populated by addCompletion, queried by validate.
-   * @type {Set<CompletionName>}
    * @private
    */
   private _completionSet = new Set<CompletionName>();
@@ -33,7 +31,6 @@ export class CompletionValidationService {
   /**
    * Registers a new completion name in the validation service.
    * Logs the operation and ensures uniqueness, supporting CompletionSchemaService’s registration process.
-   * @param {CompletionName} completionName - The name of the completion to add, sourced from Completion.interface.
    * @throws {Error} If the completion name already exists in _completionSet.
    */
   public addCompletion = (completionName: CompletionName): void => {
@@ -50,8 +47,6 @@ export class CompletionValidationService {
   /**
    * Validates if a completion name exists in the registered set, memoized by completionName for performance.
    * Logs the operation and checks existence, supporting AgentValidationService’s validation of agent completions.
-   * @param {CompletionName} completionName - The name of the completion to validate, sourced from Completion.interface.
-   * @param {string} source - The source of the validation request (e.g., "agent-validate"), for error context.
    * @throws {Error} If the completion name is not found in _completionSet.
    */
   public validate = memoize(
@@ -77,6 +72,5 @@ export class CompletionValidationService {
  * Provides a service for validating completion names in the swarm system,
  * integrating with CompletionSchemaService, AgentValidationService, ClientAgent, and LoggerService,
  * with memoized validation and uniqueness enforcement.
- * @type {typeof CompletionValidationService}
  */
 export default CompletionValidationService;

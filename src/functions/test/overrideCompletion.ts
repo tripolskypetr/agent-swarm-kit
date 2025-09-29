@@ -40,10 +40,6 @@ const overrideCompletionInternal = beginContext(
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
- * @param {TCompletionSchema} completionSchema - The schema containing the completion’s unique name and optional properties to override.
- * @param {string} completionSchema.completionName - The unique identifier of the completion to override, matching `ICompletionSchema["completionName"]`.
- * @param {Partial<ICompletionSchema>} [completionSchema] - Optional partial schema properties to update, extending `ICompletionSchema`.
- * @returns {void} No return value; the override is applied directly to the swarm’s completion schema service.
  * @throws {Error} If the completion schema service encounters an error during the override operation (e.g., invalid completionName or schema).
  *
  * @example

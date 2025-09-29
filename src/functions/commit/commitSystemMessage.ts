@@ -66,10 +66,6 @@ const commitSystemMessageInternal = beginContext(
  * and LoggerService (logging). Complements functions like commitAssistantMessage by handling system messages (e.g., configuration or control messages)
  * rather than assistant-generated responses.
  *
- * @param {string} content - The content of the system message to commit, typically related to system state or control instructions.
- * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
- * @param {string} agentName - The name of the agent to commit the message for, validated against registered agents.
- * @returns {Promise<void>} A promise that resolves when the message is committed or skipped (e.g., agent mismatch).
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
  */
 export async function commitSystemMessage(content: string, clientId: string, agentName: string) {

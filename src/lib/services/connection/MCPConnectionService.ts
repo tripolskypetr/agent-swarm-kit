@@ -35,8 +35,6 @@ export class MCPConnectionService implements IMCP {
 
   /**
    * Memoized function to retrieve or create an MCP instance for a given MCP name.
-   * @param mcpName - The name of the MCP to retrieve or create.
-   * @returns A ClientMCP instance configured with the specified schema and dependencies.
    */
   public getMCP = memoize(
     ([mcpName]) => `${mcpName}`,
@@ -53,8 +51,6 @@ export class MCPConnectionService implements IMCP {
 
   /**
    * Lists available tools for a given client.
-   * @param clientId - The ID of the client requesting the tool list.
-   * @returns A promise resolving to an array of IMCPTool objects.
    */
   async listTools(clientId: string): Promise<IMCPTool[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -68,7 +64,6 @@ export class MCPConnectionService implements IMCP {
 
   /**
    * Updates the list of tools for all clients.
-   * @returns A promise resolving when the tool update is complete.
    */
   async updateToolsForAll(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -80,8 +75,6 @@ export class MCPConnectionService implements IMCP {
 
   /**
    * Updates the list of tools for a specific client.
-   * @param clientId - The ID of the client whose tools are to be updated.
-   * @returns 
    */
   async updateToolsForClient(clientId: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -95,9 +88,6 @@ export class MCPConnectionService implements IMCP {
 
   /**
    * Checks if a specific tool exists for a given client.
-   * @param toolName - The name of the tool to check.
-   * @param clientId - The ID of the client.
-   * @returns A promise resolving to true if the tool exists, false otherwise.
    */
   async hasTool(toolName: string, clientId: string): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -113,9 +103,6 @@ export class MCPConnectionService implements IMCP {
 
   /**
    * Calls a specific tool with the provided parameters.
-   * @param toolName - The name of the tool to call.
-   * @param dto - The data transfer object containing tool call parameters.
-   * @returns A promise resolving when the tool call is complete.
    */
   async callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
@@ -133,8 +120,6 @@ export class MCPConnectionService implements IMCP {
 
   /**
    * Disposes of resources associated with a client, clearing cached MCP instances.
-   * @param clientId - The ID of the client whose resources are to be disposed.
-   * @returns A promise resolving when the disposal is complete.
    */
   public dispose = async (clientId: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&

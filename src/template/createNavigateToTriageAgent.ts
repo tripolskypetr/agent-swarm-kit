@@ -113,12 +113,6 @@ const DEFAULT_LAST_MESSAGE_FN = (
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the navigation operation if logging is enabled in the global configuration.
  *
- * @param {INavigateToTriageParams} params - Configuration parameters for the navigation handler.
- * @param {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [params.flushMessage] - Optional message or function to emit after flushing the session.
- * @param {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [params.executeMessage] - Optional message or function to execute if no navigation is needed.
- * @param {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [params.toolOutputAccept] - Optional message or function for tool output when navigation occurs, defaults to `DEFAULT_ACCEPT_FN`.
- * @param {string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>)} [params.toolOutputReject] - Optional message or function for tool output when already on the default agent, defaults to `DEFAULT_REJECT_FN`.
- * @returns {Promise<(toolId: string, clientId: string) => Promise<void>>} A promise resolving to a function that handles navigation to the triage agent.
  * @throws {Error} If neither `flushMessage` nor `executeMessage` is provided, or if any internal operation (e.g., navigation, commit, or execution) fails.
  *
  * @example
@@ -150,9 +144,6 @@ export const createNavigateToTriageAgent = ({
   /**
    * Navigates to the default triage agent for a given client and tool, handling message commits and execution.
    *
-   * @param {string} toolId - The identifier of the tool triggering the navigation.
-   * @param {string} clientId - The unique identifier of the client session.
-   * @returns {Promise<void>} A promise that resolves when the navigation and associated actions are complete.
    * @throws {Error} If navigation, commit, or execution operations fail (e.g., invalid clientId or swarm configuration).
    */
   return beginContext(async (toolId: string, clientId: string) => {

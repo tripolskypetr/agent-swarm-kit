@@ -8,8 +8,6 @@ type Entry = [string, string];
  * for structural boundaries and skipping functions.
  *
  * @template T - The type of the input object, extending any object type (defaults to `any`).
- * @param {T} data - The nested object to flatten. Can contain objects, arrays, primitives, or functions (which are ignored).
- * @returns {Entry[]} An array of `[string, string]` tuples representing the flattened structure, where each tuple is a key-value pair.
  *
  * @example
  * // Basic usage with a simple nested object

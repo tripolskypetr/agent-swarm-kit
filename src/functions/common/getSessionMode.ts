@@ -27,8 +27,6 @@ const getSessionModeInternal = beginContext(async (clientId: string) => {
  * It validates the client session and associated swarm, logs the operation if enabled, and fetches the session mode using the session validation service.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  *
- * @param {string} clientId - The unique identifier of the client session whose mode is being retrieved.
- * @returns {Promise<"session" | "makeConnection" | "complete">} A promise that resolves to the session mode, indicating the current state of the session.
  * @throws {Error} If the client session is invalid, the swarm validation fails, or the session validation service encounters an error during mode retrieval.
  * @example
  * const mode = await getSessionMode("client-123");

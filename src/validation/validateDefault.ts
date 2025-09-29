@@ -5,8 +5,6 @@ import validateNoToolCall from "./validateNoToolCall";
  * Validates an output string using a sequence of predefined validation functions.
  * Checks the string against multiple criteria (e.g., non-empty, no tool calls) and returns the first validation error encountered.
  *
- * @param {string} output - The output string to validate, typically from an agent or model response.
- * @returns {Promise<string | null>} A promise that resolves to:
  *   - A string error message if any validation fails (e.g., "Output is empty" or "Contains tool call").
  *   - `null` if all validations pass, indicating the output is valid.
  * @throws {Error} Propagates any errors thrown by the underlying validation functions (`validateNoEmptyResult`, `validateNoToolCall`).

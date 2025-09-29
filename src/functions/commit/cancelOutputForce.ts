@@ -40,9 +40,6 @@ const cancelOutputForceInternal = beginContext(
  * SwarmPublicService (output cancellation), and LoggerService (logging).
  * Unlike cancelOutput, this function skips agent validation and active agent checks, providing a more aggressive cancellation mechanism.
  *
- * @param {string} clientId - The ID of the client whose output is to be canceled, validated against active sessions.
- * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with cancelOutput).
- * @returns {Promise<void>} A promise that resolves when the output cancellation is complete.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 export async function cancelOutputForce(clientId: string) {

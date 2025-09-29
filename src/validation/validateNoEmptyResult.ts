@@ -2,8 +2,6 @@
  * Validates that an output string is not empty or whitespace-only.
  * Trims the input and checks if the result is an empty string, returning an error message if so.
  *
- * @param {string} output - The output string to validate, typically from an agent or model response.
- * @returns {Promise<string | null>} A promise that resolves to:
  *   - `"Empty output"` if the string is empty or contains only whitespace after trimming.
  *   - `null` if the string has non-whitespace content, indicating it is valid.
  *

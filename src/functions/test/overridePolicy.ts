@@ -35,10 +35,6 @@ const overridePolicyInternal = beginContext((publicPolicySchema: TPolicySchema) 
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
- * @param {TPolicySchema} policySchema - The schema containing the policy’s unique name and optional properties to override.
- * @param {string} policySchema.policyName - The unique identifier of the policy to override, matching `IPolicySchema["policyName"]`.
- * @param {Partial<IPolicySchema>} [policySchema] - Optional partial schema properties to update, extending `IPolicySchema`.
- * @returns {void} No return value; the override is applied directly to the swarm’s policy schema service.
  * @throws {Error} If the policy schema service encounters an error during the override operation (e.g., invalid policyName or schema).
  *
  * @example

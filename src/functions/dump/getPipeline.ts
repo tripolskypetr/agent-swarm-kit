@@ -9,8 +9,6 @@ const METHOD_NAME = "function.dump.getPipeline";
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getPipeline
- * @param {PipelineName} pipelineName - The name of the pipeline to retrieve.
- * @returns The pipeline schema associated with the provided pipeline name.
  */
 export function getPipeline(pipelineName: PipelineName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

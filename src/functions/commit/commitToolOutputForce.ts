@@ -40,10 +40,6 @@ const commitToolOutputForceInternal = beginContext(
  * It performs validation on the session and swarm, logs the operation if enabled, and delegates the commit operation to the session public service.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  *
- * @param {string} toolId - The unique identifier of the tool whose output is being committed.
- * @param {string} content - The content or result of the tool execution to be committed.
- * @param {string} clientId - The unique identifier of the client session associated with the operation.
- * @returns {Promise<void>} A promise that resolves when the tool output is successfully committed.
  * @throws {Error} If validation fails (e.g., invalid session or swarm) or if the session public service encounters an error during the commit operation.
  * @example
  * await commitToolOutputForce("tool-123", "Tool execution result", "client-456");

@@ -32,8 +32,6 @@ class OutlineHistory implements IOutlineHistory {
   /**
    * Appends one or more messages to the history.
    * Flattens nested arrays of messages and adds them to the internal message list.
-   * @param {...(IOutlineMessage | IOutlineMessage[]): (IOutlineMessage | IOutlineMessage[])} messages - One or more messages or arrays of messages to append.
-   * @returns {Promise<void>} A promise that resolves when the messages are appended.
    */
   async push(
     ...messages: (IOutlineMessage | IOutlineMessage[])[]
@@ -45,7 +43,6 @@ class OutlineHistory implements IOutlineHistory {
   /**
    * Clears all messages from the history.
    * Resets the internal message list to an empty array.
-   * @returns {Promise<void>} A promise that resolves when the history is cleared.
    */
   async clear(): Promise<void> {
     this.messages = [];
@@ -53,7 +50,6 @@ class OutlineHistory implements IOutlineHistory {
 
   /**
    * Retrieves a copy of all messages in the history.
-   * @returns {Promise<IOutlineMessage[]>} A promise resolving to an array of messages in the history.
    */
   async list(): Promise<IOutlineMessage[]> {
     return [...this.messages];
@@ -66,9 +62,6 @@ class OutlineHistory implements IOutlineHistory {
  * Attempts to produce a valid structured data based on the outline schema, handling validations and retries up to a configurable maximum.
  * @private
  * @async
- * @param {OutlineName} outlineName - The unique name of the outline schema to process.
- * @param {IOutlineParam} param - The input param to process for structured data generation.
- * @returns {Promise<IOutlineResult>} A promise resolving to the outline result, indicating success or failure with associated details (e.g., history, error).
  */
 const jsonInternal = beginContext(
   async (
@@ -241,9 +234,6 @@ const jsonInternal = beginContext(
  * @async
  * @template Data - The type of the outline data, extending IOutlineData.
  * @template Param - The type of the input param, extending IOutlineParam.
- * @param {OutlineName} outlineName - The unique name of the outline schema to process.
- * @param {Param} [param={}] - The input param to process, defaults to an empty object.
- * @returns {Promise<IOutlineResult<Data, Param>>} A promise resolving to the outline result, containing the processed data, history, and validation status.
  * @example
  * // Example usage
  * const result = await json<"MyOutline", { query: string }>("MyOutline", { query: "example" });

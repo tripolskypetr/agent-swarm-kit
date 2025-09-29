@@ -43,10 +43,6 @@ const commitSystemMessageForceInternal = beginContext(
  * Unlike commitSystemMessage, this function skips agent validation and active agent checks, providing a more aggressive commit mechanism,
  * analogous to commitAssistantMessageForce vs. commitAssistantMessage.
  *
- * @param {string} content - The content of the system message to commit, typically related to system state or control instructions.
- * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
- * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with commitSystemMessage).
- * @returns {Promise<void>} A promise that resolves when the message is committed.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 export async function commitSystemMessageForce(content: string, clientId: string) {

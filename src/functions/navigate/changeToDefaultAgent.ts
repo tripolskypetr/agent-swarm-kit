@@ -10,11 +10,6 @@ const METHOD_NAME = "function.navigate.changeToDefaultAgent";
 
 /**
  * Type definition for the default agent change execution function.
- * @typedef {Function} TChangeToDefaultAgentRun
- * @param {string} methodName - The name of the method invoking the change.
- * @param {string} agentName - The name of the default agent to switch to.
- * @param {SwarmName} swarmName - The name of the swarm in which the change occurs.
- * @returns {Promise<boolean>} A promise that resolves when the agent change is complete.
  */
 type TChangeToDefaultAgentRun = (
   methodName: string,
@@ -29,8 +24,6 @@ type TChangeToDefaultAgentRun = (
  * ensuring operations are executed sequentially and cached results are reused within the TTL period.
  *
  * @function
- * @param {string} clientId - The unique identifier of the client session.
- * @returns {TChangeToDefaultAgentRun} A function that performs the default agent change operation with queuing and TTL.
  */
 const createChangeToDefaultAgent = memoize(
   ([clientId]) => `${clientId}`,
@@ -110,7 +103,6 @@ const createChangeToDefaultAgent = memoize(
  * This function sets up a singleton interval-based garbage collector to periodically clean up expired TTL entries from `createChangeToDefaultAgent`.
  *
  * @function
- * @returns {Promise<void>} A promise that resolves when the garbage collector is initialized.
  */
 const createGc = singleshot(async () => {
   disposeSubject.subscribe((clientId) => {
@@ -149,8 +141,6 @@ const changeToDefaultAgentInternal = beginContext(async (clientId: string) => {
  * It validates the session and default agent, logs the operation if enabled, and executes the change using a TTL-limited, queued runner.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
  *
- * @param {string} clientId - The unique identifier of the client session.
- * @returns {Promise<boolean>} A promise that resolves when the default agent change is complete. If navigation stack contains recursion being canceled
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToDefaultAgent("client-123");

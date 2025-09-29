@@ -21,7 +21,6 @@ export class StorageValidationService {
   /**
    * Logger service instance for logging validation operations and errors.
    * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
-   * @type {LoggerService}
    * @private
    * @readonly
    */
@@ -30,7 +29,6 @@ export class StorageValidationService {
   /**
    * Embedding validation service instance for validating embeddings associated with storages.
    * Injected via DI, used in validate method to check storage.embedding.
-   * @type {EmbeddingValidationService}
    * @private
    * @readonly
    */
@@ -40,7 +38,6 @@ export class StorageValidationService {
   /**
    * Map of storage names to their schemas, used to track and validate storages.
    * Populated by addStorage, queried by validate.
-   * @type {Map<StorageName, IStorageSchema>}
    * @private
    */
   private _storageMap = new Map<StorageName, IStorageSchema>();
@@ -48,8 +45,6 @@ export class StorageValidationService {
   /**
    * Registers a new storage with its schema in the validation service.
    * Logs the operation and ensures uniqueness, supporting StorageSchemaService’s registration process.
-   * @param {StorageName} storageName - The name of the storage to add, sourced from Storage.interface.
-   * @param {IStorageSchema} storageSchema - The schema defining the storage’s configuration (e.g., embedding), sourced from Storage.interface.
    * @throws {Error} If the storage name already exists in _storageMap.
    */
   public addStorage = (
@@ -70,8 +65,6 @@ export class StorageValidationService {
   /**
    * Validates a storage by its name and source, memoized by storageName for performance.
    * Checks storage existence and validates its embedding, supporting ClientStorage’s operational integrity.
-   * @param {StorageName} storageName - The name of the storage to validate, sourced from Storage.interface.
-   * @param {string} source - The source of the validation request (e.g., "agent-validate"), for error context.
    * @throws {Error} If the storage is not found in _storageMap or its embedding is invalid.
    */
   public validate = memoize(
@@ -100,6 +93,5 @@ export class StorageValidationService {
  * integrating with StorageSchemaService, ClientStorage, AgentValidationService,
  * EmbeddingValidationService, and LoggerService,
  * with memoized validation and embedding consistency checks.
- * @type {typeof StorageValidationService}
  */
 export default StorageValidationService;

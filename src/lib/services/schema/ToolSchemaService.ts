@@ -17,7 +17,6 @@ export class ToolSchemaService {
   /**
    * Logger service instance, injected via DI, for logging tool schema operations.
    * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentConnectionService and PerfService logging patterns.
-   * @type {LoggerService}
    * @private
    * @readonly
    */
@@ -26,7 +25,6 @@ export class ToolSchemaService {
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
-   * @type {TSchemaContextService}
    * @readonly
    */
   readonly schemaContextService = inject<TSchemaContextService>(
@@ -37,7 +35,6 @@ export class ToolSchemaService {
    * Registry instance for storing tool schemas, initialized with ToolRegistry from functools-kit.
    * Maps ToolName keys to IAgentTool values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
-   * @type {ToolRegistry<Record<ToolName, IAgentTool>>}
    * @private
    */
   private _registry = new ToolRegistry<Record<ToolName, IAgentTool>>(
@@ -74,7 +71,6 @@ export class ToolSchemaService {
    * Checks toolName as a string, call and validate as functions (for tool execution and input validation), and function as an object (tool metadata), using isObject from functools-kit.
    * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentConnectionService’s tool integration needs.
    * Supports ClientAgent execution by ensuring tool schema validity before registration.
-   * @param {IAgentTool} toolSchema - The tool schema to validate, sourced from Agent.interface.
    * @throws {Error} If any validation check fails, with detailed messages including toolName.
    * @private
    */
@@ -115,8 +111,6 @@ export class ToolSchemaService {
    * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (toolName).
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentSchemaService’s tool references.
    * Supports ClientAgent execution by providing validated tool schemas to AgentConnectionService and SwarmConnectionService for agent tool integration.
-   * @param {ToolName} key - The name of the tool, used as the registry key, sourced from Agent.interface.
-   * @param {IAgentTool} value - The tool schema to register, sourced from Agent.interface, validated before storage.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
    */
   public register = (key: ToolName, value: IAgentTool) => {
@@ -131,8 +125,6 @@ export class ToolSchemaService {
    * Replaces the schema associated with the provided key (toolName) in the ToolRegistry.
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports dynamic updates to tool schemas for AgentConnectionService and SwarmConnectionService.
-   * @param {ToolName} key - The name of the tool to override, sourced from Agent.interface.
-   * @param {IAgentTool} value - The new tool schema to replace the existing one, sourced from Agent.interface.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
    */
   public override = (key: ToolName, value: Partial<IAgentTool>) => {
@@ -146,8 +138,6 @@ export class ToolSchemaService {
    * Retrieves a tool schema from the registry by its name.
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports AgentConnectionService by providing tool definitions (e.g., call, validate, function) for agent instantiation, referenced in AgentSchemaService schemas via the tools field.
-   * @param {ToolName} key - The name of the tool to retrieve, sourced from Agent.interface.
-   * @returns {IAgentTool} The tool schema associated with the key, sourced from Agent.interface, including call, validate, and function properties.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
    */
   public get = (key: ToolName): IAgentTool => {
@@ -167,6 +157,5 @@ export class ToolSchemaService {
 /**
  * Default export of the ToolSchemaService class.
  * Provides the primary service for managing tool schemas in the swarm system, integrating with AgentSchemaService, ClientAgent, AgentConnectionService, and SwarmConnectionService, with validated schema storage via ToolRegistry.
- * @type {typeof ToolSchemaService}
  */
 export default ToolSchemaService;

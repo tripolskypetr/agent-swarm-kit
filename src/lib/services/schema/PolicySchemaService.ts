@@ -20,7 +20,6 @@ export class PolicySchemaService {
   /**
    * Logger service instance, injected via DI, for logging policy schema operations.
    * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with PolicyConnectionService and PerfService logging patterns.
-   * @type {LoggerService}
    * @readonly
    */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -28,7 +27,6 @@ export class PolicySchemaService {
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
-   * @type {TSchemaContextService}
    * @readonly
    */
   readonly schemaContextService = inject<TSchemaContextService>(
@@ -39,7 +37,6 @@ export class PolicySchemaService {
    * Registry instance for storing policy schemas, initialized with ToolRegistry from functools-kit.
    * Maps PolicyName keys to IPolicySchema values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
-   * @type {ToolRegistry<Record<PolicyName, IPolicySchema>>}
    * @private
    */
   private _registry = new ToolRegistry<Record<PolicyName, IPolicySchema>>(
@@ -78,7 +75,6 @@ export class PolicySchemaService {
    * Checks policyName as a string and getBannedClients as a function, critical for policy enforcement in PolicyConnectionService.
    * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with PolicyConnectionService’s needs.
    * Supports ClientAgent and SessionConnectionService by ensuring policy schema validity before registration.
-   * @param {IPolicySchema} policySchema - The policy schema to validate, sourced from Policy.interface.
    * @throws {Error} If any validation check fails, with detailed messages including policyName.
    * @private
    */
@@ -107,8 +103,6 @@ export class PolicySchemaService {
    * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (policyName).
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with PolicyConnectionService’s policy enforcement.
    * Supports ClientAgent execution and SessionConnectionService by providing validated policy schemas for access control.
-   * @param {PolicyName} key - The name of the policy, used as the registry key, sourced from Policy.interface.
-   * @param {IPolicySchema} value - The policy schema to register, sourced from Policy.interface, validated before storage.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
    */
   public register = (key: PolicyName, value: IPolicySchema) => {
@@ -123,8 +117,6 @@ export class PolicySchemaService {
    * Replaces the schema associated with the provided key (policyName) in the ToolRegistry.
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports dynamic updates to policy schemas, ensuring the latest logic is applied in ClientAgent execution and SessionConnectionService.
-   * @param {PolicyName} key - The name of the policy to override, sourced from Policy.interface.
-   * @param {IPolicySchema} value - The new policy schema to replace the existing one, validated before storage.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
    */
   public override = (key: PolicyName, value: Partial<IPolicySchema>) => {
@@ -138,8 +130,6 @@ export class PolicySchemaService {
    * Retrieves a policy schema from the registry by its name.
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports PolicyConnectionService’s getBannedClients method by providing policy logic, used in ClientAgent execution and SessionConnectionService session management.
-   * @param {PolicyName} key - The name of the policy to retrieve, sourced from Policy.interface.
-   * @returns {IPolicySchema} The policy schema associated with the key, sourced from Policy.interface, including the getBannedClients function.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
    */
   public get = (key: PolicyName): IPolicySchema => {
@@ -152,6 +142,5 @@ export class PolicySchemaService {
 /**
  * Default export of the PolicySchemaService class.
  * Provides the primary service for managing policy schemas in the swarm system, integrating with PolicyConnectionService, ClientAgent, SessionConnectionService, and PolicyPublicService, with validated schema storage via ToolRegistry.
- * @type {typeof PolicySchemaService}
  */
 export default PolicySchemaService;

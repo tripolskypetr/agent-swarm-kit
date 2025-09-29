@@ -2,19 +2,18 @@ import { AgentName } from "./Agent.interface";
 
 /**
  * @interface IWikiCallbacks
- * @description Callback functions for wiki operations
+ * Callback functions for wiki operations
  */
 export interface IWikiCallbacks {
     /**
      * Optional callback triggered when a chat operation occurs
-     * @param {IChatArgs} args - Arguments for the chat operation
      */
     onChat?: (args: IChatArgs) => void;
 }
 
 /**
  * @interface IChatArgs
- * @description Arguments required for chat operations
+ * Arguments required for chat operations
  */
 export interface IChatArgs {
     /** Unique identifier for the client */
@@ -27,7 +26,7 @@ export interface IChatArgs {
 
 /**
  * @interface IWikiSchema
- * @description Schema definition for wiki configuration
+ * Schema definition for wiki configuration
  */
 export interface IWikiSchema {
     /** Optional description of the wiki documentation */
@@ -36,8 +35,6 @@ export interface IWikiSchema {
     wikiName: WikiName;
     /**
      * Function to get chat response
-     * @param {IChatArgs} args - Arguments for the chat operation
-     * @returns {Promise<string>} The chat response
      */
     getChat(args: IChatArgs): Promise<string>;
     /** Optional callbacks for wiki operations */

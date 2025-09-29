@@ -2,8 +2,6 @@
  * Converts a name string to title case, handling underscores and optional dot-separated suffixes.
  * Capitalizes the first character of the primary word and joins additional segments with spaces, optionally stripping trailing dot-separated parts.
  *
- * @param {string} name - The name to convert to title case. Can include underscores (e.g., "first_name") or dots (e.g., "file.txt").
- * @returns {string | undefined} The name in title case (e.g., "First Name" from "first_name"), or `undefined` if the input is empty or falsy.
  *
  * @example
  * // Basic usage with simple names

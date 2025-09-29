@@ -36,10 +36,8 @@ const RETRY_COUNT = 5;
 const RETRY_DELAY = 5_000;
 
 /**
- * Type definition for a function that handles completion requests to an AI provider.
- * @callback TCompleteFn
- * @param {ICompletionArgs} args - The arguments for the completion request.
- * @returns {Promise<IModelMessage>} The response from the completion endpoint in `agent-swarm-kit` format.
+ * Function type for completing AI model requests.
+ * Takes completion arguments and returns a promise resolving to a model message response.
  */
 type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
 
@@ -50,21 +48,11 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with Hugging Face Inference API chat completions.
-   * @param {any} inferenceClient - The Hugging Face inference client instance.
-   * @param {string} [model="openai/gpt-oss-120b"] - The model to use for completions (defaults to "openai/gpt-oss-120b").
-   * @returns {TCompleteFn} A function that processes completion arguments and returns a response from Hugging Face.
    */
   fromHf = (inferenceClient: any, model = "openai/gpt-oss-120b") =>
     /**
      * Handles a completion request to Hugging Face, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency with retry logic for reliability.
-     * @param {ICompletionArgs} args - The arguments for the completion request.
-     * @param {string} args.agentName - The name of the agent making the request.
-     * @param {IModelMessage[]} args.messages - The array of messages to send to Hugging Face.
-     * @param {string} args.mode - The mode of the completion (e.g., "user" or "tool").
-     * @param {any[]} args.tools - The tools available for the completion, if any.
-     * @param {string} args.clientId - The ID of the client making the request.
-     * @returns {Promise<IModelMessage>} The response from Hugging Face in `agent-swarm-kit` format.
      */
     execpool(
       retry(
@@ -164,9 +152,6 @@ export class AdapterUtils {
   
   /**
    * Creates a function to interact with Cortex's chat completions API.
-   * @param {string} [model="tripolskypetr:gemma-3-12b-it:gemma-3-12b-it-Q4_K_S.gguf"] - The model to use for completions.
-   * @param {string} [baseUrl="http://localhost:39281/"] - The base URL for the Cortex API.
-   * @returns {TCompleteFn} A function that processes completion arguments and returns a response from Cortex.
    */
   fromCortex = (
     model = "tripolskypetr:gemma-3-12b-it:gemma-3-12b-it-Q4_K_S.gguf",
@@ -175,13 +160,6 @@ export class AdapterUtils {
     /**
      * Handles a completion request to Cortex, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency with retry logic for reliability.
-     * @param {ICompletionArgs} args - The arguments for the completion request.
-     * @param {string} args.agentName - The name of the agent making the request.
-     * @param {IModelMessage[]} args.messages - The array of messages to send to Cortex.
-     * @param {string} args.mode - The mode of the completion (e.g., "user" or "tool").
-     * @param {any[]} args.tools - The tools available for the completion, if any.
-     * @param {string} args.clientId - The ID of the client making the request.
-     * @returns {Promise<IModelMessage>} The response from Cortex in `agent-swarm-kit` format.
      */
     execpool(
       retry(
@@ -313,20 +291,11 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with Grok's chat completions API.
-   * @param {any} grok - The Grok client instance.
-   * @param {string} [model="grok-3-mini"] - The model to use for completions (defaults to "grok-3-mini").
-   * @returns {TCompleteFn} A function that processes completion arguments and returns a response from Grok.
    */
   fromGrok = (grok: any, model = "grok-3-mini") =>
     /**
      * Handles a completion request to Grok, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency with retry logic for reliability.
-     * @param {ICompletionArgs} args - The arguments for the completion request.
-     * @param {string} args.agentName - The name of the agent making the request.
-     * @param {IModelMessage[]} args.messages - The array of messages to send to Grok.
-     * @param {string} args.mode - The mode of the completion (e.g., "user" or "tool").
-     * @param {any[]} args.tools - The tools available for the completion, if any.
-     * @returns {Promise<IModelMessage>} The response from Grok in `agent-swarm-kit` format.
      */
     execpool(
       retry(
@@ -398,22 +367,11 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with CohereClientV2 chat completions API.
-   * @param {any} openai - The CohereClientV2 client instance.
-   * @param {string} [model="gpt-3.5-turbo"] - The model to use for completions (defaults to "gpt-3.5-turbo").
-   * @param {{ type: string }} [response_format] - Optional response format configuration (e.g., `{ type: "json_object" }`).
-   * @returns {TCompleteFn} A function that processes completion arguments and returns a response from CohereClientV2.
    */
   fromCohereClientV2 = (cohere: any, model = "command-r-08-2024") =>
     /**
      * Handles a completion request to CohereClientV2, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency.
-     * @param {ICompletionArgs} args - The arguments for the completion request.
-     * @param {string} args.agentName - The name of the agent making the request.
-     * @param {IModelMessage[]} args.messages - The array of messages to send to CohereClientV2.
-     * @param {string} args.mode - The mode of the completion (e.g., "user" or "tool").
-     * @param {any[]} args.tools - The tools available for the completion, if any.
-     * @param {string} args.clientId - The ID of the client making the request.
-     * @returns {Promise<IModelMessage>} The response from CohereClientV2 in `agent-swarm-kit` format.
      */
     execpool(
       retry(
@@ -491,10 +449,6 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with OpenAI's chat completions API.
-   * @param {any} openai - The OpenAI client instance.
-   * @param {string} [model="gpt-3.5-turbo"] - The model to use for completions (defaults to "gpt-3.5-turbo").
-   * @param {{ type: string }} [response_format] - Optional response format configuration (e.g., `{ type: "json_object" }`).
-   * @returns {TCompleteFn} A function that processes completion arguments and returns a response from OpenAI.
    */
   fromOpenAI = (
     openai: any,
@@ -504,13 +458,6 @@ export class AdapterUtils {
     /**
      * Handles a completion request to OpenAI, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency.
-     * @param {ICompletionArgs} args - The arguments for the completion request.
-     * @param {string} args.agentName - The name of the agent making the request.
-     * @param {IModelMessage[]} args.messages - The array of messages to send to OpenAI.
-     * @param {string} args.mode - The mode of the completion (e.g., "user" or "tool").
-     * @param {any[]} args.tools - The tools available for the completion, if any.
-     * @param {string} args.clientId - The ID of the client making the request.
-     * @returns {Promise<IModelMessage>} The response from OpenAI in `agent-swarm-kit` format.
      */
     execpool(
       retry(
@@ -582,10 +529,6 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with LMStudio's chat completions API.
-   * @param {any} openai - The LMStudio client instance (compatible with OpenAI-style API).
-   * @param {string} [model="saiga_yandexgpt_8b_gguf"] - The model to use for completions (defaults to "saiga_yandexgpt_8b_gguf").
-   * @param {{ type: string }} [response_format] - Optional response format configuration (e.g., `{ type: "json_object" }`).
-   * @returns {TCompleteFn} A function that processes completion arguments and returns a response from LMStudio.
    */
   fromLMStudio = (
     openai: any,
@@ -595,13 +538,6 @@ export class AdapterUtils {
     /**
      * Handles a completion request to LMStudio, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency.
-     * @param {ICompletionArgs} args - The arguments for the completion request.
-     * @param {string} args.agentName - The name of the agent making the request.
-     * @param {IModelMessage[]} args.messages - The array of messages to send to LMStudio.
-     * @param {string} args.mode - The mode of the completion (e.g., "user" or "tool").
-     * @param {any[]} args.tools - The tools available for the completion, if any.
-     * @param {string} args.clientId - The ID of the client making the request.
-     * @returns {Promise<IModelMessage>} The response from LMStudio in `agent-swarm-kit` format.
      */
     execpool(
       retry(
@@ -673,10 +609,6 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with Ollama's chat completions API.
-   * @param {any} ollama - The Ollama client instance.
-   * @param {string} [model="nemotron-mini:4b"] - The model to use for completions (defaults to "nemotron-mini:4b").
-   * @param {string} [tool_call_protocol=TOOL_PROTOCOL_PROMPT] - The protocol prompt for tool calls (defaults to TOOL_PROTOCOL_PROMPT).
-   * @returns {TCompleteFn} A function that processes completion arguments and returns a response from Ollama.
    */
   fromOllama = (
     ollama: any,
@@ -686,13 +618,6 @@ export class AdapterUtils {
     /**
      * Handles a completion request to Ollama, optionally prepending a tool call protocol prompt.
      * Executes requests in a pool to limit concurrency.
-     * @param {ICompletionArgs} args - The arguments for the completion request.
-     * @param {string} args.agentName - The name of the agent making the request.
-     * @param {IModelMessage[]} args.messages - The array of messages to send to Ollama.
-     * @param {string} args.mode - The mode of the completion (e.g., "user" or "tool").
-     * @param {any[]} args.tools - The tools available for the completion, if any.
-     * @param {string} args.clientId - The ID of the client making the request.
-     * @returns {Promise<IModelMessage>} The response from Ollama in `agent-swarm-kit` format.
      */
     execpool(
       retry(
@@ -761,7 +686,6 @@ export class AdapterUtils {
 
 /**
  * Singleton instance of AdapterUtils for interacting with AI completion providers.
- * @type {AdapterUtils}
  */
 export const Adapter = new AdapterUtils();
 

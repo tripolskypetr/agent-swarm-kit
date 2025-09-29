@@ -6,6 +6,10 @@ import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideState";
 
+/**
+ * Type representing a partial state schema configuration.
+ * Used for state management with optional properties.
+ */
 type TStateSchema<T extends unknown = any> = {
   stateName: IStateSchema<T>["stateName"];
 } & Partial<IStateSchema<T>>;
@@ -31,10 +35,6 @@ const overrideStateInternal = beginContext((publicStateSchema: TStateSchema) => 
  * Logs the override operation if logging is enabled in the global configuration.
  *
  * @template T - The type of the state data, defaults to `any`.
- * @param {TStateSchema<T>} stateSchema - The schema containing the state’s unique name and optional properties to override.
- * @param {string} stateSchema.stateName - The unique identifier of the state to override, matching `IStateSchema<T>["stateName"]`.
- * @param {Partial<IStateSchema<T>>} [stateSchema] - Optional partial schema properties to update, extending `IStateSchema<T>`.
- * @returns {IStateSchema<T>} The updated state schema as applied by the swarm’s state schema service.
  * @throws {Error} If the state schema service encounters an error during the override operation (e.g., invalid stateName or schema).
  *
  * @example

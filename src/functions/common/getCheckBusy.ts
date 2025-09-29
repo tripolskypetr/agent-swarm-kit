@@ -31,8 +31,6 @@ const getCheckBusyInternal = beginContext(async (clientId: string) => {
 /**
  * Checks if the swarm associated with the given client ID is currently busy.
  *
- * @param {string} clientId - The unique identifier of the client whose swarm status is being checked.
- * @returns {Promise<boolean>} A promise that resolves to true if the swarm is busy, or false otherwise.
  */
 export async function getCheckBusy(clientId: string) {
   return await getCheckBusyInternal(clientId);

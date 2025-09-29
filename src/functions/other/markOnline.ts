@@ -39,9 +39,6 @@ const markOnlineInternal = async (clientId: string, swarmName: SwarmName): Promi
 /**
  * Marks a client as online in the specified swarm.
  *
- * @param {string} clientId - The unique identifier of the client to mark as online.
- * @param {SwarmName} swarmName - The name of the swarm where the client is being marked online.
- * @returns {Promise<void>} A promise that resolves when the client is successfully marked online.
  * @throws {Error} Throws an error if the swarm validation fails or if the operation fails.
  */
 export async function markOnline(clientId: string, swarmName: SwarmName) {

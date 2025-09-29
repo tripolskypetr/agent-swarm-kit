@@ -31,8 +31,6 @@ export class SharedStateUtils implements TSharedState {
    * Retrieves the shared state data for a given state name.
    * Executes within a context for logging and delegates to the shared state service.
    * @template T - The type of the state data to retrieve, defaults to any.
-   * @param {StateName} stateName - The name of the state to retrieve.
-   * @returns {Promise<T>} A promise resolving to the state data associated with the state name.
    * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
    */
   public getState = beginContext(async (stateName: StateName) => {
@@ -51,9 +49,6 @@ export class SharedStateUtils implements TSharedState {
    * Accepts either a direct value or a function that computes the new state based on the previous state.
    * Executes within a context for logging and delegates to the shared state service.
    * @template T - The type of the state data to set, defaults to any.
-   * @param {T | ((prevSharedState: T) => Promise<T>)} dispatchFn - The new state value or an async function that takes the previous state and returns the new state.
-   * @param {StateName} stateName - The name of the state to update.
-   * @returns {Promise<void>} A promise that resolves when the state is successfully updated.
    * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
    */
   public setState = beginContext(
@@ -89,8 +84,6 @@ export class SharedStateUtils implements TSharedState {
    * Clears the shared state for a given state name, resetting it to its initial value.
    * Executes within a context for logging and delegates to the shared state service.
    * @template T - The type of the state data, defaults to any (unused in return).
-   * @param {StateName} stateName - The name of the state to clear.
-   * @returns {Promise<void>} A promise that resolves when the state is successfully cleared.
    * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
    */
   public clearState = beginContext(async (stateName: StateName) => {
@@ -107,7 +100,6 @@ export class SharedStateUtils implements TSharedState {
 
 /**
  * Singleton instance of SharedStateUtils for managing shared state operations.
- * @type {SharedStateUtils}
  */
 export const SharedState = new SharedStateUtils();
 

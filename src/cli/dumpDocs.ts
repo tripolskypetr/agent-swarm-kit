@@ -7,9 +7,6 @@ const METHOD_NAME = "cli.dumpDocs";
 /**
  * Dumps the documentation for the agents and swarms.
  *
- * @param {string} [dirName="./docs/chat"] - The directory where the documentation will be dumped.
- * @param {function} [PlantUML] - An optional function to process PlantUML diagrams.
- * @returns {Promise<void>} - A promise that resolves when the documentation has been dumped.
  */
 export const dumpDocs = beginContext(
   (

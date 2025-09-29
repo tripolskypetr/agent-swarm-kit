@@ -1,6 +1,6 @@
 /**
  * @module ComputeSchemaService
- * @description Manages compute schema registration, validation, and retrieval using a tool registry.
+ * Manages compute schema registration, validation, and retrieval using a tool registry.
  */
 
 import { inject } from "../../core/di";
@@ -18,12 +18,12 @@ import SchemaContextService, {
 
 /**
  * @class ComputeSchemaService
- * @description Service for managing compute schemas, including registration, validation, and retrieval.
+ * Service for managing compute schemas, including registration, validation, and retrieval.
  */
 export class ComputeSchemaService {
   /**
    * @property {LoggerService} loggerService
-   * @description Injected logger service for logging operations.
+   * Injected logger service for logging operations.
    * @readonly
    */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -31,7 +31,6 @@ export class ComputeSchemaService {
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
-   * @type {TSchemaContextService}
    * @readonly
    */
   readonly schemaContextService = inject<TSchemaContextService>(
@@ -40,7 +39,7 @@ export class ComputeSchemaService {
 
   /**
    * @property {ToolRegistry<Record<ComputeName, IComputeSchema>>} registry
-   * @description Registry for storing compute schemas.
+   * Registry for storing compute schemas.
    * @private
    */
   private _registry = new ToolRegistry<Record<ComputeName, IComputeSchema>>(
@@ -76,8 +75,7 @@ export class ComputeSchemaService {
 
   /**
    * @method validateShallow
-   * @description Performs shallow validation of a compute schema.
-   * @param {IComputeSchema} computeSchema - The compute schema to validate.
+   * Performs shallow validation of a compute schema.
    * @throws {Error} If validation fails for computeName, getComputeData, middlewares, or dependsOn.
    * @private
    */
@@ -130,9 +128,7 @@ export class ComputeSchemaService {
 
   /**
    * @method register
-   * @description Registers a compute schema with validation.
-   * @param {ComputeName} key - The name of the compute schema.
-   * @param {IComputeSchema} value - The compute schema to register.
+   * Registers a compute schema with validation.
    */
   public register = (key: ComputeName, value: IComputeSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -143,10 +139,7 @@ export class ComputeSchemaService {
 
   /**
    * @method override
-   * @description Overrides an existing compute schema with new values.
-   * @param {ComputeName} key - The name of the compute schema to override.
-   * @param {Partial<IComputeSchema>} value - The partial compute schema to apply.
-   * @returns {IComputeSchema} The updated compute schema.
+   * Overrides an existing compute schema with new values.
    */
   public override = (key: ComputeName, value: Partial<IComputeSchema>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -157,9 +150,7 @@ export class ComputeSchemaService {
 
   /**
    * @method get
-   * @description Retrieves a compute schema by its name.
-   * @param {ComputeName} key - The name of the compute schema.
-   * @returns {IComputeSchema} The compute schema.
+   * Retrieves a compute schema by its name.
    */
   public get = (key: ComputeName): IComputeSchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -171,6 +162,6 @@ export class ComputeSchemaService {
 /**
  * @export
  * @default ComputeSchemaService
- * @description Exports the ComputeSchemaService class as the default export.
+ * Exports the ComputeSchemaService class as the default export.
  */
 export default ComputeSchemaService;

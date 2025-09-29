@@ -9,6 +9,10 @@ import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideStorage";
 
+/**
+ * Type representing a partial storage schema configuration.
+ * Used for storage service configuration with optional properties.
+ */
 type TStorageSchema<T extends IStorageData = IStorageData> = {
   storageName: IStorageSchema<T>["storageName"];
 } & Partial<IStorageSchema<T>>;
@@ -39,10 +43,6 @@ const overrideStorageInternal = beginContext(
  * Logs the override operation if logging is enabled in the global configuration.
  *
  * @template T - The type of the storage data, defaults to `IStorageData`.
- * @param {TStorageSchema<T>} storageSchema - The schema containing the storage’s unique name and optional properties to override.
- * @param {string} storageSchema.storageName - The unique identifier of the storage to override, matching `IStorageSchema<T>["storageName"]`.
- * @param {Partial<IStorageSchema<T>>} [storageSchema] - Optional partial schema properties to update, extending `IStorageSchema<T>`.
- * @returns {IStorageSchema<T>} The updated storage schema as applied by the swarm’s storage schema service.
  * @throws {Error} If the storage schema service encounters an error during the override operation (e.g., invalid storageName or schema).
  *
  * @example

@@ -117,10 +117,6 @@ const executeInternal = beginContext(
  * with performance tracking and event bus notifications. The execution is wrapped in `beginContext` for a clean environment and runs within an
  * `ExecutionContextService` context for metadata tracking. If the active agent has changed, the operation is skipped.
  *
- * @param {string} content - The content or command to be executed by the agent.
- * @param {string} clientId - The unique identifier of the client session requesting the execution.
- * @param {AgentName} agentName - The name of the agent intended to execute the command.
- * @returns {Promise<string>} A promise that resolves to the result of the execution, or an empty string if skipped due to an agent change.
  * @throws {Error} If agent, session, or swarm validation fails, or if the execution process encounters an error.
  * @example
  * const result = await execute("Review this output", "client-123", "AgentX");

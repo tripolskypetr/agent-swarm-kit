@@ -34,8 +34,6 @@ const getAgentNameInternal = beginContext(async (clientId: string) => {
  * It validates the client session and swarm, logs the operation if enabled, and delegates the retrieval to the swarm public service.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  *
- * @param {string} clientId - The unique identifier of the client session whose active agent name is being retrieved.
- * @returns {Promise<string>} A promise that resolves to the name of the active agent (`AgentName`) associated with the client session.
  * @throws {Error} If the client session is invalid, the swarm validation fails, or the swarm public service encounters an error during retrieval.
  * @example
  * const agentName = await getAgentName("client-123");

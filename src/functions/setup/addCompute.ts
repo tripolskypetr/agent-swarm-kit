@@ -1,6 +1,6 @@
 /**
  * @module addCompute
- * @description Provides a function to register a compute schema with validation and logging.
+ * Provides a function to register a compute schema with validation and logging.
  */
 
 import { IComputeData, IComputeSchema } from "../../interfaces/Compute.interface";
@@ -30,8 +30,6 @@ const addComputeInternal = beginContext((computeSchema: IComputeSchema): string 
 /**
  * Registers a compute schema, validates it, and adds it to the compute schema service.
  * @template T - Type extending IComputeData.
- * @param {IComputeSchema<T>} computeSchema - The compute schema to register.
- * @returns {string} The name of the registered compute.
  */
 export function addCompute<T extends IComputeData = any>(computeSchema: IComputeSchema<T>) {
   return addComputeInternal(computeSchema);

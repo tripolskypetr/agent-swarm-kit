@@ -12,15 +12,12 @@ export interface IHistory {
   /**
    * Adds a message to the end of the history.
    * Updates the history store asynchronously.
-   * @param {IModelMessage} message - The model message to append to the history.
-   * @returns {Promise<void>} A promise that resolves when the message is successfully added.
    * @throws {Error} If the push operation fails (e.g., due to storage issues or invalid message).
    */
   push(message: IModelMessage): Promise<void>;
 
   /**
    * Removes and returns the last message from the history.
-   * @returns {Promise<IModelMessage | null>} A promise resolving to the last message if available, or null if the history is empty.
    * @throws {Error} If the pop operation fails (e.g., due to internal errors).
    */
   pop(): Promise<IModelMessage | null>;
@@ -28,9 +25,6 @@ export interface IHistory {
   /**
    * Converts the history into an array of messages tailored for a specific agent.
    * Filters or formats messages based on the provided prompt and optional system prompts.
-   * @param {string} prompt - The prompt used to contextualize or filter messages for the agent.
-   * @param {string[]} [system] - Optional array of system prompts to include or influence message formatting.
-   * @returns {Promise<IModelMessage[]>} A promise resolving to an array of model messages formatted for the agent.
    * @throws {Error} If conversion fails (e.g., due to adapter issues or invalid prompt).
    */
   toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
@@ -38,7 +32,6 @@ export interface IHistory {
   /**
    * Converts the entire history into an array of raw model messages.
    * Retrieves all messages without agent-specific filtering or formatting.
-   * @returns {Promise<IModelMessage[]>} A promise resolving to an array of raw model messages.
    * @throws {Error} If conversion fails (e.g., due to adapter issues).
    */
   toArrayForRaw(): Promise<IModelMessage[]>;
@@ -81,6 +74,5 @@ export interface IHistorySchema {
 /**
  * Default export of the IHistory interface.
  * Represents the primary history management interface for the module.
- * @type {IHistory}
  */
 export default IHistory;

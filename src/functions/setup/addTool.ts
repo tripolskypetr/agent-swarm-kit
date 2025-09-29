@@ -33,8 +33,6 @@ const addToolInternal = beginContext((toolSchema: IAgentTool<unknown>) => {
  * and returns the tool's name upon successful registration.
  *
  * @template T - The type of the tool's input/output data, defaulting to a record of string keys and `ToolValue` values if unspecified.
- * @param {IAgentTool<T>} toolSchema - The schema defining the tool's properties, including its name (`toolName`) and other configuration details (e.g., function, description).
- * @returns {string} The name of the newly added tool (`toolSchema.toolName`), confirming its registration.
  * @throws {Error} If the tool schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate tool name).
  * @example
  * const toolSchema = { toolName: "Calculator", fn: (x: number) => x * 2, description: "Doubles a number" };

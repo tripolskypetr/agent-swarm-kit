@@ -1,6 +1,6 @@
 /**
  * @module ComputeValidationService
- * @description Service for managing and validating compute schemas, including dependency checks and shared state validation.
+ * Service for managing and validating compute schemas, including dependency checks and shared state validation.
  */
 
 import { inject } from "../../core/di";
@@ -17,19 +17,19 @@ import StateSchemaService from "../schema/StateSchemaService";
 
 /**
  * @class ComputeValidationService
- * @description Manages compute schema validation, registration, and dependency validation with memoized checks.
+ * Manages compute schema validation, registration, and dependency validation with memoized checks.
  */
 export class ComputeValidationService {
   /**
    * @property {LoggerService} loggerService
-   * @description Injected logger service for logging operations.
+   * Injected logger service for logging operations.
    * @private
    */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * @property {StateValidationService} stateValidationService
-   * @description Injected service for validating state schemas.
+   * Injected service for validating state schemas.
    * @private
    */
   private readonly stateValidationService = inject<StateValidationService>(
@@ -38,7 +38,7 @@ export class ComputeValidationService {
 
   /**
    * @property {StateSchemaService} stateSchemaService
-   * @description Injected service for accessing state schemas.
+   * Injected service for accessing state schemas.
    * @private
    */
   private readonly stateSchemaService = inject<StateSchemaService>(
@@ -47,16 +47,14 @@ export class ComputeValidationService {
 
   /**
    * @property {Map<ComputeName, IComputeSchema>} _computeMap
-   * @description Map storing compute schemas by compute name.
+   * Map storing compute schemas by compute name.
    * @private
    */
   private _computeMap = new Map<ComputeName, IComputeSchema>();
 
   /**
    * @method addCompute
-   * @description Adds a compute schema to the map, ensuring no duplicates.
-   * @param {ComputeName} computeName - The name of the compute.
-   * @param {IComputeSchema} computeSchema - The compute schema to register.
+   * Adds a compute schema to the map, ensuring no duplicates.
    * @throws {Error} If the compute name already exists.
    */
   public addCompute = (
@@ -76,8 +74,7 @@ export class ComputeValidationService {
 
   /**
    * @method getComputeList
-   * @description Retrieves a list of all registered compute names.
-   * @returns {ComputeName[]} Array of compute names.
+   * Retrieves a list of all registered compute names.
    */
   public getComputeList = () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -87,9 +84,7 @@ export class ComputeValidationService {
 
   /**
    * @method validate
-   * @description Validates a compute schema and its dependencies, memoized by compute name.
-   * @param {ComputeName} computeName - The name of the compute to validate.
-   * @param {string} source - The source context for the validation.
+   * Validates a compute schema and its dependencies, memoized by compute name.
    * @throws {Error} If the compute is not found or if shared compute depends on non-shared states.
    */
   public validate = memoize(
@@ -127,6 +122,6 @@ export class ComputeValidationService {
 /**
  * @export
  * @default ComputeValidationService
- * @description Exports the ComputeValidationService class as the default export.
+ * Exports the ComputeValidationService class as the default export.
  */
 export default ComputeValidationService;

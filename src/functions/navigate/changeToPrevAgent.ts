@@ -10,11 +10,6 @@ const METHOD_NAME = "function.navigate.changeToPrevAgent";
 
 /**
  * Type definition for the previous agent change execution function.
- * @typedef {Function} TChangeToPrevAgentRun
- * @param {string} methodName - The name of the method invoking the change.
- * @param {string} agentName - The name of the previous or default agent to switch to.
- * @param {SwarmName} swarmName - The name of the swarm in which the change occurs.
- * @returns {Promise<boolean>} A promise that resolves when the agent change is complete.
  */
 type TChangeToPrevAgentRun = (
   methodName: string,
@@ -29,8 +24,6 @@ type TChangeToPrevAgentRun = (
  * ensuring operations are executed sequentially and cached results are reused within the TTL period.
  *
  * @function
- * @param {string} clientId - The unique identifier of the client session.
- * @returns {TChangeToPrevAgentRun} A function that performs the previous agent change operation with queuing and TTL.
  */
 const createChangeToPrevAgent = memoize(
   ([clientId]) => `${clientId}`,
@@ -110,7 +103,6 @@ const createChangeToPrevAgent = memoize(
  * This function sets up a singleton interval-based garbage collector to periodically clean up expired TTL entries from `createChangeToPrevAgent`.
  *
  * @function
- * @returns {Promise<void>} A promise that resolves when the garbage collector is initialized.
  */
 const createGc = singleshot(async () => {
   disposeSubject.subscribe((clientId) => {
@@ -153,8 +145,6 @@ const changeToPrevAgentInternal = beginContext(async (clientId: string) => {
  * as determined by the `navigationPop` method. It validates the session and agent, logs the operation if enabled, and executes the change using a TTL-limited, queued runner.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
  *
- * @param {string} clientId - The unique identifier of the client session.
- * @returns {Promise<boolean>} A promise that resolves when the agent change is complete. If navigation stack contains recursion does nothing
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToPrevAgent("client-123");

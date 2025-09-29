@@ -31,7 +31,6 @@ export class AgentValidationService {
   /**
    * Logger service instance for logging validation operations and errors.
    * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
-   * @type {LoggerService}
    * @private
    * @readonly
    */
@@ -41,7 +40,6 @@ export class AgentValidationService {
    * Completion schema service instance for managing completion schemas.
    * Injected via DI, used in validate method to check agent completions.
    * Provides a registry of completion schemas for the swarm.
-   * @type {CompletionSchemaService}
    * @private
    * @readonly
    */
@@ -52,7 +50,6 @@ export class AgentValidationService {
   /**
    * Tool validation service instance for validating tools associated with agents.
    * Injected via DI, used in validate method to check agent tools.
-   * @type {ToolValidationService}
    * @private
    * @readonly
    */
@@ -63,7 +60,6 @@ export class AgentValidationService {
   /**
    * Wiki validation service instance for validating wikies associated with agents.
    * Injected via DI, used in validate method to check agent wiki list.
-   * @type {WikiValidationService}
    * @private
    * @readonly
    */
@@ -74,7 +70,6 @@ export class AgentValidationService {
   /**
    * MCP validation service instance for validating mcp associated with agents.
    * Injected via DI, used in validate method to check agent mcp list.
-   * @type {WikiValidationService}
    * @private
    * @readonly
    */
@@ -85,7 +80,6 @@ export class AgentValidationService {
   /**
    * Completion validation service instance for validating completion configurations of agents.
    * Injected via DI, used in validate method to check agent completion.
-   * @type {CompletionValidationService}
    * @private
    * @readonly
    */
@@ -95,7 +89,6 @@ export class AgentValidationService {
   /**
    * Storage validation service instance for validating storages associated with agents.
    * Injected via DI, used in validate method to check agent storages.
-   * @type {StorageValidationService}
    * @private
    * @readonly
    */
@@ -106,7 +99,6 @@ export class AgentValidationService {
   /**
    * Map of agent names to their schemas, used for validation and resource queries.
    * Populated by addAgent, queried by validate, getStorageList, getStateList, etc.
-   * @type {Map<AgentName, IAgentSchemaInternal>}
    * @private
    */
   private _agentMap = new Map<AgentName, IAgentSchemaInternal>();
@@ -114,7 +106,6 @@ export class AgentValidationService {
   /**
    * Map of agent names to their dependency lists, tracking inter-agent dependencies.
    * Populated by addAgent when dependsOn is present, queried by hasDependency.
-   * @type {Map<AgentName, AgentName[]>}
    * @private
    */
   private _agentDepsMap = new Map<AgentName, AgentName[]>();
@@ -122,7 +113,6 @@ export class AgentValidationService {
   /**
    * Retrieves the list of registered agent names.
    * Logs the operation if info-level logging is enabled, supporting SwarmSchemaService’s agent enumeration.
-   * @returns {AgentName[]} An array of all registered agent names from _agentMap.
    */
   public getAgentList = (): AgentName[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -133,8 +123,6 @@ export class AgentValidationService {
   /**
    * Retrieves the list of storage names associated with a given agent.
    * Logs the operation and validates agent existence, supporting ClientStorage integration.
-   * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
-   * @returns {StorageName[]} An array of storage names from the agent’s schema.
    * @throws {Error} If the agent is not found in _agentMap.
    */
   public getStorageList = (agentName: AgentName): StorageName[] => {
@@ -152,8 +140,6 @@ export class AgentValidationService {
 
   /**
    * Retrieves the list of wiki names associated with a given agent.
-   * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
-   * @returns {WikiName[]} An array of wikies names from the agent’s schema.
    * @throws {Error} If the agent is not found in _agentMap.
    */
   public getWikiList = (agentName: AgentName): WikiName[] => {
@@ -170,8 +156,6 @@ export class AgentValidationService {
   /**
    * Retrieves the list of state names associated with a given agent.
    * Logs the operation and validates agent existence, supporting ClientState integration.
-   * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
-   * @returns {StateName[]} An array of state names from the agent’s schema.
    * @throws {Error} If the agent is not found in _agentMap.
    */
   public getStateList = (agentName: AgentName): StateName[] => {
@@ -190,8 +174,6 @@ export class AgentValidationService {
   /**
    * Retrieves the list of mcp names associated with a given agent.
    * Logs the operation and validates agent existence, supporting ClientMCP integration.
-   * @param {AgentName} agentName - The name of the agent to query, sourced from Agent.interface.
-   * @returns {MCPName[]} An array of mcp names from the agent’s schema.
    * @throws {Error} If the agent is not found in _agentMap.
    */
   public getMCPList = (agentName: AgentName): MCPName[] => {
@@ -210,8 +192,6 @@ export class AgentValidationService {
   /**
    * Registers a new agent with its schema in the validation service.
    * Logs the operation and updates _agentMap and _agentDepsMap, supporting AgentSchemaService’s agent registration.
-   * @param {AgentName} agentName - The name of the agent to add, sourced from Agent.interface.
-   * @param {IAgentSchemaInternal} agentSchema - The schema defining the agent’s configuration (tools, storages, states, etc.).
    * @throws {Error} If the agent already exists in _agentMap.
    */
   public addAgent = (agentName: AgentName, agentSchema: IAgentSchemaInternal): void => {
@@ -232,9 +212,6 @@ export class AgentValidationService {
   /**
    * Checks if an agent has a registered storage, memoized for performance.
    * Logs the operation and validates agent existence, supporting ClientStorage validation.
-   * @param {AgentName} agentName - The name of the agent to check, sourced from Agent.interface.
-   * @param {StorageName} storageName - The name of the storage to verify, sourced from Storage.interface.
-   * @returns {boolean} True if the storage is registered in the agent’s schema, false otherwise.
    * @throws {Error} If the agent is not found in _agentMap.
    */
   public hasStorage = memoize(
@@ -257,9 +234,6 @@ export class AgentValidationService {
 
   /**
    * Checks if an agent has declared wiki
-   * @param {AgentName} agentName - The name of the agent to check, sourced from Agent.interface.
-   * @param {WikiName} wikiName - The name of the wiki to verify, sourced from Wiki.interface.
-   * @returns {boolean} True if the wiki is registered in the agent’s schema, false otherwise.
    * @throws {Error} If the agent is not found in _agentMap.
    */
   public hasWiki = memoize(
@@ -281,9 +255,6 @@ export class AgentValidationService {
   /**
    * Checks if an agent has a registered dependency on another agent, memoized for performance.
    * Logs the operation, supporting inter-agent dependency validation within SwarmSchemaService.
-   * @param {AgentName} targetAgentName - The name of the agent to check, sourced from Agent.interface.
-   * @param {AgentName} depAgentName - The name of the dependency agent to verify, sourced from Agent.interface.
-   * @returns {boolean} True if the dependency is registered in the agent’s dependsOn list, false otherwise.
    */
   public hasDependency = memoize(
     ([targetAgentName, depAgentName]) => `${targetAgentName}-${depAgentName}`,
@@ -303,9 +274,6 @@ export class AgentValidationService {
   /**
    * Checks if an agent has a registered state, memoized for performance.
    * Logs the operation and validates agent existence, supporting ClientState validation.
-   * @param {AgentName} agentName - The name of the agent to check, sourced from Agent.interface.
-   * @param {StateName} stateName - The name of the state to verify, sourced from State.interface.
-   * @returns {boolean} True if the state is registered in the agent’s schema, false otherwise.
    * @throws {Error} If the agent is not found in _agentMap.
    */
   public hasState = memoize(
@@ -328,8 +296,6 @@ export class AgentValidationService {
    * Validates an agent’s configuration by its name and source, memoized by agentName for performance.
    * Checks the agent’s existence, completion, tools, and storages, delegating to respective validation services.
    * Logs the operation, supporting AgentSchemaService’s validation workflow within SwarmSchemaService.
-   * @param {AgentName} agentName - The name of the agent to validate, sourced from Agent.interface.
-   * @param {string} source - The source of the validation request (e.g., "swarm-init"), for error context.
    * @throws {Error} If the agent is not found, or if its completion, tools, or storages are invalid.
    */
   public validate = memoize(
@@ -408,6 +374,5 @@ export class AgentValidationService {
  * integrating with AgentSchemaService, SwarmSchemaService, ToolValidationService,
  * CompletionValidationService, StorageValidationService, and LoggerService,
  * with memoized validation checks and dependency management.
- * @type {typeof AgentValidationService}
  */
 export default AgentValidationService;

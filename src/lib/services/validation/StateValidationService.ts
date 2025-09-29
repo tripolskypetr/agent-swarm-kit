@@ -1,6 +1,6 @@
 /**
  * @module StateValidationService
- * @description Service for managing and validating state schemas, ensuring uniqueness and existence.
+ * Service for managing and validating state schemas, ensuring uniqueness and existence.
  */
 
 import { inject } from "../../core/di";
@@ -12,28 +12,26 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * @class StateValidationService
- * @description Manages state schema validation and registration with memoized validation checks.
+ * Manages state schema validation and registration with memoized validation checks.
  */
 export class StateValidationService {
   /**
    * @property {LoggerService} loggerService
-   * @description Injected logger service for logging operations.
+   * Injected logger service for logging operations.
    * @private
    */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * @property {Map<StateName, IStateSchema>} _stateMap
-   * @description Map storing state schemas by state name.
+   * Map storing state schemas by state name.
    * @private
    */
   private _stateMap = new Map<StateName, IStateSchema>();
 
   /**
    * @method addState
-   * @description Adds a state schema to the map, ensuring no duplicates.
-   * @param {StateName} stateName - The name of the state.
-   * @param {IStateSchema} stateSchema - The state schema to register.
+   * Adds a state schema to the map, ensuring no duplicates.
    * @throws {Error} If the state name already exists.
    */
   public addState = (stateName: StateName, stateSchema: IStateSchema): void => {
@@ -50,9 +48,7 @@ export class StateValidationService {
 
   /**
    * @method validate
-   * @description Validates the existence of a state, memoized by state name.
-   * @param {StateName} stateName - The name of the state to validate.
-   * @param {string} source - The source context for the validation.
+   * Validates the existence of a state, memoized by state name.
    * @throws {Error} If the state is not found.
    */
   public validate = memoize(
@@ -76,6 +72,6 @@ export class StateValidationService {
 /**
  * @export
  * @default StateValidationService
- * @description Exports the StateValidationService class as the default export.
+ * Exports the StateValidationService class as the default export.
  */
 export default StateValidationService;

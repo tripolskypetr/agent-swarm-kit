@@ -13,10 +13,6 @@ const METHOD_NAME = "function.common.getToolNameForModel";
  * Internal implementation for resolving the model-facing tool name.
  * Validates the tool and agent, logs the operation, and invokes the tool schema's function property if dynamic.
  *
- * @param {ToolName} toolName - The registered tool identifier.
- * @param {string} clientId - The client session identifier.
- * @param {AgentName} agentName - The agent identifier.
- * @returns {Promise<string>} The name of the tool as presented to the model.
  * @private
  */
 const getToolNameForModelInternal = beginContext(async (toolName: ToolName, clientId: string, agentName: AgentName) => {
@@ -44,10 +40,6 @@ const getToolNameForModelInternal = beginContext(async (toolName: ToolName, clie
  * Resolves the model-facing name for a tool, given its name, client, and agent context.
  * This is the main exported function for external usage.
  *
- * @param {ToolName} toolName - The registered tool identifier.
- * @param {string} clientId - The client session identifier.
- * @param {AgentName} agentName - The agent identifier.
- * @returns {Promise<string>} The name of the tool as presented to the model.
  * @example
  * const modelToolName = await getToolNameForModel("search-tool", "client-123", "assistant-agent");
  */

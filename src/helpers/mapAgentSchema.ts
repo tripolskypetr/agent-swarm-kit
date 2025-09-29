@@ -10,8 +10,6 @@ import removeUndefined from "./removeUndefined";
  * Ensures that `system`, `systemStatic`, and `systemDynamic` properties are normalized into arrays or functions
  * that return arrays, making them consistent for internal use.
  *
- * @param {IAgentSchema} schema - The external agent schema to map.
- * @returns {IAgentSchemaInternal} The mapped internal agent schema.
  */
 export const mapAgentSchema = ({
   system,

@@ -15,10 +15,6 @@ export type IStateData = any;
 export interface IStateMiddleware<T extends IStateData = IStateData> {
   /**
    * Processes the state, potentially modifying it before it’s finalized.
-   * @param {T} state - The current state data to process.
-   * @param {string} clientId - The unique ID of the client associated with the state.
-   * @param {StateName} stateName - The unique name of the state.
-   * @returns {Promise<T>} A promise resolving to the updated state after middleware processing.
    * @throws {Error} If middleware processing fails or validation conditions are not met.
    */
   (state: T, clientId: string, stateName: StateName): Promise<T>;
@@ -33,42 +29,29 @@ export interface IStateCallbacks<T extends IStateData = IStateData> {
   /**
    * Callback triggered when the state is initialized.
    * Useful for setup or logging.
-   * @param {string} clientId - The unique ID of the client associated with the state.
-   * @param {StateName} stateName - The unique name of the state.
    */
   onInit: (clientId: string, stateName: StateName) => void;
 
   /**
    * Callback triggered when the state is disposed of.
    * Useful for cleanup or logging.
-   * @param {string} clientId - The unique ID of the client associated with the state.
-   * @param {StateName} stateName - The unique name of the state.
    */
   onDispose: (clientId: string, stateName: StateName) => void;
 
   /**
    * Callback triggered when the state is loaded from storage or initialized.
-   * @param {T} state - The loaded state data.
-   * @param {string} clientId - The unique ID of the client associated with the state.
-   * @param {StateName} stateName - The unique name of the state.
    */
   onLoad: (state: T, clientId: string, stateName: StateName) => void;
 
   /**
    * Callback triggered when the state is read.
    * Useful for monitoring or logging read operations.
-   * @param {T} state - The current state data being read.
-   * @param {string} clientId - The unique ID of the client associated with the state.
-   * @param {StateName} stateName - The unique name of the state.
    */
   onRead: (state: T, clientId: string, stateName: StateName) => void;
 
   /**
    * Callback triggered when the state is written or updated.
    * Useful for tracking changes or triggering side effects.
-   * @param {T} state - The updated state data being written.
-   * @param {string} clientId - The unique ID of the client associated with the state.
-   * @param {StateName} stateName - The unique name of the state.
    */
   onWrite: (state: T, clientId: string, stateName: StateName) => void;
 }
@@ -93,19 +76,12 @@ export interface IStateSchema<T extends IStateData = IStateData> {
 
   /**
    * Function to retrieve or compute the default state value.
-   * @param {string} clientId - The unique ID of the client requesting the state.
-   * @param {StateName} stateName - The unique name of the state.
-   * @returns {T | Promise<T>} The default state value, synchronously or asynchronously.
    */
   getDefaultState: (clientId: string, stateName: StateName) => T | Promise<T>;
 
   /**
    * Optional function to retrieve the current state, with a fallback to the default state.
    * Overrides default state retrieval behavior if provided.
-   * @param {string} clientId - The unique ID of the client requesting the state.
-   * @param {StateName} stateName - The unique name of the state.
-   * @param {T} defaultState - The default state value to use if no state is found.
-   * @returns {T | Promise<T>} The current state value, synchronously or asynchronously.
    */
   getState?: (
     clientId: string,
@@ -116,10 +92,6 @@ export interface IStateSchema<T extends IStateData = IStateData> {
   /**
    * Optional function to set or update the state.
    * Overrides default state setting behavior if provided.
-   * @param {T} state - The new state value to set.
-   * @param {string} clientId - The unique ID of the client updating the state.
-   * @param {StateName} stateName - The unique name of the state.
-   * @returns {Promise<void> | void} A promise that resolves when the state is set, or void if synchronous.
    * @throws {Error} If the state update fails (e.g., due to persistence issues).
    */
   setState?: (
@@ -162,7 +134,6 @@ export interface IState<T extends IStateData = IStateData> {
   /**
    * Retrieves the current state value.
    * Applies any configured middleware or custom `getState` logic from the schema.
-   * @returns {Promise<T>} A promise resolving to the current state value.
    * @throws {Error} If state retrieval fails (e.g., due to persistence issues or invalid configuration).
    */
   getState: () => Promise<T>;
@@ -170,8 +141,6 @@ export interface IState<T extends IStateData = IStateData> {
   /**
    * Updates the state using a dispatch function that computes the new state from the previous state.
    * Applies any configured middleware or custom `setState` logic from the schema.
-   * @param {(prevState: T) => Promise<T>} dispatchFn - An async function that takes the previous state and returns the new state.
-   * @returns {Promise<T>} A promise resolving to the updated state value.
    * @throws {Error} If state update fails (e.g., due to middleware errors or persistence issues).
    */
   setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
@@ -179,7 +148,6 @@ export interface IState<T extends IStateData = IStateData> {
   /**
    * Resets the state to its initial default value.
    * Reverts to the value provided by `getDefaultState` in the schema.
-   * @returns {Promise<T>} A promise resolving to the initial state value.
    * @throws {Error} If state clearing fails (e.g., due to persistence issues or invalid default state).
    */
   clearState: () => Promise<T>;

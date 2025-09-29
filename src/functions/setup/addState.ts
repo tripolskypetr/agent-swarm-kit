@@ -45,8 +45,6 @@ const addStateInternal = beginContext((stateSchema: IStateSchema) => {
  * the state's name upon successful registration.
  *
  * @template T - The type of data stored in the state (defaults to `any` if unspecified).
- * @param {IStateSchema<T>} stateSchema - The schema defining the state's properties, including its name (`stateName`), shared status (`shared`), and other configuration details.
- * @returns {string} The name of the newly added state (`stateSchema.stateName`), confirming its registration.
  * @throws {Error} If the state schema is invalid, registration fails (e.g., duplicate state name), or shared state initialization encounters an error.
  * @example
  * const stateSchema = { stateName: "UserPrefs", shared: true, initialValue: { theme: "dark" } };

@@ -21,9 +21,6 @@ const METHOD_NAME_READ = "SchemaUtils.read";
  * to store the memory value associated with the given client ID.
  *
  * @template T - The type of the memory value to persist, must extend object.
- * @param {string} clientId - The ID of the client whose memory value is being persisted.
- * @param {T} memoryValue - The memory value to persist, typically an object.
- * @returns {Promise<void>} A promise that resolves when the memory value is successfully persisted.
  */
 const PERSIST_WRITE_FN = async <T extends object = object>(
   clientId: string,
@@ -54,9 +51,6 @@ export class SchemaUtils {
    * avoiding race conditions during concurrent writes.
    *
    * @template T - The type of the memory value to persist, must extend object.
-   * @param {string} clientId - The ID of the client whose memory value is being persisted.
-   * @param {T} memoryValue - The memory value to persist, typically an object.
-   * @returns {Promise<void>} A promise that resolves when the memory value is successfully persisted.
    */
   private [PERSIST_WRITE_SYMBOL] = queued(PERSIST_WRITE_FN) as <
     T extends object = object
@@ -69,9 +63,6 @@ export class SchemaUtils {
    * Writes a value to the session memory for a given client.
    * Executes within a context for logging and validation, ensuring the client session is valid.
    * @template T - The type of the value to write, must extend object.
-   * @param {string} clientId - The ID of the client whose session memory will be updated.
-   * @param {T} value - The value to write to the session memory, typically an object.
-   * @returns {T} The value written to the session memory, as returned by the memory schema service.
    * @throws {Error} If session validation fails or the memory schema service encounters an error.
    */
   public writeSessionMemory = beginContext(
@@ -92,8 +83,6 @@ export class SchemaUtils {
    * Reads a value from the session memory for a given client.
    * Executes within a context for logging and validation, ensuring the client session is valid.
    * @template T - The type of the value to read, must extend object.
-   * @param {string} clientId - The ID of the client whose session memory will be read.
-   * @returns {T} The value read from the session memory, as returned by the memory schema service.
    * @throws {Error} If session validation fails or the memory schema service encounters an error.
    */
   public readSessionMemory = beginContext(
@@ -120,11 +109,6 @@ export class SchemaUtils {
    * Serializes an object or array of objects into a formatted string.
    * Flattens nested objects and applies optional key/value mapping functions for formatting.
    * @template T - The type of the object(s) to serialize, defaults to any.
-   * @param {T[] | T} data - The data to serialize, either a single object or an array of objects.
-   * @param {Object} [map] - Optional configuration for mapping keys and values.
-   * @param {(key: string) => string} [map.mapKey=GLOBAL_CONFIG.CC_NAME_TO_TITLE] - Function to transform property keys.
-   * @param {(key: string, value: string) => string} [map.mapValue] - Function to transform property values, defaults to truncating at 50 characters.
-   * @returns {string} A formatted string representation of the data, with key-value pairs separated by newlines.
    */
   public serialize = <T extends object = any>(
     data: T[] | T,
@@ -160,7 +144,6 @@ export class SchemaUtils {
 
 /**
  * Singleton instance of SchemaUtils for managing schema operations.
- * @type {SchemaUtils}
  */
 export const Schema = new SchemaUtils();
 

@@ -22,7 +22,6 @@ export class CompletionSchemaService {
   /**
    * Logger service instance, injected via DI, for logging completion schema operations.
    * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentSchemaService and PerfService logging patterns.
-   * @type {LoggerService}
    * @readonly
    */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -30,7 +29,6 @@ export class CompletionSchemaService {
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
-   * @type {TSchemaContextService}
    * @readonly
    */
   readonly schemaContextService = inject<TSchemaContextService>(
@@ -41,7 +39,6 @@ export class CompletionSchemaService {
    * Registry instance for storing completion schemas, initialized with ToolRegistry from functools-kit.
    * Maps CompletionName keys to ICompletionSchema values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
-   * @type {ToolRegistry<Record<CompletionName, ICompletionSchema>>}
    * @private
    */
   private _registry = new ToolRegistry<
@@ -81,7 +78,6 @@ export class CompletionSchemaService {
    * Checks completionName as a string and getCompletion as a function, critical for agent execution in ClientAgent.
    * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentConnectionService’s schema-driven needs.
    * Supports ClientAgent execution by ensuring completion schema validity before registration.
-   * @param {ICompletionSchema} completionSchema - The completion schema to validate, sourced from Completion.interface.
    * @throws {Error} If any validation check fails, with detailed messages including completionName.
    * @private
    */
@@ -117,8 +113,6 @@ export class CompletionSchemaService {
    * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (completionName).
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentSchemaService’s completion references.
    * Supports ClientAgent execution by providing validated completion schemas to AgentConnectionService and SwarmConnectionService.
-   * @param {CompletionName} key - The name of the completion, used as the registry key, sourced from Completion.interface.
-   * @param {ICompletionSchema} value - The completion schema to register, sourced from Completion.interface, validated before storage.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
    */
   public register = (key: CompletionName, value: ICompletionSchema) => {
@@ -133,8 +127,6 @@ export class CompletionSchemaService {
    * Replaces the schema associated with the provided key in the ToolRegistry.
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports dynamic updates to completion schemas used by AgentSchemaService, ClientAgent, and other swarm components.
-   * @param {CompletionName} key - The name of the completion to override, sourced from Completion.interface.
-   * @param {ICompletionSchema} value - The new completion schema to replace the existing one, sourced from Completion.interface.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
    */
   public override = (
@@ -151,8 +143,6 @@ export class CompletionSchemaService {
    * Retrieves a completion schema from the registry by its name.
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports AgentConnectionService’s agent instantiation by providing completion logic (getCompletion) referenced in AgentSchemaService schemas, and ClientAgent’s execution flow.
-   * @param {CompletionName} key - The name of the completion to retrieve, sourced from Completion.interface.
-   * @returns {ICompletionSchema} The completion schema associated with the key, sourced from Completion.interface, including the getCompletion function.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
    */
   public get = (key: CompletionName): ICompletionSchema => {
@@ -165,6 +155,5 @@ export class CompletionSchemaService {
 /**
  * Default export of the CompletionSchemaService class.
  * Provides the primary service for managing completion schemas in the swarm system, integrating with AgentSchemaService, ClientAgent, AgentConnectionService, and SwarmConnectionService, with validated schema storage via ToolRegistry.
- * @type {typeof CompletionSchemaService}
  */
 export default CompletionSchemaService;

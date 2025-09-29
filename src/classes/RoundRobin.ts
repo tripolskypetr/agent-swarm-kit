@@ -53,8 +53,6 @@ export class RoundRobin<
    * Logs the current index and token count if logging is enabled.
    *
    * @private
-   * @param {...A} args - The arguments to pass to the instance creator.
-   * @returns {T} The result of invoking the instance creator for the current token.
    * @throws {Error} If the tokens array is empty.
    */
   private call = (...args: A): T => {

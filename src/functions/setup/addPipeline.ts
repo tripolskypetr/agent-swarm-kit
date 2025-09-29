@@ -1,6 +1,6 @@
 /**
  * @module addPipeline
- * @description Provides a function to register a pipeline schema with validation and logging.
+ * Provides a function to register a pipeline schema with validation and logging.
  */
 
 import swarm from "../../lib";
@@ -10,7 +10,7 @@ import { IPipelineSchema } from "../../model/Pipeline.model";
 
 /**
  * @constant {string} METHOD_NAME
- * @description Method name for the addPipeline operation.
+ * Method name for the addPipeline operation.
  * @private
  */
 const METHOD_NAME = "function.setup.addPipeline";
@@ -39,8 +39,6 @@ const addPipelineInternal = beginContext((pipelineSchema: IPipelineSchema) => {
 /**
  * Registers a pipeline schema, validates it, and adds it to the pipeline schema service.
  * @template Payload - Type extending object for the pipeline payload.
- * @param {IPipelineSchema<Payload>} pipelineSchema - The pipeline schema to register.
- * @returns {string} The name of the registered pipeline.
  */
 export function addPipeline<Payload extends object = any>(
   pipelineSchema: IPipelineSchema<Payload>

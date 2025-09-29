@@ -39,9 +39,6 @@ const emitForceInternal = beginContext(
  * The execution is wrapped in `beginContext` for a clean environment, validates the session and swarm, and throws an error if the session mode
  * is not "makeConnection". The operation is logged if enabled, and resolves when the content is successfully emitted.
  *
- * @param {string} content - The content to be emitted as the model output.
- * @param {string} clientId - The unique identifier of the client session emitting the content.
- * @returns {Promise<void>} A promise that resolves when the content is emitted.
  * @throws {Error} If the session mode is not "makeConnection", or if session or swarm validation fails.
  * @example
  * await emitForce("Direct output", "client-123"); // Emits "Direct output" in a makeConnection session

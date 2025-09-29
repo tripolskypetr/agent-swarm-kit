@@ -1,6 +1,6 @@
 /**
  * @module PipelineSchemaService
- * @description Manages pipeline schema registration, validation, and retrieval using a tool registry.
+ * Manages pipeline schema registration, validation, and retrieval using a tool registry.
  */
 
 import { inject } from "../../core/di";
@@ -13,12 +13,12 @@ import SchemaContextService, { TSchemaContextService } from "../context/SchemaCo
 
 /**
  * @class PipelineSchemaService
- * @description Service for managing pipeline schemas, including registration, validation, and retrieval.
+ * Service for managing pipeline schemas, including registration, validation, and retrieval.
  */
 export class PipelineSchemaService {
   /**
    * @property {LoggerService} loggerService
-   * @description Injected logger service for logging operations.
+   * Injected logger service for logging operations.
    * @private
    */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -26,7 +26,6 @@ export class PipelineSchemaService {
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
-   * @type {TSchemaContextService}
    * @readonly
    */
   readonly schemaContextService = inject<TSchemaContextService>(
@@ -35,7 +34,7 @@ export class PipelineSchemaService {
 
   /**
    * @property {ToolRegistry<Record<PipelineName, IPipelineSchema>>} registry
-   * @description Registry for storing pipeline schemas.
+   * Registry for storing pipeline schemas.
    * @private
    */
   private _registry = new ToolRegistry<Record<PipelineName, IPipelineSchema>>(
@@ -71,8 +70,7 @@ export class PipelineSchemaService {
 
   /**
    * @method validateShallow
-   * @description Performs shallow validation of a pipeline schema.
-   * @param {IPipelineSchema} pipelineSchema - The pipeline schema to validate.
+   * Performs shallow validation of a pipeline schema.
    * @throws {Error} If validation fails for pipelineName or execute.
    * @private
    */
@@ -95,9 +93,7 @@ export class PipelineSchemaService {
 
   /**
    * @method register
-   * @description Registers a pipeline schema with validation.
-   * @param {PipelineName} key - The name of the pipeline schema.
-   * @param {IPipelineSchema} value - The pipeline schema to register.
+   * Registers a pipeline schema with validation.
    */
   public register = (key: PipelineName, value: IPipelineSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -108,10 +104,7 @@ export class PipelineSchemaService {
 
   /**
    * @method override
-   * @description Overrides an existing pipeline schema with new values.
-   * @param {PipelineName} key - The name of the pipeline schema to override.
-   * @param {Partial<IPipelineSchema>} value - The partial pipeline schema to apply.
-   * @returns {IPipelineSchema} The updated pipeline schema.
+   * Overrides an existing pipeline schema with new values.
    */
   public override = (key: PipelineName, value: Partial<IPipelineSchema>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -122,9 +115,7 @@ export class PipelineSchemaService {
 
   /**
    * @method get
-   * @description Retrieves a pipeline schema by its name.
-   * @param {PipelineName} key - The name of the pipeline schema.
-   * @returns {IPipelineSchema} The pipeline schema.
+   * Retrieves a pipeline schema by its name.
    */
   public get = (key: PipelineName): IPipelineSchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -136,6 +127,6 @@ export class PipelineSchemaService {
 /**
  * @export
  * @default PipelineSchemaService
- * @description Exports the PipelineSchemaService class as the default export.
+ * Exports the PipelineSchemaService class as the default export.
  */
 export default PipelineSchemaService;

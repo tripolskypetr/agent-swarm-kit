@@ -9,9 +9,6 @@ import { markOnline } from "../other/markOnline";
 
 /**
  * Type definition for the send message function returned by connection factories.
- * @typedef {Function} SendMessageFn
- * @param {string} outgoing - The message content to send to the swarm.
- * @returns {Promise<void>} A promise that resolves when the message is sent.
  */
 type SendMessageFn = (outgoing: string) => Promise<void>;
 
@@ -35,10 +32,6 @@ const METHOD_NAME = "function.target.makeConnection";
  * Creates a queued connection to the swarm session, validating the swarm and initializing the session in "makeConnection" mode.
  * Returns a function to send messages, wrapped in `beginContext` for isolated execution.
  *
- * @param {ReceiveMessageFn} connector - The function to receive incoming messages from the swarm.
- * @param {string} clientId - The unique identifier of the client session.
- * @param {SwarmName} swarmName - The name of the swarm to connect to.
- * @returns {SendMessageFn} A function to send messages to the swarm.
  */
 const makeConnectionInternal = (
   connector: ReceiveMessageFn,
@@ -91,10 +84,6 @@ const makeConnectionInternal = (
  * This factory creates a queued connection to the swarm, allowing the client to send messages to the active agent.
  * It is designed for real-time communication, leveraging the session public service for message handling.
  *
- * @param {ReceiveMessageFn} connector - The function to receive incoming messages from the swarm.
- * @param {string} clientId - The unique identifier of the client session.
- * @param {SwarmName} swarmName - The name of the swarm to connect to.
- * @returns {SendMessageFn} A function to send messages to the swarm.
  * @throws {Error} If swarm or session validation fails, or if the connection process encounters an error.
  * @example
  * const sendMessage = makeConnection((msg) => console.log(msg), "client-123", "TaskSwarm");
@@ -149,11 +138,6 @@ export interface IMakeConnectionConfig {
  * This factory extends `makeConnection` by adding scheduling capabilities, delaying message sends based on the configured delay.
  * It commits messages to the agent's history immediately via `commitUserMessage` and sends them after the delay if the session remains active.
  *
- * @param {ReceiveMessageFn} connector - The function to receive incoming messages from the swarm.
- * @param {string} clientId - The unique identifier of the client session.
- * @param {SwarmName} swarmName - The name of the swarm to connect to.
- * @param {Partial<IMakeConnectionConfig>} [config] - Configuration object with an optional delay (defaults to `SCHEDULED_DELAY`).
- * @returns {SendMessageFn} A function to send scheduled messages to the swarm.
  * @throws {Error} If swarm or session validation fails, or if the scheduled send process encounters an error.
  * @example
  * const sendScheduled = makeConnection.scheduled((msg) => console.log(msg), "client-123", "TaskSwarm", { delay: 2000 });
@@ -238,11 +222,6 @@ makeConnection.scheduled = <Payload extends object = object>(
  * This factory extends `makeConnection` by adding rate-limiting capabilities, throttling message sends based on the configured delay.
  * If the rate limit is exceeded, it warns and returns an empty result instead of throwing an error.
  *
- * @param {ReceiveMessageFn} connector - The function to receive incoming messages from the swarm.
- * @param {string} clientId - The unique identifier of the client session.
- * @param {SwarmName} swarmName - The name of the swarm to connect to.
- * @param {Partial<IMakeConnectionConfig>} [config] - Configuration object with an optional delay (defaults to `RATE_DELAY`).
- * @returns {SendMessageFn} A function to send rate-limited messages to the swarm.
  * @throws {Error} If swarm or session validation fails, or if the send process encounters a non-rate-limit error.
  * @example
  * const sendRateLimited = makeConnection.rate((msg) => console.log(msg), "client-123", "TaskSwarm", { delay: 5000 });

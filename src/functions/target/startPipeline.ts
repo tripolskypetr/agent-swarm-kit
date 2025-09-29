@@ -1,6 +1,6 @@
 /**
  * @module startPipeline
- * @description Provides a function to initiate a pipeline execution with session validation, logging, and callback handling.
+ * Provides a function to initiate a pipeline execution with session validation, logging, and callback handling.
  */
 
 import beginContext from "../../utils/beginContext";
@@ -12,7 +12,7 @@ import { changeToAgent } from "../navigate/changeToAgent";
 
 /**
  * @constant {string} METHOD_NAME
- * @description Method name for the startPipeline operation.
+ * Method name for the startPipeline operation.
  * @private
  */
 const METHOD_NAME = "function.target.startPipeline";
@@ -77,14 +77,9 @@ const startPipelineInternal = beginContext(
 
 /**
  * @function startPipeline
- * @description Executes a pipeline with the specified name, handling session creation, validation, and lifecycle callbacks.
+ * Executes a pipeline with the specified name, handling session creation, validation, and lifecycle callbacks.
  * @template Payload - Type extending object for the pipeline payload.
  * @template T - Type of the result returned by the pipeline execution.
- * @param {string} clientId - The client identifier.
- * @param {PipelineName} pipelineName - The name of the pipeline to execute.
- * @param {AgentName} agentName - The name of the agent associated with the pipeline.
- * @param {Payload} [payload={}] - Optional payload data for the pipeline.
- * @returns {Promise<T>} The result of the pipeline execution.
  */
 export async function startPipeline<Payload extends object = any, T = any>(
   clientId: string,

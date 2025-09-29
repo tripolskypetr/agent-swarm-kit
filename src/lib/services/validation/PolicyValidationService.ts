@@ -19,7 +19,6 @@ export class PolicyValidationService {
   /**
    * Logger service instance for logging validation operations and errors.
    * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
-   * @type {LoggerService}
    * @private
    * @readonly
    */
@@ -28,7 +27,6 @@ export class PolicyValidationService {
   /**
    * Map of policy names to their schemas, used to track and validate policies.
    * Populated by addPolicy, queried by validate.
-   * @type {Map<PolicyName, IPolicySchema>}
    * @private
    */
   private _policyMap = new Map<PolicyName, IPolicySchema>();
@@ -36,8 +34,6 @@ export class PolicyValidationService {
   /**
    * Registers a new policy with its schema in the validation service.
    * Logs the operation and ensures uniqueness, supporting PolicySchemaService’s registration process.
-   * @param {PolicyName} policyName - The name of the policy to add, sourced from Policy.interface.
-   * @param {IPolicySchema} policySchema - The schema defining the policy’s configuration, sourced from Policy.interface.
    * @throws {Error} If the policy name already exists in _policyMap.
    */
   public addPolicy = (
@@ -58,8 +54,6 @@ export class PolicyValidationService {
   /**
    * Validates if a policy name exists in the registered map, memoized by policyName for performance.
    * Logs the operation and checks existence, supporting ClientPolicy’s policy enforcement validation.
-   * @param {PolicyName} policyName - The name of the policy to validate, sourced from Policy.interface.
-   * @param {string} source - The source of the validation request (e.g., "agent-validate"), for error context.
    * @throws {Error} If the policy name is not found in _policyMap.
    */
   public validate = memoize(
@@ -85,6 +79,5 @@ export class PolicyValidationService {
  * Provides a service for validating policy names in the swarm system,
  * integrating with PolicySchemaService, ClientPolicy, AgentValidationService, and LoggerService,
  * with memoized validation and uniqueness enforcement.
- * @type {typeof PolicyValidationService}
  */
 export default PolicyValidationService;

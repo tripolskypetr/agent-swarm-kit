@@ -20,8 +20,6 @@ const dumpPerfomanceInternal = beginContext(async (dirName = "./logs/meta") => {
  * Dumps the performance data using the swarm's document service.
  * Logs the method name if logging is enabled in the global configuration.
  *
- * @param {string} [dirName="./logs/meta"] - The directory name where the performance data will be dumped.
- * @returns {Promise<void>} A promise that resolves when the performance data has been dumped.
  */
 const dumpPerfomance = async (dirName = "./logs/meta") => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
@@ -32,8 +30,6 @@ const dumpPerfomance = async (dirName = "./logs/meta") => {
  * Runs the dumpPerfomance function at specified intervals.
  * Logs the method name if logging is enabled in the global configuration.
  *
- * @param {string} [dirName="./logs/meta"] - The directory name where the performance data will be dumped.
- * @param {number} [interval=30000] - The interval in milliseconds at which to run the dumpPerfomance function.
  */
 dumpPerfomance.runInterval = beginContext(
   (dirName = "./logs/meta", interval = 30_000) => {

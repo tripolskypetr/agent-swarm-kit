@@ -22,13 +22,6 @@ interface Options {
  * Atomically writes data to a file, ensuring the operation either fully completes or leaves the original file unchanged.
  * Uses a temporary file with a rename strategy on POSIX systems for atomicity, or direct writing with sync on Windows (or when POSIX rename is skipped).
  *
- * @param {string} file - The path to the target file to write.
- * @param {string | Buffer} data - The data to write, either as a string or Buffer.
- * @param {Options | BufferEncoding} [options={}] - Optional settings or a string encoding shorthand.
- * @param {BufferEncoding} [options.encoding="utf8"] - The encoding for the data (e.g., 'utf8', 'binary').
- * @param {number} [options.mode=0o666] - The file mode (permissions) as an octal number.
- * @param {string} [options.tmpPrefix=".tmp-"] - The prefix for the temporary file name used during writing.
- * @returns {Promise<void>} A promise that resolves when the write completes successfully, or rejects with an error if the operation fails.
  * @throws {Error} Throws an error if the write, sync, or rename operation fails, after attempting cleanup of temporary files.
  *
  * @example

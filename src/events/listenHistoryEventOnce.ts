@@ -6,7 +6,6 @@ import beginContext from "../utils/beginContext";
 /**
  * Validates the client ID for history event listening, allowing wildcard "*" or checking for an active session.
  *
- * @param {string} clientId - The client ID to validate.
  * @throws {Error} If the client ID is not "*" and no active session exists for it.
  */
 const validateClientId = (clientId: string) => {
@@ -29,10 +28,6 @@ const validateClientId = (clientId: string) => {
  * unsubscribes after the first matching event. The function supports a wildcard client ID ("*") for listening to all clients or validates a specific
  * client session. It returns an unsubscribe function to cancel the listener prematurely.
  *
- * @param {string} clientId - The ID of the client to subscribe to history events for, or "*" to listen to all clients.
- * @param {(event: IBusEvent) => boolean} filterFn - A function that filters events, returning true to trigger the callback with that event.
- * @param {(event: IBusEvent) => void} fn - The callback function to execute once when a matching history event is received, passed the event object.
- * @returns {() => void} A function to unsubscribe from the history event listener before it triggers.
  * @throws {Error} If the `clientId` is not "*" and no active session exists for it.
  * @example
  * const unsubscribe = listenHistoryEventOnce(

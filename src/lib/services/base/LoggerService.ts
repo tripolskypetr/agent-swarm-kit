@@ -16,29 +16,22 @@ import { scoped } from "di-scoped";
 /**
  * A no-operation (noop) logger implementation of ILogger, used as the default common logger.
  * Provides empty log, debug, and info methods, ensuring safe fallback when no custom logger is set.
- * @type {ILogger}
  */
 const NOOP_LOGGER: ILogger = {
   /**
    * Logs normal level messages, no-op implementation.
-   * @param {string} topic - The topic of the log message.
-   * @param {...any[]} args - The message arguments and optional context.
    */
   log() {
     void 0;
   },
   /**
    * Logs debug level messages, no-op implementation.
-   * @param {string} topic - The topic of the debug message.
-   * @param {...any[]} args - The message arguments and optional context.
    */
   debug() {
     void 0;
   },
   /**
    * Logs info level messages, no-op implementation.
-   * @param {string} topic - The topic of the info message.
-   * @param {...any[]} args - The message arguments and optional context.
    */
   info() {
     void 0;
@@ -53,9 +46,6 @@ const NOOP_LOGGER: ILogger = {
  * This class is used to encapsulate and manage the logging context for a specific client,
  * ensuring that logs are enriched with relevant contextual information such as method and execution contexts.
  *
- * @param {Object} context - The logging context object.
- * @param {IMethodContext} context.methodContext - The method-level context, typically containing metadata like clientId.
- * @param {IExecutionContext} context.executionContext - The execution-level context, typically containing metadata like clientId.
  */
 const ClientLoggerContext = scoped(
   class {
@@ -78,7 +68,6 @@ export class LoggerService implements ILogger {
   /**
    * Method context service instance, injected via DI, providing method-level context (e.g., clientId).
    * Used in log, debug, and info to attach method-specific metadata, aligning with ClientAgent’s method execution context.
-   * @type {TMethodContextService}
    * @private
    */
   private readonly methodContextService = inject<TMethodContextService>(
@@ -88,7 +77,6 @@ export class LoggerService implements ILogger {
   /**
    * Execution context service instance, injected via DI, providing execution-level context (e.g., clientId).
    * Used in log, debug, and info to attach execution-specific metadata, complementing ClientAgent’s execution workflows (e.g., EXECUTE_FN).
-   * @type {TExecutionContextService}
    * @private
    */
   private readonly executionContextService = inject<TExecutionContextService>(
@@ -98,7 +86,6 @@ export class LoggerService implements ILogger {
   /**
    * The common logger instance, defaults to NOOP_LOGGER, used for system-wide logging.
    * Updated via setLogger, receives all log messages alongside client-specific loggers, ensuring a fallback logging mechanism.
-   * @type {ILogger}
    * @private
    */
   private _commonLogger: ILogger = NOOP_LOGGER;
@@ -106,7 +93,6 @@ export class LoggerService implements ILogger {
   /**
    * Factory function to create a client-specific logger adapter, memoized with singleshot for efficiency.
    * Sources from GLOBAL_CONFIG.CC_GET_CLIENT_LOGGER_ADAPTER (defaults to LoggerAdapter), used in log, debug, and info to route client-specific logs (e.g., ClientAgent’s clientId).
-   * @type {() => ILoggerAdapter}
    * @private
    */
   private getLoggerAdapter = singleshot(
@@ -117,9 +103,6 @@ export class LoggerService implements ILogger {
    * Logs messages at the normal level, routing to both the client-specific logger (if clientId exists) and the common logger.
    * Attaches method and execution context (e.g., clientId) for traceability, used across the system (e.g., PerfService’s dispose).
    * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG, defaults to enabled.
-   * @param {string} topic - The topic or identifier of the log message (e.g., "perfService dispose").
-   * @param {...any[]} args - The message content and optional additional data (e.g., objects, strings).
-   * @returns {void}
    */
   public log = async (topic: string, ...args: any[]) => {
     if (ClientLoggerContext.hasContext()) {
@@ -147,9 +130,6 @@ export class LoggerService implements ILogger {
   /**
    * Logs messages at the debug level, routing to both the client-specific logger (if clientId exists) and the common logger.
    * Attaches method and execution context for detailed debugging, heavily used in ClientAgent (e.g., RUN_FN, EXECUTE_FN) when GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG is true.
-   * @param {string} topic - The topic or identifier of the debug message (e.g., "clientAgent RUN_FN").
-   * @param {...any[]} args - The debug content and optional additional data (e.g., objects, strings).
-   * @returns {void}
    */
   public debug = async (topic: string, ...args: any[]) => {
     if (ClientLoggerContext.hasContext()) {
@@ -177,9 +157,6 @@ export class LoggerService implements ILogger {
   /**
    * Logs messages at the info level, routing to both the client-specific logger (if clientId exists) and the common logger.
    * Attaches method and execution context for informational tracking, used in PerfService (e.g., startExecution) and DocService (e.g., dumpDocs) when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
-   * @param {string} topic - The topic or identifier of the info message (e.g., "perfService startExecution").
-   * @param {...any[]} args - The info content and optional additional data (e.g., objects, strings).
-   * @returns {void}
    */
   public info = async (topic: string, ...args: any[]) => {
     if (ClientLoggerContext.hasContext()) {
@@ -207,8 +184,6 @@ export class LoggerService implements ILogger {
   /**
    * Sets a new common logger instance, replacing the default NOOP_LOGGER or previous logger.
    * Allows runtime customization of system-wide logging behavior, potentially used in testing or advanced configurations (e.g., redirecting logs to a file or console).
-   * @param {ILogger} logger - The new logger instance to set, implementing the ILogger interface.
-   * @returns {void}
    */
   public setLogger = (logger: ILogger) => {
     this._commonLogger = logger;
@@ -218,6 +193,5 @@ export class LoggerService implements ILogger {
 /**
  * Default export of the LoggerService class.
  * Provides the primary logging interface for the swarm system, integrating with ClientAgent, PerfService, and DocService for consistent logging.
- * @type {typeof LoggerService}
  */
 export default LoggerService;

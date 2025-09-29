@@ -56,10 +56,6 @@ const eventInternal = beginContext(
  * topic is used. The event is structured as an `ICustomEvent` with the provided `clientId`, `topicName` as the source, and `payload`.
  *
  * @template T - The type of the payload, defaulting to `any` if unspecified.
- * @param {string} clientId - The unique identifier of the client emitting the event.
- * @param {string} topicName - The name of the event topic (must not be a reserved source).
- * @param {T} payload - The payload data to be included in the event.
- * @returns {Promise<void>} A promise that resolves when the event is successfully emitted.
  * @throws {Error} If the `topicName` is a reserved event source (e.g., "agent-bus", "session-bus").
  * @example
  * await event("client-123", "custom-topic", { message: "Hello, swarm!" });

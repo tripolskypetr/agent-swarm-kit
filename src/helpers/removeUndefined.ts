@@ -7,8 +7,6 @@
  * all other properties and their values.
  *
  * @template T - The type of the input object.
- * @param {T} obj - The object to process and remove `undefined` values from.
- * @returns {T} A new object with all `undefined` values removed.
  */
 export function removeUndefined<T extends object = any>(obj: T): T {
   const result = {};

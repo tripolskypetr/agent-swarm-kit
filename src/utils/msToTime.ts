@@ -2,8 +2,6 @@
  * Converts a duration in milliseconds to a formatted time string in the format "HH:MM:SS.ms".
  * Handles hours, minutes, seconds, and milliseconds, padding single-digit values with leading zeros for consistency.
  *
- * @param {number} s - The duration in milliseconds to convert. Can be any non-negative number.
- * @returns {string} A formatted time string (e.g., "01:23:45.678" or "00:00:01.500"). Returns an empty string if input is 0 or invalid.
  *
  * @example
  * // Basic usage with various durations

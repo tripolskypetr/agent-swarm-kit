@@ -8,8 +8,6 @@ const toolParser = new xml2js.Parser();
  * Validates that an output string contains no tool call entries or disallowed symbols.
  * Checks for specific symbols and XML tags defined in `GLOBAL_CONFIG`, returning an error message if any are found.
  *
- * @param {string} output - The output string to validate, typically from an agent or model response.
- * @returns {Promise<string | null>} A promise that resolves to:
  *   - `"Tool call in text output"` if the string contains disallowed symbols (e.g., `{`, `}`) or XML tags (e.g., `<tool_call>`).
  *   - `null` if no tool calls or disallowed symbols are detected, indicating the output is valid.
  * @throws {Error} Propagates unhandled errors from XML parsing if `trycatch` fails to catch them, though typically returns `null` on parse failure.

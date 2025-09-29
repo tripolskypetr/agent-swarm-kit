@@ -41,8 +41,6 @@ const addCompletionInternal = beginContext(
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts, providing a clean execution environment.
  * The function logs the operation if enabled and returns the completion's name upon successful registration.
  *
- * @param {ICompletionSchema} completionSchema - The schema defining the completion engine's properties, including its name (`completionName`) and configuration details.
- * @returns {string} The name of the newly added completion (`completionSchema.completionName`), confirming its registration.
  * @throws {Error} If the completion schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate completion name).
  * @example
  * const completionSchema = { completionName: "OpenAI", model: "gpt-3.5-turbo" };

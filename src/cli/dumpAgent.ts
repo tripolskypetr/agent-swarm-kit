@@ -19,8 +19,6 @@ interface IConfig {
 /**
  * Dumps the agent information into PlantUML format.
  *
- * @param {SwarmName} swarmName - The name of the swarm to be dumped.
- * @returns {string} The UML representation of the swarm.
  */
 export const dumpAgent = beginContext(
   (agentName: AgentName, { withSubtree = false }: Partial<IConfig> = {}) => {

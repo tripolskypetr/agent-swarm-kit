@@ -17,7 +17,6 @@ export class SwarmSchemaService {
   /**
    * Logger service instance, injected via DI, for logging swarm schema operations.
    * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SwarmConnectionService and PerfService logging patterns.
-   * @type {LoggerService}
    * @readonly
    */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -25,7 +24,6 @@ export class SwarmSchemaService {
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
-   * @type {TSchemaContextService}
    * @readonly
    */
   readonly schemaContextService = inject<TSchemaContextService>(
@@ -36,7 +34,6 @@ export class SwarmSchemaService {
    * Registry instance for storing swarm schemas, initialized with ToolRegistry from functools-kit.
    * Maps SwarmName keys to ISwarmSchema values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
-   * @type {ToolRegistry<Record<SwarmName, ISwarmSchema>>}
    * @private
    */
   private _registry = new ToolRegistry<Record<SwarmName, ISwarmSchema>>(
@@ -75,7 +72,6 @@ export class SwarmSchemaService {
    * Checks swarmName and defaultAgent as strings, agentList as an array of unique strings (AgentName references), and policies, if present, as an array of unique strings (PolicyName references).
    * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SwarmConnectionService’s configuration needs.
    * Supports ClientSwarm instantiation in SwarmConnectionService by ensuring schema validity before registration.
-   * @param {ISwarmSchema} swarmSchema - The swarm schema to validate, sourced from Swarm.interface.
    * @throws {Error} If any validation check fails, with detailed messages including swarmName and invalid values.
    * @private
    */
@@ -134,8 +130,6 @@ export class SwarmSchemaService {
    * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (swarmName).
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SwarmConnectionService’s swarm management.
    * Supports ClientAgent execution by providing validated swarm schemas to SwarmConnectionService for ClientSwarm configuration.
-   * @param {SwarmName} key - The name of the swarm, used as the registry key, sourced from Swarm.interface.
-   * @param {ISwarmSchema} value - The swarm schema to register, sourced from Swarm.interface, validated before storage.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
    */
   public register = (key: SwarmName, value: ISwarmSchema) => {
@@ -150,8 +144,6 @@ export class SwarmSchemaService {
    * Replaces the schema associated with the given key in the ToolRegistry.
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports dynamic updates to swarm configurations, allowing modifications to agentList, defaultAgent, or policies.
-   * @param {SwarmName} key - The name of the swarm to override, sourced from Swarm.interface.
-   * @param {ISwarmSchema} value - The new swarm schema to replace the existing one, sourced from Swarm.interface.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
    */
   public override = (key: SwarmName, value: Partial<ISwarmSchema>) => {
@@ -165,8 +157,6 @@ export class SwarmSchemaService {
    * Retrieves a swarm schema from the registry by its name.
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports SwarmConnectionService by providing swarm configuration (e.g., agentList, defaultAgent, policies) for ClientSwarm instantiation, linking to AgentConnectionService and PolicySchemaService.
-   * @param {SwarmName} key - The name of the swarm to retrieve, sourced from Swarm.interface.
-   * @returns {ISwarmSchema} The swarm schema associated with the key, sourced from Swarm.interface, including agentList, defaultAgent, and optional policies.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
    */
   public get = (key: SwarmName): ISwarmSchema => {
@@ -179,6 +169,5 @@ export class SwarmSchemaService {
 /**
  * Default export of the SwarmSchemaService class.
  * Provides the primary service for managing swarm schemas in the swarm system, integrating with SwarmConnectionService, AgentConnectionService, PolicySchemaService, ClientAgent, SessionConnectionService, and SwarmPublicService, with validated schema storage via ToolRegistry.
- * @type {typeof SwarmSchemaService}
  */
 export default SwarmSchemaService;

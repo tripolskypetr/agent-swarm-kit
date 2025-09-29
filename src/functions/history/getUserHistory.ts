@@ -27,8 +27,6 @@ const getUserHistoryInternal = beginContext(async (clientId: string) => {
  * and mode are "user". It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`.
  * The result is an array of history objects representing the user’s contributions in the session.
  *
- * @param {string} clientId - The unique identifier of the client session whose user history is to be retrieved.
- * @returns {Promise<object[]>} A promise that resolves to an array of history objects filtered by user role and mode.
  * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
  * @example
  * const userHistory = await getUserHistory("client-123");

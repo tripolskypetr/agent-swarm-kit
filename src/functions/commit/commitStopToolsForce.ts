@@ -42,9 +42,6 @@ const commitStopToolsForceInternal = beginContext(
  * Unlike commitStopTools, this function skips agent validation and active agent checks, providing a more aggressive stop mechanism,
  * analogous to commitFlushForce vs. commitFlush.
  *
- * @param {string} clientId - The ID of the client associated with the session, validated against active sessions.
- * @param {string} agentName - The name of the agent (unused in this implementation, included for interface consistency with commitStopTools).
- * @returns {Promise<void>} A promise that resolves when the tool stop is committed.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
  */
 export async function commitStopToolsForce(clientId: string) {

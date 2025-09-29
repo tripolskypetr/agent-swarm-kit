@@ -462,11 +462,10 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Commits a developer message to the agent’s history via the swarm’s agent (ClientAgent), logging the action via BusService.
-   *    * Commits a developer message to the agent’s history via the swarm’s agent (ClientAgent), logging the action via BusService.
+   * Commits a developer message to the agent's history via the swarm's agent (ClientAgent), logging the action via BusService.
    * Supports internal debugging or developer notes within the session, enhancing ClientHistory.
    * @throws {Error} If committing the message fails.
-   * 
+   */
   async commitDeveloperMessage(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(

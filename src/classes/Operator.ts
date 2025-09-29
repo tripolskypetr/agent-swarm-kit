@@ -106,9 +106,6 @@ export const OperatorInstance = makeExtendable(
 
     /**
      * Creates an OperatorInstance
-     * @param {string} clientId - The client identifier
-     * @param {AgentName} agentName - The agent name
-     * @param {Partial<IOperatorInstanceCallbacks>} callbacks - Event callbacks
      */
     constructor(
       readonly clientId: string,
@@ -124,7 +121,6 @@ export const OperatorInstance = makeExtendable(
 
     /**
      * Connects an answer subscription
-     * @param {(answer: string) => void} next - Answer handler callback
      */
     public connectAnswer(next: (answer: string) => void) {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -141,7 +137,6 @@ export const OperatorInstance = makeExtendable(
 
     /**
      * Init the operator connection
-     * @returns {Promise<void>}
      */
     public async init() {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -156,8 +151,6 @@ export const OperatorInstance = makeExtendable(
 
     /**
      * Sends a notification
-     * @param {string} content - Notification content
-     * @returns {Promise<void>}
      */
     public async notify(content: string) {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -176,8 +169,6 @@ export const OperatorInstance = makeExtendable(
 
     /**
      * Sends an answer
-     * @param {string} content - Answer content
-     * @returns {Promise<void>}
      */
     public async answer(content: string) {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -201,8 +192,6 @@ export const OperatorInstance = makeExtendable(
 
     /**
      * Receives a message
-     * @param {string} message - Message content
-     * @returns {Promise<void>}
      */
     public async recieveMessage(message: string) {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -221,7 +210,6 @@ export const OperatorInstance = makeExtendable(
 
     /**
      * Disposes the operator instance
-     * @returns {Promise<void>}
      */
     public async dispose() {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -277,7 +265,6 @@ export class OperatorUtils implements IOperatorControl {
 
   /**
    * Sets custom operator adapter constructor
-   * @param {TOperatorInstanceCtor} Ctor - Operator constructor
    */
   public useOperatorAdapter(Ctor: TOperatorInstanceCtor) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -287,7 +274,6 @@ export class OperatorUtils implements IOperatorControl {
 
   /**
    * Sets operator callbacks
-   * @param {Partial<IOperatorInstanceCallbacks>} Callbacks - Callback functions
    */
   public useOperatorCallbacks(Callbacks: Partial<IOperatorInstanceCallbacks>) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -297,9 +283,6 @@ export class OperatorUtils implements IOperatorControl {
 
   /**
    * Connects an operator instance
-   * @param {string} clientId - Client identifier
-   * @param {AgentName} agentName - Agent name
-   * @returns {(message: string, next: (answer: string) => void) => DisposeFn} Connection function
    */
   public connectOperator(clientId: string, agentName: AgentName) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

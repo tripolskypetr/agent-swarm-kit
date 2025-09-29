@@ -73,12 +73,6 @@ const addTriageNavigationInternal = beginContext(
 /**
  * Creates and registers a triage navigation tool for an agent to navigate to a triage agent.
  * @function addTriageNavigation
- * @param {ITriageNavigationParams} params - The parameters for configuring the triage navigation tool.
- * @param {ToolName} params.toolName - The name of the tool.
- * @param {string} params.description - Description of the tool's purpose.
- * @param {string} [params.docNote] - Optional documentation note.
- * @param {...INavigateToTriageParams} params.navigateProps - Additional triage navigation properties.
- * @returns {ReturnType<typeof addTool>} The result of adding the triage navigation tool.
  */
 export function addTriageNavigation(params: ITriageNavigationParams) {
   return addTriageNavigationInternal(params);

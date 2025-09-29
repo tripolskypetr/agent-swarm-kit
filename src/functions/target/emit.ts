@@ -61,10 +61,6 @@ const emitInternal = beginContext(
  * before emitting. If the active agent has changed, the operation is skipped. The execution is wrapped in `beginContext` for a clean environment,
  * logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
  *
- * @param {string} content - The content to be emitted as the model output.
- * @param {string} clientId - The unique identifier of the client session emitting the content.
- * @param {AgentName} agentName - The name of the agent intended to emit the content.
- * @returns {Promise<void>} A promise that resolves when the content is emitted, or resolves early if skipped due to an agent change.
  * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
  * @example
  * await emit("Direct output", "client-123", "AgentX"); // Emits "Direct output" if AgentX is active

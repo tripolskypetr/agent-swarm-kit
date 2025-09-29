@@ -60,10 +60,6 @@ const commitToolRequestInternal = beginContext(
  * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before committing the request.
  * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
  *
- * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to commit.
- * @param {string} clientId - The client ID associated with the session.
- * @param {string} agentName - The agent name to commit the request for.
- * @returns {Promise<string[] | null>} A promise resolving with an array of result strings, or null if skipped due to agent mismatch.
  * 
  * Function overloads
  */
@@ -78,10 +74,6 @@ export function commitToolRequest(
  * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before committing the request.
  * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
  *
- * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to commit.
- * @param {string} clientId - The client ID associated with the session.
- * @param {string} agentName - The agent name to commit the request for.
- * @returns {Promise<string[] | null>} A promise resolving with an array of result strings, or null if skipped due to agent mismatch.
  * 
  * Function overloads
  */
@@ -96,10 +88,6 @@ export function commitToolRequest(
  * Validates the agent, session, and swarm, ensuring the current agent matches the provided agent before committing the request.
  * Runs within a beginContext wrapper for execution context management, logging operations via LoggerService.
  *
- * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to commit.
- * @param {string} clientId - The client ID associated with the session.
- * @param {string} agentName - The agent name to commit the request for.
- * @returns {Promise<string[] | null>} A promise resolving with an array of result strings, or null if skipped due to agent mismatch.
  */
 export async function commitToolRequest(
   request: IToolRequest | IToolRequest[],

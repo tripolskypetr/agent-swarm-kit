@@ -19,8 +19,6 @@ const METHOD_NAME = "function.setup.addOutline";
  * Internal implementation of the outline addition logic, wrapped in a clean context.
  * Registers the outline schema with both the validation and schema services and logs the operation if enabled.
  * @private
- * @param {IOutlineSchema} outlineSchema - The outline schema to register.
- * @returns {string} The name of the registered outline.
  */
 const addOutlineInternal = beginContext((outlineSchema: IOutlineSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -41,8 +39,6 @@ const addOutlineInternal = beginContext((outlineSchema: IOutlineSchema) => {
  * Adds an outline schema to the swarm system by registering it with the outline validation and schema services.
  * Ensures the operation runs in a clean context using `beginContext` to avoid interference from existing method or execution contexts.
  * Logs the operation if logging is enabled in the global configuration.
- * @param {IOutlineSchema} outlineSchema - The outline schema to register, containing the outline name and configuration.
- * @returns {string} The name of the registered outline.
  */
 export function addOutline<
   Data extends IOutlineData = IOutlineData,

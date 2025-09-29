@@ -40,10 +40,6 @@ const overrideAgentInternal = beginContext(
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
- * @param {TAgentSchema} agentSchema - The schema containing the agent’s unique name and optional properties to override.
- * @param {string} agentSchema.agentName - The unique identifier of the agent to override, matching `IAgentSchemaInternal["agentName"]`.
- * @param {Partial<IAgentSchemaInternal>} [agentSchema] - Optional partial schema properties to update, extending `IAgentSchemaInternal`.
- * @returns {void} No return value; the override is applied directly to the swarm’s agent schema service.
  * @throws {Error} If the agent schema service encounters an error during the override operation (e.g., invalid agentName or schema).
  *
  * @example

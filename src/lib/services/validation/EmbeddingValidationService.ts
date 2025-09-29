@@ -19,7 +19,6 @@ export class EmbeddingValidationService {
   /**
    * Logger service instance for logging validation operations and errors.
    * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
-   * @type {LoggerService}
    * @private
    * @readonly
    */
@@ -28,7 +27,6 @@ export class EmbeddingValidationService {
   /**
    * Map of embedding names to their schemas, used to track and validate embeddings.
    * Populated by addEmbedding, queried by validate.
-   * @type {Map<EmbeddingName, IEmbeddingSchema>}
    * @private
    */
   private _embeddingMap = new Map<EmbeddingName, IEmbeddingSchema>();
@@ -36,8 +34,6 @@ export class EmbeddingValidationService {
   /**
    * Registers a new embedding with its schema in the validation service.
    * Logs the operation and ensures uniqueness, supporting EmbeddingSchemaService’s registration process.
-   * @param {EmbeddingName} embeddingName - The name of the embedding to add, sourced from Embedding.interface.
-   * @param {IEmbeddingSchema} embeddingSchema - The schema defining the embedding’s configuration, sourced from Embedding.interface.
    * @throws {Error} If the embedding name already exists in _embeddingMap.
    */
   public addEmbedding = (
@@ -58,8 +54,6 @@ export class EmbeddingValidationService {
   /**
    * Validates if an embedding name exists in the registered map, memoized by embeddingName for performance.
    * Logs the operation and checks existence, supporting ClientStorage’s embedding-based search validation.
-   * @param {EmbeddingName} embeddingName - The name of the embedding to validate, sourced from Embedding.interface.
-   * @param {string} source - The source of the validation request (e.g., "storage-validate"), for error context.
    * @throws {Error} If the embedding name is not found in _embeddingMap.
    */
   public validate = memoize(
@@ -85,6 +79,5 @@ export class EmbeddingValidationService {
  * Provides a service for validating embedding names in the swarm system,
  * integrating with EmbeddingSchemaService, ClientStorage, AgentValidationService, and LoggerService,
  * with memoized validation and uniqueness enforcement.
- * @type {typeof EmbeddingValidationService}
  */
 export default EmbeddingValidationService;

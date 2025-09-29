@@ -33,11 +33,6 @@ export class StateUtils implements TState {
    * Validates the client session and agent-state registration before querying the state service.
    * Executes within a context for logging.
    * @template T - The type of the state data to retrieve, defaults to any.
-   * @param {Object} payload - The payload containing client, agent, and state information.
-   * @param {string} payload.clientId - The ID of the client whose state is being retrieved.
-   * @param {AgentName} payload.agentName - The name of the agent associated with the state.
-   * @param {StateName} payload.stateName - The name of the state to retrieve.
-   * @returns {Promise<T>} A promise resolving to the state data associated with the client and state name.
    * @throws {Error} If the client session is invalid, the state is not registered in the agent, or the state service encounters an error.
    */
   public getState = beginContext(
@@ -83,12 +78,6 @@ export class StateUtils implements TState {
    * Validates the client session and agent-state registration before updating via the state service.
    * Executes within a context for logging.
    * @template T - The type of the state data to set, defaults to any.
-   * @param {T | ((prevState: T) => Promise<T>)} dispatchFn - The new state value or an async function that takes the previous state and returns the new state.
-   * @param {Object} payload - The payload containing client, agent, and state information.
-   * @param {string} payload.clientId - The ID of the client whose state is being updated.
-   * @param {AgentName} payload.agentName - The name of the agent associated with the state.
-   * @param {StateName} payload.stateName - The name of the state to update.
-   * @returns {Promise<void>} A promise that resolves when the state is successfully updated.
    * @throws {Error} If the client session is invalid, the state is not registered in the agent, or the state service encounters an error.
    */
   public setState = beginContext(
@@ -148,11 +137,6 @@ export class StateUtils implements TState {
    * Validates the client session and agent-state registration before clearing via the state service.
    * Executes within a context for logging.
    * @template T - The type of the state data, defaults to any (unused in return).
-   * @param {Object} payload - The payload containing client, agent, and state information.
-   * @param {string} payload.clientId - The ID of the client whose state is being cleared.
-   * @param {AgentName} payload.agentName - The name of the agent associated with the state.
-   * @param {StateName} payload.stateName - The name of the state to clear.
-   * @returns {Promise<void>} A promise that resolves when the state is successfully cleared.
    * @throws {Error} If the client session is invalid, the state is not registered in the agent, or the state service encounters an error.
    */
   public clearState = beginContext(
@@ -195,7 +179,6 @@ export class StateUtils implements TState {
 
 /**
  * Singleton instance of StateUtils for managing client-specific state operations.
- * @type {StateUtils}
  */
 export const State = new StateUtils();
 

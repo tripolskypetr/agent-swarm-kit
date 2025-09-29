@@ -43,8 +43,6 @@ export interface ISessionSchema {}
 /**
  * Type representing a function for sending messages.
  * @template T - The return type of the send operation, defaults to void.
- * @param {IOutgoingMessage} outgoing - The outgoing message to send.
- * @returns {Promise<T> | T} A promise resolving to the result of the send operation, or the result directly.
  */
 export type SendMessageFn<T = void> = (
   outgoing: IOutgoingMessage
@@ -53,8 +51,6 @@ export type SendMessageFn<T = void> = (
 /**
  * Type representing a function for receiving messages.
  * @template T - The return type of the receive operation, defaults to void.
- * @param {IIncomingMessage} incoming - The incoming message to process.
- * @returns {Promise<T> | T} A promise resolving to the result of the receive operation, or the result directly.
  */
 export type ReceiveMessageFn<T = void> = (
   incoming: IIncomingMessage
@@ -70,15 +66,11 @@ export interface ISession {
    * Sends a notification message to connect listeners via the internal `_notifySubject`.
    * Logs the notification if debugging is enabled.
    * 
-   * @param {string} message - The notification message to send.
-   * @returns {Promise<void>} Resolves when the message is successfully sent to subscribers.
    */
   notify(message: string): Promise<void>
 
   /**
    * Emits a message to the session's communication channel.
-   * @param {string} message - The message content to emit.
-   * @returns {Promise<void>} A promise that resolves when the message is successfully emitted.
    * @throws {Error} If the emission fails due to connection issues or invalid message format.
    */
   emit(message: string): Promise<void>;
@@ -86,17 +78,12 @@ export interface ISession {
   /**
    * Runs a stateless completion without modifying the session's chat history.
    * Useful for one-off computations or previews.
-   * @param {string} content - The content to process statelessly.
-   * @returns {Promise<string>} A promise resolving to the output of the completion.
    * @throws {Error} If the execution fails due to invalid content or internal errors.
    */
   run(content: string): Promise<string>;
 
   /**
    * Executes a command within the session, potentially updating history based on mode.
-   * @param {string} content - The content to execute.
-   * @param {ExecutionMode} mode - The source of execution ("tool" or "user").
-   * @returns {Promise<string>} A promise resolving to the output of the execution.
    * @throws {Error} If the execution fails due to invalid content, mode, or internal errors.
    */
   execute(content: string, mode: ExecutionMode): Promise<string>;
@@ -104,9 +91,6 @@ export interface ISession {
   /**
    * Connects the session to a message sender and returns a receiver function.
    * Establishes a bidirectional communication channel.
-   * @param {SendMessageFn} connector - The function to send outgoing messages.
-   * @param {...unknown[]} args - Additional arguments for connector setup (implementation-specific).
-   * @returns {ReceiveMessageFn<string>} A function to handle incoming messages, returning a string result.
    * @throws {Error} If the connection fails or the connector is invalid.
    */
   connect(
@@ -116,33 +100,24 @@ export interface ISession {
 
   /**
    * Commits tool output to the session's history or state.
-   * @param {string} toolId - The unique `tool_call_id` for tracking in OpenAI-style history.
-   * @param {string} content - The output content from the tool.
-   * @returns {Promise<void>} A promise that resolves when the output is committed.
    * @throws {Error} If the tool ID is invalid or committing fails.
    */
   commitToolOutput(toolId: string, content: string): Promise<void>;
 
   /**
    * Commits a tool request to the session's history or state.
-   * @param {IToolRequest[]} request - The tool request(s) to commit. Can be a single request or an array of requests.
-   * @returns {Promise<void>} A promise that resolves when the tool request(s) are committed.
    * @throws {Error} If committing the tool request(s) fails.
    */
   commitToolRequest(request: IToolRequest[]): Promise<string[]>;
 
   /**
    * Commits an assistant message to the session's history without triggering a response.
-   * @param {string} message - The assistant message content to commit.
-   * @returns {Promise<void>} A promise that resolves when the message is committed.
    * @throws {Error} If committing the message fails.
    */
   commitAssistantMessage(message: string): Promise<void>;
 
   /**
    * Commits a user message to the session's history without triggering a response.
-   * @param {string} message - The user message content to commit.
-   * @returns {Promise<void>} A promise that resolves when the message is committed.
    * @throws {Error} If committing the message fails.
    */
   commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>;
@@ -150,7 +125,6 @@ export interface ISession {
   /**
    * Commits a flush operation to clear the session's agent history.
    * Resets the history to an initial state.
-   * @returns {Promise<void>} A promise that resolves when the history is flushed.
    * @throws {Error} If flushing the history fails.
    */
   commitFlush: () => Promise<void>;
@@ -158,23 +132,18 @@ export interface ISession {
   /**
    * Prevents the next tool in the execution sequence from running.
    * Stops further tool calls within the session.
-   * @returns {Promise<void>} A promise that resolves when the stop is committed.
    * @throws {Error} If stopping the tools fails.
    */
   commitStopTools: () => Promise<void>;
 
   /**
    * Commits a system message to the session's history or state.
-   * @param {string} message - The system message content to commit.
-   * @returns {Promise<void>} A promise that resolves when the message is committed.
    * @throws {Error} If committing the message fails.
    */
   commitSystemMessage(message: string): Promise<void>;
 
   /**
    * Commits a developer message to the session's history or state.
-   * @param {string} message - The developer message content to commit.
-   * @returns {Promise<void>} A promise that resolves when the message is committed.
    * @throws {Error} If committing the message fails.
    */
   commitDeveloperMessage(message: string): Promise<void>;

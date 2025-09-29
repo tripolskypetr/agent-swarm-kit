@@ -24,9 +24,7 @@ const INACTIVITY_TIMEOUT = 15 * 60 * 1000;
 
 /**
  * @constant {Function} BEGIN_CHAT_FN
- * @description Function to begin a chat session
- * @param {ChatInstance} self - Instance of the ChatInstance
- * @returns {Promise<void>}
+ * Function to begin a chat session
  */
 const BEGIN_CHAT_FN = (self: TChatInstance) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -41,45 +39,38 @@ const BEGIN_CHAT_FN = (self: TChatInstance) => {
 
 /**
  * @interface IChatInstance
- * @description Interface for chat instance functionality
+ * Interface for chat instance functionality
  */
 export interface IChatInstance {
   /**
    * Begins a chat session
-   * @returns {Promise<void>}
    */
   beginChat(): Promise<void>;
 
   /**
    * Checks if the chat has been active within the timeout period
-   * @param {number} now - Current timestamp
-   * @returns {boolean} Whether the chat is still active
    */
   checkLastActivity(now: number): Promise<boolean>;
 
   /**
    * Sends a message in the chat
-   * @param {string} content - Message content to send
-   * @returns {Promise<string>} Response from the chat session
    */
   sendMessage(content: string): Promise<string>;
 
   /**
    * Disposes of the chat instance
-   * @returns {Promise<void>}
    */
   dispose(): Promise<void>;
 
   /**
    * Adds a listener for dispose events
-   * @param {(clientId: SessionId) => void} fn - Callback function to execute on dispose
    */
   listenDispose(fn: (clientId: SessionId) => void): void;
 }
 
 /**
  * @interface IChatInstanceCallbacks
- * @description Callback interface for chat instance events
+ * Callback interface for chat instance events
  */
 export interface IChatInstanceCallbacks {
   /**
@@ -119,18 +110,16 @@ export interface IChatInstanceCallbacks {
 
 /**
  * @interface IChatControl
- * @description Interface for controlling chat instances
+ * Interface for controlling chat instances
  */
 export interface IChatControl {
   /**
    * Sets the chat instance constructor
-   * @param {TChatInstanceCtor} Ctor - Chat instance constructor
    */
   useChatAdapter(Ctor: TChatInstanceCtor): void;
 
   /**
    * Sets chat instance callbacks
-   * @param {Partial<IChatInstanceCallbacks>} Callbacks - Callback implementations
    */
   useChatCallbacks(Callbacks: Partial<IChatInstanceCallbacks>): void;
 }
@@ -149,7 +138,7 @@ type TChatInstanceCtor = new <Payload extends unknown = any>(
 /**
  * @class ChatInstance
  * @implements {IChatInstance}
- * @description Implementation of a single chat instance
+ * Implementation of a single chat instance
  */
 export const ChatInstance = makeExtendable(
   class<Payload extends unknown = any> implements IChatInstance {
@@ -162,10 +151,6 @@ export const ChatInstance = makeExtendable(
 
     /**
      * @constructor
-     * @param {SessionId} clientId - Unique client identifier
-     * @param {SwarmName} swarmName - Name of the swarm
-     * @param {Partial<IChatInstanceCallbacks>} callbacks - Event callbacks
-     * @param {DisposeFn} onDispose - Dispose callback function
      */
     constructor(
       readonly clientId: SessionId,
@@ -188,8 +173,6 @@ export const ChatInstance = makeExtendable(
 
     /**
      * Checks if the chat has been active within the timeout period
-     * @param {number} now - Current timestamp
-     * @returns {boolean} Whether the chat is still active
      */
     public async checkLastActivity(now: number) {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -210,7 +193,6 @@ export const ChatInstance = makeExtendable(
 
     /**
      * Begins a chat session
-     * @returns {Promise<void>}
      */
     public beginChat = singleshot(async () => {
       return await BEGIN_CHAT_FN(this);
@@ -218,8 +200,6 @@ export const ChatInstance = makeExtendable(
 
     /**
      * Sends a message in the chat
-     * @param {string} content - Message content to send
-     * @returns {Promise<string>} Response from the chat session
      */
     public async sendMessage(content: string) {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -237,7 +217,6 @@ export const ChatInstance = makeExtendable(
 
     /**
      * Disposes of the chat instance
-     * @returns {Promise<void>}
      */
     public async dispose() {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -253,7 +232,6 @@ export const ChatInstance = makeExtendable(
 
     /**
      * Adds a listener for dispose events
-     * @param {(clientId: SessionId) => void} fn - Callback function to execute on dispose
      */
     public listenDispose(fn: (clientId: SessionId) => void) {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -269,7 +247,7 @@ export const ChatInstance = makeExtendable(
 /**
  * @class ChatUtils
  * @implements {IChatControl}
- * @description Utility class for managing multiple chat instances
+ * Utility class for managing multiple chat instances
  */
 export class ChatUtils implements IChatControl {
   /** @private */
@@ -296,9 +274,6 @@ export class ChatUtils implements IChatControl {
   /**
    * Gets or creates a chat instance for a client
    * @private
-   * @param {SessionId} clientId - Unique client identifier
-   * @param {SwarmName} swarmName - Name of the swarm
-   * @returns {IChatInstance} The chat instance for the given client
    */
   private getChatInstance = <Payload extends unknown = any>(
     clientId: SessionId,
@@ -323,7 +298,6 @@ export class ChatUtils implements IChatControl {
 
   /**
    * Sets the chat instance constructor
-   * @param {TChatInstanceCtor} Ctor - Chat instance constructor
    */
   public useChatAdapter(Ctor: TChatInstanceCtor): void {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -333,7 +307,6 @@ export class ChatUtils implements IChatControl {
 
   /**
    * Sets chat instance callbacks
-   * @param {Partial<IChatInstanceCallbacks>} Callbacks - Callback implementations
    */
   public useChatCallbacks(Callbacks: Partial<IChatInstanceCallbacks>): void {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -343,9 +316,6 @@ export class ChatUtils implements IChatControl {
 
   /**
    * Begins a chat session for a client
-   * @param {SessionId} clientId - Unique client identifier
-   * @param {SwarmName} swarmName - Name of the swarm
-   * @returns {Promise<void>}
    */
   public beginChat = async <Payload extends unknown = any>(
     clientId: SessionId,
@@ -367,10 +337,6 @@ export class ChatUtils implements IChatControl {
 
   /**
    * Sends a message for a client
-   * @param {SessionId} clientId - Unique client identifier
-   * @param {string} message - Message content
-   * @param {SwarmName} swarmName - Name of the swarm
-   * @returns {Promise<string>}
    */
   public sendMessage = async (
     clientId: SessionId,
@@ -389,9 +355,6 @@ export class ChatUtils implements IChatControl {
 
   /**
    * Listens for dispose events for a client
-   * @param {SessionId} clientId - Unique client identifier
-   * @param {SwarmName} swarmName - Name of the swarm
-   * @param {(clientId: SessionId) => void} fn - Dispose callback
    */
   public listenDispose = (
     clientId: SessionId,
@@ -408,9 +371,6 @@ export class ChatUtils implements IChatControl {
 
   /**
    * Disposes of a chat instance
-   * @param {SessionId} clientId - Unique client identifier
-   * @param {SwarmName} swarmName - Name of the swarm
-   * @returns {Promise<void>}
    */
   public dispose = async (clientId: SessionId, swarmName: SwarmName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -427,6 +387,6 @@ export class ChatUtils implements IChatControl {
 
 /**
  * @constant {ChatUtils} Chat
- * @description Singleton instance of ChatUtils
+ * Singleton instance of ChatUtils
  */
 export const Chat = new ChatUtils();

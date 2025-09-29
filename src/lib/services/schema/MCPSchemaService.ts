@@ -17,7 +17,6 @@ export class MCPSchemaService {
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
-   * @type {TSchemaContextService}
    * @readonly
    */
   readonly schemaContextService = inject<TSchemaContextService>(
@@ -58,7 +57,6 @@ export class MCPSchemaService {
 
   /**
    * Validates the basic structure of an MCP schema.
-   * @param mcpSchema - The MCP schema to validate.
    * @throws Error if the schema is missing required fields or has invalid types.
    */
   private validateShallow = (mcpSchema: IMCPSchema) => {
@@ -85,8 +83,6 @@ export class MCPSchemaService {
 
   /**
    * Registers a new MCP schema in the registry.
-   * @param key - The name of the MCP to register.
-   * @param value - The MCP schema to register.
    */
   public register = (key: MCPName, value: IMCPSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -97,9 +93,6 @@ export class MCPSchemaService {
 
   /**
    * Overrides an existing MCP schema with new or partial values.
-   * @param key - The name of the MCP to override.
-   * @param value - The partial MCP schema to apply.
-   * @returns The updated MCP schema.
    */
   public override = (key: MCPName, value: Partial<IMCPSchema>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
@@ -110,8 +103,6 @@ export class MCPSchemaService {
 
   /**
    * Retrieves an MCP schema by its name.
-   * @param key - The name of the MCP to retrieve.
-   * @returns The MCP schema associated with the given name.
    */
   public get = (key: MCPName): IMCPSchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&

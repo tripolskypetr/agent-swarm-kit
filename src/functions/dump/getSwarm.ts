@@ -9,8 +9,6 @@ const METHOD_NAME = "function.dump.getSwarm";
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @function getSwarm
- * @param {SwarmName} swarmName - The name of the swarm to retrieve.
- * @returns The swarm schema associated with the provided swarm name.
  */
 export function getSwarm(swarmName: SwarmName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

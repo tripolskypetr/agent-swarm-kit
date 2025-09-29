@@ -40,10 +40,6 @@ const overrideEmbedingInternal = beginContext(
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
- * @param {TEmbeddingSchema} embeddingSchema - The schema containing the embedding’s unique name and optional properties to override.
- * @param {string} embeddingSchema.embeddingName - The unique identifier of the embedding to override, matching `IEmbeddingSchema["embeddingName"]`.
- * @param {Partial<IEmbeddingSchema>} [embeddingSchema] - Optional partial schema properties to update, extending `IEmbeddingSchema`.
- * @returns {void} No return value; the override is applied directly to the swarm’s embedding schema service.
  * @throws {Error} If the embedding schema service encounters an error during the override operation (e.g., invalid embeddingName or schema).
  *
  * @example

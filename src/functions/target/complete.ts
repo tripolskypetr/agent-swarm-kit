@@ -13,10 +13,6 @@ const METHOD_NAME = "function.target.complete";
 /**
  * Type definition for the complete run function.
  * Represents the function signature used to execute a single command within a swarm session.
- * @typedef {Function} TCompleteRun
- * @param {string} METHOD_NAME - The name of the method invoking the complete operation.
- * @param {string} content - The content to process in the swarm session.
- * @returns {Promise<string>} A promise that resolves to the result of the command execution.
  */
 type TCompleteRun = (METHOD_NAME: string, content: string) => Promise<string>;
 
@@ -26,9 +22,6 @@ type TCompleteRun = (METHOD_NAME: string, content: string) => Promise<string>;
  * This factory function generates a queued, TTL-limited function to handle single command execution in a swarm session,
  * ensuring operations are executed sequentially and cached results are reused within the TTL period.
  *
- * @param {string} clientId - The unique identifier of the client session.
- * @param {SwarmName} swarmName - The name of the swarm in which the command is executed.
- * @returns {TCompleteRun} A function that performs the complete operation with queuing and TTL.
  */
 const createComplete = memoize(
   ([clientId]) => `${clientId}`,
@@ -60,7 +53,6 @@ const createComplete = memoize(
  *
  * This function sets up a singleton interval-based garbage collector to periodically clean up expired TTL entries from `createComplete`.
  *
- * @returns {Promise<void>} A promise that resolves when the garbage collector is initialized.
  */
 const createGc = singleshot(async () => {
   disposeSubject.subscribe((clientId) => {
@@ -76,10 +68,6 @@ const createGc = singleshot(async () => {
  * The execution is wrapped in `beginContext` for a clean environment and runs within an `ExecutionContextService` context for metadata tracking.
  * The operation is TTL-limited and queued to manage resource usage efficiently.
  *
- * @param {string} content - The content or command to process in the swarm session.
- * @param {string} clientId - The unique identifier of the client session.
- * @param {SwarmName} swarmName - The name of the swarm in which the command is executed.
- * @returns {Promise<string>} A promise that resolves to the result of the command execution.
  * @throws {Error} If swarm or session validation fails, execution encounters an error, or disposal fails.
  * @example
  * const result = await complete("Calculate 2 + 2", "client-123", "MathSwarm");

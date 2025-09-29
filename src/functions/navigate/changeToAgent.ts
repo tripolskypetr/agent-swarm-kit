@@ -10,11 +10,6 @@ const METHOD_NAME = "function.navigate.changeToAgent";
 
 /**
  * Type definition for the change agent execution function.
- * @typedef {Function} TChangeToAgentRun
- * @param {string} methodName - The name of the method invoking the change.
- * @param {string} agentName - The name of the agent to switch to.
- * @param {SwarmName} swarmName - The name of the swarm in which the change occurs.
- * @returns {Promise<boolean>} A promise that resolves when the agent change is complete.
  */
 type TChangeToAgentRun = (
   methodName: string,
@@ -29,8 +24,6 @@ type TChangeToAgentRun = (
  * ensuring operations are executed sequentially and cached results are reused within the TTL period.
  *
  * @function
- * @param {string} clientId - The unique identifier of the client session.
- * @returns {TChangeToAgentRun} A function that performs the agent change operation with queuing and TTL.
  */
 const createChangeToAgent = memoize(
   ([clientId]) => `${clientId}`,
@@ -110,7 +103,6 @@ const createChangeToAgent = memoize(
  * This function sets up a singleton interval-based garbage collector to periodically clean up expired TTL entries from `createChangeToAgent`.
  *
  * @function
- * @returns {Promise<void>} A promise that resolves when the garbage collector is initialized.
  */
 const createGc = singleshot(async () => {
   disposeSubject.subscribe((clientId) => {
@@ -175,9 +167,6 @@ const changeToAgentInternal = beginContext(
  * logging the operation if enabled, and executing the change using a TTL-limited, queued runner.
  * The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts.
  *
- * @param {AgentName} agentName - The name of the agent to switch to.
- * @param {string} clientId - The unique identifier of the client session.
- * @returns {Promise<boolean>} A promise that resolves when the agent change is complete. If it resolved false, the navigation is canceled due to recursion
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToAgent("AgentX", "client-123");

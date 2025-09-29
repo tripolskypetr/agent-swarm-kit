@@ -14,7 +14,6 @@ export class NavigationSchemaService {
   /**
    * @private
    * @readonly
-   * @type {LoggerService}
    * Logger service instance, injected via dependency injection, for logging navigation schema operations.
    * Used in register and hasTool methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    */
@@ -22,7 +21,6 @@ export class NavigationSchemaService {
 
   /**
    * @private
-   * @type {Set<ToolName>}
    * Set for storing navigation tool names, ensuring uniqueness and efficient lookup.
    * Updated via the register method and queried via the hasTool method.
    */
@@ -31,8 +29,6 @@ export class NavigationSchemaService {
   /**
    * Registers a navigation tool name in the internal Set.
    * Logs the registration operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
-   * @param {ToolName} toolName - The name of the navigation tool to register, sourced from Agent.interface.
-   * @returns {Promise<void>} A promise that resolves when the tool name is registered.
    * @async
    */
   public register = (toolName: ToolName) => {
@@ -46,8 +42,6 @@ export class NavigationSchemaService {
   /**
    * Checks if a navigation tool name exists in the internal Set.
    * Logs the lookup operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
-   * @param {ToolName} toolName - The name of the navigation tool to check, sourced from Agent.interface.
-   * @returns {Promise<boolean>} A promise that resolves to true if the tool name exists, false otherwise.
    * @async
    */
   public hasTool = (toolName: ToolName) => {
@@ -61,8 +55,7 @@ export class NavigationSchemaService {
 
 /**
  * @default
- * @description Default export of the NavigationSchemaService class.
+ * Default export of the NavigationSchemaService class.
  * Provides the primary service for managing navigation tool names, integrating with LoggerService for operational logging.
- * @type {typeof NavigationSchemaService}
  */
 export default NavigationSchemaService;

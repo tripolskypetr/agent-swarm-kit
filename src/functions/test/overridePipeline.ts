@@ -1,6 +1,6 @@
 /**
  * @module overridePipeline
- * @description Provides a function to override an existing pipeline schema with partial updates.
+ * Provides a function to override an existing pipeline schema with partial updates.
  */
 
 import { IPipelineSchema } from "../../model/Pipeline.model";
@@ -11,14 +11,13 @@ import removeUndefined from "../../helpers/removeUndefined";
 
 /**
  * @constant {string} METHOD_NAME
- * @description Method name for the overridePipeline operation.
+ * Method name for the overridePipeline operation.
  * @private
  */
 const METHOD_NAME = "function.test.overridePipeline";
 
 /**
- * @type TPipelineSchema
- * @description Type for partial pipeline schema updates, requiring pipelineName and allowing other IPipelineSchema properties.
+ * Type for partial pipeline schema updates, requiring pipelineName and allowing other IPipelineSchema properties.
  */
 type TPipelineSchema = {
   pipelineName: IPipelineSchema["pipelineName"];
@@ -46,8 +45,6 @@ const overridePipelineInternal = beginContext(
 /**
  * Overrides an existing pipeline schema with provided partial updates.
  * @template Payload - Type extending object for the pipeline payload.
- * @param {IPipelineSchema<Payload>} pipelineSchema - The partial pipeline schema with updates.
- * @returns {IPipelineSchema<Payload>} The updated pipeline schema.
  */
 export function overridePipeline<Payload extends object = any>(
   pipelineSchema: IPipelineSchema<Payload>

@@ -20,7 +20,6 @@ export class StorageSchemaService {
   /**
    * Logger service instance, injected via DI, for logging storage schema operations.
    * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StorageConnectionService and PerfService logging patterns.
-   * @type {LoggerService}
    * @readonly
    */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -28,7 +27,6 @@ export class StorageSchemaService {
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
-   * @type {TSchemaContextService}
    * @readonly
    */
   readonly schemaContextService = inject<TSchemaContextService>(
@@ -39,7 +37,6 @@ export class StorageSchemaService {
    * Registry instance for storing storage schemas, initialized with ToolRegistry from functools-kit.
    * Maps StorageName keys to IStorageSchema values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
-   * @type {ToolRegistry<Record<StorageName, IStorageSchema>>}
    * @private
    */
   private _registry = new ToolRegistry<Record<StorageName, IStorageSchema>>(
@@ -76,7 +73,6 @@ export class StorageSchemaService {
    * Checks storageName as a string, createIndex as a function (for indexing storage data), and embedding as a string (referencing an EmbeddingName from EmbeddingSchemaService).
    * Logs validation attempts via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StorageConnectionService’s configuration needs.
    * Supports ClientStorage instantiation in StorageConnectionService and SharedStorageConnectionService by ensuring schema validity before registration.
-   * @param {IStorageSchema} storageSchema - The storage schema to validate, sourced from Storage.interface.
    * @throws {Error} If any validation check fails, with detailed messages including storageName.
    * @private
    */
@@ -107,8 +103,6 @@ export class StorageSchemaService {
    * Validates the schema using validateShallow, then adds it to the ToolRegistry under the provided key (storageName).
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StorageConnectionService’s storage management.
    * Supports ClientAgent execution by providing validated storage schemas to StorageConnectionService and SharedStorageConnectionService for ClientStorage configuration.
-   * @param {StorageName} key - The name of the storage, used as the registry key, sourced from Storage.interface.
-   * @param {IStorageSchema} value - The storage schema to register, sourced from Storage.interface, validated before storage.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
    */
   public register = (key: StorageName, value: IStorageSchema) => {
@@ -123,8 +117,6 @@ export class StorageSchemaService {
    * Replaces the schema associated with the provided key in the ToolRegistry.
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports updates to storage configurations for ClientStorage and SharedStorageConnectionService.
-   * @param {StorageName} key - The name of the storage to override, sourced from Storage.interface.
-   * @param {IStorageSchema} value - The new storage schema to replace the existing one, sourced from Storage.interface.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
    */
   public override = (key: StorageName, value: Partial<IStorageSchema>) => {
@@ -138,8 +130,6 @@ export class StorageSchemaService {
    * Retrieves a storage schema from the registry by its name.
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports StorageConnectionService and SharedStorageConnectionService by providing storage configuration (e.g., createIndex, embedding) for ClientStorage instantiation, referenced in AgentSchemaService schemas via the storages field.
-   * @param {StorageName} key - The name of the storage to retrieve, sourced from Storage.interface.
-   * @returns {IStorageSchema} The storage schema associated with the key, sourced from Storage.interface, including createIndex and embedding fields.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
    */
   public get = (key: StorageName): IStorageSchema => {
@@ -152,6 +142,5 @@ export class StorageSchemaService {
 /**
  * Default export of the StorageSchemaService class.
  * Provides the primary service for managing storage schemas in the swarm system, integrating with StorageConnectionService, SharedStorageConnectionService, EmbeddingSchemaService, AgentSchemaService, ClientAgent, and StoragePublicService, with validated schema storage via ToolRegistry.
- * @type {typeof StorageSchemaService}
  */
 export default StorageSchemaService;

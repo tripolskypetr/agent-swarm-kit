@@ -6,6 +6,10 @@ import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideSwarm";
 
+/**
+ * Type representing a partial swarm schema configuration.
+ * Used for swarm configuration with optional properties.
+ */
 type TSwarmSchema = {
   swarmName: ISwarmSchema["swarmName"];
 } & Partial<ISwarmSchema>;
@@ -30,10 +34,6 @@ const overrideSwarmInternal = beginContext((publicSwarmSchema: TSwarmSchema) => 
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
- * @param {TSwarmSchema} swarmSchema - The schema containing the swarm’s unique name and optional properties to override.
- * @param {string} swarmSchema.swarmName - The unique identifier of the swarm to override, matching `ISwarmSchema["swarmName"]`.
- * @param {Partial<ISwarmSchema>} [swarmSchema] - Optional partial schema properties to update, extending `ISwarmSchema`.
- * @returns {void} No return value; the override is applied directly to the swarm’s swarm schema service.
  * @throws {Error} If the swarm schema service encounters an error during the override operation (e.g., invalid swarmName or schema).
  *
  * @example

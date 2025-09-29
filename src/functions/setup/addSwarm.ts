@@ -32,8 +32,6 @@ const addSwarmInternal = beginContext((swarmSchema: ISwarmSchema) => {
  * are recognized by the system. The execution is wrapped in `beginContext` to ensure it runs outside of existing method and execution contexts,
  * providing a clean execution environment. The function logs the operation if enabled and returns the swarm's name upon successful registration.
  *
- * @param {ISwarmSchema} swarmSchema - The schema defining the swarm's properties, including its name (`swarmName`), default agent, and other configuration details.
- * @returns {string} The name of the newly added swarm (`swarmSchema.swarmName`), confirming its registration.
  * @throws {Error} If the swarm schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate swarm name).
  * @example
  * const swarmSchema = { swarmName: "TaskSwarm", defaultAgent: "AgentX" };

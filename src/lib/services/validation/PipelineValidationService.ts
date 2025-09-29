@@ -1,6 +1,6 @@
 /**
  * @module PipelineValidationService
- * @description Service for managing and validating pipeline schemas, ensuring uniqueness and existence.
+ * Service for managing and validating pipeline schemas, ensuring uniqueness and existence.
  */
 
 import { inject } from "../../core/di";
@@ -12,28 +12,26 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 
 /**
  * @class PipelineValidationService
- * @description Manages pipeline schema validation and registration with memoized validation checks.
+ * Manages pipeline schema validation and registration with memoized validation checks.
  */
 export class PipelineValidationService {
   /**
    * @property {LoggerService} loggerService
-   * @description Injected logger service for logging operations.
+   * Injected logger service for logging operations.
    * @private
    */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * @property {Map<PipelineName, IPipelineSchema>} _pipelineMap
-   * @description Map storing pipeline schemas by pipeline name.
+   * Map storing pipeline schemas by pipeline name.
    * @private
    */
   private _pipelineMap = new Map<PipelineName, IPipelineSchema>();
 
   /**
    * @method addPipeline
-   * @description Adds a pipeline schema to the map, ensuring no duplicates.
-   * @param {PipelineName} pipelineName - The name of the pipeline.
-   * @param {IPipelineSchema} pipelineSchema - The pipeline schema to register.
+   * Adds a pipeline schema to the map, ensuring no duplicates.
    * @throws {Error} If the pipeline name already exists.
    */
   public addPipeline = (
@@ -53,9 +51,7 @@ export class PipelineValidationService {
 
   /**
    * @method validate
-   * @description Validates the existence of a pipeline, memoized by pipeline name.
-   * @param {PipelineName} pipelineName - The name of the pipeline to validate.
-   * @param {string} source - The source context for the validation.
+   * Validates the existence of a pipeline, memoized by pipeline name.
    * @throws {Error} If the pipeline is not found.
    */
   public validate = memoize(
@@ -79,6 +75,6 @@ export class PipelineValidationService {
 /**
  * @export
  * @default PipelineValidationService
- * @description Exports the PipelineValidationService class as the default export.
+ * Exports the PipelineValidationService class as the default export.
  */
 export default PipelineValidationService;

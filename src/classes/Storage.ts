@@ -49,14 +49,6 @@ export class StorageUtils implements TStorage {
    * Validates the client session, storage name, and agent-storage registration before querying the storage service.
    * Executes within a context for logging.
    * @template T - The type of the storage data items, defaults to IStorageData.
-   * @param {Object} payload - The payload containing search, client, agent, and storage details.
-   * @param {string} payload.search - The search query to filter items.
-   * @param {number} payload.total - The maximum number of items to retrieve.
-   * @param {string} payload.clientId - The ID of the client whose storage is being queried.
-   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
-   * @param {StorageName} payload.storageName - The name of the storage to query.
-   * @param {number} [payload.score] - Optional relevance score threshold for filtering items.
-   * @returns {Promise<T[]>} A promise resolving to an array of matching storage items.
    * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public take = beginContext(
@@ -117,12 +109,6 @@ export class StorageUtils implements TStorage {
    * Validates the client session, storage name, and agent-storage registration before updating via the storage service.
    * Executes within a context for logging.
    * @template T - The type of the storage data item, defaults to IStorageData.
-   * @param {Object} payload - The payload containing item, client, agent, and storage details.
-   * @param {T} payload.item - The item to upsert into the storage.
-   * @param {string} payload.clientId - The ID of the client whose storage is being updated.
-   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
-   * @param {StorageName} payload.storageName - The name of the storage to update.
-   * @returns {Promise<void>} A promise that resolves when the upsert operation is complete.
    * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public upsert = beginContext(
@@ -174,12 +160,6 @@ export class StorageUtils implements TStorage {
    * Removes an item from the storage by its ID for a given client and agent.
    * Validates the client session, storage name, and agent-storage registration before removing via the storage service.
    * Executes within a context for logging.
-   * @param {Object} payload - The payload containing item ID, client, agent, and storage details.
-   * @param {IStorageData["id"]} payload.itemId - The ID of the item to remove.
-   * @param {string} payload.clientId - The ID of the client whose storage is being modified.
-   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
-   * @param {StorageName} payload.storageName - The name of the storage to modify.
-   * @returns {Promise<void>} A promise that resolves when the removal operation is complete.
    * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public remove = beginContext(
@@ -227,12 +207,6 @@ export class StorageUtils implements TStorage {
    * Validates the storage name and agent-storage registration before querying the storage service.
    * Executes within a context for logging.
    * @template T - The type of the storage data item, defaults to IStorageData.
-   * @param {Object} payload - The payload containing item ID, client, agent, and storage details.
-   * @param {IStorageData["id"]} payload.itemId - The ID of the item to retrieve.
-   * @param {string} payload.clientId - The ID of the client whose storage is being queried.
-   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
-   * @param {StorageName} payload.storageName - The name of the storage to query.
-   * @returns {Promise<T | null>} A promise resolving to the item if found, or null if not found.
    * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public get = beginContext(
@@ -285,12 +259,6 @@ export class StorageUtils implements TStorage {
    * Validates the storage name and agent-storage registration before querying the storage service.
    * Executes within a context for logging.
    * @template T - The type of the storage data items, defaults to IStorageData.
-   * @param {Object} payload - The payload containing client, agent, and storage details.
-   * @param {string} payload.clientId - The ID of the client whose storage is being queried.
-   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
-   * @param {StorageName} payload.storageName - The name of the storage to query.
-   * @param {(item: T) => boolean} [payload.filter] - Optional function to filter items; only items returning true are included.
-   * @returns {Promise<T[]>} A promise resolving to an array of storage items.
    * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public list = beginContext(
@@ -342,11 +310,6 @@ export class StorageUtils implements TStorage {
    * Validates the storage name and agent-storage registration before calculating the index.
    * Executes within a context for logging.
    * The numeric index is determined based on the current number of items in the storage.
-   * @param {Object} payload - The payload containing client, agent, and storage details.
-   * @param {string} payload.clientId - The ID of the client whose storage is being indexed.
-   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
-   * @param {StorageName} payload.storageName - The name of the storage to index.
-   * @returns {Promise<number>} A promise resolving to the next numeric index for the storage.
    * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public createNumericIndex = beginContext(
@@ -391,11 +354,6 @@ export class StorageUtils implements TStorage {
    * Clears all items from the storage for a given client and agent.
    * Validates the storage name and agent-storage registration before clearing via the storage service.
    * Executes within a context for logging.
-   * @param {Object} payload - The payload containing client, agent, and storage details.
-   * @param {string} payload.clientId - The ID of the client whose storage is being cleared.
-   * @param {AgentName} payload.agentName - The name of the agent associated with the storage.
-   * @param {StorageName} payload.storageName - The name of the storage to clear.
-   * @returns {Promise<void>} A promise that resolves when the clear operation is complete.
    * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
    */
   public clear = beginContext(
@@ -442,7 +400,6 @@ export class StorageUtils implements TStorage {
 
 /**
  * Singleton instance of StorageUtils for managing client-specific storage operations.
- * @type {StorageUtils}
  */
 export const Storage = new StorageUtils();
 

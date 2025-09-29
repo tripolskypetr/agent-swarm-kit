@@ -61,9 +61,6 @@ export interface IBus {
    * - **Integration**: Paired with history updates (e.g., `history.push`) and callbacks (e.g., `onOutput`), amplifying system-wide awareness.
    * 
    * @template T - The type of event, extending IBaseEvent, defining a structured payload with fields like `type`, `source`, `input`, `output`, `context`, and `clientId`.
-   * @param {string} clientId - The unique identifier of the client to receive the event, typically the session ID from runtime params (e.g., `this.params.clientId` in ClientAgent).
-   * @param {T} event - The event object to emit, a structured payload with mandatory fields (e.g., `{ type: "run", source: "agent-bus", input: { message } }`) specific to the action being notified.
-   * @returns {Promise<void>} A promise that resolves when the event is successfully dispatched to the client’s event handling system, indicating completion of the emission process.
    * @throws {Error} If emission fails, potentially due to invalid `clientId`, malformed event structure, or delivery issues (e.g., queue overflow, network failure).
    */
   emit<T extends IBaseEvent>(clientId: string, event: T): Promise<void>;

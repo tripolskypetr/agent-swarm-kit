@@ -2,8 +2,6 @@
  * Removes XML tags and their contents from a string, cleaning up excess whitespace.
  * Strips all matched XML-like tags (e.g., `<tag>content</tag>`) and normalizes newlines, returning a trimmed result.
  *
- * @param {string} input - The input string containing potential XML tags to remove. Can be empty or falsy.
- * @returns {string} The cleaned string with XML tags and their contents removed, excess newlines collapsed, and leading/trailing whitespace trimmed.
  *                  Returns an empty string if the input is falsy.
  *
  * @example

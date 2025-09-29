@@ -6,6 +6,11 @@ import removeUndefined from "../../helpers/removeUndefined";
 
 const METHOD_NAME = "function.test.overrideTool";
 
+/**
+ * Type representing a partial agent tool schema with required toolName.
+ * Used for overriding existing tool configurations with selective updates.
+ * Combines required tool name with optional tool properties.
+ */
 type TAgentTool<T extends any = Record<string, ToolValue>> = {
   toolName: IAgentTool<T>["toolName"];
 } & Partial<IAgentTool<T>>;
@@ -30,10 +35,6 @@ const overrideToolInternal = beginContext((publicToolSchema: TAgentTool<unknown>
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
- * @param {TAgentTool} toolSchema - The schema containing the tool’s unique name and optional properties to override.
- * @param {string} toolSchema.toolName - The unique identifier of the tool to override, matching `IAgentTool["toolName"]`.
- * @param {Partial<IAgentTool>} [toolSchema] - Optional partial schema properties to update, extending `IAgentTool`.
- * @returns {void} No return value; the override is applied directly to the swarm’s tool schema service.
  * @throws {Error} If the tool schema service encounters an error during the override operation (e.g., invalid toolName or schema).
  *
  * @example

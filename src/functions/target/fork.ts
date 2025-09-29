@@ -1,6 +1,6 @@
 /**
  * @module scope
- * @description Provides a function to execute a scoped operation with session management, validation, and error handling.
+ * Provides a function to execute a scoped operation with session management, validation, and error handling.
  */
 
 import { AgentName } from "../../interfaces/Agent.interface";
@@ -12,14 +12,14 @@ import { disposeConnection } from "./disposeConnection";
 
 /**
  * @constant {string} METHOD_NAME
- * @description Method name for the scope operation.
+ * Method name for the scope operation.
  * @private
  */
 const METHOD_NAME = "function.target.fork";
 
 /**
  * @interface IScopeOptions
- * @description Options for the scope operation, including client ID, swarm name, and optional error handler.
+ * Options for the scope operation, including client ID, swarm name, and optional error handler.
  */
 export interface IScopeOptions {
   /**
@@ -90,9 +90,6 @@ const forkInternal = beginContext(
 /**
  * Executes a provided function within a managed scope, handling session creation, validation, and cleanup.
  * @template T - Type of the result returned by the run function.
- * @param {Function} runFn - The function to execute, receiving clientId and agentName as arguments.
- * @param {IScopeOptions} options - Configuration options for the scope operation.
- * @returns {Promise<T | void>} The result of the run function or void if no result is returned.
  * @throws {Error} If a session already exists for the clientId.
  */
 export async function fork<T = any>(

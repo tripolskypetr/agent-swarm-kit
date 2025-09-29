@@ -37,8 +37,6 @@ const addPolicyInternal = beginContext((policySchema: IPolicySchema): string => 
  * and LoggerService (logging). Part of the swarm setup process, enabling policies to govern agent behavior,
  * complementing runtime functions like commitAssistantMessage by defining operational rules upfront.
  *
- * @param {IPolicySchema} policySchema - The schema of the policy to be added, including policyName and other configuration details.
- * @returns {string} The name of the policy that was added, as specified in policySchema.policyName.
  * @throws {Error} If policy registration fails due to validation errors in PolicyValidationService or PolicySchemaService.
  */
 export function addPolicy(policySchema: IPolicySchema) {

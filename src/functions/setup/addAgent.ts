@@ -34,8 +34,6 @@ const addAgentInternal = beginContext((publicAgentSchema: IAgentSchema) => {
  * outside of existing method and execution contexts, providing a clean execution environment. The function logs the operation if enabled
  * and returns the agent's name upon successful registration.
  *
- * @param {IAgentSchema} agentSchema - The schema defining the agent's properties, including its name (`agentName`) and other configuration details.
- * @returns {string} The name of the newly added agent (`agentSchema.agentName`), confirming its registration.
  * @throws {Error} If the agent schema is invalid or if registration fails due to conflicts or service errors (e.g., duplicate agent name).
  * @example
  * const agentSchema = { agentName: "AgentX", prompt: "Handle tasks" };

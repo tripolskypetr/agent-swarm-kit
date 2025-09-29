@@ -20,14 +20,12 @@ export interface ICompletionArgs {
    * The unique identifier for the client making the request.
    * This is used to track the request and associate it with the correct client context.
    * For outline completions, this being skipped
-   * @type {string}
    */
   clientId?: string;
 
   /**
    * The name of the agent for which the completion is requested.
    * This is used to identify the agent context in which the completion will be generated.
-   * @type {AgentName}
    */
   agentName?: AgentName;
 
@@ -35,7 +33,6 @@ export interface ICompletionArgs {
    * The outline used for json completions, if applicable.
    * This is the name of the outline schema that defines the structure of the expected JSON response.
    * Used to ensure that the completion adheres to the specified outline format.
-   * @type {OutlineName}
    */
   outlineName?: OutlineName;
 
@@ -52,7 +49,6 @@ export interface ICompletionArgs {
    * Optional format for the outline, specifying how the completion should be structured.
    * This is used to define the expected output format for JSON completions.
    * If not provided, the default outline format will be used.
-   * @type {IOutlineFormat}
    * @optional
    */
   format?: IOutlineFormat;
@@ -66,8 +62,6 @@ export interface ICompletionCallbacks {
   /**
    * Optional callback triggered after a completion is successfully generated.
    * Useful for logging, output processing, or triggering side effects.
-   * @param {ICompletionArgs} args - The arguments used to generate the completion.
-   * @param {IModelMessage} output - The model-generated message resulting from the completion.
    */
   onComplete?: (args: ICompletionArgs, output: IModelMessage | IOutlineMessage) => void;
 }
@@ -83,8 +77,6 @@ export interface ICompletionSchema {
   /**
    * Retrieves a completion based on the provided arguments.
    * Generates a model response using the given context and tools.
-   * @param {ICompletionArgs} args - The arguments required to generate the completion, including client, agent, and message context.
-   * @returns {Promise<IModelMessage>} A promise resolving to the generated model message.
    * @throws {Error} If completion generation fails (e.g., due to invalid arguments, model errors, or tool issues).
    */
   getCompletion(args: ICompletionArgs): Promise<IModelMessage | IOutlineMessage>;

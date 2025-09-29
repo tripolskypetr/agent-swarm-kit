@@ -16,7 +16,6 @@ export class ToolValidationService {
   /**
    * Logger service instance for logging validation operations and errors.
    * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
-   * @type {LoggerService}
    * @private
    * @readonly
    */
@@ -25,7 +24,6 @@ export class ToolValidationService {
   /**
    * Map of tool names to their schemas, used to track and validate tools.
    * Populated by addTool, queried by validate.
-   * @type {Map<ToolName, IAgentTool>}
    * @private
    */
   private _toolMap = new Map<ToolName, IAgentTool>();
@@ -33,8 +31,6 @@ export class ToolValidationService {
   /**
    * Registers a new tool with its schema in the validation service.
    * Logs the operation and ensures uniqueness, supporting ToolSchemaService’s registration process.
-   * @param {ToolName} toolName - The name of the tool to add, sourced from Agent.interface.
-   * @param {IAgentTool} toolSchema - The schema defining the tool’s configuration, sourced from Agent.interface.
    * @throws {Error} If the tool name already exists in _toolMap.
    */
   public addTool = (toolName: ToolName, toolSchema: IAgentTool): void => {
@@ -52,8 +48,6 @@ export class ToolValidationService {
   /**
    * Validates if a tool name exists in the registered map, memoized by toolName for performance.
    * Logs the operation and checks existence, supporting AgentValidationService’s validation of agent tools.
-   * @param {ToolName} toolName - The name of the tool to validate, sourced from Agent.interface.
-   * @param {string} source - The source of the validation request (e.g., "agent-validate"), for error context.
    * @throws {Error} If the tool name is not found in _toolMap.
    */
   public validate = memoize(
@@ -79,6 +73,5 @@ export class ToolValidationService {
  * Provides a service for validating tool configurations in the swarm system,
  * integrating with ToolSchemaService, AgentValidationService, ClientAgent, and LoggerService,
  * with memoized validation and uniqueness enforcement.
- * @type {typeof ToolValidationService}
  */
 export default ToolValidationService;

@@ -8,19 +8,16 @@ import { scoped } from "di-scoped";
 export interface IExecutionContext {
   /**
    * The unique identifier of the client session, tying to ClientAgent’s clientId and PerfService’s execution tracking.
-   * @type {string}
    */
   clientId: string;
 
   /**
    * The unique identifier of the execution instance, used in PerfService (e.g., startExecution) and BusService (e.g., commitExecutionBegin).
-   * @type {string}
    */
   executionId: string;
 
   /**
    * The unique identifier of the process, sourced from GLOBAL_CONFIG.CC_PROCESS_UUID, used in PerfService’s IPerformanceRecord.processId.
-   * @type {string}
    */
   processId: string;
 }
@@ -36,7 +33,6 @@ export const ExecutionContextService = scoped(
     /**
      * Creates an instance of ExecutionContextService with the provided execution context.
      * Stores the context immutably, making it available to dependent services like LoggerService and BusService via DI.
-     * @param {IExecutionContext} context - The execution context object containing clientId, executionId, and processId.
      */
     constructor(readonly context: IExecutionContext) {}
   }
@@ -45,7 +41,6 @@ export const ExecutionContextService = scoped(
 /**
  * Type alias representing an instance of ExecutionContextService.
  * Used in dependency injection (e.g., LoggerService, BusService) to type the injected service, ensuring type safety across the swarm system.
- * @typedef {InstanceType<typeof ExecutionContextService>} TExecutionContextService
  */
 export type TExecutionContextService = InstanceType<
   typeof ExecutionContextService
@@ -54,6 +49,5 @@ export type TExecutionContextService = InstanceType<
 /**
  * Default export of the ExecutionContextService scoped service.
  * Provides the primary interface for accessing execution context in the swarm system, integrating with ClientAgent, PerfService, BusService, and LoggerService.
- * @type {typeof ExecutionContextService}
  */
 export default ExecutionContextService;

@@ -89,9 +89,6 @@ const executeForceInternal = beginContext(
  * agent has changed or is inactive. It validates the session and swarm, executes the content with performance tracking and event bus notifications,
  * and is wrapped in `beginContext` for a clean environment and `ExecutionContextService` for metadata tracking.
  *
- * @param {string} content - The content or command to be executed by the active agent.
- * @param {string} clientId - The unique identifier of the client session requesting the execution.
- * @returns {Promise<string>} A promise that resolves to the result of the execution.
  * @throws {Error} If session or swarm validation fails, or if the execution process encounters an error.
  * @example
  * const result = await executeForce("Force this execution", "client-123");
