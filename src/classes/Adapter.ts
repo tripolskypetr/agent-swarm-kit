@@ -7,7 +7,7 @@ import { IModelMessage } from "../model/ModelMessage.model";
  * Prompt template for instructing models on how to format tool calls in responses.
  * Uses XML-like `<tool_call>` tags containing JSON objects with function name and arguments.
  * @see https://github.com/ollama/ollama/blob/86a622cbdc69e9fd501764ff7565e977fc98f00a/server/model.go#L158
- */
+*/
 export const TOOL_PROTOCOL_PROMPT = str.newline(
   `For each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:`,
   `<tool_call>`,
@@ -17,43 +17,43 @@ export const TOOL_PROTOCOL_PROMPT = str.newline(
 
 /**
  * Maximum number of concurrent executions in the execpool for completion requests.
- */
+*/
 const EXECPOOL_SIZE = 5;
 
 /**
  * Delay in milliseconds between executions in the execpool for completion requests.
- */
+*/
 const EXECPOOL_WAIT = 0;
 
 /**
  * Maximum retry count before the exception
- */
+*/
 const RETRY_COUNT = 5;
 
 /**
  * Delay in milliseconds between complete attempts
- */
+*/
 const RETRY_DELAY = 5_000;
 
 /**
  * Function type for completing AI model requests.
  * Takes completion arguments and returns a promise resolving to a model message response.
- */
+*/
 type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
 
 /**
  * Utility class providing adapter functions for interacting with various AI completion providers.
- */
+*/
 export class AdapterUtils {
 
   /**
    * Creates a function to interact with Hugging Face Inference API chat completions.
-   */
+  */
   fromHf = (inferenceClient: any, model = "openai/gpt-oss-120b") =>
     /**
      * Handles a completion request to Hugging Face, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency with retry logic for reliability.
-     */
+    */
     execpool(
       retry(
         async ({
@@ -152,7 +152,7 @@ export class AdapterUtils {
   
   /**
    * Creates a function to interact with Cortex's chat completions API.
-   */
+  */
   fromCortex = (
     model = "tripolskypetr:gemma-3-12b-it:gemma-3-12b-it-Q4_K_S.gguf",
     baseUrl = "http://localhost:39281/"
@@ -160,7 +160,7 @@ export class AdapterUtils {
     /**
      * Handles a completion request to Cortex, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency with retry logic for reliability.
-     */
+    */
     execpool(
       retry(
         async ({
@@ -291,12 +291,12 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with Grok's chat completions API.
-   */
+  */
   fromGrok = (grok: any, model = "grok-3-mini") =>
     /**
      * Handles a completion request to Grok, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency with retry logic for reliability.
-     */
+    */
     execpool(
       retry(
         async ({
@@ -367,12 +367,12 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with CohereClientV2 chat completions API.
-   */
+  */
   fromCohereClientV2 = (cohere: any, model = "command-r-08-2024") =>
     /**
      * Handles a completion request to CohereClientV2, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency.
-     */
+    */
     execpool(
       retry(
         async ({
@@ -449,7 +449,7 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with OpenAI's chat completions API.
-   */
+  */
   fromOpenAI = (
     openai: any,
     model = "gpt-3.5-turbo",
@@ -458,7 +458,7 @@ export class AdapterUtils {
     /**
      * Handles a completion request to OpenAI, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency.
-     */
+    */
     execpool(
       retry(
         async ({
@@ -529,7 +529,7 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with LMStudio's chat completions API.
-   */
+  */
   fromLMStudio = (
     openai: any,
     model = "saiga_yandexgpt_8b_gguf",
@@ -538,7 +538,7 @@ export class AdapterUtils {
     /**
      * Handles a completion request to LMStudio, transforming messages and tools into the required format.
      * Executes requests in a pool to limit concurrency.
-     */
+    */
     execpool(
       retry(
         async ({
@@ -609,7 +609,7 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with Ollama's chat completions API.
-   */
+  */
   fromOllama = (
     ollama: any,
     model = "nemotron-mini:4b",
@@ -618,7 +618,7 @@ export class AdapterUtils {
     /**
      * Handles a completion request to Ollama, optionally prepending a tool call protocol prompt.
      * Executes requests in a pool to limit concurrency.
-     */
+    */
     execpool(
       retry(
         async ({
@@ -686,7 +686,7 @@ export class AdapterUtils {
 
 /**
  * Singleton instance of AdapterUtils for interacting with AI completion providers.
- */
+*/
 export const Adapter = new AdapterUtils();
 
 export default Adapter;

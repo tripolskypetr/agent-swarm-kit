@@ -2,12 +2,12 @@ import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-/** @private Constant defining the method name for logging and validation context */
+/** @private Constant defining the method name for logging and validation context*/
 const METHOD_NAME = "function.commit.commitFlushForce";
 
 /**
  * Function implementation
- */
+*/
 const commitFlushForceInternal = beginContext(
   async (clientId: string): Promise<void> => {
     // Log the flush attempt if enabled
@@ -45,7 +45,7 @@ const commitFlushForceInternal = beginContext(
  *
  * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
- */
+*/
 export async function commitFlushForce(clientId: string) {
   return await commitFlushForceInternal(clientId);
 }

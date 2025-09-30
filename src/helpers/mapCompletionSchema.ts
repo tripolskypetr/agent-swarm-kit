@@ -11,7 +11,7 @@ type TCompletionSchema = {
  * If an error occurs during the execution of `getCompletion`, it emits the error using `errorSubject`.
  * Also removes any undefined properties from the resulting schema object.
  *
- */
+*/
 export const mapCompletionSchema = ({
   getCompletion,
   ...schema

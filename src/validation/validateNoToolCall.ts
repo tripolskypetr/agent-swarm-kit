@@ -38,7 +38,7 @@ const toolParser = new xml2js.Parser();
  * @see {@link ../config/params|GLOBAL_CONFIG} for disallowed symbols and tags configuration.
  * @see {@link https://www.npmjs.com/package/xml2js|xml2js} for XML parsing details.
  * @see {@link module:functools-kit.trycatch|trycatch} for error handling mechanics.
- */
+*/
 export const validateNoToolCall: (output: string) => Promise<string | null> = trycatch(
   async (output: string) => {
     for (const symbol of GLOBAL_CONFIG.CC_AGENT_DISALLOWED_SYMBOLS) {

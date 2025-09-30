@@ -12,7 +12,7 @@ import { IStateChangeContract } from "../contract/StateChange.contract";
 /**
  * Type representing a dispatch function for updating the state in ClientState.
  * Takes the previous state and returns a promise resolving to the updated state.
- *  *  */
+*/
 type DispatchFn<State extends IStateData = IStateData> = (
   prevState: State
 ) => Promise<State>;
@@ -20,14 +20,14 @@ type DispatchFn<State extends IStateData = IStateData> = (
 /**
  * Type representing possible actions for ClientState operations.
  * Used in dispatch to determine whether to read or write the state.
- *  */
+*/
 type Action = "read" | "write";
 
 /**
  * Dispatches an action to read or write the state, used internally by ClientState’s dispatch method.
  * Ensures thread-safe state access and updates, supporting queued operations.
- *  *  *  *  *  * @throws {Error} If the action is neither "read" nor "write", or if payload is missing for "write".
- * */
+ * @throws {Error} If the action is neither "read" nor "write", or if payload is missing for "write".
+ **/
 const DISPATCH_FN = async <State extends IStateData = IStateData>(
   action: Action,
   self: ClientState,
@@ -49,7 +49,7 @@ const DISPATCH_FN = async <State extends IStateData = IStateData>(
 /**
  * Initializes the state by fetching it via params.getState or using the default state from params.getDefaultState.
  * Invokes the onLoad callback if provided, supporting StateConnectionService’s initialization process.
- *  *  * */
+*/
 const WAIT_FOR_INIT_FN = async (self: ClientState): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
@@ -82,7 +82,7 @@ const WAIT_FOR_INIT_FN = async (self: ClientState): Promise<void> => {
  * Manages a single state object with queued read/write operations, middleware support, and event-driven updates via BusService.
  * Integrates with StateConnectionService (state instantiation), ClientAgent (state-driven behavior),
  * SwarmConnectionService (swarm-level state), and BusService (event emission).
- *  *  */
+*/
 export class ClientState<State extends IStateData = IStateData>
   implements IState<State>, IStateChangeContract
 {
@@ -91,13 +91,13 @@ export class ClientState<State extends IStateData = IStateData>
   /**
    * The current state data, initialized as null and set during waitForInit.
    * Updated by setState and clearState, persisted via params.setState if provided.
-   *    */
+  */
   _state: State = null as State;
 
   /**
    * Queued dispatch function to read or write the state, delegating to DISPATCH_FN.
    * Ensures thread-safe state operations, supporting concurrent access from ClientAgent or tools.
-   *    *    *    */
+  */
   dispatch = queued(
     async (action: Action, payload) =>
       await DISPATCH_FN<State>(action, this, payload)
@@ -106,7 +106,7 @@ export class ClientState<State extends IStateData = IStateData>
   /**
    * Constructs a ClientState instance with the provided parameters.
    * Invokes the onInit callback if provided and logs construction if debugging is enabled.
-   *    */
+  */
   constructor(readonly params: IStateParams<State>) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -123,7 +123,7 @@ export class ClientState<State extends IStateData = IStateData>
   /**
    * Waits for the state to initialize via WAIT_FOR_INIT_FN, ensuring it’s only called once using singleshot.
    * Loads the initial state into _state, supporting StateConnectionService’s lifecycle management.
-   *    */
+  */
   waitForInit = singleshot(
     async (): Promise<void> => await WAIT_FOR_INIT_FN(this)
   );
@@ -131,7 +131,7 @@ export class ClientState<State extends IStateData = IStateData>
   /**
    * Sets the state using the provided dispatch function, applying middlewares and persisting via params.setState.
    * Invokes the onWrite callback and emits an event via BusService, supporting ClientAgent’s state updates.
-   *    *    */
+   */
   async setState(dispatchFn: DispatchFn<State>): Promise<State> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -186,7 +186,7 @@ export class ClientState<State extends IStateData = IStateData>
    * Resets the state to its initial value as determined by params.getState and params.getDefaultState.
    * Persists the result via params.setState, invokes the onWrite callback, and emits an event via BusService.
    * Supports resetting state for ClientAgent or swarm-level operations.
-   *    */
+  */
   async clearState(): Promise<State> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -238,7 +238,7 @@ export class ClientState<State extends IStateData = IStateData>
   /**
    * Retrieves the current state from _state via the dispatch queue.
    * Invokes the onRead callback and emits an event via BusService, supporting ClientAgent’s state queries.
-   *    */
+  */
   async getState(): Promise<State> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -270,7 +270,7 @@ export class ClientState<State extends IStateData = IStateData>
   /**
    * Disposes of the state instance, performing cleanup and invoking the onDispose callback if provided.
    * Ensures proper resource release with StateConnectionService when the state is no longer needed.
-   *    */
+  */
   async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -291,5 +291,5 @@ export class ClientState<State extends IStateData = IStateData>
  * Provides the primary implementation of the IState interface for managing client state in the swarm system,
  * integrating with StateConnectionService, ClientAgent, SwarmConnectionService, and BusService,
  * with queued read/write operations, middleware support, and event-driven updates.
- *  */
+*/
 export default ClientState;

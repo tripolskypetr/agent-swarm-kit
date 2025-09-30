@@ -1,6 +1,6 @@
 /**
- *  * Provides a public interface for interacting with shared compute services, wrapping operations in a method context.
- */
+ * Provides a public interface for interacting with shared compute services, wrapping operations in a method context.
+*/
 
 import { inject } from "../../core/di";
 import { SharedComputeConnectionService } from "../connection/SharedComputeConnectionService";
@@ -12,45 +12,45 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 import { StateName } from "../../../interfaces/State.interface";
 
 /**
- *  * Extends SharedComputeConnectionService for type compatibility.
- */
+ * Extends SharedComputeConnectionService for type compatibility.
+*/
 interface ISharedComputeConnectionService extends SharedComputeConnectionService {}
 
 /**
- *  * Defines keys to be excluded from the public interface.
- */
+ * Defines keys to be excluded from the public interface.
+*/
 type InternalKeys = keyof {
   getComputeRef: never;
   getSharedComputeRef: never;
 };
 
 /**
- *  * Type for the shared compute public service, excluding internal keys.
- */
+ * Type for the shared compute public service, excluding internal keys.
+*/
 type TSharedComputeConnectionService = {
   [key in Exclude<keyof ISharedComputeConnectionService, InternalKeys>]: unknown;
 };
 
 /**
- *  *  *  * Public service for managing shared compute operations with context-aware execution.
- */
+ * Public service for managing shared compute operations with context-aware execution.
+*/
 export class SharedComputePublicService<T extends IComputeData = IComputeData>
   implements TSharedComputeConnectionService
 {
   /**
-   *    * Injected logger service for logging operations.
-   * */
+   * Injected logger service for logging operations.
+   **/
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
-   *    * Injected shared compute connection service for compute operations.
-   * */
+   * Injected shared compute connection service for compute operations.
+   **/
   private readonly sharedComputeConnectionService =
     inject<SharedComputeConnectionService>(TYPES.sharedComputeConnectionService);
 
   /**
-   *    * Retrieves computed data for a shared compute within a method context.
-   *    *    *    * */
+   * Retrieves computed data for a shared compute within a method context.
+   */
   public getComputeData = async (
     methodName: string,
     computeName: ComputeName
@@ -79,8 +79,8 @@ export class SharedComputePublicService<T extends IComputeData = IComputeData>
   };
 
   /**
-   *    * Triggers a recalculation for the shared compute instance within a method context.
-   *    *    *    *    * */
+   * Triggers a recalculation for the shared compute instance within a method context.
+   */
   public calculate = async (
     stateName: StateName,
     methodName: string,
@@ -111,8 +111,8 @@ export class SharedComputePublicService<T extends IComputeData = IComputeData>
   };
 
   /**
-   *    * Forces an update of the shared compute instance within a method context.
-   *    *    *    * */
+   * Forces an update of the shared compute instance within a method context.
+   */
   public update = async (
     methodName: string,
     computeName: ComputeName
@@ -141,6 +141,6 @@ export class SharedComputePublicService<T extends IComputeData = IComputeData>
 }
 
 /**
- * *  * Exports the SharedComputePublicService class as the default export.
- */
+ * * Exports the SharedComputePublicService class as the default export.
+*/
 export default SharedComputePublicService;

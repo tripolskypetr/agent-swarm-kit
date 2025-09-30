@@ -6,7 +6,7 @@ import { AgentName, ToolName } from "../../interfaces/Agent.interface";
 /**
  * Provides a utility to retrieve the model-facing name of a tool for a given agent and client context.
  * Validates tool and agent existence, logs the operation if enabled, and supports both static and dynamic tool name resolution.
- */
+*/
 const METHOD_NAME = "function.common.getToolNameForModel";
 
 /**
@@ -14,7 +14,7 @@ const METHOD_NAME = "function.common.getToolNameForModel";
  * Validates the tool and agent, logs the operation, and invokes the tool schema's function property if dynamic.
  *
  * @private
- */
+*/
 const getToolNameForModelInternal = beginContext(async (toolName: ToolName, clientId: string, agentName: AgentName) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -46,7 +46,7 @@ const getToolNameForModelInternal = beginContext(async (toolName: ToolName, clie
  * @param {AgentName} agentName - The name of the agent to use or reference.
  * @example
  * const modelToolName = await getToolNameForModel("search-tool", "client-123", "assistant-agent");
- */
+*/
 export async function getToolNameForModel(toolName: ToolName, clientId: string, agentName: AgentName) {
   return await getToolNameForModelInternal(toolName, clientId, agentName);
 }

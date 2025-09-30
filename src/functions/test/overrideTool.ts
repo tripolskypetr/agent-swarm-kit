@@ -10,14 +10,14 @@ const METHOD_NAME = "function.test.overrideTool";
  * Type representing a partial agent tool schema with required toolName.
  * Used for overriding existing tool configurations with selective updates.
  * Combines required tool name with optional tool properties.
- */
+*/
 type TAgentTool<T extends any = Record<string, ToolValue>> = {
   toolName: IAgentTool<T>["toolName"];
 } & Partial<IAgentTool<T>>;
 
 /**
  * Function implementation
- */
+*/
 const overrideToolInternal = beginContext((publicToolSchema: TAgentTool<unknown>) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -46,7 +46,7 @@ const overrideToolInternal = beginContext((publicToolSchema: TAgentTool<unknown>
  *   execute: async (params) => fetchWeather(params),
  * });
  * // Logs the operation (if enabled) and updates the tool schema in the swarm.
- */
+*/
 export function overrideTool<T extends any = Record<string, ToolValue>>(toolSchema: TAgentTool<T>) {
   return overrideToolInternal(toolSchema);
 }

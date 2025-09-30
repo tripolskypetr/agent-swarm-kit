@@ -7,7 +7,7 @@ const METHOD_NAME = "function.target.emit";
 
 /**
  * Function implementation
- */
+*/
 const emitInternal = beginContext(
   async (content: string, clientId: string, agentName: AgentName) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -68,7 +68,7 @@ const emitInternal = beginContext(
  * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
  * @example
  * await emit("Direct output", "client-123", "AgentX"); // Emits "Direct output" if AgentX is active
- */
+*/
 export async function emit(content: string, clientId: string, agentName: AgentName) {
   return await emitInternal(content, clientId, agentName);
 }

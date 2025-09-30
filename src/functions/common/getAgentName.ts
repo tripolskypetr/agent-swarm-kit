@@ -6,7 +6,7 @@ const METHOD_NAME = "function.common.getAgentName";
 
 /**
  * Function implementation
- */
+*/
 const getAgentNameInternal = beginContext(async (clientId: string) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -40,7 +40,7 @@ const getAgentNameInternal = beginContext(async (clientId: string) => {
  * @example
  * const agentName = await getAgentName("client-123");
  * console.log(agentName); // Outputs "AgentX"
- */
+*/
 export async function getAgentName(clientId: string) {
   return await getAgentNameInternal(clientId);
 }

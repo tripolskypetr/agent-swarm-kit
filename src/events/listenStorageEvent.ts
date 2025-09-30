@@ -7,7 +7,7 @@ import beginContext from "../utils/beginContext";
  * Validates the client ID for storage event listening, allowing wildcard "*" or checking for an active session.
  *
  * @throws {Error} If the client ID is not "*" and no active session exists for it.
- */
+*/
 const validateClientId = (clientId: string) => {
   if (clientId === "*") {
     return;
@@ -32,7 +32,7 @@ const validateClientId = (clientId: string) => {
  * const unsubscribe = listenStorageEvent("client-123", (event) => console.log(event));
  * // Logs each storage event for "client-123"
  * unsubscribe(); // Stops listening
- */
+*/
 export const listenStorageEvent = beginContext(
   (clientId: string, fn: (event: IBusEvent) => void) => {
     // Log the operation details

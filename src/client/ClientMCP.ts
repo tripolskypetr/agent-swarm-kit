@@ -10,11 +10,11 @@ import { memoize } from "functools-kit";
 
 /**
  * A client-side implementation of the IMCP interface for managing tools and their operations.
- */
+*/
 export class ClientMCP implements IMCP {
   /**
    * Creates an instance of ClientMCP.
-   *    */
+  */
   constructor(readonly params: IMCPParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -30,7 +30,7 @@ export class ClientMCP implements IMCP {
 
   /**
    * Memoized function to fetch and cache tools for a given client ID.
-   *    *    */
+   */
   private fetchTools = memoize(
     ([clientId]) => `${clientId}`,
     async (clientId: string): Promise<Map<string, IMCPTool>> => {
@@ -48,7 +48,7 @@ export class ClientMCP implements IMCP {
 
   /**
    * Lists all available tools for a given client.
-   *    *    */
+   */
   public async listTools(clientId: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -66,7 +66,7 @@ export class ClientMCP implements IMCP {
 
   /**
    * Checks if a specific tool exists for a given client.
-   *    *    *    */
+  */
   public async hasTool(toolName: string, clientId: string): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -82,7 +82,7 @@ export class ClientMCP implements IMCP {
 
   /**
    * Updates the list of tools by clearing the cache and invoking the update callback.
-   *    */
+  */
   public async updateToolsForClient(clientId: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -97,7 +97,7 @@ export class ClientMCP implements IMCP {
 
   /**
    * Updates the list of tools for all clients by clearing the cache and invoking the update callback.
-   *    */
+  */
   public async updateToolsForAll() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -112,7 +112,7 @@ export class ClientMCP implements IMCP {
 
   /**
    * Calls a specific tool with the provided parameters.
-   *    *    *    */
+  */
   public async callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
@@ -133,7 +133,7 @@ export class ClientMCP implements IMCP {
 
   /**
    * Disposes of resources associated with a client, clearing cached tools and invoking the dispose callback.
-   *    */
+  */
   public dispose(clientId: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(

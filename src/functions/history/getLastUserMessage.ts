@@ -7,7 +7,7 @@ const METHOD_NAME = "function.history.getLastUserMessage";
 
 /**
  * Function implementation
- */
+*/
 const getLastUserMessageInternal = beginContext(async (clientId: string): Promise<string | null> => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -36,7 +36,7 @@ const getLastUserMessageInternal = beginContext(async (clientId: string): Promis
  * @example
  * const lastMessage = await getLastUserMessage("client-123");
  * console.log(lastMessage); // Outputs the last user message or null
- */
+*/
 export async function getLastUserMessage(clientId: string) {
   return await getLastUserMessageInternal(clientId);
 }

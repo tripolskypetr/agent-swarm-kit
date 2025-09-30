@@ -9,14 +9,14 @@ const METHOD_NAME = "function.test.overrideState";
 /**
  * Type representing a partial state schema configuration.
  * Used for state management with optional properties.
- */
+*/
 type TStateSchema<T extends unknown = any> = {
   stateName: IStateSchema<T>["stateName"];
 } & Partial<IStateSchema<T>>;
 
 /**
  * Function implementation
- */
+*/
 const overrideStateInternal = beginContext((publicStateSchema: TStateSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -47,7 +47,7 @@ const overrideStateInternal = beginContext((publicStateSchema: TStateSchema) => 
  *   getDefaultState: () => ({ theme: "dark" }),
  * });
  * // Logs the operation (if enabled) and updates the state schema in the swarm.
- */
+*/
 export function overrideState<T extends unknown = any>(
   stateSchema: TStateSchema<T>
 ): IStateSchema<T> {

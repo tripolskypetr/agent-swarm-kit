@@ -10,7 +10,7 @@ const METHOD_NAME = "function.navigate.changeToPrevAgent";
 
 /**
  * Type definition for the previous agent change execution function.
- */
+*/
 type TChangeToPrevAgentRun = (
   methodName: string,
   agentName: string,
@@ -24,7 +24,7 @@ type TChangeToPrevAgentRun = (
  * ensuring operations are executed sequentially and cached results are reused within the TTL period.
  *
  * @function
- */
+*/
 const createChangeToPrevAgent = memoize(
   ([clientId]) => `${clientId}`,
   (clientId: string) =>
@@ -103,7 +103,7 @@ const createChangeToPrevAgent = memoize(
  * This function sets up a singleton interval-based garbage collector to periodically clean up expired TTL entries from `createChangeToPrevAgent`.
  *
  * @function
- */
+*/
 const createGc = singleshot(async () => {
   disposeSubject.subscribe((clientId) => {
     createChangeToPrevAgent.clear(clientId);
@@ -112,7 +112,7 @@ const createGc = singleshot(async () => {
 
 /**
  * Function implementation
- */
+*/
 const changeToPrevAgentInternal = beginContext(async (clientId: string) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -150,7 +150,7 @@ const changeToPrevAgentInternal = beginContext(async (clientId: string) => {
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToPrevAgent("client-123");
- */
+*/
 export async function changeToPrevAgent(clientId: string) {
   return await changeToPrevAgentInternal(clientId);
 }

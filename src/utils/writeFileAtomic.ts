@@ -8,13 +8,13 @@ const IS_WINDOWS = os.platform() === "win32";
 
 /**
  * Options for configuring the atomic file write operation.
- */
+*/
 interface Options {
-  /** The encoding to use when writing the file (e.g., 'utf8', 'binary'). Defaults to 'utf8'. */
+  /** The encoding to use when writing the file (e.g., 'utf8', 'binary'). Defaults to 'utf8'.*/
   encoding?: BufferEncoding | undefined;
-  /** The file mode (permissions) as an octal number (e.g., 0o666). Defaults to 0o666. */
+  /** The file mode (permissions) as an octal number (e.g., 0o666). Defaults to 0o666.*/
   mode?: number | undefined;
-  /** The prefix for the temporary file name. Defaults to '.tmp-'. */
+  /** The prefix for the temporary file name. Defaults to '.tmp-'.*/
   tmpPrefix?: string;
 }
 
@@ -60,7 +60,7 @@ interface Options {
  * @see {@link https://nodejs.org/api/fs.html#fspromiseswritefilefile-data-options|fs.promises.writeFile} for file writing details.
  * @see {@link https://nodejs.org/api/crypto.html#cryptorandombytessize-callback|crypto.randomBytes} for temporary file naming.
  * @see {@link ../config/params|GLOBAL_CONFIG} for configuration impacting POSIX behavior.
- */
+*/
 export async function writeFileAtomic(
   file: string,
   data: string | Buffer,

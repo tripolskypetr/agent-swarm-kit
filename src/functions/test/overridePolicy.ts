@@ -10,14 +10,14 @@ const METHOD_NAME = "function.test.overridePolicy";
  * Type representing a partial policy schema with required policyName.
  * Used for overriding existing policy configurations with selective updates.
  * Combines required policy name with optional policy properties.
- */
+*/
 type TPolicySchema = {
   policyName: IPolicySchema["policyName"];
 } & Partial<IPolicySchema>;
 
 /**
  * Function implementation
- */
+*/
 const overridePolicyInternal = beginContext((publicPolicySchema: TPolicySchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -47,7 +47,7 @@ const overridePolicyInternal = beginContext((publicPolicySchema: TPolicySchema) 
  *   banMessage: "Content policy violation detected.",
  * });
  * // Logs the operation (if enabled) and updates the policy schema in the swarm.
- */
+*/
 export function overridePolicy(policySchema: TPolicySchema) {
   return overridePolicyInternal(policySchema);
 }

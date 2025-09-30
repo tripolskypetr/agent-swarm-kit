@@ -7,7 +7,7 @@ const METHOD_NAME = "function.history.getLastAssistantMessage";
 
 /**
  * Function implementation
- */
+*/
 const getLastAssistantMessageInternal = beginContext(
   async (clientId: string): Promise<string | null> => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -36,7 +36,7 @@ const getLastAssistantMessageInternal = beginContext(
  * @example
  * const lastMessage = await getLastAssistantMessage("client-123");
  * console.log(lastMessage); // Outputs the last assistant message or null
- */
+*/
 export async function getLastAssistantMessage(clientId: string) {
   return await getLastAssistantMessageInternal(clientId);
 }

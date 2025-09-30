@@ -26,27 +26,27 @@ import { IToolRequest } from "../../../model/Tool.model";
  * Uses memoization via functools-kit’s memoize to cache ClientSession instances by a composite key (clientId-swarmName), ensuring efficient reuse across calls.
  * Leverages LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO), and coordinates with SwarmConnectionService for swarm access, PolicyConnectionService for policy enforcement, and SwarmSchemaService for swarm configuration.
  * @implements {ISession}
- */
+*/
 export class SessionConnectionService implements ISession {
   /**
    * Logger service instance, injected via DI, for logging session operations.
    * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionPublicService and PerfService logging patterns.
    * @private
-   */
+  */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Bus service instance, injected via DI, for emitting session-related events.
    * Passed to ClientSession for event propagation (e.g., execution events), aligning with BusService’s event system in AgentConnectionService.
    * @private
-   */
+  */
   private readonly busService = inject<BusService>(TYPES.busService);
 
   /**
    * Method context service instance, injected via DI, for accessing execution context.
    * Used to retrieve clientId and swarmName in method calls, integrating with MethodContextService’s scoping in SessionPublicService.
    * @private
-   */
+  */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
@@ -55,7 +55,7 @@ export class SessionConnectionService implements ISession {
    * Swarm connection service instance, injected via DI, for managing swarm instances.
    * Provides swarm access to ClientSession in getSession, supporting SwarmPublicService’s swarm-level operations.
    * @private
-   */
+  */
   private readonly swarmConnectionService = inject<SwarmConnectionService>(
     TYPES.swarmConnectionService
   );
@@ -64,7 +64,7 @@ export class SessionConnectionService implements ISession {
    * Policy connection service instance, injected via DI, for managing policy instances.
    * Provides policy enforcement to ClientSession in getSession, integrating with PolicyPublicService and PolicyConnectionService.
    * @private
-   */
+  */
   private readonly policyConnectionService = inject<PolicyConnectionService>(
     TYPES.policyConnectionService
   );
@@ -73,7 +73,7 @@ export class SessionConnectionService implements ISession {
    * Swarm schema service instance, injected via DI, for retrieving swarm configurations.
    * Provides callbacks and policies to ClientSession in getSession, aligning with SwarmMetaService’s schema management.
    * @private
-   */
+  */
   private readonly swarmSchemaService = inject<SwarmSchemaService>(
     TYPES.swarmSchemaService
   );
@@ -83,7 +83,7 @@ export class SessionConnectionService implements ISession {
    * Uses functools-kit’s memoize to cache instances by a composite key (clientId-swarmName), ensuring efficient reuse across calls.
    * Configures the session with swarm data from SwarmSchemaService, policies from PolicyConnectionService (merged via MergePolicy or defaulting to NoopPolicy), and swarm access from SwarmConnectionService.
    * Supports ClientAgent (session context for execution), SessionPublicService (public API), and SwarmPublicService (swarm integration).
-   */
+  */
   public getSession = memoize(
     ([clientId, swarmName]) => `${clientId}-${swarmName}`,
     (clientId: string, swarmName: string) => {
@@ -109,7 +109,7 @@ export class SessionConnectionService implements ISession {
    * Sends a notification message to connect listeners via the internal `_notifySubject`.
    * Logs the notification if debugging is enabled.
    * 
-   */
+  */
   public notify = async (message: string): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService notify`, {
@@ -125,7 +125,7 @@ export class SessionConnectionService implements ISession {
    * Emits a message to the session, typically for asynchronous communication.
    * Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
-   */
+  */
   public emit = async (content: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService emit`, {
@@ -141,7 +141,7 @@ export class SessionConnectionService implements ISession {
    * Executes a command in the session with a specified execution mode.
    * Delegates to ClientSession.execute, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s execute, supporting ClientAgent’s EXECUTE_FN within a session context and PerfService tracking.
-   */
+  */
   public execute = async (
     content: string,
     mode: ExecutionMode
@@ -161,7 +161,7 @@ export class SessionConnectionService implements ISession {
    * Runs a stateless completion in the session with the given content.
    * Delegates to ClientSession.run, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s run, supporting ClientAgent’s RUN_FN within a session context.
-   */
+  */
   public run = async (content: string): Promise<string> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService run`, {
@@ -177,7 +177,7 @@ export class SessionConnectionService implements ISession {
    * Connects to the session using a provided send message function, returning a receive message function.
    * Delegates to ClientSession.connect, explicitly passing clientId and swarmName, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s connect, supporting ClientAgent’s bidirectional communication and SwarmPublicService’s swarm interactions.
-   */
+  */
   public connect = (
     connector: SendMessageFn,
     clientId: string,
@@ -192,7 +192,7 @@ export class SessionConnectionService implements ISession {
    * Commits tool output to the session’s history, typically for OpenAI-style tool calls.
    * Delegates to ClientSession.commitToolOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitToolOutput, supporting ClientAgent’s TOOL_EXECUTOR and HistoryPublicService integration.
-   */
+  */
   public commitToolOutput = async (
     toolId: string,
     content: string
@@ -212,7 +212,7 @@ export class SessionConnectionService implements ISession {
    * Commits a system message to the session’s history.
    * Delegates to ClientSession.commitSystemMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitSystemMessage, supporting ClientAgent’s system updates and HistoryPublicService.
-   */
+  */
   public commitSystemMessage = async (message: string): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService commitSystemMessage`, {
@@ -229,7 +229,7 @@ export class SessionConnectionService implements ISession {
    * Delegates to ClientSession.commitDeveloperMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitDeveloperMessage, supporting ClientAgent’s developer updates and HistoryPublicService.
    * @throws {Error} If committing the message fails.
-   */
+  */
   public commitDeveloperMessage = async (message: string): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService commitDeveloperMessage`, {
@@ -246,7 +246,7 @@ export class SessionConnectionService implements ISession {
    * Delegates to ClientSession.commitToolRequest, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitToolRequest, supporting ClientAgent’s tool requests and HistoryPublicService integration.
    * 
-   */
+  */
   public commitToolRequest = async (request: IToolRequest[]): Promise<string[]> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService commitToolRequest`, {
@@ -262,7 +262,7 @@ export class SessionConnectionService implements ISession {
    * Commits an assistant message to the session’s history.
    * Delegates to ClientSession.commitAssistantMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitAssistantMessage, supporting ClientAgent’s assistant responses and HistoryPublicService.
-   */
+  */
   public commitAssistantMessage = async (message: string): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(
@@ -281,7 +281,7 @@ export class SessionConnectionService implements ISession {
    * Commits a user message to the session’s history without triggering a response.
    * Delegates to ClientSession.commitUserMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitUserMessage, supporting ClientAgent’s user input logging and HistoryPublicService.
-   */
+  */
   public commitUserMessage = async (message: string, mode: ExecutionMode): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService commitUserMessage`, {
@@ -298,7 +298,7 @@ export class SessionConnectionService implements ISession {
    * Commits a flush of the session’s history, clearing stored data.
    * Delegates to ClientSession.commitFlush, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitFlush, supporting ClientAgent’s history reset and HistoryPublicService.
-   */
+  */
   public commitFlush = async (): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService commitFlush`);
@@ -312,7 +312,7 @@ export class SessionConnectionService implements ISession {
    * Prevents the next tool from being executed in the session’s workflow.
    * Delegates to ClientSession.commitStopTools, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitStopTools, supporting ClientAgent’s TOOL_EXECUTOR interruption.
-   */
+  */
   public commitStopTools = async (): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService commitStopTools`);
@@ -326,7 +326,7 @@ export class SessionConnectionService implements ISession {
    * Disposes of the session connection, cleaning up resources and clearing the memoized instance.
    * Checks if the session exists in the memoization cache before calling ClientSession.dispose, then clears the cache.
    * Logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligns with SessionPublicService’s dispose and PerfService’s cleanup.
-   */
+  */
   public dispose = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sessionConnectionService dispose`);
@@ -345,5 +345,5 @@ export class SessionConnectionService implements ISession {
 /**
  * Default export of the SessionConnectionService class.
  * Provides the primary service for managing session connections in the swarm system, integrating with ClientAgent, SessionPublicService, SwarmPublicService, PolicyPublicService, AgentConnectionService, and PerfService, with memoized session instantiation.
- */
+*/
 export default SessionConnectionService;

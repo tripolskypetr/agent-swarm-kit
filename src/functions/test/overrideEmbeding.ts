@@ -10,14 +10,14 @@ const METHOD_NAME = "function.test.overrideEmbeding";
  * Type representing a partial embedding schema with required embeddingName.
  * Used for overriding existing embedding configurations with selective updates.
  * Combines required embedding name with optional embedding properties.
- */
+*/
 type TEmbeddingSchema = {
   embeddingName: IEmbeddingSchema["embeddingName"];
 } & Partial<IEmbeddingSchema>;
 
 /**
  * Function implementation
- */
+*/
 const overrideEmbedingInternal = beginContext(
   (publicEmbeddingSchema: TEmbeddingSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -54,7 +54,7 @@ const overrideEmbedingInternal = beginContext(
  *   },
  * });
  * // Logs the operation (if enabled) and updates the embedding schema in the swarm.
- */
+*/
 export function overrideEmbeding(embeddingSchema: TEmbeddingSchema) {
   return overrideEmbedingInternal(embeddingSchema);
 }

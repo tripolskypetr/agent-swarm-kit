@@ -10,7 +10,7 @@ const METHOD_NAME = "function.dump.getStorage";
  *
  * @function getStorage
  * @param {StorageName} storageName - The name of the storage.
- */
+*/
 export function getStorage(storageName: StorageName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

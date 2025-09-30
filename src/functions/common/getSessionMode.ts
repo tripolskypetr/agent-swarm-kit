@@ -33,7 +33,7 @@ const getSessionModeInternal = beginContext(async (clientId: string) => {
  * @example
  * const mode = await getSessionMode("client-123");
  * console.log(mode); // Outputs "session", "makeConnection", or "complete"
- */
+*/
 export async function getSessionMode(clientId: string) {
   return await getSessionModeInternal(clientId);
 }

@@ -7,7 +7,7 @@ const METHOD_NAME = "function.history.getUserHistory";
 
 /**
  * Function implementation
- */
+*/
 const getUserHistoryInternal = beginContext(async (clientId: string) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -33,7 +33,7 @@ const getUserHistoryInternal = beginContext(async (clientId: string) => {
  * @example
  * const userHistory = await getUserHistory("client-123");
  * console.log(userHistory); // Outputs array of user history entries
- */
+*/
 export async function getUserHistory(clientId: string) {
   return await getUserHistoryInternal(clientId);
 }

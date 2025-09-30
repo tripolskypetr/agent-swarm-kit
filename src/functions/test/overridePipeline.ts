@@ -1,7 +1,7 @@
 /**
  * @module overridePipeline
  * Provides a function to override an existing pipeline schema with partial updates.
- */
+*/
 
 import { IPipelineSchema } from "../../model/Pipeline.model";
 import swarm from "../../lib";
@@ -13,19 +13,19 @@ import removeUndefined from "../../helpers/removeUndefined";
  * @constant {string} METHOD_NAME
  * Method name for the overridePipeline operation.
  * @private
- */
+*/
 const METHOD_NAME = "function.test.overridePipeline";
 
 /**
  * Type for partial pipeline schema updates, requiring pipelineName and allowing other IPipelineSchema properties.
- */
+*/
 type TPipelineSchema = {
   pipelineName: IPipelineSchema["pipelineName"];
 } & Partial<IPipelineSchema>;
 
 /**
  * Function implementation
- */
+*/
 const overridePipelineInternal = beginContext(
   (publicPipelineSchema: TPipelineSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -47,7 +47,7 @@ const overridePipelineInternal = beginContext(
  *
  * @param pipelineSchema Partial pipeline schema with updates to be applied to the existing pipeline configuration.
  * @template Payload - Type extending object for the pipeline payload.
- */
+*/
 export function overridePipeline<Payload extends object = any>(
   pipelineSchema: IPipelineSchema<Payload>
 ): IPipelineSchema<Payload> {

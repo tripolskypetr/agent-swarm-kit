@@ -30,7 +30,7 @@
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf|Object.getPrototypeOf}
  * for details on prototype checking.
- */
+*/
 export const isObject = (obj: any): boolean => {
   if (typeof obj === "object" && obj !== null) {
     return Object.getPrototypeOf(obj) === Object.prototype;

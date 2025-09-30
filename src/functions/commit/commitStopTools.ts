@@ -2,12 +2,12 @@ import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-/** @private Constant defining the method name for logging and validation context */
+/** @private Constant defining the method name for logging and validation context*/
 const METHOD_NAME = "function.commit.commitStopTools";
 
 /**
  * Function implementation
- */
+*/
 const commitStopToolsInternal = beginContext(
   async (clientId: string, agentName: string): Promise<void> => {
     // Log the stop tools attempt if enabled
@@ -68,7 +68,7 @@ const commitStopToolsInternal = beginContext(
  * @param {string} clientId - The unique identifier of the client session.
  * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
- */
+*/
 export async function commitStopTools(clientId: string, agentName: string) {
   return await commitStopToolsInternal(clientId, agentName);
 }

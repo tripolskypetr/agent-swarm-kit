@@ -13,37 +13,37 @@ import { IToolRequest } from "../model/Tool.model";
  * Combines session schema, swarm callbacks, and runtime dependencies.
  * @extends {ISessionSchema}
  * @extends {ISwarmSessionCallbacks}
- */
+*/
 export interface ISessionParams extends ISessionSchema, ISwarmSessionCallbacks {
-  /** The unique ID of the client associated with the session. */
+  /** The unique ID of the client associated with the session.*/
   clientId: string;
 
-  /** The logger instance for recording session activity and errors. */
+  /** The logger instance for recording session activity and errors.*/
   logger: ILogger;
 
-  /** The policy instance defining session rules and constraints. */
+  /** The policy instance defining session rules and constraints.*/
   policy: IPolicy;
 
-  /** The bus instance for event communication within the swarm. */
+  /** The bus instance for event communication within the swarm.*/
   bus: IBus;
 
-  /** The swarm instance managing the session. */
+  /** The swarm instance managing the session.*/
   swarm: ISwarm;
 
-  /** The unique name of the swarm this session belongs to. */
+  /** The unique name of the swarm this session belongs to.*/
   swarmName: SwarmName;
 }
 
 /**
  * Interface representing the schema for session data.
  * Currently empty, serving as a placeholder for future session-specific configuration.
- */
+*/
 export interface ISessionSchema {}
 
 /**
  * Type representing a function for sending messages.
  * @template T - The return type of the send operation, defaults to void.
- */
+*/
 export type SendMessageFn<T = void> = (
   outgoing: IOutgoingMessage
 ) => Promise<T>;
@@ -51,7 +51,7 @@ export type SendMessageFn<T = void> = (
 /**
  * Type representing a function for receiving messages.
  * @template T - The return type of the receive operation, defaults to void.
- */
+*/
 export type ReceiveMessageFn<T = void> = (
   incoming: IIncomingMessage
 ) => Promise<T>;
@@ -59,40 +59,40 @@ export type ReceiveMessageFn<T = void> = (
 /**
  * Interface representing a session within the swarm.
  * Defines methods for message emission, execution, and state management.
- */
+*/
 export interface ISession {
 
   /**
    * Sends a notification message to connect listeners via the internal `_notifySubject`.
    * Logs the notification if debugging is enabled.
    * 
-   */
+  */
   notify(message: string): Promise<void>
 
   /**
    * Emits a message to the session's communication channel.
    * @throws {Error} If the emission fails due to connection issues or invalid message format.
-   */
+  */
   emit(message: string): Promise<void>;
 
   /**
    * Runs a stateless completion without modifying the session's chat history.
    * Useful for one-off computations or previews.
    * @throws {Error} If the execution fails due to invalid content or internal errors.
-   */
+  */
   run(content: string): Promise<string>;
 
   /**
    * Executes a command within the session, potentially updating history based on mode.
    * @throws {Error} If the execution fails due to invalid content, mode, or internal errors.
-   */
+  */
   execute(content: string, mode: ExecutionMode): Promise<string>;
 
   /**
    * Connects the session to a message sender and returns a receiver function.
    * Establishes a bidirectional communication channel.
    * @throws {Error} If the connection fails or the connector is invalid.
-   */
+  */
   connect(
     connector: SendMessageFn,
     ...args: unknown[]
@@ -101,68 +101,68 @@ export interface ISession {
   /**
    * Commits tool output to the session's history or state.
    * @throws {Error} If the tool ID is invalid or committing fails.
-   */
+  */
   commitToolOutput(toolId: string, content: string): Promise<void>;
 
   /**
    * Commits a tool request to the session's history or state.
    * @throws {Error} If committing the tool request(s) fails.
-   */
+  */
   commitToolRequest(request: IToolRequest[]): Promise<string[]>;
 
   /**
    * Commits an assistant message to the session's history without triggering a response.
    * @throws {Error} If committing the message fails.
-   */
+  */
   commitAssistantMessage(message: string): Promise<void>;
 
   /**
    * Commits a user message to the session's history without triggering a response.
    * @throws {Error} If committing the message fails.
-   */
+  */
   commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>;
 
   /**
    * Commits a flush operation to clear the session's agent history.
    * Resets the history to an initial state.
    * @throws {Error} If flushing the history fails.
-   */
+  */
   commitFlush: () => Promise<void>;
 
   /**
    * Prevents the next tool in the execution sequence from running.
    * Stops further tool calls within the session.
    * @throws {Error} If stopping the tools fails.
-   */
+  */
   commitStopTools: () => Promise<void>;
 
   /**
    * Commits a system message to the session's history or state.
    * @throws {Error} If committing the message fails.
-   */
+  */
   commitSystemMessage(message: string): Promise<void>;
 
   /**
    * Commits a developer message to the session's history or state.
    * @throws {Error} If committing the message fails.
-   */
+  */
   commitDeveloperMessage(message: string): Promise<void>;
 }
 
 /**
  * Type representing the unique identifier for a session.
  * Used to track and reference specific session instances.
- */
+*/
 export type SessionId = string;
 
 /**
  * Type representing the operational mode of a session.
  * Defines the session's behavior: full session, connection setup, single completion, or scoped operation.
- */
+*/
 export type SessionMode = "session" | "makeConnection" | "complete" | "scope";
 
 /**
  * Type representing the source of execution within a session.
  * Tools emit "tool" messages (ignored in user history), while users emit "user" messages.
- */
+*/
 export type ExecutionMode = "tool" | "user";

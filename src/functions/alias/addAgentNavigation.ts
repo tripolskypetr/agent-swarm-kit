@@ -1,7 +1,7 @@
 /**
  * Adds navigation functionality to an agent by creating a tool that allows navigation to a specified agent.
  * @module addAgentNavigation
- */
+*/
 
 import { AgentName, ToolName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
@@ -19,21 +19,21 @@ const METHOD_NAME = "function.alias.addAgentNavigation";
  * Parameters for configuring agent navigation.
  * @interface IAgentNavigationParams
  * @extends INavigateToAgentParams
- */
+*/
 interface IAgentNavigationParams extends INavigateToAgentParams {
-  /** The name of the tool to be created. */
+  /** The name of the tool to be created.*/
   toolName: ToolName;
-  /** A description of the tool's functionality. */
+  /** A description of the tool's functionality.*/
   description: string;
-  /** The target agent to navigate to. */
+  /** The target agent to navigate to.*/
   navigateTo: AgentName;
-  /** Optional documentation note for the tool. */
+  /** Optional documentation note for the tool.*/
   docNote?: string;
 }
 
 /**
  * Function implementation
- */
+*/
 const addAgentNavigationInternal = beginContext(
   ({
     toolName,
@@ -77,7 +77,7 @@ const addAgentNavigationInternal = beginContext(
  * Creates and registers a navigation tool for an agent to navigate to another specified agent.
  * @function addAgentNavigation
  * @param {IAgentNavigationParams} params - The parameters or configuration object.
- */
+*/
 export function addAgentNavigation(params: IAgentNavigationParams) {
   return addAgentNavigationInternal(params);
 }

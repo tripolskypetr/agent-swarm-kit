@@ -9,9 +9,9 @@ import { SwarmName } from "../../../interfaces/Swarm.interface";
 /**
  * Service class for managing the online/offline status of clients within swarms.
  * Provides methods to mark clients as online or offline, leveraging persistent storage via `PersistAliveAdapter`.
- */
+*/
 export class AliveService {
-  /** @private Injected logger service for logging operations within the AliveService */
+  /** @private Injected logger service for logging operations within the AliveService*/
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
@@ -19,7 +19,7 @@ export class AliveService {
    * Persists the online status using `PersistAliveAdapter` if persistence is enabled in the global configuration.
    *                               Used to track the specific client’s online status within a `SwarmName`.
    *                                Defines the context in which the client’s online status is managed and persisted.
-   */
+  */
   public markOnline = async (
     clientId: SessionId,
     swarmName: SwarmName,
@@ -41,7 +41,7 @@ export class AliveService {
    * Persists the offline status using `PersistAliveAdapter` if persistence is enabled in the global configuration.
    *                               Used to track the specific client’s offline status within a `SwarmName`.
    *                                Defines the context in which the client’s offline status is managed and persisted.
-   */
+  */
   public markOffline = async (
     clientId: SessionId,
     swarmName: SwarmName,
@@ -62,5 +62,5 @@ export class AliveService {
 /**
  * Default export of the `AliveService` class.
  * Provides a convenient way to import and instantiate the service for managing client alive status.
- */
+*/
 export default AliveService;

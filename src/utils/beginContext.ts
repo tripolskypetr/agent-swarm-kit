@@ -35,7 +35,7 @@ import swarm, { ExecutionContextService, MethodContextService } from "../lib";
  * @see {@link MethodContextService} for details on method-level context tracking.
  * @see {@link ExecutionContextService} for details on execution-level context tracking.
  * @see {@link https://nodejs.org/api/async_hooks.html#class-asyncresource|Node.js AsyncResource} for underlying mechanics.
- */
+*/
 export const beginContext =
   <T extends (...args: any[]) => any>(
     run: T

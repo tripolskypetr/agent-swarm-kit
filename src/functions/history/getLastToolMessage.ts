@@ -7,7 +7,7 @@ const METHOD_NAME = "function.history.getLastToolMessage";
 
 /**
  * Function implementation
- */
+*/
 const getLastToolMessageInternal = beginContext(async (clientId: string): Promise<string | null> => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -35,7 +35,7 @@ const getLastToolMessageInternal = beginContext(async (clientId: string): Promis
  * @example
  * const lastMessage = await getLastToolMessage("client-123");
  * console.log(lastMessage); // Outputs the last tool message or null
- */
+*/
 export async function getLastToolMessage(clientId: string) {
   return await getLastToolMessageInternal(clientId);
 }

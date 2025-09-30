@@ -20,11 +20,11 @@ const STORAGE_POOL_DELAY = 0;
 /**
  * Creates a SHA-256 hash of the provided string.
  *
- *  *  *
+ *
  * @example
  * // Returns "315f5bdb76d078c43b8ac0064e4a0164612b1fce77c869345bfc94c75894edd3"
  * createSHA256Hash("Hello, world!");
- */
+*/
 function createSHA256Hash(string: string) {
   return createHash("sha256").update(string).digest("hex");
 }
@@ -32,13 +32,13 @@ function createSHA256Hash(string: string) {
 /**
  * Type representing possible storage actions for ClientStorage operations.
  * Used in dispatch to determine the action type (upsert, remove, or clear).
- *  */
+*/
 type Action = "upsert" | "remove" | "clear";
 
 /**
  * Type representing the payload for storage actions in ClientStorage.
  * Defines the structure for upsert and remove operations, with optional fields based on action type.
- *  *  *  *  */
+*/
 type Payload<T extends IStorageData = IStorageData> = {
   itemId: IStorageData["id"];
   item: T;
@@ -47,7 +47,7 @@ type Payload<T extends IStorageData = IStorageData> = {
 /**
  * Creates embeddings and an index for a given item, memoized by item ID in _createEmbedding.
  * Invokes the onCreate callback if provided, supporting EmbeddingSchemaService’s embedding generation.
- *  *  *  *  * */
+*/
 const CREATE_EMBEDDING_FN = async <T extends IStorageData = IStorageData>(
   item: T,
   self: ClientStorage<T>
@@ -126,7 +126,7 @@ const CREATE_EMBEDDING_FN = async <T extends IStorageData = IStorageData>(
  * Waits for the ClientStorage instance to initialize by loading initial data and creating embeddings.
  * Uses execpool for concurrent embedding creation, controlled by GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL.
  * Ensures initialization happens only once via singleshot in waitForInit, supporting StorageConnectionService.
- *  *  * */
+*/
 const WAIT_FOR_INIT_FN = async (self: ClientStorage): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
@@ -160,7 +160,7 @@ const WAIT_FOR_INIT_FN = async (self: ClientStorage): Promise<void> => {
 /**
  * Upserts an item into the storage, updates embeddings, and persists the data via params.setData.
  * Invokes the onUpdate callback and emits an event via BusService, supporting ClientAgent’s data storage needs.
- *  *  *  *  * */
+*/
 const UPSERT_FN = async <T extends IStorageData = IStorageData>(
   item: T,
   self: ClientStorage<T>
@@ -207,7 +207,7 @@ const UPSERT_FN = async <T extends IStorageData = IStorageData>(
 /**
  * Removes an item from the storage by its ID, updates embeddings cache, and persists the data via params.setData.
  * Invokes the onUpdate callback and emits an event via BusService, supporting ClientAgent’s data management.
- *  *  *  * */
+ * */
 const REMOVE_FN = async (
   itemId: IStorageData["id"],
   self: ClientStorage
@@ -253,7 +253,7 @@ const REMOVE_FN = async (
 /**
  * Clears all items from the storage, resets embeddings cache, and persists the empty state via params.setData.
  * Invokes the onUpdate callback and emits an event via BusService, supporting storage reset operations.
- *  *  * */
+*/
 const CLEAR_FN = async (self: ClientStorage): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
@@ -291,8 +291,8 @@ const CLEAR_FN = async (self: ClientStorage): Promise<void> => {
 /**
  * Dispatches a storage action (upsert, remove, or clear) in a queued manner via DISPATCH_FN.
  * Ensures sequential execution of storage operations, validating payloads and handling errors.
- *  *  *  *  *  * @throws {Error} If an unknown action is provided or required payload fields (itemId for remove, item for upsert) are missing.
- * */
+ * @throws {Error} If an unknown action is provided or required payload fields (itemId for remove, item for upsert) are missing.
+ **/
 const DISPATCH_FN = async <T extends IStorageData = IStorageData>(
   action: Action,
   self: ClientStorage<T>,
@@ -323,20 +323,20 @@ const DISPATCH_FN = async <T extends IStorageData = IStorageData>(
  * Implements IStorage, supporting upsert, remove, clear, and similarity-based search with queued operations and event-driven updates.
  * Integrates with StorageConnectionService (instantiation), EmbeddingSchemaService (embeddings), ClientAgent (data storage),
  * SwarmConnectionService (swarm-level storage), and BusService (event emission).
- *  *  */
+*/
 export class ClientStorage<T extends IStorageData = IStorageData>
   implements IStorage<T>
 {
   /**
    * Internal map to store items by their IDs, used for fast retrieval and updates.
    * Populated during initialization (waitForInit) and modified by upsert, remove, and clear operations.
-   *    */
+  */
   _itemMap = new Map<IStorageData["id"], T>();
 
   /**
    * Constructs a ClientStorage instance with the provided parameters.
    * Invokes the onInit callback if provided and logs construction if debugging is enabled.
-   *    */
+  */
   constructor(readonly params: IStorageParams<T>) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -356,7 +356,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Dispatches a storage action (upsert, remove, or clear) in a queued manner, delegating to DISPATCH_FN.
    * Ensures sequential execution of storage operations, supporting thread-safe updates from ClientAgent or tools.
-   *    *    *    */
+  */
   dispatch = queued(
     async (action, payload) => await DISPATCH_FN<T>(action, this, payload)
   ) as (action: Action, payload: Partial<Payload<T>>) => Promise<void>;
@@ -364,7 +364,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Creates embeddings for the given item, memoized by item ID to avoid redundant calculations via CREATE_EMBEDDING_FN.
    * Caches results for efficiency, cleared on upsert/remove to ensure freshness, supporting EmbeddingSchemaService.
-   *    *    * */
+   */
   _createEmbedding = memoize(
     ([{ id }]) => id,
     async (item: T) => await CREATE_EMBEDDING_FN(item, this)
@@ -373,7 +373,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Waits for the initialization of the storage, loading initial data and creating embeddings via WAIT_FOR_INIT_FN.
    * Ensures initialization happens only once using singleshot, supporting StorageConnectionService’s lifecycle.
-   *    */
+  */
   waitForInit = singleshot(
     async (): Promise<void> => await WAIT_FOR_INIT_FN(this)
   );
@@ -382,7 +382,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * Retrieves a specified number of items based on similarity to a search string, using embeddings and SortedArray.
    * Executes similarity calculations concurrently via execpool, respecting GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL, and filters by score.
    * Emits an event via BusService, supporting ClientAgent’s search-driven tool execution.
-   *    *    *    *    */
+   */
   async take(
     search: string,
     total: number,
@@ -487,7 +487,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Upserts an item into the storage via the dispatch queue, delegating to UPSERT_FN.
    * Schedules the operation for sequential execution, supporting ClientAgent’s data persistence needs.
-   *    *    */
+   */
   async upsert(item: T): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -504,7 +504,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Removes an item from the storage by its ID via the dispatch queue, delegating to REMOVE_FN.
    * Schedules the operation for sequential execution, supporting ClientAgent’s data management.
-   *    *    */
+   */
   async remove(itemId: IStorageData["id"]): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -521,7 +521,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Clears all items from the storage via the dispatch queue, delegating to CLEAR_FN.
    * Schedules the operation for sequential execution, supporting storage reset operations.
-   *    */
+  */
   async clear(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -533,7 +533,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Retrieves an item from the storage by its ID directly from _itemMap.
    * Emits an event via BusService with the result, supporting quick lookups by ClientAgent or tools.
-   *    *    */
+   */
   async get(itemId: IStorageData["id"]): Promise<T | null> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -563,7 +563,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Lists all items in the storage from _itemMap, optionally filtered by a predicate.
    * Emits an event via BusService with the filtered result if a filter is provided, supporting ClientAgent’s data enumeration.
-   *    *    */
+   */
   async list(filter?: (item: T) => boolean): Promise<T[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -596,7 +596,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Disposes of the storage instance, invoking the onDispose callback if provided and logging via BusService.
    * Ensures proper cleanup with StorageConnectionService when the storage is no longer needed.
-   *    */
+  */
   async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -616,5 +616,5 @@ export class ClientStorage<T extends IStorageData = IStorageData>
  * Provides the primary implementation of the IStorage interface for managing storage with embedding-based search in the swarm system,
  * integrating with StorageConnectionService, EmbeddingSchemaService, ClientAgent, SwarmConnectionService, and BusService,
  * with queued operations, similarity search, and event-driven updates.
- *  */
+*/
 export default ClientStorage;

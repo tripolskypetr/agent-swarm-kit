@@ -6,7 +6,7 @@ const METHOD_NAME = "function.target.emitForce";
 
 /**
  * Function implementation
- */
+*/
 const emitForceInternal = beginContext(
   async (content: string, clientId: string) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -45,7 +45,7 @@ const emitForceInternal = beginContext(
  * @throws {Error} If the session mode is not "makeConnection", or if session or swarm validation fails.
  * @example
  * await emitForce("Direct output", "client-123"); // Emits "Direct output" in a makeConnection session
- */
+*/
 export async function emitForce(content: string, clientId: string) {
   return await emitForceInternal(content, clientId);
 }

@@ -8,7 +8,7 @@ const METHOD_NAME = "function.setup.addCompletion";
 
 /**
  * Function implementation
- */
+*/
 const addCompletionInternal = beginContext(
   (completionPublicSchema: ICompletionSchema) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -48,7 +48,7 @@ const addCompletionInternal = beginContext(
  * const completionSchema = { completionName: "OpenAI", model: "gpt-3.5-turbo" };
  * const completionName = addCompletion(completionSchema);
  * console.log(completionName); // Outputs "OpenAI"
- */
+*/
 export function addCompletion(completionSchema: ICompletionSchema) {
   return addCompletionInternal(completionSchema);
 }

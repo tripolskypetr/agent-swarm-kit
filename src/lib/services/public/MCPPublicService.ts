@@ -16,7 +16,7 @@ interface IMCPConnectionService extends MCPConnectionService {}
 /**
  * Internal keys that should be excluded from the public MCP service interface.
  * Used to hide internal getMCP method from public API exposure.
- */
+*/
 type InternalKeys = keyof {
   getMCP: never;
 };
@@ -24,7 +24,7 @@ type InternalKeys = keyof {
 /**
  * Type representing the MCP connection service interface.
  * Handles Model Context Protocol connection operations.
- */
+*/
 type TMCPConnectionService = {
   [key in Exclude<keyof IMCPConnectionService, InternalKeys>]: unknown;
 };
@@ -33,19 +33,19 @@ type TMCPConnectionService = {
  * Public service class for interacting with MCP (Model Context Protocol) operations.
  * Provides methods to list tools, check tool existence, call tools, and dispose resources,
  * executing operations within a specified context.
- */
+*/
 export class MCPPublicService implements TMCPConnectionService {
-  /** Injected LoggerService for logging operations. */
+  /** Injected LoggerService for logging operations.*/
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-  /** Injected MCPConnectionService for handling MCP operations. */
+  /** Injected MCPConnectionService for handling MCP operations.*/
   private readonly mcpConnectionService = inject<MCPConnectionService>(
     TYPES.mcpConnectionService
   );
 
   /**
    * Lists available tools for a given client within a specified context.
-   *    *    *    *    */
+  */
   async listTools(
     methodName: string,
     clientId: string,
@@ -75,7 +75,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Updates the list of tools for all clients within a specified context.
-   *    *    *    */
+  */
   async updateToolsForAll(methodName: string, mcpName: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpPublicService updateToolsForAll`, {
@@ -101,7 +101,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Updates the list of tools for a specific client within a specified context.
-   *    *    *    *    */
+  */
   async updateToolsForClient(
     methodName: string,
     clientId: string,
@@ -131,7 +131,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Checks if a specific tool exists for a given client within a specified context.
-   *    *    *    *    *    */
+  */
   async hasTool(
     methodName: string,
     clientId: string,
@@ -163,7 +163,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Calls a specific tool with the provided parameters within a specified context.
-   *    *    *    *    *    *    */
+  */
   async callTool<T extends MCPToolValue = MCPToolValue>(
     methodName: string,
     clientId: string,
@@ -196,7 +196,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Disposes of resources associated with a client within a specified context.
-   *    *    *    *    */
+  */
   public dispose = async (
     methodName: string,
     clientId: string,

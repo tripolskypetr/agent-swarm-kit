@@ -2,7 +2,7 @@ import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-/** @private Constant defining the method name for logging and validation context */
+/** @private Constant defining the method name for logging and validation context*/
 const METHOD_NAME = "function.commit.commitDeveloperMessageForce";
 
 /**
@@ -14,7 +14,7 @@ const METHOD_NAME = "function.commit.commitDeveloperMessageForce";
  * @param {string} content - The content to be processed or stored.
  * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails.
- */
+*/
 const commitDeveloperMessageForceInternal = beginContext(
   async (content: string, clientId: string): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -49,7 +49,7 @@ const commitDeveloperMessageForceInternal = beginContext(
  * @param {string} content - The content to be processed or stored.
  * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
- */
+*/
 export async function commitDeveloperMessageForce(content: string, clientId: string) {
   return await commitDeveloperMessageForceInternal(content, clientId);
 }

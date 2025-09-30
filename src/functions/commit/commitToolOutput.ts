@@ -7,7 +7,7 @@ const METHOD_NAME = "function.commit.commitToolOutput";
 
 /**
  * Function implementation
- */
+*/
 const commitToolOutputInternal = beginContext(
   async (
     toolId: string,
@@ -77,7 +77,7 @@ const commitToolOutputInternal = beginContext(
  * @throws {Error} If validation fails (e.g., invalid agent, session, or swarm) or if the session public service encounters an error during the commit operation.
  * @example
  * await commitToolOutput("tool-123", "Tool execution result", "client-456", "AgentX");
- */
+*/
 export async function commitToolOutput(
   toolId: string,
   content: string,

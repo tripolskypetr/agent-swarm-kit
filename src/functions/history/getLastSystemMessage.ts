@@ -7,7 +7,7 @@ const METHOD_NAME = "function.history.getLastSystemMessage";
 
 /**
  * Function implementation
- */
+*/
 const getLastSystemMessageInternal = beginContext(async (clientId: string): Promise<string | null> => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -34,7 +34,7 @@ const getLastSystemMessageInternal = beginContext(async (clientId: string): Prom
  * @example
  * const lastMessage = await getLastSystemMessage("client-123");
  * console.log(lastMessage); // Outputs the last system message or null
- */
+*/
 export async function getLastSystemMessage(clientId: string) {
   return await getLastSystemMessageInternal(clientId);
 }

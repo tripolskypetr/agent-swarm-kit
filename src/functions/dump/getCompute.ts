@@ -10,7 +10,7 @@ const METHOD_NAME = "function.dump.getCompute";
  *
  * @function getCompute
  * @param {ComputeName} computeName - The name of the compute.
- */
+*/
 export function getCompute(computeName: ComputeName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

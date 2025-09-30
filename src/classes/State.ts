@@ -7,18 +7,18 @@ import beginContext from "../utils/beginContext";
 /**
  * Type definition for a state object, mapping IState keys to unknown values.
  * Used for type-safe state access within client context.
- */
+*/
 type TState = {
   [key in keyof IState]: unknown;
 };
 
-/** @private Constant for logging the getState method in StateUtils */
+/** @private Constant for logging the getState method in StateUtils*/
 const METHOD_NAME_GET = "StateUtils.getState";
 
-/** @private Constant for logging the setState method in StateUtils */
+/** @private Constant for logging the setState method in StateUtils*/
 const METHOD_NAME_SET = "StateUtils.setState";
 
-/** @private Constant for logging the clearState method in StateUtils */
+/** @private Constant for logging the clearState method in StateUtils*/
 const METHOD_NAME_CLEAR = "StateUtils.clearState";
 
 /**
@@ -26,7 +26,7 @@ const METHOD_NAME_CLEAR = "StateUtils.clearState";
  * Provides methods to get, set, and clear state data for specific clients, agents, and state names,
  * interfacing with the swarm's state service and enforcing agent-state registration.
  * @implements {TState}
- */
+*/
 export class StateUtils implements TState {
   /**
    * Retrieves the state data for a given client, agent, and state name.
@@ -34,7 +34,7 @@ export class StateUtils implements TState {
    * Executes within a context for logging.
    * @template T - The type of the state data to retrieve, defaults to any.
    * @throws {Error} If the client session is invalid, the state is not registered in the agent, or the state service encounters an error.
-   */
+  */
   public getState = beginContext(
     async (payload: {
       clientId: string;
@@ -79,7 +79,7 @@ export class StateUtils implements TState {
    * Executes within a context for logging.
    * @template T - The type of the state data to set, defaults to any.
    * @throws {Error} If the client session is invalid, the state is not registered in the agent, or the state service encounters an error.
-   */
+  */
   public setState = beginContext(
     async (
       dispatchFn: IStateData | ((prevState: IStateData) => Promise<IStateData>),
@@ -138,7 +138,7 @@ export class StateUtils implements TState {
    * Executes within a context for logging.
    * @template T - The type of the state data, defaults to any (unused in return).
    * @throws {Error} If the client session is invalid, the state is not registered in the agent, or the state service encounters an error.
-   */
+  */
   public clearState = beginContext(
     async (payload: {
       clientId: string;
@@ -179,7 +179,7 @@ export class StateUtils implements TState {
 
 /**
  * Singleton instance of StateUtils for managing client-specific state operations.
- */
+*/
 export const State = new StateUtils();
 
 export default State;

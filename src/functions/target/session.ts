@@ -15,13 +15,13 @@ import { markOnline } from "../other/markOnline";
 
 /**
  * Type definition for the complete function used in session objects.
- */
+*/
 type TComplete = (content: string) => Promise<string>;
 
 /**
  * Default delay in milliseconds for scheduled or rate-limited session completions.
  * @constant {number}
- */
+*/
 const SCHEDULED_DELAY = 1_000;
 
 const METHOD_NAME = "function.target.session";
@@ -32,7 +32,7 @@ const METHOD_NAME = "function.target.session";
  * Creates a session with queued execution capabilities, initializing it in "session" mode and providing methods to complete and dispose of the session.
  * The `complete` method executes content with performance tracking and event bus notifications, wrapped in an execution context.
  *
- */
+*/
 const sessionInternal = (
   clientId: string,
   swarmName: SwarmName,
@@ -113,7 +113,7 @@ const sessionInternal = (
  * const result = await complete("Hello, swarm!");
  * console.log(result); // Outputs the swarm's response
  * await dispose();
- */
+*/
 const session = <Payload extends object = object>(
   clientId: string,
   swarmName: SwarmName,
@@ -161,13 +161,13 @@ const session = <Payload extends object = object>(
 
 /**
  * Configuration interface for scheduled or rate-limited sessions.
- */
+*/
 export interface ISessionConfig {
   delay?: number;
   /**
    * Optional callback function invoked when the session is disposed.
    * Called during session cleanup to perform any necessary resource cleanup operations.
-   */
+  */
   onDispose?: () => void;
 }
 
@@ -183,7 +183,7 @@ export interface ISessionConfig {
  * const result = await complete("Delayed message"); // Executed after 2 seconds
  * console.log(result);
  * await dispose();
- */
+*/
 session.scheduled = <Payload extends object = object>(
   clientId: string,
   swarmName: SwarmName,
@@ -277,7 +277,7 @@ session.scheduled = <Payload extends object = object>(
  * const result = await complete("Throttled message"); // Limited to one execution every 5 seconds
  * console.log(result);
  * await dispose();
- */
+*/
 session.rate = <Payload extends object = object>(
   clientId: string,
   swarmName: SwarmName,

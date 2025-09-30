@@ -8,7 +8,7 @@ const METHOD_NAME = "cli.dumpSwarm";
 /**
  * Dumps the swarm information into PlantUML format.
  *
- */
+*/
 export const dumpSwarm = beginContext((swarmName: SwarmName) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

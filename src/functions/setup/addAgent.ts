@@ -8,7 +8,7 @@ const METHOD_NAME = "function.setup.addAgent";
 
 /**
  * Function implementation
- */
+*/
 const addAgentInternal = beginContext((publicAgentSchema: IAgentSchema) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -41,7 +41,7 @@ const addAgentInternal = beginContext((publicAgentSchema: IAgentSchema) => {
  * const agentSchema = { agentName: "AgentX", prompt: "Handle tasks" };
  * const agentName = addAgent(agentSchema);
  * console.log(agentName); // Outputs "AgentX"
- */
+*/
 export function addAgent(agentSchema: IAgentSchema) {
   return addAgentInternal(agentSchema);
 }

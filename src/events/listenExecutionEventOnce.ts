@@ -7,7 +7,7 @@ import beginContext from "../utils/beginContext";
  * Validates the client ID for execution event listening, allowing wildcard "*" or checking for an active session.
  *
  * @throws {Error} If the client ID is not "*" and no active session exists for it.
- */
+*/
 const validateClientId = (clientId: string) => {
   if (clientId === "*") {
     return;
@@ -37,7 +37,7 @@ const validateClientId = (clientId: string) => {
  * );
  * // Logs the first "complete" execution event for "client-123"
  * unsubscribe(); // Cancels listener if not yet triggered
- */
+*/
 export const listenExecutionEventOnce = beginContext(
   (
     clientId: string,

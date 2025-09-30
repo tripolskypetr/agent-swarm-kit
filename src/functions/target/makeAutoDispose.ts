@@ -10,18 +10,18 @@ const METHOD_NAME = "function.target.makeAutoDispose";
 /**
  * Default timeout in seconds before auto-dispose is triggered.
  * @constant {number}
- */
+*/
 const DEFAULT_TIMEOUT = 15 * 60;
 
 /**
  * Interface for the parameters of the makeAutoDispose function.
- */
+*/
 export interface IMakeDisposeParams {
   timeoutSeconds: number;
   /**
    * Optional callback invoked when the session is closed.
    * Called after the auto-dispose mechanism triggers and the session is successfully disposed.
-   */
+  */
   onDestroy?: (clientId: string, swarmName: SwarmName) => void;
 }
 
@@ -42,7 +42,7 @@ export interface IMakeDisposeParams {
  * tick(); // Reset timer
  * setInterval(tick, 10000); // Keep alive every 10 seconds
  * destroy(); // Stop manually
- */
+*/
 export const makeAutoDispose = beginContext(
   (
     clientId: string,

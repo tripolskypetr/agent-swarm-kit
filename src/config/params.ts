@@ -180,7 +180,7 @@ const CC_DEFAULT_AGENT_TOOL_VALIDATE = () => true;
  * Retrieves the embedding vector for a specific string hash, returning null if not found.
  * Used to check if a precomputed embedding exists in the cache.
  * @throws {Error} If reading from storage fails (e.g., file corruption).
- */
+*/
 const CC_DEFAULT_READ_EMBEDDING_CACHE = (
   embeddingName: EmbeddingName,
   stringHash: string
@@ -190,7 +190,7 @@ const CC_DEFAULT_READ_EMBEDDING_CACHE = (
  * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
  * Used to cache computed embeddings to avoid redundant processing.
  * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
- */
+*/
 const CC_DEFAULT_WRITE_EMBEDDING_CACHE = (
   embeddings: number[],
   embeddingName: EmbeddingName,
@@ -202,24 +202,24 @@ const CC_DEFAULT_WRITE_EMBEDDING_CACHE = (
  * Establishes a connection between a client and an agent, allowing messages to be sent
  * and answers to be received via a callback mechanism.
  *
- */
+*/
 const CC_DEFAULT_CONNECT_OPERATOR = (clientId: string, agentName: AgentName) =>
   OperatorAdapter.connectOperator(clientId, agentName);
 
 /**
  * Flag to enable operator timeout, used in `ClientOperator` for message processing.
- */
+*/
 const CC_ENABLE_OPERATOR_TIMEOUT = false;
 
 /**
  * Disable fetch of data from all storages. Quite usefull for unit tests
- */
+*/
 const CC_STORAGE_DISABLE_GET_DATA = false;
 
 /**
  * When the model run more than 20 nested tool call iterations including
  * navigations throw an exeption
- */
+*/
 const CC_MAX_NESTED_EXECUTIONS = 20;
 
 const GLOBAL_CONFIG: IGlobalConfig = {
@@ -283,7 +283,7 @@ GLOBAL_CONFIG.CC_RESQUE_STRATEGY = "flush";
  * This function merges the given configuration into the existing `GLOBAL_CONFIG` object.
  *
  * Only the specified properties will be updated, leaving the rest of the `GLOBAL_CONFIG` unchanged.
- */
+*/
 export const setConfig = (config: Partial<IGlobalConfig>) => {
   Object.assign(GLOBAL_CONFIG, config);
 };

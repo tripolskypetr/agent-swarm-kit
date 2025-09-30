@@ -2,12 +2,12 @@ import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-/** @private Constant defining the method name for logging and validation context */
+/** @private Constant defining the method name for logging and validation context*/
 const METHOD_NAME = "function.commit.commitDeveloperMessage";
 
 /**
  * Function implementation
- */
+*/
 const commitDeveloperMessageInternal = beginContext(
   async (content: string, clientId: string, agentName: string): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -65,7 +65,7 @@ const commitDeveloperMessageInternal = beginContext(
  * @param {string} clientId - The unique identifier of the client session.
  * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
- */
+*/
 export async function commitDeveloperMessage(content: string, clientId: string, agentName: string) {
   return await commitDeveloperMessageInternal(content, clientId, agentName);
 }

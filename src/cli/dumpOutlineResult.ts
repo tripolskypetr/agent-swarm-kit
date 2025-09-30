@@ -15,7 +15,7 @@ const WARN_KB = 10;
  * - Writes the full outline result to a markdown file.
  *
  * @function
- */
+*/
 export const dumpOutlineResult = beginContext(
   async (result: IOutlineResult, outputDir = "./dump/outline") => {
     {

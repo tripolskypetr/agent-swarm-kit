@@ -1,6 +1,6 @@
 /**
- *  * Provides a public interface for interacting with compute services, wrapping operations in a method context.
- */
+ * Provides a public interface for interacting with compute services, wrapping operations in a method context.
+*/
 
 import { inject } from "../../core/di";
 import { ComputeConnectionService } from "../connection/ComputeConnectionService";
@@ -12,46 +12,46 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 import { StateName } from "../../../interfaces/State.interface";
 
 /**
- *  * Extends ComputeConnectionService for type compatibility.
- */
+ * Extends ComputeConnectionService for type compatibility.
+*/
 interface IComputeConnectionService extends ComputeConnectionService {}
 
 /**
- *  * Defines keys to be excluded from the public interface.
- */
+ * Defines keys to be excluded from the public interface.
+*/
 type InternalKeys = keyof {
   getComputeRef: never;
   getSharedComputeRef: never;
 };
 
 /**
- *  * Type for the public compute service, excluding internal keys.
- */
+ * Type for the public compute service, excluding internal keys.
+*/
 type TComputeConnectionService = {
   [key in Exclude<keyof IComputeConnectionService, InternalKeys>]: unknown;
 };
 
 /**
- *  *  *  * Public service for managing compute operations with context-aware execution.
- */
+ * Public service for managing compute operations with context-aware execution.
+*/
 export class ComputePublicService<T extends IComputeData = IComputeData>
   implements TComputeConnectionService
 {
   /**
-   *    * Injected logger service for logging operations.
-   * */
+   * Injected logger service for logging operations.
+   **/
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
-   *    * Injected compute connection service for compute operations.
-   * */
+   * Injected compute connection service for compute operations.
+   **/
   private readonly computeConnectionService = inject<ComputeConnectionService>(
     TYPES.computeConnectionService
   );
 
   /**
-   *    * Retrieves computed data within a method context.
-   *    *    *    *    * */
+   * Retrieves computed data within a method context.
+   */
   public getComputeData = async (
     methodName: string,
     clientId: string,
@@ -82,8 +82,8 @@ export class ComputePublicService<T extends IComputeData = IComputeData>
   };
 
   /**
-   *    * Triggers a recalculation for the compute instance within a method context.
-   *    *    *    *    *    * */
+   * Triggers a recalculation for the compute instance within a method context.
+   */
   public calculate = async (
     stateName: StateName,
     methodName: string,
@@ -116,8 +116,8 @@ export class ComputePublicService<T extends IComputeData = IComputeData>
   };
 
   /**
-   *    * Forces an update of the compute instance within a method context.
-   *    *    *    *    * */
+   * Forces an update of the compute instance within a method context.
+   */
   public update = async (
     methodName: string,
     clientId: string,
@@ -147,8 +147,8 @@ export class ComputePublicService<T extends IComputeData = IComputeData>
   };
 
   /**
-   *    * Cleans up the compute instance within a method context.
-   *    *    *    *    * */
+   * Cleans up the compute instance within a method context.
+   */
   public dispose = async (
     methodName: string,
     clientId: string,
@@ -180,6 +180,6 @@ export class ComputePublicService<T extends IComputeData = IComputeData>
 }
 
 /**
- * *  * Exports the ComputePublicService class as the default export.
- */
+ * * Exports the ComputePublicService class as the default export.
+*/
 export default ComputePublicService;

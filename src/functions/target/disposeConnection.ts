@@ -25,7 +25,7 @@ const METHOD_NAME = "function.target.disposeConnection";
  * @throws {Error} If session or swarm validation fails, or if any disposal operation encounters an error.
  * @example
  * await disposeConnection("client-123", "TaskSwarm");
- */
+*/
 export const disposeConnection = beginContext(
   async (clientId: string, swarmName: SwarmName, methodName = METHOD_NAME) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG

@@ -2,12 +2,12 @@ import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-/** @private Constant defining the method name for logging and validation context */
+/** @private Constant defining the method name for logging and validation context*/
 const METHOD_NAME = "function.commit.commitSystemMessageForce";
 
 /**
  * Function implementation
- */
+*/
 const commitSystemMessageForceInternal = beginContext(
   async (content: string, clientId: string): Promise<void> => {
     // Log the commit attempt if enabled
@@ -47,7 +47,7 @@ const commitSystemMessageForceInternal = beginContext(
  * @param {string} content - The content to be processed or stored.
  * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails, propagated from respective validation services.
- */
+*/
 export async function commitSystemMessageForce(content: string, clientId: string) {
   return await commitSystemMessageForceInternal(content, clientId);
 }

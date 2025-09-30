@@ -10,7 +10,7 @@ const METHOD_NAME_EXECUTE = "cli.dumpClientPerformance.execute";
 /**
  * The internal HOF for handling the performance dump
  *
- */
+*/
 const dumpClientPerformanceInternal = beginContext(
   async (clientId: string, dirName = "./logs/client") => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -23,7 +23,7 @@ const dumpClientPerformanceInternal = beginContext(
  * Dumps the performance data using the swarm's document service.
  * Logs the method name if logging is enabled in the global configuration.
  *
- */
+*/
 const dumpClientPerformance = async (
   clientId: string,
   dirName = "./logs/client"
@@ -36,7 +36,7 @@ const dumpClientPerformance = async (
  * Sets up a listener to dump performance data after execution.
  * Logs the method name if logging is enabled in the global configuration.
  *
- */
+*/
 dumpClientPerformance.runAfterExecute = beginContext(
   async (dirName = "./logs/client") => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

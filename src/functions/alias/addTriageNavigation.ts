@@ -1,7 +1,7 @@
 /**
  * Adds triage navigation functionality to an agent by creating a tool that facilitates navigation to a triage agent.
  * @module addTriageNavigation
- */
+*/
 
 import { AgentName, ToolName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
@@ -19,19 +19,19 @@ const METHOD_NAME = "function.alias.addTriageNavigation";
  * Parameters for configuring triage navigation.
  * @interface ITriageNavigationParams
  * @extends INavigateToTriageParams
- */
+*/
 interface ITriageNavigationParams extends INavigateToTriageParams {
-  /** The name of the tool to be created. */
+  /** The name of the tool to be created.*/
   toolName: ToolName;
-  /** A description of the tool's functionality. */
+  /** A description of the tool's functionality.*/
   description: string;
-  /** Optional documentation note for the tool. */
+  /** Optional documentation note for the tool.*/
   docNote?: string;
 }
 
 /**
  * Function implementation
- */
+*/
 const addTriageNavigationInternal = beginContext(
   ({
     toolName,
@@ -74,7 +74,7 @@ const addTriageNavigationInternal = beginContext(
  * Creates and registers a triage navigation tool for an agent to navigate to a triage agent.
  * @function addTriageNavigation
  * @param {ITriageNavigationParams} params - The parameters or configuration object.
- */
+*/
 export function addTriageNavigation(params: ITriageNavigationParams) {
   return addTriageNavigationInternal(params);
 }

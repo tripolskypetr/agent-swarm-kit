@@ -1,7 +1,7 @@
 /**
  * @module ExecutionValidationService
  * Service for validating and managing execution counts for client sessions in a swarm context.
- */
+*/
 import { inject } from "../../../lib/core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../../lib/core/types";
@@ -13,31 +13,31 @@ import SessionValidationService from "./SessionValidationService";
 /**
  * A unique identifier for an execution instance.
  * Used to track and manage execution flows within the swarm.
- */
+*/
 type ExecutionId = string;
 
 /**
  * @class ExecutionValidationService
  * Manages execution count validation to prevent excessive nested executions within a swarm.
- */
+*/
 export class ExecutionValidationService {
   /**
    * @private
    * Injected logger service for logging execution-related information.
-   */
+  */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * @private
    * Injected session validation service for checking client sessions and swarm associations.
-   */
+  */
   private readonly sessionValidationService = inject<SessionValidationService>(
     TYPES.sessionValidationService
   );
 
   /**
    * Retrieves a memoized set of execution IDs for a given client and swarm.
-   */
+  */
   public getExecutionCount = memoize<
     (clientId: string, swarmName: SwarmName) => {
       executionSet: Set<ExecutionId>,
@@ -56,7 +56,7 @@ export class ExecutionValidationService {
   /**
    * Increments the execution count for a client and checks for excessive nested executions.
    * @throws {Error} If the maximum nested execution limit is reached.
-   */
+  */
   public incrementCount = (
     executionId: string,
     clientId: string,
@@ -89,7 +89,7 @@ export class ExecutionValidationService {
 
   /**
    * Resets the execution count for a client and swarm.
-   */
+  */
   public decrementCount = (
     executionId: string,
     clientId: string,
@@ -114,7 +114,7 @@ export class ExecutionValidationService {
    * This effectively resets the execution count for the given client and swarm context,
    * but does not remove the memoized entry itself.
    *
-   */
+  */
   public flushCount = (clientId: string, swarmName: SwarmName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("executionValidationService dispose", {
@@ -130,7 +130,7 @@ export class ExecutionValidationService {
 
   /**
    * Clears the memoized execution count for a specific client and swarm.
-   */
+  */
   public dispose = (clientId: string, swarmName: SwarmName): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("executionValidationService dispose", {

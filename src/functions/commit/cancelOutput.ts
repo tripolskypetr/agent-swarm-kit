@@ -2,12 +2,12 @@ import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
 
-/** @private Constant defining the method name for logging and validation context */
+/** @private Constant defining the method name for logging and validation context*/
 const METHOD_NAME = "function.commit.cancelOutput";
 
 /**
  * Function implementation
- */
+*/
 const cancelOutputInternal = beginContext(
   async (clientId: string, agentName: string): Promise<void> => {
     // Log the cancellation attempt if enabled
@@ -66,7 +66,7 @@ const cancelOutputInternal = beginContext(
  * @param {string} clientId - The unique identifier of the client session.
  * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
- */
+*/
 export async function cancelOutput(clientId: string, agentName: string) {
   return await cancelOutputInternal(clientId, agentName);
 }

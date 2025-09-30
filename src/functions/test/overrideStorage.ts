@@ -12,14 +12,14 @@ const METHOD_NAME = "function.test.overrideStorage";
 /**
  * Type representing a partial storage schema configuration.
  * Used for storage service configuration with optional properties.
- */
+*/
 type TStorageSchema<T extends IStorageData = IStorageData> = {
   storageName: IStorageSchema<T>["storageName"];
 } & Partial<IStorageSchema<T>>;
 
 /**
  * Function implementation
- */
+*/
 const overrideStorageInternal = beginContext(
   (publicStorageSchema: TStorageSchema<IStorageData>): IStorageSchema<any> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -56,7 +56,7 @@ const overrideStorageInternal = beginContext(
  *   createIndex: (item) => item.id.toString(),
  * });
  * // Logs the operation (if enabled) and updates the storage schema in the swarm.
- */
+*/
 export function overrideStorage<T extends IStorageData = IStorageData>(
   storageSchema: TStorageSchema<T>
 ): IStorageSchema<T> {

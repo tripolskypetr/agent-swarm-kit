@@ -10,7 +10,7 @@ const METHOD_NAME = "function.common.validate";
  * Logs the validation process if logging is enabled in the global config.
  * 
  * @private
- */
+*/
 const validateInternal = singleshot(() => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME);
@@ -28,7 +28,7 @@ const validateInternal = singleshot(() => {
  * Validates all swarms, agents, and outlines in the system.
  * This function is idempotent and will only perform validation once per process.
  * 
- */
+*/
 export function validate() {
   return validateInternal();
 }

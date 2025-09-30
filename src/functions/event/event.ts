@@ -8,7 +8,7 @@ const METHOD_NAME = "function.event.listenEvent";
 /**
  * Set of reserved event source names that cannot be used for custom events.
  * @constant {Set<EventSource>}
- */
+*/
 const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
   "agent-bus",
   "history-bus",
@@ -22,7 +22,7 @@ const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
 
 /**
  * Function implementation
- */
+*/
 const eventInternal = beginContext(
   async (clientId: string, topicName: string, payload: unknown) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -64,7 +64,7 @@ const eventInternal = beginContext(
  * @example
  * await event("client-123", "custom-topic", { message: "Hello, swarm!" });
  * // Emits an event with topic "custom-topic" and payload { message: "Hello, swarm!" }
- */
+*/
 export async function event<T extends unknown = any>(
   clientId: string,
   topicName: string,

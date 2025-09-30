@@ -7,25 +7,25 @@ import { GLOBAL_CONFIG } from "../config/params";
 /**
  * Type definition for dispose function.
  * Function called to clean up resources and connections.
- */
+*/
 type DisposeFn = () => void;
 
-/** Timeout duration for operator signal in milliseconds */
+/** Timeout duration for operator signal in milliseconds*/
 const OPERATOR_SIGNAL_TIMEOUT = 90_000;
 
-/** Symbol representing operator timeout */
+/** Symbol representing operator timeout*/
 const OPERATOR_SIGNAL_SYMBOL = Symbol("operator-timeout");
 
 /**
  * Manages operator signal communication
- *  */
+*/
 class OperatorSignal {
   private _signalFactory: ReturnType<typeof this.params.connectOperator>;
   private _disposeRef: DisposeFn | null = null;
 
   /**
    * Creates an OperatorSignal instance
-   *    */
+  */
   constructor(readonly params: IOperatorParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       params.logger.debug(
@@ -39,7 +39,7 @@ class OperatorSignal {
 
   /**
    * Sends a message through the operator signal
-   *    *    */
+   */
   public sendMessage(message: string, next: (answer: string) => void) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -51,7 +51,7 @@ class OperatorSignal {
 
   /**
    * Disposes the operator signal
-   *    */
+  */
   public async dispose() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -66,14 +66,14 @@ class OperatorSignal {
 
 /**
  * Client operator implementation
- *  *  */
+*/
 export class ClientOperator implements IAgent {
   private _outgoingSubject = new Subject<string>();
   private _operatorSignal: OperatorSignal;
 
   /**
    * Creates a ClientOperator instance
-   *    */
+  */
   constructor(readonly params: IOperatorParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -86,7 +86,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Runs the operator (not supported)
-   *    */
+  */
   async run() {
     console.warn(
       `ClientOperator: run should not be called for clientId=${this.params.clientId} agentName=${this.params.agentName}`
@@ -100,7 +100,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Executes an input with specified mode
-   *    *    *    */
+  */
   async execute(input: string, mode: ExecutionMode) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -127,7 +127,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Waits for operator output with timeout
-   *    */
+  */
   async waitForOutput() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -153,7 +153,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Commits tool output (not supported)
-   *    */
+  */
   commitToolOutput(): Promise<void> {
     console.warn(
       `ClientOperator: commitToolOutput should not be called for clientId=${this.params.clientId} agentName=${this.params.agentName}`
@@ -167,7 +167,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Commits system message (not supported)
-   *    */
+  */
   commitSystemMessage(): Promise<void> {
     console.warn(
       `ClientOperator: commitSystemMessage should not be called for clientId=${this.params.clientId} agentName=${this.params.agentName}`
@@ -181,7 +181,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Commits a developer message
-   *    */
+  */
   commitDeveloperMessage(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -193,7 +193,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Commits tool request (not supported)
-   *    */
+  */
   commitToolRequest(): Promise<string[]> {
     console.warn(
       `ClientOperator: commitToolRequest should not be called for clientId=${this.params.clientId} agentName=${this.params.agentName}`
@@ -207,7 +207,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Commits user message
-   *    *    */
+   */
   commitUserMessage(content: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -220,7 +220,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Commits assistant message (not supported)
-   *    */
+  */
   commitAssistantMessage(): Promise<void> {
     console.warn(
       `ClientOperator: commitAssistantMessage should not be called for clientId=${this.params.clientId} agentName=${this.params.agentName}`
@@ -234,7 +234,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Commits flush (not supported)
-   *    */
+  */
   commitFlush(): Promise<void> {
     console.warn(
       `ClientOperator: commitFlush should not be called for clientId=${this.params.clientId} agentName=${this.params.agentName}`
@@ -248,7 +248,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Commits stop tools (not supported)
-   *    */
+  */
   commitStopTools(): Promise<void> {
     console.warn(
       `ClientOperator: commitStopTools should not be called for clientId=${this.params.clientId} agentName=${this.params.agentName}`
@@ -262,7 +262,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Commits stop tools (not supported)
-   *    */
+  */
   commitCancelOutput(): Promise<void> {
     console.warn(
       `ClientOperator: commitCancelOutput should not be called for clientId=${this.params.clientId} agentName=${this.params.agentName}`
@@ -276,7 +276,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Commits agent change
-   *    */
+  */
   async commitAgentChange(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -287,7 +287,7 @@ export class ClientOperator implements IAgent {
 
   /**
    * Disposes the client operator
-   *    */
+  */
   async dispose() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -302,5 +302,5 @@ export class ClientOperator implements IAgent {
 
 /**
  * Default export of the ClientOperator class.
- */
+*/
 export default ClientOperator;

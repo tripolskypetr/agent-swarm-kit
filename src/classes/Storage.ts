@@ -11,30 +11,30 @@ import beginContext from "../utils/beginContext";
 /**
  * Type definition for a storage object, mapping IStorage keys to unknown values.
  * Used for type-safe storage access within client context.
- */
+*/
 type TStorage = {
   [key in keyof IStorage]: unknown;
 };
 
-/** @private Constant for logging the take method in StorageUtils */
+/** @private Constant for logging the take method in StorageUtils*/
 const METHOD_NAME_TAKE = "StorageUtils.take";
 
-/** @private Constant for logging the upsert method in StorageUtils */
+/** @private Constant for logging the upsert method in StorageUtils*/
 const METHOD_NAME_UPSERT = "StorageUtils.upsert";
 
-/** @private Constant for logging the remove method in StorageUtils */
+/** @private Constant for logging the remove method in StorageUtils*/
 const METHOD_NAME_REMOVE = "StorageUtils.remove";
 
-/** @private Constant for logging the get method in StorageUtils */
+/** @private Constant for logging the get method in StorageUtils*/
 const METHOD_NAME_GET = "StorageUtils.get";
 
-/** @private Constant for logging the list method in StorageUtils */
+/** @private Constant for logging the list method in StorageUtils*/
 const METHOD_NAME_LIST = "StorageUtils.list";
 
-/** @private Constant for logging the createNumericIndex method in SharedStorageUtils */
+/** @private Constant for logging the createNumericIndex method in SharedStorageUtils*/
 const METHOD_NAME_CREATE_NUMERIC_INDEX = "StorageUtils.createNumericIndex";
 
-/** @private Constant for logging the clear method in StorageUtils */
+/** @private Constant for logging the clear method in StorageUtils*/
 const METHOD_NAME_CLEAR = "StorageUtils.clear";
 
 /**
@@ -42,7 +42,7 @@ const METHOD_NAME_CLEAR = "StorageUtils.clear";
  * Provides methods to manipulate and query storage data for specific clients, agents, and storage names,
  * interfacing with the swarm's storage service and enforcing agent-storage registration.
  * @implements {TStorage}
- */
+*/
 export class StorageUtils implements TStorage {
   /**
    * Retrieves a specified number of items from storage matching a search query for a given client and agent.
@@ -50,7 +50,7 @@ export class StorageUtils implements TStorage {
    * Executes within a context for logging.
    * @template T - The type of the storage data items, defaults to IStorageData.
    * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-   */
+  */
   public take = beginContext(
     async (payload: {
       search: string;
@@ -110,7 +110,7 @@ export class StorageUtils implements TStorage {
    * Executes within a context for logging.
    * @template T - The type of the storage data item, defaults to IStorageData.
    * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-   */
+  */
   public upsert = beginContext(
     async (payload: {
       item: IStorageData;
@@ -161,7 +161,7 @@ export class StorageUtils implements TStorage {
    * Validates the client session, storage name, and agent-storage registration before removing via the storage service.
    * Executes within a context for logging.
    * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-   */
+  */
   public remove = beginContext(
     async (payload: {
       itemId: IStorageData["id"];
@@ -208,7 +208,7 @@ export class StorageUtils implements TStorage {
    * Executes within a context for logging.
    * @template T - The type of the storage data item, defaults to IStorageData.
    * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-   */
+  */
   public get = beginContext(
     async (payload: {
       itemId: IStorageData["id"];
@@ -260,7 +260,7 @@ export class StorageUtils implements TStorage {
    * Executes within a context for logging.
    * @template T - The type of the storage data items, defaults to IStorageData.
    * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-   */
+  */
   public list = beginContext(
     async (payload: {
       clientId: string;
@@ -311,7 +311,7 @@ export class StorageUtils implements TStorage {
    * Executes within a context for logging.
    * The numeric index is determined based on the current number of items in the storage.
    * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-   */
+  */
   public createNumericIndex = beginContext(
     async (payload: {
       clientId: string;
@@ -355,7 +355,7 @@ export class StorageUtils implements TStorage {
    * Validates the storage name and agent-storage registration before clearing via the storage service.
    * Executes within a context for logging.
    * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-   */
+  */
   public clear = beginContext(
     async (payload: {
       clientId: string;
@@ -400,7 +400,7 @@ export class StorageUtils implements TStorage {
 
 /**
  * Singleton instance of StorageUtils for managing client-specific storage operations.
- */
+*/
 export const Storage = new StorageUtils();
 
 export default Storage;

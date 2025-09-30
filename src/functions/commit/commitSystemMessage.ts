@@ -2,12 +2,12 @@ import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 
-/** @private Constant defining the method name for logging and validation context */
+/** @private Constant defining the method name for logging and validation context*/
 const METHOD_NAME = "function.commit.commitSystemMessage";
 
 /**
  * Function implementation
- */
+*/
 const commitSystemMessageInternal = beginContext(
   async (content: string, clientId: string, agentName: string): Promise<void> => {
     // Log the commit attempt if enabled
@@ -71,7 +71,7 @@ const commitSystemMessageInternal = beginContext(
  * @param {string} clientId - The unique identifier of the client session.
  * @param {string} agentName - The name of the agent to use or reference.
  * @throws {Error} If agent, session, or swarm validation fails, propagated from respective validation services.
- */
+*/
 export async function commitSystemMessage(content: string, clientId: string, agentName: string) {
   return await commitSystemMessageInternal(content, clientId, agentName);
 }

@@ -10,7 +10,7 @@ const METHOD_NAME = "function.dump.getPipeline";
  *
  * @function getPipeline
  * @param {PipelineName} pipelineName - The name of the pipeline.
- */
+*/
 export function getPipeline(pipelineName: PipelineName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

@@ -9,14 +9,14 @@ const METHOD_NAME = "function.test.overrideSwarm";
 /**
  * Type representing a partial swarm schema configuration.
  * Used for swarm configuration with optional properties.
- */
+*/
 type TSwarmSchema = {
   swarmName: ISwarmSchema["swarmName"];
 } & Partial<ISwarmSchema>;
 
 /**
  * Function implementation
- */
+*/
 const overrideSwarmInternal = beginContext((publicSwarmSchema: TSwarmSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -46,7 +46,7 @@ const overrideSwarmInternal = beginContext((publicSwarmSchema: TSwarmSchema) => 
  *   policies: ["ContentFilter"],
  * });
  * // Logs the operation (if enabled) and updates the swarm schema in the swarm system.
- */
+*/
 export function overrideSwarm(swarmSchema: TSwarmSchema) {
   return overrideSwarmInternal(swarmSchema);
 }

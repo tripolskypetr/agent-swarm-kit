@@ -7,7 +7,7 @@ const METHOD_NAME = "function.setup.addState";
 
 /**
  * Function implementation
- */
+*/
 const addStateInternal = beginContext((stateSchema: IStateSchema) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -52,7 +52,7 @@ const addStateInternal = beginContext((stateSchema: IStateSchema) => {
  * const stateSchema = { stateName: "UserPrefs", shared: true, initialValue: { theme: "dark" } };
  * const stateName = addState(stateSchema);
  * console.log(stateName); // Outputs "UserPrefs"
- */
+*/
 export function addState<T extends unknown = any>(stateSchema: IStateSchema<T>) {
   return addStateInternal(stateSchema);
 }

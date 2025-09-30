@@ -7,7 +7,7 @@ const METHOD_NAME = "function.setup.addEmbedding";
 
 /**
  * Function implementation
- */
+*/
 const addEmbeddingInternal = beginContext(
   (embeddingSchema: IEmbeddingSchema) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -46,7 +46,7 @@ const addEmbeddingInternal = beginContext(
  * const embeddingSchema = { embeddingName: "TextEmbedder", model: "bert-base" };
  * const embeddingName = addEmbedding(embeddingSchema);
  * console.log(embeddingName); // Outputs "TextEmbedder"
- */
+*/
 export function addEmbedding(embeddingSchema: IEmbeddingSchema) {
   return addEmbeddingInternal(embeddingSchema);
 }

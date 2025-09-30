@@ -13,7 +13,7 @@ const METHOD_NAME = "function.target.complete";
 /**
  * Type definition for the complete run function.
  * Represents the function signature used to execute a single command within a swarm session.
- */
+*/
 type TCompleteRun = (METHOD_NAME: string, content: string) => Promise<string>;
 
 /**
@@ -22,7 +22,7 @@ type TCompleteRun = (METHOD_NAME: string, content: string) => Promise<string>;
  * This factory function generates a queued, TTL-limited function to handle single command execution in a swarm session,
  * ensuring operations are executed sequentially and cached results are reused within the TTL period.
  *
- */
+*/
 const createComplete = memoize(
   ([clientId]) => `${clientId}`,
   (clientId: string, swarmName: SwarmName) =>
@@ -53,7 +53,7 @@ const createComplete = memoize(
  *
  * This function sets up a singleton interval-based garbage collector to periodically clean up expired TTL entries from `createComplete`.
  *
- */
+*/
 const createGc = singleshot(async () => {
   disposeSubject.subscribe((clientId) => {
     createComplete.clear(clientId);
@@ -72,7 +72,7 @@ const createGc = singleshot(async () => {
  * @example
  * const result = await complete("Calculate 2 + 2", "client-123", "MathSwarm");
  * console.log(result); // Outputs "4"
- */
+*/
 export const complete = beginContext(
   async <Payload extends object = object>(
     content: string,

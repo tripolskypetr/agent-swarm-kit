@@ -7,7 +7,7 @@ const METHOD_NAME = "function.history.getAssistantHistory";
 
 /**
  * Function implementation
- */
+*/
 const getAssistantHistoryInternal = beginContext(async (clientId: string) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -33,7 +33,7 @@ const getAssistantHistoryInternal = beginContext(async (clientId: string) => {
  * @example
  * const assistantHistory = await getAssistantHistory("client-123");
  * console.log(assistantHistory); // Outputs array of assistant history entries
- */
+*/
 export async function getAssistantHistory(clientId: string) {
   return await getAssistantHistoryInternal(clientId);
 }

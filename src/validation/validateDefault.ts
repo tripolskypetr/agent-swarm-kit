@@ -34,7 +34,7 @@ import validateNoToolCall from "./validateNoToolCall";
  *
  * @see {@link ./validateNoEmptyResult} for the empty result validation logic.
  * @see {@link ./validateNoToolCall} for the tool call detection logic.
- */
+*/
 export const validateDefault = async (output: string): Promise<string | null> => {
   let validation: string | null = null;
   if ((validation = await validateNoEmptyResult(output))) {

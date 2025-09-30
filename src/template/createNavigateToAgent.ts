@@ -18,7 +18,7 @@ const METHOD_NAME = "function.template.navigateToAgent";
 
 /**
  * Will send tool output directly to the model without any additions
- */
+*/
 const DEFAULT_EXECUTE_MESSAGE = "";
 
 /**
@@ -44,12 +44,12 @@ const DEFAULT_EXECUTE_MESSAGE = "";
  *   executeMessage: (clientId, lastMessage, agent) => `Processing ${lastMessage} for ${clientId} on ${agent}`,
  *   emitMessage: (clientId, lastMessage, agent) => `Emitted ${lastMessage} for ${clientId} on ${agent}`,
  * };
- */
+*/
 export interface INavigateToAgentParams {
   /**
    * Optional callback function executed before navigation begins.
    * Allows for custom pre-navigation logic and validation.
-   */
+  */
   beforeNavigate?: (
     clientId: string,
     lastMessage: string | null,
@@ -59,21 +59,21 @@ export interface INavigateToAgentParams {
   /**
    * Optional message or function to emit after flushing the session.
    * Used when navigation cannot be completed and the session needs to be reset.
-   */
+  */
   flushMessage?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
   /**
    * Optional message or function for tool output when navigation occurs.
    * Provides feedback about the navigation operation to the model.
-   */
+  */
   toolOutput?:
     | string
     | ((clientId: string, lastAgent: AgentName, agentName: AgentName) => string | Promise<string>);
   /**
    * Optional function to transform the last user message for navigation context.
    * Allows customization of how the previous message is processed.
-   */
+  */
   lastMessage?: (
     clientId: string,
     lastMessage: string | null,
@@ -83,7 +83,7 @@ export interface INavigateToAgentParams {
   /**
    * Optional message or function to emit when navigation occurs without execution.
    * Used for navigation scenarios that only require message emission.
-   */
+  */
   emitMessage?:
     | string
     | ((
@@ -95,7 +95,7 @@ export interface INavigateToAgentParams {
   /**
    * Optional message or function to execute when navigation occurs with execution.
    * Used to define what message should be executed on the target agent after navigation.
-   */
+  */
   executeMessage?:
     | string
     | ((
@@ -109,14 +109,14 @@ export interface INavigateToAgentParams {
 /**
  * Default tool output message indicating successful navigation to the specified agent.
  *
- */
+*/
 const DEFAULT_TOOL_OUTPUT = (_: SessionId, lastAgent: AgentName, agentName: AgentName) =>
   `Successfully navigated from ${lastAgent} to ${agentName}. Please do not call the navigate tool to ${lastAgent} during the next answer`;
 
 /**
  * Default flush message prompting the user to repeat their input.
  *
- */
+*/
 const DEFAULT_FLUSH_MESSAGE = ({}: SessionId, {}: AgentName) =>
   `Sorry, I missed that. Could you repeat please`;
 
@@ -124,7 +124,7 @@ const DEFAULT_FLUSH_MESSAGE = ({}: SessionId, {}: AgentName) =>
  * Default function to retrieve the last user message for navigation scenarios.
  * Returns the last user message unchanged, ignoring the client and agent parameters.
  *
- */
+*/
 const DEFAULT_LAST_MESSAGE_FN = (
   _: SessionId,
   lastMessage: string,
@@ -157,7 +157,7 @@ const DEFAULT_LAST_MESSAGE_FN = (
  * });
  * await navigate("tool-789", "client-012", "SupportAgent");
  * // Navigates to SupportAgent, commits dynamic tool output, and executes the message with the last user message.
- */
+*/
 export const createNavigateToAgent = ({
   beforeNavigate,
   lastMessage: lastMessageFn = DEFAULT_LAST_MESSAGE_FN,
@@ -170,7 +170,7 @@ export const createNavigateToAgent = ({
    * Navigates to a specified agent for a given client and tool, handling message commits, execution, or emission using the last user message.
    *
    * @throws {Error} If navigation, commit, execution, or emission operations fail (e.g., invalid clientId or agentName).
-   */
+  */
   return beginContext(
     async (toolId: string, clientId: string, agentName: AgentName) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

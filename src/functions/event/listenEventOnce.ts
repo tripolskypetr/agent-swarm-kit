@@ -9,7 +9,7 @@ const METHOD_NAME = "function.event.listenEventOnce";
 /**
  * Set of reserved event source names that cannot be used for custom event topics.
  * @constant {Set<EventSource>}
- */
+*/
 const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
   "agent-bus",
   "history-bus",
@@ -29,7 +29,7 @@ const DISALLOWED_EVENT_SOURCE_LIST: Set<EventSource> = new Set([
  * @param topicName The topicName parameter.
  * @param filterFn The filterFn parameter.
  * @throws {Error} If the client ID is not "*" and no active session exists for it.
- */
+*/
 const validateClientId = (clientId: string) => {
   if (clientId === "*") {
     return;
@@ -43,7 +43,7 @@ const validateClientId = (clientId: string) => {
 
 /**
  * Function implementation
- */
+*/
 const listenEventOnceInternal = beginContext(
   (
     clientId: string,
@@ -102,7 +102,7 @@ const listenEventOnceInternal = beginContext(
  * );
  * // Logs payload once when "custom-topic" event with value > 0 is received
  * unsubscribe(); // Cancels listener if not yet triggered
- */
+*/
 export function listenEventOnce<T extends unknown = any>(
   clientId: string,
   topicName: string,

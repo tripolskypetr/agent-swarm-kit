@@ -7,7 +7,7 @@ const METHOD_NAME = "function.commit.commitToolRequestForce";
 
 /**
  * Function implementation
- */
+*/
 const commitToolRequestForceInternal = beginContext(
   async (
     request: IToolRequest | IToolRequest[],
@@ -46,7 +46,7 @@ const commitToolRequestForceInternal = beginContext(
  * @throws {Error} If session or swarm validation fails.
  * 
  * Function overloads
- */
+*/
 export function commitToolRequestForce(
   request: IToolRequest,
   clientId: string
@@ -63,7 +63,7 @@ export function commitToolRequestForce(
  * @throws {Error} If session or swarm validation fails.
  * 
  * Function overloads
- */
+*/
 export function commitToolRequestForce(
   request: IToolRequest[],
   clientId: string
@@ -78,7 +78,7 @@ export function commitToolRequestForce(
  * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to be processed.
  * @param {string} clientId - The unique identifier of the client session.
  * @throws {Error} If session or swarm validation fails.
- */
+*/
 export async function commitToolRequestForce(
   request: IToolRequest | IToolRequest[],
   clientId: string

@@ -4,12 +4,12 @@ import { AgentName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { IChatArgs, WikiName } from "../../interfaces/Wiki.interface";
 
-/** @constant {string} METHOD_NAME - The name of the method used for logging and validation */
+/** @constant {string} METHOD_NAME - The name of the method used for logging and validation*/
 const METHOD_NAME = "function.target.question";
 
 /**
  * Function implementation
- */
+*/
 const questionInternal = beginContext(
   async (message: string, clientId: string, agentName: AgentName, wikiName: WikiName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -79,7 +79,7 @@ const questionInternal = beginContext(
  * @param {string} clientId - The unique identifier of the client session.
  * @param {AgentName} agentName - The name of the agent to use or reference.
  * @param {WikiName} wikiName - The name of the wiki.
- */
+*/
 export async function question(message: string, clientId: string, agentName: AgentName, wikiName: WikiName) {
   return await questionInternal(message, clientId, agentName, wikiName);
 }

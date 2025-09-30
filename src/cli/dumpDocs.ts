@@ -7,7 +7,7 @@ const METHOD_NAME = "cli.dumpDocs";
 /**
  * Dumps the documentation for the agents and swarms.
  *
- */
+*/
 export const dumpDocs = beginContext(
   (
     prefix = "swarm",

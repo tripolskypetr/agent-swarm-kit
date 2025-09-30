@@ -31,7 +31,7 @@
  * for details on the regex patterns used.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace|String.replace}
  * for string replacement mechanics.
- */
+*/
 export const removeXmlTags = (input: string) => {
   if (!input) {
     return "";

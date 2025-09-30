@@ -24,15 +24,15 @@ const MAX_ATTEMPTS = 5;
  * Provides methods to append, clear, and retrieve messages for tracking interactions in an outline process.
  * @class
  * @implements {IOutlineHistory }
- */
+*/
 class OutlineHistory implements IOutlineHistory {
-  /** @private */
+  /** @private*/
   private messages: IOutlineMessage[] = [];
 
   /**
    * Appends one or more messages to the history.
    * Flattens nested arrays of messages and adds them to the internal message list.
-   */
+  */
   async push(
     ...messages: (IOutlineMessage | IOutlineMessage[])[]
   ): Promise<void> {
@@ -43,14 +43,14 @@ class OutlineHistory implements IOutlineHistory {
   /**
    * Clears all messages from the history.
    * Resets the internal message list to an empty array.
-   */
+  */
   async clear(): Promise<void> {
     this.messages = [];
   }
 
   /**
    * Retrieves a copy of all messages in the history.
-   */
+  */
   async list(): Promise<IOutlineMessage[]> {
     return [...this.messages];
   }
@@ -62,7 +62,7 @@ class OutlineHistory implements IOutlineHistory {
  * Attempts to produce a valid structured data based on the outline schema, handling validations and retries up to a configurable maximum.
  * @private
  * @async
- */
+*/
 const jsonInternal = beginContext(
   async (
     outlineName: OutlineName,
@@ -241,7 +241,7 @@ const jsonInternal = beginContext(
  * // Example usage
  * const result = await json<"MyOutline", { query: string }>("MyOutline", { query: "example" });
  * console.log(result.isValid, result.data); // Logs validation status and data
- */
+*/
 export async function json<
   Data extends IOutlineData = IOutlineData,
   Param extends IOutlineParam = IOutlineParam

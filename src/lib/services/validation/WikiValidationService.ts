@@ -8,26 +8,26 @@ import { GLOBAL_CONFIG } from "../../../config/params";
 /**
  * @class WikiValidationService
  * Service for managing and validating wiki configurations
- */
+*/
 export class WikiValidationService {
   /**
    * @private
    * @readonly
    * Injected logger service instance
-   */
+  */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * @private
    * Map storing wiki schemas by wiki name
-   */
+  */
   private _wikiMap = new Map<WikiName, IWikiSchema>();
 
   /**
    * Adds a wiki schema to the validation service
    * @public
    * @throws {Error} If wikiName already exists
-   */
+  */
   public addWiki = (wikiName: WikiName, wikiSchema: IWikiSchema): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("wikiValidationService addWiki", {
@@ -45,7 +45,7 @@ export class WikiValidationService {
    * @public
    * @throws {Error} If wikiName is not found
    * Memoized function to cache validation results
-   */
+  */
   public validate = memoize(
     ([wikiName]) => wikiName,
     (wikiName: WikiName, source: string): void => {
@@ -68,5 +68,5 @@ export class WikiValidationService {
 /**
  * @exports WikiValidationService
  * Default export of WikiValidationService class
- */
+*/
 export default WikiValidationService;

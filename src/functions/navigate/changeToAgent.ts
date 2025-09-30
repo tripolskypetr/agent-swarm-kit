@@ -10,7 +10,7 @@ const METHOD_NAME = "function.navigate.changeToAgent";
 
 /**
  * Type definition for the change agent execution function.
- */
+*/
 type TChangeToAgentRun = (
   methodName: string,
   agentName: string,
@@ -24,7 +24,7 @@ type TChangeToAgentRun = (
  * ensuring operations are executed sequentially and cached results are reused within the TTL period.
  *
  * @function
- */
+*/
 const createChangeToAgent = memoize(
   ([clientId]) => `${clientId}`,
   (clientId: string) =>
@@ -103,7 +103,7 @@ const createChangeToAgent = memoize(
  * This function sets up a singleton interval-based garbage collector to periodically clean up expired TTL entries from `createChangeToAgent`.
  *
  * @function
- */
+*/
 const createGc = singleshot(async () => {
   disposeSubject.subscribe((clientId) => {
     createChangeToAgent.clear(clientId);
@@ -112,7 +112,7 @@ const createGc = singleshot(async () => {
 
 /**
  * Function implementation
- */
+*/
 const changeToAgentInternal = beginContext(
   async (agentName: AgentName, clientId: string) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -173,7 +173,7 @@ const changeToAgentInternal = beginContext(
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToAgent("AgentX", "client-123");
- */
+*/
 export async function changeToAgent(agentName: AgentName, clientId: string) {
   return await changeToAgentInternal(agentName, clientId)
 }

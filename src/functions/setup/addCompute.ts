@@ -1,7 +1,7 @@
 /**
  * @module addCompute
  * Provides a function to register a compute schema with validation and logging.
- */
+*/
 
 import { IComputeData, IComputeSchema } from "../../interfaces/Compute.interface";
 import swarm from "../../lib";
@@ -10,7 +10,7 @@ import beginContext from "../../utils/beginContext";
 
 /**
  * Function implementation
- */
+*/
 const addComputeInternal = beginContext((computeSchema: IComputeSchema): string => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log("function.setup.addCompute", {
@@ -32,7 +32,7 @@ const addComputeInternal = beginContext((computeSchema: IComputeSchema): string 
  *
  * @param computeSchema Partial compute schema with updates to be applied to the existing compute configuration.
  * @template T - Type extending IComputeData.
- */
+*/
 export function addCompute<T extends IComputeData = any>(computeSchema: IComputeSchema<T>) {
   return addComputeInternal(computeSchema);
 }

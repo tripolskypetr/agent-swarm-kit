@@ -5,13 +5,13 @@ import beginContext from "../utils/beginContext";
 import { PersistMemoryAdapter } from "./Persist";
 import { queued } from "functools-kit";
 
-/** @private Constant for logging the serialize method in SchemaUtils */
+/** @private Constant for logging the serialize method in SchemaUtils*/
 const METHOD_NAME_SERIALIZE = "SchemaUtils.serialize";
 
-/** @private Constant for logging the writeSessionMemory method in SchemaUtils */
+/** @private Constant for logging the writeSessionMemory method in SchemaUtils*/
 const METHOD_NAME_WRITE = "SchemaUtils.write";
 
-/** @private Constant for logging the readSessionMemory method in SchemaUtils */
+/** @private Constant for logging the readSessionMemory method in SchemaUtils*/
 const METHOD_NAME_READ = "SchemaUtils.read";
 
 /**
@@ -21,7 +21,7 @@ const METHOD_NAME_READ = "SchemaUtils.read";
  * to store the memory value associated with the given client ID.
  *
  * @template T - The type of the memory value to persist, must extend object.
- */
+*/
 const PERSIST_WRITE_FN = async <T extends object = object>(
   clientId: string,
   memoryValue: T
@@ -36,13 +36,13 @@ const PERSIST_WRITE_FN = async <T extends object = object>(
  * Symbol used as a unique key for the queued version of the `PERSIST_WRITE_FN` function.
  * This ensures that the function is executed in a controlled, serialized manner to avoid
  * race conditions when persisting memory values.
- */
+*/
 const PERSIST_WRITE_SYMBOL = Symbol("persist-write-fn");
 
 /**
  * Utility class for managing schema-related operations, including session memory access and data serialization.
  * Provides methods to read/write client session memory and serialize objects into formatted strings.
- */
+*/
 export class SchemaUtils {
   /**
    * @private
@@ -51,7 +51,7 @@ export class SchemaUtils {
    * avoiding race conditions during concurrent writes.
    *
    * @template T - The type of the memory value to persist, must extend object.
-   */
+  */
   private [PERSIST_WRITE_SYMBOL] = queued(PERSIST_WRITE_FN) as <
     T extends object = object
   >(
@@ -64,7 +64,7 @@ export class SchemaUtils {
    * Executes within a context for logging and validation, ensuring the client session is valid.
    * @template T - The type of the value to write, must extend object.
    * @throws {Error} If session validation fails or the memory schema service encounters an error.
-   */
+  */
   public writeSessionMemory = beginContext(
     async (clientId: string, value: object) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -84,7 +84,7 @@ export class SchemaUtils {
    * Executes within a context for logging and validation, ensuring the client session is valid.
    * @template T - The type of the value to read, must extend object.
    * @throws {Error} If session validation fails or the memory schema service encounters an error.
-   */
+  */
   public readSessionMemory = beginContext(
     async (clientId: string): Promise<object> => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -109,7 +109,7 @@ export class SchemaUtils {
    * Serializes an object or array of objects into a formatted string.
    * Flattens nested objects and applies optional key/value mapping functions for formatting.
    * @template T - The type of the object(s) to serialize, defaults to any.
-   */
+  */
   public serialize = <T extends object = any>(
     data: T[] | T,
     map: {
@@ -144,7 +144,7 @@ export class SchemaUtils {
 
 /**
  * Singleton instance of SchemaUtils for managing schema operations.
- */
+*/
 export const Schema = new SchemaUtils();
 
 export default Schema;

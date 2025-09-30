@@ -1,6 +1,6 @@
 /**
- *  * Provides a class for managing client-side computations with event handling and state management.
- */
+ * Provides a class for managing client-side computations with event handling and state management.
+*/
 
 import { compose, IClearableTtl, ttl } from "functools-kit";
 import {
@@ -18,19 +18,19 @@ type ComputeDataFn = (() => ReturnType<typeof GET_COMPUTE_DATA_FN>) &
 /**
  * @constant {symbol} DISPOSE_SLOT_FN_SYMBOL
  * Symbol for the dispose function slot.
- * */
+ **/
 const DISPOSE_SLOT_FN_SYMBOL = Symbol("dispose");
 
 /**
  * @constant {symbol} GET_COMPUTE_DATA_FN_SYMBOL
  * Symbol for the compute data function slot.
- * */
+ **/
 const GET_COMPUTE_DATA_FN_SYMBOL = Symbol("compute");
 
 /**
  * @function GET_COMPUTE_DATA_FN
  * Retrieves computation data and emits a bus event with the result.
- *  *  * */
+*/
 const GET_COMPUTE_DATA_FN = async (self: ClientCompute) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
@@ -63,25 +63,25 @@ const GET_COMPUTE_DATA_FN = async (self: ClientCompute) => {
 };
 
 /**
- *  *  *  * Manages client-side computations, state subscriptions, and lifecycle events.
- */
+ * Manages client-side computations, state subscriptions, and lifecycle events.
+*/
 export class ClientCompute<Compute extends IComputeData = IComputeData>
   implements ICompute<Compute>
 {
   /**
-   *    * Stores the composed dispose function.
-   * */
+   * Stores the composed dispose function.
+   **/
   private [DISPOSE_SLOT_FN_SYMBOL] = () => {};
 
   /**
-   *    * Memoized function for retrieving compute data.
-   * */
+   * Memoized function for retrieving compute data.
+   **/
   private [GET_COMPUTE_DATA_FN_SYMBOL]: ComputeDataFn;
 
   /**
    * @constructor
-   *    * Initializes the ClientCompute instance, sets up state subscriptions, and triggers onInit callback.
-   */
+   * Initializes the ClientCompute instance, sets up state subscriptions, and triggers onInit callback.
+  */
   constructor(readonly params: IComputeParams<Compute>) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -114,8 +114,8 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
   }
 
   /**
-   *    * Retrieves the computation data using a memoized function.
-   *    * */
+   * Retrieves the computation data using a memoized function.
+   */
   async getComputeData() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -125,8 +125,8 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
   }
 
   /**
-   *    * Triggers a recalculation based on a state change and clears memoized data.
-   *    */
+   * Triggers a recalculation based on a state change and clears memoized data.
+  */
   async calculate(stateName: StateName) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -143,8 +143,8 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
   }
 
   /**
-   *    * Forces an update of the computation and clears memoized data.
-   */
+   * Forces an update of the computation and clears memoized data.
+  */
   async update() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -160,8 +160,8 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
   }
 
   /**
-   *    * Cleans up resources, unsubscribes from state changes, and triggers onDispose callback.
-   *    * */
+   * Cleans up resources, unsubscribes from state changes, and triggers onDispose callback.
+   */
   async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -178,6 +178,6 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
 }
 
 /**
- * *  * Exports the ClientCompute class as the default export.
- */
+ * * Exports the ClientCompute class as the default export.
+*/
 export default ClientCompute;

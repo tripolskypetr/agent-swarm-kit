@@ -27,7 +27,7 @@
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed|Number.toFixed}
  * for details on millisecond formatting.
- */
+*/
 export const msToTime = (s: number) => {
   const ms = s % 1000;
   s = (s - ms) / 1000;

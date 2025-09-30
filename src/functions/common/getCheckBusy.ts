@@ -6,7 +6,7 @@ const METHOD_NAME = "function.common.getCheckBusy";
 
 /**
  * Function implementation
- */
+*/
 const getCheckBusyInternal = beginContext(async (clientId: string) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -32,7 +32,7 @@ const getCheckBusyInternal = beginContext(async (clientId: string) => {
  * Checks if the swarm associated with the given client ID is currently busy.
  *
  * @param {string} clientId - The unique identifier of the client session.
- */
+*/
 export async function getCheckBusy(clientId: string) {
   return await getCheckBusyInternal(clientId);
 }

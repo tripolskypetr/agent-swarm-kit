@@ -10,7 +10,7 @@ const METHOD_NAME = "function.dump.getSwarm";
  *
  * @function getSwarm
  * @param {SwarmName} swarmName - The name of the swarm to operate on.
- */
+*/
 export function getSwarm(swarmName: SwarmName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

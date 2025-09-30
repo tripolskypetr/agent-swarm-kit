@@ -6,7 +6,7 @@ const METHOD_NAME = "function.other.markOnline";
 
 /**
  * Function implementation
- */
+*/
 const markOnlineInternal = async (clientId: string, swarmName: SwarmName): Promise<void> => {
   // Log the operation if logging is enabled in the global configuration
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -43,7 +43,7 @@ const markOnlineInternal = async (clientId: string, swarmName: SwarmName): Promi
  * @param {string} clientId - The unique identifier of the client session.
  * @param {SwarmName} swarmName - The name of the swarm to operate on.
  * @throws {Error} Throws an error if the swarm validation fails or if the operation fails.
- */
+*/
 export async function markOnline(clientId: string, swarmName: SwarmName) {
   return await markOnlineInternal(clientId, swarmName);
 }

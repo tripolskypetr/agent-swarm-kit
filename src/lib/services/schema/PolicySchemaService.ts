@@ -15,20 +15,20 @@ import SchemaContextService, { TSchemaContextService } from "../context/SchemaCo
  * Integrates with PolicyConnectionService (policy enforcement via getBannedClients), ClientAgent (policy application during execution), SessionConnectionService (session-level policy checks), and PolicyPublicService (public policy API).
  * Uses LoggerService for info-level logging (controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) during registration, retrieval, and validation operations.
  * Serves as a foundational service for defining policy logic (e.g., getBannedClients function) to manage access control and restrictions within the swarm ecosystem.
- */
+*/
 export class PolicySchemaService {
   /**
    * Logger service instance, injected via DI, for logging policy schema operations.
    * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with PolicyConnectionService and PerfService logging patterns.
    * @readonly
-   */
+  */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
    * @readonly
-   */
+  */
   readonly schemaContextService = inject<TSchemaContextService>(
     TYPES.schemaContextService
   );
@@ -38,7 +38,7 @@ export class PolicySchemaService {
    * Maps PolicyName keys to IPolicySchema values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
    * @private
-   */
+  */
   private _registry = new ToolRegistry<Record<PolicyName, IPolicySchema>>(
     "policySchemaService"
   );
@@ -47,7 +47,7 @@ export class PolicySchemaService {
    * Retrieves the current registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
    * Otherwise, it falls back to the private `_registry` instance.
-   */
+  */
   public get registry() {
     if (SchemaContextService.hasContext()) {
       return this.schemaContextService.context.registry.policySchemaService;
@@ -59,7 +59,7 @@ export class PolicySchemaService {
    * Sets the registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
    * Otherwise, it updates the private `_registry` instance.
-   */
+  */
   public set registry(
     value: ToolRegistry<Record<PolicyName, IPolicySchema>>
   ) {
@@ -77,7 +77,7 @@ export class PolicySchemaService {
    * Supports ClientAgent and SessionConnectionService by ensuring policy schema validity before registration.
    * @throws {Error} If any validation check fails, with detailed messages including policyName.
    * @private
-   */
+  */
   private validateShallow = (policySchema: IPolicySchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`policySchemaService validateShallow`, {
@@ -104,7 +104,7 @@ export class PolicySchemaService {
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with PolicyConnectionService’s policy enforcement.
    * Supports ClientAgent execution and SessionConnectionService by providing validated policy schemas for access control.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-   */
+  */
   public register = (key: PolicyName, value: IPolicySchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`policySchemaService register`, { key });
@@ -118,7 +118,7 @@ export class PolicySchemaService {
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports dynamic updates to policy schemas, ensuring the latest logic is applied in ClientAgent execution and SessionConnectionService.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-   */
+  */
   public override = (key: PolicyName, value: Partial<IPolicySchema>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`policySchemaService override`, { key });
@@ -131,7 +131,7 @@ export class PolicySchemaService {
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports PolicyConnectionService’s getBannedClients method by providing policy logic, used in ClientAgent execution and SessionConnectionService session management.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-   */
+  */
   public get = (key: PolicyName): IPolicySchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`policySchemaService get`, { key });
@@ -142,5 +142,5 @@ export class PolicySchemaService {
 /**
  * Default export of the PolicySchemaService class.
  * Provides the primary service for managing policy schemas in the swarm system, integrating with PolicyConnectionService, ClientAgent, SessionConnectionService, and PolicyPublicService, with validated schema storage via ToolRegistry.
- */
+*/
 export default PolicySchemaService;

@@ -6,7 +6,7 @@ const METHOD_NAME = "function.other.markOffline";
 
 /**
  * Function implementation
- */
+*/
 const markOfflineInternal = async (clientId: string, swarmName: SwarmName): Promise<void> => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -42,7 +42,7 @@ const markOfflineInternal = async (clientId: string, swarmName: SwarmName): Prom
  *
  * @example
  * await markOffline("client123", "exampleSwarm");
- */
+*/
 export async function markOffline(clientId: string, swarmName: SwarmName) {
   return await markOfflineInternal(clientId, swarmName);
 }

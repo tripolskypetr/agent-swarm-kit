@@ -10,7 +10,7 @@ const METHOD_NAME = "function.dump.getWiki";
  *
  * @function getWiki
  * @param {WikiName} wikiName - The name of the wiki.
- */
+*/
 export function getWiki(wikiName: WikiName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

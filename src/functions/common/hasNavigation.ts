@@ -5,12 +5,12 @@ import { AgentName } from "../../interfaces/Agent.interface";
 /**
  * @private Constant defining the method name for logging and validation purposes.
  * Used as an identifier in log messages and validation checks to track calls to `hasNavigation`.
- */
+*/
 const METHOD_NAME = "function.common.hasNavigation";
 
 /**
  * Function implementation
- */
+*/
 const hasNavigationInternal = async (clientId: string, agentName: AgentName) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, { clientId });
@@ -30,7 +30,7 @@ const hasNavigationInternal = async (clientId: string, agentName: AgentName) => 
  * Logs the operation if enabled by global configuration.
  * @param {string} clientId - The unique identifier of the client session.
  * @param {AgentName} agentName - The name of the agent to use or reference.
- */
+*/
 export async function hasNavigation(clientId: string, agentName: AgentName) {
   return await hasNavigationInternal(clientId, agentName);
 }

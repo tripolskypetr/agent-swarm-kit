@@ -10,7 +10,7 @@ const METHOD_NAME = "function.setup.addStorage";
 
 /**
  * Function implementation
- */
+*/
 const addStorageInternal = beginContext((storageSchema: IStorageSchema<IStorageData>) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -53,7 +53,7 @@ const addStorageInternal = beginContext((storageSchema: IStorageSchema<IStorageD
  * const storageSchema = { storageName: "UserData", shared: true, type: "key-value" };
  * const storageName = addStorage(storageSchema);
  * console.log(storageName); // Outputs "UserData"
- */
+*/
 export function addStorage<T extends IStorageData = IStorageData>(
   storageSchema: IStorageSchema<T>
 ) {

@@ -9,7 +9,7 @@ const METHOD_NAME = "function.target.runStateless";
 
 /**
  * Function implementation
- */
+*/
 const runStatelessInternal = beginContext(
   async (content: string, clientId: string, agentName: AgentName) => {
     const executionId = randomString();
@@ -124,7 +124,7 @@ const runStatelessInternal = beginContext(
  * @example
  * const result = await runStateless("Process this data", "client-123", "AgentX");
  * console.log(result); // Outputs the agent's response without affecting history
- */
+*/
 export async function runStateless(content: string, clientId: string, agentName: AgentName) {
   return await runStatelessInternal(content, clientId, agentName);
 }

@@ -7,7 +7,7 @@ const METHOD_NAME = "function.setup.addSwarm";
 
 /**
  * Function implementation
- */
+*/
 const addSwarmInternal = beginContext((swarmSchema: ISwarmSchema) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -39,7 +39,7 @@ const addSwarmInternal = beginContext((swarmSchema: ISwarmSchema) => {
  * const swarmSchema = { swarmName: "TaskSwarm", defaultAgent: "AgentX" };
  * const swarmName = addSwarm(swarmSchema);
  * console.log(swarmName); // Outputs "TaskSwarm"
- */
+*/
 export function addSwarm(swarmSchema: ISwarmSchema) {
   return addSwarmInternal(swarmSchema);
 }

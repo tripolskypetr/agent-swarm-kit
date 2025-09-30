@@ -9,7 +9,7 @@ const METHOD_NAME = "function.target.execute";
 
 /**
  * Function implementation
- */
+*/
 const executeInternal = beginContext(
   async (content: string, clientId: string, agentName: AgentName) => {
     const executionId = randomString();
@@ -125,7 +125,7 @@ const executeInternal = beginContext(
  * @example
  * const result = await execute("Review this output", "client-123", "AgentX");
  * console.log(result); // Outputs the agent's response or "" if skipped
- */
+*/
 export async function execute(content: string, clientId: string, agentName: AgentName) {
   return await executeInternal(content, clientId, agentName);
 }

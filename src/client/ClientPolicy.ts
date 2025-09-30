@@ -12,19 +12,19 @@ const BAN_NEED_FETCH = Symbol("ban-need-fetch");
  * Integrates with PolicyConnectionService (policy instantiation), SwarmConnectionService (swarm-level restrictions via SwarmSchemaService’s policies),
  * ClientAgent (message validation), and BusService (event emission).
  * Supports auto-banning on validation failure and customizable ban messages, ensuring swarm security and compliance.
- *  */
+*/
 export class ClientPolicy implements IPolicy {
   /**
    * Set of banned client IDs or a symbol indicating the ban list needs to be fetched.
    * Initialized as BAN_NEED_FETCH, lazily populated via params.getBannedClients on first use in hasBan, validateInput, etc.
    * Updated by banClient and unbanClient, persisted if params.setBannedClients is provided.
-   *    */
+  */
   _banSet: Set<SessionId> | typeof BAN_NEED_FETCH = BAN_NEED_FETCH;
 
   /**
    * Constructs a ClientPolicy instance with the provided parameters.
    * Invokes the onInit callback if defined and logs construction if debugging is enabled.
-   *    */
+  */
   constructor(readonly params: IPolicyParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -41,7 +41,7 @@ export class ClientPolicy implements IPolicy {
   /**
    * Checks if a client is banned for a specific swarm, lazily fetching the ban list if not already loaded.
    * Used by SwarmConnectionService to enforce swarm-level restrictions defined in SwarmSchemaService’s policies.
-   *    *    *    */
+  */
   async hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -62,7 +62,7 @@ export class ClientPolicy implements IPolicy {
   /**
    * Retrieves the ban message for a client, using a custom getBanMessage function if provided or falling back to params.banMessage.
    * Supports ClientAgent by providing ban feedback when validation fails, enhancing user experience.
-   *    *    *    */
+  */
   async getBanMessage(
     clientId: SessionId,
     swarmName: SwarmName
@@ -95,7 +95,7 @@ export class ClientPolicy implements IPolicy {
    * Validates an incoming message from a client, checking ban status and applying custom validation if provided.
    * Auto-bans the client via banClient if validation fails and params.autoBan is true, emitting events via BusService.
    * Used by ClientAgent to filter incoming messages before processing, ensuring policy compliance.
-   *    *    *    *    */
+   */
   async validateInput(
     incoming: string,
     clientId: SessionId,
@@ -162,7 +162,7 @@ export class ClientPolicy implements IPolicy {
    * Validates an outgoing message to a client, checking ban status and applying custom validation if provided.
    * Auto-bans the client via banClient if validation fails and params.autoBan is true, emitting events via BusService.
    * Used by ClientAgent to ensure outgoing messages comply with swarm policies before emission.
-   *    *    *    *    */
+   */
   async validateOutput(
     outgoing: string,
     clientId: SessionId,
@@ -229,7 +229,7 @@ export class ClientPolicy implements IPolicy {
    * Bans a client, adding them to the ban set and persisting the change if params.setBannedClients is provided.
    * Emits a ban event via BusService and invokes the onBanClient callback, supporting SwarmConnectionService’s access control.
    * Skips if the client is already banned to avoid redundant updates.
-   *    *    *    */
+  */
   async banClient(clientId: SessionId, swarmName: SwarmName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -279,7 +279,7 @@ export class ClientPolicy implements IPolicy {
    * Unbans a client, removing them from the ban set and persisting the change if params.setBannedClients is provided.
    * Emits an unban event via BusService and invokes the onUnbanClient callback, supporting dynamic policy adjustments.
    * Skips if the client is not banned to avoid redundant updates.
-   *    *    *    */
+  */
   async unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -335,5 +335,5 @@ export class ClientPolicy implements IPolicy {
  * Provides the primary implementation of the IPolicy interface for managing client policies in the swarm system,
  * integrating with PolicyConnectionService, SwarmConnectionService, ClientAgent, and BusService,
  * with lazy-loaded ban lists, validation, and event-driven ban management.
- *  */
+*/
 export default ClientPolicy;

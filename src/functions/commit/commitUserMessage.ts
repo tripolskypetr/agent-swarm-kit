@@ -7,7 +7,7 @@ const METHOD_NAME = "function.commit.commitSystemMessage";
 
 /**
  * Function implementation
- */
+*/
 const commitUserMessageInternal = beginContext(
   async <Payload extends object = object>(
     content: string,
@@ -96,7 +96,7 @@ const commitUserMessageInternal = beginContext(
  * @throws {Error} If validation fails (e.g., invalid agent, session, or swarm) or if the session public service encounters an error during the commit operation.
  * @example
  * await commitUserMessage("User input message", "client-123", "AgentX");
- */
+*/
 export async function commitUserMessage<Payload extends object = object>(
   content: string,
   mode: ExecutionMode,

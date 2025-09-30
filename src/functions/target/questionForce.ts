@@ -3,12 +3,12 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 import { IChatArgs, WikiName } from "../../interfaces/Wiki.interface";
 
-/** @constant {string} METHOD_NAME - The name of the method used for logging and validation */
+/** @constant {string} METHOD_NAME - The name of the method used for logging and validation*/
 const METHOD_NAME = "function.target.questionForce";
 
 /**
  * Function implementation
- */
+*/
 const questionForceInternal = beginContext(
   async (message: string, clientId: string, wikiName: WikiName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -52,7 +52,7 @@ const questionForceInternal = beginContext(
  * @param {string} message - The message content to process or send.
  * @param {string} clientId - The unique identifier of the client session.
  * @param {WikiName} wikiName - The name of the wiki.
- */
+*/
 export async function questionForce(message: string, clientId: string, wikiName: WikiName) {
   return await questionForceInternal(message, clientId, wikiName);
 }

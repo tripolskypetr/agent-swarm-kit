@@ -4,7 +4,7 @@ import { IOutlineObjectFormat, IOutlineSchemaFormat } from "../interfaces/Outlin
  * Converts a given schema object into a JSON schema format object.
  *
  *   An object containing the JSON schema representation.
- */
+*/
 export const toJsonSchema = (name: string, schema: IOutlineObjectFormat): IOutlineSchemaFormat => ({
   type: "json_schema",
   json_schema: {

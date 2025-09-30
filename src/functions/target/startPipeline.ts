@@ -1,7 +1,7 @@
 /**
  * @module startPipeline
  * Provides a function to initiate a pipeline execution with session validation, logging, and callback handling.
- */
+*/
 
 import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
@@ -14,12 +14,12 @@ import { changeToAgent } from "../navigate/changeToAgent";
  * @constant {string} METHOD_NAME
  * Method name for the startPipeline operation.
  * @private
- */
+*/
 const METHOD_NAME = "function.target.startPipeline";
 
 /**
  * Function implementation
- */
+*/
 const startPipelineInternal = beginContext(
   async (
     clientId: string,
@@ -85,7 +85,7 @@ const startPipelineInternal = beginContext(
  * @param payload Payload object containing the data to be processed.
  * @template Payload - Type extending object for the pipeline payload.
  * @template T - Type of the result returned by the pipeline execution.
- */
+*/
 export async function startPipeline<Payload extends object = any, T = any>(
   clientId: string,
   pipelineName: PipelineName,

@@ -6,7 +6,7 @@ const METHOD_NAME = "function.commit.commitToolOutputForce";
 
 /**
  * Function implementation
- */
+*/
 const commitToolOutputForceInternal = beginContext(
   async (toolId: string, content: string, clientId: string) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -47,7 +47,7 @@ const commitToolOutputForceInternal = beginContext(
  * @throws {Error} If validation fails (e.g., invalid session or swarm) or if the session public service encounters an error during the commit operation.
  * @example
  * await commitToolOutputForce("tool-123", "Tool execution result", "client-456");
- */
+*/
 export async function commitToolOutputForce(toolId: string, content: string, clientId: string) {
   return await commitToolOutputForceInternal(toolId, content, clientId);
 }

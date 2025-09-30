@@ -10,7 +10,7 @@ const METHOD_NAME = "function.dump.getState";
  *
  * @function getState
  * @param {StateName} stateName - The name of the state.
- */
+*/
 export function getState(stateName: StateName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

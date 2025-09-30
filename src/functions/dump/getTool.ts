@@ -10,7 +10,7 @@ const METHOD_NAME = "function.dump.getTool";
  *
  * @function getTool
  * @param {ToolName} toolName - The name of the tool.
- */
+*/
 export function getTool(toolName: ToolName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

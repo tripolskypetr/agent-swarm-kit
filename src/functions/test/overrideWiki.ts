@@ -9,14 +9,14 @@ const METHOD_NAME = "function.test.overrideWiki";
 /**
  * Type representing a partial wiki schema configuration.
  * Used for wiki service configuration with optional properties.
- */
+*/
 type TWikiSchema = {
   wikiName: IWikiSchema["wikiName"];
 } & Partial<IWikiSchema>;
 
 /**
  * Function implementation
- */
+*/
 const overrideWikiInternal = beginContext((publicWikiSchema: TWikiSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -46,7 +46,7 @@ const overrideWikiInternal = beginContext((publicWikiSchema: TWikiSchema) => {
  *   storage: "WikiStorage",
  * });
  * // Logs the operation (if enabled) and updates the wiki schema in the swarm.
- */
+*/
 export function overrideWiki(wikiSchema: TWikiSchema) {
   return overrideWikiInternal(wikiSchema);
 }

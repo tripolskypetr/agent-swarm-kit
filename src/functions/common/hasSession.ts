@@ -1,12 +1,12 @@
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 
-/** @private Constant defining the method name for logging purposes */
+/** @private Constant defining the method name for logging purposes*/
 const METHOD_NAME = "function.common.hasSession";
 
 /**
  * Function implementation
- */
+*/
 const hasSessionInternal = (clientId: string) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, { clientId });
@@ -20,7 +20,7 @@ const hasSessionInternal = (clientId: string) => {
  * It then delegates the session validation to the `swarm.sessionValidationService`.
  *
  * @param {string} clientId - The unique identifier of the client session.
- */
+*/
 export function hasSession(clientId: string) {
   return hasSessionInternal(clientId);
 }

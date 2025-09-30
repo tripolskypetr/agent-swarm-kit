@@ -7,7 +7,7 @@ const METHOD_NAME = "function.commit.commitSystemMessage";
 
 /**
  * Function implementation
- */
+*/
 const commitUserMessageForceInternal = beginContext(
   async <Payload extends object = object>(content: string, mode: ExecutionMode, clientId: string, payload?: Payload) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -68,7 +68,7 @@ const commitUserMessageForceInternal = beginContext(
  * @throws {Error} If validation fails (e.g., invalid session or swarm) or if the session public service encounters an error during the commit operation.
  * @example
  * await commitUserMessageForce("User input message", "client-123");
- */
+*/
 export async function commitUserMessageForce<Payload extends object = object>(
   content: string,
   mode: ExecutionMode,

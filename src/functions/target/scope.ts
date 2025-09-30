@@ -1,7 +1,7 @@
 /**
  * @module scope
  * Provides a function to execute a specified function within a managed schema context, allowing overrides for schema services.
- */
+*/
 
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
@@ -14,18 +14,18 @@ import beginContext from "../../utils/beginContext";
  * @constant {string} METHOD_NAME
  * Method name for the scope operation.
  * @private
- */
+*/
 const METHOD_NAME = "function.target.scope";
 
 /**
  * Optional overrides for schema services used within the schema context.
  * Allows partial customization of the schema registry.
- */
+*/
 type ScopeOptions = Partial<ISchemaContext["registry"]>;
 
 /**
  * Function implementation
- */
+*/
 const scopeInternal = beginContext(
   async <T = any>(
     runFn: () => Promise<T | void>,
@@ -72,7 +72,7 @@ const scopeInternal = beginContext(
  * @param runFn Function to execute within the managed scope, receiving clientId and agentName as arguments.
  * @param options Configuration options for schema service overrides.
  * @template T - Type of the result returned by the run function.
- */
+*/
 export async function scope<T = any>(
   runFn: () => Promise<T | void>,
   options?: ScopeOptions

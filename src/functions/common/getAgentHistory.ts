@@ -7,7 +7,7 @@ const METHOD_NAME = "function.common.getAgentHistory";
 
 /**
  * Function implementation
- */
+*/
 const getAgentHistoryInternal = beginContext(
   async (clientId: string, agentName: AgentName) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -56,7 +56,7 @@ const getAgentHistoryInternal = beginContext(
  * @example
  * const history = await getAgentHistory("client-123", "AgentX");
  * console.log(history); // Outputs array of IModelMessage objects
- */
+*/
 export async function getAgentHistory(clientId: string, agentName: AgentName) {
   return await getAgentHistoryInternal(clientId, agentName);
 }

@@ -7,7 +7,7 @@ const METHOD_NAME = "function.commit.commitToolRequest";
 
 /**
  * Function implementation
- */
+*/
 const commitToolRequestInternal = beginContext(
   async (
     request: IToolRequest | IToolRequest[],
@@ -65,7 +65,7 @@ const commitToolRequestInternal = beginContext(
  * @param {IToolRequest} request - The tool request(s) to be processed.
  * @param {string} clientId - The unique identifier of the client session.
  * @param {string} agentName - The name of the agent to use or reference.
- */
+*/
 export function commitToolRequest(
   request: IToolRequest,
   clientId: string,
@@ -82,7 +82,7 @@ export function commitToolRequest(
  * @param {IToolRequest[]} request - The tool request(s) to be processed.
  * @param {string} clientId - The unique identifier of the client session.
  * @param {string} agentName - The name of the agent to use or reference.
- */
+*/
 export function commitToolRequest(
   request: IToolRequest[],
   clientId: string,
@@ -97,7 +97,7 @@ export function commitToolRequest(
  * @param {IToolRequest | IToolRequest[]} request - The tool request(s) to be processed.
  * @param {string} clientId - The unique identifier of the client session.
  * @param {string} agentName - The name of the agent to use or reference.
- */
+*/
 export async function commitToolRequest(
   request: IToolRequest | IToolRequest[],
   clientId: string,

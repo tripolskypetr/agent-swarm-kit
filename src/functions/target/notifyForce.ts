@@ -6,7 +6,7 @@ const METHOD_NAME = "function.target.notifyForce";
 
 /**
  * Function implementation
- */
+*/
 const notifyForceInternal = beginContext(
   async (content: string, clientId: string) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -56,7 +56,7 @@ const notifyForceInternal = beginContext(
  * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
  * @example
  * await notifyForce("Direct output", "client-123", "AgentX"); // Sends "Direct output" if AgentX is active
- */
+*/
 export async function notifyForce(content: string, clientId: string) {
   return await notifyForceInternal(content, clientId);
 }

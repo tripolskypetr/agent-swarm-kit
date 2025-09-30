@@ -8,7 +8,7 @@ const METHOD_NAME = "function.target.executeForce";
 
 /**
  * Function implementation
- */
+*/
 const executeForceInternal = beginContext(
   async (content: string, clientId: string) => {
     const executionId = randomString();
@@ -96,7 +96,7 @@ const executeForceInternal = beginContext(
  * @example
  * const result = await executeForce("Force this execution", "client-123");
  * console.log(result); // Outputs the agent's response regardless of its active state
- */
+*/
 export async function executeForce(content: string, clientId: string) {
   return await executeForceInternal(content, clientId);
 }

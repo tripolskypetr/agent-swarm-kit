@@ -10,45 +10,45 @@ import beginContext from "../utils/beginContext";
 
 /**
  * Type definition for a shared storage object, mapping IStorage keys to unknown values.
- */
+*/
 type TSharedStorage = {
   [key in keyof IStorage]: unknown;
 };
 
-/** @private Constant for logging the take method in SharedStorageUtils */
+/** @private Constant for logging the take method in SharedStorageUtils*/
 const METHOD_NAME_TAKE = "SharedStorageUtils.take";
 
-/** @private Constant for logging the upsert method in SharedStorageUtils */
+/** @private Constant for logging the upsert method in SharedStorageUtils*/
 const METHOD_NAME_UPSERT = "SharedStorageUtils.upsert";
 
-/** @private Constant for logging the remove method in SharedStorageUtils */
+/** @private Constant for logging the remove method in SharedStorageUtils*/
 const METHOD_NAME_REMOVE = "SharedStorageUtils.remove";
 
-/** @private Constant for logging the get method in SharedStorageUtils */
+/** @private Constant for logging the get method in SharedStorageUtils*/
 const METHOD_NAME_GET = "SharedStorageUtils.get";
 
-/** @private Constant for logging the list method in SharedStorageUtils */
+/** @private Constant for logging the list method in SharedStorageUtils*/
 const METHOD_NAME_LIST = "SharedStorageUtils.list";
 
-/** @private Constant for logging the createNumericIndex method in SharedStorageUtils */
+/** @private Constant for logging the createNumericIndex method in SharedStorageUtils*/
 const METHOD_NAME_CREATE_NUMERIC_INDEX =
   "SharedStorageUtils.createNumericIndex";
 
-/** @private Constant for logging the clear method in SharedStorageUtils */
+/** @private Constant for logging the clear method in SharedStorageUtils*/
 const METHOD_NAME_CLEAR = "SharedStorageUtils.clear";
 
 /**
  * Utility class for managing shared storage within an agent swarm.
  * Provides methods to manipulate and query storage data, interfacing with the swarm's shared storage service.
  * @implements {TSharedStorage}
- */
+*/
 export class SharedStorageUtils implements TSharedStorage {
   /**
    * Retrieves a specified number of items from storage matching a search query.
    * Executes within a context for logging and validation, ensuring the storage name is valid.
    * @template T - The type of the storage data items, defaults to IStorageData.
    * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-   */
+  */
   public take = beginContext(
     async (payload: {
       search: string;
@@ -87,7 +87,7 @@ export class SharedStorageUtils implements TSharedStorage {
    * Executes within a context for logging and validation, ensuring the storage name is valid.
    * @template T - The type of the storage data item, defaults to IStorageData.
    * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-   */
+  */
   public upsert = beginContext(
     async (item: IStorageData, storageName: StorageName): Promise<void> => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -111,7 +111,7 @@ export class SharedStorageUtils implements TSharedStorage {
    * Removes an item from the storage by its ID.
    * Executes within a context for logging and validation, ensuring the storage name is valid.
    * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-   */
+  */
   public remove = beginContext(
     async (
       itemId: IStorageData["id"],
@@ -136,7 +136,7 @@ export class SharedStorageUtils implements TSharedStorage {
    * Executes within a context for logging and validation, ensuring the storage name is valid.
    * @template T - The type of the storage data item, defaults to IStorageData.
    * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-   */
+  */
   public get = beginContext(
     async (
       itemId: IStorageData["id"],
@@ -164,7 +164,7 @@ export class SharedStorageUtils implements TSharedStorage {
    * Executes within a context for logging and validation, ensuring the storage name is valid.
    * @template T - The type of the storage data items, defaults to IStorageData.
    * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-   */
+  */
   public list = beginContext(
     async (
       storageName: StorageName,
@@ -190,7 +190,7 @@ export class SharedStorageUtils implements TSharedStorage {
    * Clears all items from the storage.
    * Executes within a context for logging and validation, ensuring the storage name is valid.
    * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-   */
+  */
   public clear = beginContext(
     async (storageName: StorageName): Promise<void> => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -208,7 +208,7 @@ export class SharedStorageUtils implements TSharedStorage {
 
 /**
  * Singleton instance of SharedStorageUtils for managing shared storage operations.
- */
+*/
 export const SharedStorage = new SharedStorageUtils();
 
 export default SharedStorage;

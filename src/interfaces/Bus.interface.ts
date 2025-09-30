@@ -4,7 +4,7 @@ import IBaseEvent from "../model/Event.model";
  * Interface representing an event bus for the swarm system.
  * Provides a mechanism for asynchronous, client-targeted event dispatching, primarily used by agents (e.g., ClientAgent) to broadcast operational updates, lifecycle changes, and outputs to the system.
  * Integrated into runtime parameters (e.g., IAgentParams, ISessionParams), the bus ensures decoupled communication between components, such as notifying clients of message commits, tool outputs, or execution results.
- */
+*/
 export interface IBus {
   /**
    * Emits a structured event to a specific client within the swarm system.
@@ -62,6 +62,6 @@ export interface IBus {
    * 
    * @template T - The type of event, extending IBaseEvent, defining a structured payload with fields like `type`, `source`, `input`, `output`, `context`, and `clientId`.
    * @throws {Error} If emission fails, potentially due to invalid `clientId`, malformed event structure, or delivery issues (e.g., queue overflow, network failure).
-   */
+  */
   emit<T extends IBaseEvent>(clientId: string, event: T): Promise<void>;
 }

@@ -29,7 +29,7 @@
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trim|String.trim}
  * for details on whitespace trimming.
  * @see {@link ./validateDefault|validateDefault} for its use in the broader validation chain.
- */
+*/
 export const validateNoEmptyResult = async (output: string): Promise<string | null> => {
   if (!output.trim()) {
     return "Empty output";

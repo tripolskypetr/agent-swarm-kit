@@ -8,7 +8,7 @@ const METHOD_NAME = "function.target.runStatelessForce";
 
 /**
  * Function implementation
- */
+*/
 const runStatelessForceInternal = beginContext(
   async (content: string, clientId: string) => {
     const executionId = randomString();
@@ -95,7 +95,7 @@ const runStatelessForceInternal = beginContext(
  * @example
  * const result = await runStatelessForce("Process this data forcefully", "client-123");
  * console.log(result); // Outputs the agent's response without affecting history
- */
+*/
 export async function runStatelessForce(content: string, clientId: string) {
   return await runStatelessForceInternal(content, clientId);
 }

@@ -1,7 +1,7 @@
 /**
  * @module overrideCompute
  * Provides a function to override an existing compute schema with partial updates.
- */
+*/
 
 import { IComputeData, IComputeSchema } from "../../interfaces/Compute.interface";
 import swarm from "../../lib";
@@ -13,20 +13,20 @@ import removeUndefined from "../../helpers/removeUndefined";
  * @constant {string} METHOD_NAME
  * Method name for the overrideCompute operation.
  * @private
- */
+*/
 const METHOD_NAME = "function.test.overrideCompute";
 
 /**
  * Type representing a partial compute schema with required computeName.
  * Used for overriding existing compute configurations with selective updates.
- */
+*/
 type TComputeSchema<T extends IComputeData = any> = {
   computeName: IComputeSchema<T>["computeName"];
 } & Partial<IComputeSchema<T>>;
 
 /**
  * Function implementation
- */
+*/
 const overrideComputeInternal = beginContext((publicComputeSchema: TComputeSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -42,7 +42,7 @@ const overrideComputeInternal = beginContext((publicComputeSchema: TComputeSchem
  * Overrides an existing compute schema with provided partial updates.
  *
  * @param computeSchema Partial compute schema with updates to be applied to the existing compute configuration.
- */
+*/
 export function overrideCompute<T extends IComputeData = any>(computeSchema: TComputeSchema<T>) {
   return overrideComputeInternal(computeSchema)
 }

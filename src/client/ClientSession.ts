@@ -43,7 +43,7 @@ const RELEASE_LOCK_FN = async (self: ClientSession) => {
  * and event-driven communication via BusService. Uses a Subject for output emission to subscribers.
  * Integrates with SessionConnectionService (session instantiation), SwarmConnectionService (agent/swarm access via SwarmSchemaService),
  * ClientAgent (execution/history), ClientPolicy (validation), and BusService (event emission).
- *  */
+*/
 export class ClientSession implements ISession {
   private _notifySubject = new Subject<string>();
 
@@ -52,7 +52,7 @@ export class ClientSession implements ISession {
   /**
    * Constructs a new ClientSession instance with the provided parameters.
    * Invokes the onInit callback if defined and logs construction if debugging is enabled.
-   *    */
+  */
   constructor(readonly params: ISessionParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -67,8 +67,7 @@ export class ClientSession implements ISession {
   /**
    * Sends a notification message to connect listeners via the internal `_notifySubject`.
    * Logs the notification if debugging is enabled.
-   *
-   *    *    */
+  */
   async notify(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -108,7 +107,7 @@ export class ClientSession implements ISession {
    * Emits a message to subscribers via swarm _emitSubject after validating it against the policy (ClientPolicy).
    * Emits the ban message if validation fails, notifying subscribers and logging via BusService.
    * Supports SwarmConnectionService by broadcasting session outputs within the swarm.
-   *    *    */
+  */
   async emit(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -162,7 +161,7 @@ export class ClientSession implements ISession {
    * Executes a message using the swarm's agent (ClientAgent) and returns the output after policy validation.
    * Validates input and output via ClientPolicy, returning a ban message if either fails, with event logging via BusService.
    * Coordinates with SwarmConnectionService to fetch the agent and wait for output, supporting session-level execution.
-   *    *    *    */
+  */
   async execute(message: string, mode: ExecutionMode): Promise<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -263,7 +262,7 @@ export class ClientSession implements ISession {
    * Runs a stateless completion of a message using the swarm's agent (ClientAgent) and returns the output.
    * Does not emit the result but logs the execution via BusService, bypassing output validation for stateless use cases.
    * Integrates with SwarmConnectionService to access the agent, supporting lightweight completions.
-   *    *    */
+  */
   async run(message: string): Promise<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -294,9 +293,9 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Commits tool output to the agent's history via the swarm’s agent (ClientAgent), logging the action via BusService.
-   * Supports ToolSchemaService by linking tool output to tool calls, integrating with ClientAgent’s history management.
-   *    *    *    */
+   * Commits tool output to the agent's history via the swarm's agent (ClientAgent), logging the action via BusService.
+   * Supports ToolSchemaService by linking tool output to tool calls, integrating with ClientAgent's history management.
+  */
   async commitToolOutput(toolId: string, content: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -325,9 +324,9 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Commits a user message to the agent’s history via the swarm’s agent (ClientAgent) without triggering a response.
-   * Logs the action via BusService, supporting SessionConnectionService’s session history tracking.
-   *    *    */
+   * Commits a user message to the agent's history via the swarm's agent (ClientAgent) without triggering a response.
+   * Logs the action via BusService, supporting SessionConnectionService's session history tracking.
+  */
   async commitUserMessage(message: string, mode: ExecutionMode): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -357,7 +356,7 @@ export class ClientSession implements ISession {
   /**
    * Commits a flush of the agent’s history via the swarm’s agent (ClientAgent), clearing it and logging via BusService.
    * Useful for resetting session state, coordinated with ClientHistory via ClientAgent.
-   *    */
+   */
   async commitFlush(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -381,7 +380,7 @@ export class ClientSession implements ISession {
   /**
    * Signals the agent (via swarm’s ClientAgent) to stop the execution of subsequent tools, logging via BusService.
    * Supports ToolSchemaService by interrupting tool call chains, enhancing session control.
-   *    */
+   */
   async commitStopTools(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -404,9 +403,8 @@ export class ClientSession implements ISession {
 
   /**
    * Commits a tool request to the agent's history via the swarm’s agent (ClientAgent) and logs the action via BusService.
-   * Supports ToolSchemaService by linking tool requests to tool execution, integrating with ClientAgent’s history management.
-   * 
-   *    *    */
+   * Supports ToolSchemaService by linking tool requests to tool execution, integrating with ClientAgent's history management.
+  */
   async commitToolRequest(request: IToolRequest[]): Promise<string[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -433,9 +431,9 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Commits a system message to the agent’s history via the swarm’s agent (ClientAgent), logging via BusService.
+   * Commits a system message to the agent's history via the swarm's agent (ClientAgent), logging via BusService.
    * Supports system-level updates within the session, coordinated with ClientHistory.
-   *    *    */
+  */
   async commitSystemMessage(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -465,7 +463,7 @@ export class ClientSession implements ISession {
    * Commits a developer message to the agent's history via the swarm's agent (ClientAgent), logging the action via BusService.
    * Supports internal debugging or developer notes within the session, enhancing ClientHistory.
    * @throws {Error} If committing the message fails.
-   */
+  */
   async commitDeveloperMessage(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -492,9 +490,9 @@ export class ClientSession implements ISession {
   }
 
   /**
-   * Commits an assistant message to the agent’s history via the swarm’s agent (ClientAgent) without triggering execution.
+   * Commits an assistant message to the agent's history via the swarm's agent (ClientAgent) without triggering execution.
    * Logs the action via BusService, supporting ClientHistory for assistant response logging.
-   *    *    */
+  */
   async commitAssistantMessage(message: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -524,7 +522,7 @@ export class ClientSession implements ISession {
    * Connects the session to a message connector, subscribing to emitted messages and returning a receiver function.
    * Links _emitSubject to the connector for outgoing messages and processes incoming messages via execute, supporting real-time interaction.
    * Integrates with SessionConnectionService for session lifecycle and SwarmConnectionService for agent metadata.
-   *    *    */
+  */
   connect(connector: SendMessageFn): ReceiveMessageFn<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -578,7 +576,7 @@ export class ClientSession implements ISession {
   /**
    * Disposes of the session, performing cleanup and invoking the onDispose callback if provided.
    * Called when the session is no longer needed, ensuring proper resource release with SessionConnectionService.
-   *    */
+  */
   async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -597,5 +595,5 @@ export class ClientSession implements ISession {
  * Provides the primary implementation of the ISession interface for managing client sessions in the swarm system,
  * integrating with SessionConnectionService, SwarmConnectionService, ClientAgent, ClientPolicy, and BusService,
  * with policy-enforced message handling, agent execution, and event-driven communication.
- *  */
+*/
 export default ClientSession;

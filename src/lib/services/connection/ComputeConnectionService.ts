@@ -1,7 +1,7 @@
 /**
  * @module ComputeConnectionService
  * Manages compute instances and their lifecycle, integrating with dependency injection and state management.
- */
+*/
 
 import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
@@ -25,7 +25,7 @@ import StateConnectionService from "./StateConnectionService";
 /**
  * @constant {number} DEFAULT_COMPUTE_TTL
  * Default time-to-live (TTL) for compute instances, set to 24 hours.
- */
+*/
 const DEFAULT_COMPUTE_TTL = 24 * 60 * 60 * 1_000;
 
 /**
@@ -33,7 +33,7 @@ const DEFAULT_COMPUTE_TTL = 24 * 60 * 60 * 1_000;
  * @template T - Type extending IComputeData.
  * @implements {ICompute<T>}
  * Service for managing compute instances, handling shared and non-shared computations.
- */
+*/
 export class ComputeConnectionService<T extends IComputeData = IComputeData>
   implements ICompute<T>
 {
@@ -41,21 +41,21 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
    * @property {LoggerService} loggerService
    * Injected logger service for logging operations.
    * @private
-   */
+  */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * @property {BusService} busService
    * Injected bus service for event communication.
    * @private
-   */
+  */
   private readonly busService = inject<BusService>(TYPES.busService);
 
   /**
    * @property {TMethodContextService} methodContextService
    * Injected service for accessing method context.
    * @private
-   */
+  */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
@@ -64,7 +64,7 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
    * @property {ComputeSchemaService} computeSchemaService
    * Injected service for accessing compute schemas.
    * @private
-   */
+  */
   private readonly computeSchemaService = inject<ComputeSchemaService>(
     TYPES.computeSchemaService
   );
@@ -73,7 +73,7 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
    * @property {SessionValidationService} sessionValidationService
    * Injected service for session validation and compute usage tracking.
    * @private
-   */
+  */
   private readonly sessionValidationService = inject<SessionValidationService>(
     TYPES.sessionValidationService
   );
@@ -82,7 +82,7 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
    * @property {StateConnectionService} stateConnectionService
    * Injected service for managing state connections.
    * @private
-   */
+  */
   private readonly stateConnectionService = inject<StateConnectionService>(
     TYPES.stateConnectionService
   );
@@ -91,7 +91,7 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
    * @property {SharedComputeConnectionService} sharedComputeConnectionService
    * Injected service for managing shared compute instances.
    * @private
-   */
+  */
   private readonly sharedComputeConnectionService =
     inject<SharedComputeConnectionService>(
       TYPES.sharedComputeConnectionService
@@ -101,13 +101,13 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
    * @property {Set<ComputeName>} _sharedComputeSet
    * Tracks compute names that are shared.
    * @private
-   */
+  */
   private _sharedComputeSet = new Set<ComputeName>();
 
   /**
    * @method getComputeRef
    * Retrieves or creates a compute instance, memoized by client ID and compute name.
-   */
+  */
   public getComputeRef = memoize(
     ([clientId, computeName]) => `${clientId}-${computeName}`,
     (clientId: string, computeName: ComputeName) => {
@@ -145,7 +145,7 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
    * @method getComputeData
    * Retrieves the computed data for the current context.
    * @async
-   */
+  */
   public getComputeData = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`computeConnectionService getComputeData`);
@@ -160,7 +160,7 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
    * @method calculate
    * Triggers a recalculation for the compute instance based on a state change.
    * @async
-   */
+  */
   public calculate = async (stateName: StateName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`computeConnectionService calculate`);
@@ -175,7 +175,7 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
    * @method update
    * Forces an update of the compute instance.
    * @async
-   */
+  */
   public update = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`computeConnectionService update`);
@@ -190,7 +190,7 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
    * @method dispose
    * Cleans up the compute instance and removes it from the cache.
    * @async
-   */
+  */
   public dispose = async (): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`computeConnectionService dispose`);
@@ -219,5 +219,5 @@ export class ComputeConnectionService<T extends IComputeData = IComputeData>
  * @export
  * @default ComputeConnectionService
  * Exports the ComputeConnectionService class as the default export.
- */
+*/
 export default ComputeConnectionService;

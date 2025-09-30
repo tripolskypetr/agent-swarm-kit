@@ -2,12 +2,12 @@ import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import { PayloadContextService } from "../../lib";
 
-/** @private Constant defining the method name for logging purposes */
+/** @private Constant defining the method name for logging purposes*/
 const METHOD_NAME = "function.common.getPayload";
 
 /**
  * Function implementation
- */
+*/
 const getPayloadInternal = () => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
   if (PayloadContextService.hasContext()) {
@@ -24,7 +24,7 @@ const getPayloadInternal = () => {
  * @example
  * const payload = await getPayload<{ id: number }>();
  * console.log(payload); // { id: number } or null
- */
+*/
 export function getPayload<
   Payload extends object = object
 >(): Payload | null {

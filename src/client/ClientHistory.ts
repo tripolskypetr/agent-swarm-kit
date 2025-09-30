@@ -10,18 +10,18 @@ import { getPayload } from "../functions/common/getPayload";
  * Integrates with HistoryConnectionService (history instantiation), ClientAgent (message logging and completion context),
  * BusService (event emission), and SessionConnectionService (session history tracking).
  * Uses a filter condition from GLOBAL_CONFIG to tailor message arrays for agent-specific needs, with limits and transformations.
- *  */
+*/
 export class ClientHistory implements IHistory {
   /**
    * Filter condition function for toArrayForAgent, used to filter messages based on agent-specific criteria.
    * Initialized from GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER, applied to common messages to exclude irrelevant entries.
-   *    */
+  */
   _filterCondition: (message: IModelMessage) => boolean;
 
   /**
    * Constructs a ClientHistory instance with the provided parameters.
    * Initializes the filter condition using GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER and logs construction if debugging is enabled.
-   *    */
+  */
   constructor(readonly params: IHistoryParams) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -38,7 +38,7 @@ export class ClientHistory implements IHistory {
   /**
    * Pushes a message into the history and emits a corresponding event via BusService.
    * Adds the message to the underlying storage (params.items) and notifies the system, supporting ClientAgent’s history updates.
-   *    *    */
+   */
   async push<Payload extends object = object>(
     message: IModelMessage<Payload>
   ): Promise<void> {
@@ -73,7 +73,7 @@ export class ClientHistory implements IHistory {
    * Removes and returns the most recent message from the history, emitting an event via BusService.
    * Retrieves the message from params.items and notifies the system, returning null if the history is empty.
    * Useful for ClientAgent to undo recent actions or inspect the latest entry.
-   *    */
+  */
   async pop(): Promise<IModelMessage | null> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -101,7 +101,7 @@ export class ClientHistory implements IHistory {
   /**
    * Converts the history into an array of raw messages without filtering or transformation.
    * Iterates over params.items to collect all messages as-is, useful for debugging or raw data access.
-   *    */
+  */
   async toArrayForRaw(): Promise<IModelMessage[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -122,7 +122,7 @@ export class ClientHistory implements IHistory {
    * Filters messages with _filterCondition, limits to GLOBAL_CONFIG.CC_KEEP_MESSAGES, handles resque/flush resets,
    * and prepends prompt and system messages (from params and GLOBAL_CONFIG.CC_AGENT_SYSTEM_PROMPT).
    * Ensures tool call consistency by linking tool outputs to calls, supporting CompletionSchemaService’s context needs.
-   *    *    *    */
+  */
   async toArrayForAgent(
     prompt: string,
     system?: string[]
@@ -236,7 +236,7 @@ export class ClientHistory implements IHistory {
   /**
    * Disposes of the history, releasing resources and performing cleanup via params.items.dispose.
    * Called when the agent (e.g., ClientAgent) is disposed, ensuring proper resource management with HistoryConnectionService.
-   *    */
+  */
   async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -253,5 +253,5 @@ export class ClientHistory implements IHistory {
  * Default export of the ClientHistory class.
  * Provides the primary implementation of the IHistory interface for managing client message history in the swarm system,
  * integrating with HistoryConnectionService, ClientAgent, BusService, and SessionConnectionService, with filtering and event-driven updates.
- *  */
+*/
 export default ClientHistory;

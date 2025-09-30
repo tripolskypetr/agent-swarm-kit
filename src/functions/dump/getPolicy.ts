@@ -10,7 +10,7 @@ const METHOD_NAME = "function.dump.getPolicy";
  *
  * @function getPolicy
  * @param {PolicyName} policyName - The name of the policy.
- */
+*/
 export function getPolicy(policyName: PolicyName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

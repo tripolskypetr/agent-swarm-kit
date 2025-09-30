@@ -10,7 +10,7 @@ const METHOD_NAME = "function.dump.getAgent";
  *
  * @function getAgent
  * @param {AgentName} agentName - The name of the agent to use or reference.
- */
+*/
 export function getAgent(agentName: AgentName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

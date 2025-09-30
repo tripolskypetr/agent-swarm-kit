@@ -12,14 +12,14 @@ import beginContext from "../../utils/beginContext";
  * Used to identify the operation in logs.
  * @private
  * @constant {string}
- */
+*/
 const METHOD_NAME = "function.setup.addOutline";
 
 /**
  * Internal implementation of the outline addition logic, wrapped in a clean context.
  * Registers the outline schema with both the validation and schema services and logs the operation if enabled.
  * @private
- */
+*/
 const addOutlineInternal = beginContext((outlineSchema: IOutlineSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -42,7 +42,7 @@ const addOutlineInternal = beginContext((outlineSchema: IOutlineSchema) => {
  *
  * @param outlineSchema Partial outline schema with updates to be applied to the existing outline configuration.
  * @param Param> The Param> parameter.
- */
+*/
 export function addOutline<
   Data extends IOutlineData = IOutlineData,
   Param extends IOutlineParam = IOutlineParam

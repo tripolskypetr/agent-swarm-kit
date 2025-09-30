@@ -9,7 +9,7 @@ import removeUndefined from "../../helpers/removeUndefined";
  * Used to identify the operation in logs.
  * @private
  * @constant {string}
- */
+*/
 const METHOD_NAME = "function.test.overrideOutline";
 
 /**
@@ -17,7 +17,7 @@ const METHOD_NAME = "function.test.overrideOutline";
  * Used to specify the schema details for overriding an existing outline.
  * @property {IOutlineSchema["outlineName"]} outlineName - The unique name of the outline to override.
  * @property {Partial<IOutlineSchema>} [partial] - Optional partial properties of the `IOutlineSchema` to override.
- */
+*/
 type TOutlineSchema<
   Data extends IOutlineData = IOutlineData,
   Param extends IOutlineParam = IOutlineParam
@@ -29,7 +29,7 @@ type TOutlineSchema<
  * Internal implementation of the outline override logic, wrapped in a clean context.
  * Updates the specified outline schema in the swarm's schema service and logs the operation if enabled.
  * @private
- */
+*/
 const overrideOutlineInternal = beginContext(
   (publicOutlineSchema: TOutlineSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -53,7 +53,7 @@ const overrideOutlineInternal = beginContext(
  *
  * @param outlineSchema Partial outline schema with updates to be applied to the existing outline configuration.
  * @param Param> The Param> parameter.
- */
+*/
 export function overrideOutline<
   Data extends IOutlineData = IOutlineData,
   Param extends IOutlineParam = IOutlineParam

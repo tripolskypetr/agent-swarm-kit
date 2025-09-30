@@ -3,12 +3,12 @@ import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
 
-/** @private Constant defining the method name for logging and validation context */
+/** @private Constant defining the method name for logging and validation context*/
 const METHOD_NAME = "function.setup.addPolicy";
 
 /**
  * Function implementation
- */
+*/
 const addPolicyInternal = beginContext((policySchema: IPolicySchema): string => {
   // Log the policy addition attempt if enabled
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -40,7 +40,7 @@ const addPolicyInternal = beginContext((policySchema: IPolicySchema): string => 
  *
  * @param {IPolicySchema} policySchema - The schema definition for policy.
  * @throws {Error} If policy registration fails due to validation errors in PolicyValidationService or PolicySchemaService.
- */
+*/
 export function addPolicy(policySchema: IPolicySchema) {
   return addPolicyInternal(policySchema);
 }

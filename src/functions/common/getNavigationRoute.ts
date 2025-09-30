@@ -5,12 +5,12 @@ import { SwarmName } from "../../interfaces/Swarm.interface";
 /**
  * @private Constant defining the method name for logging purposes.
  * Used as an identifier in log messages to track calls to `getNavigationRoute`.
- */
+*/
 const METHOD_NAME = "function.common.getNavigationRoute";
 
 /**
  * Function implementation
- */
+*/
 const getNavigationRouteInternal = (clientId: string, swarmName: SwarmName) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -30,7 +30,7 @@ const getNavigationRouteInternal = (clientId: string, swarmName: SwarmName) => {
  * with optional logging based on global configuration.
  * @param {string} clientId - The unique identifier of the client session.
  * @param {SwarmName} swarmName - The name of the swarm to operate on.
- */
+*/
 export function getNavigationRoute(clientId: string, swarmName: SwarmName) {
   return getNavigationRouteInternal(clientId, swarmName);
 }

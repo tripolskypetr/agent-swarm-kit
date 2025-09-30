@@ -58,7 +58,7 @@ type Entry = [string, string];
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries|Object.entries}
  * for details on extracting key-value pairs.
  * @see {@link module:functools-kit.isObject} for the object type check implementation.
- */
+*/
 export const objectFlat = <T extends object = any>(data: T) => {
   const result: Entry[] = [];
   const process = (entries: any[] = []) =>

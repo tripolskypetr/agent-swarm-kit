@@ -7,7 +7,7 @@ const METHOD_NAME = "function.setup.addMCP";
 
 /**
  * Function implementation
- */
+*/
 const addMCPInternal = beginContext((mcpSchema: IMCPSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
@@ -23,7 +23,7 @@ const addMCPInternal = beginContext((mcpSchema: IMCPSchema) => {
 /**
  * Registers a new MCP (Model Context Protocol) schema in the system.
  * @param {IMCPSchema} mcpSchema - The schema definition for mcp.
- */
+*/
 export function addMCP(mcpSchema: IMCPSchema) {
   return addMCPInternal(mcpSchema);
 }

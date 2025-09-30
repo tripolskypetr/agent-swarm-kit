@@ -10,7 +10,7 @@ const METHOD_NAME = "function.dump.getEmbeding";
  *
  * @function getEmbedding
  * @param {EmbeddingName} embeddingName - The name of the embedding.
- */
+*/
 export function getEmbeding(embeddingName: EmbeddingName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

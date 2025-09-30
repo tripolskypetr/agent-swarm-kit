@@ -6,7 +6,7 @@ const METHOD_NAME = "function.history.getRawHistory";
 
 /**
  * Function implementation
- */
+*/
 export const getRawHistoryInternal = beginContext(async (
   clientId: string,
   methodName: string,
@@ -50,7 +50,7 @@ export const getRawHistoryInternal = beginContext(async (
  * @example
  * const rawHistory = await getRawHistory("client-123");
  * console.log(rawHistory); // Outputs the full raw history array
- */
+*/
 export async function getRawHistory(clientId: string) {
   return await getRawHistoryInternal(clientId, METHOD_NAME);
 }

@@ -10,7 +10,7 @@ const METHOD_NAME = "function.dump.getMCP";
  *
  * @function getMCP
  * @param {MCPName} mcpName - The name of the mcp.
- */
+*/
 export function getMCP(mcpName: MCPName) {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {

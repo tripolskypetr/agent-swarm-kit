@@ -7,7 +7,7 @@ const METHOD_NAME = "function.setup.addTool";
 
 /**
  * Function implementation
- */
+*/
 const addToolInternal = beginContext((toolSchema: IAgentTool<unknown>) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -39,7 +39,7 @@ const addToolInternal = beginContext((toolSchema: IAgentTool<unknown>) => {
  * const toolSchema = { toolName: "Calculator", fn: (x: number) => x * 2, description: "Doubles a number" };
  * const toolName = addTool(toolSchema);
  * console.log(toolName); // Outputs "Calculator"
- */
+*/
 export function addTool<T extends any = Record<string, ToolValue>>(toolSchema: IAgentTool<T>) {
   return addToolInternal(toolSchema);
 }

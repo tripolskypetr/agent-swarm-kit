@@ -26,14 +26,14 @@ import CompletionSchemaService from "../schema/CompletionSchemaService";
  * ToolValidationService (tool validation), CompletionValidationService (completion validation),
  * StorageValidationService (storage validation), and LoggerService (logging).
  * Uses dependency injection for service dependencies and memoization for efficient validation checks.
- */
+*/
 export class AgentValidationService {
   /**
    * Logger service instance for logging validation operations and errors.
    * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
    * @private
    * @readonly
-   */
+  */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
@@ -42,7 +42,7 @@ export class AgentValidationService {
    * Provides a registry of completion schemas for the swarm.
    * @private
    * @readonly
-   */
+  */
   private readonly completionSchemaService = inject<CompletionSchemaService>(
     TYPES.completionSchemaService
   );
@@ -52,7 +52,7 @@ export class AgentValidationService {
    * Injected via DI, used in validate method to check agent tools.
    * @private
    * @readonly
-   */
+  */
   private readonly toolValidationService = inject<ToolValidationService>(
     TYPES.toolValidationService
   );
@@ -62,7 +62,7 @@ export class AgentValidationService {
    * Injected via DI, used in validate method to check agent wiki list.
    * @private
    * @readonly
-   */
+  */
   private readonly wikiValidationService = inject<WikiValidationService>(
     TYPES.wikiValidationService
   );
@@ -72,7 +72,7 @@ export class AgentValidationService {
    * Injected via DI, used in validate method to check agent mcp list.
    * @private
    * @readonly
-   */
+  */
   private readonly mcpValidationService = inject<MCPValidationService>(
     TYPES.mcpValidationService
   );
@@ -82,7 +82,7 @@ export class AgentValidationService {
    * Injected via DI, used in validate method to check agent completion.
    * @private
    * @readonly
-   */
+  */
   private readonly completionValidationService =
     inject<CompletionValidationService>(TYPES.completionValidationService);
 
@@ -91,7 +91,7 @@ export class AgentValidationService {
    * Injected via DI, used in validate method to check agent storages.
    * @private
    * @readonly
-   */
+  */
   private readonly storageValidationService = inject<StorageValidationService>(
     TYPES.storageValidationService
   );
@@ -100,20 +100,20 @@ export class AgentValidationService {
    * Map of agent names to their schemas, used for validation and resource queries.
    * Populated by addAgent, queried by validate, getStorageList, getStateList, etc.
    * @private
-   */
+  */
   private _agentMap = new Map<AgentName, IAgentSchemaInternal>();
 
   /**
    * Map of agent names to their dependency lists, tracking inter-agent dependencies.
    * Populated by addAgent when dependsOn is present, queried by hasDependency.
    * @private
-   */
+  */
   private _agentDepsMap = new Map<AgentName, AgentName[]>();
 
   /**
    * Retrieves the list of registered agent names.
    * Logs the operation if info-level logging is enabled, supporting SwarmSchemaService’s agent enumeration.
-   */
+  */
   public getAgentList = (): AgentName[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("agentValidationService getAgentList");
@@ -124,7 +124,7 @@ export class AgentValidationService {
    * Retrieves the list of storage names associated with a given agent.
    * Logs the operation and validates agent existence, supporting ClientStorage integration.
    * @throws {Error} If the agent is not found in _agentMap.
-   */
+  */
   public getStorageList = (agentName: AgentName): StorageName[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("agentValidationService getStorageList", {
@@ -141,7 +141,7 @@ export class AgentValidationService {
   /**
    * Retrieves the list of wiki names associated with a given agent.
    * @throws {Error} If the agent is not found in _agentMap.
-   */
+  */
   public getWikiList = (agentName: AgentName): WikiName[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("agentValidationService getWikiList", {
@@ -157,7 +157,7 @@ export class AgentValidationService {
    * Retrieves the list of state names associated with a given agent.
    * Logs the operation and validates agent existence, supporting ClientState integration.
    * @throws {Error} If the agent is not found in _agentMap.
-   */
+  */
   public getStateList = (agentName: AgentName): StateName[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("agentValidationService getStateList", {
@@ -175,7 +175,7 @@ export class AgentValidationService {
    * Retrieves the list of mcp names associated with a given agent.
    * Logs the operation and validates agent existence, supporting ClientMCP integration.
    * @throws {Error} If the agent is not found in _agentMap.
-   */
+  */
   public getMCPList = (agentName: AgentName): MCPName[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("agentValidationService getMCPList", {
@@ -193,7 +193,7 @@ export class AgentValidationService {
    * Registers a new agent with its schema in the validation service.
    * Logs the operation and updates _agentMap and _agentDepsMap, supporting AgentSchemaService’s agent registration.
    * @throws {Error} If the agent already exists in _agentMap.
-   */
+  */
   public addAgent = (agentName: AgentName, agentSchema: IAgentSchemaInternal): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("agentValidationService addAgent", {
@@ -213,7 +213,7 @@ export class AgentValidationService {
    * Checks if an agent has a registered storage, memoized for performance.
    * Logs the operation and validates agent existence, supporting ClientStorage validation.
    * @throws {Error} If the agent is not found in _agentMap.
-   */
+  */
   public hasStorage = memoize(
     ([agentName, storageName]) => `${agentName}-${storageName}`,
     (agentName: AgentName, storageName: StorageName): boolean => {
@@ -235,7 +235,7 @@ export class AgentValidationService {
   /**
    * Checks if an agent has declared wiki
    * @throws {Error} If the agent is not found in _agentMap.
-   */
+  */
   public hasWiki = memoize(
     ([agentName, wikiName]) => `${agentName}-${wikiName}`,
     (agentName: AgentName, wikiName: WikiName): boolean => {
@@ -255,7 +255,7 @@ export class AgentValidationService {
   /**
    * Checks if an agent has a registered dependency on another agent, memoized for performance.
    * Logs the operation, supporting inter-agent dependency validation within SwarmSchemaService.
-   */
+  */
   public hasDependency = memoize(
     ([targetAgentName, depAgentName]) => `${targetAgentName}-${depAgentName}`,
     (targetAgentName: AgentName, depAgentName: AgentName): boolean => {
@@ -275,7 +275,7 @@ export class AgentValidationService {
    * Checks if an agent has a registered state, memoized for performance.
    * Logs the operation and validates agent existence, supporting ClientState validation.
    * @throws {Error} If the agent is not found in _agentMap.
-   */
+  */
   public hasState = memoize(
     ([agentName, stateName]) => `${agentName}-${stateName}`,
     (agentName: AgentName, stateName: StateName): boolean => {
@@ -297,7 +297,7 @@ export class AgentValidationService {
    * Checks the agent’s existence, completion, tools, and storages, delegating to respective validation services.
    * Logs the operation, supporting AgentSchemaService’s validation workflow within SwarmSchemaService.
    * @throws {Error} If the agent is not found, or if its completion, tools, or storages are invalid.
-   */
+  */
   public validate = memoize(
     ([agentName]) => agentName,
     (agentName: AgentName, source: string): void => {
@@ -374,5 +374,5 @@ export class AgentValidationService {
  * integrating with AgentSchemaService, SwarmSchemaService, ToolValidationService,
  * CompletionValidationService, StorageValidationService, and LoggerService,
  * with memoized validation checks and dependency management.
- */
+*/
 export default AgentValidationService;

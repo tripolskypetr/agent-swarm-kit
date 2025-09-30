@@ -28,7 +28,7 @@
  * for details on string splitting mechanics.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charAt|String.charAt}
  * for character manipulation details.
- */
+*/
 export const nameToTitle = (name: string) => {
   if (!name) {
     return undefined;

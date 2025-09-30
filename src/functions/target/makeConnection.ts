@@ -9,19 +9,19 @@ import { markOnline } from "../other/markOnline";
 
 /**
  * Type definition for the send message function returned by connection factories.
- */
+*/
 type SendMessageFn = (outgoing: string) => Promise<void>;
 
 /**
  * Delay in milliseconds for scheduled message sending.
  * @constant {number}
- */
+*/
 const SCHEDULED_DELAY = 1_000;
 
 /**
  * Delay in milliseconds for rate-limited message sending.
  * @constant {number}
- */
+*/
 const RATE_DELAY = 10_000;
 
 const METHOD_NAME = "function.target.makeConnection";
@@ -32,7 +32,7 @@ const METHOD_NAME = "function.target.makeConnection";
  * Creates a queued connection to the swarm session, validating the swarm and initializing the session in "makeConnection" mode.
  * Returns a function to send messages, wrapped in `beginContext` for isolated execution.
  *
- */
+*/
 const makeConnectionInternal = (
   connector: ReceiveMessageFn,
   clientId: string,
@@ -88,7 +88,7 @@ const makeConnectionInternal = (
  * @example
  * const sendMessage = makeConnection((msg) => console.log(msg), "client-123", "TaskSwarm");
  * await sendMessage("Hello, swarm!");
- */
+*/
 const makeConnection = <Payload extends object = object>(
   connector: ReceiveMessageFn,
   clientId: string,
@@ -123,12 +123,12 @@ const makeConnection = <Payload extends object = object>(
 
 /**
  * Configuration interface for scheduling or rate-limiting messages.
- */
+*/
 export interface IMakeConnectionConfig {
   /**
    * The delay in milliseconds for scheduling or rate-limiting messages.
    * Controls the timing interval for scheduled or rate-limited message sending operations.
-   */
+  */
   delay?: number;
 }
 
@@ -142,7 +142,7 @@ export interface IMakeConnectionConfig {
  * @example
  * const sendScheduled = makeConnection.scheduled((msg) => console.log(msg), "client-123", "TaskSwarm", { delay: 2000 });
  * await sendScheduled("Delayed message"); // Sent after 2 seconds
- */
+*/
 makeConnection.scheduled = <Payload extends object = object>(
   connector: ReceiveMessageFn,
   clientId: string,
@@ -226,7 +226,7 @@ makeConnection.scheduled = <Payload extends object = object>(
  * @example
  * const sendRateLimited = makeConnection.rate((msg) => console.log(msg), "client-123", "TaskSwarm", { delay: 5000 });
  * await sendRateLimited("Throttled message"); // Limited to one send every 5 seconds
- */
+*/
 makeConnection.rate = <Payload extends object = object>(
   connector: ReceiveMessageFn,
   clientId: string,

@@ -10,7 +10,7 @@ import removeUndefined from "./removeUndefined";
  * Ensures that `system`, `systemStatic`, and `systemDynamic` properties are normalized into arrays or functions
  * that return arrays, making them consistent for internal use.
  *
- */
+*/
 export const mapAgentSchema = ({
   system,
   systemDynamic,
@@ -24,7 +24,7 @@ export const mapAgentSchema = ({
      * If `system` is already an array, it is returned as-is.
      * If `system` is a single value, it is wrapped in an array.
      * If `system` is undefined, it is cast to `never`.
-     */
+    */
     system: system
       ? Array.isArray(system)
         ? system
@@ -36,7 +36,7 @@ export const mapAgentSchema = ({
      * If `systemStatic` is already an array, it is returned as-is.
      * If `systemStatic` is a single value, it is wrapped in an array.
      * If `systemStatic` is undefined, it is cast to `never`.
-     */
+    */
     systemStatic: systemStatic
       ? Array.isArray(systemStatic)
         ? systemStatic
@@ -47,7 +47,7 @@ export const mapAgentSchema = ({
      * Wraps the `systemDynamic` property in an asynchronous function.
      * The function resolves the dynamic system configuration and ensures it is returned as an array.
      * If `systemDynamic` is undefined, it is cast to `never`.
-     */
+    */
     systemDynamic: systemDynamic
       ? async (clientId: string, agentName: AgentName) => {
           const system = await systemDynamic(clientId, agentName);

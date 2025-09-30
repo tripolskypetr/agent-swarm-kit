@@ -1,7 +1,7 @@
 
 /**
  * JSON Schema type definition
- */
+*/
 export interface JsonSchema {
   type?: string;
   properties?: Record<string, any>;
@@ -9,20 +9,20 @@ export interface JsonSchema {
   /**
    * Whether additional properties are allowed in the schema.
    * Controls validation strictness for object schemas.
-   */
+  */
   additionalProperties?: boolean;
   [key: string]: any;
 }
 
 /**
  * Result of tool arguments validation
- */
+*/
 export interface ValidationResult<T = any> {
-  /** Whether validation was successful */
+  /** Whether validation was successful*/
   success: boolean;
-  /** Parsed and validated data (only present when success is true) */
+  /** Parsed and validated data (only present when success is true)*/
   data?: T;
-  /** Error message (only present when success is false) */
+  /** Error message (only present when success is false)*/
   error?: string;
 }
 
@@ -44,7 +44,7 @@ export interface ValidationResult<T = any> {
  *   console.error(result.error);
  * }
  * ```
- */
+*/
 export const validateToolArguments = <T = any>(
   parsedArguments: unknown,
   schema: JsonSchema

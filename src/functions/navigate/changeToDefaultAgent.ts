@@ -10,7 +10,7 @@ const METHOD_NAME = "function.navigate.changeToDefaultAgent";
 
 /**
  * Type definition for the default agent change execution function.
- */
+*/
 type TChangeToDefaultAgentRun = (
   methodName: string,
   agentName: string,
@@ -24,7 +24,7 @@ type TChangeToDefaultAgentRun = (
  * ensuring operations are executed sequentially and cached results are reused within the TTL period.
  *
  * @function
- */
+*/
 const createChangeToDefaultAgent = memoize(
   ([clientId]) => `${clientId}`,
   (clientId: string) =>
@@ -103,7 +103,7 @@ const createChangeToDefaultAgent = memoize(
  * This function sets up a singleton interval-based garbage collector to periodically clean up expired TTL entries from `createChangeToDefaultAgent`.
  *
  * @function
- */
+*/
 const createGc = singleshot(async () => {
   disposeSubject.subscribe((clientId) => {
     createChangeToDefaultAgent.clear(clientId);
@@ -112,7 +112,7 @@ const createGc = singleshot(async () => {
 
 /**
  * Function implementation
- */
+*/
 const changeToDefaultAgentInternal = beginContext(async (clientId: string) => {
   // Log the operation details if logging is enabled in GLOBAL_CONFIG
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -146,7 +146,7 @@ const changeToDefaultAgentInternal = beginContext(async (clientId: string) => {
  * @throws {Error} If session or agent validation fails, or if the agent change process encounters an error.
  * @example
  * await changeToDefaultAgent("client-123");
- */
+*/
 export async function changeToDefaultAgent(clientId: string) {
   return await changeToDefaultAgentInternal(clientId);
 }
