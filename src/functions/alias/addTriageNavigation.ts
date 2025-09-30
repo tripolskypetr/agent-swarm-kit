@@ -3,7 +3,7 @@
  * @module addTriageNavigation
 */
 
-import { AgentName, ToolName } from "../../interfaces/Agent.interface";
+import { AgentName, IAgentTool, ToolName } from "../../interfaces/Agent.interface";
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
@@ -27,6 +27,8 @@ interface ITriageNavigationParams extends INavigateToTriageParams {
   description: string;
   /** Optional documentation note for the tool.*/
   docNote?: string;
+  /** Optional function to determine if the tool is available.*/
+  isAvailable?: IAgentTool["isAvailable"];
 }
 
 /**
@@ -37,6 +39,7 @@ const addTriageNavigationInternal = beginContext(
     toolName,
     docNote,
     description,
+    isAvailable,
     ...navigateProps
   }: ITriageNavigationParams) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
@@ -46,6 +49,7 @@ const addTriageNavigationInternal = beginContext(
     const toolSchema = addTool({
       toolName,
       docNote,
+      isAvailable,
       call: async ({ toolId, clientId, toolCalls }) => {
         if (toolCalls.length > 1) {
           console.error("agent-swarm addTriageNavigation model called multiple tools within navigation execution");

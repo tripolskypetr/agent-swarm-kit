@@ -9814,6 +9814,8 @@ interface IAgentNavigationParams extends INavigateToAgentParams {
     navigateTo: AgentName;
     /** Optional documentation note for the tool.*/
     docNote?: string;
+    /** Optional function to determine if the tool is available.*/
+    isAvailable?: IAgentTool["isAvailable"];
 }
 /**
  * Creates and registers a navigation tool for an agent to navigate to another specified agent.
@@ -9839,6 +9841,8 @@ interface ITriageNavigationParams extends INavigateToTriageParams {
     description: string;
     /** Optional documentation note for the tool.*/
     docNote?: string;
+    /** Optional function to determine if the tool is available.*/
+    isAvailable?: IAgentTool["isAvailable"];
 }
 /**
  * Creates and registers a triage navigation tool for an agent to navigate to a triage agent.
