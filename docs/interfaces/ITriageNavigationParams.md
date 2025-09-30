@@ -32,3 +32,11 @@ docNote: string
 ```
 
 Optional documentation note for the tool.
+
+### isAvailable
+
+```ts
+isAvailable: (clientId: string, agentName: string, toolName: string) => boolean | Promise<boolean>
+```
+
+Optional function to determine if the tool is available.

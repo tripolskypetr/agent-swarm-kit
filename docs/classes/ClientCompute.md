@@ -7,7 +7,7 @@ group: docs
 
 Implements `ICompute<Compute>`
 
-*  *  * Manages client-side computations, state subscriptions, and lifecycle events.
+Manages client-side computations, state subscriptions, and lifecycle events.
 
 ## Constructor
 
@@ -29,7 +29,7 @@ params: IComputeParams<Compute>
 __@DISPOSE_SLOT_FN_SYMBOL@3163: any
 ```
 
-* Stores the composed dispose function.
+Stores the composed dispose function.
 
 ### __@GET_COMPUTE_DATA_FN_SYMBOL@3164
 
@@ -37,7 +37,7 @@ __@DISPOSE_SLOT_FN_SYMBOL@3163: any
 __@GET_COMPUTE_DATA_FN_SYMBOL@3164: any
 ```
 
-* Memoized function for retrieving compute data.
+Memoized function for retrieving compute data.
 
 ## Methods
 
@@ -47,8 +47,7 @@ __@GET_COMPUTE_DATA_FN_SYMBOL@3164: any
 getComputeData(): Promise<any>;
 ```
 
-* Retrieves the computation data using a memoized function.
-*
+Retrieves the computation data using a memoized function.
 
 ### calculate
 
@@ -56,7 +55,7 @@ getComputeData(): Promise<any>;
 calculate(stateName: StateName): Promise<void>;
 ```
 
-* Triggers a recalculation based on a state change and clears memoized data.
+Triggers a recalculation based on a state change and clears memoized data.
 
 ### update
 
@@ -64,7 +63,7 @@ calculate(stateName: StateName): Promise<void>;
 update(): Promise<void>;
 ```
 
-* Forces an update of the computation and clears memoized data.
+Forces an update of the computation and clears memoized data.
 
 ### dispose
 
@@ -72,5 +71,4 @@ update(): Promise<void>;
 dispose(): Promise<void>;
 ```
 
-* Cleans up resources, unsubscribes from state changes, and triggers onDispose callback.
-*
+Cleans up resources, unsubscribes from state changes, and triggers onDispose callback.

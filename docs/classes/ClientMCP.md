@@ -30,7 +30,6 @@ fetchTools: any
 ```
 
 Memoized function to fetch and cache tools for a given client ID.
-   *
 
 ## Methods
 
@@ -41,7 +40,6 @@ listTools(clientId: string): Promise<IMCPTool<MCPToolProperties>[]>;
 ```
 
 Lists all available tools for a given client.
-   *
 
 ### hasTool
 
@@ -50,7 +48,6 @@ hasTool(toolName: string, clientId: string): Promise<boolean>;
 ```
 
 Checks if a specific tool exists for a given client.
-   *    *
 
 ### updateToolsForClient
 
@@ -75,7 +72,6 @@ callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolC
 ```
 
 Calls a specific tool with the provided parameters.
-   *    *
 
 ### dispose
 

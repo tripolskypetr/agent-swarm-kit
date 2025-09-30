@@ -11,7 +11,6 @@ Class managing storage operations with embedding-based search capabilities in th
 Implements IStorage, supporting upsert, remove, clear, and similarity-based search with queued operations and event-driven updates.
 Integrates with StorageConnectionService (instantiation), EmbeddingSchemaService (embeddings), ClientAgent (data storage),
 SwarmConnectionService (swarm-level storage), and BusService (event emission).
- *
 
 ## Constructor
 
@@ -44,7 +43,6 @@ dispatch: (action: Action$1, payload: Partial<Payload<T>>) => Promise<void>
 
 Dispatches a storage action (upsert, remove, or clear) in a queued manner, delegating to DISPATCH_FN.
 Ensures sequential execution of storage operations, supporting thread-safe updates from ClientAgent or tools.
-   *    *
 
 ### _createEmbedding
 
@@ -54,7 +52,6 @@ _createEmbedding: ((item: T) => Promise<readonly [Embeddings, string][]>) & ICle
 
 Creates embeddings for the given item, memoized by item ID to avoid redundant calculations via CREATE_EMBEDDING_FN.
 Caches results for efficiency, cleared on upsert/remove to ensure freshness, supporting EmbeddingSchemaService.
-   *    *
 
 ### waitForInit
 
@@ -76,7 +73,6 @@ take(search: string, total: number, score?: number): Promise<T[]>;
 Retrieves a specified number of items based on similarity to a search string, using embeddings and SortedArray.
 Executes similarity calculations concurrently via execpool, respecting GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL, and filters by score.
 Emits an event via BusService, supporting ClientAgent’s search-driven tool execution.
-   *    *    *
 
 ### upsert
 
@@ -86,7 +82,6 @@ upsert(item: T): Promise<void>;
 
 Upserts an item into the storage via the dispatch queue, delegating to UPSERT_FN.
 Schedules the operation for sequential execution, supporting ClientAgent’s data persistence needs.
-   *
 
 ### remove
 
@@ -96,7 +91,6 @@ remove(itemId: IStorageData["id"]): Promise<void>;
 
 Removes an item from the storage by its ID via the dispatch queue, delegating to REMOVE_FN.
 Schedules the operation for sequential execution, supporting ClientAgent’s data management.
-   *
 
 ### clear
 
@@ -115,7 +109,6 @@ get(itemId: IStorageData["id"]): Promise<T | null>;
 
 Retrieves an item from the storage by its ID directly from _itemMap.
 Emits an event via BusService with the result, supporting quick lookups by ClientAgent or tools.
-   *
 
 ### list
 
@@ -125,7 +118,6 @@ list(filter?: (item: T) => boolean): Promise<T[]>;
 
 Lists all items in the storage from _itemMap, optionally filtered by a predicate.
 Emits an event via BusService with the filtered result if a filter is provided, supporting ClientAgent’s data enumeration.
-   *
 
 ### dispose
 

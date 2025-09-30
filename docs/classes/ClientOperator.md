@@ -8,7 +8,6 @@ group: docs
 Implements `IAgent`
 
 Client operator implementation
- *
 
 ## Constructor
 
@@ -53,7 +52,6 @@ execute(input: string, mode: ExecutionMode): Promise<void>;
 ```
 
 Executes an input with specified mode
-   *    *
 
 ### waitForOutput
 
@@ -102,7 +100,6 @@ commitUserMessage(content: string): Promise<void>;
 ```
 
 Commits user message
-   *
 
 ### commitAssistantMessage
 

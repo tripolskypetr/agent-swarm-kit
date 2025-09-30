@@ -18,7 +18,7 @@ type: string
 ```
 
 The type of the tool, typically "function" in the current system.
-Specifies the tool’s category, aligning with IToolCall.type, though only "function" is observed in ClientAgent usage (e.g., params.tools).
+Specifies the tool's category, aligning with IToolCall.type, though only "function" is observed in ClientAgent usage (e.g., params.tools).
 Future extensions might include other types (e.g., "api", "script"), but "function" is standard.
 
 ### function

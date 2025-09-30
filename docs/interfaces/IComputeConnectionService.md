@@ -5,4 +5,4 @@ group: docs
 
 # IComputeConnectionService
 
-* Extends ComputeConnectionService for type compatibility.
+Extends ComputeConnectionService for type compatibility.

@@ -28,7 +28,6 @@ loggerService: any
 
 Logger service instance, injected via DI, for logging session operations.
 Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO or CC_LOGGER_ENABLE_LOG is true, consistent with AgentPublicService and PerfService logging patterns.
-   *
 
 ### perfService
 
@@ -38,7 +37,6 @@ perfService: any
 
 Performance service instance, injected via DI, for tracking execution metrics.
 Used in connect to measure execution duration (startExecution, endExecution), aligning with PerfService’s sessionState tracking.
-   *
 
 ### executionValidationService
 
@@ -48,7 +46,6 @@ executionValidationService: any
 
 Service for execution validation to prevent the model to call the tools
 recursively
-   *
 
 ### sessionConnectionService
 
@@ -58,7 +55,6 @@ sessionConnectionService: any
 
 Session connection service instance, injected via DI, for underlying session operations.
 Provides core functionality (e.g., emit, execute) called by public methods, supporting ClientAgent’s session model.
-   *
 
 ### busService
 
@@ -68,7 +64,6 @@ busService: any
 
 Bus service instance, injected via DI, for emitting session-related events.
 Used in connect to signal execution start and end (commitExecutionBegin, commitExecutionEnd), integrating with BusService’s event system.
-   *
 
 ### navigationValidationService
 
@@ -77,7 +72,6 @@ navigationValidationService: any
 ```
 
 Service which prevent tool call to navigate client recursively
-   *
 
 ### notify
 
@@ -88,7 +82,6 @@ notify: (content: string, methodName: string, clientId: string, swarmName: strin
 Emits a message to the session, typically for asynchronous communication.
 Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
-   *    *    *    *
 
 ### emit
 
@@ -99,7 +92,6 @@ emit: (content: string, methodName: string, clientId: string, swarmName: string)
 Emits a message to the session for a specific client and swarm.
 Wraps SessionConnectionService.emit with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., session-level messaging) and AgentPublicService (e.g., swarm context emission).
-   *    *    *    *
 
 ### execute
 
@@ -110,7 +102,6 @@ execute: (content: string, mode: ExecutionMode, methodName: string, clientId: st
 Executes a command in the session with a specified execution mode.
 Wraps SessionConnectionService.execute with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Mirrors ClientAgent’s EXECUTE_FN at the session level, triggering BusService events and PerfService tracking.
-   *    *    *    *    *
 
 ### run
 
@@ -121,7 +112,6 @@ run: (content: string, methodName: string, clientId: string, swarmName: string) 
 Runs a stateless completion in the session with the given content.
 Wraps SessionConnectionService.run with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Mirrors ClientAgent’s RUN_FN at the session level, used for quick completions without state persistence.
-   *    *    *    *
 
 ### connect
 
@@ -132,7 +122,6 @@ connect: (connector: SendMessageFn<void>, methodName: string, clientId: string, 
 Connects to the session, establishing a messaging channel with performance tracking and event emission.
 Uses SessionConnectionService.connect directly, wrapping execution in ExecutionContextService for detailed tracking, logging via LoggerService if enabled.
 Integrates with ClientAgent (e.g., session-level messaging), PerfService (e.g., execution metrics), and BusService (e.g., execution events).
-   *    *    *    *
 
 ### commitToolOutput
 
@@ -143,7 +132,6 @@ commitToolOutput: (toolId: string, content: string, methodName: string, clientId
 Commits tool output to the session’s history, typically for OpenAI-style tool calls.
 Wraps SessionConnectionService.commitToolOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent’s tool execution (e.g., TOOL_EXECUTOR), mirrored in AgentPublicService.
-   *    *    *    *    *
 
 ### commitSystemMessage
 
@@ -154,7 +142,6 @@ commitSystemMessage: (message: string, methodName: string, clientId: string, swa
 Commits a system message to the session’s history.
 Wraps SessionConnectionService.commitSystemMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., system prompt updates), mirrored in AgentPublicService.
-   *    *    *    *
 
 ### commitDeveloperMessage
 
@@ -165,7 +152,6 @@ commitDeveloperMessage: (message: string, methodName: string, clientId: string, 
 Commits a developer message to the session’s history or state.
 Wraps SessionConnectionService.commitDeveloperMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent’s developer-level messaging, allowing for detailed session context updates.
-   *    *    *    *
 
 ### commitToolRequest
 
@@ -177,8 +163,6 @@ Commits a tool request to the session’s history.
 Wraps SessionConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent’s tool execution requests, mirrored in AgentPublicService.
 
-   *    *    *    *
-
 ### commitAssistantMessage
 
 ```ts
@@ -188,7 +172,6 @@ commitAssistantMessage: (message: string, methodName: string, clientId: string, 
 Commits an assistant message to the session’s history.
 Wraps SessionConnectionService.commitAssistantMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent’s assistant responses, mirrored in AgentPublicService and tracked by PerfService.
-   *    *    *    *
 
 ### commitUserMessage
 
@@ -199,7 +182,6 @@ commitUserMessage: (message: string, mode: ExecutionMode, methodName: string, cl
 Commits a user message to the session’s history without triggering an answer.
 Wraps SessionConnectionService.commitUserMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent for user input logging, mirrored in AgentPublicService.
-   *    *    *    *
 
 ### commitFlush
 
@@ -210,7 +192,6 @@ commitFlush: (methodName: string, clientId: string, swarmName: string) => Promis
 Commits a flush of the session’s history, clearing stored data.
 Wraps SessionConnectionService.commitFlush with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent session resets, mirrored in AgentPublicService and tracked by PerfService.
-   *    *    *
 
 ### commitStopTools
 
@@ -221,7 +202,6 @@ commitStopTools: (methodName: string, clientId: string, swarmName: string) => Pr
 Commits a stop to prevent the next tool from being executed in the session.
 Wraps SessionConnectionService.commitStopTools with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption), mirrored in AgentPublicService.
-   *    *    *
 
 ### dispose
 
@@ -232,4 +212,3 @@ dispose: (methodName: string, clientId: string, swarmName: string) => Promise<vo
 Disposes of the session, cleaning up resources.
 Wraps SessionConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Aligns with AgentPublicService’s dispose and PerfService’s session cleanup.
-   *    *    *

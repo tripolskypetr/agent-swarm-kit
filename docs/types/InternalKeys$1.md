@@ -12,4 +12,4 @@ type InternalKeys$1 = keyof {
 };
 ```
 
-* Defines keys to be excluded from the public interface.
+Defines keys to be excluded from the public interface.

@@ -20,4 +20,3 @@ payload: T
 The optional payload of the event, carrying custom data of any type.
 Provides flexibility for event-specific information, unlike IBusEvent’s rigid input/output structure, potentially for user-defined events.
 Example: { status: "complete", data: 42 } for a custom completion event.
-   *

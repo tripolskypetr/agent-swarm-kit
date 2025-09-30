@@ -28,7 +28,6 @@ loggerService: any
 
 Logger service instance, injected via DI, for logging shared state operations.
 Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionPublicService and PerfService logging patterns.
-   *
 
 ### sharedStateConnectionService
 
@@ -38,7 +37,6 @@ sharedStateConnectionService: any
 
 Shared state connection service instance, injected via DI, for underlying state operations.
 Provides core functionality (e.g., setState, getState) called by public methods, supporting ClientAgent’s state management needs.
-   *
 
 ### setState
 
@@ -49,7 +47,6 @@ setState: (dispatchFn: (prevState: T) => Promise<T>, methodName: string, stateNa
 Sets the shared state using a provided dispatch function, updating the state identified by stateName.
 Wraps SharedStateConnectionService.setState with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., updating state in EXECUTE_FN) and PerfService (e.g., tracking state changes in sessionState).
-   *    *    *
 
 ### clearState
 
@@ -60,7 +57,6 @@ clearState: (methodName: string, stateName: string) => Promise<T>
 Resets the shared state to its initial value, identified by stateName.
 Wraps SharedStateConnectionService.clearState with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent (e.g., resetting state in EXECUTE_FN) and PerfService (e.g., clearing sessionState for performance resets).
-   *    *
 
 ### getState
 
@@ -71,4 +67,3 @@ getState: (methodName: string, stateName: string) => Promise<T>
 Retrieves the current shared state identified by stateName.
 Wraps SharedStateConnectionService.getState with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., accessing state in EXECUTE_FN) and PerfService (e.g., reading sessionState for metrics).
-   *    *

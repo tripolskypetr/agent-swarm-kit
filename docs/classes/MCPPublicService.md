@@ -42,7 +42,6 @@ dispose: (methodName: string, clientId: string, mcpName: string) => Promise<void
 ```
 
 Disposes of resources associated with a client within a specified context.
-   *    *    *
 
 ## Methods
 
@@ -53,7 +52,6 @@ listTools(methodName: string, clientId: string, mcpName: string): Promise<IMCPTo
 ```
 
 Lists available tools for a given client within a specified context.
-   *    *    *
 
 ### updateToolsForAll
 
@@ -62,7 +60,6 @@ updateToolsForAll(methodName: string, mcpName: string): Promise<void>;
 ```
 
 Updates the list of tools for all clients within a specified context.
-   *    *
 
 ### updateToolsForClient
 
@@ -71,7 +68,6 @@ updateToolsForClient(methodName: string, clientId: string, mcpName: string): Pro
 ```
 
 Updates the list of tools for a specific client within a specified context.
-   *    *    *
 
 ### hasTool
 
@@ -80,7 +76,6 @@ hasTool(methodName: string, clientId: string, mcpName: string, toolName: string)
 ```
 
 Checks if a specific tool exists for a given client within a specified context.
-   *    *    *    *
 
 ### callTool
 
@@ -89,4 +84,3 @@ callTool<T extends MCPToolValue = MCPToolValue>(methodName: string, clientId: st
 ```
 
 Calls a specific tool with the provided parameters within a specified context.
-   *    *    *    *    *

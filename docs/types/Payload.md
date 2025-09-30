@@ -14,4 +14,3 @@ type Payload<T extends IStorageData = IStorageData> = {
 
 Type representing the payload for storage actions in ClientStorage.
 Defines the structure for upsert and remove operations, with optional fields based on action type.
- *  *  *

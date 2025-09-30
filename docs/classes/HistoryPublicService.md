@@ -28,7 +28,6 @@ loggerService: any
 
 Logger service instance, injected via DI, for logging history operations.
 Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentPublicService and DocService logging patterns.
-   *
 
 ### historyConnectionService
 
@@ -38,7 +37,6 @@ historyConnectionService: any
 
 History connection service instance, injected via DI, for underlying history operations.
 Provides core functionality (e.g., push, pop) called by public methods, aligning with ClientAgent’s history management.
-   *
 
 ### push
 
@@ -49,7 +47,6 @@ push: (message: IModelMessage<object>, methodName: string, clientId: string, age
 Pushes a message to the agent’s history for a specific client and method context.
 Wraps HistoryConnectionService.push with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in AgentPublicService (e.g., commitSystemMessage, commitUserMessage) and ClientAgent (e.g., EXECUTE_FN message logging).
-   *    *    *    *
 
 ### pop
 
@@ -60,7 +57,6 @@ pop: (methodName: string, clientId: string, agentName: string) => Promise<IModel
 Pops the most recent message from the agent’s history.
 Wraps HistoryConnectionService.pop with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent (e.g., retrieving last message in EXECUTE_FN) and AgentPublicService (e.g., history manipulation).
-   *    *    *
 
 ### toArrayForAgent
 
@@ -71,7 +67,6 @@ toArrayForAgent: (prompt: string, methodName: string, clientId: string, agentNam
 Converts the agent’s history to an array tailored for agent processing, incorporating a prompt.
 Wraps HistoryConnectionService.toArrayForAgent with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., EXECUTE_FN context preparation) and DocService (e.g., history documentation with prompts).
-   *    *    *    *
 
 ### toArrayForRaw
 
@@ -82,7 +77,6 @@ toArrayForRaw: (methodName: string, clientId: string, agentName: string) => Prom
 Converts the agent’s history to a raw array of items.
 Wraps HistoryConnectionService.toArrayForRaw with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent (e.g., raw history access in EXECUTE_FN) and PerfService (e.g., history-based performance metrics).
-   *    *    *
 
 ### dispose
 
@@ -93,4 +87,3 @@ dispose: (methodName: string, clientId: string, agentName: string) => Promise<vo
 Disposes of the agent’s history, cleaning up resources.
 Wraps HistoryConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Aligns with AgentPublicService’s dispose (e.g., agent cleanup) and PerfService’s dispose (e.g., session cleanup).
-   *    *    *

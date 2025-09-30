@@ -29,7 +29,6 @@ loggerService: any
 
 Logger service instance, injected via DI, for logging storage operations.
 Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StatePublicService and PerfService logging patterns.
-   *
 
 ### storageConnectionService
 
@@ -39,7 +38,6 @@ storageConnectionService: any
 
 Storage connection service instance, injected via DI, for underlying storage operations.
 Provides core functionality (e.g., take, upsert) called by public methods, supporting ClientAgent’s client-specific storage needs.
-   *
 
 ### take
 
@@ -50,7 +48,6 @@ take: (search: string, total: number, methodName: string, clientId: string, stor
 Retrieves a list of storage items based on a search query, total count, and optional score, from a client-specific storage identified by storageName and clientId.
 Wraps StorageConnectionService.take with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., searching client-specific storage in EXECUTE_FN) and DocService (e.g., documenting searchable storage data per client).
-   *    *    *    *    *    *
 
 ### upsert
 
@@ -61,7 +58,6 @@ upsert: (item: IStorageData, methodName: string, clientId: string, storageName: 
 Upserts (inserts or updates) an item in the client-specific storage identified by storageName and clientId.
 Wraps StorageConnectionService.upsert with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent (e.g., storing client-specific data in EXECUTE_FN) and PerfService (e.g., tracking storage updates in sessionState per client).
-   *    *    *    *
 
 ### remove
 
@@ -72,7 +68,6 @@ remove: (itemId: StorageId, methodName: string, clientId: string, storageName: s
 Removes an item from the client-specific storage identified by storageName and clientId, using the item’s ID.
 Wraps StorageConnectionService.remove with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., deleting client-specific data in EXECUTE_FN) and PerfService (e.g., tracking storage cleanup per client).
-   *    *    *    *
 
 ### get
 
@@ -83,7 +78,6 @@ get: (itemId: StorageId, methodName: string, clientId: string, storageName: stri
 Retrieves a specific item from the client-specific storage identified by storageName and clientId, using the item’s ID.
 Wraps StorageConnectionService.get with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent (e.g., fetching client-specific data in EXECUTE_FN) and PerfService (e.g., reading storage for metrics per client).
-   *    *    *    *
 
 ### list
 
@@ -94,7 +88,6 @@ list: (methodName: string, clientId: string, storageName: string, filter?: (item
 Retrieves a list of all items from the client-specific storage identified by storageName and clientId, optionally filtered by a predicate function.
 Wraps StorageConnectionService.list with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., listing client-specific storage in EXECUTE_FN) and DocService (e.g., documenting storage contents per client).
-   *    *    *    *
 
 ### clear
 
@@ -105,7 +98,6 @@ clear: (methodName: string, clientId: string, storageName: string) => Promise<vo
 Clears all items from the client-specific storage identified by storageName and clientId.
 Wraps StorageConnectionService.clear with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Supports ClientAgent (e.g., resetting client-specific storage in EXECUTE_FN) and PerfService (e.g., clearing storage for performance resets per client).
-   *    *    *
 
 ### dispose
 
@@ -116,4 +108,3 @@ dispose: (methodName: string, clientId: string, storageName: string) => Promise<
 Disposes of the client-specific storage identified by storageName and clientId, cleaning up resources.
 Wraps StorageConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Aligns with ClientAgent’s cleanup (e.g., post-EXECUTE_FN) and PerfService’s dispose (e.g., clearing client-specific storage).
-   *    *    *

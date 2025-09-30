@@ -11,4 +11,3 @@ type DispatchFn<State extends IStateData = IStateData> = (prevState: State) => P
 
 Type representing a dispatch function for updating the state in ClientState.
 Takes the previous state and returns a promise resolving to the updated state.
- *

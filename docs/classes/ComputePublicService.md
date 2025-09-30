@@ -7,7 +7,7 @@ group: docs
 
 Implements `TComputeConnectionService`
 
-*  *  * Public service for managing compute operations with context-aware execution.
+Public service for managing compute operations with context-aware execution.
 
 ## Constructor
 
@@ -23,7 +23,7 @@ constructor();
 loggerService: any
 ```
 
-* Injected logger service for logging operations.
+Injected logger service for logging operations.
 
 ### computeConnectionService
 
@@ -31,7 +31,7 @@ loggerService: any
 computeConnectionService: any
 ```
 
-* Injected compute connection service for compute operations.
+Injected compute connection service for compute operations.
 
 ### getComputeData
 
@@ -39,8 +39,7 @@ computeConnectionService: any
 getComputeData: (methodName: string, clientId: string, computeName: string) => Promise<T>
 ```
 
-* Retrieves computed data within a method context.
-*    *    *    *
+Retrieves computed data within a method context.
 
 ### calculate
 
@@ -48,8 +47,7 @@ getComputeData: (methodName: string, clientId: string, computeName: string) => P
 calculate: (stateName: string, methodName: string, clientId: string, computeName: string) => Promise<void>
 ```
 
-* Triggers a recalculation for the compute instance within a method context.
-*    *    *    *    *
+Triggers a recalculation for the compute instance within a method context.
 
 ### update
 
@@ -57,8 +55,7 @@ calculate: (stateName: string, methodName: string, clientId: string, computeName
 update: (methodName: string, clientId: string, computeName: string) => Promise<void>
 ```
 
-* Forces an update of the compute instance within a method context.
-*    *    *    *
+Forces an update of the compute instance within a method context.
 
 ### dispose
 
@@ -66,5 +63,4 @@ update: (methodName: string, clientId: string, computeName: string) => Promise<v
 dispose: (methodName: string, clientId: string, computeName: string) => Promise<void>
 ```
 
-* Cleans up the compute instance within a method context.
-*    *    *    *
+Cleans up the compute instance within a method context.

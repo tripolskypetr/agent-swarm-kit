@@ -70,7 +70,6 @@ _emitSubject: Subject<{ agentName: string; output: string; }>
 
 Subject for emitting output messages to subscribers, used by emit and connect methods.
 Provides an asynchronous stream of validated messages, supporting real-time updates to external connectors.
-   *
 
 ### _cancelOutputSubject
 
@@ -88,7 +87,7 @@ waitForOutput: () => Promise<string>
 ```
 
 Waits for output from the active agent in a queued manner, delegating to WAIT_FOR_OUTPUT_FN.
-Ensures only one wait operation runs at a time, handling cancellation and agent changes, supporting ClientSession’s output retrieval.
+Ensures only one wait operation runs at a time, handling cancellation and agent changes, supporting ClientSession's output retrieval.
 
 ## Methods
 
@@ -132,7 +131,6 @@ emit(message: string): Promise<void>;
 Emits a message to subscribers via _emitSubject after validating it against the policy (ClientPolicy).
 Emits the ban message if validation fails, notifying subscribers and logging via BusService.
 Supports SwarmConnectionService by broadcasting session outputs within the swarm.
-   *
 
 ### navigationPop
 
@@ -141,7 +139,7 @@ navigationPop(): Promise<string>;
 ```
 
 Pops the most recent agent from the navigation stack, falling back to the default agent if empty.
-Updates and persists the stack via params.setNavigationStack, supporting ClientSession’s agent navigation.
+Updates and persists the stack via params.setNavigationStack, supporting ClientSession's agent navigation.
 
 ### cancelOutput
 
@@ -150,7 +148,7 @@ cancelOutput(): Promise<void>;
 ```
 
 Cancels the current output wait by emitting an empty string via _cancelOutputSubject, logging via BusService.
-Interrupts waitForOutput, ensuring responsive cancellation for ClientSession’s execution flow.
+Interrupts waitForOutput, ensuring responsive cancellation for ClientSession's execution flow.
 
 ### getAgentName
 
@@ -159,7 +157,7 @@ getAgentName(): Promise<AgentName>;
 ```
 
 Retrieves the name of the active agent, lazily fetching it via params.getActiveAgent if not loaded.
-Emits an event via BusService with the result, supporting ClientSession’s agent identification.
+Emits an event via BusService with the result, supporting ClientSession's agent identification.
 
 ### getAgent
 
@@ -168,7 +166,7 @@ getAgent(): Promise<IAgent>;
 ```
 
 Retrieves the active agent instance (ClientAgent) based on its name from params.agentMap.
-Emits an event via BusService with the result, supporting ClientSession’s execution and history operations.
+Emits an event via BusService with the result, supporting ClientSession's execution and history operations.
 
 ### setAgentRef
 
@@ -176,9 +174,8 @@ Emits an event via BusService with the result, supporting ClientSession’s exec
 setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
 ```
 
-Updates the reference to an agent in the swarm’s agent map (params.agentMap), notifying subscribers via _agentChangedSubject.
-Emits an event via BusService, supporting dynamic agent updates within ClientSession’s execution flow.
-   *    *
+Updates the reference to an agent in the swarm's agent map (params.agentMap), notifying subscribers via _agentChangedSubject.
+Emits an event via BusService, supporting dynamic agent updates within ClientSession's execution flow.
 
 ### setAgentName
 
@@ -187,8 +184,7 @@ setAgentName(agentName: AgentName): Promise<void>;
 ```
 
 Sets the active agent by name, updates the navigation stack, and persists the change via params.setActiveAgent/setNavigationStack.
-Invokes the onAgentChanged callback and emits an event via BusService, supporting ClientSession’s agent switching.
-   *
+Invokes the onAgentChanged callback and emits an event via BusService, supporting ClientSession's agent switching.
 
 ### dispose
 
