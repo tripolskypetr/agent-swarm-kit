@@ -25,19 +25,19 @@ export interface IScopeOptions {
   /**
    * The client identifier for the scope operation.
    * Unique identifier used to track and manage the session within the scope.
-  */
+   */
   clientId: string;
 
   /**
    * The name of the swarm associated with the scope.
    * Identifies which swarm configuration to use for the scoped operation.
-  */
+   */
   swarmName: SwarmName;
 
   /**
    * Optional callback function to handle errors during execution.
    * Called when an error occurs during the scope operation, allowing for custom error handling.
-  */
+   */
   onError?: (error: Error) => void;
 }
 

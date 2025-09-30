@@ -27,27 +27,27 @@ const LOGGER_INSTANCE_WAIT_FOR_FN = async (
 export interface ILoggerInstanceCallbacks {
   /**
    * Called when the logger instance is initialized, typically during waitForInit.
-  */
+   */
   onInit(clientId: string): void;
 
   /**
    * Called when the logger instance is disposed, cleaning up resources.
-  */
+   */
   onDispose(clientId: string): void;
 
   /**
    * Called when a log message is recorded via the log method.
-  */
+   */
   onLog(clientId: string, topic: string, ...args: any[]): void;
 
   /**
    * Called when a debug message is recorded via the debug method.
-  */
+   */
   onDebug(clientId: string, topic: string, ...args: any[]): void;
 
   /**
    * Called when an info message is recorded via the info method.
-  */
+   */
   onInfo(clientId: string, topic: string, ...args: any[]): void;
 }
 
@@ -60,13 +60,13 @@ export interface ILoggerInstance extends ILogger {
   /**
    * Initializes the logger instance, invoking the onInit callback if provided.
    * Ensures initialization is performed only once, supporting asynchronous setup.
-  */
+   */
   waitForInit(initial: boolean): Promise<void> | void;
 
   /**
    * Disposes of the logger instance, invoking the onDispose callback if provided.
    * Cleans up resources associated with the client ID.
-  */
+   */
   dispose(): Promise<void> | void;
 }
 
@@ -78,25 +78,25 @@ export interface ILoggerAdapter {
   /**
    * Logs a message for a client using the client-specific logger instance.
    * Ensures session validation and initialization before logging.
-  */
+   */
   log(clientId: string, topic: string, ...args: any[]): Promise<void>;
 
   /**
    * Logs a debug message for a client using the client-specific logger instance.
    * Ensures session validation and initialization before logging.
-  */
+   */
   debug(clientId: string, topic: string, ...args: any[]): Promise<void>;
 
   /**
    * Logs an info message for a client using the client-specific logger instance.
    * Ensures session validation and initialization before logging.
-  */
+   */
   info(clientId: string, topic: string, ...args: any[]): Promise<void>;
 
   /**
    * Disposes of the logger instance for a client, clearing it from the cache.
    * Ensures initialization before disposal.
-  */
+   */
   dispose(clientId: string): Promise<void>;
 }
 
@@ -108,37 +108,37 @@ export interface ILoggerControl {
   /**
    * Sets a common logger adapter for all logging operations via swarm.loggerService.
    * Overrides the default logger service behavior for centralized logging.
-  */
+   */
   useCommonAdapter(logger: ILogger): void;
 
   /**
    * Configures client-specific lifecycle callbacks for logger instances.
    * Applies to all instances created by LoggerUtils' LoggerFactory.
-  */
+   */
   useClientCallbacks(Callbacks: Partial<ILoggerInstanceCallbacks>): void;
 
   /**
    * Sets a custom logger instance constructor for client-specific logging.
    * Replaces the default LoggerInstance with a user-defined constructor.
-  */
+   */
   useClientAdapter(Ctor: TLoggerInstanceCtor): void;
 
   /**
    * Logs a message for a specific client using the common adapter (swarm.loggerService).
    * Includes session validation and method context tracking.
-  */
+   */
   logClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
 
   /**
    * Logs an info message for a specific client using the common adapter (swarm.loggerService).
    * Includes session validation and method context tracking.
-  */
+   */
   infoClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
 
   /**
    * Logs a debug message for a specific client using the common adapter (swarm.loggerService).
    * Includes session validation and method context tracking.
-  */
+   */
   debugClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
 }
 
@@ -256,7 +256,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
    * Memoized function to create or retrieve a logger instance for a client.
    * Ensures a single instance per clientId, cached for performance.
    * @private
-  */
+   */
   private getLogger = memoize(
     ([clientId]: [string]): string => clientId,
     (clientId: string): ILoggerInstance =>
@@ -266,7 +266,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Sets a common logger adapter for all logging operations via swarm.loggerService.
    * Configures the base LoggerService for centralized logging across the swarm system.
-  */
+   */
   public useCommonAdapter = (logger: ILogger): void => {
     swarm.loggerService.setLogger(logger);
   };
@@ -274,7 +274,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Configures lifecycle callbacks for all logger instances created by this adapter.
    * Applies to both default (LoggerInstance) and custom constructors set via useClientAdapter.
-  */
+   */
   public useClientCallbacks = (
     Callbacks: Partial<ILoggerInstanceCallbacks>
   ): void => {
@@ -284,7 +284,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Sets a custom logger instance constructor for client-specific logging.
    * Replaces the default LoggerInstance with a user-defined implementation.
-  */
+   */
   public useClientAdapter = (Ctor: TLoggerInstanceCtor): void => {
     this.LoggerFactory = Ctor;
   };
@@ -293,7 +293,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
    * Logs a message for a specific client using the common adapter (swarm.loggerService).
    * Validates session existence and runs within a MethodContextService context for tracking.
    * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG.
-  */
+   */
   public logClient = beginContext(
     async (clientId: string, topic: string, ...args: any[]): Promise<void> => {
       if (!GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG) {
@@ -325,7 +325,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
    * Logs an info message for a specific client using the common adapter (swarm.loggerService).
    * Validates session existence and runs within a MethodContextService context for tracking.
    * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
-  */
+   */
   public infoClient = beginContext(
     async (clientId: string, topic: string, ...args: any[]): Promise<void> => {
       if (!GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO) {
@@ -357,7 +357,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
    * Logs a debug message for a specific client using the common adapter (swarm.loggerService).
    * Validates session existence and runs within a MethodContextService context for tracking.
    * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG.
-  */
+   */
   public debugClient = beginContext(
     async (clientId: string, topic: string, ...args: any[]): Promise<void> => {
       if (!GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG) {
@@ -388,7 +388,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Logs a message for a client using the client-specific logger instance.
    * Ensures session validation and initialization before logging, controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG.
-  */
+   */
   public log = async (
     clientId: string,
     topic: string,
@@ -409,7 +409,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Logs a debug message for a client using the client-specific logger instance.
    * Ensures session validation and initialization before logging, controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG.
-  */
+   */
   public debug = async (
     clientId: string,
     topic: string,
@@ -430,7 +430,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Logs an info message for a client using the client-specific logger instance.
    * Ensures session validation and initialization before logging, controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
-  */
+   */
   public info = async (
     clientId: string,
     topic: string,
@@ -451,7 +451,7 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /**
    * Disposes of the logger instance for a client, clearing it from the memoized cache.
    * Ensures initialization before disposal to handle any pending onInit callbacks.
-  */
+   */
   public dispose = async (clientId: string): Promise<void> => {
     if (!this.getLogger.has(clientId)) {
       return;

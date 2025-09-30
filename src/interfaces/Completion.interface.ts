@@ -20,20 +20,20 @@ export interface ICompletionArgs {
    * The unique identifier for the client making the request.
    * This is used to track the request and associate it with the correct client context.
    * For outline completions, this being skipped
-  */
+   */
   clientId?: string;
 
   /**
    * The name of the agent for which the completion is requested.
    * This is used to identify the agent context in which the completion will be generated.
-  */
+   */
   agentName?: AgentName;
 
   /**
    * The outline used for json completions, if applicable.
    * This is the name of the outline schema that defines the structure of the expected JSON response.
    * Used to ensure that the completion adheres to the specified outline format.
-  */
+   */
   outlineName?: OutlineName;
 
   /** The source of the last message, indicating whether it originated from a tool or user.*/
@@ -50,7 +50,7 @@ export interface ICompletionArgs {
    * This is used to define the expected output format for JSON completions.
    * If not provided, the default outline format will be used.
    * @optional
-  */
+   */
   format?: IOutlineFormat;
 }
 
@@ -62,7 +62,7 @@ export interface ICompletionCallbacks {
   /**
    * Optional callback triggered after a completion is successfully generated.
    * Useful for logging, output processing, or triggering side effects.
-  */
+   */
   onComplete?: (args: ICompletionArgs, output: IModelMessage | IOutlineMessage) => void;
 }
 
@@ -78,14 +78,14 @@ export interface ICompletionSchema {
    * Retrieves a completion based on the provided arguments.
    * Generates a model response using the given context and tools.
    * @throws {Error} If completion generation fails (e.g., due to invalid arguments, model errors, or tool issues).
-  */
+   */
   getCompletion(args: ICompletionArgs): Promise<IModelMessage | IOutlineMessage>;
 
   /*
    * Flag if the completion is a JSON completion.
    * If true, the completion will be treated as a JSON object.
    * Should be used for completions that return structured data using Outlines.
-  */
+   */
   json?: boolean;
 
   /** List of flags for llm model. As example, `/no_think` for `lmstudio-community/Qwen3-32B-GGUF` */

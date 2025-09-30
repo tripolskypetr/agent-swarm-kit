@@ -25,14 +25,14 @@ export class ComputeSchemaService {
    * @property {LoggerService} loggerService
    * Injected logger service for logging operations.
    * @readonly
-  */
+   */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
    * @readonly
-  */
+   */
   readonly schemaContextService = inject<TSchemaContextService>(
     TYPES.schemaContextService
   );
@@ -41,7 +41,7 @@ export class ComputeSchemaService {
    * @property {ToolRegistry<Record<ComputeName, IComputeSchema>>} registry
    * Registry for storing compute schemas.
    * @private
-  */
+   */
   private _registry = new ToolRegistry<Record<ComputeName, IComputeSchema>>(
     "computeSchemaService"
   );
@@ -50,7 +50,7 @@ export class ComputeSchemaService {
    * Retrieves the current registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
    * Otherwise, it falls back to the private `_registry` instance.
-  */
+   */
   public get registry() {
     if (SchemaContextService.hasContext()) {
       return this.schemaContextService.context.registry.computeSchemaService;
@@ -62,7 +62,7 @@ export class ComputeSchemaService {
    * Sets the registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
    * Otherwise, it updates the private `_registry` instance.
-  */
+   */
   public set registry(
     value: ToolRegistry<Record<ComputeName, IComputeSchema>>
   ) {
@@ -78,7 +78,7 @@ export class ComputeSchemaService {
    * Performs shallow validation of a compute schema.
    * @throws {Error} If validation fails for computeName, getComputeData, middlewares, or dependsOn.
    * @private
-  */
+   */
   private validateShallow = (computeSchema: IComputeSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`computeSchemaService validateShallow`, {
@@ -129,7 +129,7 @@ export class ComputeSchemaService {
   /**
    * @method register
    * Registers a compute schema with validation.
-  */
+   */
   public register = (key: ComputeName, value: IComputeSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`computeSchemaService register`, { key });
@@ -140,7 +140,7 @@ export class ComputeSchemaService {
   /**
    * @method override
    * Overrides an existing compute schema with new values.
-  */
+   */
   public override = (key: ComputeName, value: Partial<IComputeSchema>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`computeSchemaService override`, { key });
@@ -151,7 +151,7 @@ export class ComputeSchemaService {
   /**
    * @method get
    * Retrieves a compute schema by its name.
-  */
+   */
   public get = (key: ComputeName): IComputeSchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`computeSchemaService get`, { key });

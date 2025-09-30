@@ -18,7 +18,7 @@ export class MCPSchemaService {
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
    * @readonly
-  */
+   */
   readonly schemaContextService = inject<TSchemaContextService>(
     TYPES.schemaContextService
   );
@@ -32,7 +32,7 @@ export class MCPSchemaService {
    * Retrieves the current registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
    * Otherwise, it falls back to the private `_registry` instance.
-  */
+   */
   public get registry() {
     if (SchemaContextService.hasContext()) {
       return this.schemaContextService.context.registry.mcpSchemaService;
@@ -44,7 +44,7 @@ export class MCPSchemaService {
    * Sets the registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
    * Otherwise, it updates the private `_registry` instance.
-  */
+   */
   public set registry(
     value: ToolRegistry<Record<MCPName, IMCPSchema>>
   ) {
@@ -58,7 +58,7 @@ export class MCPSchemaService {
   /**
    * Validates the basic structure of an MCP schema.
    * @throws Error if the schema is missing required fields or has invalid types.
-  */
+   */
   private validateShallow = (mcpSchema: IMCPSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpSchemaService validateShallow`, {
@@ -83,7 +83,7 @@ export class MCPSchemaService {
 
   /**
    * Registers a new MCP schema in the registry.
-  */
+   */
   public register = (key: MCPName, value: IMCPSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpSchemaService register`, { key });
@@ -93,7 +93,7 @@ export class MCPSchemaService {
 
   /**
    * Overrides an existing MCP schema with new or partial values.
-  */
+   */
   public override = (key: MCPName, value: Partial<IMCPSchema>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpSchemaService override`, { key });
@@ -103,7 +103,7 @@ export class MCPSchemaService {
 
   /**
    * Retrieves an MCP schema by its name.
-  */
+   */
   public get = (key: MCPName): IMCPSchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpSchemaService get`, { key });

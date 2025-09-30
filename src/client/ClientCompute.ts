@@ -81,7 +81,7 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
   /**
    * @constructor
    * Initializes the ClientCompute instance, sets up state subscriptions, and triggers onInit callback.
-  */
+   */
   constructor(readonly params: IComputeParams<Compute>) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -115,7 +115,7 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
 
   /**
    * Retrieves the computation data using a memoized function.
-   */
+    */
   async getComputeData() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -126,7 +126,7 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
 
   /**
    * Triggers a recalculation based on a state change and clears memoized data.
-  */
+   */
   async calculate(stateName: StateName) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -144,7 +144,7 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
 
   /**
    * Forces an update of the computation and clears memoized data.
-  */
+   */
   async update() {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -161,7 +161,7 @@ export class ClientCompute<Compute extends IComputeData = IComputeData>
 
   /**
    * Cleans up resources, unsubscribes from state changes, and triggers onDispose callback.
-   */
+    */
   async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(

@@ -18,14 +18,14 @@ export class StateSchemaService {
    * Logger service instance, injected via DI, for logging state schema operations.
    * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StateConnectionService and PerfService logging patterns.
    * @readonly
-  */
+   */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
    * @readonly
-  */
+   */
   readonly schemaContextService = inject<TSchemaContextService>(
     TYPES.schemaContextService
   );
@@ -35,7 +35,7 @@ export class StateSchemaService {
    * Maps StateName keys to IStateSchema values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
    * @private
-  */
+   */
   private _registry = new ToolRegistry<Record<StateName, IStateSchema>>(
     "stateSchemaService"
   );
@@ -44,7 +44,7 @@ export class StateSchemaService {
    * Retrieves the current registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
    * Otherwise, it falls back to the private `_registry` instance.
-  */
+   */
   public get registry() {
     if (SchemaContextService.hasContext()) {
       return this.schemaContextService.context.registry.stateSchemaService;
@@ -56,7 +56,7 @@ export class StateSchemaService {
    * Sets the registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
    * Otherwise, it updates the private `_registry` instance.
-  */
+   */
   public set registry(value: ToolRegistry<Record<StateName, IStateSchema>>) {
     if (SchemaContextService.hasContext()) {
       this.schemaContextService.context.registry.stateSchemaService = value;
@@ -72,7 +72,7 @@ export class StateSchemaService {
    * Supports ClientState instantiation in StateConnectionService and SharedStateConnectionService by ensuring schema validity before registration.
    * @throws {Error} If any validation check fails, with detailed messages including stateName.
    * @private
-  */
+   */
   private validateShallow = (stateSchema: IStateSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`stateSchemaService validateShallow`, {
@@ -106,7 +106,7 @@ export class StateSchemaService {
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StateConnectionService’s state management.
    * Supports ClientAgent execution by providing validated state schemas to StateConnectionService and SharedStateConnectionService for ClientState configuration.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-  */
+   */
   public register = (key: StateName, value: IStateSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`stateSchemaService register`, { key });
@@ -120,7 +120,7 @@ export class StateSchemaService {
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports dynamic updates to state schemas for StateConnectionService and SharedStateConnectionService.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-  */
+   */
   public override = (key: StateName, value: Partial<IStateSchema>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`stateSchemaService override`, { key });
@@ -133,7 +133,7 @@ export class StateSchemaService {
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports StateConnectionService and SharedStateConnectionService by providing state configuration (e.g., getState, middlewares) for ClientState instantiation, referenced in AgentSchemaService schemas.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-  */
+   */
   public get = (key: StateName): IStateSchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`stateSchemaService get`, { key });

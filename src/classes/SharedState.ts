@@ -32,7 +32,7 @@ export class SharedStateUtils implements TSharedState {
    * Executes within a context for logging and delegates to the shared state service.
    * @template T - The type of the state data to retrieve, defaults to any.
    * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
-  */
+   */
   public getState = beginContext(async (stateName: StateName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_GET, {
@@ -50,7 +50,7 @@ export class SharedStateUtils implements TSharedState {
    * Executes within a context for logging and delegates to the shared state service.
    * @template T - The type of the state data to set, defaults to any.
    * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
-  */
+   */
   public setState = beginContext(
     async (
       dispatchFn:
@@ -85,7 +85,7 @@ export class SharedStateUtils implements TSharedState {
    * Executes within a context for logging and delegates to the shared state service.
    * @template T - The type of the state data, defaults to any (unused in return).
    * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
-  */
+   */
   public clearState = beginContext(async (stateName: StateName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_CLEAR, {

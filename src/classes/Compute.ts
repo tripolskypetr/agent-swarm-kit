@@ -31,7 +31,7 @@ export class ComputeUtils {
    * @method update
    * Updates a compute instance with validation and context management.
    * @async
-  */
+   */
   public update = beginContext(
     async (clientId: string, computeName: ComputeName) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -52,7 +52,7 @@ export class ComputeUtils {
    * @method getComputeData
    * Retrieves compute data with validation and context management.
    * @async
-  */
+   */
   public getComputeData = beginContext(
     async (clientId: string, computeName: ComputeName) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

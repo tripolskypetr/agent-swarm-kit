@@ -11,21 +11,21 @@ export interface IToolCall {
    * Assigned to distinguish this invocation from others, often generated randomly (e.g., randomString() in ClientAgent.mapToolCalls) or provided by the model.
    * Used to correlate tool outputs back to their requests (e.g., tool_call_id in IModelMessage).
    * Example: "tool-xyz123" for a specific call in EXECUTE_FN.
-  */
+   */
   id: string;
 
   /**
    * The type of the tool being called, currently fixed to "function".
    * Indicates that the tool is a callable function, aligning with the swarm’s function-based tool model (e.g., ClientAgent.createToolCall).
    * Future extensions might support other types, but "function" is the only supported value as observed.
-  */
+   */
   type: "function";
 
   /**
    * The function details specifying the tool to be executed.
    * Defines the name and arguments of the function to invoke, derived from model outputs (e.g., ICompletion.getCompletion in ClientAgent).
    * Processed by agents to match against ITool definitions and execute via callbacks (e.g., targetFn.call).
-  */
+   */
   function: {
     /**
      * The name of the function to be called.
@@ -55,14 +55,14 @@ export interface ITool {
    * The type of the tool, typically "function" in the current system.
    * Specifies the tool's category, aligning with IToolCall.type, though only "function" is observed in ClientAgent usage (e.g., params.tools).
    * Future extensions might include other types (e.g., "api", "script"), but "function" is standard.
-  */
+   */
   type: string;
 
   /**
    * The function details defining the tool’s capabilities.
    * Provides the name, description, and parameter schema for the tool, used by the model to understand and invoke it (e.g., in ClientAgent.getCompletion).
    * Matched against IToolCall.function during execution (e.g., EXECUTE_FN’s targetFn lookup).
-  */
+   */
   function: {
     /**
      * The name of the function, uniquely identifying the tool.
@@ -140,13 +140,13 @@ export interface IToolRequest {
    * The name of the tool to be invoked.
    * Must match the name of a defined tool in the system (e.g., ITool.function.name).
    * Example: "search" for invoking a search tool.
-  */
+   */
   toolName: ToolName;
 
   /**
    * A key-value map of parameters to be passed to the tool.
    * Defines the input arguments required for the tool's execution, validated against the tool's parameter schema (e.g., ITool.function.parameters).
    * Example: `{ query: "example" }` for a search tool.
-  */
+   */
   params: Record<string, unknown>;
 }

@@ -15,14 +15,14 @@ export class NavigationValidationService {
   /**
    * Injected logger service for recording navigation events and debugging information.
    * Implements `ILogger` to provide log, debug, and info-level logging.
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Memoized function to retrieve or create a navigation route for a client and swarm.
    * Returns a `Set` of visited `AgentName`s, keyed by a combination of `clientId` and `swarmName`.
    * Uses memoization to ensure route persistence across calls while optimizing performance.
-  */
+   */
   public getNavigationRoute = memoize<
     (clientId: string, swarmName: SwarmName) => Set<AgentName>
   >(
@@ -34,7 +34,7 @@ export class NavigationValidationService {
    * Determines if navigation to a specific agent should proceed.
    * Checks if the agent has been previously visited in the route; if not, adds it and allows navigation.
    * Logs navigation attempts and decisions when info-level logging is enabled.
-  */
+   */
   public shouldNavigate = (
     agentName: AgentName,
     clientId: string,
@@ -78,7 +78,7 @@ export class NavigationValidationService {
   /**
    * Initializes or resets the navigation route monitoring for a client and swarm.
    * Clears the existing route to start fresh, logging the action if info-level logging is enabled.
-  */
+   */
   public beginMonit = (clientId: string, swarmName: SwarmName): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("navigationValidationService beginMonit", {
@@ -94,7 +94,7 @@ export class NavigationValidationService {
   /**
    * Disposes of the navigation route for a client and swarm.
    * Removes the memoized route entry, logging the action if info-level logging is enabled.
-  */
+   */
   public dispose = (clientId: string, swarmName: SwarmName): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("navigationValidationService dispose", {

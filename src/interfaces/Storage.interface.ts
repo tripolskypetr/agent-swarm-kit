@@ -39,7 +39,7 @@ export interface IStorageSchema<T extends IStorageData = IStorageData> {
 
   /**
    * Optional function to retrieve data from the storage, overriding default behavior.
-  */
+   */
   getData?: (
     clientId: string,
     storageName: StorageName,
@@ -49,7 +49,7 @@ export interface IStorageSchema<T extends IStorageData = IStorageData> {
   /**
    * Optional function to persist storage data to the hard drive, overriding default behavior.
    * @throws {Error} If persistence fails (e.g., due to disk errors).
-  */
+   */
   setData?: (
     data: T[],
     clientId: string,
@@ -58,7 +58,7 @@ export interface IStorageSchema<T extends IStorageData = IStorageData> {
 
   /**
    * Function to generate an index for a storage item, used for search and retrieval.
-  */
+   */
   createIndex(
     item: T
   ):
@@ -78,7 +78,7 @@ export interface IStorageSchema<T extends IStorageData = IStorageData> {
 
   /**
    * Optional function to provide the default data for the storage, resolved in persistence logic.
-  */
+   */
   getDefaultData?: (
     clientId: string,
     storageName: StorageName
@@ -94,12 +94,12 @@ export interface IStorageCallbacks<T extends IStorageData = IStorageData> {
   /**
    * Callback triggered when storage data is updated (e.g., via upsert or remove).
    * Useful for logging or synchronizing state.
-  */
+   */
   onUpdate: (items: T[], clientId: string, storageName: StorageName) => void;
 
   /**
    * Callback triggered during a search operation on the storage.
-  */
+   */
   onSearch: (
     search: string,
     index: SortedArray<T>,
@@ -110,13 +110,13 @@ export interface IStorageCallbacks<T extends IStorageData = IStorageData> {
   /**
    * Callback triggered when the storage is initialized.
    * Useful for setup or logging.
-  */
+   */
   onInit: (clientId: string, storageName: StorageName) => void;
 
   /**
    * Callback triggered when the storage is disposed of.
    * Useful for cleanup or logging.
-  */
+   */
   onDispose: (clientId: string, storageName: StorageName) => void;
 }
 
@@ -136,27 +136,27 @@ export interface IStorageParams<T extends IStorageData = IStorageData>
   /**
    * Function to calculate similarity between embeddings, inherited from the embedding schema.
    * Used for search operations.
-  */
+   */
   calculateSimilarity: IEmbeddingSchema["calculateSimilarity"];
 
   /**
    * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
    * Used to cache computed embeddings to avoid redundant processing.
    * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-  */
+   */
   writeEmbeddingCache: IEmbeddingSchema["writeEmbeddingCache"];
 
   /**
    * Retrieves the embedding vector for a specific string hash, returning null if not found.
    * Used to check if a precomputed embedding exists in the cache.
    * @throws {Error} If reading from storage fails (e.g., file corruption).
-  */
+   */
   readEmbeddingCache: IEmbeddingSchema["readEmbeddingCache"];
 
   /**
    * Function to create an embedding for storage items, inherited from the embedding schema.
    * Used for indexing.
-  */
+   */
   createEmbedding: IEmbeddingSchema["createEmbedding"];
 
   /** The unique name of the storage within the swarm (redundant with schema but included for clarity).*/
@@ -179,40 +179,40 @@ export interface IStorage<T extends IStorageData = IStorageData> {
    * Retrieves a specified number of items from the storage based on a search query.
    * Uses embeddings for similarity-based retrieval.
    * @throws {Error} If retrieval fails (e.g., due to embedding issues or invalid query).
-  */
+   */
   take(search: string, total: number, score?: number): Promise<T[]>;
 
   /**
    * Inserts or updates an item in the storage.
    * Updates the index and persists data if configured.
    * @throws {Error} If upsert fails (e.g., due to persistence issues or invalid item).
-  */
+   */
   upsert(item: T): Promise<void>;
 
   /**
    * Removes an item from the storage by its ID.
    * Updates the index and persists changes if configured.
    * @throws {Error} If removal fails (e.g., due to persistence issues or invalid ID).
-  */
+   */
   remove(itemId: IStorageData["id"]): Promise<void>;
 
   /**
    * Retrieves an item from the storage by its ID.
    * @throws {Error} If retrieval fails (e.g., due to internal errors).
-  */
+   */
   get(itemId: IStorageData["id"]): Promise<T | null>;
 
   /**
    * Lists all items in the storage, optionally filtered by a predicate.
    * @throws {Error} If listing fails (e.g., due to persistence issues).
-  */
+   */
   list(filter?: (item: T) => boolean): Promise<T[]>;
 
   /**
    * Clears all items from the storage, resetting it to an empty state.
    * Persists changes if configured.
    * @throws {Error} If clearing fails (e.g., due to persistence issues).
-  */
+   */
   clear(): Promise<void>;
 }
 

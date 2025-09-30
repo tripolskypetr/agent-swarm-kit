@@ -34,21 +34,21 @@ export class AgentConnectionService implements IAgent {
    * Logger service instance, injected via DI, for logging agent operations.
    * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentPublicService and PerfService logging patterns.
    * @private
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Bus service instance, injected via DI, for emitting agent-related events.
    * Passed to ClientAgent for execution events (e.g., commitExecutionBegin), aligning with BusService’s event system in SessionPublicService.
    * @private
-  */
+   */
   private readonly busService = inject<BusService>(TYPES.busService);
 
   /**
    * Method context service instance, injected via DI, for accessing execution context.
    * Used to retrieve clientId and agentName in method calls, integrating with MethodContextService’s scoping in AgentPublicService.
    * @private
-  */
+   */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
@@ -57,7 +57,7 @@ export class AgentConnectionService implements IAgent {
    * Session validation service instance, injected via DI, for tracking agent usage.
    * Used in getAgent and dispose to manage agent lifecycle, supporting SessionPublicService’s validation needs.
    * @private
-  */
+   */
   private readonly sessionValidationService = inject<SessionValidationService>(
     TYPES.sessionValidationService
   );
@@ -66,7 +66,7 @@ export class AgentConnectionService implements IAgent {
    * History connection service instance, injected via DI, for managing agent history.
    * Provides history instances to ClientAgent, aligning with HistoryPublicService’s functionality.
    * @private
-  */
+   */
   private readonly historyConnectionService = inject<HistoryConnectionService>(
     TYPES.historyConnectionService
   );
@@ -75,7 +75,7 @@ export class AgentConnectionService implements IAgent {
    * Storage connection service instance, injected via DI, for managing agent storage.
    * Initializes storage references in getAgent, supporting StoragePublicService’s client-specific storage operations.
    * @private
-  */
+   */
   private readonly storageConnectionService = inject<StorageConnectionService>(
     TYPES.storageConnectionService
   );
@@ -84,7 +84,7 @@ export class AgentConnectionService implements IAgent {
    * State connection service instance, injected via DI, for managing agent state.
    * Initializes state references in getAgent, supporting StatePublicService’s client-specific state operations.
    * @private
-  */
+   */
   private readonly stateConnectionService = inject<StateConnectionService>(
     TYPES.stateConnectionService
   );
@@ -93,7 +93,7 @@ export class AgentConnectionService implements IAgent {
    * Agent schema service instance, injected via DI, for retrieving agent configurations.
    * Provides agent details (e.g., prompt, tools) in getAgent, aligning with AgentMetaService’s schema management.
    * @private
-  */
+   */
   private readonly agentSchemaService = inject<AgentSchemaService>(
     TYPES.agentSchemaService
   );
@@ -102,7 +102,7 @@ export class AgentConnectionService implements IAgent {
    * Tool schema service instance, injected via DI, for retrieving tool configurations.
    * Maps tools for ClientAgent in getAgent, supporting DocService’s tool documentation.
    * @private
-  */
+   */
   private readonly toolSchemaService = inject<ToolSchemaService>(
     TYPES.toolSchemaService
   );
@@ -111,7 +111,7 @@ export class AgentConnectionService implements IAgent {
    * Completion schema service instance, injected via DI, for retrieving completion configurations.
    * Provides completion logic to ClientAgent in getAgent, supporting agent execution flows.
    * @private
-  */
+   */
   private readonly completionSchemaService = inject<CompletionSchemaService>(
     TYPES.completionSchemaService
   );
@@ -120,7 +120,7 @@ export class AgentConnectionService implements IAgent {
    * MCP connection service instance, injected via DI, for retrieving external tools
    * Provides mcp integration logic to ClientAgent in getAgent, supporting agent tool execution.
    * @private
-  */
+   */
   private readonly mcpConnectionService = inject<MCPConnectionService>(
     TYPES.mcpConnectionService
   );
@@ -130,7 +130,7 @@ export class AgentConnectionService implements IAgent {
    * Uses functools-kit’s memoize to cache instances by a composite key (clientId-agentName), ensuring efficient reuse across calls.
    * Configures the agent with schema data (prompt, tools, completion) from AgentSchemaService, ToolSchemaService, and CompletionSchemaService, and initializes storage/state dependencies via StorageConnectionService and StateConnectionService.
    * Integrates with ClientAgent (agent logic), AgentPublicService (agent instantiation), and SessionValidationService (usage tracking).
-  */
+   */
   public getAgent = memoize(
     ([clientId, agentName]) => `${clientId}-${agentName}`,
     (clientId: string, agentName: string) => {
@@ -207,7 +207,7 @@ export class AgentConnectionService implements IAgent {
    * Executes an input command on the agent in a specified execution mode.
    * Delegates to ClientAgent.execute, using context from MethodContextService to identify the agent, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors AgentPublicService’s execute, supporting ClientAgent’s EXECUTE_FN and PerfService’s tracking.
-  */
+   */
   public execute = async (input: string, mode: ExecutionMode) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService execute`, {
@@ -224,7 +224,7 @@ export class AgentConnectionService implements IAgent {
    * Runs a stateless completion on the agent with the given input.
    * Delegates to ClientAgent.run, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors AgentPublicService’s run, supporting ClientAgent’s RUN_FN for quick completions.
-  */
+   */
   public run = async (input: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService run`, {
@@ -240,7 +240,7 @@ export class AgentConnectionService implements IAgent {
    * Waits for output from the agent, typically after an execution or run.
    * Delegates to ClientAgent.waitForOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Aligns with SessionPublicService’s waitForOutput and ClientAgent’s asynchronous output handling.
-  */
+   */
   public waitForOutput = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService waitForOutput`);
@@ -254,7 +254,7 @@ export class AgentConnectionService implements IAgent {
    * Commits tool output to the agent’s history, typically for OpenAI-style tool calls.
    * Delegates to ClientAgent.commitToolOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitToolOutput, supporting ClientAgent’s TOOL_EXECUTOR and HistoryPublicService.
-  */
+   */
   public commitToolOutput = async (toolId: string, content: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService commitToolOutput`, {
@@ -271,7 +271,7 @@ export class AgentConnectionService implements IAgent {
    * Commits a system message to the agent’s history.
    * Delegates to ClientAgent.commitSystemMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitSystemMessage, supporting ClientAgent’s system prompt updates and HistoryPublicService.
-  */
+   */
   public commitSystemMessage = async (message: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService commitSystemMessage`, {
@@ -288,7 +288,7 @@ export class AgentConnectionService implements IAgent {
    * Delegates to ClientAgent.commitDeveloperMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitDeveloperMessage, supporting ClientAgent’s developer-specific messages and HistoryPublicService.
    * @throws {Error} If committing the message fails.
-  */
+   */
   public commitDeveloperMessage = async (message: string): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService commitDeveloperMessage`, {
@@ -304,7 +304,7 @@ export class AgentConnectionService implements IAgent {
    * Commits a tool request to the agent’s history.
    * Delegates to ClientAgent.commitToolRequest, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitToolRequest, supporting ClientAgent’s tool request handling and HistoryPublicService.
-  */
+   */
   public commitToolRequest = async (request: IToolRequest[]) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService commitToolRequest`, {
@@ -320,7 +320,7 @@ export class AgentConnectionService implements IAgent {
    * Commits an assistant message to the agent’s history.
    * Delegates to ClientAgent.commitAssistantMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitAssistantMessage, supporting ClientAgent’s assistant responses and HistoryPublicService.
-  */
+   */
   public commitAssistantMessage = async (message: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService commitAssistantMessage`, {
@@ -336,7 +336,7 @@ export class AgentConnectionService implements IAgent {
    * Commits a user message to the agent’s history without triggering a response.
    * Delegates to ClientAgent.commitUserMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitUserMessage, supporting ClientAgent’s user input logging and HistoryPublicService.
-  */
+   */
   public commitUserMessage = async (message: string, mode: ExecutionMode) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService commitUserMessage`, {
@@ -353,7 +353,7 @@ export class AgentConnectionService implements IAgent {
    * Commits an agent change to prevent the next tool execution, altering the execution flow.
    * Delegates to ClientAgent.commitAgentChange, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent’s execution control, potentially tied to SwarmPublicService’s navigation changes.
-  */
+   */
   public commitAgentChange = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService commitAgentChange`);
@@ -367,7 +367,7 @@ export class AgentConnectionService implements IAgent {
    * Prevents the next tool from being executed in the agent’s workflow.
    * Delegates to ClientAgent.commitStopTools, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitStopTools, supporting ClientAgent’s TOOL_EXECUTOR interruption.
-  */
+   */
   public commitStopTools = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService commitStopTools`);
@@ -381,7 +381,7 @@ export class AgentConnectionService implements IAgent {
    * Prevents the next tool from being executed in the agent’s workflow.
    * Delegates to ClientAgent.commitCancelOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitCancelOutput, supporting ClientAgent’s TOOL_EXECUTOR interruption.
-  */
+   */
   public commitCancelOutput = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService commitCancelOutput`);
@@ -395,7 +395,7 @@ export class AgentConnectionService implements IAgent {
    * Commits a flush of the agent’s history, clearing stored data.
    * Delegates to ClientAgent.commitFlush, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s commitFlush, supporting ClientAgent’s history reset and HistoryPublicService.
-  */
+   */
   public commitFlush = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService commitFlush`);
@@ -409,7 +409,7 @@ export class AgentConnectionService implements IAgent {
    * Disposes of the agent connection, cleaning up resources and clearing the memoized instance.
    * Checks if the agent exists in the memoization cache before calling ClientAgent.dispose, then clears the cache and updates SessionValidationService.
    * Logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligns with AgentPublicService’s dispose and PerfService’s cleanup.
-  */
+   */
   public dispose = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`agentConnectionService dispose`);

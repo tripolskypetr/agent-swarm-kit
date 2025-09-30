@@ -13,27 +13,27 @@ export interface IHistory {
    * Adds a message to the end of the history.
    * Updates the history store asynchronously.
    * @throws {Error} If the push operation fails (e.g., due to storage issues or invalid message).
-  */
+   */
   push(message: IModelMessage): Promise<void>;
 
   /**
    * Removes and returns the last message from the history.
    * @throws {Error} If the pop operation fails (e.g., due to internal errors).
-  */
+   */
   pop(): Promise<IModelMessage | null>;
 
   /**
    * Converts the history into an array of messages tailored for a specific agent.
    * Filters or formats messages based on the provided prompt and optional system prompts.
    * @throws {Error} If conversion fails (e.g., due to adapter issues or invalid prompt).
-  */
+   */
   toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
 
   /**
    * Converts the entire history into an array of raw model messages.
    * Retrieves all messages without agent-specific filtering or formatting.
    * @throws {Error} If conversion fails (e.g., due to adapter issues).
-  */
+   */
   toArrayForRaw(): Promise<IModelMessage[]>;
 }
 
@@ -67,7 +67,7 @@ export interface IHistorySchema {
   /**
    * The adapter responsible for managing the array of model messages.
    * Provides the implementation for history storage and retrieval.
-  */
+   */
   items: IHistoryAdapter;
 }
 

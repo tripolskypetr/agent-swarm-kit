@@ -21,7 +21,7 @@ export interface IMakeDisposeParams {
   /**
    * Optional callback invoked when the session is closed.
    * Called after the auto-dispose mechanism triggers and the session is successfully disposed.
-  */
+   */
   onDestroy?: (clientId: string, swarmName: SwarmName) => void;
 }
 

@@ -21,14 +21,14 @@ export class StorageSchemaService {
    * Logger service instance, injected via DI, for logging storage schema operations.
    * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StorageConnectionService and PerfService logging patterns.
    * @readonly
-  */
+   */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
    * @readonly
-  */
+   */
   readonly schemaContextService = inject<TSchemaContextService>(
     TYPES.schemaContextService
   );
@@ -38,7 +38,7 @@ export class StorageSchemaService {
    * Maps StorageName keys to IStorageSchema values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
    * @private
-  */
+   */
   private _registry = new ToolRegistry<Record<StorageName, IStorageSchema>>(
     "storageSchemaService"
   );
@@ -47,7 +47,7 @@ export class StorageSchemaService {
    * Retrieves the current registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
    * Otherwise, it falls back to the private `_registry` instance.
-  */
+   */
   public get registry() {
     if (SchemaContextService.hasContext()) {
       return this.schemaContextService.context.registry.storageSchemaService;
@@ -59,7 +59,7 @@ export class StorageSchemaService {
    * Sets the registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
    * Otherwise, it updates the private `_registry` instance.
-  */
+   */
   public set registry(value: ToolRegistry<Record<StorageName, IStorageSchema>>) {
     if (SchemaContextService.hasContext()) {
       this.schemaContextService.context.registry.storageSchemaService = value;
@@ -75,7 +75,7 @@ export class StorageSchemaService {
    * Supports ClientStorage instantiation in StorageConnectionService and SharedStorageConnectionService by ensuring schema validity before registration.
    * @throws {Error} If any validation check fails, with detailed messages including storageName.
    * @private
-  */
+   */
   private validateShallow = (storageSchema: IStorageSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`storageSchemaService validateShallow`, {
@@ -104,7 +104,7 @@ export class StorageSchemaService {
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StorageConnectionService’s storage management.
    * Supports ClientAgent execution by providing validated storage schemas to StorageConnectionService and SharedStorageConnectionService for ClientStorage configuration.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-  */
+   */
   public register = (key: StorageName, value: IStorageSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`storageSchemaService register`, { key });
@@ -118,7 +118,7 @@ export class StorageSchemaService {
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports updates to storage configurations for ClientStorage and SharedStorageConnectionService.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-  */
+   */
   public override = (key: StorageName, value: Partial<IStorageSchema>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`storageSchemaService override`, { key });
@@ -131,7 +131,7 @@ export class StorageSchemaService {
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports StorageConnectionService and SharedStorageConnectionService by providing storage configuration (e.g., createIndex, embedding) for ClientStorage instantiation, referenced in AgentSchemaService schemas via the storages field.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-  */
+   */
   public get = (key: StorageName): IStorageSchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`storageSchemaService get`, { key });

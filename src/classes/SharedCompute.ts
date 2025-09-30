@@ -31,7 +31,7 @@ export class SharedComputeUtils {
    * @method update
    * Updates a shared compute instance with validation and context management.
    * @async
-  */
+   */
   public update = beginContext(
     async (computeName: ComputeName) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -50,7 +50,7 @@ export class SharedComputeUtils {
    * @method getComputeData
    * Retrieves shared compute data with validation and context management.
    * @async
-  */
+   */
   public getComputeData = beginContext(
     async (computeName: ComputeName) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

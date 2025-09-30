@@ -51,7 +51,7 @@ export class SchemaUtils {
    * avoiding race conditions during concurrent writes.
    *
    * @template T - The type of the memory value to persist, must extend object.
-  */
+   */
   private [PERSIST_WRITE_SYMBOL] = queued(PERSIST_WRITE_FN) as <
     T extends object = object
   >(
@@ -64,7 +64,7 @@ export class SchemaUtils {
    * Executes within a context for logging and validation, ensuring the client session is valid.
    * @template T - The type of the value to write, must extend object.
    * @throws {Error} If session validation fails or the memory schema service encounters an error.
-  */
+   */
   public writeSessionMemory = beginContext(
     async (clientId: string, value: object) => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -84,7 +84,7 @@ export class SchemaUtils {
    * Executes within a context for logging and validation, ensuring the client session is valid.
    * @template T - The type of the value to read, must extend object.
    * @throws {Error} If session validation fails or the memory schema service encounters an error.
-  */
+   */
   public readSessionMemory = beginContext(
     async (clientId: string): Promise<object> => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -109,7 +109,7 @@ export class SchemaUtils {
    * Serializes an object or array of objects into a formatted string.
    * Flattens nested objects and applies optional key/value mapping functions for formatting.
    * @template T - The type of the object(s) to serialize, defaults to any.
-  */
+   */
   public serialize = <T extends object = any>(
     data: T[] | T,
     map: {

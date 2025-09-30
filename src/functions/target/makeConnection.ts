@@ -128,7 +128,7 @@ export interface IMakeConnectionConfig {
   /**
    * The delay in milliseconds for scheduling or rate-limiting messages.
    * Controls the timing interval for scheduled or rate-limited message sending operations.
-  */
+   */
   delay?: number;
 }
 

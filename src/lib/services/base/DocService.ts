@@ -69,21 +69,21 @@ export class DocService {
    * Logger service instance for logging documentation generation activities, injected via dependency injection.
    * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO, used in methods like dumpDocs, writeSwarmDoc, and writeAgentDoc for info-level logging.
    * @private
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Performance service instance for retrieving system and client performance data, injected via DI.
    * Used in dumpPerfomance and dumpClientPerfomance to serialize IPerformanceRecord and IClientPerfomanceRecord data into JSON files.
    * @private
-  */
+   */
   private readonly perfService = inject<PerfService>(TYPES.perfService);
 
   /**
    * Swarm validation service instance, injected via DI.
    * Provides the list of swarm names for dumpDocs, ensuring only valid swarms are documented.
    * @private
-  */
+   */
   private readonly swarmValidationService = inject<SwarmValidationService>(
     TYPES.swarmValidationService
   );
@@ -92,7 +92,7 @@ export class DocService {
    * Agent validation service instance, injected via DI.
    * Provides the list of agent names for dumpDocs, ensuring only valid agents are documented.
    * @private
-  */
+   */
   private readonly agentValidationService = inject<AgentValidationService>(
     TYPES.agentValidationService
   );
@@ -101,7 +101,7 @@ export class DocService {
    * Outline validation service instance, injected via DI.
    * Used for validating and managing agent outline schemas, ensuring agent outlines conform to expected structure and constraints.
    * @private
-  */
+   */
   private readonly outlineValidationService = inject<OutlineValidationService>(
     TYPES.outlineValidationService
   );
@@ -110,7 +110,7 @@ export class DocService {
    * Swarm schema service instance, injected via DI.
    * Retrieves ISwarmSchema objects for writeSwarmDoc, supplying swarm details like agents and policies.
    * @private
-  */
+   */
   private readonly swarmSchemaService = inject<SwarmSchemaService>(
     TYPES.swarmSchemaService
   );
@@ -119,7 +119,7 @@ export class DocService {
    * Agent schema service instance, injected via DI.
    * Retrieves IAgentSchemaInternal objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
    * @private
-  */
+   */
   private readonly agentSchemaService = inject<AgentSchemaService>(
     TYPES.agentSchemaService
   );
@@ -128,7 +128,7 @@ export class DocService {
    * Outline schema service instance, injected via DI.
    * Retrieves and manages outline schema objects for agents, supporting documentation and validation of agent outlines.
    * @private
-  */
+   */
   private readonly outlineSchemaService = inject<OutlineSchemaService>(
     TYPES.outlineSchemaService
   );
@@ -137,7 +137,7 @@ export class DocService {
    * Model context protocol service instance, injected via DI.
    * Retrieves IMCPSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
    * @private
-  */
+   */
   private readonly mcpSchemaService = inject<MCPSchemaService>(
     TYPES.mcpSchemaService
   );
@@ -146,7 +146,7 @@ export class DocService {
    * Policy schema service instance, injected via DI.
    * Supplies policy descriptions for writeSwarmDoc, documenting banhammer policies associated with swarms.
    * @private
-  */
+   */
   private readonly policySchemaService = inject<PolicySchemaService>(
     TYPES.policySchemaService
   );
@@ -155,7 +155,7 @@ export class DocService {
    * Tool schema service instance, injected via DI.
    * Provides tool details (e.g., function, callbacks) for writeAgentDoc, documenting tools used by agents (e.g., ClientAgent tools).
    * @private
-  */
+   */
   private readonly toolSchemaService = inject<ToolSchemaService>(
     TYPES.toolSchemaService
   );
@@ -164,7 +164,7 @@ export class DocService {
    * Storage schema service instance, injected via DI.
    * Supplies storage details for writeAgentDoc, documenting storage resources used by agents.
    * @private
-  */
+   */
   private readonly storageSchemaService = inject<StorageSchemaService>(
     TYPES.storageSchemaService
   );
@@ -173,7 +173,7 @@ export class DocService {
    * Wiki schema service instance, injected via DI.
    * Supplies wiki details for writeAgentDoc, documenting wiki resources used by agents.
    * @private
-  */
+   */
   private readonly wikiSchemaService = inject<WikiSchemaService>(
     TYPES.wikiSchemaService
   );
@@ -182,7 +182,7 @@ export class DocService {
    * State schema service instance, injected via DI.
    * Provides state details for writeAgentDoc, documenting state resources used by agents.
    * @private
-  */
+   */
   private readonly stateSchemaService = inject<StateSchemaService>(
     TYPES.stateSchemaService
   );
@@ -191,7 +191,7 @@ export class DocService {
    * Completion schema service instance, injected via DI.
    * Provides completion details for writeAgentDoc, documenting completion resources used by agents.
    * @private
-  */
+   */
   private readonly completionSchemaService = inject<CompletionSchemaService>(
     TYPES.completionSchemaService
   );
@@ -200,7 +200,7 @@ export class DocService {
    * Compute schema service instance, injected via DI.
    * Provides compute details for writeAgentDoc, documenting compute resources used by agents.
    * @private
-  */
+   */
   private readonly computeSchemaService = inject<ComputeSchemaService>(
     TYPES.computeSchemaService
   );
@@ -209,7 +209,7 @@ export class DocService {
    * Compute validation service instance, injected via DI.
    * Provides compute list for writeAgentDoc, documenting compute resources used by states in agents.
    * @private
-  */
+   */
   private readonly computeValidationService = inject<ComputeValidationService>(
     TYPES.computeValidationService
   );
@@ -218,7 +218,7 @@ export class DocService {
    * Agent meta service instance, injected via DI.
    * Generates UML diagrams for agents in writeAgentDoc, enhancing documentation with visual schema representations.
    * @private
-  */
+   */
   private readonly agentMetaService = inject<AgentMetaService>(
     TYPES.agentMetaService
   );
@@ -227,7 +227,7 @@ export class DocService {
    * Swarm meta service instance, injected via DI.
    * Generates UML diagrams for swarms in writeSwarmDoc, enhancing documentation with visual schema representations.
    * @private
-  */
+   */
   private readonly swarmMetaService = inject<SwarmMetaService>(
     TYPES.swarmMetaService
   );
@@ -237,7 +237,7 @@ export class DocService {
    * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
    * Outputs to dirName/[swarmName].md, with UML images in dirName/image, and links to agent docs in dirName/agent, sourced from swarmSchemaService.
    * @private
-  */
+   */
   private writeSwarmDoc = execpool(
     async (
       swarmSchema: ISwarmSchema,
@@ -376,7 +376,7 @@ export class DocService {
    * - Callback section lists all callback names used by the outline.
    *
    * @private
-  */
+   */
   private writeOutlineDoc = execpool(
     async (
       outlineSchema: IOutlineSchema,
@@ -613,7 +613,7 @@ export class DocService {
    * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
    * Outputs to dirName/agent/[agentName].md, with UML images in dirName/image, sourced from agentSchemaService and related services (e.g., toolSchemaService).
    * @private
-  */
+   */
   private writeAgentDoc = execpool(
     async (
       agentSchema: IAgentSchemaInternal,
@@ -1078,7 +1078,7 @@ export class DocService {
    * Generates and writes documentation for all swarms and agents in the system.
    * Creates subdirectories (SUBDIR_LIST), then concurrently writes swarm and agent docs using writeSwarmDoc and writeAgentDoc, logging progress if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
    * Outputs to a directory structure rooted at dirName (default: "docs/chat"), integrating with ClientAgent by documenting its schema.
-  */
+   */
   public dumpDocs = async (
     prefix = "swarm",
     dirName = join(process.cwd(), "docs/chat"),
@@ -1141,7 +1141,7 @@ export class DocService {
    * Dumps system-wide performance data to a JSON file using PerfService.toRecord.
    * Ensures the output directory exists, then writes a timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
    * Outputs to dirName/[momentStamp].[timeStamp].json (default: "logs/meta"), providing a snapshot of system performance (e.g., tied to ClientAgent executions).
-  */
+   */
   public dumpPerfomance = async (
     dirName = join(process.cwd(), "logs/meta")
   ) => {
@@ -1162,7 +1162,7 @@ export class DocService {
    * Dumps performance data for a specific client to a JSON file using PerfService.toClientRecord.
    * Ensures the output directory exists, then writes a client-specific timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
    * Outputs to dirName/[clientId].[momentStamp].json (default: "logs/client"), documenting client-specific metrics (e.g., ClientAgent session performance).
-  */
+   */
   public dumpClientPerfomance = async (
     clientId: string,
     dirName = join(process.cwd(), "logs/client")

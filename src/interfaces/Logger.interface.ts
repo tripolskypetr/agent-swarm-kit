@@ -7,18 +7,18 @@ export interface ILogger {
   /**
    * Logs a general-purpose message.
    * Used throughout the swarm system to record significant events or state changes, such as agent execution, session connections, or storage updates.
-  */
+   */
   log(topic: string, ...args: any[]): void;
 
   /**
    * Logs a debug-level message.
    * Employed for detailed diagnostic information, such as intermediate states during agent tool calls, swarm navigation changes, or embedding creation processes, typically enabled in development or troubleshooting scenarios.
-  */
+   */
   debug(topic: string, ...args: any[]): void;
 
   /**
    * Logs an info-level message.
    * Used to record informational updates, such as successful completions, policy validations, or history commits, providing a high-level overview of system activity without excessive detail.
-  */
+   */
   info(topic: string, ...args: any[]): void;
 }

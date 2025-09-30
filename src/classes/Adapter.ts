@@ -48,7 +48,7 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with Hugging Face Inference API chat completions.
-  */
+   */
   fromHf = (inferenceClient: any, model = "openai/gpt-oss-120b") =>
     /**
      * Handles a completion request to Hugging Face, transforming messages and tools into the required format.
@@ -152,7 +152,7 @@ export class AdapterUtils {
   
   /**
    * Creates a function to interact with Cortex's chat completions API.
-  */
+   */
   fromCortex = (
     model = "tripolskypetr:gemma-3-12b-it:gemma-3-12b-it-Q4_K_S.gguf",
     baseUrl = "http://localhost:39281/"
@@ -291,7 +291,7 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with Grok's chat completions API.
-  */
+   */
   fromGrok = (grok: any, model = "grok-3-mini") =>
     /**
      * Handles a completion request to Grok, transforming messages and tools into the required format.
@@ -367,7 +367,7 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with CohereClientV2 chat completions API.
-  */
+   */
   fromCohereClientV2 = (cohere: any, model = "command-r-08-2024") =>
     /**
      * Handles a completion request to CohereClientV2, transforming messages and tools into the required format.
@@ -449,7 +449,7 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with OpenAI's chat completions API.
-  */
+   */
   fromOpenAI = (
     openai: any,
     model = "gpt-3.5-turbo",
@@ -529,7 +529,7 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with LMStudio's chat completions API.
-  */
+   */
   fromLMStudio = (
     openai: any,
     model = "saiga_yandexgpt_8b_gguf",
@@ -609,7 +609,7 @@ export class AdapterUtils {
 
   /**
    * Creates a function to interact with Ollama's chat completions API.
-  */
+   */
   fromOllama = (
     ollama: any,
     model = "nemotron-mini:4b",

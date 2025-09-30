@@ -18,22 +18,22 @@ export interface ISessionContext {
   /**
    * The unique identifier of the client session, or null if not available from either context.
    * Derived from either the method context or execution context.
-  */
+   */
   clientId: string | null;
   /**
    * The unique identifier of the process, sourced from GLOBAL_CONFIG.CC_PROCESS_UUID.
    * Identifies the current swarm process instance.
-  */
+   */
   processId: string;
   /**
    * The current method context, or null if no method context is active.
    * Provides access to method-specific metadata and client information.
-  */
+   */
   methodContext: IMethodContext | null;
   /**
    * The current execution context, or null if no execution context is active.
    * Provides access to execution-specific metadata and state information.
-  */
+   */
   executionContext: IExecutionContext | null;
 }
 

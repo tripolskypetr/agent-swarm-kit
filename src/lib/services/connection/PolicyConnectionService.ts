@@ -25,21 +25,21 @@ export class PolicyConnectionService implements IPolicy {
    * Logger service instance, injected via DI, for logging policy operations.
    * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with PolicyPublicService and PerfService logging patterns.
    * @private
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Bus service instance, injected via DI, for emitting policy-related events.
    * Passed to ClientPolicy for event propagation (e.g., ban updates), aligning with BusService’s event system in SessionPublicService.
    * @private
-  */
+   */
   private readonly busService = inject<BusService>(TYPES.busService);
 
   /**
    * Method context service instance, injected via DI, for accessing execution context.
    * Used to retrieve policyName in method calls, integrating with MethodContextService’s scoping in PolicyPublicService.
    * @private
-  */
+   */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
@@ -48,7 +48,7 @@ export class PolicyConnectionService implements IPolicy {
    * Policy schema service instance, injected via DI, for retrieving policy configurations.
    * Provides policy details (e.g., autoBan, schema) in getPolicy, aligning with DocService’s policy documentation.
    * @private
-  */
+   */
   private readonly policySchemaService = inject<PolicySchemaService>(
     TYPES.policySchemaService
   );
@@ -58,7 +58,7 @@ export class PolicyConnectionService implements IPolicy {
    * Uses functools-kit’s memoize to cache instances by policyName, ensuring efficient reuse across calls.
    * Configures the policy with schema data from PolicySchemaService, defaulting autoBan to GLOBAL_CONFIG.CC_AUTOBAN_ENABLED_BY_DEFAULT if not specified.
    * Supports ClientAgent (policy enforcement), SessionPublicService (session policies), and PolicyPublicService (public API).
-  */
+   */
   public getPolicy = memoize(
     ([policyName]) => `${policyName}`,
     (policyName: PolicyName) => {
@@ -90,7 +90,7 @@ export class PolicyConnectionService implements IPolicy {
    * Checks if a client has a ban flag in a specific swarm.
    * Delegates to ClientPolicy.hasBan, using context from MethodContextService to identify the policy, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors PolicyPublicService’s hasBan, supporting ClientAgent’s execution restrictions and SessionPublicService’s policy enforcement.
-  */
+   */
   public hasBan = async (
     clientId: SessionId,
     swarmName: SwarmName
@@ -109,7 +109,7 @@ export class PolicyConnectionService implements IPolicy {
    * Retrieves the ban message for a client in a specific swarm.
    * Delegates to ClientPolicy.getBanMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors PolicyPublicService’s getBanMessage, supporting ClientAgent’s ban feedback and SessionPublicService’s policy reporting.
-  */
+   */
   public getBanMessage = async (
     clientId: SessionId,
     swarmName: SwarmName
@@ -128,7 +128,7 @@ export class PolicyConnectionService implements IPolicy {
    * Validates incoming input for a client in a specific swarm against the policy.
    * Delegates to ClientPolicy.validateInput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors PolicyPublicService’s validateInput, supporting ClientAgent’s input validation (e.g., in EXECUTE_FN) and SessionPublicService’s policy checks.
-  */
+   */
   public validateInput = async (
     incoming: string,
     clientId: SessionId,
@@ -149,7 +149,7 @@ export class PolicyConnectionService implements IPolicy {
    * Validates outgoing output for a client in a specific swarm against the policy.
    * Delegates to ClientPolicy.validateOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors PolicyPublicService’s validateOutput, supporting ClientAgent’s output validation (e.g., in EXECUTE_FN) and SessionPublicService’s policy checks.
-  */
+   */
   public validateOutput = async (
     outgoing: string,
     clientId: SessionId,
@@ -170,7 +170,7 @@ export class PolicyConnectionService implements IPolicy {
    * Bans a client from a specific swarm based on the policy.
    * Delegates to ClientPolicy.banClient, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors PolicyPublicService’s banClient, supporting ClientAgent’s ban enforcement and SessionPublicService’s policy actions.
-  */
+   */
   public banClient = async (
     clientId: SessionId,
     swarmName: SwarmName
@@ -189,7 +189,7 @@ export class PolicyConnectionService implements IPolicy {
    * Unbans a client from a specific swarm based on the policy.
    * Delegates to ClientPolicy.unbanClient, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors PolicyPublicService’s unbanClient, supporting ClientAgent’s ban reversal and SessionPublicService’s policy actions.
-  */
+   */
   public unbanClient = async (
     clientId: SessionId,
     swarmName: SwarmName

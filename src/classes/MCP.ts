@@ -25,7 +25,7 @@ const METHOD_NAME_UPDATE = "McpUtils.update";
 export class NoopMCP implements IMCP {
   /**
    * Creates an instance of NoopMCP.
-  */
+   */
   constructor(readonly agentName: AgentName) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(`NoopMCP CTOR agentName=${agentName}`);
@@ -33,7 +33,7 @@ export class NoopMCP implements IMCP {
 
   /**
    * Lists available tools for a given client.
-  */
+   */
   public async listTools(clientId: string): Promise<IMCPTool[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -47,7 +47,7 @@ export class NoopMCP implements IMCP {
 
   /**
    * Updates the list of tools for a specific client.
-  */
+   */
   public async updateToolsForAll(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -57,7 +57,7 @@ export class NoopMCP implements IMCP {
 
   /**
    * Updates the list of tools for a specific client.
-  */
+   */
   public async updateToolsForClient(clientId: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -70,7 +70,7 @@ export class NoopMCP implements IMCP {
 
   /**
    * Checks if a specific tool exists for a given client.
-  */
+   */
   public hasTool(toolName: string, clientId: string): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(`NoopMCP hasTool agentName=${this.agentName}`, {
@@ -83,7 +83,7 @@ export class NoopMCP implements IMCP {
   /**
    * Attempts to call a tool, always throwing an error in this implementation.
    * @throws Error indicating that NoopMCP cannot call tools.
-  */
+   */
   public async callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
@@ -109,7 +109,7 @@ export class NoopMCP implements IMCP {
 export class MergeMCP implements IMCP {
   /**
    * Creates an instance of MergeMCP.
-  */
+   */
   constructor(
     private readonly mcpList: IMCP[],
     private readonly agentName: AgentName
@@ -122,7 +122,7 @@ export class MergeMCP implements IMCP {
 
   /**
    * Lists all tools available from the merged MCPs for a given client.
-  */
+   */
   public async listTools(clientId: string): Promise<IMCPTool[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -140,7 +140,7 @@ export class MergeMCP implements IMCP {
 
   /**
    * Checks if a specific tool exists in any of the merged MCPs for a given client.
-  */
+   */
   public async hasTool(toolName: string, clientId: string): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -160,7 +160,7 @@ export class MergeMCP implements IMCP {
 
   /**
    * Updates the list of tools for all clients across all merged MCPs.
-  */
+   */
   public async updateToolsForAll(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -173,7 +173,7 @@ export class MergeMCP implements IMCP {
 
   /**
    * Updates the list of tools for a specific client across all merged MCPs.
-  */
+   */
   public async updateToolsForClient(clientId: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -190,7 +190,7 @@ export class MergeMCP implements IMCP {
   /**
    * Calls a tool from one of the merged MCPs if it exists.
    * @throws Error if the tool is not found in any of the merged MCPs.
-  */
+   */
   public async callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
@@ -258,7 +258,7 @@ export class MergeMCP implements IMCP {
 export class MCPUtils {
   /**
    * Updates the list of tools for all clients or a specific client.
-  */
+   */
   public async update(mcpName: MCPName, clientId?: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       swarm.loggerService.info(METHOD_NAME_UPDATE, {

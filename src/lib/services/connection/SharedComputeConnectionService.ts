@@ -33,21 +33,21 @@ export class SharedComputeConnectionService<T extends IComputeData = IComputeDat
    * @property {LoggerService} loggerService
    * Injected logger service for logging operations.
    * @private
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * @property {BusService} busService
    * Injected bus service for event communication.
    * @private
-  */
+   */
   private readonly busService = inject<BusService>(TYPES.busService);
 
   /**
    * @property {TMethodContextService} methodContextService
    * Injected service for accessing method context.
    * @private
-  */
+   */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
@@ -56,7 +56,7 @@ export class SharedComputeConnectionService<T extends IComputeData = IComputeDat
    * @property {SharedStateConnectionService} sharedStateConnectionService
    * Injected service for managing shared state connections.
    * @private
-  */
+   */
   private readonly sharedStateConnectionService = inject<SharedStateConnectionService>(
     TYPES.sharedStateConnectionService
   );
@@ -65,7 +65,7 @@ export class SharedComputeConnectionService<T extends IComputeData = IComputeDat
    * @property {ComputeSchemaService} computeSchemaService
    * Injected service for accessing compute schemas.
    * @private
-  */
+   */
   private readonly computeSchemaService = inject<ComputeSchemaService>(
     TYPES.computeSchemaService
   );
@@ -74,7 +74,7 @@ export class SharedComputeConnectionService<T extends IComputeData = IComputeDat
    * @method getComputeRef
    * Retrieves or creates a shared compute instance, memoized by compute name.
    * @throws {Error} If the compute is not marked as shared.
-  */
+   */
   public getComputeRef = memoize(
     ([computeName]) => `${computeName}`,
     (computeName: ComputeName) => {
@@ -108,7 +108,7 @@ export class SharedComputeConnectionService<T extends IComputeData = IComputeDat
    * @method getComputeData
    * Retrieves the computed data for the shared compute instance.
    * @async
-  */
+   */
   public getComputeData = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sharedComputeConnectionService getComputeData`);
@@ -122,7 +122,7 @@ export class SharedComputeConnectionService<T extends IComputeData = IComputeDat
    * @method calculate
    * Triggers a recalculation for the shared compute instance based on a state change.
    * @async
-  */
+   */
   public calculate = async (stateName: StateName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sharedComputeConnectionService calculate`);
@@ -136,7 +136,7 @@ export class SharedComputeConnectionService<T extends IComputeData = IComputeDat
    * @method update
    * Forces an update of the shared compute instance.
    * @async
-  */
+   */
   public update = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sharedComputeConnectionService update`);

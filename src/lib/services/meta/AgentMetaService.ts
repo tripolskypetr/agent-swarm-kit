@@ -34,12 +34,12 @@ const UML_TRIANGLE = "[>]";
 export interface IMetaNode {
   /**
    * The name of the node, typically an agent name or resource identifier (e.g., AgentName, "States").
-  */
+   */
   name: string;
 
   /**
    * Optional array of child nodes, representing nested dependencies or resources (e.g., dependent agents, states).
-  */
+   */
   child?: IMetaNode[];
 }
 
@@ -53,7 +53,7 @@ export const createSerialize = () => (nodes: IMetaNode[]) => {
   /**
    * Recursively processes meta nodes to build UML lines with indentation.
    * Limits nesting to MAX_NESTING, used internally by createSerialize to handle agent trees from AgentMetaService.
-  */
+   */
   const process = (nodes: IMetaNode[], level = 0) => {
     for (const node of nodes) {
       const space = [...new Array(level)].fill(UML_STEP).join("");
@@ -85,14 +85,14 @@ export class AgentMetaService {
    * Logger service instance, injected via DI, for logging meta node operations.
    * Used in makeAgentNode, makeAgentNodeCommon, and toUML when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with DocService and PerfService logging.
    * @private
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Agent schema service instance, injected via DI, for retrieving agent schema data (e.g., dependsOn, states).
    * Used in makeAgentNode and makeAgentNodeCommon to build meta nodes, aligning with ClientAgent’s agent definitions and DocService’s agent documentation.
    * @private
-  */
+   */
   private readonly agentSchemaService = inject<AgentSchemaService>(
     TYPES.agentSchemaService
   );
@@ -101,14 +101,14 @@ export class AgentMetaService {
    * Serialization function created by createSerialize, used to convert IMetaNode trees to UML format.
    * Employed in toUML to generate strings for DocService’s UML diagrams (e.g., agent_schema_[agentName].svg).
    * @private
-  */
+   */
   private serialize = createSerialize();
 
   /**
    * Creates a detailed meta node for the given agent, including dependencies, states, storages, and tools.
    * Recursively builds a tree with seen set to prevent cycles, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used in toUML for full agent visualization.
    * Integrates with ClientAgent (e.g., agent metadata) and DocService (e.g., detailed agent UML in writeAgentDoc).
-  */
+   */
   public makeAgentNode = (
     agentName: AgentName,
     seen = new Set<AgentName>()
@@ -177,7 +177,7 @@ export class AgentMetaService {
    * Creates a common meta node for the given agent, focusing on dependency relationships.
    * Recursively builds a tree with seen set to prevent cycles, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used as a helper in makeAgentNode.
    * Supports ClientAgent (e.g., dependency tracking) and PerfService (e.g., computeClientState agent context).
-  */
+   */
   public makeAgentNodeCommon = (
     agentName: AgentName,
     seen = new Set<AgentName>()
@@ -210,7 +210,7 @@ export class AgentMetaService {
    * Converts the meta nodes of the given agent to UML format, optionally including a full subtree.
    * Uses makeAgentNode to build the tree and serialize to generate the UML string, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Called by DocService (e.g., writeAgentDoc) to produce UML diagrams (e.g., agent_schema_[agentName].svg), enhancing agent visualization.
-  */
+   */
   public toUML = (agentName: AgentName, withSubtree = false) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("agentMetaService toUML", {

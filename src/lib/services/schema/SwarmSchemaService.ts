@@ -18,14 +18,14 @@ export class SwarmSchemaService {
    * Logger service instance, injected via DI, for logging swarm schema operations.
    * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SwarmConnectionService and PerfService logging patterns.
    * @readonly
-  */
+   */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
    * @readonly
-  */
+   */
   readonly schemaContextService = inject<TSchemaContextService>(
     TYPES.schemaContextService
   );
@@ -35,7 +35,7 @@ export class SwarmSchemaService {
    * Maps SwarmName keys to ISwarmSchema values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
    * @private
-  */
+   */
   private _registry = new ToolRegistry<Record<SwarmName, ISwarmSchema>>(
     "swarmSchemaService"
   );
@@ -44,7 +44,7 @@ export class SwarmSchemaService {
    * Retrieves the current registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
    * Otherwise, it falls back to the private `_registry` instance.
-  */
+   */
   public get registry() {
     if (SchemaContextService.hasContext()) {
       return this.schemaContextService.context.registry.swarmSchemaService;
@@ -56,7 +56,7 @@ export class SwarmSchemaService {
    * Sets the registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
    * Otherwise, it updates the private `_registry` instance.
-  */
+   */
   public set registry(
     value: ToolRegistry<Record<SwarmName, ISwarmSchema>>
   ) {
@@ -74,7 +74,7 @@ export class SwarmSchemaService {
    * Supports ClientSwarm instantiation in SwarmConnectionService by ensuring schema validity before registration.
    * @throws {Error} If any validation check fails, with detailed messages including swarmName and invalid values.
    * @private
-  */
+   */
   private validateShallow = (swarmSchema: ISwarmSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`swarmSchemaService validateShallow`, {
@@ -131,7 +131,7 @@ export class SwarmSchemaService {
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SwarmConnectionService’s swarm management.
    * Supports ClientAgent execution by providing validated swarm schemas to SwarmConnectionService for ClientSwarm configuration.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-  */
+   */
   public register = (key: SwarmName, value: ISwarmSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`swarmSchemaService register`, { key });
@@ -145,7 +145,7 @@ export class SwarmSchemaService {
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports dynamic updates to swarm configurations, allowing modifications to agentList, defaultAgent, or policies.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-  */
+   */
   public override = (key: SwarmName, value: Partial<ISwarmSchema>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`swarmSchemaService override`, { key });
@@ -158,7 +158,7 @@ export class SwarmSchemaService {
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports SwarmConnectionService by providing swarm configuration (e.g., agentList, defaultAgent, policies) for ClientSwarm instantiation, linking to AgentConnectionService and PolicySchemaService.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-  */
+   */
   public get = (key: SwarmName): ISwarmSchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`swarmSchemaService get`, { key });

@@ -62,17 +62,17 @@ interface ILogger {
     /**
      * Logs a general-purpose message.
      * Used throughout the swarm system to record significant events or state changes, such as agent execution, session connections, or storage updates.
-    */
+     */
     log(topic: string, ...args: any[]): void;
     /**
      * Logs a debug-level message.
      * Employed for detailed diagnostic information, such as intermediate states during agent tool calls, swarm navigation changes, or embedding creation processes, typically enabled in development or troubleshooting scenarios.
-    */
+     */
     debug(topic: string, ...args: any[]): void;
     /**
      * Logs an info-level message.
      * Used to record informational updates, such as successful completions, policy validations, or history commits, providing a high-level overview of system activity without excessive detail.
-    */
+     */
     info(topic: string, ...args: any[]): void;
 }
 
@@ -89,12 +89,12 @@ interface IEmbeddingCallbacks {
     /**
      * Callback triggered when an embedding is created.
      * Useful for logging or post-processing the generated embeddings.
-    */
+     */
     onCreate(text: string, embeddings: Embeddings, clientId: string, embeddingName: EmbeddingName): void;
     /**
      * Callback triggered when two embeddings are compared for similarity.
      * Useful for logging or analyzing similarity results.
-    */
+     */
     onCompare(text1: string, text2: string, similarity: number, clientId: string, embeddingName: EmbeddingName): void;
 }
 /**
@@ -110,25 +110,25 @@ interface IEmbeddingSchema {
      * Creates an embedding from the provided text.
      * Typically used for indexing or search operations in storage.
      * @throws {Error} If embedding creation fails (e.g., due to invalid text or model errors).
-    */
+     */
     createEmbedding(text: string, embeddingName: EmbeddingName): Promise<Embeddings>;
     /**
      * Calculates the similarity between two embeddings.
      * Commonly used for search or ranking operations (e.g., cosine similarity).
      * @throws {Error} If similarity calculation fails (e.g., due to invalid embeddings or computation errors).
-    */
+     */
     calculateSimilarity(a: Embeddings, b: Embeddings): Promise<number>;
     /**
      * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
      * Used to cache computed embeddings to avoid redundant processing.
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-    */
+     */
     writeEmbeddingCache?: (embeddings: number[], embeddingName: EmbeddingName, stringHash: string) => Promise<void> | void;
     /**
      * Retrieves the embedding vector for a specific string hash, returning null if not found.
      * Used to check if a precomputed embedding exists in the cache.
      * @throws {Error} If reading from storage fails (e.g., file corruption).
-    */
+     */
     readEmbeddingCache?: (embeddingName: EmbeddingName, stringHash: string) => Promise<number[] | null> | number[] | null;
     /** Optional partial set of callbacks for embedding events, allowing customization of creation and comparison.*/
     callbacks?: Partial<IEmbeddingCallbacks>;
@@ -166,16 +166,16 @@ interface IStorageSchema<T extends IStorageData = IStorageData> {
     shared?: boolean;
     /**
      * Optional function to retrieve data from the storage, overriding default behavior.
-    */
+     */
     getData?: (clientId: string, storageName: StorageName, defaultValue: T[]) => Promise<T[]> | T[];
     /**
      * Optional function to persist storage data to the hard drive, overriding default behavior.
      * @throws {Error} If persistence fails (e.g., due to disk errors).
-    */
+     */
     setData?: (data: T[], clientId: string, storageName: StorageName) => Promise<void> | void;
     /**
      * Function to generate an index for a storage item, used for search and retrieval.
-    */
+     */
     createIndex(item: T): Promise<string> | string | Record<string, string> | Promise<Record<string, string>>;
     /** The name of the embedding mechanism used for indexing and searching storage data.*/
     embedding: EmbeddingName;
@@ -185,7 +185,7 @@ interface IStorageSchema<T extends IStorageData = IStorageData> {
     callbacks?: Partial<IStorageCallbacks<T>>;
     /**
      * Optional function to provide the default data for the storage, resolved in persistence logic.
-    */
+     */
     getDefaultData?: (clientId: string, storageName: StorageName) => Promise<T[]> | T[];
 }
 /**
@@ -197,21 +197,21 @@ interface IStorageCallbacks<T extends IStorageData = IStorageData> {
     /**
      * Callback triggered when storage data is updated (e.g., via upsert or remove).
      * Useful for logging or synchronizing state.
-    */
+     */
     onUpdate: (items: T[], clientId: string, storageName: StorageName) => void;
     /**
      * Callback triggered during a search operation on the storage.
-    */
+     */
     onSearch: (search: string, index: SortedArray<T>, clientId: string, storageName: StorageName) => void;
     /**
      * Callback triggered when the storage is initialized.
      * Useful for setup or logging.
-    */
+     */
     onInit: (clientId: string, storageName: StorageName) => void;
     /**
      * Callback triggered when the storage is disposed of.
      * Useful for cleanup or logging.
-    */
+     */
     onDispose: (clientId: string, storageName: StorageName) => void;
 }
 /**
@@ -227,24 +227,24 @@ interface IStorageParams<T extends IStorageData = IStorageData> extends IStorage
     /**
      * Function to calculate similarity between embeddings, inherited from the embedding schema.
      * Used for search operations.
-    */
+     */
     calculateSimilarity: IEmbeddingSchema["calculateSimilarity"];
     /**
      * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
      * Used to cache computed embeddings to avoid redundant processing.
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-    */
+     */
     writeEmbeddingCache: IEmbeddingSchema["writeEmbeddingCache"];
     /**
      * Retrieves the embedding vector for a specific string hash, returning null if not found.
      * Used to check if a precomputed embedding exists in the cache.
      * @throws {Error} If reading from storage fails (e.g., file corruption).
-    */
+     */
     readEmbeddingCache: IEmbeddingSchema["readEmbeddingCache"];
     /**
      * Function to create an embedding for storage items, inherited from the embedding schema.
      * Used for indexing.
-    */
+     */
     createEmbedding: IEmbeddingSchema["createEmbedding"];
     /** The unique name of the storage within the swarm (redundant with schema but included for clarity).*/
     storageName: StorageName;
@@ -263,35 +263,35 @@ interface IStorage<T extends IStorageData = IStorageData> {
      * Retrieves a specified number of items from the storage based on a search query.
      * Uses embeddings for similarity-based retrieval.
      * @throws {Error} If retrieval fails (e.g., due to embedding issues or invalid query).
-    */
+     */
     take(search: string, total: number, score?: number): Promise<T[]>;
     /**
      * Inserts or updates an item in the storage.
      * Updates the index and persists data if configured.
      * @throws {Error} If upsert fails (e.g., due to persistence issues or invalid item).
-    */
+     */
     upsert(item: T): Promise<void>;
     /**
      * Removes an item from the storage by its ID.
      * Updates the index and persists changes if configured.
      * @throws {Error} If removal fails (e.g., due to persistence issues or invalid ID).
-    */
+     */
     remove(itemId: IStorageData["id"]): Promise<void>;
     /**
      * Retrieves an item from the storage by its ID.
      * @throws {Error} If retrieval fails (e.g., due to internal errors).
-    */
+     */
     get(itemId: IStorageData["id"]): Promise<T | null>;
     /**
      * Lists all items in the storage, optionally filtered by a predicate.
      * @throws {Error} If listing fails (e.g., due to persistence issues).
-    */
+     */
     list(filter?: (item: T) => boolean): Promise<T[]>;
     /**
      * Clears all items from the storage, resetting it to an empty state.
      * Persists changes if configured.
      * @throws {Error} If clearing fails (e.g., due to persistence issues).
-    */
+     */
     clear(): Promise<void>;
 }
 /**
@@ -314,7 +314,7 @@ interface IStateMiddleware<T extends IStateData = IStateData> {
     /**
      * Processes the state, potentially modifying it before it’s finalized.
      * @throws {Error} If middleware processing fails or validation conditions are not met.
-    */
+     */
     (state: T, clientId: string, stateName: StateName): Promise<T>;
 }
 /**
@@ -326,26 +326,26 @@ interface IStateCallbacks<T extends IStateData = IStateData> {
     /**
      * Callback triggered when the state is initialized.
      * Useful for setup or logging.
-    */
+     */
     onInit: (clientId: string, stateName: StateName) => void;
     /**
      * Callback triggered when the state is disposed of.
      * Useful for cleanup or logging.
-    */
+     */
     onDispose: (clientId: string, stateName: StateName) => void;
     /**
      * Callback triggered when the state is loaded from storage or initialized.
-    */
+     */
     onLoad: (state: T, clientId: string, stateName: StateName) => void;
     /**
      * Callback triggered when the state is read.
      * Useful for monitoring or logging read operations.
-    */
+     */
     onRead: (state: T, clientId: string, stateName: StateName) => void;
     /**
      * Callback triggered when the state is written or updated.
      * Useful for tracking changes or triggering side effects.
-    */
+     */
     onWrite: (state: T, clientId: string, stateName: StateName) => void;
 }
 /**
@@ -364,18 +364,18 @@ interface IStateSchema<T extends IStateData = IStateData> {
     stateName: StateName;
     /**
      * Function to retrieve or compute the default state value.
-    */
+     */
     getDefaultState: (clientId: string, stateName: StateName) => T | Promise<T>;
     /**
      * Optional function to retrieve the current state, with a fallback to the default state.
      * Overrides default state retrieval behavior if provided.
-    */
+     */
     getState?: (clientId: string, stateName: StateName, defaultState: T) => T | Promise<T>;
     /**
      * Optional function to set or update the state.
      * Overrides default state setting behavior if provided.
      * @throws {Error} If the state update fails (e.g., due to persistence issues).
-    */
+     */
     setState?: (state: T, clientId: string, stateName: StateName) => Promise<void> | void;
     /** Optional array of middleware functions to process the state during lifecycle operations.*/
     middlewares?: IStateMiddleware<T>[];
@@ -406,19 +406,19 @@ interface IState<T extends IStateData = IStateData> {
      * Retrieves the current state value.
      * Applies any configured middleware or custom `getState` logic from the schema.
      * @throws {Error} If state retrieval fails (e.g., due to persistence issues or invalid configuration).
-    */
+     */
     getState: () => Promise<T>;
     /**
      * Updates the state using a dispatch function that computes the new state from the previous state.
      * Applies any configured middleware or custom `setState` logic from the schema.
      * @throws {Error} If state update fails (e.g., due to middleware errors or persistence issues).
-    */
+     */
     setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
     /**
      * Resets the state to its initial default value.
      * Reverts to the value provided by `getDefaultState` in the schema.
      * @throws {Error} If state clearing fails (e.g., due to persistence issues or invalid default state).
-    */
+     */
     clearState: () => Promise<T>;
 }
 /**
@@ -435,27 +435,27 @@ interface IPolicyCallbacks {
     /**
      * Optional callback triggered when the policy is initialized.
      * Useful for setup or logging.
-    */
+     */
     onInit?: (policyName: PolicyName) => void;
     /**
      * Optional callback triggered to validate incoming messages.
      * Useful for logging or monitoring input validation.
-    */
+     */
     onValidateInput?: (incoming: string, clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
     /**
      * Optional callback triggered to validate outgoing messages.
      * Useful for logging or monitoring output validation.
-    */
+     */
     onValidateOutput?: (outgoing: string, clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
     /**
      * Optional callback triggered when a client is banned.
      * Useful for logging or triggering ban-related actions.
-    */
+     */
     onBanClient?: (clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
     /**
      * Optional callback triggered when a client is unbanned.
      * Useful for logging or triggering unban-related actions.
-    */
+     */
     onUnbanClient?: (clientId: SessionId, swarmName: SwarmName, policyName: PolicyName) => void;
 }
 /**
@@ -466,32 +466,32 @@ interface IPolicy {
     /**
      * Checks if a client is currently banned under this policy.
      * @throws {Error} If the ban status check fails (e.g., due to storage issues).
-    */
+     */
     hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
     /**
      * Retrieves the ban message for a banned client.
      * @throws {Error} If retrieving the ban message fails (e.g., due to missing configuration).
-    */
+     */
     getBanMessage(clientId: SessionId, swarmName: SwarmName): Promise<string>;
     /**
      * Validates an incoming message against the policy rules.
      * @throws {Error} If validation fails unexpectedly (e.g., due to internal errors).
-    */
+     */
     validateInput(incoming: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
     /**
      * Validates an outgoing message against the policy rules.
      * @throws {Error} If validation fails unexpectedly (e.g., due to internal errors).
-    */
+     */
     validateOutput(outgoing: string, clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
     /**
      * Bans a client under this policy, adding them to the banned list.
      * @throws {Error} If banning the client fails (e.g., due to persistence issues).
-    */
+     */
     banClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
     /**
      * Unbans a client under this policy, removing them from the banned list.
      * @throws {Error} If unbanning the client fails (e.g., due to persistence issues).
-    */
+     */
     unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
 }
 /**
@@ -512,27 +512,27 @@ interface IPolicySchema {
     /**
      * Optional function to retrieve a custom ban message for a client.
      * Overrides the default banMessage if provided.
-    */
+     */
     getBanMessage?: (clientId: SessionId, policyName: PolicyName, swarmName: SwarmName) => Promise<string | null> | string | null;
     /**
      * Retrieves the list of currently banned clients under this policy.
-    */
+     */
     getBannedClients?: (policyName: PolicyName, swarmName: SwarmName) => SessionId[] | Promise<SessionId[]>;
     /**
      * Optional function to set the list of banned clients.
      * Overrides default ban list management if provided.
      * @throws {Error} If updating the ban list fails (e.g., due to persistence issues).
-    */
+     */
     setBannedClients?: (clientIds: SessionId[], policyName: PolicyName, swarmName: SwarmName) => Promise<void> | void;
     /**
      * Optional function to validate incoming messages against custom policy rules.
      * Overrides default validation if provided.
-    */
+     */
     validateInput?: (incoming: string, clientId: SessionId, policyName: PolicyName, swarmName: SwarmName) => Promise<boolean> | boolean;
     /**
      * Optional function to validate outgoing messages against custom policy rules.
      * Overrides default validation if provided.
-    */
+     */
     validateOutput?: (outgoing: string, clientId: SessionId, policyName: PolicyName, swarmName: SwarmName) => Promise<boolean> | boolean;
     /** Optional set of callbacks for policy events, allowing customization of validation and ban actions.*/
     callbacks?: IPolicyCallbacks;
@@ -568,7 +568,7 @@ interface IStateChangeContract {
     /**
      * A subject that emits state names when changes occur, allowing subscribers to react to state updates.
      * Provides reactive state change notifications throughout the system.
-    */
+     */
     stateChanged: TSubject<StateName>;
 }
 
@@ -589,7 +589,7 @@ type IComputeData = any;
 */
 interface IComputeMiddleware<T extends IComputeData = IComputeData> {
     /**
-    */
+     */
     (state: T, clientId: string, computeName: ComputeName): Promise<T>;
 }
 /**
@@ -601,27 +601,27 @@ interface IComputeCallbacks<T extends IComputeData = IComputeData> {
     /**
      * @method onInit
      * Called when the compute is initialized.
-    */
+     */
     onInit: (clientId: string, computeName: ComputeName) => void;
     /**
      * @method onDispose
      * Called when the compute is disposed.
-    */
+     */
     onDispose: (clientId: string, computeName: ComputeName) => void;
     /**
      * @method onCompute
      * Called when compute data is processed.
-    */
+     */
     onCompute: (data: T, clientId: string, computeName: ComputeName) => void;
     /**
      * @method onCalculate
      * Called when a recalculation is triggered by a state change.
-    */
+     */
     onCalculate: (stateName: StateName, clientId: string, computeName: ComputeName) => void;
     /**
      * Called when the compute is updated.
      * Triggered whenever compute data or configuration changes, allowing for reactive updates.
-    */
+     */
     onUpdate: (clientId: string, computeName: ComputeName) => void;
 }
 /**
@@ -633,42 +633,42 @@ interface IComputeSchema<T extends IComputeData = IComputeData> {
     /**
      * @property {string} [docDescription]
      * Optional description for documentation purposes.
-    */
+     */
     docDescription?: string;
     /**
      * @property {boolean} [shared]
      * Indicates if the compute is shared across clients.
-    */
+     */
     shared?: boolean;
     /**
      * @property {ComputeName} computeName
      * The name of the compute.
-    */
+     */
     computeName: ComputeName;
     /**
      * @property {number} [ttl]
      * Time-to-live for the compute data, in milliseconds.
-    */
+     */
     ttl?: number;
     /**
      * @property {Function} getComputeData
      * Function to retrieve or compute the data.
-    */
+     */
     getComputeData: (clientId: string, computeName: ComputeName) => T | Promise<T>;
     /**
      * @property {StateName[]} [dependsOn]
      * Array of state names the compute depends on.
-    */
+     */
     dependsOn?: StateName[];
     /**
      * @property {IComputeMiddleware<T>[]} [middlewares]
      * Array of middleware functions to process compute data.
-    */
+     */
     middlewares?: IComputeMiddleware<T>[];
     /**
      * Optional callbacks for compute lifecycle events.
      * Provides hooks for handling compute updates, data changes, and other lifecycle events.
-    */
+     */
     callbacks?: Partial<IComputeCallbacks<T>>;
 }
 /**
@@ -681,22 +681,22 @@ interface IComputeParams<T extends IComputeData = IComputeData> extends ICompute
     /**
      * @property {string} clientId
      * The client identifier.
-    */
+     */
     clientId: string;
     /**
      * @property {ILogger} logger
      * Logger instance for logging compute operations.
-    */
+     */
     logger: ILogger;
     /**
      * @property {IBus} bus
      * Bus instance for event communication.
-    */
+     */
     bus: IBus;
     /**
      * Array of state change contracts for state dependencies.
      * Defines which state changes trigger compute recalculation and data updates.
-    */
+     */
     binding: IStateChangeContract[];
 }
 /**
@@ -708,17 +708,17 @@ interface ICompute<T extends IComputeData = IComputeData> {
     /**
      * @method calculate
      * Triggers a recalculation based on a state change.
-    */
+     */
     calculate: (stateName: StateName) => Promise<void>;
     /**
      * @method update
      * Forces an update of the compute instance.
-    */
+     */
     update: (clientId: string, computeName: ComputeName) => Promise<void>;
     /**
      * Retrieves the computed data.
      * Returns the current result of the compute operation, either synchronously or asynchronously.
-    */
+     */
     getComputeData: () => T | Promise<T>;
 }
 /**
@@ -737,37 +737,37 @@ interface IBusEventContext {
      * The unique name of the agent associated with the event.
      * Links the event to a specific agent instance (e.g., this.params.agentName in ClientAgent), consistently included in IBusEvent.context.
      * Example: "Agent1" for an agent emitting a "run" event.
-    */
+     */
     agentName: AgentName;
     /**
      * The unique name of the swarm associated with the event.
      * Identifies the swarm context, potentially used in swarm-wide events (e.g., IBus.emit in ISwarmParams), though not observed in ClientAgent.
      * Example: "SwarmA" for a swarm-level navigation event.
-    */
+     */
     swarmName: SwarmName;
     /**
      * The unique name of the storage associated with the event.
      * Ties the event to a specific storage instance (e.g., IStorage), potentially for storage-related events, unused in ClientAgent’s agent-centric emissions.
      * Example: "Storage1" for a storage upsert event.
-    */
+     */
     storageName: StorageName;
     /**
      * The unique name of the state associated with the event.
      * Links to a specific state instance (e.g., IState), potentially for state change events, not populated in ClientAgent’s context.
      * Example: "StateX" for a state update event.
-    */
+     */
     stateName: StateName;
     /**
      * The unique name of the compute associated with the event.
      * Links to a specific compute instance (e.g., ICompute), potentially for compute events, not populated in ClientAgent’s context.
      * Example: "ComputeX" for a compute update event.
-    */
+     */
     computeName: ComputeName;
     /**
      * The unique name of the policy associated with the event.
      * Identifies the policy context (e.g., IPolicy), potentially for policy enforcement events (e.g., bans), unused in ClientAgent’s emissions.
      * Example: "PolicyY" for a client ban event.
-    */
+     */
     policyName: PolicyName;
 }
 /**
@@ -791,13 +791,13 @@ interface IBaseEvent {
      * The source of the event, identifying its origin within the system.
      * A generic string (EventSource) in IBaseEvent, overridden by EventBusSource in IBusEvent (e.g., "agent-bus" in ClientAgent).
      * Example: "custom-source" for a basic event, or "agent-bus" in practice.
-    */
+     */
     source: EventSource;
     /**
      * The unique identifier of the client targeted by the event.
      * Matches the clientId used in runtime params (e.g., this.params.clientId in ClientAgent), ensuring events reach the intended session or agent instance.
      * Example: "client-123" for a user session receiving an "emit-output" event.
-    */
+     */
     clientId: string;
 }
 /**
@@ -812,31 +812,31 @@ interface IBusEvent extends Omit<IBaseEvent, keyof {
      * The specific source of the event, restricted to EventBusSource values.
      * Identifies the component emitting the event, consistently "agent-bus" in ClientAgent (e.g., RUN_FN, _emitOutput), with other values for other buses (e.g., "history-bus").
      * Example: "agent-bus" for an agent’s "emit-output" event.
-    */
+     */
     source: EventBusSource;
     /**
      * The type of the event, defining its purpose or action.
      * A string identifier unique to the event’s intent, observed in ClientAgent as "run", "emit-output", "commit-user-message", etc.
      * Example: "commit-tool-output" for a tool execution result.
-    */
+     */
     type: string;
     /**
      * The input data for the event, as a key-value object.
      * Carries event-specific input (e.g., { message } in "commit-user-message", { mode, rawResult } in "emit-output" from ClientAgent), often tied to IModelMessage content.
      * Example: { toolId: "tool-xyz", content: "result" } for a tool output event.
-    */
+     */
     input: Record<string, any>;
     /**
      * The output data for the event, as a key-value object.
      * Contains event-specific results (e.g., { result } in "run" or "emit-output" from ClientAgent), often empty {} for notifications (e.g., "commit-flush").
      * Example: { result: "processed data" } for an execution output.
-    */
+     */
     output: Record<string, any>;
     /**
      * The contextual metadata for the event, partially implementing IBusEventContext.
      * Typically includes only agentName in ClientAgent (e.g., { agentName: this.params.agentName }), with other fields optional for broader use cases.
      * Example: { agentName: "Agent1" } for an agent-driven event.
-    */
+     */
     context: Partial<IBusEventContext>;
 }
 /**
@@ -915,7 +915,7 @@ interface IBus {
      *
      * @template T - The type of event, extending IBaseEvent, defining a structured payload with fields like `type`, `source`, `input`, `output`, `context`, and `clientId`.
      * @throws {Error} If emission fails, potentially due to invalid `clientId`, malformed event structure, or delivery issues (e.g., queue overflow, network failure).
-    */
+     */
     emit<T extends IBaseEvent>(clientId: string, event: T): Promise<void>;
 }
 
@@ -927,28 +927,28 @@ interface ISwarmSessionCallbacks {
     /**
      * Optional callback triggered when a client connects to the swarm.
      * Useful for logging or initialization tasks.
-    */
+     */
     onConnect?: (clientId: string, swarmName: SwarmName) => void;
     /**
      * Optional callback triggered when a command is executed within the swarm.
-    */
+     */
     onExecute?: (clientId: string, swarmName: SwarmName, content: string, mode: ExecutionMode) => void;
     /**
      * Optional callback triggered when a stateless completion run is executed.
-    */
+     */
     onRun?: (clientId: string, swarmName: SwarmName, content: string) => void;
     /**
      * Optional callback triggered when a message is emitted from the swarm.
-    */
+     */
     onEmit?: (clientId: string, swarmName: SwarmName, message: string) => void;
     /**
      * Optional callback triggered when a session is initialized within the swarm.
-    */
+     */
     onInit?: (clientId: string, swarmName: SwarmName) => void;
     /**
      * Optional callback triggered when a session is disconnected or disposed of.
      * Note: "disponnected" in original comment corrected to "disconnected".
-    */
+     */
     onDispose?: (clientId: string, swarmName: SwarmName) => void;
 }
 /**
@@ -960,7 +960,7 @@ interface ISwarmCallbacks extends ISwarmSessionCallbacks {
     /**
      * Callback triggered when the active agent changes within the swarm.
      * Useful for navigation tracking or state updates.
-    */
+     */
     onAgentChanged: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
 }
 /**
@@ -994,21 +994,21 @@ interface ISwarmSchema {
     policies?: PolicyName[];
     /**
      * Optional function to retrieve the initial navigation stack after swarm initialization.
-    */
+     */
     getNavigationStack?: (clientId: string, swarmName: SwarmName) => Promise<AgentName[]> | AgentName[];
     /**
      * Optional function to persist the navigation stack after a change.
      * @throws {Error} If persistence fails (e.g., due to storage issues).
-    */
+     */
     setNavigationStack?: (clientId: string, navigationStack: AgentName[], swarmName: SwarmName) => Promise<void>;
     /**
      * Optional function to fetch the active agent upon swarm initialization.
-    */
+     */
     getActiveAgent?: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName> | AgentName;
     /**
      * Optional function to update the active agent after navigation changes.
      * @throws {Error} If the update fails (e.g., due to persistence issues).
-    */
+     */
     setActiveAgent?: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void> | void;
     /** The default agent name to use when no active agent is specified.*/
     defaultAgent: AgentName;
@@ -1027,55 +1027,55 @@ interface ISwarm {
     /**
      * Removes and returns the most recent agent from the navigation stack, or falls back to the default agent.
      * @throws {Error} If navigation retrieval fails (e.g., due to persistence issues).
-    */
+     */
     navigationPop(): Promise<AgentName>;
     /**
      * Cancels the current output operation, resulting in an empty string from waitForOutput.
      * @throws {Error} If cancellation fails (e.g., due to internal errors).
-    */
+     */
     cancelOutput(): Promise<void>;
     /**
      * Waits for and retrieves the output from the swarm’s active agent.
      * @throws {Error} If no output is available or waiting times out.
-    */
+     */
     waitForOutput(): Promise<string>;
     /**
      * Retrieves the name of the currently active agent in the swarm.
      * @throws {Error} If the active agent cannot be determined (e.g., due to persistence issues).
-    */
+     */
     getAgentName(): Promise<AgentName>;
     /**
      * Retrieves the instance of the currently active agent in the swarm.
      * @throws {Error} If the agent instance cannot be retrieved (e.g., due to invalid agent name).
-    */
+     */
     getAgent(): Promise<IAgent>;
     /**
      * Registers or updates an agent reference in the swarm’s agent map.
      * @throws {Error} If registration fails (e.g., due to invalid agent or internal errors).
-    */
+     */
     setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
     /**
      * Sets the active agent in the swarm by name, updating navigation if applicable.
      * @throws {Error} If setting the agent fails (e.g., due to persistence issues or invalid name).
-    */
+     */
     setAgentName(agentName: AgentName): Promise<void>;
     /**
      * Emits a message to the session's communication channel.
      * @throws {Error} If the emission fails due to connection issues or invalid message format.
-    */
+     */
     emit(message: string): Promise<void>;
     /**
      * Returns the current busy state of the swarm.
      * Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
      * Supports debugging and flow control in client applications.
-    */
+     */
     getCheckBusy(): Promise<boolean>;
     /**
      * Sets the busy state of the swarm.
      * This method is used to indicate whether the swarm is currently processing an operation.
      * It helps manage flow control and debugging by signaling when the swarm is occupied.
      * @throws {Error} If setting the busy state fails (e.g., due to internal errors).
-    */
+     */
     setBusy(isBusy: boolean): void;
 }
 /**
@@ -1095,19 +1095,19 @@ interface IToolCall {
      * Assigned to distinguish this invocation from others, often generated randomly (e.g., randomString() in ClientAgent.mapToolCalls) or provided by the model.
      * Used to correlate tool outputs back to their requests (e.g., tool_call_id in IModelMessage).
      * Example: "tool-xyz123" for a specific call in EXECUTE_FN.
-    */
+     */
     id: string;
     /**
      * The type of the tool being called, currently fixed to "function".
      * Indicates that the tool is a callable function, aligning with the swarm’s function-based tool model (e.g., ClientAgent.createToolCall).
      * Future extensions might support other types, but "function" is the only supported value as observed.
-    */
+     */
     type: "function";
     /**
      * The function details specifying the tool to be executed.
      * Defines the name and arguments of the function to invoke, derived from model outputs (e.g., ICompletion.getCompletion in ClientAgent).
      * Processed by agents to match against ITool definitions and execute via callbacks (e.g., targetFn.call).
-    */
+     */
     function: {
         /**
          * The name of the function to be called.
@@ -1135,13 +1135,13 @@ interface ITool {
      * The type of the tool, typically "function" in the current system.
      * Specifies the tool's category, aligning with IToolCall.type, though only "function" is observed in ClientAgent usage (e.g., params.tools).
      * Future extensions might include other types (e.g., "api", "script"), but "function" is standard.
-    */
+     */
     type: string;
     /**
      * The function details defining the tool’s capabilities.
      * Provides the name, description, and parameter schema for the tool, used by the model to understand and invoke it (e.g., in ClientAgent.getCompletion).
      * Matched against IToolCall.function during execution (e.g., EXECUTE_FN’s targetFn lookup).
-    */
+     */
     function: {
         /**
          * The name of the function, uniquely identifying the tool.
@@ -1212,13 +1212,13 @@ interface IToolRequest {
      * The name of the tool to be invoked.
      * Must match the name of a defined tool in the system (e.g., ITool.function.name).
      * Example: "search" for invoking a search tool.
-    */
+     */
     toolName: ToolName;
     /**
      * A key-value map of parameters to be passed to the tool.
      * Defines the input arguments required for the tool's execution, validated against the tool's parameter schema (e.g., ITool.function.parameters).
      * Example: `{ query: "example" }` for a search tool.
-    */
+     */
     params: Record<string, unknown>;
 }
 
@@ -1267,71 +1267,71 @@ interface ISession {
      * Sends a notification message to connect listeners via the internal `_notifySubject`.
      * Logs the notification if debugging is enabled.
      *
-    */
+     */
     notify(message: string): Promise<void>;
     /**
      * Emits a message to the session's communication channel.
      * @throws {Error} If the emission fails due to connection issues or invalid message format.
-    */
+     */
     emit(message: string): Promise<void>;
     /**
      * Runs a stateless completion without modifying the session's chat history.
      * Useful for one-off computations or previews.
      * @throws {Error} If the execution fails due to invalid content or internal errors.
-    */
+     */
     run(content: string): Promise<string>;
     /**
      * Executes a command within the session, potentially updating history based on mode.
      * @throws {Error} If the execution fails due to invalid content, mode, or internal errors.
-    */
+     */
     execute(content: string, mode: ExecutionMode): Promise<string>;
     /**
      * Connects the session to a message sender and returns a receiver function.
      * Establishes a bidirectional communication channel.
      * @throws {Error} If the connection fails or the connector is invalid.
-    */
+     */
     connect(connector: SendMessageFn, ...args: unknown[]): ReceiveMessageFn<string>;
     /**
      * Commits tool output to the session's history or state.
      * @throws {Error} If the tool ID is invalid or committing fails.
-    */
+     */
     commitToolOutput(toolId: string, content: string): Promise<void>;
     /**
      * Commits a tool request to the session's history or state.
      * @throws {Error} If committing the tool request(s) fails.
-    */
+     */
     commitToolRequest(request: IToolRequest[]): Promise<string[]>;
     /**
      * Commits an assistant message to the session's history without triggering a response.
      * @throws {Error} If committing the message fails.
-    */
+     */
     commitAssistantMessage(message: string): Promise<void>;
     /**
      * Commits a user message to the session's history without triggering a response.
      * @throws {Error} If committing the message fails.
-    */
+     */
     commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>;
     /**
      * Commits a flush operation to clear the session's agent history.
      * Resets the history to an initial state.
      * @throws {Error} If flushing the history fails.
-    */
+     */
     commitFlush: () => Promise<void>;
     /**
      * Prevents the next tool in the execution sequence from running.
      * Stops further tool calls within the session.
      * @throws {Error} If stopping the tools fails.
-    */
+     */
     commitStopTools: () => Promise<void>;
     /**
      * Commits a system message to the session's history or state.
      * @throws {Error} If committing the message fails.
-    */
+     */
     commitSystemMessage(message: string): Promise<void>;
     /**
      * Commits a developer message to the session's history or state.
      * @throws {Error} If committing the message fails.
-    */
+     */
     commitDeveloperMessage(message: string): Promise<void>;
 }
 /**
@@ -1365,13 +1365,13 @@ interface IModelMessage<Payload extends object = object> {
      * - `"user"`: User-initiated messages (e.g., commitUserMessage, EXECUTE_FN input).
      * - `"resque"`: Error recovery messages during model resurrection (e.g., _resurrectModel).
      * - `"flush"`: Markers for history resets (e.g., commitFlush).
-    */
+     */
     role: "assistant" | "system" | "tool" | "user" | "resque" | "flush" | "developer";
     /**
      * The name of the agent associated with the message.
      * Links the message to a specific agent instance (e.g., this.params.agentName in ClientAgent), ensuring context within multi-agent swarms.
      * Used consistently in history pushes and bus events (e.g., context.agentName in IBus.emit).
-    */
+     */
     agentName: string;
     /**
      * The content of the message, representing the primary data or text being communicated.
@@ -1381,7 +1381,7 @@ interface IModelMessage<Payload extends object = object> {
      * - Model response (e.g., result from getCompletion).
      * - Error reasons or placeholders (e.g., _resurrectModel).
      * May be empty (e.g., "" in flush messages) or trimmed for consistency.
-    */
+     */
     content: string;
     /**
      * The execution mode indicating the source or context of the message.
@@ -1389,14 +1389,14 @@ interface IModelMessage<Payload extends object = object> {
      * - `"user"`: Messages from user input or stateless runs (e.g., commitUserMessage, RUN_FN).
      * - `"tool"`: Messages from tool outputs or system actions (e.g., commitToolOutput, _resurrectModel).
      * Drives processing logic, such as validation or tool call handling in ClientAgent.
-    */
+     */
     mode: ExecutionMode;
     /**
      * Optional array of tool calls associated with the message, present when the model requests tool execution.
      * Populated in getCompletion responses (e.g., ClientAgent EXECUTE_FN), mapped to IToolCall objects for execution.
      * Example: `{ function: { name: "func", arguments: { key: "value" } }, id: "tool-id" }`.
      * Absent in user, system, or tool output messages unless explicitly triggered by the model.
-    */
+     */
     tool_calls?: IToolCall[];
     images?: Uint8Array[] | string[];
     /**
@@ -1404,13 +1404,13 @@ interface IModelMessage<Payload extends object = object> {
      * Set in tool-related messages (e.g., commitToolOutput in ClientAgent) to correlate with a prior tool_calls entry.
      * Example: `tool_call_id: "tool-id"` ties a tool’s output to its originating call.
      * Undefined for non-tool-response messages (e.g., user input, assistant responses without tools).
-    */
+     */
     tool_call_id?: string;
     /**
      * Optional payload data attached to the message, providing additional context or metadata.
      * Can be an object of any shape or `null` if no payload is needed; undefined if not present.
      * Example: `{ image_id: <uuid> }` when user send a message
-    */
+     */
     payload?: Payload | null;
 }
 
@@ -1445,25 +1445,25 @@ interface IPersistBase<Entity extends IEntity = IEntity> {
      * Initializes the storage directory, creating it if needed and validating existing data by removing invalid entities.
      * Ensures the persistence layer is ready for use, handling corrupt files during setup.
      * @throws {Error} If directory creation, file access, or validation fails.
-    */
+     */
     waitForInit(initial: boolean): Promise<void>;
     /**
      * Reads an entity from persistent storage by its ID, parsing it from a JSON file.
      * Used to retrieve persisted data such as agent states, memory, or alive status.
      * @throws {Error} If the entity is not found (`ENOENT`) or reading/parsing fails (e.g., invalid JSON).
-    */
+     */
     readValue(entityId: EntityId): Promise<Entity>;
     /**
      * Checks if an entity exists in persistent storage by its ID.
      * Useful for conditional operations without reading the full entity (e.g., checking session memory existence).
      * @throws {Error} If checking existence fails for reasons other than the entity not existing.
-    */
+     */
     hasValue(entityId: EntityId): Promise<boolean>;
     /**
      * Writes an entity to persistent storage with the specified ID, serializing it to JSON.
      * Uses atomic writes to ensure data integrity, critical for reliable state persistence across swarm operations.
      * @throws {Error} If writing to the file system fails (e.g., permissions or disk issues).
-    */
+     */
     writeValue(entityId: EntityId, entity: Entity): Promise<void>;
 }
 /**
@@ -1731,7 +1731,7 @@ interface IPersistActiveAgentData {
      * The name of the active agent for a given client within a swarm.
      * `AgentName` is a string identifier (e.g., "agent1") representing an agent instance in the swarm system,
      * tied to specific functionality or role within a `SwarmName`.
-    */
+     */
     agentName: AgentName;
 }
 /**
@@ -1744,7 +1744,7 @@ interface IPersistNavigationStackData {
      * The stack of agent names representing navigation history for a client within a swarm.
      * `AgentName` is a string identifier (e.g., "agent1", "agent2") for agents in the swarm system,
      * tracking the sequence of active agents for a `SessionId` within a `SwarmName`.
-    */
+     */
     agentStack: AgentName[];
 }
 /**
@@ -1756,12 +1756,12 @@ interface IPersistSwarmControl {
     /**
      * Sets a custom persistence adapter for active agent storage.
      * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory storage for `SwarmName`).
-    */
+     */
     usePersistActiveAgentAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>): void;
     /**
      * Sets a custom persistence adapter for navigation stack storage.
      * Overrides the default `PersistBase` implementation for specialized behavior (e.g., database storage for `SwarmName`).
-    */
+     */
     usePersistNavigationStackAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>): void;
 }
 /**
@@ -1778,47 +1778,47 @@ declare class PersistSwarmUtils implements IPersistSwarmControl {
      * Memoized function to create or retrieve storage for active agents.
      * Ensures a single persistence instance per `SwarmName`, improving efficiency.
      * @private
-    */
+     */
     private getActiveAgentStorage;
     /**
      * Configures a custom constructor for active agent persistence, overriding the default `PersistBase`.
      * Allows advanced use cases like in-memory storage for `SwarmName`-specific active agents.
-    */
+     */
     usePersistActiveAgentAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>): void;
     /**
      * Configures a custom constructor for navigation stack persistence, overriding the default `PersistBase`.
      * Enables customization for navigation tracking within a `SwarmName` (e.g., alternative storage backends).
-    */
+     */
     usePersistNavigationStackAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>): void;
     /**
      * Memoized function to create or retrieve storage for navigation stacks.
      * Ensures a single persistence instance per `SwarmName`, optimizing resource use.
      * @private
-    */
+     */
     private getNavigationStackStorage;
     /**
      * Retrieves the active agent for a client within a swarm, falling back to a default if not set.
      * Used to determine the current `AgentName` for a `SessionId` in a `SwarmName` context.
      * @throws {Error} If reading from storage fails (e.g., file corruption or permissions).
-    */
+     */
     getActiveAgent: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
     /**
      * Sets the active agent for a client within a swarm, persisting it for future retrieval.
      * Links a `SessionId` to an `AgentName` within a `SwarmName` for runtime agent switching.
      * @throws {Error} If writing to storage fails (e.g., disk space or permissions).
-    */
+     */
     setActiveAgent: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
     /**
      * Retrieves the navigation stack for a client within a swarm, returning an empty array if unset.
      * Tracks navigation history as a stack of `AgentName`s for a `SessionId` within a `SwarmName`.
      * @throws {Error} If reading from storage fails (e.g., file corruption).
-    */
+     */
     getNavigationStack: (clientId: string, swarmName: SwarmName) => Promise<AgentName[]>;
     /**
      * Sets the navigation stack for a client within a swarm, persisting it for future retrieval.
      * Stores a stack of `AgentName`s for a `SessionId` within a `SwarmName` to track navigation history.
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-    */
+     */
     setNavigationStack: (clientId: string, agentStack: AgentName[], swarmName: SwarmName) => Promise<void>;
 }
 /**
@@ -1845,7 +1845,7 @@ interface IPersistStateControl {
     /**
      * Sets a custom persistence adapter for state storage.
      * Overrides the default `PersistBase` implementation for specialized behavior (e.g., database storage for `StateName`).
-    */
+     */
     usePersistStateAdapter(Ctor: TPersistBaseCtor<StateName, IPersistStateData>): void;
 }
 /**
@@ -1860,26 +1860,26 @@ declare class PersistStateUtils implements IPersistStateControl {
      * Memoized function to create or retrieve storage for a specific state.
      * Ensures a single persistence instance per `StateName`, optimizing resource use.
      * @private
-    */
+     */
     private getStateStorage;
     /**
      * Configures a custom constructor for state persistence, overriding the default `PersistBase`.
      * Enables advanced state storage for `StateName` (e.g., in-memory or database-backed persistence).
-    */
+     */
     usePersistStateAdapter(Ctor: TPersistBaseCtor<StateName, IPersistStateData>): void;
     /**
      * Sets the state for a client under a specific state name, persisting it for future retrieval.
      * Stores state data for a `SessionId` under a `StateName` (e.g., agent variables).
      * @template T - The specific type of the state data, defaults to `unknown`.
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-    */
+     */
     setState: <T = unknown>(state: T, clientId: string, stateName: StateName) => Promise<void>;
     /**
      * Retrieves the state for a client under a specific state name, falling back to a default if unset.
      * Restores state for a `SessionId` under a `StateName` (e.g., resuming agent context).
      * @template T - The specific type of the state data, defaults to `unknown`.
      * @throws {Error} If reading from storage fails (e.g., file corruption).
-    */
+     */
     getState: <T = unknown>(clientId: string, stateName: StateName, defaultState: T) => Promise<T>;
 }
 /**
@@ -1906,7 +1906,7 @@ interface IPersistStorageControl {
     /**
      * Sets a custom persistence adapter for storage.
      * Overrides the default `PersistBase` implementation for specialized behavior (e.g., database storage for `StorageName`).
-    */
+     */
     usePersistStorageAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>): void;
 }
 /**
@@ -1921,26 +1921,26 @@ declare class PersistStorageUtils implements IPersistStorageControl {
      * Memoized function to create or retrieve storage for a specific storage name.
      * Ensures a single persistence instance per `StorageName`, optimizing resource use.
      * @private
-    */
+     */
     private getPersistStorage;
     /**
      * Configures a custom constructor for storage persistence, overriding the default `PersistBase`.
      * Enables advanced storage options for `StorageName` (e.g., database-backed persistence).
-    */
+     */
     usePersistStorageAdapter(Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>): void;
     /**
      * Retrieves the data for a client from a specific storage, falling back to a default if unset.
      * Accesses persistent storage for a `SessionId` under a `StorageName` (e.g., user records).
      * @template T - The specific type of the storage data, defaults to `IStorageData`.
      * @throws {Error} If reading from storage fails (e.g., file corruption).
-    */
+     */
     getData: <T extends IStorageData = IStorageData>(clientId: string, storageName: StorageName, defaultValue: T[]) => Promise<T[]>;
     /**
      * Sets the data for a client in a specific storage, persisting it for future retrieval.
      * Stores data for a `SessionId` under a `StorageName` (e.g., user logs).
      * @template T - The specific type of the storage data, defaults to `IStorageData`.
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-    */
+     */
     setData: <T extends IStorageData = IStorageData>(data: T[], clientId: string, storageName: StorageName) => Promise<void>;
 }
 /**
@@ -1967,7 +1967,7 @@ interface IPersistMemoryControl {
     /**
      * Sets a custom persistence adapter for memory storage.
      * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory storage for `SessionId`).
-    */
+     */
     usePersistMemoryAdapter(Ctor: TPersistBaseCtor<SessionId, IPersistMemoryData>): void;
 }
 /**
@@ -1982,31 +1982,31 @@ declare class PersistMemoryUtils implements IPersistMemoryControl {
      * Memoized function to create or retrieve storage for a specific client’s memory.
      * Ensures a single persistence instance per `SessionId`, optimizing resource use.
      * @private
-    */
+     */
     private getMemoryStorage;
     /**
      * Configures a custom constructor for memory persistence, overriding the default `PersistBase`.
      * Enables advanced memory storage for `SessionId` (e.g., in-memory or database-backed persistence).
-    */
+     */
     usePersistMemoryAdapter(Ctor: TPersistBaseCtor<SessionId, IPersistMemoryData>): void;
     /**
      * Sets the memory data for a client, persisting it for future retrieval.
      * Stores session-specific memory for a `SessionId` (e.g., temporary context).
      * @template T - The specific type of the memory data, defaults to `unknown`.
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-    */
+     */
     setMemory: <T = unknown>(data: T, clientId: string) => Promise<void>;
     /**
      * Retrieves the memory data for a client, falling back to a default if unset.
      * Restores session-specific memory for a `SessionId` (e.g., resuming context).
      * @template T - The specific type of the memory data, defaults to `unknown`.
      * @throws {Error} If reading from storage fails (e.g., file corruption).
-    */
+     */
     getMemory: <T = unknown>(clientId: string, defaultState: T) => Promise<T>;
     /**
      * Disposes of the memory storage for a client by clearing its memoized instance.
      * Useful for cleanup when a `SessionId` ends or memory is no longer needed.
-    */
+     */
     dispose: (clientId: string) => void;
 }
 /**
@@ -2032,7 +2032,7 @@ interface IPersistAliveControl {
     /**
      * Sets a custom persistence adapter for alive status storage.
      * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory tracking for `SwarmName`).
-    */
+     */
     usePersistAliveAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistAliveData>): void;
 }
 /**
@@ -2047,30 +2047,30 @@ declare class PersistAliveUtils implements IPersistAliveControl {
      * Memoized function to create or retrieve storage for a specific client’s alive status.
      * Ensures a single persistence instance per client ID, optimizing resource use.
      * @private
-    */
+     */
     private getAliveStorage;
     /**
      * Configures a custom constructor for alive status persistence, overriding the default `PersistBase`.
      * Enables advanced tracking (e.g., in-memory or database-backed persistence).
-    */
+     */
     usePersistAliveAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistAliveData>): void;
     /**
      * Marks a client as online, persisting the status for future retrieval.
      * Used to track client availability in swarm operations.
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-    */
+     */
     markOnline: (clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Marks a client as offline, persisting the status for future retrieval.
      * Used to track client availability in swarm operations.
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-    */
+     */
     markOffline: (clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Retrieves the online status for a client, defaulting to `false` if unset.
      * Used to check client availability in swarm workflows.
      * @throws {Error} If reading from storage fails (e.g., file corruption).
-    */
+     */
     getOnline: (clientId: string, swarmName: SwarmName) => Promise<boolean>;
 }
 /**
@@ -2096,7 +2096,7 @@ interface IPersistPolicyControl {
     /**
      * Sets a custom persistence adapter for policy data storage.
      * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory tracking for `SwarmName`).
-    */
+     */
     usePersistPolicyAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistPolicyData>): void;
 }
 /**
@@ -2111,24 +2111,24 @@ declare class PersistPolicyUtils implements IPersistPolicyControl {
      * Memoized function to create or retrieve storage for a specific policy data.
      * Ensures a single persistence instance per swarm, optimizing resource use.
      * @private
-    */
+     */
     private getPolicyStorage;
     /**
      * Configures a custom constructor for policy data persistence, overriding the default `PersistBase`.
      * Enables advanced tracking (e.g., in-memory or database-backed persistence).
-    */
+     */
     usePersistPolicyAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistPolicyData>): void;
     /**
      * Retrieves the list of banned clients for a specific policy, defaulting to an empty array if unset.
      * Used to check client ban status in swarm workflows.
      * @throws {Error} If reading from storage fails (e.g., file corruption).
-    */
+     */
     getBannedClients: (policyName: PolicyName, swarmName: SwarmName, defaultValue?: SessionId[]) => Promise<SessionId[]>;
     /**
      * Sets the list of banned clients for a specific policy, persisting the status for future retrieval.
      * Used to manage client bans in swarm operations.
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-    */
+     */
     setBannedClients: (bannedClients: SessionId[], policyName: PolicyName, swarmName: SwarmName) => Promise<void>;
 }
 /**
@@ -2154,7 +2154,7 @@ interface IPersistEmbeddingControl {
     /**
      * Sets a custom persistence adapter for embedding data storage.
      * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory tracking for `SwarmName`).
-    */
+     */
     usePersistEmbeddingAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistEmbeddingData>): void;
 }
 /**
@@ -2169,24 +2169,24 @@ declare class PersistEmbeddingUtils implements IPersistEmbeddingControl {
      * Memoized function to create or retrieve storage for specific embedding data.
      * Ensures a single persistence instance per embedding name, optimizing resource use.
      * @private
-    */
+     */
     private getEmbeddingStorage;
     /**
      * Configures a custom constructor for embedding data persistence, overriding the default `PersistBase`.
      * Enables advanced tracking (e.g., in-memory or database-backed persistence).
-    */
+     */
     usePersistEmbeddingAdapter(Ctor: TPersistBaseCtor<SwarmName, IPersistEmbeddingData>): void;
     /**
      * Retrieves the embedding vector for a specific string hash, returning null if not found.
      * Used to check if a precomputed embedding exists in the cache.
      * @throws {Error} If reading from storage fails (e.g., file corruption).
-    */
+     */
     readEmbeddingCache: (embeddingName: EmbeddingName, stringHash: string) => Promise<number[] | null>;
     /**
      * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
      * Used to cache computed embeddings to avoid redundant processing.
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-    */
+     */
     writeEmbeddingCache: (embeddings: number[], embeddingName: EmbeddingName, stringHash: string) => Promise<void>;
 }
 /**
@@ -2201,51 +2201,51 @@ declare const PersistEmbedding: IPersistEmbeddingControl;
 interface IHistoryInstanceCallbacks {
     /**
      * Retrieves dynamic system prompt messages for an agent.
-    */
+     */
     getSystemPrompt?: (clientId: string, agentName: AgentName) => Promise<string[]> | string[];
     /**
      * Determines whether a message should be included in the history iteration.
-    */
+     */
     filterCondition?: (message: IModelMessage, clientId: string, agentName: AgentName) => Promise<boolean> | boolean;
     /**
      * Fetches initial history data for an agent.
-    */
+     */
     getData: (clientId: string, agentName: AgentName) => Promise<IModelMessage[]> | IModelMessage[];
     /**
      * Called when the history array changes (e.g., after push or pop).
-    */
+     */
     onChange: (data: IModelMessage[], clientId: string, agentName: AgentName) => void;
     /**
      * Called when a new message is pushed to the history.
-    */
+     */
     onPush: (data: IModelMessage, clientId: string, agentName: AgentName) => void;
     /**
      * Called when the last message is popped from the history.
-    */
+     */
     onPop: (data: IModelMessage | null, clientId: string, agentName: AgentName) => void;
     /**
      * Called for each message during iteration when reading.
-    */
+     */
     onRead: (message: IModelMessage, clientId: string, agentName: AgentName) => void;
     /**
      * Called at the start of a history read operation.
-    */
+     */
     onReadBegin: (clientId: string, agentName: AgentName) => void;
     /**
      * Called at the end of a history read operation.
-    */
+     */
     onReadEnd: (clientId: string, agentName: AgentName) => void;
     /**
      * Called when the history instance is disposed.
-    */
+     */
     onDispose: (clientId: string) => void;
     /**
      * Called when the history instance is initialized.
-    */
+     */
     onInit: (clientId: string) => void;
     /**
      * Provides a reference to the history instance after creation.
-    */
+     */
     onRef: (history: IHistoryInstance) => void;
 }
 /**
@@ -2254,19 +2254,19 @@ interface IHistoryInstanceCallbacks {
 interface IHistoryAdapter {
     /**
      * Iterates over history messages for a client and agent.
-    */
+     */
     iterate(clientId: string, agentName: AgentName): AsyncIterableIterator<IModelMessage>;
     /**
      * Adds a new message to the history.
-    */
+     */
     push: (value: IModelMessage, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Removes and returns the last message from the history.
-    */
+     */
     pop: (clientId: string, agentName: AgentName) => Promise<IModelMessage | null>;
     /**
      * Disposes of the history for a client and agent, optionally clearing all data.
-    */
+     */
     dispose: (clientId: string, agentName: AgentName | null) => Promise<void>;
 }
 /**
@@ -2275,11 +2275,11 @@ interface IHistoryAdapter {
 interface IHistoryControl {
     /**
      * Sets a custom history instance constructor for the adapter.
-    */
+     */
     useHistoryAdapter(Ctor: THistoryInstanceCtor): void;
     /**
      * Configures lifecycle callbacks for history instances.
-    */
+     */
     useHistoryCallbacks: (Callbacks: Partial<IHistoryInstanceCallbacks>) => void;
 }
 /**
@@ -2288,23 +2288,23 @@ interface IHistoryControl {
 interface IHistoryInstance {
     /**
      * Iterates over history messages for an agent.
-    */
+     */
     iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
     /**
      * Initializes the history for an agent, loading initial data if needed.
-    */
+     */
     waitForInit(agentName: AgentName, init: boolean): Promise<void>;
     /**
      * Adds a new message to the history for an agent.
-    */
+     */
     push(value: IModelMessage, agentName: AgentName): Promise<void>;
     /**
      * Removes and returns the last message from the history for an agent.
-    */
+     */
     pop(agentName: AgentName): Promise<IModelMessage | null>;
     /**
      * Disposes of the history for an agent, optionally clearing all data.
-    */
+     */
     dispose(agentName: AgentName | null): Promise<void>;
 }
 /**
@@ -2421,24 +2421,24 @@ interface IHistory {
      * Adds a message to the end of the history.
      * Updates the history store asynchronously.
      * @throws {Error} If the push operation fails (e.g., due to storage issues or invalid message).
-    */
+     */
     push(message: IModelMessage): Promise<void>;
     /**
      * Removes and returns the last message from the history.
      * @throws {Error} If the pop operation fails (e.g., due to internal errors).
-    */
+     */
     pop(): Promise<IModelMessage | null>;
     /**
      * Converts the history into an array of messages tailored for a specific agent.
      * Filters or formats messages based on the provided prompt and optional system prompts.
      * @throws {Error} If conversion fails (e.g., due to adapter issues or invalid prompt).
-    */
+     */
     toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
     /**
      * Converts the entire history into an array of raw model messages.
      * Retrieves all messages without agent-specific filtering or formatting.
      * @throws {Error} If conversion fails (e.g., due to adapter issues).
-    */
+     */
     toArrayForRaw(): Promise<IModelMessage[]>;
 }
 /**
@@ -2466,7 +2466,7 @@ interface IHistorySchema {
     /**
      * The adapter responsible for managing the array of model messages.
      * Provides the implementation for history storage and retrieval.
-    */
+     */
     items: IHistoryAdapter;
 }
 
@@ -2494,11 +2494,11 @@ type IOutlineFormat = IOutlineSchemaFormat | IOutlineObjectFormat;
 interface IOutlineSchemaFormat {
     /**
      * The type of the outline format (e.g., "json_schema").
-    */
+     */
     type: string;
     /**
      * The JSON schema object defining the structure and validation rules.
-    */
+     */
     json_schema: object;
 }
 /**
@@ -2511,16 +2511,16 @@ interface IOutlineObjectFormat {
      * The root type of the outline format (e.g., "object").
      * If openai used Should be "json_object" for partial JSON schemas or "json_schema" for full matching schemas.
      * If ollama or `toJsonSchema` function used should just pass "object"
-    */
+     */
     type: string;
     /**
      * Array of property names that are required in the outline data.
-    */
+     */
     required: string[];
     /**
      * An object mapping property names to their type, description, and optional enum values.
      * Each property describes a field in the outline data.
-    */
+     */
     properties: {
         [key: string]: {
             /**
@@ -2549,22 +2549,22 @@ interface IOutlineCallbacks<Data extends IOutlineData = IOutlineData, Param exte
     /**
      * Optional callback triggered when an outline attempt is initiated.
      * Useful for logging or tracking attempt starts.
-    */
+     */
     onAttempt?: (args: IOutlineArgs<Param>) => void;
     /**
      * Optional callback triggered when an outline document is generated.
      * Useful for processing or logging the generated document.
-    */
+     */
     onDocument?: (result: IOutlineResult<Data, Param>) => void;
     /**
      * Optional callback triggered when a document passes validation.
      * Useful for handling successful validation outcomes.
-    */
+     */
     onValidDocument?: (result: IOutlineResult<Data, Param>) => void;
     /**
      * Optional callback triggered when a document fails validation.
      * Useful for handling failed validation outcomes or retries.
-    */
+     */
     onInvalidDocument?: (result: IOutlineResult<Data, Param>) => void;
 }
 /**
@@ -2576,29 +2576,29 @@ interface IOutlineMessage {
     /**
      * The role of the message sender, either user, assistant, or system.
      * Determines the context or source of the message in the outline history.
-    */
+     */
     role: "assistant" | "system" | "tool" | "user";
     /**
      * Optional array of images associated with the message, represented as binary data or base64 strings.
      * Likely used for messages involving visual content (e.g., user-uploaded images or tool-generated visuals).
      * Supports Uint8Array for raw binary data or string for encoded formats (e.g., base64).
      * Undefined if no images are included in the message.
-    */
+     */
     images?: Uint8Array[] | string[];
     /**
      * The content of the message.
      * Contains the raw text or param of the message, used in history storage or processing.
-    */
+     */
     content: string;
     /**
      * The name of the agent associated with the message.
      * Allow to attach tool call request to specific message
-    */
+     */
     tool_calls?: IToolCall[];
     /**
      * Optional ID of the tool call associated with the message.
      * Used to link the message to a specific tool execution request.
-    */
+     */
     tool_call_id?: string;
 }
 /**
@@ -2610,16 +2610,16 @@ interface IOutlineHistory {
     /**
      * Adds one or more messages to the outline history.
      * Supports both single messages and arrays of messages for flexibility.
-    */
+     */
     push(...messages: (IOutlineMessage | IOutlineMessage[])[]): Promise<void>;
     /**
      * Clears all messages from the outline history.
      * Resets the history to an empty state.
-    */
+     */
     clear(): Promise<void>;
     /**
      * Retrieves all messages in the outline history.
-    */
+     */
     list(): Promise<IOutlineMessage[]>;
 }
 /**
@@ -2632,21 +2632,21 @@ interface IOutlineArgs<Param extends IOutlineParam = IOutlineParam> {
     /**
      * The input param for the outline operation.
      * Contains the raw or structured param to be processed.
-    */
+     */
     param: Param;
     /**
      * The current attempt number for the outline operation.
      * Tracks the number of retries or iterations, useful for validation or retry logic.
-    */
+     */
     attempt: number;
     /**
      * Format of output taken from outline schema
-    */
+     */
     format: IOutlineFormat;
     /**
      * The history management API for the outline operation.
      * Provides access to message history for context or logging.
-    */
+     */
     history: IOutlineHistory;
 }
 /**
@@ -2661,7 +2661,7 @@ interface IOutlineValidationArgs<Data extends IOutlineData = IOutlineData, Param
     /**
      * The data param generated by the outline operation.
      * Contains the result to be validated, typically structured param.
-    */
+     */
     data: Data;
 }
 /**
@@ -2684,12 +2684,12 @@ interface IOutlineValidation<Data extends IOutlineData = IOutlineData, Param ext
     /**
      * The validation function or configuration to apply to the outline data.
      * Can reference itself or another validation for chained or reusable logic.
-    */
+     */
     validate: IOutlineValidationFn<Data, Param>;
     /**
      * Optional description for documentation purposes.
      * Aids in understanding the purpose or behavior of the validation.
-    */
+     */
     docDescription?: string;
 }
 /**
@@ -2703,37 +2703,37 @@ interface IOutlineResult<Data extends IOutlineData = IOutlineData, Param extends
     /**
      * Indicates whether the outline data is valid based on validation checks.
      * True if all validations pass, false otherwise.
-    */
+     */
     isValid: boolean;
     /**
      * The unique identifier for the execution instance of the outline operation.
      * Used for tracking or debugging specific runs.
-    */
+     */
     resultId: string;
     /**
      * The history of messages associated with the outline operation.
      * Contains the sequence of user, assistant, or system messages.
-    */
+     */
     history: IOutlineMessage[];
     /**
      * Optional error message if the outline operation or validation fails.
      * Null if no error occurs.
-    */
+     */
     error?: string | null;
     /**
      * The input param used for the outline operation.
      * Reflects the original param provided in the arguments.
-    */
+     */
     param: Param;
     /**
      * The data param generated by the outline operation.
      * Null if the operation fails or no data is produced.
-    */
+     */
     data: Data | null;
     /**
      * The attempt number for this outline operation.
      * Tracks the retry or iteration count for the operation.
-    */
+     */
     attempt: number;
 }
 /**
@@ -2751,48 +2751,48 @@ interface IOutlineSchema<Data extends IOutlineData = IOutlineData, Param extends
      * Can be a static string or a function that generates the prompt dynamically based on the outline name.
      * If a function is provided, it may return a string or a Promise resolving to a string.
      * This prompt is typically sent to the completion engine or model to guide the generation process.
-    */
+     */
     prompt: string | ((outlineName: OutlineName) => (string | Promise<string>));
     /**
      * The system prompt(s) provided to the language model for the outline operation.
      * Can be a static array of strings or a function that generates the system prompts dynamically based on the outline name.
      * These prompts are typically used to set context, instructions, or constraints for the model before user or assistant messages.
-    */
+     */
     system?: string[] | ((outlineName: OutlineName) => (string[] | Promise<string[]>));
     /**
      * Optional description for documentation purposes.
      * Aids in understanding the purpose or behavior of the outline.
-    */
+     */
     docDescription?: string;
     /**
      * The unique name of the outline within the system.
      * Identifies the specific outline configuration.
-    */
+     */
     outlineName: OutlineName;
     /**
      * Function to generate structured data for the outline operation.
      * Processes input param and history to produce the desired data.
-    */
+     */
     getOutlineHistory(args: IOutlineArgs<Param>): Promise<void>;
     /**
      * Array of validation functions or configurations to apply to the outline data.
      * Supports both direct validation functions and structured validation configurations.
-    */
+     */
     validations?: (IOutlineValidation<Data, Param> | IOutlineValidationFn<Data, Param>)[];
     /**
      * The format/schema definition for the outline data.
      * Specifies the expected structure, required fields, and property metadata for validation and documentation.
-    */
+     */
     format: IOutlineFormat;
     /**
      * Optional maximum number of attempts for the outline operation.
      * Limits the number of retries if validations fail.
-    */
+     */
     maxAttempts?: number;
     /**
      * Optional set of callbacks for outline lifecycle events.
      * Allows customization of attempt, document, and validation handling.
-    */
+     */
     callbacks?: IOutlineCallbacks;
 }
 /**
@@ -2817,18 +2817,18 @@ interface ICompletionArgs {
      * The unique identifier for the client making the request.
      * This is used to track the request and associate it with the correct client context.
      * For outline completions, this being skipped
-    */
+     */
     clientId?: string;
     /**
      * The name of the agent for which the completion is requested.
      * This is used to identify the agent context in which the completion will be generated.
-    */
+     */
     agentName?: AgentName;
     /**
      * The outline used for json completions, if applicable.
      * This is the name of the outline schema that defines the structure of the expected JSON response.
      * Used to ensure that the completion adheres to the specified outline format.
-    */
+     */
     outlineName?: OutlineName;
     /** The source of the last message, indicating whether it originated from a tool or user.*/
     mode: ExecutionMode;
@@ -2841,7 +2841,7 @@ interface ICompletionArgs {
      * This is used to define the expected output format for JSON completions.
      * If not provided, the default outline format will be used.
      * @optional
-    */
+     */
     format?: IOutlineFormat;
 }
 /**
@@ -2852,7 +2852,7 @@ interface ICompletionCallbacks {
     /**
      * Optional callback triggered after a completion is successfully generated.
      * Useful for logging, output processing, or triggering side effects.
-    */
+     */
     onComplete?: (args: ICompletionArgs, output: IModelMessage | IOutlineMessage) => void;
 }
 /**
@@ -2866,7 +2866,7 @@ interface ICompletionSchema {
      * Retrieves a completion based on the provided arguments.
      * Generates a model response using the given context and tools.
      * @throws {Error} If completion generation fails (e.g., due to invalid arguments, model errors, or tool issues).
-    */
+     */
     getCompletion(args: ICompletionArgs): Promise<IModelMessage | IOutlineMessage>;
     json?: boolean;
     /** List of flags for llm model. As example, `/no_think` for `lmstudio-community/Qwen3-32B-GGUF` */
@@ -2986,23 +2986,23 @@ interface IMCPTool<Properties = MCPToolProperties> {
 interface IMCP {
     /**
      * Lists available tools for a given client.
-    */
+     */
     listTools(clientId: string): Promise<IMCPTool[]>;
     /**
      * Checks if a specific tool exists for a given client.
-    */
+     */
     hasTool(toolName: string, clientId: string): Promise<boolean>;
     /**
      * Calls a specific tool with the provided parameters.
-    */
+     */
     callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<MCPToolOutput>;
     /**
      * Updates the list of tools by clearing the cache and invoking the update callback.
-    */
+     */
     updateToolsForAll(): Promise<void>;
     /**
      * Updates the list of tools by clearing the cache and invoking the update callback.
-    */
+     */
     updateToolsForClient(clientId: string): Promise<void>;
 }
 /**
@@ -3013,23 +3013,23 @@ interface IMCPCallbacks {
     onInit(): void;
     /**
      * Called when the MCP resources for a client are disposed.
-    */
+     */
     onDispose(clientId: string): void;
     /**
      * Called when tools are fetched for a client.
-    */
+     */
     onFetch(clientId: string): void;
     /**
      * Called when listing tools for a client.
-    */
+     */
     onList(clientId: string): void;
     /**
      * Called when a tool is invoked.
-    */
+     */
     onCall<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): void;
     /**
      * Called when the list of tools is updated.
-    */
+     */
     onUpdate(mcpName: MCPName, clientId: string | undefined): void;
 }
 /**
@@ -3042,11 +3042,11 @@ interface IMCPSchema {
     docDescription?: string;
     /**
      * Function to list available tools for a client.
-    */
+     */
     listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
     /**
      * Function to call a specific tool with the provided parameters.
-    */
+     */
     callTool: <T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>) => Promise<MCPToolOutput>;
     /** Optional callbacks for MCP lifecycle events.*/
     callbacks?: Partial<IMCPCallbacks>;
@@ -3094,22 +3094,22 @@ interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
     /**
      * Optional callback triggered before the tool is executed.
      * Useful for logging, pre-processing, or setup tasks.
-    */
+     */
     onBeforeCall?: (toolId: string, clientId: string, agentName: AgentName, params: T) => Promise<void>;
     /**
      * Optional callback triggered after the tool is executed.
      * Useful for cleanup, logging, or post-processing.
-    */
+     */
     onAfterCall?: (toolId: string, clientId: string, agentName: AgentName, params: T) => Promise<void>;
     /**
      * Optional callback triggered to validate tool parameters before execution.
      * Allows custom validation logic specific to the tool.
-    */
+     */
     onValidate?: (clientId: string, agentName: AgentName, params: T) => Promise<boolean>;
     /**
      * Optional callback triggered when the tool execution fails.
      * Useful for error logging or recovery actions.
-    */
+     */
     onCallError?: (toolId: string, clientId: string, agentName: AgentName, params: T, error: Error) => Promise<void>;
 }
 /**
@@ -3126,7 +3126,7 @@ interface IAgentTool<T = Record<string, ToolValue>> {
     /**
      * Executes the tool with the specified parameters and context.
      * @throws {Error} If the tool execution fails or parameters are invalid.
-    */
+     */
     call(dto: {
         toolId: string;
         clientId: string;
@@ -3141,12 +3141,12 @@ interface IAgentTool<T = Record<string, ToolValue>> {
     /**
      * Checks if the tool is available for execution.
      * This method can be used to determine if the tool can be executed based on the current context.
-    */
+     */
     isAvailable?: (clientId: string, agentName: AgentName, toolName: ToolName) => (boolean | Promise<boolean>);
     /**
      * Validates the tool parameters before execution.
      * Can return synchronously or asynchronously based on validation complexity.
-    */
+     */
     validate?: (dto: {
         clientId: string;
         agentName: AgentName;
@@ -3189,7 +3189,7 @@ interface IAgentParams extends Omit<IAgentSchemaInternal, keyof {
     tools?: IAgentTool[];
     /**
      * Validates the agent's output before finalization.
-    */
+     */
     validate: (output: string) => Promise<string | null>;
 }
 /**
@@ -3199,68 +3199,68 @@ interface IAgentParams extends Omit<IAgentSchemaInternal, keyof {
 interface IAgentSchemaInternalCallbacks {
     /**
      * Optional callback triggered when the agent runs statelessly (without history updates).
-    */
+     */
     onRun?: (clientId: string, agentName: AgentName, input: string) => void;
     /**
      * Optional callback triggered when the agent begins execution.
-    */
+     */
     onExecute?: (clientId: string, agentName: AgentName, input: string, mode: ExecutionMode) => void;
     /**
      * Optional callback triggered when a tool produces output.
-    */
+     */
     onToolOutput?: (toolId: string, clientId: string, agentName: AgentName, content: string) => void;
     /**
      * Optional callback triggered when a system message is generated.
-    */
+     */
     onSystemMessage?: (clientId: string, agentName: AgentName, message: string) => void;
     /**
      * Optional callback triggered when a developer message is generated.
-    */
+     */
     onDeveloperMessage?: (clientId: string, agentName: AgentName, message: string) => void;
     /**
      * Optional callback triggered when a tool request is initiated.
      * This callback is used to handle or process tool requests made by the agent.
      *
-    */
+     */
     onToolRequest?: (clientId: string, agentName: AgentName, request: IToolRequest[]) => void;
     /**
      * Optional callback triggered when a tool throw an error
      * This callback is used to log the error before resurrect
      *
-    */
+     */
     onToolError?: (clientId: string, agentName: AgentName, toolName: ToolName, error: Error) => void;
     /**
      * Optional callback triggered when an assistant message is committed.
-    */
+     */
     onAssistantMessage?: (clientId: string, agentName: AgentName, message: string) => void;
     /**
      * Optional callback triggered when a user message is received.
-    */
+     */
     onUserMessage?: (clientId: string, agentName: AgentName, message: string) => void;
     /**
      * Optional callback triggered when the agent's history is flushed.
-    */
+     */
     onFlush?: (clientId: string, agentName: AgentName) => void;
     /**
      * Optional callback triggered when the agent produces output.
      * W
-    */
+     */
     onOutput?: (clientId: string, agentName: AgentName, output: string) => void;
     /**
      * Optional callback triggered when the agent is resurrected after a pause or failure.
-    */
+     */
     onResurrect?: (clientId: string, agentName: AgentName, mode: ExecutionMode, reason?: string) => void;
     /**
      * Optional callback triggered when the agent is initialized.
-    */
+     */
     onInit?: (clientId: string, agentName: AgentName) => void;
     /**
      * Optional callback triggered when the agent is disposed of.
-    */
+     */
     onDispose?: (clientId: string, agentName: AgentName) => void;
     /**
      * Optional callback triggered after all tool calls in a sequence are completed.
-    */
+     */
     onAfterToolCalls?: (clientId: string, agentName: AgentName, toolCalls: IToolCall[]) => void;
 }
 /**
@@ -3270,7 +3270,7 @@ interface IAgentSchemaInternalCallbacks {
 interface IAgentSchemaInternal {
     /**
      * Optional function to filter or modify tool calls before execution.
-    */
+     */
     mapToolCalls?: (tool: IToolCall[], clientId: string, agentName: AgentName) => IToolCall[] | Promise<IToolCall[]>;
     /** Optional maximum number of tool calls allowed per completion cycle.*/
     maxToolCalls?: number;
@@ -3308,15 +3308,15 @@ interface IAgentSchemaInternal {
     dependsOn?: AgentName[];
     /**
      * Optional function to validate the agent's output before finalization.
-    */
+     */
     validate?: (output: string) => Promise<string | null>;
     /**
      * Optional function to transform the model's output before further processing.
-    */
+     */
     transform?: (input: string, clientId: string, agentName: AgentName) => Promise<string> | string;
     /**
      * Optional function to map assistant messages, e.g., converting JSON to tool calls for specific models.
-    */
+     */
     map?: (message: IModelMessage, clientId: string, agentName: AgentName) => Promise<IModelMessage> | IModelMessage;
     /** Optional lifecycle callbacks for the agent, allowing customization of execution flow.*/
     callbacks?: Partial<IAgentSchemaInternalCallbacks>;
@@ -3342,69 +3342,69 @@ interface IAgent {
      * Runs the agent statelessly without modifying chat history.
      * Useful for one-off computations or previews.
      * @throws {Error} If execution fails due to invalid input or internal errors.
-    */
+     */
     run: (input: string) => Promise<string>;
     /**
      * Executes the agent with the given input, potentially updating history based on mode.
      * @throws {Error} If execution fails due to invalid input, tools, or internal errors.
-    */
+     */
     execute: (input: string, mode: ExecutionMode) => Promise<void>;
     /**
      * Waits for and retrieves the agent's output after execution.
      * @throws {Error} If no output is available or waiting times out.
-    */
+     */
     waitForOutput: () => Promise<string>;
     /**
      * Commits tool output to the agent's history or state.
      * @throws {Error} If the tool ID is invalid or committing fails.
-    */
+     */
     commitToolOutput(toolId: string, content: string): Promise<void>;
     /**
      * Commits a system message to the agent's history or state.
      * @throws {Error} If committing the message fails.
-    */
+     */
     commitSystemMessage(message: string): Promise<void>;
     /**
      * Commits a developer message to the agent's history or state.
      * @throws {Error} If committing the message fails.
-    */
+     */
     commitDeveloperMessage(message: string): Promise<void>;
     /**
      * Commits a user message to the agent's history without triggering a response.
      * @throws {Error} If committing the message fails.
-    */
+     */
     commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
     /**
      * Commits a tool request to the agent's history or state.
      * This method is used to log or process tool requests, which can be a single request or an array of requests.
      *
      * @throws {Error} If committing the tool request(s) fails.
-    */
+     */
     commitToolRequest(request: IToolRequest[]): Promise<string[]>;
     /**
      * Commits an assistant message to the agent's history without triggering a response.
      * @throws {Error} If committing the message fails.
-    */
+     */
     commitAssistantMessage(message: string): Promise<void>;
     /**
      * Clears the agent's history, resetting it to an initial state.
      * @throws {Error} If flushing the history fails.
-    */
+     */
     commitFlush(): Promise<void>;
     /**
      * Prevents the next tool in the execution sequence from running and stops further tool calls.
      * @throws {Error} If stopping the tools fails.
-    */
+     */
     commitStopTools(): Promise<void>;
     /**
      * Unlocks the execution queue and signals an agent change, stopping subsequent tool executions.
      * @throws {Error} If committing the agent change fails.
-    */
+     */
     commitAgentChange(): Promise<void>;
     /**
      * Unlocks the execution queue and signals an agent output cancelation, stopping subsequent tool executions.
      * @throws {Error} If committing the agent change fails.
-    */
+     */
     commitCancelOutput(): Promise<void>;
 }
 /**
@@ -3426,39 +3426,39 @@ type ToolName = string;
 interface IMethodContext {
     /**
      * The unique identifier of the client session, tying to ClientAgent’s clientId and PerfService’s execution tracking.
-    */
+     */
     clientId: string;
     /**
      * The name of the method being invoked, used in LoggerService (e.g., log method context) and PerfService (e.g., METHOD_NAME_COMPUTE_STATE).
-    */
+     */
     methodName: string;
     /**
      * The name of the agent involved in the method call, sourced from Agent.interface, used in ClientAgent (e.g., agent-specific execution) and DocService (e.g., agent docs).
-    */
+     */
     agentName: AgentName;
     /**
      * The name of the swarm involved in the method call, sourced from Swarm.interface, used in PerfService (e.g., computeClientState) and DocService (e.g., swarm docs).
-    */
+     */
     swarmName: SwarmName;
     /**
      * The name of the storage resource involved, sourced from Storage.interface, used in ClientAgent (e.g., storage access) and DocService (e.g., storage docs).
-    */
+     */
     storageName: StorageName;
     /**
      * The name of the state resource involved, sourced from State.interface, used in PerfService (e.g., sessionState) and DocService (e.g., state docs).
-    */
+     */
     stateName: StateName;
     /**
      * The name of the compute resource involved, sourced from Compute.interface, used in PerfService (e.g., sessionState) and DocService (e.g., compute docs).
-    */
+     */
     computeName: ComputeName;
     /**
      * The name of the policy involved, sourced from Policy.interface, used in PerfService (e.g., policyBans) and DocService (e.g., policy docs).
-    */
+     */
     policyName: PolicyName;
     /**
      * The name of the mcp involved, sourced from MCP.interface
-    */
+     */
     mcpName: MCPName;
 }
 /**
@@ -3488,15 +3488,15 @@ type TMethodContextService = InstanceType<typeof MethodContextService>;
 interface IExecutionContext {
     /**
      * The unique identifier of the client session, tying to ClientAgent’s clientId and PerfService’s execution tracking.
-    */
+     */
     clientId: string;
     /**
      * The unique identifier of the execution instance, used in PerfService (e.g., startExecution) and BusService (e.g., commitExecutionBegin).
-    */
+     */
     executionId: string;
     /**
      * The unique identifier of the process, sourced from GLOBAL_CONFIG.CC_PROCESS_UUID, used in PerfService’s IPerformanceRecord.processId.
-    */
+     */
     processId: string;
 }
 /**
@@ -3557,46 +3557,46 @@ declare class LoggerService implements ILogger {
      * Method context service instance, injected via DI, providing method-level context (e.g., clientId).
      * Used in log, debug, and info to attach method-specific metadata, aligning with ClientAgent’s method execution context.
      * @private
-    */
+     */
     private readonly methodContextService;
     /**
      * Execution context service instance, injected via DI, providing execution-level context (e.g., clientId).
      * Used in log, debug, and info to attach execution-specific metadata, complementing ClientAgent’s execution workflows (e.g., EXECUTE_FN).
      * @private
-    */
+     */
     private readonly executionContextService;
     /**
      * The common logger instance, defaults to NOOP_LOGGER, used for system-wide logging.
      * Updated via setLogger, receives all log messages alongside client-specific loggers, ensuring a fallback logging mechanism.
      * @private
-    */
+     */
     private _commonLogger;
     /**
      * Factory function to create a client-specific logger adapter, memoized with singleshot for efficiency.
      * Sources from GLOBAL_CONFIG.CC_GET_CLIENT_LOGGER_ADAPTER (defaults to LoggerAdapter), used in log, debug, and info to route client-specific logs (e.g., ClientAgent’s clientId).
      * @private
-    */
+     */
     private getLoggerAdapter;
     /**
      * Logs messages at the normal level, routing to both the client-specific logger (if clientId exists) and the common logger.
      * Attaches method and execution context (e.g., clientId) for traceability, used across the system (e.g., PerfService’s dispose).
      * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG, defaults to enabled.
-    */
+     */
     log: (topic: string, ...args: any[]) => Promise<void>;
     /**
      * Logs messages at the debug level, routing to both the client-specific logger (if clientId exists) and the common logger.
      * Attaches method and execution context for detailed debugging, heavily used in ClientAgent (e.g., RUN_FN, EXECUTE_FN) when GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG is true.
-    */
+     */
     debug: (topic: string, ...args: any[]) => Promise<void>;
     /**
      * Logs messages at the info level, routing to both the client-specific logger (if clientId exists) and the common logger.
      * Attaches method and execution context for informational tracking, used in PerfService (e.g., startExecution) and DocService (e.g., dumpDocs) when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
-    */
+     */
     info: (topic: string, ...args: any[]) => Promise<void>;
     /**
      * Sets a new common logger instance, replacing the default NOOP_LOGGER or previous logger.
      * Allows runtime customization of system-wide logging behavior, potentially used in testing or advanced configurations (e.g., redirecting logs to a file or console).
-    */
+     */
     setLogger: (logger: ILogger) => void;
 }
 
@@ -3621,20 +3621,20 @@ declare class ToolAbortController {
     /**
      * Initializes a new instance of the `ToolAbortController` class.
      * If the `AbortController` API is available in the global environment, an instance is created.
-    */
+     */
     constructor();
     /**
      * Gets the `AbortSignal` associated with the internal `AbortController`.
      * This signal can be used to monitor or respond to abort events.
      *
-    */
+     */
     get signal(): AbortSignal;
     /**
      * Triggers the abort event on the internal `AbortController`, signaling any listeners
      * that the associated operation should be aborted.
      *
      * If no `AbortController` instance exists, this method does nothing.
-    */
+     */
     abort(): void;
 }
 /**
@@ -3651,51 +3651,51 @@ declare class ClientAgent implements IAgent {
      *
      * This property is used to control and cancel ongoing tool executions when necessary, such as during agent changes or tool stops.
      * @readonly
-    */
+     */
     readonly _toolAbortController: ToolAbortController;
     /**
      * Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.
      * @readonly
-    */
+     */
     readonly _agentChangeSubject: Subject<typeof AGENT_CHANGE_SYMBOL>;
     /**
      * Subject for signaling model resurrection events, triggered by _resurrectModel during error recovery.
      * @readonly
-    */
+     */
     readonly _resqueSubject: Subject<typeof MODEL_RESQUE_SYMBOL>;
     /**
      * Subject for signaling tool execution errors, emitted by createToolCall on failure.
      * @readonly
-    */
+     */
     readonly _toolErrorSubject: Subject<typeof TOOL_ERROR_SYMBOL>;
     /**
      * Subject for signaling tool execution stops, triggered by commitStopTools.
      * @readonly
-    */
+     */
     readonly _toolStopSubject: Subject<typeof TOOL_STOP_SYMBOL>;
     /**
      * Subject for signaling tool execution stops, triggered by commitCancelOutput.
      * @readonly
-    */
+     */
     readonly _cancelOutputSubject: Subject<typeof CANCEL_OUTPUT_SYMBOL>;
     /**
      * Subject for signaling tool output commitments, triggered by commitToolOutput.
      * @readonly
-    */
+     */
     readonly _toolCommitSubject: Subject<void>;
     /**
      * Subject for emitting transformed outputs, used by _emitOutput and waitForOutput.
      * @readonly
-    */
+     */
     readonly _outputSubject: Subject<string>;
     /**
      * Constructs a ClientAgent instance with the provided parameters.
      * Initializes event subjects and invokes the onInit callback, logging construction details if enabled.
-    */
+     */
     constructor(params: IAgentParams);
     /**
      * Resolves and combines tools from the agent's parameters and MCP tool list, ensuring no duplicate tool names.
-    */
+     */
     _resolveTools(): Promise<IAgentTool[]>;
     /**
      * Resolves the system prompt by combining static and dynamic system messages.
@@ -3706,7 +3706,7 @@ declare class ClientAgent implements IAgent {
      * predefined static messages and dynamically generated messages based on the agent's state or configuration.
      *
      * including both static and dynamically generated messages.
-    */
+     */
     _resolveSystemPrompt(): Promise<string[]>;
     /**
      * Emits the transformed output after validation, invoking callbacks and emitting events via BusService.
@@ -3719,83 +3719,83 @@ declare class ClientAgent implements IAgent {
      * Resurrects the model in case of failures using configured strategies (flush, recomplete, custom).
      * Updates history with failure details and returns a placeholder or transformed result, signaling via _resqueSubject.
      * Supports error recovery for CompletionSchemaService’s getCompletion calls.
-     */
+      */
     _resurrectModel(mode: ExecutionMode, reason?: string): Promise<string>;
     /**
      * Waits for the next output to be emitted via _outputSubject, typically after execute or run.
      * Useful for external consumers (e.g., SwarmConnectionService) awaiting agent responses.
-    */
+     */
     waitForOutput(): Promise<string>;
     /**
      * Retrieves a completion message from the model using the current history and tools.
      * Applies validation and resurrection strategies (via _resurrectModel) if needed, integrating with CompletionSchemaService.
-     */
+      */
     getCompletion(mode: ExecutionMode, tools: IAgentTool[]): Promise<IModelMessage>;
     /**
      * Commits a user message to the history without triggering a response, notifying the system via BusService.
      * Supports SessionConnectionService by logging user interactions within a session.
-     */
+      */
     commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
     /**
      * Commits a flush of the agent’s history, clearing it and notifying the system via BusService.
      * Useful for resetting agent state, coordinated with HistoryConnectionService.
-    */
+     */
     commitFlush(): Promise<void>;
     /**
      * Signals an agent change to halt subsequent tool executions, emitting an event via _agentChangeSubject and BusService.
      * Supports SwarmConnectionService by allowing dynamic agent switching within a swarm.
-    */
+     */
     commitAgentChange(): Promise<void>;
     /**
      * Signals a stop to prevent further tool executions, emitting an event via _toolStopSubject and BusService.
      * Used to interrupt tool call chains, coordinated with ToolSchemaService tools.
-    */
+     */
     commitStopTools(): Promise<void>;
     /**
      * Signals a stop to prevent further tool executions, emitting an event via _cancelOutputSubject and BusService.
-    */
+     */
     commitCancelOutput(): Promise<void>;
     /**
      * Commits a system message to the history, notifying the system via BusService without triggering execution.
      * Supports system-level updates, coordinated with SessionConnectionService.
-     */
+      */
     commitSystemMessage(message: string): Promise<void>;
     /**
      * Commits a developer message to the history, notifying the system via BusService without triggering execution.
      * Useful for logging developer notes or debugging information, coordinated with SessionConnectionService.
-     */
+      */
     commitDeveloperMessage(message: string): Promise<void>;
     /**
      * Commits a tool request to the agent's history and emits an event via BusService.
      * This method is used to log tool requests and notify the system of the requested tool calls.
      * The tool requests are transformed into tool call objects using the `createToolRequest` utility.
      *
-     */
+      */
     commitToolRequest(request: IToolRequest[]): Promise<string[]>;
     /**
      * Commits an assistant message to the history without triggering execution, notifying the system via BusService.
      * Useful for logging assistant responses, coordinated with HistoryConnectionService.
-     */
+      */
     commitAssistantMessage(message: string): Promise<void>;
     /**
      * Commits tool output to the history, signaling completion via _toolCommitSubject and notifying the system via BusService.
      * Integrates with ToolSchemaService by linking tool output to tool calls.
-    */
+     */
     commitToolOutput(toolId: string, content: string): Promise<void>;
     /**
      * Executes the incoming message and processes tool calls if present, queued to prevent overlapping executions.
      * Implements IAgent.execute, delegating to EXECUTE_FN with queuing via functools-kit’s queued decorator.
-    */
+     */
     execute: IAgent["execute"];
     /**
      * Runs a stateless completion for the incoming message, queued to prevent overlapping executions.
      * Implements IAgent.run, delegating to RUN_FN with queuing via functools-kit’s queued decorator.
-     */
+      */
     run: IAgent["run"];
     /**
      * Disposes of the agent, performing cleanup and invoking the onDispose callback.
      * Logs the disposal if debugging is enabled, supporting AgentConnectionService cleanup.
-    */
+     */
     dispose(): Promise<void>;
 }
 
@@ -3803,7 +3803,7 @@ interface IOperatorSchema {
     /**
      * Operator connection function to passthrough the chat into operator dashboard.
      * Enables real-time monitoring and control of agent interactions through an external interface.
-    */
+     */
     connectOperator: IAgentSchemaInternal["connectOperator"];
 }
 interface IOperatorParams extends IOperatorSchema, IAgentSchemaInternalCallbacks {
@@ -3814,7 +3814,7 @@ interface IOperatorParams extends IOperatorSchema, IAgentSchemaInternalCallbacks
     /**
      * History management service for tracking and storing conversation messages.
      * Provides access to message history for context and logging operations.
-    */
+     */
     history: IHistory;
 }
 
@@ -3827,35 +3827,35 @@ declare class ClientOperator implements IAgent {
     private _operatorSignal;
     /**
      * Creates a ClientOperator instance
-    */
+     */
     constructor(params: IOperatorParams);
     /**
      * Runs the operator (not supported)
-    */
+     */
     run(): Promise<string>;
     /**
      * Executes an input with specified mode
-    */
+     */
     execute(input: string, mode: ExecutionMode): Promise<void>;
     /**
      * Waits for operator output with timeout
-    */
+     */
     waitForOutput(): Promise<string>;
     /**
      * Commits tool output (not supported)
-    */
+     */
     commitToolOutput(): Promise<void>;
     /**
      * Commits system message (not supported)
-    */
+     */
     commitSystemMessage(): Promise<void>;
     /**
      * Commits a developer message
-    */
+     */
     commitDeveloperMessage(message: string): Promise<void>;
     /**
      * Commits tool request (not supported)
-    */
+     */
     commitToolRequest(): Promise<string[]>;
     /**
      * Commits user message
@@ -3863,27 +3863,27 @@ declare class ClientOperator implements IAgent {
     commitUserMessage(content: string): Promise<void>;
     /**
      * Commits assistant message (not supported)
-    */
+     */
     commitAssistantMessage(): Promise<void>;
     /**
      * Commits flush (not supported)
-    */
+     */
     commitFlush(): Promise<void>;
     /**
      * Commits stop tools (not supported)
-    */
+     */
     commitStopTools(): Promise<void>;
     /**
      * Commits stop tools (not supported)
-    */
+     */
     commitCancelOutput(): Promise<void>;
     /**
      * Commits agent change
-    */
+     */
     commitAgentChange(): Promise<void>;
     /**
      * Disposes the client operator
-    */
+     */
     dispose(): Promise<void>;
 }
 
@@ -3900,159 +3900,159 @@ declare class AgentConnectionService implements IAgent {
      * Logger service instance, injected via DI, for logging agent operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentPublicService and PerfService logging patterns.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Bus service instance, injected via DI, for emitting agent-related events.
      * Passed to ClientAgent for execution events (e.g., commitExecutionBegin), aligning with BusService’s event system in SessionPublicService.
      * @private
-    */
+     */
     private readonly busService;
     /**
      * Method context service instance, injected via DI, for accessing execution context.
      * Used to retrieve clientId and agentName in method calls, integrating with MethodContextService’s scoping in AgentPublicService.
      * @private
-    */
+     */
     private readonly methodContextService;
     /**
      * Session validation service instance, injected via DI, for tracking agent usage.
      * Used in getAgent and dispose to manage agent lifecycle, supporting SessionPublicService’s validation needs.
      * @private
-    */
+     */
     private readonly sessionValidationService;
     /**
      * History connection service instance, injected via DI, for managing agent history.
      * Provides history instances to ClientAgent, aligning with HistoryPublicService’s functionality.
      * @private
-    */
+     */
     private readonly historyConnectionService;
     /**
      * Storage connection service instance, injected via DI, for managing agent storage.
      * Initializes storage references in getAgent, supporting StoragePublicService’s client-specific storage operations.
      * @private
-    */
+     */
     private readonly storageConnectionService;
     /**
      * State connection service instance, injected via DI, for managing agent state.
      * Initializes state references in getAgent, supporting StatePublicService’s client-specific state operations.
      * @private
-    */
+     */
     private readonly stateConnectionService;
     /**
      * Agent schema service instance, injected via DI, for retrieving agent configurations.
      * Provides agent details (e.g., prompt, tools) in getAgent, aligning with AgentMetaService’s schema management.
      * @private
-    */
+     */
     private readonly agentSchemaService;
     /**
      * Tool schema service instance, injected via DI, for retrieving tool configurations.
      * Maps tools for ClientAgent in getAgent, supporting DocService’s tool documentation.
      * @private
-    */
+     */
     private readonly toolSchemaService;
     /**
      * Completion schema service instance, injected via DI, for retrieving completion configurations.
      * Provides completion logic to ClientAgent in getAgent, supporting agent execution flows.
      * @private
-    */
+     */
     private readonly completionSchemaService;
     /**
      * MCP connection service instance, injected via DI, for retrieving external tools
      * Provides mcp integration logic to ClientAgent in getAgent, supporting agent tool execution.
      * @private
-    */
+     */
     private readonly mcpConnectionService;
     /**
      * Retrieves or creates a memoized ClientAgent instance for a given client and agent.
      * Uses functools-kit’s memoize to cache instances by a composite key (clientId-agentName), ensuring efficient reuse across calls.
      * Configures the agent with schema data (prompt, tools, completion) from AgentSchemaService, ToolSchemaService, and CompletionSchemaService, and initializes storage/state dependencies via StorageConnectionService and StateConnectionService.
      * Integrates with ClientAgent (agent logic), AgentPublicService (agent instantiation), and SessionValidationService (usage tracking).
-    */
+     */
     getAgent: ((clientId: string, agentName: string) => ClientAgent | ClientOperator) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientAgent | ClientOperator>;
     /**
      * Executes an input command on the agent in a specified execution mode.
      * Delegates to ClientAgent.execute, using context from MethodContextService to identify the agent, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors AgentPublicService’s execute, supporting ClientAgent’s EXECUTE_FN and PerfService’s tracking.
-    */
+     */
     execute: (input: string, mode: ExecutionMode) => Promise<void>;
     /**
      * Runs a stateless completion on the agent with the given input.
      * Delegates to ClientAgent.run, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors AgentPublicService’s run, supporting ClientAgent’s RUN_FN for quick completions.
-    */
+     */
     run: (input: string) => Promise<string>;
     /**
      * Waits for output from the agent, typically after an execution or run.
      * Delegates to ClientAgent.waitForOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Aligns with SessionPublicService’s waitForOutput and ClientAgent’s asynchronous output handling.
-    */
+     */
     waitForOutput: () => Promise<string>;
     /**
      * Commits tool output to the agent’s history, typically for OpenAI-style tool calls.
      * Delegates to ClientAgent.commitToolOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitToolOutput, supporting ClientAgent’s TOOL_EXECUTOR and HistoryPublicService.
-    */
+     */
     commitToolOutput: (toolId: string, content: string) => Promise<void>;
     /**
      * Commits a system message to the agent’s history.
      * Delegates to ClientAgent.commitSystemMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitSystemMessage, supporting ClientAgent’s system prompt updates and HistoryPublicService.
-    */
+     */
     commitSystemMessage: (message: string) => Promise<void>;
     /**
      * Commits a developer message to the agent’s history.
      * Delegates to ClientAgent.commitDeveloperMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitDeveloperMessage, supporting ClientAgent’s developer-specific messages and HistoryPublicService.
      * @throws {Error} If committing the message fails.
-    */
+     */
     commitDeveloperMessage: (message: string) => Promise<void>;
     /**
      * Commits a tool request to the agent’s history.
      * Delegates to ClientAgent.commitToolRequest, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitToolRequest, supporting ClientAgent’s tool request handling and HistoryPublicService.
-    */
+     */
     commitToolRequest: (request: IToolRequest[]) => Promise<string[]>;
     /**
      * Commits an assistant message to the agent’s history.
      * Delegates to ClientAgent.commitAssistantMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitAssistantMessage, supporting ClientAgent’s assistant responses and HistoryPublicService.
-    */
+     */
     commitAssistantMessage: (message: string) => Promise<void>;
     /**
      * Commits a user message to the agent’s history without triggering a response.
      * Delegates to ClientAgent.commitUserMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitUserMessage, supporting ClientAgent’s user input logging and HistoryPublicService.
-    */
+     */
     commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>;
     /**
      * Commits an agent change to prevent the next tool execution, altering the execution flow.
      * Delegates to ClientAgent.commitAgentChange, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent’s execution control, potentially tied to SwarmPublicService’s navigation changes.
-    */
+     */
     commitAgentChange: () => Promise<void>;
     /**
      * Prevents the next tool from being executed in the agent’s workflow.
      * Delegates to ClientAgent.commitStopTools, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitStopTools, supporting ClientAgent’s TOOL_EXECUTOR interruption.
-    */
+     */
     commitStopTools: () => Promise<void>;
     /**
      * Prevents the next tool from being executed in the agent’s workflow.
      * Delegates to ClientAgent.commitCancelOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitCancelOutput, supporting ClientAgent’s TOOL_EXECUTOR interruption.
-    */
+     */
     commitCancelOutput: () => Promise<void>;
     /**
      * Commits a flush of the agent’s history, clearing stored data.
      * Delegates to ClientAgent.commitFlush, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitFlush, supporting ClientAgent’s history reset and HistoryPublicService.
-    */
+     */
     commitFlush: () => Promise<void>;
     /**
      * Disposes of the agent connection, cleaning up resources and clearing the memoized instance.
      * Checks if the agent exists in the memoization cache before calling ClientAgent.dispose, then clears the cache and updates SessionValidationService.
      * Logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligns with AgentPublicService’s dispose and PerfService’s cleanup.
-    */
+     */
     dispose: () => Promise<void>;
 }
 
@@ -4068,12 +4068,12 @@ declare class ClientHistory implements IHistory {
     /**
      * Filter condition function for toArrayForAgent, used to filter messages based on agent-specific criteria.
      * Initialized from GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER, applied to common messages to exclude irrelevant entries.
-    */
+     */
     _filterCondition: (message: IModelMessage) => boolean;
     /**
      * Constructs a ClientHistory instance with the provided parameters.
      * Initializes the filter condition using GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER and logs construction if debugging is enabled.
-    */
+     */
     constructor(params: IHistoryParams);
     /**
      * Pushes a message into the history and emits a corresponding event via BusService.
@@ -4084,24 +4084,24 @@ declare class ClientHistory implements IHistory {
      * Removes and returns the most recent message from the history, emitting an event via BusService.
      * Retrieves the message from params.items and notifies the system, returning null if the history is empty.
      * Useful for ClientAgent to undo recent actions or inspect the latest entry.
-    */
+     */
     pop(): Promise<IModelMessage | null>;
     /**
      * Converts the history into an array of raw messages without filtering or transformation.
      * Iterates over params.items to collect all messages as-is, useful for debugging or raw data access.
-    */
+     */
     toArrayForRaw(): Promise<IModelMessage[]>;
     /**
      * Converts the history into an array of messages tailored for the agent, used by ClientAgent for completions.
      * Filters messages with _filterCondition, limits to GLOBAL_CONFIG.CC_KEEP_MESSAGES, handles resque/flush resets,
      * and prepends prompt and system messages (from params and GLOBAL_CONFIG.CC_AGENT_SYSTEM_PROMPT).
      * Ensures tool call consistency by linking tool outputs to calls, supporting CompletionSchemaService’s context needs.
-    */
+     */
     toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
     /**
      * Disposes of the history, releasing resources and performing cleanup via params.items.dispose.
      * Called when the agent (e.g., ClientAgent) is disposed, ensuring proper resource management with HistoryConnectionService.
-    */
+     */
     dispose(): Promise<void>;
 }
 
@@ -4118,68 +4118,68 @@ declare class HistoryConnectionService implements IHistory {
      * Logger service instance, injected via DI, for logging history operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with HistoryPublicService and PerfService logging patterns.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Bus service instance, injected via DI, for emitting history-related events.
      * Passed to ClientHistory for event propagation (e.g., history updates), aligning with BusService’s event system in AgentConnectionService.
      * @private
-    */
+     */
     private readonly busService;
     /**
      * Method context service instance, injected via DI, for accessing execution context.
      * Used to retrieve clientId and agentName in method calls, integrating with MethodContextService’s scoping in HistoryPublicService.
      * @private
-    */
+     */
     private readonly methodContextService;
     /**
      * Session validation service instance, injected via DI, for tracking history usage.
      * Used in getHistory and dispose to manage history lifecycle, supporting SessionPublicService’s validation needs.
      * @private
-    */
+     */
     private readonly sessionValidationService;
     /**
      * Agent schema service instance, injected via DI, for managing agent schema-related operations.
      * Used to validate and process agent schemas within the history connection service.
      * @private
-    */
+     */
     private readonly agentSchemaService;
     /**
      * Retrieves or creates a memoized ClientHistory instance for a given client and agent.
      * Uses functools-kit’s memoize to cache instances by a composite key (clientId-agentName), ensuring efficient reuse across calls.
      * Initializes the history with items from GLOBAL_CONFIG.CC_GET_AGENT_HISTORY_ADAPTER, and integrates with SessionValidationService for usage tracking.
      * Supports ClientAgent (history in EXECUTE_FN), AgentConnectionService (history provision), and HistoryPublicService (public API).
-    */
+     */
     getHistory: ((clientId: string, agentName: string) => ClientHistory) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientHistory>;
     /**
      * Pushes a message to the agent’s history.
      * Delegates to ClientHistory.push, using context from MethodContextService to identify the history instance, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors HistoryPublicService’s push, supporting ClientAgent’s history updates (e.g., via commit methods in AgentConnectionService).
-    */
+     */
     push: (message: IModelMessage) => Promise<void>;
     /**
      * Pops the most recent message from the agent’s history.
      * Delegates to ClientHistory.pop, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors HistoryPublicService’s pop, supporting ClientAgent’s history manipulation.
-    */
+     */
     pop: () => Promise<IModelMessage<object>>;
     /**
      * Converts the agent’s history to an array formatted for agent use, incorporating a prompt.
      * Delegates to ClientHistory.toArrayForAgent, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors HistoryPublicService’s toArrayForAgent, supporting ClientAgent’s execution context (e.g., EXECUTE_FN with prompt).
-    */
+     */
     toArrayForAgent: (prompt: string) => Promise<IModelMessage<object>[]>;
     /**
      * Converts the agent’s history to a raw array of messages.
      * Delegates to ClientHistory.toArrayForRaw, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors HistoryPublicService’s toArrayForRaw, supporting ClientAgent’s raw history access or external reporting.
-    */
+     */
     toArrayForRaw: () => Promise<IModelMessage<object>[]>;
     /**
      * Disposes of the history connection, cleaning up resources and clearing the memoized instance.
      * Checks if the history exists in the memoization cache before calling ClientHistory.dispose, then clears the cache and updates SessionValidationService.
      * Logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligns with HistoryPublicService’s dispose and PerfService’s cleanup.
-    */
+     */
     dispose: () => Promise<void>;
 }
 
@@ -4193,16 +4193,16 @@ declare class HistoryConnectionService implements IHistory {
 interface IPipelineSchema<Payload extends object = any> {
     /**
      * The name of the pipeline.
-    */
+     */
     pipelineName: PipelineName;
     /**
      * Function to execute the pipeline logic.
-    */
+     */
     execute: <T = any>(clientId: string, agentName: AgentName, payload: Payload) => Promise<T | void>;
     /**
      * Optional callbacks for pipeline lifecycle events.
      * Provides hooks for monitoring pipeline execution, handling errors, and customizing behavior.
-    */
+     */
     callbacks?: Partial<IPipelineCallbacks<Payload>>;
 }
 /**
@@ -4211,16 +4211,16 @@ interface IPipelineSchema<Payload extends object = any> {
 interface IPipelineCallbacks<Payload extends object = any> {
     /**
      * Called when the pipeline execution starts.
-    */
+     */
     onStart: (clientId: string, pipelineName: PipelineName, payload: Payload) => void;
     /**
      * Called when the pipeline execution ends, indicating success or failure.
-    */
+     */
     onEnd: (clientId: string, pipelineName: PipelineName, payload: Payload, isError: boolean) => void;
     /**
      * Called when an error occurs during pipeline execution.
      * Provides error handling capabilities for pipeline failures and debugging.
-    */
+     */
     onError: (clientId: string, pipelineName: PipelineName, payload: Payload, error: Error) => void;
 }
 /**
@@ -4237,7 +4237,7 @@ interface ISchemaContext {
     /**
      * A collection of registries for different schema types, each managing specific schema records.
      * Provides centralized access to all schema services within the swarm system.
-    */
+     */
     registry: {
         /**
          * @property {ToolRegistry<Record<AgentName, IAgentSchemaInternal>>} agentSchemaService
@@ -4335,13 +4335,13 @@ declare class AgentSchemaService {
      * Logger service instance, injected via DI, for logging schema operations.
      * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentConnectionService and PerfService logging patterns.
      * @readonly
-    */
+     */
     readonly loggerService: LoggerService;
     /**
      * Schema context service instance, injected via DI, for managing schema-related context operations.
      * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
      * @readonly
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
@@ -4350,7 +4350,7 @@ declare class AgentSchemaService {
      * Maps AgentName keys to IAgentSchemaInternal values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @private
-    */
+     */
     private _registry;
     /**
      * Retrieves the current registry instance for agent schemas.
@@ -4358,7 +4358,7 @@ declare class AgentSchemaService {
      * Otherwise, it falls back to the private `_registry` instance.
      *
      * @private
-    */
+     */
     get registry(): ToolRegistry<Record<AgentName, IAgentSchemaInternal>>;
     /**
      * Sets the registry instance for agent schemas.
@@ -4366,7 +4366,7 @@ declare class AgentSchemaService {
      * Otherwise, it updates the private `_registry` instance.
      *
      * @private
-    */
+     */
     set registry(value: ToolRegistry<Record<AgentName, IAgentSchemaInternal>>);
     /**
      * Validates an agent schema shallowly, ensuring required fields and array properties meet basic integrity constraints.
@@ -4375,7 +4375,7 @@ declare class AgentSchemaService {
      * Supports ClientAgent instantiation by ensuring schema validity before registration.
      * @throws {Error} If any validation check fails, with detailed messages including agentName and invalid values.
      * @private
-    */
+     */
     private validateShallow;
     /**
      * Registers a new agent schema in the registry after validation.
@@ -4383,7 +4383,7 @@ declare class AgentSchemaService {
      * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentConnectionService’s schema usage.
      * Supports ClientAgent instantiation by providing validated schemas to AgentConnectionService and SwarmConnectionService.
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-    */
+     */
     register: (key: AgentName, value: IAgentSchemaInternal) => void;
     /**
      * Overrides an existing agent schema in the registry with a new schema.
@@ -4391,14 +4391,14 @@ declare class AgentSchemaService {
      * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports dynamic updates to agent schemas for AgentConnectionService and SwarmConnectionService.
      * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-    */
+     */
     override: (key: AgentName, value: Partial<IAgentSchemaInternal>) => IAgentSchemaInternal;
     /**
      * Retrieves an agent schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports AgentConnectionService’s getAgent method by providing schema data for agent instantiation, and SwarmConnectionService’s swarm configuration.
      * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-    */
+     */
     get: (key: AgentName) => IAgentSchemaInternal;
 }
 
@@ -4415,13 +4415,13 @@ declare class ToolSchemaService {
      * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentConnectionService and PerfService logging patterns.
      * @private
      * @readonly
-    */
+     */
     private readonly loggerService;
     /**
      * Schema context service instance, injected via DI, for managing schema-related context operations.
      * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
      * @readonly
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
@@ -4430,19 +4430,19 @@ declare class ToolSchemaService {
      * Maps ToolName keys to IAgentTool values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @private
-    */
+     */
     private _registry;
     /**
      * Retrieves the current registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
      * Otherwise, it falls back to the private `_registry` instance.
-    */
+     */
     get registry(): ToolRegistry<Record<ToolName, IAgentTool>>;
     /**
      * Sets the registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
-    */
+     */
     set registry(value: ToolRegistry<Record<ToolName, IAgentTool>>);
     /**
      * Validates a tool schema shallowly, ensuring required fields meet basic integrity constraints.
@@ -4451,7 +4451,7 @@ declare class ToolSchemaService {
      * Supports ClientAgent execution by ensuring tool schema validity before registration.
      * @throws {Error} If any validation check fails, with detailed messages including toolName.
      * @private
-    */
+     */
     private validateShallow;
     /**
      * Registers a new tool schema in the registry after validation.
@@ -4459,7 +4459,7 @@ declare class ToolSchemaService {
      * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentSchemaService’s tool references.
      * Supports ClientAgent execution by providing validated tool schemas to AgentConnectionService and SwarmConnectionService for agent tool integration.
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-    */
+     */
     register: (key: ToolName, value: IAgentTool) => void;
     /**
      * Overrides an existing tool schema in the registry with a new schema.
@@ -4467,14 +4467,14 @@ declare class ToolSchemaService {
      * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports dynamic updates to tool schemas for AgentConnectionService and SwarmConnectionService.
      * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-    */
+     */
     override: (key: ToolName, value: Partial<IAgentTool>) => IAgentTool<Record<string, ToolValue>>;
     /**
      * Retrieves a tool schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports AgentConnectionService by providing tool definitions (e.g., call, validate, function) for agent instantiation, referenced in AgentSchemaService schemas via the tools field.
      * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-    */
+     */
     get: (key: ToolName) => IAgentTool;
 }
 
@@ -4494,43 +4494,43 @@ declare class ClientSwarm implements ISwarm {
      * Returns the current busy state of the swarm.
      * Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
      * Supports debugging and flow control in client applications.
-    */
+     */
     getCheckBusy(): Promise<boolean>;
     /**
      * Sets the busy state of the swarm.
      * Used internally to indicate when the swarm is processing an operation, such as waiting for output.
      * Enables coordinated state management and debugging.
-    */
+     */
     setBusy(isBusy: boolean): void;
     /**
      * Getter for the busy state of the swarm.
      * Used internally for optimizing performance and flow control.
      * Returns true if the swarm is currently busy with an operation, false otherwise.
      * Supports debugging and flow control in client applications.
-    */
+     */
     getBusy(): boolean;
     /**
      * Subject that emits when an agent reference changes, providing the agent name and instance.
      * Used by setAgentRef to notify subscribers (e.g., waitForOutput) of updates to agent instances.
-    */
+     */
     _agentChangedSubject: Subject<[agentName: string, agent: IAgent]>;
     /**
      * The name of the currently active agent, or a symbol indicating it needs to be fetched.
      * Initialized as AGENT_NEED_FETCH, lazily populated by getAgentName via params.getActiveAgent.
      * Updated by setAgentName, persisted via params.setActiveAgent.
-    */
+     */
     _activeAgent: AgentName | typeof AGENT_NEED_FETCH;
     /**
      * The navigation stack of agent names, or a symbol indicating it needs to be fetched.
      * Initialized as STACK_NEED_FETCH, lazily populated by navigationPop via params.getNavigationStack.
      * Updated by setAgentName (push) and navigationPop (pop), persisted via params.setNavigationStack.
-    */
+     */
     _navigationStack: AgentName[] | typeof STACK_NEED_FETCH;
     /**
      * Subject for emitting output messages to subscribers, used by emit and connect methods.
      * Provides an asynchronous stream of validated messages, supporting real-time updates to external connectors.
      * @readonly
-    */
+     */
     readonly _emitSubject: Subject<{
         agentName: string;
         output: string;
@@ -4538,7 +4538,7 @@ declare class ClientSwarm implements ISwarm {
     /**
      * Subject that emits to cancel output waiting, providing an empty output string and agent name.
      * Triggered by cancelOutput to interrupt waitForOutput, ensuring responsive cancellation.
-    */
+     */
     _cancelOutputSubject: Subject<{
         agentName: string;
         output: string;
@@ -4546,59 +4546,59 @@ declare class ClientSwarm implements ISwarm {
     /**
      * Getter for the list of agent name-agent pairs from the agent map (params.agentMap).
      * Provides a snapshot of available agents, used internally by waitForOutput to monitor outputs.
-    */
+     */
     get _agentList(): [string, IAgent][];
     /**
      * Constructs a ClientSwarm instance with the provided parameters.
      * Initializes Subjects and logs construction if debugging is enabled, setting up the swarm structure.
-    */
+     */
     constructor(params: ISwarmParams);
     /**
      * Emits a message to subscribers via _emitSubject after validating it against the policy (ClientPolicy).
      * Emits the ban message if validation fails, notifying subscribers and logging via BusService.
      * Supports SwarmConnectionService by broadcasting session outputs within the swarm.
-    */
+     */
     emit(message: string): Promise<void>;
     /**
      * Pops the most recent agent from the navigation stack, falling back to the default agent if empty.
      * Updates and persists the stack via params.setNavigationStack, supporting ClientSession's agent navigation.
-    */
+     */
     navigationPop(): Promise<string>;
     /**
      * Cancels the current output wait by emitting an empty string via _cancelOutputSubject, logging via BusService.
      * Interrupts waitForOutput, ensuring responsive cancellation for ClientSession's execution flow.
-    */
+     */
     cancelOutput(): Promise<void>;
     /**
      * Waits for output from the active agent in a queued manner, delegating to WAIT_FOR_OUTPUT_FN.
      * Ensures only one wait operation runs at a time, handling cancellation and agent changes, supporting ClientSession's output retrieval.
-    */
+     */
     waitForOutput: () => Promise<string>;
     /**
      * Retrieves the name of the active agent, lazily fetching it via params.getActiveAgent if not loaded.
      * Emits an event via BusService with the result, supporting ClientSession's agent identification.
-    */
+     */
     getAgentName(): Promise<AgentName>;
     /**
      * Retrieves the active agent instance (ClientAgent) based on its name from params.agentMap.
      * Emits an event via BusService with the result, supporting ClientSession's execution and history operations.
-    */
+     */
     getAgent(): Promise<IAgent>;
     /**
      * Updates the reference to an agent in the swarm's agent map (params.agentMap), notifying subscribers via _agentChangedSubject.
      * Emits an event via BusService, supporting dynamic agent updates within ClientSession's execution flow.
      * @throws {Error} If the agent name is not found in params.agentMap, indicating an invalid agent.
-    */
+     */
     setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
     /**
      * Sets the active agent by name, updates the navigation stack, and persists the change via params.setActiveAgent/setNavigationStack.
      * Invokes the onAgentChanged callback and emits an event via BusService, supporting ClientSession's agent switching.
-    */
+     */
     setAgentName(agentName: AgentName): Promise<void>;
     /**
      * Disposes of the swarm, performing cleanup
      * Called when the swarm is no longer needed, ensuring proper resource release.
-    */
+     */
     dispose(): Promise<void>;
 }
 
@@ -4615,105 +4615,105 @@ declare class SwarmConnectionService implements ISwarm {
      * Logger service instance, injected via DI, for logging swarm operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SwarmPublicService and PerfService logging patterns.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Bus service instance, injected via DI, for emitting swarm-related events.
      * Passed to ClientSwarm for event propagation (e.g., agent changes), aligning with BusService’s event system in AgentConnectionService.
      * @private
-    */
+     */
     private readonly busService;
     /**
      * Method context service instance, injected via DI, for accessing execution context.
      * Used to retrieve clientId and swarmName in method calls, integrating with MethodContextService’s scoping in SwarmPublicService.
      * @private
-    */
+     */
     private readonly methodContextService;
     /**
      * Agent connection service instance, injected via DI, for managing agent instances.
      * Provides agent instances to ClientSwarm in getSwarm, supporting AgentPublicService and ClientAgent integration.
      * @private
-    */
+     */
     private readonly agentConnectionService;
     /**
      * Swarm schema service instance, injected via DI, for retrieving swarm configurations.
      * Provides configuration (e.g., agentList, defaultAgent) to ClientSwarm in getSwarm, aligning with SwarmMetaService’s schema management.
      * @private
-    */
+     */
     private readonly swarmSchemaService;
     /**
      * Retrieves or creates a memoized ClientSwarm instance for a given client and swarm name.
      * Uses functools-kit’s memoize to cache instances by a composite key (clientId-swarmName), ensuring efficient reuse across calls.
      * Configures the swarm with schema data from SwarmSchemaService, agent instances from AgentConnectionService, and persistence via PersistSwarmAdapter or defaults from GLOBAL_CONFIG.
      * Supports ClientAgent (agent execution within swarms), SessionConnectionService (swarm access in sessions), and SwarmPublicService (public API).
-    */
+     */
     getSwarm: ((clientId: string, swarmName: string) => ClientSwarm) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientSwarm>;
     /**
      * Emits a message to the session, typically for asynchronous communication.
      * Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
-    */
+     */
     emit: (message: string) => Promise<void>;
     /**
      * Pops the navigation stack or returns the default agent if the stack is empty.
      * Delegates to ClientSwarm.navigationPop, using context from MethodContextService to identify the swarm, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SwarmPublicService’s navigationPop, supporting ClientAgent’s navigation within swarms.
-    */
+     */
     navigationPop: () => Promise<string>;
     /**
      * Returns the current busy state of the swarm.
      * Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
      * Supports debugging and flow control in client applications.
-    */
+     */
     getCheckBusy: () => Promise<boolean>;
     /**
      * Sets the busy state of the swarm.
      * Used to indicate whether the swarm is currently processing an operation, helping manage flow control and debugging.
      * Delegates to ClientSwarm.setBusy, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SwarmPublicService’s setBusy, supporting ClientAgent’s busy state management.
-    */
+     */
     setBusy: (isBusy: boolean) => Promise<void>;
     /**
      * Cancels the pending output by emitting an empty string, interrupting waitForOutput.
      * Delegates to ClientSwarm.cancelOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SwarmPublicService’s cancelOutput, supporting ClientAgent’s output control.
-    */
+     */
     cancelOutput: () => Promise<void>;
     /**
      * Waits for and retrieves the output from the swarm’s active agent.
      * Delegates to ClientSwarm.waitForOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SwarmPublicService’s waitForOutput, supporting ClientAgent’s output retrieval, typically a string from agent execution.
-    */
+     */
     waitForOutput: () => Promise<string>;
     /**
      * Retrieves the name of the currently active agent in the swarm.
      * Delegates to ClientSwarm.getAgentName, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SwarmPublicService’s getAgentName, supporting ClientAgent’s agent tracking.
-    */
+     */
     getAgentName: () => Promise<string>;
     /**
      * Retrieves the currently active agent instance from the swarm.
      * Delegates to ClientSwarm.getAgent, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SwarmPublicService’s getAgent, supporting ClientAgent’s agent access.
-    */
+     */
     getAgent: () => Promise<IAgent>;
     /**
      * Sets an agent reference in the swarm’s agent map, typically for dynamic agent addition.
      * Delegates to ClientSwarm.setAgentRef, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SwarmPublicService’s setAgentRef, supporting ClientAgent’s agent management.
-    */
+     */
     setAgentRef: (agentName: AgentName, agent: IAgent) => Promise<void>;
     /**
      * Sets the active agent in the swarm by name, updating the navigation state.
      * Delegates to ClientSwarm.setAgentName, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SwarmPublicService’s setAgentName, supporting ClientAgent’s navigation control.
-    */
+     */
     setAgentName: (agentName: AgentName) => Promise<void>;
     /**
      * Disposes of the swarm connection, clearing the memoized instance.
      * Checks if the swarm exists in the memoization cache before clearing it, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Aligns with SwarmPublicService’s dispose and PerfService’s cleanup, but does not call ClientSwarm.dispose (assuming cleanup is handled internally or unnecessary).
-    */
+     */
     dispose: () => Promise<void>;
 }
 
@@ -4729,13 +4729,13 @@ declare class SwarmSchemaService {
      * Logger service instance, injected via DI, for logging swarm schema operations.
      * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SwarmConnectionService and PerfService logging patterns.
      * @readonly
-    */
+     */
     readonly loggerService: LoggerService;
     /**
      * Schema context service instance, injected via DI, for managing schema-related context operations.
      * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
      * @readonly
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
@@ -4744,19 +4744,19 @@ declare class SwarmSchemaService {
      * Maps SwarmName keys to ISwarmSchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @private
-    */
+     */
     private _registry;
     /**
      * Retrieves the current registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
      * Otherwise, it falls back to the private `_registry` instance.
-    */
+     */
     get registry(): ToolRegistry<Record<SwarmName, ISwarmSchema>>;
     /**
      * Sets the registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
-    */
+     */
     set registry(value: ToolRegistry<Record<SwarmName, ISwarmSchema>>);
     /**
      * Validates a swarm schema shallowly, ensuring required fields and optional properties meet basic integrity constraints.
@@ -4765,7 +4765,7 @@ declare class SwarmSchemaService {
      * Supports ClientSwarm instantiation in SwarmConnectionService by ensuring schema validity before registration.
      * @throws {Error} If any validation check fails, with detailed messages including swarmName and invalid values.
      * @private
-    */
+     */
     private validateShallow;
     /**
      * Registers a new swarm schema in the registry after validation.
@@ -4773,7 +4773,7 @@ declare class SwarmSchemaService {
      * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SwarmConnectionService’s swarm management.
      * Supports ClientAgent execution by providing validated swarm schemas to SwarmConnectionService for ClientSwarm configuration.
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-    */
+     */
     register: (key: SwarmName, value: ISwarmSchema) => void;
     /**
      * Overrides an existing swarm schema in the registry with a new value.
@@ -4781,14 +4781,14 @@ declare class SwarmSchemaService {
      * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports dynamic updates to swarm configurations, allowing modifications to agentList, defaultAgent, or policies.
      * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-    */
+     */
     override: (key: SwarmName, value: Partial<ISwarmSchema>) => ISwarmSchema;
     /**
      * Retrieves a swarm schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports SwarmConnectionService by providing swarm configuration (e.g., agentList, defaultAgent, policies) for ClientSwarm instantiation, linking to AgentConnectionService and PolicySchemaService.
      * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-    */
+     */
     get: (key: SwarmName) => ISwarmSchema;
 }
 
@@ -4804,13 +4804,13 @@ declare class CompletionSchemaService {
      * Logger service instance, injected via DI, for logging completion schema operations.
      * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentSchemaService and PerfService logging patterns.
      * @readonly
-    */
+     */
     readonly loggerService: LoggerService;
     /**
      * Schema context service instance, injected via DI, for managing schema-related context operations.
      * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
      * @readonly
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
@@ -4819,19 +4819,19 @@ declare class CompletionSchemaService {
      * Maps CompletionName keys to ICompletionSchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @private
-    */
+     */
     private _registry;
     /**
      * Retrieves the current registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
      * Otherwise, it falls back to the private `_registry` instance.
-    */
+     */
     get registry(): ToolRegistry<Record<CompletionName, ICompletionSchema>>;
     /**
      * Sets the registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
-    */
+     */
     set registry(value: ToolRegistry<Record<CompletionName, ICompletionSchema>>);
     /**
      * Validates a completion schema shallowly, ensuring required fields meet basic integrity constraints.
@@ -4840,7 +4840,7 @@ declare class CompletionSchemaService {
      * Supports ClientAgent execution by ensuring completion schema validity before registration.
      * @throws {Error} If any validation check fails, with detailed messages including completionName.
      * @private
-    */
+     */
     private validateShallow;
     /**
      * Registers a new completion schema in the registry after validation.
@@ -4848,7 +4848,7 @@ declare class CompletionSchemaService {
      * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentSchemaService’s completion references.
      * Supports ClientAgent execution by providing validated completion schemas to AgentConnectionService and SwarmConnectionService.
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-    */
+     */
     register: (key: CompletionName, value: ICompletionSchema) => void;
     /**
      * Overrides an existing completion schema in the registry with a new one.
@@ -4856,14 +4856,14 @@ declare class CompletionSchemaService {
      * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports dynamic updates to completion schemas used by AgentSchemaService, ClientAgent, and other swarm components.
      * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-    */
+     */
     override: (key: CompletionName, value: Partial<ICompletionSchema>) => ICompletionSchema;
     /**
      * Retrieves a completion schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports AgentConnectionService’s agent instantiation by providing completion logic (getCompletion) referenced in AgentSchemaService schemas, and ClientAgent’s execution flow.
      * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-    */
+     */
     get: (key: CompletionName) => ICompletionSchema;
 }
 
@@ -4881,40 +4881,40 @@ declare class ClientSession implements ISession {
     /**
      * Constructs a new ClientSession instance with the provided parameters.
      * Invokes the onInit callback if defined and logs construction if debugging is enabled.
-    */
+     */
     constructor(params: ISessionParams);
     /**
      * Sends a notification message to connect listeners via the internal `_notifySubject`.
      * Logs the notification if debugging is enabled.
-    */
+     */
     notify(message: string): Promise<void>;
     /**
      * Emits a message to subscribers via swarm _emitSubject after validating it against the policy (ClientPolicy).
      * Emits the ban message if validation fails, notifying subscribers and logging via BusService.
      * Supports SwarmConnectionService by broadcasting session outputs within the swarm.
-    */
+     */
     emit(message: string): Promise<void>;
     /**
      * Executes a message using the swarm's agent (ClientAgent) and returns the output after policy validation.
      * Validates input and output via ClientPolicy, returning a ban message if either fails, with event logging via BusService.
      * Coordinates with SwarmConnectionService to fetch the agent and wait for output, supporting session-level execution.
-    */
+     */
     execute(message: string, mode: ExecutionMode): Promise<string>;
     /**
      * Runs a stateless completion of a message using the swarm's agent (ClientAgent) and returns the output.
      * Does not emit the result but logs the execution via BusService, bypassing output validation for stateless use cases.
      * Integrates with SwarmConnectionService to access the agent, supporting lightweight completions.
-    */
+     */
     run(message: string): Promise<string>;
     /**
      * Commits tool output to the agent's history via the swarm's agent (ClientAgent), logging the action via BusService.
      * Supports ToolSchemaService by linking tool output to tool calls, integrating with ClientAgent's history management.
-    */
+     */
     commitToolOutput(toolId: string, content: string): Promise<void>;
     /**
      * Commits a user message to the agent's history via the swarm's agent (ClientAgent) without triggering a response.
      * Logs the action via BusService, supporting SessionConnectionService's session history tracking.
-    */
+     */
     commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
     /**
      * Commits a flush of the agent’s history via the swarm’s agent (ClientAgent), clearing it and logging via BusService.
@@ -4929,34 +4929,34 @@ declare class ClientSession implements ISession {
     /**
      * Commits a tool request to the agent's history via the swarm’s agent (ClientAgent) and logs the action via BusService.
      * Supports ToolSchemaService by linking tool requests to tool execution, integrating with ClientAgent's history management.
-    */
+     */
     commitToolRequest(request: IToolRequest[]): Promise<string[]>;
     /**
      * Commits a system message to the agent's history via the swarm's agent (ClientAgent), logging via BusService.
      * Supports system-level updates within the session, coordinated with ClientHistory.
-    */
+     */
     commitSystemMessage(message: string): Promise<void>;
     /**
      * Commits a developer message to the agent's history via the swarm's agent (ClientAgent), logging the action via BusService.
      * Supports internal debugging or developer notes within the session, enhancing ClientHistory.
      * @throws {Error} If committing the message fails.
-    */
+     */
     commitDeveloperMessage(message: string): Promise<void>;
     /**
      * Commits an assistant message to the agent's history via the swarm's agent (ClientAgent) without triggering execution.
      * Logs the action via BusService, supporting ClientHistory for assistant response logging.
-    */
+     */
     commitAssistantMessage(message: string): Promise<void>;
     /**
      * Connects the session to a message connector, subscribing to emitted messages and returning a receiver function.
      * Links _emitSubject to the connector for outgoing messages and processes incoming messages via execute, supporting real-time interaction.
      * Integrates with SessionConnectionService for session lifecycle and SwarmConnectionService for agent metadata.
-    */
+     */
     connect(connector: SendMessageFn): ReceiveMessageFn<string>;
     /**
      * Disposes of the session, performing cleanup and invoking the onDispose callback if provided.
      * Called when the session is no longer needed, ensuring proper resource release with SessionConnectionService.
-    */
+     */
     dispose(): Promise<void>;
 }
 
@@ -4973,130 +4973,130 @@ declare class SessionConnectionService implements ISession {
      * Logger service instance, injected via DI, for logging session operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionPublicService and PerfService logging patterns.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Bus service instance, injected via DI, for emitting session-related events.
      * Passed to ClientSession for event propagation (e.g., execution events), aligning with BusService’s event system in AgentConnectionService.
      * @private
-    */
+     */
     private readonly busService;
     /**
      * Method context service instance, injected via DI, for accessing execution context.
      * Used to retrieve clientId and swarmName in method calls, integrating with MethodContextService’s scoping in SessionPublicService.
      * @private
-    */
+     */
     private readonly methodContextService;
     /**
      * Swarm connection service instance, injected via DI, for managing swarm instances.
      * Provides swarm access to ClientSession in getSession, supporting SwarmPublicService’s swarm-level operations.
      * @private
-    */
+     */
     private readonly swarmConnectionService;
     /**
      * Policy connection service instance, injected via DI, for managing policy instances.
      * Provides policy enforcement to ClientSession in getSession, integrating with PolicyPublicService and PolicyConnectionService.
      * @private
-    */
+     */
     private readonly policyConnectionService;
     /**
      * Swarm schema service instance, injected via DI, for retrieving swarm configurations.
      * Provides callbacks and policies to ClientSession in getSession, aligning with SwarmMetaService’s schema management.
      * @private
-    */
+     */
     private readonly swarmSchemaService;
     /**
      * Retrieves or creates a memoized ClientSession instance for a given client and swarm.
      * Uses functools-kit’s memoize to cache instances by a composite key (clientId-swarmName), ensuring efficient reuse across calls.
      * Configures the session with swarm data from SwarmSchemaService, policies from PolicyConnectionService (merged via MergePolicy or defaulting to NoopPolicy), and swarm access from SwarmConnectionService.
      * Supports ClientAgent (session context for execution), SessionPublicService (public API), and SwarmPublicService (swarm integration).
-    */
+     */
     getSession: ((clientId: string, swarmName: string) => ClientSession) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientSession>;
     /**
      * Sends a notification message to connect listeners via the internal `_notifySubject`.
      * Logs the notification if debugging is enabled.
      *
-    */
+     */
     notify: (message: string) => Promise<void>;
     /**
      * Emits a message to the session, typically for asynchronous communication.
      * Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
-    */
+     */
     emit: (content: string) => Promise<void>;
     /**
      * Executes a command in the session with a specified execution mode.
      * Delegates to ClientSession.execute, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s execute, supporting ClientAgent’s EXECUTE_FN within a session context and PerfService tracking.
-    */
+     */
     execute: (content: string, mode: ExecutionMode) => Promise<string>;
     /**
      * Runs a stateless completion in the session with the given content.
      * Delegates to ClientSession.run, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s run, supporting ClientAgent’s RUN_FN within a session context.
-    */
+     */
     run: (content: string) => Promise<string>;
     /**
      * Connects to the session using a provided send message function, returning a receive message function.
      * Delegates to ClientSession.connect, explicitly passing clientId and swarmName, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s connect, supporting ClientAgent’s bidirectional communication and SwarmPublicService’s swarm interactions.
-    */
+     */
     connect: (connector: SendMessageFn, clientId: string, swarmName: SwarmName) => ReceiveMessageFn<string>;
     /**
      * Commits tool output to the session’s history, typically for OpenAI-style tool calls.
      * Delegates to ClientSession.commitToolOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitToolOutput, supporting ClientAgent’s TOOL_EXECUTOR and HistoryPublicService integration.
-    */
+     */
     commitToolOutput: (toolId: string, content: string) => Promise<void>;
     /**
      * Commits a system message to the session’s history.
      * Delegates to ClientSession.commitSystemMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitSystemMessage, supporting ClientAgent’s system updates and HistoryPublicService.
-    */
+     */
     commitSystemMessage: (message: string) => Promise<void>;
     /**
      * Commits a developer message to the session’s history.
      * Delegates to ClientSession.commitDeveloperMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitDeveloperMessage, supporting ClientAgent’s developer updates and HistoryPublicService.
      * @throws {Error} If committing the message fails.
-    */
+     */
     commitDeveloperMessage: (message: string) => Promise<void>;
     /**
      * Commits a tool request to the session’s history.
      * Delegates to ClientSession.commitToolRequest, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitToolRequest, supporting ClientAgent’s tool requests and HistoryPublicService integration.
      *
-    */
+     */
     commitToolRequest: (request: IToolRequest[]) => Promise<string[]>;
     /**
      * Commits an assistant message to the session’s history.
      * Delegates to ClientSession.commitAssistantMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitAssistantMessage, supporting ClientAgent’s assistant responses and HistoryPublicService.
-    */
+     */
     commitAssistantMessage: (message: string) => Promise<void>;
     /**
      * Commits a user message to the session’s history without triggering a response.
      * Delegates to ClientSession.commitUserMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitUserMessage, supporting ClientAgent’s user input logging and HistoryPublicService.
-    */
+     */
     commitUserMessage: (message: string, mode: ExecutionMode) => Promise<void>;
     /**
      * Commits a flush of the session’s history, clearing stored data.
      * Delegates to ClientSession.commitFlush, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitFlush, supporting ClientAgent’s history reset and HistoryPublicService.
-    */
+     */
     commitFlush: () => Promise<void>;
     /**
      * Prevents the next tool from being executed in the session’s workflow.
      * Delegates to ClientSession.commitStopTools, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s commitStopTools, supporting ClientAgent’s TOOL_EXECUTOR interruption.
-    */
+     */
     commitStopTools: () => Promise<void>;
     /**
      * Disposes of the session connection, cleaning up resources and clearing the memoized instance.
      * Checks if the session exists in the memoization cache before calling ClientSession.dispose, then clears the cache.
      * Logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligns with SessionPublicService’s dispose and PerfService’s cleanup.
-    */
+     */
     dispose: () => Promise<void>;
 }
 
@@ -5130,103 +5130,103 @@ declare class AgentPublicService implements TAgentConnectionService {
     /**
      * Logger service instance, injected via DI, for logging agent operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with DocService and PerfService logging patterns.
-     */
+      */
     private readonly loggerService;
     /**
      * Agent connection service instance, injected via DI, for underlying agent operations.
      * Provides core functionality (e.g., getAgent, execute) called by public methods, aligning with ClientAgent’s execution model.
-     */
+      */
     private readonly agentConnectionService;
     /**
      * Creates a reference to an agent for a specific client and method context.
      * Wraps AgentConnectionService.getAgent with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., to initialize agent refs) and PerfService (e.g., to track agent usage via clientId).
-     */
+      */
     createAgentRef: (methodName: string, clientId: string, agentName: AgentName) => Promise<ClientAgent | ClientOperator>;
     /**
      * Executes a command on the agent with a specified execution mode.
      * Wraps AgentConnectionService.execute with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors ClientAgent’s EXECUTE_FN, triggering BusService events (e.g., commitExecutionBegin) and PerfService tracking (e.g., startExecution).
-    */
+     */
     execute: (input: string, mode: ExecutionMode, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Runs a stateless completion on the agent with the given input.
      * Wraps AgentConnectionService.run with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors ClientAgent’s RUN_FN, used for quick completions without state persistence, tracked by PerfService.
-     */
+      */
     run: (input: string, methodName: string, clientId: string, agentName: AgentName) => Promise<string>;
     /**
      * Waits for the agent’s output after an operation.
      * Wraps AgentConnectionService.waitForOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., post-execution output retrieval), complementing execute and run.
-     */
+      */
     waitForOutput: (methodName: string, clientId: string, agentName: AgentName) => Promise<string>;
     /**
      * Commits tool output to the agent’s history, typically for OpenAI-style tool calls.
      * Wraps AgentConnectionService.commitToolOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent’s tool execution (e.g., TOOL_EXECUTOR), documented in DocService (e.g., tool schemas).
-    */
+     */
     commitToolOutput: (toolId: string, content: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits a system message to the agent’s history.
      * Wraps AgentConnectionService.commitSystemMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., system prompt updates), documented in DocService (e.g., system prompts).
-     */
+      */
     commitSystemMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits a developer message to the agent’s history.
      * Wraps AgentConnectionService.commitDeveloperMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used for developer-specific messages, enhancing debugging and tracking in agent operations.
-     */
+      */
     commitDeveloperMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits a tool request to the agent’s history.
      * Wraps AgentConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used for submitting tool requests, typically in scenarios where multiple tools are involved in agent operations.
      *
-     */
+      */
     commitToolRequest: (request: IToolRequest[], methodName: string, clientId: string, agentName: AgentName) => Promise<string[]>;
     /**
      * Commits an assistant message to the agent’s history.
      * Wraps AgentConnectionService.commitAssistantMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent’s assistant responses, tracked by PerfService and documented in DocService.
-     */
+      */
     commitAssistantMessage: (message: string, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits a user message to the agent’s history without triggering an answer.
      * Wraps AgentConnectionService.commitUserMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent for user input logging, complementing execute and run.
-     */
+      */
     commitUserMessage: (message: string, mode: ExecutionMode, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits a flush of the agent’s history, clearing stored data.
      * Wraps AgentConnectionService.commitFlush with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent session resets, tracked by PerfService for performance cleanup.
-     */
+      */
     commitFlush: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits a change of agent to prevent subsequent tool executions.
      * Wraps AgentConnectionService.commitAgentChange with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent to manage agent transitions, documented in DocService (e.g., agent dependencies).
-     */
+      */
     commitAgentChange: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits a stop to prevent the next tool from being executed.
      * Wraps AgentConnectionService.commitStopTools with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption).
-     */
+      */
     commitStopTools: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Commits a stop to prevent the next tool from being executed.
      * Wraps AgentConnectionService.commitCancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption).
-     */
+      */
     commitCancelOutput: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Disposes of the agent, cleaning up resources.
      * Wraps AgentConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Aligns with PerfService’s dispose (e.g., session cleanup) and BusService’s dispose (e.g., subscription cleanup).
-     */
+      */
     dispose: (methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
 }
 
@@ -5330,116 +5330,116 @@ declare class SessionPublicService implements TSessionConnectionService {
     /**
      * Logger service instance, injected via DI, for logging session operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO or CC_LOGGER_ENABLE_LOG is true, consistent with AgentPublicService and PerfService logging patterns.
-     */
+      */
     private readonly loggerService;
     /**
      * Performance service instance, injected via DI, for tracking execution metrics.
      * Used in connect to measure execution duration (startExecution, endExecution), aligning with PerfService’s sessionState tracking.
-     */
+      */
     private readonly perfService;
     /**
      * Service for execution validation to prevent the model to call the tools
      * recursively
-     */
+      */
     private readonly executionValidationService;
     /**
      * Session connection service instance, injected via DI, for underlying session operations.
      * Provides core functionality (e.g., emit, execute) called by public methods, supporting ClientAgent’s session model.
-     */
+      */
     private readonly sessionConnectionService;
     /**
      * Bus service instance, injected via DI, for emitting session-related events.
      * Used in connect to signal execution start and end (commitExecutionBegin, commitExecutionEnd), integrating with BusService’s event system.
-     */
+      */
     private readonly busService;
     /**
      * Service which prevent tool call to navigate client recursively
-     */
+      */
     private readonly navigationValidationService;
     /**
      * Emits a message to the session, typically for asynchronous communication.
      * Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
-     */
+      */
     notify: (content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Emits a message to the session for a specific client and swarm.
      * Wraps SessionConnectionService.emit with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., session-level messaging) and AgentPublicService (e.g., swarm context emission).
-     */
+      */
     emit: (content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Executes a command in the session with a specified execution mode.
      * Wraps SessionConnectionService.execute with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors ClientAgent’s EXECUTE_FN at the session level, triggering BusService events and PerfService tracking.
-    */
+     */
     execute: (content: string, mode: ExecutionMode, methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Runs a stateless completion in the session with the given content.
      * Wraps SessionConnectionService.run with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors ClientAgent’s RUN_FN at the session level, used for quick completions without state persistence.
-     */
+      */
     run: (content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Connects to the session, establishing a messaging channel with performance tracking and event emission.
      * Uses SessionConnectionService.connect directly, wrapping execution in ExecutionContextService for detailed tracking, logging via LoggerService if enabled.
      * Integrates with ClientAgent (e.g., session-level messaging), PerfService (e.g., execution metrics), and BusService (e.g., execution events).
-     */
+      */
     connect: (connector: SendMessageFn, methodName: string, clientId: string, swarmName: SwarmName) => ReceiveMessageFn<string>;
     /**
      * Commits tool output to the session’s history, typically for OpenAI-style tool calls.
      * Wraps SessionConnectionService.commitToolOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent’s tool execution (e.g., TOOL_EXECUTOR), mirrored in AgentPublicService.
-    */
+     */
     commitToolOutput: (toolId: string, content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits a system message to the session’s history.
      * Wraps SessionConnectionService.commitSystemMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., system prompt updates), mirrored in AgentPublicService.
-     */
+      */
     commitSystemMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits a developer message to the session’s history or state.
      * Wraps SessionConnectionService.commitDeveloperMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent’s developer-level messaging, allowing for detailed session context updates.
-     */
+      */
     commitDeveloperMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits a tool request to the session’s history.
      * Wraps SessionConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent’s tool execution requests, mirrored in AgentPublicService.
      *
-     */
+      */
     commitToolRequest: (request: IToolRequest[], methodName: string, clientId: string, swarmName: SwarmName) => Promise<string[]>;
     /**
      * Commits an assistant message to the session’s history.
      * Wraps SessionConnectionService.commitAssistantMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent’s assistant responses, mirrored in AgentPublicService and tracked by PerfService.
-     */
+      */
     commitAssistantMessage: (message: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits a user message to the session’s history without triggering an answer.
      * Wraps SessionConnectionService.commitUserMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent for user input logging, mirrored in AgentPublicService.
-     */
+      */
     commitUserMessage: (message: string, mode: ExecutionMode, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits a flush of the session’s history, clearing stored data.
      * Wraps SessionConnectionService.commitFlush with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent session resets, mirrored in AgentPublicService and tracked by PerfService.
-     */
+      */
     commitFlush: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Commits a stop to prevent the next tool from being executed in the session.
      * Wraps SessionConnectionService.commitStopTools with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption), mirrored in AgentPublicService.
-     */
+      */
     commitStopTools: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Disposes of the session, cleaning up resources.
      * Wraps SessionConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Aligns with AgentPublicService’s dispose and PerfService’s session cleanup.
-     */
+      */
     dispose: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
 }
 
@@ -5473,78 +5473,78 @@ declare class SwarmPublicService implements TSwarmConnectionService {
     /**
      * Logger service instance, injected via DI, for logging swarm operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionPublicService and PerfService logging patterns.
-     */
+      */
     private readonly loggerService;
     /**
      * Swarm connection service instance, injected via DI, for underlying swarm operations.
      * Provides core functionality (e.g., navigationPop, getAgent) called by public methods, supporting ClientAgent’s swarm-level needs.
-     */
+      */
     private readonly swarmConnectionService;
     /**
      * Emits a message to the session for a specific client and swarm.
      * Wraps SessionConnectionService.emit with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., session-level messaging) and AgentPublicService (e.g., swarm context emission).
-     */
+      */
     emit: (content: string, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Pops the navigation stack or returns the default agent for the swarm, scoped to a client.
      * Wraps SwarmConnectionService.navigationPop with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., navigating agent flow in EXECUTE_FN) and SwarmMetaService (e.g., managing swarm navigation state).
-     */
+      */
     navigationPop: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Returns the current busy state of the swarm.
      * Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
      * Supports debugging and flow control in client applications.
-     */
+      */
     getCheckBusy: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<boolean>;
     /**
      * Sets the busy state of the swarm, indicating whether it is currently processing an operation.
      * Wraps SwarmConnectionService.setBusy with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., marking swarm busy during EXECUTE_FN) and SessionPublicService (e.g., managing swarm state in connect).
-     */
+      */
     setBusy: (isBusy: boolean, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Cancels the await of output in the swarm by emitting an empty string, scoped to a client.
      * Wraps SwarmConnectionService.cancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., interrupting EXECUTE_FN output) and SessionPublicService (e.g., output control in connect).
-     */
+      */
     cancelOutput: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Waits for output from the swarm, scoped to a client.
      * Wraps SwarmConnectionService.waitForOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., awaiting EXECUTE_FN results) and SessionPublicService (e.g., output handling in connect).
-     */
+      */
     waitForOutput: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Retrieves the current agent name from the swarm, scoped to a client.
      * Wraps SwarmConnectionService.getAgentName with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., identifying active agent in EXECUTE_FN) and AgentPublicService (e.g., agent context).
-     */
+      */
     getAgentName: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Retrieves the current agent instance from the swarm, scoped to a client.
      * Wraps SwarmConnectionService.getAgent with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., accessing agent details in EXECUTE_FN) and AgentPublicService (e.g., agent operations).
-     */
+      */
     getAgent: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<IAgent>;
     /**
      * Sets an agent reference in the swarm, associating an agent instance with an agent name, scoped to a client.
      * Wraps SwarmConnectionService.setAgentRef with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., configuring agents in EXECUTE_FN) and AgentPublicService (e.g., agent management).
-    */
+     */
     setAgentRef: (methodName: string, clientId: string, swarmName: SwarmName, agentName: AgentName, agent: IAgent) => Promise<void>;
     /**
      * Sets the current agent name in the swarm, scoped to a client.
      * Wraps SwarmConnectionService.setAgentName with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., switching agents in EXECUTE_FN) and AgentPublicService (e.g., agent context updates).
-     */
+      */
     setAgentName: (agentName: AgentName, methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
     /**
      * Disposes of the swarm, cleaning up resources, scoped to a client.
      * Wraps SwarmConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Aligns with ClientAgent’s cleanup (e.g., post-EXECUTE_FN), SessionPublicService’s dispose, and PerfService’s resource management.
-     */
+      */
     dispose: (methodName: string, clientId: string, swarmName: SwarmName) => Promise<void>;
 }
 
@@ -5562,7 +5562,7 @@ declare class AgentValidationService {
      * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
      * @private
      * @readonly
-    */
+     */
     private readonly loggerService;
     /**
      * Completion schema service instance for managing completion schemas.
@@ -5570,117 +5570,117 @@ declare class AgentValidationService {
      * Provides a registry of completion schemas for the swarm.
      * @private
      * @readonly
-    */
+     */
     private readonly completionSchemaService;
     /**
      * Tool validation service instance for validating tools associated with agents.
      * Injected via DI, used in validate method to check agent tools.
      * @private
      * @readonly
-    */
+     */
     private readonly toolValidationService;
     /**
      * Wiki validation service instance for validating wikies associated with agents.
      * Injected via DI, used in validate method to check agent wiki list.
      * @private
      * @readonly
-    */
+     */
     private readonly wikiValidationService;
     /**
      * MCP validation service instance for validating mcp associated with agents.
      * Injected via DI, used in validate method to check agent mcp list.
      * @private
      * @readonly
-    */
+     */
     private readonly mcpValidationService;
     /**
      * Completion validation service instance for validating completion configurations of agents.
      * Injected via DI, used in validate method to check agent completion.
      * @private
      * @readonly
-    */
+     */
     private readonly completionValidationService;
     /**
      * Storage validation service instance for validating storages associated with agents.
      * Injected via DI, used in validate method to check agent storages.
      * @private
      * @readonly
-    */
+     */
     private readonly storageValidationService;
     /**
      * Map of agent names to their schemas, used for validation and resource queries.
      * Populated by addAgent, queried by validate, getStorageList, getStateList, etc.
      * @private
-    */
+     */
     private _agentMap;
     /**
      * Map of agent names to their dependency lists, tracking inter-agent dependencies.
      * Populated by addAgent when dependsOn is present, queried by hasDependency.
      * @private
-    */
+     */
     private _agentDepsMap;
     /**
      * Retrieves the list of registered agent names.
      * Logs the operation if info-level logging is enabled, supporting SwarmSchemaService’s agent enumeration.
-    */
+     */
     getAgentList: () => AgentName[];
     /**
      * Retrieves the list of storage names associated with a given agent.
      * Logs the operation and validates agent existence, supporting ClientStorage integration.
      * @throws {Error} If the agent is not found in _agentMap.
-    */
+     */
     getStorageList: (agentName: AgentName) => StorageName[];
     /**
      * Retrieves the list of wiki names associated with a given agent.
      * @throws {Error} If the agent is not found in _agentMap.
-    */
+     */
     getWikiList: (agentName: AgentName) => WikiName[];
     /**
      * Retrieves the list of state names associated with a given agent.
      * Logs the operation and validates agent existence, supporting ClientState integration.
      * @throws {Error} If the agent is not found in _agentMap.
-    */
+     */
     getStateList: (agentName: AgentName) => StateName[];
     /**
      * Retrieves the list of mcp names associated with a given agent.
      * Logs the operation and validates agent existence, supporting ClientMCP integration.
      * @throws {Error} If the agent is not found in _agentMap.
-    */
+     */
     getMCPList: (agentName: AgentName) => MCPName[];
     /**
      * Registers a new agent with its schema in the validation service.
      * Logs the operation and updates _agentMap and _agentDepsMap, supporting AgentSchemaService’s agent registration.
      * @throws {Error} If the agent already exists in _agentMap.
-    */
+     */
     addAgent: (agentName: AgentName, agentSchema: IAgentSchemaInternal) => void;
     /**
      * Checks if an agent has a registered storage, memoized for performance.
      * Logs the operation and validates agent existence, supporting ClientStorage validation.
      * @throws {Error} If the agent is not found in _agentMap.
-    */
+     */
     hasStorage: ((agentName: AgentName, storageName: StorageName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
      * Checks if an agent has declared wiki
      * @throws {Error} If the agent is not found in _agentMap.
-    */
+     */
     hasWiki: ((agentName: AgentName, wikiName: WikiName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
      * Checks if an agent has a registered dependency on another agent, memoized for performance.
      * Logs the operation, supporting inter-agent dependency validation within SwarmSchemaService.
-    */
+     */
     hasDependency: ((targetAgentName: AgentName, depAgentName: AgentName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
      * Checks if an agent has a registered state, memoized for performance.
      * Logs the operation and validates agent existence, supporting ClientState validation.
      * @throws {Error} If the agent is not found in _agentMap.
-    */
+     */
     hasState: ((agentName: AgentName, stateName: StateName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
      * Validates an agent’s configuration by its name and source, memoized by agentName for performance.
      * Checks the agent’s existence, completion, tools, and storages, delegating to respective validation services.
      * Logs the operation, supporting AgentSchemaService’s validation workflow within SwarmSchemaService.
      * @throws {Error} If the agent is not found, or if its completion, tools, or storages are invalid.
-    */
+     */
     validate: (agentName: AgentName, source: string) => void;
 }
 
@@ -5697,25 +5697,25 @@ declare class ToolValidationService {
      * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
      * @private
      * @readonly
-    */
+     */
     private readonly loggerService;
     /**
      * Map of tool names to their schemas, used to track and validate tools.
      * Populated by addTool, queried by validate.
      * @private
-    */
+     */
     private _toolMap;
     /**
      * Registers a new tool with its schema in the validation service.
      * Logs the operation and ensures uniqueness, supporting ToolSchemaService’s registration process.
      * @throws {Error} If the tool name already exists in _toolMap.
-    */
+     */
     addTool: (toolName: ToolName, toolSchema: IAgentTool) => void;
     /**
      * Validates if a tool name exists in the registered map, memoized by toolName for performance.
      * Logs the operation and checks existence, supporting AgentValidationService’s validation of agent tools.
      * @throws {Error} If the tool name is not found in _toolMap.
-    */
+     */
     validate: (toolName: ToolName, source: string) => void;
 }
 
@@ -5734,163 +5734,163 @@ declare class SessionValidationService {
      * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
      * @private
      * @readonly
-    */
+     */
     private readonly loggerService;
     /**
      * Map of session IDs to their associated storage names, tracking storage usage per session.
      * Populated by addStorageUsage, modified by removeStorageUsage.
      * @private
-    */
+     */
     private _storageSwarmMap;
     /**
      * Map of session IDs to their associated agent names for history tracking.
      * Populated by addHistoryUsage, modified by removeHistoryUsage.
      * @private
-    */
+     */
     private _historySwarmMap;
     /**
      * Map of session IDs to their associated agent names for active usage.
      * Populated by addAgentUsage, modified by removeAgentUsage.
      * @private
-    */
+     */
     private _agentSwarmMap;
     /**
      * Map of session IDs to their associated state names, tracking state usage per session.
      * Populated by addStateUsage, modified by removeStateUsage.
      * @private
-    */
+     */
     private _stateSwarmMap;
     /**
      * Map of session IDs to their associated compute names, tracking compute usage per session.
      * Populated by addComputeUsage, modified by removeComputeUsage.
      * @private
-    */
+     */
     private _computeSwarmMap;
     /**
      * Map of session IDs to their associated swarm names, defining session-swarm relationships.
      * Populated by addSession, removed by removeSession.
      * @private
-    */
+     */
     private _sessionSwarmMap;
     /**
      * Map of session IDs to their modes, defining session behavior.
      * Populated by addSession, removed by removeSession.
      * @private
-    */
+     */
     private _sessionModeMap;
     /**
      * Registers a new session with its swarm and mode.
      * Logs the operation and ensures uniqueness, supporting SessionConnectionService’s session creation.
      * @throws {Error} If the session already exists in _sessionSwarmMap.
-    */
+     */
     addSession: (clientId: SessionId, swarmName: SwarmName, sessionMode: SessionMode) => void;
     /**
      * Tracks an agent’s usage within a session, adding it to the session’s agent list.
      * Logs the operation, supporting ClientAgent’s session-specific activity tracking.
-    */
+     */
     addAgentUsage: (sessionId: SessionId, agentName: AgentName) => void;
     /**
      * Tracks an agent’s history usage within a session, adding it to the session’s history list.
      * Logs the operation, supporting ClientHistory’s session-specific history tracking.
-    */
+     */
     addHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
     /**
      * Tracks a storage’s usage within a session, adding it to the session’s storage list.
      * Logs the operation, supporting ClientStorage’s session-specific storage tracking.
-    */
+     */
     addStorageUsage: (sessionId: SessionId, storageName: StorageName) => void;
     /**
      * Tracks a state’s usage within a session, adding it to the session’s state list.
      * Logs the operation, supporting ClientState’s session-specific state tracking.
-    */
+     */
     addStateUsage: (sessionId: SessionId, stateName: StateName) => void;
     /**
      * Tracks a compute’s usage within a session, adding it to the session’s compute list.
      * Logs the operation, supporting ClientState’s session-specific compute tracking.
-    */
+     */
     addComputeUsage: (sessionId: SessionId, computeName: ComputeName) => void;
     /**
      * Removes an agent from a session’s agent usage list.
      * Logs the operation and cleans up if the list becomes empty, supporting ClientAgent’s session cleanup.
      * @throws {Error} If no agents are found for the session in _agentSwarmMap.
-    */
+     */
     removeAgentUsage: (sessionId: SessionId, agentName: AgentName) => void;
     /**
      * Removes an agent from a session’s history usage list.
      * Logs the operation and cleans up if the list becomes empty, supporting ClientHistory’s session cleanup.
      * @throws {Error} If no agents are found for the session in _historySwarmMap.
-    */
+     */
     removeHistoryUsage: (sessionId: SessionId, agentName: AgentName) => void;
     /**
      * Removes a storage from a session’s storage usage list.
      * Logs the operation and cleans up if the list becomes empty, supporting ClientStorage’s session cleanup.
      * @throws {Error} If no storages are found for the session in _storageSwarmMap.
-    */
+     */
     removeStorageUsage: (sessionId: SessionId, storageName: StorageName) => void;
     /**
      * Removes a state from a session’s state usage list.
      * Logs the operation and cleans up if the list becomes empty, supporting ClientState’s session cleanup.
      * @throws {Error} If no states are found for the session in _stateSwarmMap.
-    */
+     */
     removeStateUsage: (sessionId: SessionId, stateName: StateName) => void;
     /**
      * Removes a compute from a session’s compute usage list.
      * Logs the operation and cleans up if the list becomes empty, supporting ClientCompute’s session cleanup.
      * @throws {Error} If no computes are found for the session in _computeSwarmMap.
-    */
+     */
     removeComputeUsage: (sessionId: SessionId, computeName: ComputeName) => void;
     /**
      * Retrieves the mode of a session.
      * Logs the operation and validates session existence, supporting ClientSession’s mode-based behavior.
      * @throws {Error} If the session does not exist in _sessionModeMap.
-    */
+     */
     getSessionMode: (clientId: SessionId) => SessionMode;
     /**
      * Checks if a session exists.
      * Logs the operation, supporting quick existence checks for SessionConnectionService.
-    */
+     */
     hasSession: (clientId: SessionId) => boolean;
     /**
      * Retrieves the list of all registered session IDs.
      * Logs the operation, supporting SessionConnectionService’s session enumeration.
-    */
+     */
     getSessionList: () => SessionId[];
     /**
      * Retrieves the list of computes associated with a session.
      * Logs the operation, supporting ClientAgent’s session-specific agent queries.
-    */
+     */
     getSessionComputeList: (clientId: SessionId) => ComputeName[];
     /**
      * Retrieves the list of agents associated with a session.
      * Logs the operation, supporting ClientAgent’s session-specific agent queries.
-    */
+     */
     getSessionAgentList: (clientId: SessionId) => AgentName[];
     /**
      * Retrieves the list of agents in a session’s history.
      * Logs the operation, supporting ClientHistory’s session-specific history queries.
-    */
+     */
     getSessionHistoryList: (clientId: SessionId) => AgentName[];
     /**
      * Retrieves the swarm name associated with a session.
      * Logs the operation and validates session existence, supporting SwarmSchemaService’s session-swarm mapping.
      * @throws {Error} If the session does not exist in _sessionSwarmMap.
-    */
+     */
     getSwarm: (clientId: SessionId) => SwarmName;
     /**
      * Validates if a session exists, memoized by clientId for performance.
      * Logs the operation and checks existence, supporting ClientSession’s session validation needs.
      * @throws {Error} If the clientId is missing or the session does not exist in _sessionSwarmMap.
-    */
+     */
     validate: ((clientId: SessionId, source: string) => void) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, void>;
     /**
      * Removes a session and its associated mode, clearing validation cache.
      * Logs the operation, supporting SessionConnectionService’s session cleanup.
-    */
+     */
     removeSession: (clientId: SessionId) => void;
     /**
      * Clears the validation cache for a specific session.
      * Logs the operation, supporting resource cleanup without removing session data.
-    */
+     */
     dispose: (clientId: SessionId) => void;
 }
 
@@ -5908,63 +5908,63 @@ declare class SwarmValidationService {
      * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
      * @private
      * @readonly
-    */
+     */
     private readonly loggerService;
     /**
      * Agent validation service instance for validating agents associated with swarms.
      * Injected via DI, used in validate method to check swarm.agentList.
      * @private
      * @readonly
-    */
+     */
     private readonly agentValidationService;
     /**
      * Policy validation service instance for validating policies associated with swarms.
      * Injected via DI, used in validate method to check swarm.policies.
      * @private
      * @readonly
-    */
+     */
     private readonly policyValidationService;
     /**
      * Map of swarm names to their schemas, used to track and validate swarms.
      * Populated by addSwarm, queried by getAgentList, getPolicyList, and validate.
      * @private
-    */
+     */
     private _swarmMap;
     /**
      * Registers a new swarm with its schema in the validation service.
      * Logs the operation and ensures uniqueness, supporting SwarmSchemaService’s registration process.
      * @throws {Error} If the swarm name already exists in _swarmMap.
-    */
+     */
     addSwarm: (swarmName: SwarmName, swarmSchema: ISwarmSchema) => void;
     /**
      * Retrieves the list of agent names associated with a given swarm.
      * Logs the operation and validates swarm existence, supporting ClientSwarm’s agent management.
      * @throws {Error} If the swarm is not found in _swarmMap.
-    */
+     */
     getAgentList: (swarmName: SwarmName) => string[];
     /**
      * Retrieves the set of agent names associated with a given swarm.
      * Logs the operation and validates swarm existence, supporting ClientSwarm’s agent management.
      * @throws {Error} If the swarm is not found in _swarmMap.
-    */
+     */
     getAgentSet: ((swarmName: SwarmName) => Set<string>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, Set<string>>;
     /**
      * Retrieves the list of policy names associated with a given swarm.
      * Logs the operation and validates swarm existence, supporting ClientSwarm’s policy enforcement.
      * @throws {Error} If the swarm is not found in _swarmMap.
-    */
+     */
     getPolicyList: (swarmName: SwarmName) => string[];
     /**
      * Retrieves the list of all registered swarm names.
      * Logs the operation, supporting SwarmSchemaService’s swarm enumeration.
-    */
+     */
     getSwarmList: () => string[];
     /**
      * Validates a swarm by its name and source, memoized by swarmName for performance.
      * Checks swarm existence, default agent inclusion, and validates all agents and policies.
      * Logs the operation, supporting ClientSwarm’s operational integrity.
      * @throws {Error} If the swarm is not found, the default agent is not in the agent list, or any agent/policy validation fails.
-    */
+     */
     validate: (swarmName: SwarmName, source: string) => void;
 }
 
@@ -5981,25 +5981,25 @@ declare class CompletionValidationService {
      * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
      * @private
      * @readonly
-    */
+     */
     private readonly loggerService;
     /**
      * Set of registered completion names, used to track and validate completions.
      * Populated by addCompletion, queried by validate.
      * @private
-    */
+     */
     private _completionSet;
     /**
      * Registers a new completion name in the validation service.
      * Logs the operation and ensures uniqueness, supporting CompletionSchemaService’s registration process.
      * @throws {Error} If the completion name already exists in _completionSet.
-    */
+     */
     addCompletion: (completionName: CompletionName) => void;
     /**
      * Validates if a completion name exists in the registered set, memoized by completionName for performance.
      * Logs the operation and checks existence, supporting AgentValidationService’s validation of agent completions.
      * @throws {Error} If the completion name is not found in _completionSet.
-    */
+     */
     validate: (completionName: CompletionName, source: string) => void;
 }
 
@@ -6016,13 +6016,13 @@ declare class EmbeddingSchemaService {
      * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StorageConnectionService and PerfService logging patterns.
      * @private
      * @readonly
-    */
+     */
     private readonly loggerService;
     /**
      * Schema context service instance, injected via DI, for managing schema-related context operations.
      * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
      * @readonly
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
@@ -6031,19 +6031,19 @@ declare class EmbeddingSchemaService {
      * Maps EmbeddingName keys to IEmbeddingSchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @private
-    */
+     */
     private _registry;
     /**
      * Retrieves the current registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
      * Otherwise, it falls back to the private `_registry` instance.
-    */
+     */
     get registry(): ToolRegistry<Record<EmbeddingName, IEmbeddingSchema>>;
     /**
      * Sets the registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
-    */
+     */
     set registry(value: ToolRegistry<Record<EmbeddingName, IEmbeddingSchema>>);
     /**
      * Validates an embedding schema shallowly, ensuring required fields meet basic integrity constraints.
@@ -6052,7 +6052,7 @@ declare class EmbeddingSchemaService {
      * Supports storage similarity searches (e.g., take method) by ensuring embedding schema validity before registration.
      * @throws {Error} If any validation check fails, with detailed messages including embeddingName.
      * @private
-    */
+     */
     private validateShallow;
     /**
      * Registers a new embedding schema in the registry after validation.
@@ -6060,7 +6060,7 @@ declare class EmbeddingSchemaService {
      * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StorageConnectionService’s embedding usage.
      * Supports storage operations (e.g., similarity-based retrieval in ClientStorage) by providing validated embedding schemas to StorageConnectionService and SharedStorageConnectionService.
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-    */
+     */
     register: (key: EmbeddingName, value: IEmbeddingSchema) => void;
     /**
      * Overrides an existing embedding schema in the registry with a new one.
@@ -6068,14 +6068,14 @@ declare class EmbeddingSchemaService {
      * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports updating embedding logic (e.g., calculateSimilarity and createEmbedding) for storage operations in StorageConnectionService and SharedStorageConnectionService.
      * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-    */
+     */
     override: (key: EmbeddingName, value: Partial<IEmbeddingSchema>) => IEmbeddingSchema;
     /**
      * Retrieves an embedding schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports StorageConnectionService and SharedStorageConnectionService by providing embedding logic (calculateSimilarity and createEmbedding) for storage operations like take, referenced in storage schemas.
      * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-    */
+     */
     get: (key: EmbeddingName) => IEmbeddingSchema;
 }
 
@@ -6091,13 +6091,13 @@ declare class StorageSchemaService {
      * Logger service instance, injected via DI, for logging storage schema operations.
      * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StorageConnectionService and PerfService logging patterns.
      * @readonly
-    */
+     */
     readonly loggerService: LoggerService;
     /**
      * Schema context service instance, injected via DI, for managing schema-related context operations.
      * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
      * @readonly
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
@@ -6106,19 +6106,19 @@ declare class StorageSchemaService {
      * Maps StorageName keys to IStorageSchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @private
-    */
+     */
     private _registry;
     /**
      * Retrieves the current registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
      * Otherwise, it falls back to the private `_registry` instance.
-    */
+     */
     get registry(): ToolRegistry<Record<StorageName, IStorageSchema>>;
     /**
      * Sets the registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
-    */
+     */
     set registry(value: ToolRegistry<Record<StorageName, IStorageSchema>>);
     /**
      * Validates a storage schema shallowly, ensuring required fields meet basic integrity constraints.
@@ -6127,7 +6127,7 @@ declare class StorageSchemaService {
      * Supports ClientStorage instantiation in StorageConnectionService and SharedStorageConnectionService by ensuring schema validity before registration.
      * @throws {Error} If any validation check fails, with detailed messages including storageName.
      * @private
-    */
+     */
     private validateShallow;
     /**
      * Registers a new storage schema in the registry after validation.
@@ -6135,7 +6135,7 @@ declare class StorageSchemaService {
      * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StorageConnectionService’s storage management.
      * Supports ClientAgent execution by providing validated storage schemas to StorageConnectionService and SharedStorageConnectionService for ClientStorage configuration.
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-    */
+     */
     register: (key: StorageName, value: IStorageSchema) => void;
     /**
      * Overrides an existing storage schema in the registry with a new schema.
@@ -6143,14 +6143,14 @@ declare class StorageSchemaService {
      * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports updates to storage configurations for ClientStorage and SharedStorageConnectionService.
      * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-    */
+     */
     override: (key: StorageName, value: Partial<IStorageSchema>) => IStorageSchema<IStorageData>;
     /**
      * Retrieves a storage schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports StorageConnectionService and SharedStorageConnectionService by providing storage configuration (e.g., createIndex, embedding) for ClientStorage instantiation, referenced in AgentSchemaService schemas via the storages field.
      * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-    */
+     */
     get: (key: StorageName) => IStorageSchema;
 }
 
@@ -6178,63 +6178,63 @@ declare class ClientStorage<T extends IStorageData = IStorageData> implements IS
     /**
      * Internal map to store items by their IDs, used for fast retrieval and updates.
      * Populated during initialization (waitForInit) and modified by upsert, remove, and clear operations.
-    */
+     */
     _itemMap: Map<string | number, T>;
     /**
      * Constructs a ClientStorage instance with the provided parameters.
      * Invokes the onInit callback if provided and logs construction if debugging is enabled.
-    */
+     */
     constructor(params: IStorageParams<T>);
     /**
      * Dispatches a storage action (upsert, remove, or clear) in a queued manner, delegating to DISPATCH_FN.
      * Ensures sequential execution of storage operations, supporting thread-safe updates from ClientAgent or tools.
-    */
+     */
     dispatch: (action: Action$1, payload: Partial<Payload<T>>) => Promise<void>;
     /**
      * Creates embeddings for the given item, memoized by item ID to avoid redundant calculations via CREATE_EMBEDDING_FN.
      * Caches results for efficiency, cleared on upsert/remove to ensure freshness, supporting EmbeddingSchemaService.
-     */
+      */
     _createEmbedding: ((item: T) => Promise<readonly [Embeddings, string][]>) & functools_kit.IClearableMemoize<string | number> & functools_kit.IControlMemoize<string | number, Promise<readonly [Embeddings, string][]>>;
     /**
      * Waits for the initialization of the storage, loading initial data and creating embeddings via WAIT_FOR_INIT_FN.
      * Ensures initialization happens only once using singleshot, supporting StorageConnectionService’s lifecycle.
-    */
+     */
     waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable;
     /**
      * Retrieves a specified number of items based on similarity to a search string, using embeddings and SortedArray.
      * Executes similarity calculations concurrently via execpool, respecting GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL, and filters by score.
      * Emits an event via BusService, supporting ClientAgent’s search-driven tool execution.
-     */
+      */
     take(search: string, total: number, score?: number): Promise<T[]>;
     /**
      * Upserts an item into the storage via the dispatch queue, delegating to UPSERT_FN.
      * Schedules the operation for sequential execution, supporting ClientAgent’s data persistence needs.
-     */
+      */
     upsert(item: T): Promise<void>;
     /**
      * Removes an item from the storage by its ID via the dispatch queue, delegating to REMOVE_FN.
      * Schedules the operation for sequential execution, supporting ClientAgent’s data management.
-     */
+      */
     remove(itemId: IStorageData["id"]): Promise<void>;
     /**
      * Clears all items from the storage via the dispatch queue, delegating to CLEAR_FN.
      * Schedules the operation for sequential execution, supporting storage reset operations.
-    */
+     */
     clear(): Promise<void>;
     /**
      * Retrieves an item from the storage by its ID directly from _itemMap.
      * Emits an event via BusService with the result, supporting quick lookups by ClientAgent or tools.
-     */
+      */
     get(itemId: IStorageData["id"]): Promise<T | null>;
     /**
      * Lists all items in the storage from _itemMap, optionally filtered by a predicate.
      * Emits an event via BusService with the filtered result if a filter is provided, supporting ClientAgent’s data enumeration.
-     */
+      */
     list(filter?: (item: T) => boolean): Promise<T[]>;
     /**
      * Disposes of the storage instance, invoking the onDispose callback if provided and logging via BusService.
      * Ensures proper cleanup with StorageConnectionService when the storage is no longer needed.
-    */
+     */
     dispose(): Promise<void>;
 }
 
@@ -6252,49 +6252,49 @@ declare class StorageConnectionService implements IStorage {
      * Logger service instance, injected via DI, for logging storage operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StoragePublicService and PerfService logging patterns.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Bus service instance, injected via DI, for emitting storage-related events.
      * Passed to ClientStorage for event propagation (e.g., storage updates), aligning with BusService’s event system in AgentConnectionService.
      * @private
-    */
+     */
     private readonly busService;
     /**
      * Method context service instance, injected via DI, for accessing execution context.
      * Used to retrieve clientId and storageName in method calls, integrating with MethodContextService’s scoping in StoragePublicService.
      * @private
-    */
+     */
     private readonly methodContextService;
     /**
      * Storage schema service instance, injected via DI, for retrieving storage configurations.
      * Provides configuration (e.g., persist, getData, embedding) to ClientStorage in getStorage, aligning with AgentMetaService’s schema management.
      * @private
-    */
+     */
     private readonly storageSchemaService;
     /**
      * Session validation service instance, injected via DI, for tracking storage usage.
      * Used in getStorage and dispose to manage storage lifecycle, supporting SessionPublicService’s validation needs.
      * @private
-    */
+     */
     private readonly sessionValidationService;
     /**
      * Embedding schema service instance, injected via DI, for retrieving embedding configurations.
      * Provides embedding logic (e.g., calculateSimilarity, createEmbedding) to ClientStorage in getStorage, supporting similarity-based retrieval in take.
      * @private
-    */
+     */
     private readonly embeddingSchemaService;
     /**
      * Shared storage connection service instance, injected via DI, for delegating shared storage operations.
      * Used in getStorage to retrieve shared storage instances, integrating with SharedStorageConnectionService’s global storage management.
      * @private
-    */
+     */
     private readonly sharedStorageConnectionService;
     /**
      * Set of storage names marked as shared, used to track delegation to SharedStorageConnectionService.
      * Populated in getStorage and checked in dispose to avoid disposing shared storage.
      * @private
-    */
+     */
     private _sharedStorageSet;
     /**
      * Retrieves or creates a memoized ClientStorage instance for a given client and storage name.
@@ -6302,50 +6302,50 @@ declare class StorageConnectionService implements IStorage {
      * Configures client-specific storage with schema data from StorageSchemaService, embedding logic from EmbeddingSchemaService, and persistence via PersistStorageAdapter or defaults from GLOBAL_CONFIG.
      * Delegates to SharedStorageConnectionService for shared storage (shared=true), tracking them in _sharedStorageSet.
      * Supports ClientAgent (storage in EXECUTE_FN), AgentConnectionService (storage initialization), and StoragePublicService (public API).
-    */
+     */
     getStorage: ((clientId: string, storageName: StorageName) => ClientStorage<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<any>>;
     /**
      * Retrieves a list of storage data items based on a search query, total count, and optional similarity score.
      * Delegates to ClientStorage.take after awaiting initialization, using context from MethodContextService to identify the storage, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors StoragePublicService’s take, supporting ClientAgent’s similarity-based data retrieval with embedding support from EmbeddingSchemaService.
-    */
+     */
     take: (search: string, total: number, score?: number) => Promise<IStorageData[]>;
     /**
      * Upserts an item into the storage, inserting or updating based on its ID.
      * Delegates to ClientStorage.upsert after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors StoragePublicService’s upsert, supporting ClientAgent’s data persistence.
-    */
+     */
     upsert: (item: IStorageData) => Promise<void>;
     /**
      * Removes an item from the storage by its ID.
      * Delegates to ClientStorage.remove after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors StoragePublicService’s remove, supporting ClientAgent’s data deletion.
-    */
+     */
     remove: (itemId: IStorageData["id"]) => Promise<void>;
     /**
      * Retrieves an item from the storage by its ID.
      * Delegates to ClientStorage.get after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors StoragePublicService’s get, supporting ClientAgent’s data access, returning null if the item is not found.
-    */
+     */
     get: (itemId: IStorageData["id"]) => Promise<IStorageData | null>;
     /**
      * Retrieves a list of items from the storage, optionally filtered by a predicate function.
      * Delegates to ClientStorage.list after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors StoragePublicService’s list, supporting ClientAgent’s bulk data access.
-    */
+     */
     list: (filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
     /**
      * Clears all items from the storage, resetting it to its default state.
      * Delegates to ClientStorage.clear after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors StoragePublicService’s clear, supporting ClientAgent’s storage reset.
-    */
+     */
     clear: () => Promise<void>;
     /**
      * Disposes of the storage connection, cleaning up resources and clearing the memoized instance for client-specific storage.
      * Checks if the storage exists in the memoization cache and is not shared (via _sharedStorageSet) before calling ClientStorage.dispose, then clears the cache and updates SessionValidationService.
      * Logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligns with StoragePublicService’s dispose and PerfService’s cleanup.
      * Shared storage is not disposed here, as it is managed by SharedStorageConnectionService.
-    */
+     */
     dispose: () => Promise<void>;
 }
 
@@ -6381,54 +6381,54 @@ declare class StoragePublicService implements TStorageConnectionService {
     /**
      * Logger service instance, injected via DI, for logging storage operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StatePublicService and PerfService logging patterns.
-     */
+      */
     private readonly loggerService;
     /**
      * Storage connection service instance, injected via DI, for underlying storage operations.
      * Provides core functionality (e.g., take, upsert) called by public methods, supporting ClientAgent’s client-specific storage needs.
-     */
+      */
     private readonly storageConnectionService;
     /**
      * Retrieves a list of storage items based on a search query, total count, and optional score, from a client-specific storage identified by storageName and clientId.
      * Wraps StorageConnectionService.take with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., searching client-specific storage in EXECUTE_FN) and DocService (e.g., documenting searchable storage data per client).
-     */
+      */
     take: (search: string, total: number, methodName: string, clientId: string, storageName: StorageName, score?: number) => Promise<IStorageData[]>;
     /**
      * Upserts (inserts or updates) an item in the client-specific storage identified by storageName and clientId.
      * Wraps StorageConnectionService.upsert with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., storing client-specific data in EXECUTE_FN) and PerfService (e.g., tracking storage updates in sessionState per client).
-     */
+      */
     upsert: (item: IStorageData, methodName: string, clientId: string, storageName: StorageName) => Promise<void>;
     /**
      * Removes an item from the client-specific storage identified by storageName and clientId, using the item’s ID.
      * Wraps StorageConnectionService.remove with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., deleting client-specific data in EXECUTE_FN) and PerfService (e.g., tracking storage cleanup per client).
-     */
+      */
     remove: (itemId: IStorageData["id"], methodName: string, clientId: string, storageName: StorageName) => Promise<void>;
     /**
      * Retrieves a specific item from the client-specific storage identified by storageName and clientId, using the item’s ID.
      * Wraps StorageConnectionService.get with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., fetching client-specific data in EXECUTE_FN) and PerfService (e.g., reading storage for metrics per client).
-     */
+      */
     get: (itemId: IStorageData["id"], methodName: string, clientId: string, storageName: StorageName) => Promise<IStorageData | null>;
     /**
      * Retrieves a list of all items from the client-specific storage identified by storageName and clientId, optionally filtered by a predicate function.
      * Wraps StorageConnectionService.list with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., listing client-specific storage in EXECUTE_FN) and DocService (e.g., documenting storage contents per client).
-     */
+      */
     list: (methodName: string, clientId: string, storageName: StorageName, filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
     /**
      * Clears all items from the client-specific storage identified by storageName and clientId.
      * Wraps StorageConnectionService.clear with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., resetting client-specific storage in EXECUTE_FN) and PerfService (e.g., clearing storage for performance resets per client).
-     */
+      */
     clear: (methodName: string, clientId: string, storageName: StorageName) => Promise<void>;
     /**
      * Disposes of the client-specific storage identified by storageName and clientId, cleaning up resources.
      * Wraps StorageConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Aligns with ClientAgent’s cleanup (e.g., post-EXECUTE_FN) and PerfService’s dispose (e.g., clearing client-specific storage).
-     */
+      */
     dispose: (methodName: string, clientId: string, storageName: StorageName) => Promise<void>;
 }
 
@@ -6446,32 +6446,32 @@ declare class StorageValidationService {
      * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
      * @private
      * @readonly
-    */
+     */
     private readonly loggerService;
     /**
      * Embedding validation service instance for validating embeddings associated with storages.
      * Injected via DI, used in validate method to check storage.embedding.
      * @private
      * @readonly
-    */
+     */
     private readonly embeddingValidationService;
     /**
      * Map of storage names to their schemas, used to track and validate storages.
      * Populated by addStorage, queried by validate.
      * @private
-    */
+     */
     private _storageMap;
     /**
      * Registers a new storage with its schema in the validation service.
      * Logs the operation and ensures uniqueness, supporting StorageSchemaService’s registration process.
      * @throws {Error} If the storage name already exists in _storageMap.
-    */
+     */
     addStorage: (storageName: StorageName, storageSchema: IStorageSchema) => void;
     /**
      * Validates a storage by its name and source, memoized by storageName for performance.
      * Checks storage existence and validates its embedding, supporting ClientStorage’s operational integrity.
      * @throws {Error} If the storage is not found in _storageMap or its embedding is invalid.
-    */
+     */
     validate: (storageName: StorageName, source: string) => void;
 }
 
@@ -6488,25 +6488,25 @@ declare class EmbeddingValidationService {
      * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
      * @private
      * @readonly
-    */
+     */
     private readonly loggerService;
     /**
      * Map of embedding names to their schemas, used to track and validate embeddings.
      * Populated by addEmbedding, queried by validate.
      * @private
-    */
+     */
     private _embeddingMap;
     /**
      * Registers a new embedding with its schema in the validation service.
      * Logs the operation and ensures uniqueness, supporting EmbeddingSchemaService’s registration process.
      * @throws {Error} If the embedding name already exists in _embeddingMap.
-    */
+     */
     addEmbedding: (embeddingName: EmbeddingName, embeddingSchema: IEmbeddingSchema) => void;
     /**
      * Validates if an embedding name exists in the registered map, memoized by embeddingName for performance.
      * Logs the operation and checks existence, supporting ClientStorage’s embedding-based search validation.
      * @throws {Error} If the embedding name is not found in _embeddingMap.
-    */
+     */
     validate: (embeddingName: EmbeddingName, source: string) => void;
 }
 
@@ -6532,22 +6532,22 @@ declare class ClientState<State extends IStateData = IStateData> implements ISta
     /**
      * The current state data, initialized as null and set during waitForInit.
      * Updated by setState and clearState, persisted via params.setState if provided.
-    */
+     */
     _state: State;
     /**
      * Queued dispatch function to read or write the state, delegating to DISPATCH_FN.
      * Ensures thread-safe state operations, supporting concurrent access from ClientAgent or tools.
-    */
+     */
     dispatch: (action: Action, payload?: DispatchFn<State>) => Promise<State>;
     /**
      * Constructs a ClientState instance with the provided parameters.
      * Invokes the onInit callback if provided and logs construction if debugging is enabled.
-    */
+     */
     constructor(params: IStateParams<State>);
     /**
      * Waits for the state to initialize via WAIT_FOR_INIT_FN, ensuring it’s only called once using singleshot.
      * Loads the initial state into _state, supporting StateConnectionService’s lifecycle management.
-    */
+     */
     waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable;
     /**
      * Sets the state using the provided dispatch function, applying middlewares and persisting via params.setState.
@@ -6558,17 +6558,17 @@ declare class ClientState<State extends IStateData = IStateData> implements ISta
      * Resets the state to its initial value as determined by params.getState and params.getDefaultState.
      * Persists the result via params.setState, invokes the onWrite callback, and emits an event via BusService.
      * Supports resetting state for ClientAgent or swarm-level operations.
-    */
+     */
     clearState(): Promise<State>;
     /**
      * Retrieves the current state from _state via the dispatch queue.
      * Invokes the onRead callback and emits an event via BusService, supporting ClientAgent’s state queries.
-    */
+     */
     getState(): Promise<State>;
     /**
      * Disposes of the state instance, performing cleanup and invoking the onDispose callback if provided.
      * Ensures proper resource release with StateConnectionService when the state is no longer needed.
-    */
+     */
     dispose(): Promise<void>;
 }
 
@@ -6587,43 +6587,43 @@ declare class StateConnectionService<T extends IStateData = IStateData> implemen
      * Logger service instance, injected via DI, for logging state operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StatePublicService and PerfService logging patterns.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Bus service instance, injected via DI, for emitting state-related events.
      * Passed to ClientState for event propagation (e.g., state updates), aligning with BusService’s event system in AgentConnectionService.
      * @private
-    */
+     */
     private readonly busService;
     /**
      * Method context service instance, injected via DI, for accessing execution context.
      * Used to retrieve clientId and stateName in method calls, integrating with MethodContextService’s scoping in StatePublicService.
      * @private
-    */
+     */
     private readonly methodContextService;
     /**
      * State schema service instance, injected via DI, for retrieving state configurations.
      * Provides configuration (e.g., persist, getState, setState) to ClientState in getStateRef, aligning with AgentMetaService’s schema management.
      * @private
-    */
+     */
     private readonly stateSchemaService;
     /**
      * Session validation service instance, injected via DI, for tracking state usage.
      * Used in getStateRef and dispose to manage state lifecycle, supporting SessionPublicService’s validation needs.
      * @private
-    */
+     */
     private readonly sessionValidationService;
     /**
      * Shared state connection service instance, injected via DI, for delegating shared state operations.
      * Used in getStateRef to retrieve shared states, integrating with SharedStateConnectionService’s global state management.
      * @private
-    */
+     */
     private readonly sharedStateConnectionService;
     /**
      * Set of state names marked as shared, used to track delegation to SharedStateConnectionService.
      * Populated in getStateRef and checked in dispose to avoid disposing shared states.
      * @private
-    */
+     */
     private _sharedStateSet;
     /**
      * Retrieves or creates a memoized ClientState instance for a given client and state name.
@@ -6631,32 +6631,32 @@ declare class StateConnectionService<T extends IStateData = IStateData> implemen
      * Configures client-specific states with schema data from StateSchemaService, applying persistence via PersistStateAdapter or defaults from GLOBAL_CONFIG, and serializes setState with queued for thread safety.
      * Delegates to SharedStateConnectionService for shared states (shared=true), tracking them in _sharedStateSet.
      * Supports ClientAgent (state in EXECUTE_FN), AgentConnectionService (state initialization), and StatePublicService (public API).
-    */
+     */
     getStateRef: ((clientId: string, stateName: StateName) => ClientState<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientState<any>>;
     /**
      * Sets the state using a dispatch function that transforms the previous state.
      * Delegates to ClientState.setState after awaiting initialization, using context from MethodContextService to identify the state, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors StatePublicService’s setState, supporting ClientAgent’s state updates with serialized execution via queued in getStateRef.
-    */
+     */
     setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
     /**
      * Clears the state, resetting it to its initial value.
      * Delegates to ClientState.clearState after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors StatePublicService’s clearState, supporting ClientAgent’s state reset with serialized execution.
-    */
+     */
     clearState: () => Promise<T>;
     /**
      * Retrieves the current state.
      * Delegates to ClientState.getState after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors StatePublicService’s getState, supporting ClientAgent’s state access.
-    */
+     */
     getState: () => Promise<T>;
     /**
      * Disposes of the state connection, cleaning up resources and clearing the memoized instance for client-specific states.
      * Checks if the state exists in the memoization cache and is not shared (via _sharedStateSet) before calling ClientState.dispose, then clears the cache and updates SessionValidationService.
      * Logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligns with StatePublicService’s dispose and PerfService’s cleanup.
      * Shared states are not disposed here, as they are managed by SharedStateConnectionService.
-    */
+     */
     dispose: () => Promise<void>;
 }
 
@@ -6737,13 +6737,13 @@ declare class StateSchemaService {
      * Logger service instance, injected via DI, for logging state schema operations.
      * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with StateConnectionService and PerfService logging patterns.
      * @readonly
-    */
+     */
     readonly loggerService: LoggerService;
     /**
      * Schema context service instance, injected via DI, for managing schema-related context operations.
      * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
      * @readonly
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
@@ -6752,19 +6752,19 @@ declare class StateSchemaService {
      * Maps StateName keys to IStateSchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @private
-    */
+     */
     private _registry;
     /**
      * Retrieves the current registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
      * Otherwise, it falls back to the private `_registry` instance.
-    */
+     */
     get registry(): ToolRegistry<Record<StateName, IStateSchema>>;
     /**
      * Sets the registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
-    */
+     */
     set registry(value: ToolRegistry<Record<StateName, IStateSchema>>);
     /**
      * Validates a state schema shallowly, ensuring required fields and optional properties meet basic integrity constraints.
@@ -6773,7 +6773,7 @@ declare class StateSchemaService {
      * Supports ClientState instantiation in StateConnectionService and SharedStateConnectionService by ensuring schema validity before registration.
      * @throws {Error} If any validation check fails, with detailed messages including stateName.
      * @private
-    */
+     */
     private validateShallow;
     /**
      * Registers a new state schema in the registry after validation.
@@ -6781,7 +6781,7 @@ declare class StateSchemaService {
      * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with StateConnectionService’s state management.
      * Supports ClientAgent execution by providing validated state schemas to StateConnectionService and SharedStateConnectionService for ClientState configuration.
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-    */
+     */
     register: (key: StateName, value: IStateSchema) => void;
     /**
      * Overrides an existing state schema in the registry with a new schema.
@@ -6789,14 +6789,14 @@ declare class StateSchemaService {
      * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports dynamic updates to state schemas for StateConnectionService and SharedStateConnectionService.
      * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-    */
+     */
     override: (key: StateName, value: Partial<IStateSchema>) => IStateSchema<any>;
     /**
      * Retrieves a state schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports StateConnectionService and SharedStateConnectionService by providing state configuration (e.g., getState, middlewares) for ClientState instantiation, referenced in AgentSchemaService schemas.
      * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-    */
+     */
     get: (key: StateName) => IStateSchema;
 }
 
@@ -6811,66 +6811,66 @@ declare class BusService implements IBus {
      * Logger service instance, injected via DI, for logging bus operations.
      * Used in methods like subscribe, emit, and dispose when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with PerfService and DocService logging patterns.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Session validation service instance, injected via DI, for checking active client sessions.
      * Used in emit to ensure events are only emitted for valid sessions, aligning with ClientAgent’s session management (e.g., clientId validation).
      * @private
-    */
+     */
     private readonly sessionValidationService;
     /**
      * Set of registered event sources, tracking all unique EventSource values from subscriptions.
      * Used in dispose to clean up subscriptions for a clientId, ensuring comprehensive resource management.
      * @private
-    */
+     */
     private _eventSourceSet;
     /**
      * Map indicating wildcard subscriptions (clientId="*") for each EventSource.
      * Used in emit to broadcast events to wildcard subscribers, enhancing flexibility in event handling (e.g., system-wide monitoring).
      * @private
-    */
+     */
     private _eventWildcardMap;
     /**
      * Memoized factory function to create or retrieve a Subject for a clientId and EventSource pair.
      * Uses memoize from functools-kit with a key of `${clientId}-${source}`, optimizing performance by reusing Subjects, integral to subscribe, once, and emit operations.
      * @private
-    */
+     */
     private getEventSubject;
     /**
      * Subscribes to events for a specific client and event source, invoking the callback for each matching event.
      * Registers the source in _eventSourceSet and supports wildcard subscriptions (clientId="*") via _eventWildcardMap, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., to monitor execution events) and PerfService (e.g., to track execution metrics indirectly via events).
      * @template T - The event type extending IBaseEvent.
-    */
+     */
     subscribe: <T extends IBaseEvent>(clientId: string, source: EventSource, fn: (event: T) => void) => () => void;
     /**
      * Subscribes to a single event for a specific client and event source, invoking the callback once when the filter condition is met.
      * Registers the source in _eventSourceSet and supports wildcard subscriptions, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Useful for one-time event handling (e.g., ClientAgent awaiting execution completion), complementing subscribe.
      * @template T - The event type extending IBaseEvent.
-    */
+     */
     once: <T extends IBaseEvent>(clientId: string, source: EventSource, filterFn: (event: T) => boolean, fn: (event: T) => void) => () => void;
     /**
      * Emits an event for a specific client, broadcasting to subscribers of the event’s source, including wildcard subscribers.
      * Validates the client session with SessionValidationService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, and supports PerfService execution tracking (e.g., via commitExecutionBegin).
      * @template T - The event type extending IBaseEvent.
-    */
+     */
     emit: <T extends IBaseEvent>(clientId: string, event: T) => Promise<void>;
     /**
      * Emits an execution begin event for a specific client, serving as an alias for emit with a predefined IBusEvent structure.
      * Logs via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used in ClientAgent (e.g., EXECUTE_FN start) and PerfService (e.g., startExecution trigger).
-    */
+     */
     commitExecutionBegin: (clientId: string, context: Partial<IBusEventContext>) => Promise<void>;
     /**
      * Emits an execution end event for a specific client, serving as an alias for emit with a predefined IBusEvent structure.
      * Logs via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used in ClientAgent (e.g., EXECUTE_FN completion) and PerfService (e.g., endExecution trigger).
-    */
+     */
     commitExecutionEnd: (clientId: string, context: Partial<IBusEventContext>) => Promise<void>;
     /**
      * Disposes of all event subscriptions for a specific client, unsubscribing and clearing Subjects for all registered sources.
      * Logs via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligns with PerfService’s dispose (e.g., session cleanup) and ClientAgent’s session termination.
-    */
+     */
     dispose: (clientId: string) => void;
 }
 
@@ -6882,11 +6882,11 @@ declare class BusService implements IBus {
 interface IMetaNode {
     /**
      * The name of the node, typically an agent name or resource identifier (e.g., AgentName, "States").
-    */
+     */
     name: string;
     /**
      * Optional array of child nodes, representing nested dependencies or resources (e.g., dependent agents, states).
-    */
+     */
     child?: IMetaNode[];
 }
 /**
@@ -6900,37 +6900,37 @@ declare class AgentMetaService {
      * Logger service instance, injected via DI, for logging meta node operations.
      * Used in makeAgentNode, makeAgentNodeCommon, and toUML when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with DocService and PerfService logging.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Agent schema service instance, injected via DI, for retrieving agent schema data (e.g., dependsOn, states).
      * Used in makeAgentNode and makeAgentNodeCommon to build meta nodes, aligning with ClientAgent’s agent definitions and DocService’s agent documentation.
      * @private
-    */
+     */
     private readonly agentSchemaService;
     /**
      * Serialization function created by createSerialize, used to convert IMetaNode trees to UML format.
      * Employed in toUML to generate strings for DocService’s UML diagrams (e.g., agent_schema_[agentName].svg).
      * @private
-    */
+     */
     private serialize;
     /**
      * Creates a detailed meta node for the given agent, including dependencies, states, storages, and tools.
      * Recursively builds a tree with seen set to prevent cycles, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used in toUML for full agent visualization.
      * Integrates with ClientAgent (e.g., agent metadata) and DocService (e.g., detailed agent UML in writeAgentDoc).
-    */
+     */
     makeAgentNode: (agentName: AgentName, seen?: Set<string>) => IMetaNode;
     /**
      * Creates a common meta node for the given agent, focusing on dependency relationships.
      * Recursively builds a tree with seen set to prevent cycles, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used as a helper in makeAgentNode.
      * Supports ClientAgent (e.g., dependency tracking) and PerfService (e.g., computeClientState agent context).
-    */
+     */
     makeAgentNodeCommon: (agentName: AgentName, seen?: Set<string>) => IMetaNode;
     /**
      * Converts the meta nodes of the given agent to UML format, optionally including a full subtree.
      * Uses makeAgentNode to build the tree and serialize to generate the UML string, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Called by DocService (e.g., writeAgentDoc) to produce UML diagrams (e.g., agent_schema_[agentName].svg), enhancing agent visualization.
-    */
+     */
     toUML: (agentName: AgentName, withSubtree?: boolean) => string;
 }
 
@@ -6945,37 +6945,37 @@ declare class SwarmMetaService {
      * Logger service instance, injected via DI, for logging swarm metadata operations.
      * Used in makeSwarmNode and toUML when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with DocService and AgentMetaService logging patterns.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Swarm schema service instance, injected via DI, for retrieving swarm schema data (e.g., defaultAgent).
      * Used in makeSwarmNode to build meta nodes, aligning with ClientAgent’s swarm definitions and DocService’s swarm documentation.
      * @private
-    */
+     */
     private readonly swarmSchemaService;
     /**
      * Agent meta service instance, injected via DI, for creating agent meta nodes within swarm trees.
      * Used in makeSwarmNode to include the default agent, linking to ClientAgent’s agent metadata and DocService’s agent UML generation.
      * @private
-    */
+     */
     private readonly agentMetaService;
     /**
      * Serialization function created by createSerialize from AgentMetaService, used to convert IMetaNode trees to UML format.
      * Employed in toUML to generate strings for DocService’s UML diagrams (e.g., swarm_schema_[swarmName].svg), ensuring consistency with AgentMetaService.
      * @private
-    */
+     */
     private serialize;
     /**
      * Creates a meta node for the given swarm, including its default agent as a child node.
      * Builds a tree using SwarmSchemaService for swarm data and AgentMetaService for the default agent node, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., swarm-agent linkage) and DocService (e.g., swarm UML in writeSwarmDoc), used in toUML for visualization.
-    */
+     */
     makeSwarmNode: (swarmName: SwarmName) => IMetaNode;
     /**
      * Converts the swarm metadata to UML format for visualization.
      * Uses makeSwarmNode to build the tree and serialize to generate the UML string, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Called by DocService (e.g., writeSwarmDoc) to produce UML diagrams (e.g., swarm_schema_[swarmName].svg), enhancing swarm visualization.
-    */
+     */
     toUML: (swarmName: SwarmName) => string;
 }
 
@@ -6990,122 +6990,122 @@ declare class DocService {
      * Logger service instance for logging documentation generation activities, injected via dependency injection.
      * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO, used in methods like dumpDocs, writeSwarmDoc, and writeAgentDoc for info-level logging.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Performance service instance for retrieving system and client performance data, injected via DI.
      * Used in dumpPerfomance and dumpClientPerfomance to serialize IPerformanceRecord and IClientPerfomanceRecord data into JSON files.
      * @private
-    */
+     */
     private readonly perfService;
     /**
      * Swarm validation service instance, injected via DI.
      * Provides the list of swarm names for dumpDocs, ensuring only valid swarms are documented.
      * @private
-    */
+     */
     private readonly swarmValidationService;
     /**
      * Agent validation service instance, injected via DI.
      * Provides the list of agent names for dumpDocs, ensuring only valid agents are documented.
      * @private
-    */
+     */
     private readonly agentValidationService;
     /**
      * Outline validation service instance, injected via DI.
      * Used for validating and managing agent outline schemas, ensuring agent outlines conform to expected structure and constraints.
      * @private
-    */
+     */
     private readonly outlineValidationService;
     /**
      * Swarm schema service instance, injected via DI.
      * Retrieves ISwarmSchema objects for writeSwarmDoc, supplying swarm details like agents and policies.
      * @private
-    */
+     */
     private readonly swarmSchemaService;
     /**
      * Agent schema service instance, injected via DI.
      * Retrieves IAgentSchemaInternal objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
      * @private
-    */
+     */
     private readonly agentSchemaService;
     /**
      * Outline schema service instance, injected via DI.
      * Retrieves and manages outline schema objects for agents, supporting documentation and validation of agent outlines.
      * @private
-    */
+     */
     private readonly outlineSchemaService;
     /**
      * Model context protocol service instance, injected via DI.
      * Retrieves IMCPSchema objects for writeAgentDoc and agent descriptions in writeSwarmDoc, providing details like tools and prompts.
      * @private
-    */
+     */
     private readonly mcpSchemaService;
     /**
      * Policy schema service instance, injected via DI.
      * Supplies policy descriptions for writeSwarmDoc, documenting banhammer policies associated with swarms.
      * @private
-    */
+     */
     private readonly policySchemaService;
     /**
      * Tool schema service instance, injected via DI.
      * Provides tool details (e.g., function, callbacks) for writeAgentDoc, documenting tools used by agents (e.g., ClientAgent tools).
      * @private
-    */
+     */
     private readonly toolSchemaService;
     /**
      * Storage schema service instance, injected via DI.
      * Supplies storage details for writeAgentDoc, documenting storage resources used by agents.
      * @private
-    */
+     */
     private readonly storageSchemaService;
     /**
      * Wiki schema service instance, injected via DI.
      * Supplies wiki details for writeAgentDoc, documenting wiki resources used by agents.
      * @private
-    */
+     */
     private readonly wikiSchemaService;
     /**
      * State schema service instance, injected via DI.
      * Provides state details for writeAgentDoc, documenting state resources used by agents.
      * @private
-    */
+     */
     private readonly stateSchemaService;
     /**
      * Completion schema service instance, injected via DI.
      * Provides completion details for writeAgentDoc, documenting completion resources used by agents.
      * @private
-    */
+     */
     private readonly completionSchemaService;
     /**
      * Compute schema service instance, injected via DI.
      * Provides compute details for writeAgentDoc, documenting compute resources used by agents.
      * @private
-    */
+     */
     private readonly computeSchemaService;
     /**
      * Compute validation service instance, injected via DI.
      * Provides compute list for writeAgentDoc, documenting compute resources used by states in agents.
      * @private
-    */
+     */
     private readonly computeValidationService;
     /**
      * Agent meta service instance, injected via DI.
      * Generates UML diagrams for agents in writeAgentDoc, enhancing documentation with visual schema representations.
      * @private
-    */
+     */
     private readonly agentMetaService;
     /**
      * Swarm meta service instance, injected via DI.
      * Generates UML diagrams for swarms in writeSwarmDoc, enhancing documentation with visual schema representations.
      * @private
-    */
+     */
     private readonly swarmMetaService;
     /**
      * Writes Markdown documentation for a swarm schema, detailing its name, description, UML diagram, agents, policies, and callbacks.
      * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
      * Outputs to dirName/[swarmName].md, with UML images in dirName/image, and links to agent docs in dirName/agent, sourced from swarmSchemaService.
      * @private
-    */
+     */
     private writeSwarmDoc;
     /**
      * Writes Markdown documentation for an outline schema, detailing its name, description, main prompt, output format, and callbacks.
@@ -7118,32 +7118,32 @@ declare class DocService {
      * - Callback section lists all callback names used by the outline.
      *
      * @private
-    */
+     */
     private writeOutlineDoc;
     /**
      * Writes Markdown documentation for an agent schema, detailing its name, description, UML diagram, prompts, tools, storages, states, and callbacks.
      * Executes in a thread pool (THREAD_POOL_SIZE) to manage concurrency, logging via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
      * Outputs to dirName/agent/[agentName].md, with UML images in dirName/image, sourced from agentSchemaService and related services (e.g., toolSchemaService).
      * @private
-    */
+     */
     private writeAgentDoc;
     /**
      * Generates and writes documentation for all swarms and agents in the system.
      * Creates subdirectories (SUBDIR_LIST), then concurrently writes swarm and agent docs using writeSwarmDoc and writeAgentDoc, logging progress if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
      * Outputs to a directory structure rooted at dirName (default: "docs/chat"), integrating with ClientAgent by documenting its schema.
-    */
+     */
     dumpDocs: (prefix?: string, dirName?: string, sanitizeMarkdown?: (text: string) => string) => Promise<void>;
     /**
      * Dumps system-wide performance data to a JSON file using PerfService.toRecord.
      * Ensures the output directory exists, then writes a timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
      * Outputs to dirName/[momentStamp].[timeStamp].json (default: "logs/meta"), providing a snapshot of system performance (e.g., tied to ClientAgent executions).
-    */
+     */
     dumpPerfomance: (dirName?: string) => Promise<void>;
     /**
      * Dumps performance data for a specific client to a JSON file using PerfService.toClientRecord.
      * Ensures the output directory exists, then writes a client-specific timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
      * Outputs to dirName/[clientId].[momentStamp].json (default: "logs/client"), documenting client-specific metrics (e.g., ClientAgent session performance).
-    */
+     */
     dumpClientPerfomance: (clientId: string, dirName?: string) => Promise<void>;
 }
 
@@ -7160,31 +7160,31 @@ declare class SharedStorageConnectionService implements IStorage {
      * Logger service instance, injected via DI, for logging shared storage operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SharedStoragePublicService and PerfService logging patterns.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Bus service instance, injected via DI, for emitting storage-related events.
      * Passed to ClientStorage for event propagation (e.g., storage updates), aligning with BusService’s event system in AgentConnectionService.
      * @private
-    */
+     */
     private readonly busService;
     /**
      * Method context service instance, injected via DI, for accessing execution context.
      * Used to retrieve storageName in method calls, integrating with MethodContextService’s scoping in SharedStoragePublicService.
      * @private
-    */
+     */
     private readonly methodContextService;
     /**
      * Storage schema service instance, injected via DI, for retrieving storage configurations.
      * Provides configuration (e.g., persist, getData, embedding) to ClientStorage in getStorage, aligning with AgentMetaService’s schema management.
      * @private
-    */
+     */
     private readonly storageSchemaService;
     /**
      * Embedding schema service instance, injected via DI, for retrieving embedding configurations.
      * Provides embedding logic (e.g., calculateSimilarity, createEmbedding) to ClientStorage in getStorage, supporting similarity-based retrieval in take.
      * @private
-    */
+     */
     private readonly embeddingSchemaService;
     /**
      * Retrieves or creates a memoized ClientStorage instance for a given shared storage name.
@@ -7192,43 +7192,43 @@ declare class SharedStorageConnectionService implements IStorage {
      * Configures the storage with schema data from StorageSchemaService, embedding logic from EmbeddingSchemaService, and persistence via PersistStorageAdapter or defaults from GLOBAL_CONFIG, enforcing shared=true via an error check.
      * Supports ClientAgent (shared storage in EXECUTE_FN), AgentConnectionService (storage initialization), and SharedStoragePublicService (public API).
      * @throws {Error} If the storage is not marked as shared in the schema.
-    */
+     */
     getStorage: ((storageName: StorageName) => ClientStorage<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientStorage<any>>;
     /**
      * Retrieves a list of storage data items based on a search query, total count, and optional similarity score.
      * Delegates to ClientStorage.take after awaiting initialization, using context from MethodContextService to identify the storage, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SharedStoragePublicService’s take, supporting ClientAgent’s similarity-based data retrieval with embedding support from EmbeddingSchemaService.
-    */
+     */
     take: (search: string, total: number, score?: number) => Promise<IStorageData[]>;
     /**
      * Upserts an item into the shared storage, inserting or updating based on its ID.
      * Delegates to ClientStorage.upsert after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SharedStoragePublicService’s upsert, supporting ClientAgent’s data persistence.
-    */
+     */
     upsert: (item: IStorageData) => Promise<void>;
     /**
      * Removes an item from the shared storage by its ID.
      * Delegates to ClientStorage.remove after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SharedStoragePublicService’s remove, supporting ClientAgent’s data deletion.
-    */
+     */
     remove: (itemId: IStorageData["id"]) => Promise<void>;
     /**
      * Retrieves an item from the shared storage by its ID.
      * Delegates to ClientStorage.get after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SharedStoragePublicService’s get, supporting ClientAgent’s data access.
-    */
+     */
     get: (itemId: IStorageData["id"]) => Promise<IStorageData | null>;
     /**
      * Retrieves a list of items from the shared storage, optionally filtered by a predicate function.
      * Delegates to ClientStorage.list after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SharedStoragePublicService’s list, supporting ClientAgent’s bulk data access.
-    */
+     */
     list: (filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
     /**
      * Clears all items from the shared storage, resetting it to its default state.
      * Delegates to ClientStorage.clear after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SharedStoragePublicService’s clear, supporting ClientAgent’s storage reset.
-    */
+     */
     clear: () => Promise<void>;
 }
 
@@ -7246,25 +7246,25 @@ declare class SharedStateConnectionService<T extends IStateData = IStateData> im
      * Logger service instance, injected via DI, for logging shared state operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SharedStatePublicService and PerfService logging patterns.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Bus service instance, injected via DI, for emitting state-related events.
      * Passed to ClientState for event propagation (e.g., state updates), aligning with BusService’s event system in AgentConnectionService.
      * @private
-    */
+     */
     private readonly busService;
     /**
      * Method context service instance, injected via DI, for accessing execution context.
      * Used to retrieve stateName in method calls, integrating with MethodContextService’s scoping in SharedStatePublicService.
      * @private
-    */
+     */
     private readonly methodContextService;
     /**
      * State schema service instance, injected via DI, for retrieving state configurations.
      * Provides configuration (e.g., persist, getState, setState) to ClientState in getStateRef, aligning with AgentMetaService’s schema management.
      * @private
-    */
+     */
     private readonly stateSchemaService;
     /**
      * Retrieves or creates a memoized ClientState instance for a given shared state name.
@@ -7273,25 +7273,25 @@ declare class SharedStateConnectionService<T extends IStateData = IStateData> im
      * Serializes setState operations with queued if setState is provided, ensuring thread-safe updates.
      * Supports ClientAgent (shared state in EXECUTE_FN), AgentConnectionService (state initialization), and SharedStatePublicService (public API).
      * @throws {Error} If the state is not marked as shared in the schema.
-    */
+     */
     getStateRef: ((stateName: StateName) => ClientState<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientState<any>>;
     /**
      * Sets the shared state using a dispatch function that transforms the previous state.
      * Delegates to ClientState.setState after awaiting initialization, using context from MethodContextService to identify the state, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SharedStatePublicService’s setState, supporting ClientAgent’s state updates with serialized execution via queued in getStateRef.
-    */
+     */
     setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
     /**
      * Clears the shared state, resetting it to its initial value.
      * Delegates to ClientState.clearState after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SharedStatePublicService’s clearState, supporting ClientAgent’s state reset with serialized execution.
-    */
+     */
     clearState: () => Promise<T>;
     /**
      * Retrieves the current shared state.
      * Delegates to ClientState.getState after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors SharedStatePublicService’s getState, supporting ClientAgent’s state access.
-    */
+     */
     getState: () => Promise<T>;
 }
 
@@ -7326,30 +7326,30 @@ declare class SharedStatePublicService<T extends IStateData = IStateData> implem
     /**
      * Logger service instance, injected via DI, for logging shared state operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionPublicService and PerfService logging patterns.
-     */
+      */
     private readonly loggerService;
     /**
      * Shared state connection service instance, injected via DI, for underlying state operations.
      * Provides core functionality (e.g., setState, getState) called by public methods, supporting ClientAgent’s state management needs.
-     */
+      */
     private readonly sharedStateConnectionService;
     /**
      * Sets the shared state using a provided dispatch function, updating the state identified by stateName.
      * Wraps SharedStateConnectionService.setState with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., updating state in EXECUTE_FN) and PerfService (e.g., tracking state changes in sessionState).
-     */
+      */
     setState: (dispatchFn: (prevState: T) => Promise<T>, methodName: string, stateName: StateName) => Promise<T>;
     /**
      * Resets the shared state to its initial value, identified by stateName.
      * Wraps SharedStateConnectionService.clearState with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., resetting state in EXECUTE_FN) and PerfService (e.g., clearing sessionState for performance resets).
-    */
+     */
     clearState: (methodName: string, stateName: StateName) => Promise<T>;
     /**
      * Retrieves the current shared state identified by stateName.
      * Wraps SharedStateConnectionService.getState with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., accessing state in EXECUTE_FN) and PerfService (e.g., reading sessionState for metrics).
-    */
+     */
     getState: (methodName: string, stateName: StateName) => Promise<T>;
 }
 
@@ -7384,48 +7384,48 @@ declare class SharedStoragePublicService implements TSharedStorageConnectionServ
     /**
      * Logger service instance, injected via DI, for logging shared storage operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SharedStatePublicService and PerfService logging patterns.
-     */
+      */
     private readonly loggerService;
     /**
      * Shared storage connection service instance, injected via DI, for underlying storage operations.
      * Provides core functionality (e.g., take, upsert) called by public methods, supporting ClientAgent’s storage needs.
-     */
+      */
     private readonly sharedStorageConnectionService;
     /**
      * Retrieves a list of storage items based on a search query, total count, and optional score, from a storage identified by storageName.
      * Wraps SharedStorageConnectionService.take with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., searching storage in EXECUTE_FN) and DocService (e.g., documenting searchable storage data).
-    */
+     */
     take: (search: string, total: number, methodName: string, storageName: StorageName, score?: number) => Promise<IStorageData[]>;
     /**
      * Upserts (inserts or updates) an item in the shared storage identified by storageName.
      * Wraps SharedStorageConnectionService.upsert with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., storing data in EXECUTE_FN) and PerfService (e.g., tracking storage updates in sessionState).
-     */
+      */
     upsert: (item: IStorageData, methodName: string, storageName: StorageName) => Promise<void>;
     /**
      * Removes an item from the shared storage identified by storageName, using the item’s ID.
      * Wraps SharedStorageConnectionService.remove with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., deleting data in EXECUTE_FN) and PerfService (e.g., tracking storage cleanup).
-     */
+      */
     remove: (itemId: IStorageData["id"], methodName: string, storageName: StorageName) => Promise<void>;
     /**
      * Retrieves a specific item from the shared storage identified by storageName, using the item’s ID.
      * Wraps SharedStorageConnectionService.get with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., fetching data in EXECUTE_FN) and PerfService (e.g., reading storage for metrics).
-     */
+      */
     get: (itemId: IStorageData["id"], methodName: string, storageName: StorageName) => Promise<IStorageData | null>;
     /**
      * Retrieves a list of all items from the shared storage identified by storageName, optionally filtered by a predicate function.
      * Wraps SharedStorageConnectionService.list with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., listing storage in EXECUTE_FN) and DocService (e.g., documenting storage contents).
-     */
+      */
     list: (methodName: string, storageName: StorageName, filter?: (item: IStorageData) => boolean) => Promise<IStorageData[]>;
     /**
      * Clears all items from the shared storage identified by storageName.
      * Wraps SharedStorageConnectionService.clear with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., resetting storage in EXECUTE_FN) and PerfService (e.g., clearing storage for performance resets).
-    */
+     */
     clear: (methodName: string, storageName: StorageName) => Promise<void>;
 }
 
@@ -7442,21 +7442,21 @@ declare class MemorySchemaService {
      * Used in writeValue, readValue, and dispose methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionConnectionService and PerfService logging patterns.
      * @private
      * @readonly
-    */
+     */
     private readonly loggerService;
     /**
      * Map instance for storing session-specific memory data.
      * Maps SessionId (as clientId) to arbitrary objects, providing a simple in-memory store, used in writeValue, readValue, and dispose methods.
      * Not persisted, serving as a transient memory layer for session runtime data.
      * @private
-    */
+     */
     private memoryMap;
     /**
      * Checks if a value exists in the memory map for a given client ID.
      * Determines whether the memoryMap contains an entry for the specified clientId.
      * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionPublicService’s data access needs.
      * Supports ClientAgent by providing a way to verify session-scoped runtime memory existence.
-    */
+     */
     hasValue: (clientId: string) => boolean;
     /**
      * Writes a value to the memory map for a given client ID, merging it with existing data.
@@ -7464,7 +7464,7 @@ declare class MemorySchemaService {
      * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionConnectionService’s session data needs.
      * Supports ClientAgent by providing a flexible, session-scoped memory store for runtime data.
      * @template T - The type of the value to be written, extending object, defaulting to a generic object.
-    */
+     */
     writeValue: <T extends object = object>(clientId: string, value: T) => T;
     /**
      * Reads a value from the memory map for a given client ID, returning an empty object if not found.
@@ -7472,14 +7472,14 @@ declare class MemorySchemaService {
      * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionPublicService’s data access needs.
      * Supports ClientAgent by providing access to session-scoped runtime memory.
      * @template T - The type of the value to be read, extending object, defaulting to a generic object.
-    */
+     */
     readValue: <T extends object = object>(clientId: string) => T;
     /**
      * Disposes of the memory map entry for a given client ID, removing it from storage.
      * Deletes the entry associated with the clientId from the memoryMap, effectively clearing session-specific data.
      * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionConnectionService’s cleanup needs.
      * Supports session termination or reset scenarios in SessionPublicService and ClientAgent workflows.
-    */
+     */
     dispose: (clientId: string) => void;
 }
 
@@ -7493,49 +7493,49 @@ interface IPerformanceRecord {
      * The unique identifier of the process being monitored.
      * Represents a specific execution context, such as a swarm run, agent workflow, or session batch, distinguishing it from other processes in the system.
      * Example: A UUID or incremental ID like "proc-123" tied to a ClientAgent execution cycle.
-    */
+     */
     processId: string;
     /**
      * Array of performance records for individual clients involved in the process.
      * Each entry details metrics for a specific client (e.g., a session or agent instance), enabling granular analysis of performance across the swarm.
      * Populated with IClientPerfomanceRecord objects, reflecting per-client execution and resource usage.
-    */
+     */
     clients: IClientPerfomanceRecord[];
     /**
      * The total number of executions performed across all clients in the process.
      * Counts discrete operations (e.g., command executions in ClientAgent.execute, tool calls), providing a measure of overall activity volume.
      * Example: 50 if 5 clients each executed 10 commands.
-    */
+     */
     totalExecutionCount: number;
     /**
      * The total response time for the process, formatted as a string.
      * Represents the cumulative duration of all client responses (e.g., from command start to output in ClientAgent), typically in a human-readable format like "500ms" or "1.23s".
      * Useful for assessing end-to-end performance across the process.
-    */
+     */
     totalResponseTime: string;
     /**
      * The average response time per execution across all clients, formatted as a string.
      * Calculated as totalResponseTime divided by totalExecutionCount, providing a normalized performance metric (e.g., "10ms" per execution).
      * Aids in identifying typical response latency for the process.
-    */
+     */
     averageResponseTime: string;
     /**
      * The number of days since January 1, 1970 (Unix epoch), based on London time (UTC).
      * Serves as a coarse timestamp for when the performance record was created, aligning with historical date tracking conventions.
      * Example: 19737 for a date in 2024, calculated as floor(Date.now() / 86400000).
-    */
+     */
     momentStamp: number;
     /**
      * The number of seconds since midnight (00:00 UTC) of the day specified by momentStamp.
      * Provides fine-grained timing within the day, complementing momentStamp for precise event logging.
      * Example: 3600 for 01:00:00 UTC, derived from (Date.now() % 86400000) / 1000.
-    */
+     */
     timeStamp: number;
     /**
      * The current date and time of the performance record in UTC format.
      * Stored as a string (e.g., "2024-03-15T12:00:00Z"), offering a human-readable timestamp for when the metrics were captured.
      * Likely used for logging or reporting alongside momentStamp and timeStamp.
-    */
+     */
     date: string;
 }
 /**
@@ -7548,61 +7548,61 @@ interface IClientPerfomanceRecord {
      * The unique identifier of the client, typically a session or agent-specific ID.
      * Matches the clientId used in runtime params (e.g., this.params.clientId in ClientAgent), linking performance data to a specific session or agent instance.
      * Example: "client-456" for a user session.
-    */
+     */
     clientId: string;
     /**
      * A key-value record of the client’s session memory.
      * Stores arbitrary data (e.g., cached values, temporary variables) used during the client’s operation, similar to IState’s state management in ClientAgent.
      * Example: `{ "cacheKey": "value" }` for a session’s temporary storage.
-    */
+     */
     sessionMemory: Record<string, unknown>;
     /**
      * A key-value record of the client’s session state.
      * Represents persistent state data (e.g., configuration, current step) for the client, akin to IState’s role in tracking agent state in ClientAgent.
      * Example: `{ "step": 3, "active": true }` for a session’s current status.
-    */
+     */
     sessionState: Record<string, unknown>;
     /**
      * The number of executions performed by this client within the process.
      * Counts operations like command runs (e.g., ClientAgent.execute) or tool calls, contributing to the process’s totalExecutionCount.
      * Example: 10 for a client that executed 10 commands.
-    */
+     */
     executionCount: number;
     /**
      * The total input size processed during executions, in a numeric unit (e.g., bytes, characters).
      * Measures the cumulative input data (e.g., incoming messages in ClientAgent.execute), useful for assessing data throughput.
      * Example: 1024 for 1KB of total input across executions.
-    */
+     */
     executionInputTotal: number;
     /**
      * The total output size generated during executions, in a numeric unit (e.g., bytes, characters).
      * Measures the cumulative output data (e.g., results in ClientAgent._emitOutput), indicating response volume.
      * Example: 2048 for 2KB of total output.
-    */
+     */
     executionOutputTotal: number;
     /**
      * The average input size per execution, in a numeric unit (e.g., bytes, characters).
      * Calculated as executionInputTotal divided by executionCount, providing a normalized input metric.
      * Example: 102.4 for an average of 102.4 bytes per execution.
-    */
+     */
     executionInputAverage: number;
     /**
      * The average output size per execution, in a numeric unit (e.g., bytes, characters).
      * Calculated as executionOutputTotal divided by executionCount, offering insight into typical output size.
      * Example: 204.8 for an average of 204.8 bytes per execution.
-    */
+     */
     executionOutputAverage: number;
     /**
      * The total execution time for the client, formatted as a string.
      * Represents the cumulative duration of all executions (e.g., from incoming to output in ClientAgent.execute), typically in a readable format like "300ms" or "1.5s".
      * Contributes to the process’s totalResponseTime.
-    */
+     */
     executionTimeTotal: string;
     /**
      * The average execution time per execution, formatted as a string.
      * Calculated as executionTimeTotal divided by executionCount, providing a normalized latency metric (e.g., "30ms" per execution).
      * Helps evaluate client-specific performance efficiency.
-    */
+     */
     executionTimeAverage: string;
 }
 
@@ -7617,184 +7617,184 @@ declare class PerfService {
      * Logger service instance for logging performance-related information, injected via DI.
      * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO, used across methods (e.g., startExecution, toRecord) for info-level logging.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Session validation service instance, injected via DI.
      * Used to retrieve session lists (e.g., getActiveSessions) and swarm names (e.g., computeClientState).
      * @private
-    */
+     */
     private readonly sessionValidationService;
     /**
      * Memory schema service instance, injected via DI.
      * Provides session memory data for toClientRecord, aligning with IClientPerfomanceRecord.sessionMemory.
      * @private
-    */
+     */
     private readonly memorySchemaService;
     /**
      * Swarm validation service instance, injected via DI.
      * Retrieves agent and policy lists for computeClientState, supporting swarm-level state aggregation.
      * @private
-    */
+     */
     private readonly swarmValidationService;
     /**
      * Agent validation service instance, injected via DI.
      * Fetches state lists for agents in computeClientState, enabling client state computation.
      * @private
-    */
+     */
     private readonly agentValidationService;
     /**
      * State public service instance, injected via DI.
      * Retrieves state values for computeClientState, populating IClientPerfomanceRecord.sessionState.
      * @private
-    */
+     */
     private readonly statePublicService;
     /**
      * Swarm public service instance, injected via DI.
      * Provides agent names for computeClientState, supporting swarm status in sessionState.
      * @private
-    */
+     */
     private readonly swarmPublicService;
     /**
      * Policy public service instance, injected via DI.
      * Checks for bans in computeClientState, contributing to policyBans in sessionState.
      * @private
-    */
+     */
     private readonly policyPublicService;
     /**
      * State connection service instance, injected via DI.
      * Verifies state references in computeClientState, ensuring valid state retrieval.
      * @private
-    */
+     */
     private readonly stateConnectionService;
     /**
      * Map tracking execution start times for clients, keyed by clientId and executionId.
      * Used in startExecution and endExecution to calculate response times per execution.
      * @private
-    */
+     */
     private executionScheduleMap;
     /**
      * Map of total output lengths per client, keyed by clientId.
      * Updated in endExecution, used for IClientPerfomanceRecord.executionOutputTotal.
      * @private
-    */
+     */
     private executionOutputLenMap;
     /**
      * Map of total input lengths per client, keyed by clientId.
      * Updated in startExecution, used for IClientPerfomanceRecord.executionInputTotal.
      * @private
-    */
+     */
     private executionInputLenMap;
     /**
      * Map of execution counts per client, keyed by clientId.
      * Updated in startExecution, used for IClientPerfomanceRecord.executionCount.
      * @private
-    */
+     */
     private executionCountMap;
     /**
      * Map of total execution times per client, keyed by clientId.
      * Updated in endExecution, used for IClientPerfomanceRecord.executionTimeTotal.
      * @private
-    */
+     */
     private executionTimeMap;
     /**
      * Total response time across all executions, in milliseconds.
      * Aggregated in endExecution, used for IPerformanceRecord.totalResponseTime.
      * @private
-    */
+     */
     private totalResponseTime;
     /**
      * Total number of execution requests across all clients.
      * Incremented in endExecution, used for IPerformanceRecord.totalExecutionCount.
      * @private
-    */
+     */
     private totalRequestCount;
     /**
      * Computes the aggregated state of a client by collecting swarm, agent, policy, and state data.
      * Used in toClientRecord to populate IClientPerfomanceRecord.sessionState, integrating with validation and public services.
      * Logs via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true (e.g., ClientAgent-style debug logging).
      * @private
-    */
+     */
     private computeClientState;
     /**
      * Retrieves the number of active executions for a client’s session.
      * Used to monitor execution frequency, reflecting IClientPerfomanceRecord.executionCount.
-    */
+     */
     getActiveSessionExecutionCount: (clientId: string) => number;
     /**
      * Retrieves the total execution time for a client’s sessions, in milliseconds.
      * Used for performance analysis, feeding into IClientPerfomanceRecord.executionTimeTotal.
-    */
+     */
     getActiveSessionExecutionTotalTime: (clientId: string) => number;
     /**
      * Calculates the average execution time per execution for a client’s sessions, in milliseconds.
      * Used for performance metrics, contributing to IClientPerfomanceRecord.executionTimeAverage.
-    */
+     */
     getActiveSessionExecutionAverageTime: (clientId: string) => number;
     /**
      * Calculates the average input length per execution for a client’s sessions.
      * Used for data throughput analysis, feeding into IClientPerfomanceRecord.executionInputAverage.
-    */
+     */
     getActiveSessionAverageInputLength: (clientId: string) => number;
     /**
      * Calculates the average output length per execution for a client’s sessions.
      * Used for data throughput analysis, feeding into IClientPerfomanceRecord.executionOutputAverage.
-    */
+     */
     getActiveSessionAverageOutputLength: (clientId: string) => number;
     /**
      * Retrieves the total input length for a client’s sessions.
      * Used for data volume tracking, aligning with IClientPerfomanceRecord.executionInputTotal.
-    */
+     */
     getActiveSessionTotalInputLength: (clientId: string) => number;
     /**
      * Retrieves the total output length for a client’s sessions.
      * Used for data volume tracking, aligning with IClientPerfomanceRecord.executionOutputTotal.
-    */
+     */
     getActiveSessionTotalOutputLength: (clientId: string) => number;
     /**
      * Retrieves the list of active session client IDs.
      * Sources data from sessionValidationService, used in toRecord to enumerate clients.
-    */
+     */
     getActiveSessions: () => string[];
     /**
      * Calculates the average response time across all executions, in milliseconds.
      * Used for system-wide performance metrics, feeding into IPerformanceRecord.averageResponseTime.
-    */
+     */
     getAverageResponseTime: () => number;
     /**
      * Retrieves the total number of executions across all clients.
      * Used for system-wide metrics, aligning with IPerformanceRecord.totalExecutionCount.
-    */
+     */
     getTotalExecutionCount: () => number;
     /**
      * Retrieves the total response time across all executions, in milliseconds.
      * Used for system-wide metrics, feeding into IPerformanceRecord.totalResponseTime.
-    */
+     */
     getTotalResponseTime: () => number;
     /**
      * Starts tracking an execution for a client, recording start time and input length.
      * Initializes maps and increments execution count/input length, used with endExecution to measure performance (e.g., ClientAgent.execute).
-    */
+     */
     startExecution: (executionId: string, clientId: string, inputLen: number) => void;
     /**
      * Ends tracking an execution for a client, calculating response time and updating output length.
      * Pairs with startExecution to compute execution duration, updating totals for IClientPerfomanceRecord metrics.
-    */
+     */
     endExecution: (executionId: string, clientId: string, outputLen: number) => boolean;
     /**
      * Serializes performance metrics for a specific client into an IClientPerfomanceRecord.
      * Aggregates execution counts, input/output lengths, times, memory, and state, used in toRecord for per-client data.
-    */
+     */
     toClientRecord: (clientId: string) => Promise<IClientPerfomanceRecord>;
     /**
      * Serializes performance metrics for all clients into an IPerformanceRecord.
      * Aggregates client records, total execution counts, and response times, used for system-wide performance reporting.
-    */
+     */
     toRecord: () => Promise<IPerformanceRecord>;
     /**
      * Disposes of all performance data associated with a client.
      * Clears maps for the clientId, used to reset or terminate tracking (e.g., session end in ClientAgent).
-    */
+     */
     dispose: (clientId: string) => void;
 }
 
@@ -7810,13 +7810,13 @@ declare class PolicySchemaService {
      * Logger service instance, injected via DI, for logging policy schema operations.
      * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with PolicyConnectionService and PerfService logging patterns.
      * @readonly
-    */
+     */
     readonly loggerService: LoggerService;
     /**
      * Schema context service instance, injected via DI, for managing schema-related context operations.
      * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
      * @readonly
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
@@ -7825,19 +7825,19 @@ declare class PolicySchemaService {
      * Maps PolicyName keys to IPolicySchema values, providing efficient storage and retrieval, used in register and get methods.
      * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
      * @private
-    */
+     */
     private _registry;
     /**
      * Retrieves the current registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
      * Otherwise, it falls back to the private `_registry` instance.
-    */
+     */
     get registry(): ToolRegistry<Record<PolicyName, IPolicySchema>>;
     /**
      * Sets the registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
-    */
+     */
     set registry(value: ToolRegistry<Record<PolicyName, IPolicySchema>>);
     /**
      * Validates a policy schema shallowly, ensuring required fields meet basic integrity constraints.
@@ -7846,7 +7846,7 @@ declare class PolicySchemaService {
      * Supports ClientAgent and SessionConnectionService by ensuring policy schema validity before registration.
      * @throws {Error} If any validation check fails, with detailed messages including policyName.
      * @private
-    */
+     */
     private validateShallow;
     /**
      * Registers a new policy schema in the registry after validation.
@@ -7854,7 +7854,7 @@ declare class PolicySchemaService {
      * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with PolicyConnectionService’s policy enforcement.
      * Supports ClientAgent execution and SessionConnectionService by providing validated policy schemas for access control.
      * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-    */
+     */
     register: (key: PolicyName, value: IPolicySchema) => void;
     /**
      * Overrides an existing policy schema in the registry with a new one.
@@ -7862,14 +7862,14 @@ declare class PolicySchemaService {
      * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports dynamic updates to policy schemas, ensuring the latest logic is applied in ClientAgent execution and SessionConnectionService.
      * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-    */
+     */
     override: (key: PolicyName, value: Partial<IPolicySchema>) => IPolicySchema;
     /**
      * Retrieves a policy schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports PolicyConnectionService’s getBannedClients method by providing policy logic, used in ClientAgent execution and SessionConnectionService session management.
      * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-    */
+     */
     get: (key: PolicyName) => IPolicySchema;
 }
 
@@ -7886,25 +7886,25 @@ declare class PolicyValidationService {
      * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
      * @private
      * @readonly
-    */
+     */
     private readonly loggerService;
     /**
      * Map of policy names to their schemas, used to track and validate policies.
      * Populated by addPolicy, queried by validate.
      * @private
-    */
+     */
     private _policyMap;
     /**
      * Registers a new policy with its schema in the validation service.
      * Logs the operation and ensures uniqueness, supporting PolicySchemaService’s registration process.
      * @throws {Error} If the policy name already exists in _policyMap.
-    */
+     */
     addPolicy: (policyName: PolicyName, policySchema: IPolicySchema) => void;
     /**
      * Validates if a policy name exists in the registered map, memoized by policyName for performance.
      * Logs the operation and checks existence, supporting ClientPolicy’s policy enforcement validation.
      * @throws {Error} If the policy name is not found in _policyMap.
-    */
+     */
     validate: (policyName: PolicyName, source: string) => void;
 }
 
@@ -7922,22 +7922,22 @@ declare class ClientPolicy implements IPolicy {
      * Set of banned client IDs or a symbol indicating the ban list needs to be fetched.
      * Initialized as BAN_NEED_FETCH, lazily populated via params.getBannedClients on first use in hasBan, validateInput, etc.
      * Updated by banClient and unbanClient, persisted if params.setBannedClients is provided.
-    */
+     */
     _banSet: Set<SessionId> | typeof BAN_NEED_FETCH;
     /**
      * Constructs a ClientPolicy instance with the provided parameters.
      * Invokes the onInit callback if defined and logs construction if debugging is enabled.
-    */
+     */
     constructor(params: IPolicyParams);
     /**
      * Checks if a client is banned for a specific swarm, lazily fetching the ban list if not already loaded.
      * Used by SwarmConnectionService to enforce swarm-level restrictions defined in SwarmSchemaService’s policies.
-    */
+     */
     hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean>;
     /**
      * Retrieves the ban message for a client, using a custom getBanMessage function if provided or falling back to params.banMessage.
      * Supports ClientAgent by providing ban feedback when validation fails, enhancing user experience.
-    */
+     */
     getBanMessage(clientId: SessionId, swarmName: SwarmName): Promise<string>;
     /**
      * Validates an incoming message from a client, checking ban status and applying custom validation if provided.
@@ -7955,13 +7955,13 @@ declare class ClientPolicy implements IPolicy {
      * Bans a client, adding them to the ban set and persisting the change if params.setBannedClients is provided.
      * Emits a ban event via BusService and invokes the onBanClient callback, supporting SwarmConnectionService’s access control.
      * Skips if the client is already banned to avoid redundant updates.
-    */
+     */
     banClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
     /**
      * Unbans a client, removing them from the ban set and persisting the change if params.setBannedClients is provided.
      * Emits an unban event via BusService and invokes the onUnbanClient callback, supporting dynamic policy adjustments.
      * Skips if the client is not banned to avoid redundant updates.
-    */
+     */
     unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void>;
 }
 
@@ -7978,68 +7978,68 @@ declare class PolicyConnectionService implements IPolicy {
      * Logger service instance, injected via DI, for logging policy operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with PolicyPublicService and PerfService logging patterns.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Bus service instance, injected via DI, for emitting policy-related events.
      * Passed to ClientPolicy for event propagation (e.g., ban updates), aligning with BusService’s event system in SessionPublicService.
      * @private
-    */
+     */
     private readonly busService;
     /**
      * Method context service instance, injected via DI, for accessing execution context.
      * Used to retrieve policyName in method calls, integrating with MethodContextService’s scoping in PolicyPublicService.
      * @private
-    */
+     */
     private readonly methodContextService;
     /**
      * Policy schema service instance, injected via DI, for retrieving policy configurations.
      * Provides policy details (e.g., autoBan, schema) in getPolicy, aligning with DocService’s policy documentation.
      * @private
-    */
+     */
     private readonly policySchemaService;
     /**
      * Retrieves or creates a memoized ClientPolicy instance for a given policy name.
      * Uses functools-kit’s memoize to cache instances by policyName, ensuring efficient reuse across calls.
      * Configures the policy with schema data from PolicySchemaService, defaulting autoBan to GLOBAL_CONFIG.CC_AUTOBAN_ENABLED_BY_DEFAULT if not specified.
      * Supports ClientAgent (policy enforcement), SessionPublicService (session policies), and PolicyPublicService (public API).
-    */
+     */
     getPolicy: ((policyName: PolicyName) => ClientPolicy) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientPolicy>;
     /**
      * Checks if a client has a ban flag in a specific swarm.
      * Delegates to ClientPolicy.hasBan, using context from MethodContextService to identify the policy, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors PolicyPublicService’s hasBan, supporting ClientAgent’s execution restrictions and SessionPublicService’s policy enforcement.
-    */
+     */
     hasBan: (clientId: SessionId, swarmName: SwarmName) => Promise<boolean>;
     /**
      * Retrieves the ban message for a client in a specific swarm.
      * Delegates to ClientPolicy.getBanMessage, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors PolicyPublicService’s getBanMessage, supporting ClientAgent’s ban feedback and SessionPublicService’s policy reporting.
-    */
+     */
     getBanMessage: (clientId: SessionId, swarmName: SwarmName) => Promise<string>;
     /**
      * Validates incoming input for a client in a specific swarm against the policy.
      * Delegates to ClientPolicy.validateInput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors PolicyPublicService’s validateInput, supporting ClientAgent’s input validation (e.g., in EXECUTE_FN) and SessionPublicService’s policy checks.
-    */
+     */
     validateInput: (incoming: string, clientId: SessionId, swarmName: SwarmName) => Promise<boolean>;
     /**
      * Validates outgoing output for a client in a specific swarm against the policy.
      * Delegates to ClientPolicy.validateOutput, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors PolicyPublicService’s validateOutput, supporting ClientAgent’s output validation (e.g., in EXECUTE_FN) and SessionPublicService’s policy checks.
-    */
+     */
     validateOutput: (outgoing: string, clientId: SessionId, swarmName: SwarmName) => Promise<boolean>;
     /**
      * Bans a client from a specific swarm based on the policy.
      * Delegates to ClientPolicy.banClient, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors PolicyPublicService’s banClient, supporting ClientAgent’s ban enforcement and SessionPublicService’s policy actions.
-    */
+     */
     banClient: (clientId: SessionId, swarmName: SwarmName) => Promise<void>;
     /**
      * Unbans a client from a specific swarm based on the policy.
      * Delegates to ClientPolicy.unbanClient, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors PolicyPublicService’s unbanClient, supporting ClientAgent’s ban reversal and SessionPublicService’s policy actions.
-    */
+     */
     unbanClient: (clientId: SessionId, swarmName: SwarmName) => Promise<void>;
 }
 
@@ -8073,48 +8073,48 @@ declare class PolicyPublicService implements TPolicyConnectionService {
     /**
      * Logger service instance, injected via DI, for logging policy operations.
      * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentPublicService and DocService logging patterns.
-     */
+      */
     private readonly loggerService;
     /**
      * Policy connection service instance, injected via DI, for underlying policy operations.
      * Provides core functionality (e.g., hasBan, validateInput) called by public methods, aligning with PerfService’s policy enforcement.
-     */
+      */
     private readonly policyConnectionService;
     /**
      * Checks if a client is banned from a specific swarm under a given policy.
      * Wraps PolicyConnectionService.hasBan with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in PerfService (e.g., policyBans in computeClientState) and ClientAgent (e.g., pre-execution ban checks in EXECUTE_FN).
-     */
+      */
     hasBan: (swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<boolean>;
     /**
      * Retrieves the ban message for a client in a specific swarm under a given policy.
      * Wraps PolicyConnectionService.getBanMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., displaying ban reasons in EXECUTE_FN) and PerfService (e.g., policyBans logging).
-     */
+      */
     getBanMessage: (swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<string>;
     /**
      * Validates incoming data against a specific policy for a client in a swarm.
      * Wraps PolicyConnectionService.validateInput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., input validation in EXECUTE_FN) and PerfService (e.g., policy enforcement in computeClientState).
-    */
+     */
     validateInput: (incoming: string, swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<boolean>;
     /**
      * Validates outgoing data against a specific policy for a client in a swarm.
      * Wraps PolicyConnectionService.validateOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., output validation in EXECUTE_FN) and DocService (e.g., documenting policy-compliant outputs).
-    */
+     */
     validateOutput: (outgoing: string, swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<boolean>;
     /**
      * Bans a client from a specific swarm under a given policy.
      * Wraps PolicyConnectionService.banClient with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in PerfService (e.g., enforcing policyBans in computeClientState) and ClientAgent (e.g., restricting access).
-     */
+      */
     banClient: (swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<void>;
     /**
      * Unbans a client from a specific swarm under a given policy.
      * Wraps PolicyConnectionService.unbanClient with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports PerfService (e.g., reversing policyBans) and ClientAgent (e.g., restoring access).
-     */
+      */
     unbanClient: (swarmName: SwarmName, methodName: string, clientId: string, policyName: PolicyName) => Promise<void>;
 }
 
@@ -8130,14 +8130,14 @@ declare class AliveService {
      * Persists the online status using `PersistAliveAdapter` if persistence is enabled in the global configuration.
      *                               Used to track the specific client’s online status within a `SwarmName`.
      *                                Defines the context in which the client’s online status is managed and persisted.
-    */
+     */
     markOnline: (clientId: SessionId, swarmName: SwarmName, methodName: string) => Promise<void>;
     /**
      * Marks a client as offline within a specific swarm and logs the action.
      * Persists the offline status using `PersistAliveAdapter` if persistence is enabled in the global configuration.
      *                               Used to track the specific client’s offline status within a `SwarmName`.
      *                                Defines the context in which the client’s offline status is managed and persisted.
-    */
+     */
     markOffline: (clientId: SessionId, swarmName: SwarmName, methodName: string) => Promise<void>;
 }
 
@@ -8150,29 +8150,29 @@ declare class NavigationValidationService {
     /**
      * Injected logger service for recording navigation events and debugging information.
      * Implements `ILogger` to provide log, debug, and info-level logging.
-    */
+     */
     private readonly loggerService;
     /**
      * Memoized function to retrieve or create a navigation route for a client and swarm.
      * Returns a `Set` of visited `AgentName`s, keyed by a combination of `clientId` and `swarmName`.
      * Uses memoization to ensure route persistence across calls while optimizing performance.
-    */
+     */
     getNavigationRoute: ((clientId: string, swarmName: SwarmName) => Set<AgentName>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, Set<string>>;
     /**
      * Determines if navigation to a specific agent should proceed.
      * Checks if the agent has been previously visited in the route; if not, adds it and allows navigation.
      * Logs navigation attempts and decisions when info-level logging is enabled.
-    */
+     */
     shouldNavigate: (agentName: AgentName, clientId: string, swarmName: SwarmName) => boolean;
     /**
      * Initializes or resets the navigation route monitoring for a client and swarm.
      * Clears the existing route to start fresh, logging the action if info-level logging is enabled.
-    */
+     */
     beginMonit: (clientId: string, swarmName: SwarmName) => void;
     /**
      * Disposes of the navigation route for a client and swarm.
      * Removes the memoized route entry, logging the action if info-level logging is enabled.
-    */
+     */
     dispose: (clientId: string, swarmName: SwarmName) => void;
 }
 
@@ -8185,25 +8185,25 @@ declare class WikiValidationService {
      * @private
      * @readonly
      * Injected logger service instance
-    */
+     */
     private readonly loggerService;
     /**
      * @private
      * Map storing wiki schemas by wiki name
-    */
+     */
     private _wikiMap;
     /**
      * Adds a wiki schema to the validation service
      * @public
      * @throws {Error} If wikiName already exists
-    */
+     */
     addWiki: (wikiName: WikiName, wikiSchema: IWikiSchema) => void;
     /**
      * Validates the existence of a wiki
      * @public
      * @throws {Error} If wikiName is not found
      * Memoized function to cache validation results
-    */
+     */
     validate: (wikiName: WikiName, source: string) => void;
 }
 
@@ -8215,54 +8215,54 @@ declare class WikiSchemaService {
     /**
      * @readonly
      * Injected logger service instance
-    */
+     */
     readonly loggerService: LoggerService;
     /**
      * Schema context service instance, injected via DI, for managing schema-related context operations.
      * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
      * @readonly
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
     /**
      * @private
      * Registry for storing wiki schemas
-    */
+     */
     private _registry;
     /**
      * Retrieves the current registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
      * Otherwise, it falls back to the private `_registry` instance.
-    */
+     */
     get registry(): ToolRegistry<Record<WikiName, IWikiSchema>>;
     /**
      * Sets the registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
-    */
+     */
     set registry(value: ToolRegistry<Record<WikiName, IWikiSchema>>);
     /**
      * Validates basic requirements of a wiki schema
      * @private
      * @throws {Error} If validation fails
-    */
+     */
     private validateShallow;
     /**
      * Registers a wiki schema with a given key
      * @public
-    */
+     */
     register: (key: WikiName, value: IWikiSchema) => void;
     /**
      * Overrides an existing wiki schema with a new value for a given key
      * @public
      * Logs the override operation and updates the registry with the new schema
-    */
+     */
     override: (key: WikiName, value: Partial<IWikiSchema>) => IWikiSchema;
     /**
      * Retrieves a wiki schema by key
      * @public
-    */
+     */
     get: (key: WikiName) => IWikiSchema;
 }
 
@@ -8273,7 +8273,7 @@ declare class ClientMCP implements IMCP {
     readonly params: IMCPParams;
     /**
      * Creates an instance of ClientMCP.
-    */
+     */
     constructor(params: IMCPParams);
     /**
      * Memoized function to fetch and cache tools for a given client ID.
@@ -8285,23 +8285,23 @@ declare class ClientMCP implements IMCP {
     listTools(clientId: string): Promise<IMCPTool<MCPToolProperties>[]>;
     /**
      * Checks if a specific tool exists for a given client.
-    */
+     */
     hasTool(toolName: string, clientId: string): Promise<boolean>;
     /**
      * Updates the list of tools by clearing the cache and invoking the update callback.
-    */
+     */
     updateToolsForClient(clientId: string): Promise<void>;
     /**
      * Updates the list of tools for all clients by clearing the cache and invoking the update callback.
-    */
+     */
     updateToolsForAll(): Promise<void>;
     /**
      * Calls a specific tool with the provided parameters.
-    */
+     */
     callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<MCPToolOutput>;
     /**
      * Disposes of resources associated with a client, clearing cached tools and invoking the dispose callback.
-    */
+     */
     dispose(clientId: string): void;
 }
 
@@ -8320,31 +8320,31 @@ declare class MCPConnectionService implements IMCP {
     private readonly mcpSchemaService;
     /**
      * Memoized function to retrieve or create an MCP instance for a given MCP name.
-    */
+     */
     getMCP: ((mcpName: MCPName) => ClientMCP) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientMCP>;
     /**
      * Lists available tools for a given client.
-    */
+     */
     listTools(clientId: string): Promise<IMCPTool[]>;
     /**
      * Updates the list of tools for all clients.
-    */
+     */
     updateToolsForAll(): Promise<void>;
     /**
      * Updates the list of tools for a specific client.
-    */
+     */
     updateToolsForClient(clientId: string): Promise<void>;
     /**
      * Checks if a specific tool exists for a given client.
-    */
+     */
     hasTool(toolName: string, clientId: string): Promise<boolean>;
     /**
      * Calls a specific tool with the provided parameters.
-    */
+     */
     callTool<T extends MCPToolValue = MCPToolValue>(toolName: string, dto: IMCPToolCallDto<T>): Promise<MCPToolOutput>;
     /**
      * Disposes of resources associated with a client, clearing cached MCP instances.
-    */
+     */
     dispose: (clientId: string) => Promise<void>;
 }
 
@@ -8359,7 +8359,7 @@ declare class MCPSchemaService {
      * Schema context service instance, injected via DI, for managing schema-related context operations.
      * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
      * @readonly
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
@@ -8369,30 +8369,30 @@ declare class MCPSchemaService {
      * Retrieves the current registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
      * Otherwise, it falls back to the private `_registry` instance.
-    */
+     */
     get registry(): ToolRegistry<Record<MCPName, IMCPSchema>>;
     /**
      * Sets the registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
-    */
+     */
     set registry(value: ToolRegistry<Record<MCPName, IMCPSchema>>);
     /**
      * Validates the basic structure of an MCP schema.
      * @throws Error if the schema is missing required fields or has invalid types.
-    */
+     */
     private validateShallow;
     /**
      * Registers a new MCP schema in the registry.
-    */
+     */
     register: (key: MCPName, value: IMCPSchema) => void;
     /**
      * Overrides an existing MCP schema with new or partial values.
-    */
+     */
     override: (key: MCPName, value: Partial<IMCPSchema>) => IMCPSchema;
     /**
      * Retrieves an MCP schema by its name.
-    */
+     */
     get: (key: MCPName) => IMCPSchema;
 }
 
@@ -8424,27 +8424,27 @@ declare class MCPPublicService implements TMCPConnectionService {
     private readonly mcpConnectionService;
     /**
      * Lists available tools for a given client within a specified context.
-    */
+     */
     listTools(methodName: string, clientId: string, mcpName: string): Promise<IMCPTool[]>;
     /**
      * Updates the list of tools for all clients within a specified context.
-    */
+     */
     updateToolsForAll(methodName: string, mcpName: string): Promise<void>;
     /**
      * Updates the list of tools for a specific client within a specified context.
-    */
+     */
     updateToolsForClient(methodName: string, clientId: string, mcpName: string): Promise<void>;
     /**
      * Checks if a specific tool exists for a given client within a specified context.
-    */
+     */
     hasTool(methodName: string, clientId: string, mcpName: string, toolName: string): Promise<boolean>;
     /**
      * Calls a specific tool with the provided parameters within a specified context.
-    */
+     */
     callTool<T extends MCPToolValue = MCPToolValue>(methodName: string, clientId: string, mcpName: string, toolName: string, dto: IMCPToolCallDto<T>): Promise<MCPToolOutput>;
     /**
      * Disposes of resources associated with a client within a specified context.
-    */
+     */
     dispose: (methodName: string, clientId: string, mcpName: string) => Promise<void>;
 }
 
@@ -8460,12 +8460,12 @@ declare class MCPValidationService {
     /**
      * Adds a new MCP schema to the map.
      * @throws Error if an MCP with the same name already exists.
-    */
+     */
     addMCP: (mcpName: MCPName, mcpSchema: IMCPSchema) => void;
     /**
      * Validates the existence of an MCP schema by its name.
      * @throws Error if the MCP does not exist in the map.
-    */
+     */
     validate: (mcpName: MCPName, source: string) => void;
 }
 
@@ -8483,42 +8483,42 @@ declare class ComputeValidationService {
      * @property {LoggerService} loggerService
      * Injected logger service for logging operations.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * @property {StateValidationService} stateValidationService
      * Injected service for validating state schemas.
      * @private
-    */
+     */
     private readonly stateValidationService;
     /**
      * @property {StateSchemaService} stateSchemaService
      * Injected service for accessing state schemas.
      * @private
-    */
+     */
     private readonly stateSchemaService;
     /**
      * @property {Map<ComputeName, IComputeSchema>} _computeMap
      * Map storing compute schemas by compute name.
      * @private
-    */
+     */
     private _computeMap;
     /**
      * @method addCompute
      * Adds a compute schema to the map, ensuring no duplicates.
      * @throws {Error} If the compute name already exists.
-    */
+     */
     addCompute: (computeName: ComputeName, computeSchema: IComputeSchema) => void;
     /**
      * @method getComputeList
      * Retrieves a list of all registered compute names.
-    */
+     */
     getComputeList: () => string[];
     /**
      * @method validate
      * Validates a compute schema and its dependencies, memoized by compute name.
      * @throws {Error} If the compute is not found or if shared compute depends on non-shared states.
-    */
+     */
     validate: (computeName: ComputeName, source: string) => void;
 }
 
@@ -8536,25 +8536,25 @@ declare class StateValidationService {
      * @property {LoggerService} loggerService
      * Injected logger service for logging operations.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * @property {Map<StateName, IStateSchema>} _stateMap
      * Map storing state schemas by state name.
      * @private
-    */
+     */
     private _stateMap;
     /**
      * @method addState
      * Adds a state schema to the map, ensuring no duplicates.
      * @throws {Error} If the state name already exists.
-    */
+     */
     addState: (stateName: StateName, stateSchema: IStateSchema) => void;
     /**
      * @method validate
      * Validates the existence of a state, memoized by state name.
      * @throws {Error} If the state is not found.
-    */
+     */
     validate: (stateName: StateName, source: string) => void;
 }
 
@@ -8567,13 +8567,13 @@ declare class ComputeSchemaService {
      * @property {LoggerService} loggerService
      * Injected logger service for logging operations.
      * @readonly
-    */
+     */
     readonly loggerService: LoggerService;
     /**
      * Schema context service instance, injected via DI, for managing schema-related context operations.
      * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
      * @readonly
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
@@ -8581,41 +8581,41 @@ declare class ComputeSchemaService {
      * @property {ToolRegistry<Record<ComputeName, IComputeSchema>>} registry
      * Registry for storing compute schemas.
      * @private
-    */
+     */
     private _registry;
     /**
      * Retrieves the current registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
      * Otherwise, it falls back to the private `_registry` instance.
-    */
+     */
     get registry(): ToolRegistry<Record<ComputeName, IComputeSchema>>;
     /**
      * Sets the registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
-    */
+     */
     set registry(value: ToolRegistry<Record<ComputeName, IComputeSchema>>);
     /**
      * @method validateShallow
      * Performs shallow validation of a compute schema.
      * @throws {Error} If validation fails for computeName, getComputeData, middlewares, or dependsOn.
      * @private
-    */
+     */
     private validateShallow;
     /**
      * @method register
      * Registers a compute schema with validation.
-    */
+     */
     register: (key: ComputeName, value: IComputeSchema) => void;
     /**
      * @method override
      * Overrides an existing compute schema with new values.
-    */
+     */
     override: (key: ComputeName, value: Partial<IComputeSchema>) => IComputeSchema<any>;
     /**
      * @method get
      * Retrieves a compute schema by its name.
-    */
+     */
     get: (key: ComputeName) => IComputeSchema;
 }
 
@@ -8649,23 +8649,23 @@ declare class ClientCompute<Compute extends IComputeData = IComputeData> impleme
     /**
      * @constructor
      * Initializes the ClientCompute instance, sets up state subscriptions, and triggers onInit callback.
-    */
+     */
     constructor(params: IComputeParams<Compute>);
     /**
      * Retrieves the computation data using a memoized function.
-     */
+      */
     getComputeData(): Promise<any>;
     /**
      * Triggers a recalculation based on a state change and clears memoized data.
-    */
+     */
     calculate(stateName: StateName): Promise<void>;
     /**
      * Forces an update of the computation and clears memoized data.
-    */
+     */
     update(): Promise<void>;
     /**
      * Cleans up resources, unsubscribes from state changes, and triggers onDispose callback.
-     */
+      */
     dispose(): Promise<void>;
 }
 
@@ -8680,78 +8680,78 @@ declare class ComputeConnectionService<T extends IComputeData = IComputeData> im
      * @property {LoggerService} loggerService
      * Injected logger service for logging operations.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * @property {BusService} busService
      * Injected bus service for event communication.
      * @private
-    */
+     */
     private readonly busService;
     /**
      * @property {TMethodContextService} methodContextService
      * Injected service for accessing method context.
      * @private
-    */
+     */
     private readonly methodContextService;
     /**
      * @property {ComputeSchemaService} computeSchemaService
      * Injected service for accessing compute schemas.
      * @private
-    */
+     */
     private readonly computeSchemaService;
     /**
      * @property {SessionValidationService} sessionValidationService
      * Injected service for session validation and compute usage tracking.
      * @private
-    */
+     */
     private readonly sessionValidationService;
     /**
      * @property {StateConnectionService} stateConnectionService
      * Injected service for managing state connections.
      * @private
-    */
+     */
     private readonly stateConnectionService;
     /**
      * @property {SharedComputeConnectionService} sharedComputeConnectionService
      * Injected service for managing shared compute instances.
      * @private
-    */
+     */
     private readonly sharedComputeConnectionService;
     /**
      * @property {Set<ComputeName>} _sharedComputeSet
      * Tracks compute names that are shared.
      * @private
-    */
+     */
     private _sharedComputeSet;
     /**
      * @method getComputeRef
      * Retrieves or creates a compute instance, memoized by client ID and compute name.
-    */
+     */
     getComputeRef: ((clientId: string, computeName: ComputeName) => ClientCompute<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientCompute<any>>;
     /**
      * @method getComputeData
      * Retrieves the computed data for the current context.
      * @async
-    */
+     */
     getComputeData: () => Promise<any>;
     /**
      * @method calculate
      * Triggers a recalculation for the compute instance based on a state change.
      * @async
-    */
+     */
     calculate: (stateName: StateName) => Promise<void>;
     /**
      * @method update
      * Forces an update of the compute instance.
      * @async
-    */
+     */
     update: () => Promise<void>;
     /**
      * @method dispose
      * Cleans up the compute instance and removes it from the cache.
      * @async
-    */
+     */
     dispose: () => Promise<void>;
 }
 
@@ -8818,55 +8818,55 @@ declare class SharedComputeConnectionService<T extends IComputeData = IComputeDa
      * @property {LoggerService} loggerService
      * Injected logger service for logging operations.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * @property {BusService} busService
      * Injected bus service for event communication.
      * @private
-    */
+     */
     private readonly busService;
     /**
      * @property {TMethodContextService} methodContextService
      * Injected service for accessing method context.
      * @private
-    */
+     */
     private readonly methodContextService;
     /**
      * @property {SharedStateConnectionService} sharedStateConnectionService
      * Injected service for managing shared state connections.
      * @private
-    */
+     */
     private readonly sharedStateConnectionService;
     /**
      * @property {ComputeSchemaService} computeSchemaService
      * Injected service for accessing compute schemas.
      * @private
-    */
+     */
     private readonly computeSchemaService;
     /**
      * @method getComputeRef
      * Retrieves or creates a shared compute instance, memoized by compute name.
      * @throws {Error} If the compute is not marked as shared.
-    */
+     */
     getComputeRef: ((computeName: ComputeName) => ClientCompute<any>) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, ClientCompute<any>>;
     /**
      * @method getComputeData
      * Retrieves the computed data for the shared compute instance.
      * @async
-    */
+     */
     getComputeData: () => Promise<any>;
     /**
      * @method calculate
      * Triggers a recalculation for the shared compute instance based on a state change.
      * @async
-    */
+     */
     calculate: (stateName: StateName) => Promise<void>;
     /**
      * @method update
      * Forces an update of the shared compute instance.
      * @async
-    */
+     */
     update: () => Promise<void>;
 }
 
@@ -8927,13 +8927,13 @@ declare class PipelineSchemaService {
      * @property {LoggerService} loggerService
      * Injected logger service for logging operations.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Schema context service instance, injected via DI, for managing schema-related context operations.
      * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
      * @readonly
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
@@ -8941,41 +8941,41 @@ declare class PipelineSchemaService {
      * @property {ToolRegistry<Record<PipelineName, IPipelineSchema>>} registry
      * Registry for storing pipeline schemas.
      * @private
-    */
+     */
     private _registry;
     /**
      * Retrieves the current registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
      * Otherwise, it falls back to the private `_registry` instance.
-    */
+     */
     get registry(): ToolRegistry<Record<PipelineName, IPipelineSchema>>;
     /**
      * Sets the registry instance for agent schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
-    */
+     */
     set registry(value: ToolRegistry<Record<PipelineName, IPipelineSchema>>);
     /**
      * @method validateShallow
      * Performs shallow validation of a pipeline schema.
      * @throws {Error} If validation fails for pipelineName or execute.
      * @private
-    */
+     */
     private validateShallow;
     /**
      * @method register
      * Registers a pipeline schema with validation.
-    */
+     */
     register: (key: PipelineName, value: IPipelineSchema) => void;
     /**
      * @method override
      * Overrides an existing pipeline schema with new values.
-    */
+     */
     override: (key: PipelineName, value: Partial<IPipelineSchema>) => IPipelineSchema<any>;
     /**
      * @method get
      * Retrieves a pipeline schema by its name.
-    */
+     */
     get: (key: PipelineName) => IPipelineSchema;
 }
 
@@ -8993,25 +8993,25 @@ declare class PipelineValidationService {
      * @property {LoggerService} loggerService
      * Injected logger service for logging operations.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * @property {Map<PipelineName, IPipelineSchema>} _pipelineMap
      * Map storing pipeline schemas by pipeline name.
      * @private
-    */
+     */
     private _pipelineMap;
     /**
      * @method addPipeline
      * Adds a pipeline schema to the map, ensuring no duplicates.
      * @throws {Error} If the pipeline name already exists.
-    */
+     */
     addPipeline: (pipelineName: PipelineName, pipelineSchema: IPipelineSchema) => void;
     /**
      * @method validate
      * Validates the existence of a pipeline, memoized by pipeline name.
      * @throws {Error} If the pipeline is not found.
-    */
+     */
     validate: (pipelineName: PipelineName, source: string) => void;
 }
 
@@ -9028,16 +9028,16 @@ declare class ExecutionValidationService {
     /**
      * @private
      * Injected logger service for logging execution-related information.
-    */
+     */
     private readonly loggerService;
     /**
      * @private
      * Injected session validation service for checking client sessions and swarm associations.
-    */
+     */
     private readonly sessionValidationService;
     /**
      * Retrieves a memoized set of execution IDs for a given client and swarm.
-    */
+     */
     getExecutionCount: ((clientId: string, swarmName: SwarmName) => {
         executionSet: Set<ExecutionId>;
         executionIgnore: LimitedSet<ExecutionId>;
@@ -9048,22 +9048,22 @@ declare class ExecutionValidationService {
     /**
      * Increments the execution count for a client and checks for excessive nested executions.
      * @throws {Error} If the maximum nested execution limit is reached.
-    */
+     */
     incrementCount: (executionId: string, clientId: string) => void;
     /**
      * Resets the execution count for a client and swarm.
-    */
+     */
     decrementCount: (executionId: string, clientId: string, swarmName: SwarmName) => void;
     /**
      * Clears all tracked execution IDs for a specific client and swarm.
      * This effectively resets the execution count for the given client and swarm context,
      * but does not remove the memoized entry itself.
      *
-    */
+     */
     flushCount: (clientId: string, swarmName: SwarmName) => void;
     /**
      * Clears the memoized execution count for a specific client and swarm.
-    */
+     */
     dispose: (clientId: string, swarmName: SwarmName) => void;
 }
 
@@ -9079,25 +9079,25 @@ declare class NavigationSchemaService {
      * @readonly
      * Logger service instance, injected via dependency injection, for logging navigation schema operations.
      * Used in register and hasTool methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
-    */
+     */
     private readonly loggerService;
     /**
      * @private
      * Set for storing navigation tool names, ensuring uniqueness and efficient lookup.
      * Updated via the register method and queried via the hasTool method.
-    */
+     */
     private _navigationToolNameSet;
     /**
      * Registers a navigation tool name in the internal Set.
      * Logs the registration operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * @async
-    */
+     */
     register: (toolName: ToolName) => void;
     /**
      * Checks if a navigation tool name exists in the internal Set.
      * Logs the lookup operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * @async
-    */
+     */
     hasTool: (toolName: ToolName) => boolean;
 }
 
@@ -9112,30 +9112,30 @@ declare class OutlineSchemaService {
      * The logger service instance for recording service-related activity and errors.
      * Injected via dependency injection using `TYPES.loggerService`.
      * @private
-    */
+     */
     readonly loggerService: LoggerService;
     /**
      * The schema context service instance for managing context-specific schema registries.
      * Injected via dependency injection using `TYPES.schemaContextService`.
      * @private
-    */
+     */
     readonly schemaContextService: {
         readonly context: ISchemaContext;
     };
     /**
      * The internal registry for storing outline schemas, mapping `OutlineName` to `IOutlineSchema`.
      * @private
-    */
+     */
     private _registry;
     /**
      * Gets the registry for outline schemas, preferring the context-specific registry if a schema context exists.
      * Falls back to the internal registry if no context is active.
-    */
+     */
     get registry(): ToolRegistry<Record<OutlineName, IOutlineSchema>>;
     /**
      * Sets the registry for outline schemas, updating the context-specific registry if a schema context exists.
      * Otherwise, updates the internal registry.
-    */
+     */
     set registry(value: ToolRegistry<Record<OutlineName, IOutlineSchema>>);
     /**
      * Validates an outline schema for required properties and correct types.
@@ -9143,24 +9143,24 @@ declare class OutlineSchemaService {
      * Logs validation attempts if `CC_LOGGER_ENABLE_INFO` is enabled.
      * @private
      * @throws {Error} If validation fails due to missing or invalid properties.
-    */
+     */
     private validateShallow;
     /**
      * Registers an outline schema with the specified key in the active registry.
      * Validates the schema before registration and logs the operation if `CC_LOGGER_ENABLE_INFO` is enabled.
      * @throws {Error} If the schema fails validation.
-    */
+     */
     register: (key: OutlineName, value: IOutlineSchema) => void;
     /**
      * Overrides an existing outline schema with partial updates for the specified key.
      * Logs the operation if `CC_LOGGER_ENABLE_INFO` is enabled and returns the updated schema.
-    */
+     */
     override: (key: OutlineName, value: Partial<IOutlineSchema>) => IOutlineSchema<any, any>;
     /**
      * Retrieves an outline schema by its key from the active registry.
      * Logs the operation if `CC_LOGGER_ENABLE_INFO` is enabled.
      * @throws {Error} If the schema is not found in the registry.
-    */
+     */
     get: (key: OutlineName) => IOutlineSchema;
 }
 
@@ -9175,45 +9175,45 @@ declare class OutlineValidationService {
      * The logger service instance for logging outline-related operations and errors.
      * Injected via dependency injection using the TYPES.loggerService identifier.
      * @private
-    */
+     */
     private readonly loggerService;
     /**
      * Completion schema service instance for managing completion schemas.
      * Injected via DI, used in validate method to check outline completions.
      * Provides a registry of completion schemas for the swarm.
      * @private
-    */
+     */
     private readonly completionSchemaService;
     /**
      * Completion validation service instance for validating completion configurations of outlines.
      * Injected via DI, used in validate method to check outline completion.
      * @private
      * @readonly
-    */
+     */
     private readonly completionValidationService;
     /**
      * A map storing outline schemas, keyed by their unique outline names.
      * Used to manage registered outlines and retrieve them for validation.
      * @private
-    */
+     */
     private _outlineMap;
     /**
      * Registers a new outline schema with the given name.
      * Logs the addition if info logging is enabled and throws an error if the outline name already exists.
      * @throws {Error} If an outline with the given name already exists in the map.
-    */
+     */
     addOutline: (outlineName: OutlineName, outlineSchema: IOutlineSchema) => void;
     /**
      * Retrieves a list of all registered outline names.
      * Logs the retrieval operation if info logging is enabled.
-    */
+     */
     getOutlineList: () => OutlineName[];
     /**
      * Validates the existence of an outline schema for the given outline name.
      * Memoized to cache results based on the outline name for performance.
      * Logs the validation attempt if info logging is enabled and throws an error if the outline is not found.
      * @throws {Error} If the outline with the given name is not found in the map.
-    */
+     */
     validate: (outlineName: OutlineName, source: string) => void;
 }
 
@@ -9226,329 +9226,329 @@ interface ISwarmDI {
     /**
      * Service for managing documentation generation and retrieval within the swarm system.
      * Integrates with `DocService` to provide system-wide documentation capabilities.
-    */
+     */
     docService: DocService;
     /**
      * Service for event-driven communication across the swarm system.
      * Implements `IBus` to dispatch events like "run" or "emit-output" to clients via `bus.emit`.
-    */
+     */
     busService: BusService;
     /**
      * Service for monitoring and recording performance metrics in the swarm system.
      * Tracks execution times and resource usage, e.g., via `startExecution` in `PerfService`.
-    */
+     */
     perfService: PerfService;
     /**
      * Service for tracking the liveness and health of swarm components.
      * Ensures system components remain operational, integrating with persistence layers like `PersistAlive`.
-    */
+     */
     aliveService: AliveService;
     /**
      * Service for logging system events and debugging information.
      * Implements `ILogger` to provide log, debug, and info-level logging across components.
-    */
+     */
     loggerService: LoggerService;
     /**
      * Service for managing method-level execution context.
      * Tracks invocation metadata, scoped via `MethodContextService` for debugging and tracing.
-    */
+     */
     methodContextService: TMethodContextService;
     /**
      * Service for encapsulating payload-related context data.
      * Implements `IPayloadContext` to provide execution metadata and payload access via `PayloadContextService`.
-    */
+     */
     payloadContextService: TPayloadContextService;
     /**
      * Service for managing execution-level context across the swarm system.
      * Implements `IExecutionContext` to track `clientId`, `executionId`, and `processId` via `ExecutionContextService`.
-    */
+     */
     executionContextService: TExecutionContextService;
     /**
      * Service for managing execution-level schemas across the swarm system.
      * Allows to override agent behaviour in specific pipeline call
-    */
+     */
     schemaContextService: TSchemaContextService;
     /**
      * Service for managing agent connections within the swarm.
      * Handles lifecycle events like `makeConnection` and `disposeConnection` for agents.
-    */
+     */
     agentConnectionService: AgentConnectionService;
     /**
      * Service for managing history connections and persistence.
      * Integrates with `IHistory` to connect and store historical data via `HistoryConnectionService`.
-    */
+     */
     historyConnectionService: HistoryConnectionService;
     /**
      * Service for managing swarm-level connections.
      * Facilitates swarm lifecycle operations like agent navigation via `SwarmConnectionService`.
-    */
+     */
     swarmConnectionService: SwarmConnectionService;
     /**
      * Service for managing client session connections.
      * Implements `ISession` connectivity via `SessionConnectionService` for client interactions.
-    */
+     */
     sessionConnectionService: SessionConnectionService;
     /**
      * Service for managing storage connections within the swarm.
      * Handles `IStorage` connectivity and persistence via `StorageConnectionService`.
-    */
+     */
     storageConnectionService: StorageConnectionService;
     /**
      * Service for managing shared storage connections across agents.
      * Provides shared `IStorage` access via `SharedStorageConnectionService`.
-    */
+     */
     sharedStorageConnectionService: SharedStorageConnectionService;
     /**
      * Service for managing state connections within the swarm.
      * Handles `IState` connectivity and persistence via `StateConnectionService`.
-    */
+     */
     stateConnectionService: StateConnectionService;
     /**
      * Service for managing shared state connections across agents.
      * Provides shared `IState` access via `SharedStateConnectionService`.
-    */
+     */
     sharedStateConnectionService: SharedStateConnectionService;
     /**
      * Service for managing policy connections within the swarm.
      * Handles `IPolicy` connectivity and enforcement via `PolicyConnectionService`.
-    */
+     */
     policyConnectionService: PolicyConnectionService;
     /**
      * Service for managing mcp connections within the swarm.
      * Handles `IMCP` connectivity and enforcement via `MCPConnectionService`.
-    */
+     */
     mcpConnectionService: MCPConnectionService;
     /**
      * Service for managing compute connections within the swarm.
      * Handles `ICompute` connectivity via `ComputeConnectionService`.
-    */
+     */
     computeConnectionService: ComputeConnectionService;
     /**
      * Service for managing shared compute connections within the swarm.
      * Handles `ICompute` connectivity via `SharedComputePublicService`.
-    */
+     */
     sharedComputeConnectionService: SharedComputeConnectionService;
     /**
      * Service for defining and managing agent schemas.
      * Implements `IAgentSchemaInternal` to configure agent behavior via `AgentSchemaService`.
-    */
+     */
     agentSchemaService: AgentSchemaService;
     /**
      * Service for defining and managing tool schemas.
      * Configures `ITool` structures for agent use via `ToolSchemaService`.
-    */
+     */
     toolSchemaService: ToolSchemaService;
     /**
      * Service for defining and managing swarm schemas.
      * Implements `ISwarmSchema` to configure swarm behavior via `SwarmSchemaService`.
-    */
+     */
     swarmSchemaService: SwarmSchemaService;
     /**
      * Service for defining and managing completion schemas.
      * Configures `ICompletionSchema` for AI model interactions via `CompletionSchemaService`.
-    */
+     */
     completionSchemaService: CompletionSchemaService;
     /**
      * Service for defining and managing embedding schemas.
      * Implements `IEmbeddingSchema` for text encoding via `EmbeddingSchemaService`.
-    */
+     */
     embeddingSchemaService: EmbeddingSchemaService;
     /**
      * Service for defining and managing storage schemas.
      * Implements `IStorageSchema` for data persistence via `StorageSchemaService`.
-    */
+     */
     storageSchemaService: StorageSchemaService;
     /**
      * Service for defining and managing state schemas.
      * Implements `IStateSchema` for state management via `StateSchemaService`.
-    */
+     */
     stateSchemaService: StateSchemaService;
     /**
      * Service for defining and managing memory schemas.
      * Handles session memory structures via `MemorySchemaService` for client state persistence.
-    */
+     */
     memorySchemaService: MemorySchemaService;
     /**
      * Service for defining and managing policy schemas.
      * Implements `IPolicySchema` for rule enforcement via `PolicySchemaService`.
-    */
+     */
     policySchemaService: PolicySchemaService;
     /**
      * Service for defining and managing policy schemas.
      * Implements `IMCPSchema` for rule enforcement via `MCPSchemaService`.
-    */
+     */
     mcpSchemaService: MCPSchemaService;
     /**
      * Service for defining and managing compute schemas.
      * Implements `IComputeSchema` for rule enforcement via `ComputeSchemaService`.
-    */
+     */
     computeSchemaService: ComputeSchemaService;
     /**
      * Service for defining and managing agent wikies.
      * Implements `IWikiSchema` for rule enforcement via `WikiSchemaService`.
-    */
+     */
     wikiSchemaService: WikiSchemaService;
     /**
      * Service for defining and managing pipeline schemas.
      * Implements `IPipelineSchema` for rule enforcement via `PipelineSchemaService`.
-    */
+     */
     pipelineSchemaService: PipelineSchemaService;
     /**
      * Service for defining and managing navigation tools.
      * When the navigation tool called other one being ignored
-    */
+     */
     navigationSchemaService: NavigationSchemaService;
     /**
      * Service for defining and managing outlines
      * Aka structured json outputs
-    */
+     */
     outlineSchemaService: OutlineSchemaService;
     /**
      * Service exposing public APIs for agent operations.
      * Provides methods like `execute` and `runStateless` via `AgentPublicService`.
-    */
+     */
     agentPublicService: AgentPublicService;
     /**
      * Service exposing public APIs for historical data management.
      * Implements `IHistory` operations like `push` via `HistoryPublicService`.
-    */
+     */
     historyPublicService: HistoryPublicService;
     /**
      * Service exposing public APIs for session management.
      * Provides session lifecycle methods via `SessionPublicService`.
-    */
+     */
     sessionPublicService: SessionPublicService;
     /**
      * Service exposing public APIs for swarm operations.
      * Handles swarm navigation and management via `SwarmPublicService`.
-    */
+     */
     swarmPublicService: SwarmPublicService;
     /**
      * Service exposing public APIs for storage operations.
      * Implements `IStorage` methods like `upsert` and `take` via `StoragePublicService`.
-    */
+     */
     storagePublicService: StoragePublicService;
     /**
      * Service exposing public APIs for shared storage operations.
      * Provides shared `IStorage` access via `SharedStoragePublicService`.
-    */
+     */
     sharedStoragePublicService: SharedStoragePublicService;
     /**
      * Service exposing public APIs for state operations.
      * Implements `IState` methods like `getState` and `setState` via `StatePublicService`.
-    */
+     */
     statePublicService: StatePublicService;
     /**
      * Service exposing public APIs for compute operations.
      * Implements `IComput` methods
-    */
+     */
     computePublicService: ComputePublicService;
     /**
      * Service exposing public APIs for shared state operations.
      * Provides shared `IState` access via `SharedStatePublicService`.
-    */
+     */
     sharedStatePublicService: SharedStatePublicService;
     /**
      * Service exposing public APIs for shared compute operations.
      * Provides shared `ICompute` access via `SharedComputePublicService`.
-    */
+     */
     sharedComputePublicService: SharedComputePublicService;
     /**
      * Service exposing public APIs for policy operations.
      * Implements `IPolicy` methods like `banClient` via `PolicyPublicService`.
-    */
+     */
     policyPublicService: PolicyPublicService;
     /**
      * Service exposing public APIs for mcp operations.
      * Implements `IMCP` methods like `listTools` via `MCPPublicService`.
-    */
+     */
     mcpPublicService: MCPPublicService;
     /**
      * Service managing metadata for agents.
      * Tracks agent-specific metadata via `AgentMetaService`.
-    */
+     */
     agentMetaService: AgentMetaService;
     /**
      * Service managing metadata for swarms.
      * Tracks swarm-specific metadata via `SwarmMetaService`.
-    */
+     */
     swarmMetaService: SwarmMetaService;
     /**
      * Service validating agent-related data and configurations.
      * Ensures agent integrity via `AgentValidationService`.
-    */
+     */
     agentValidationService: AgentValidationService;
     /**
      * Service validating tool-related data and parameters.
      * Ensures tool correctness via `ToolValidationService`.
-    */
+     */
     toolValidationService: ToolValidationService;
     /**
      * Service validating session-related data and connectivity.
      * Ensures session validity via `SessionValidationService`.
-    */
+     */
     sessionValidationService: SessionValidationService;
     /**
      * Service validating swarm-related data and configurations.
      * Ensures swarm integrity via `SwarmValidationService`.
-    */
+     */
     swarmValidationService: SwarmValidationService;
     /**
      * Service validating completion-related data and responses.
      * Ensures completion integrity via `CompletionValidationService`.
-    */
+     */
     completionValidationService: CompletionValidationService;
     /**
      * Service validating storage-related data and operations.
      * Ensures storage integrity via `StorageValidationService`.
-    */
+     */
     storageValidationService: StorageValidationService;
     /**
      * Service validating embedding-related data and configurations.
      * Ensures embedding integrity via `EmbeddingValidationService`.
-    */
+     */
     embeddingValidationService: EmbeddingValidationService;
     /**
      * Service validating policy-related data and enforcement rules.
      * Ensures policy integrity via `PolicyValidationService`.
-    */
+     */
     policyValidationService: PolicyValidationService;
     /**
      * Service validating mcp-related data and enforcement rules.
      * Ensures mcp integrity via `MCPValidationService`.
-    */
+     */
     mcpValidationService: MCPValidationService;
     /**
      * Service validating compute data
      * Ensures compute integrity via `ComputeValidationService`.
-    */
+     */
     computeValidationService: ComputeValidationService;
     /**
      * Service validating state-related data.
      * Ensures mcp integrity via `StateValidationService`.
-    */
+     */
     stateValidationService: StateValidationService;
     /**
      * Service preventing the recursive call of changeToAgent
-    */
+     */
     navigationValidationService: NavigationValidationService;
     /**
      * Service for validating agent wikis
-    */
+     */
     wikiValidationService: WikiValidationService;
     /**
      * Service for validating outlines aka structured JSON outputs
-    */
+     */
     outlineValidationService: OutlineValidationService;
     /**
      * Service for validating pipeline-related data and configurations.
      * Ensures pipeline integrity via `PipelineValidationService`.
-    */
+     */
     pipelineValidationService: PipelineValidationService;
     /**
      * Service for validating nested executions
      * Used to prevent the model to call tools recursively
-    */
+     */
     executionValidationService: ExecutionValidationService;
 }
 
@@ -9568,7 +9568,7 @@ interface IConfig {
     /**
      * Whether to include subtree information in the UML diagram.
      * Controls the level of detail and hierarchy shown in the generated visualization.
-    */
+     */
     withSubtree: boolean;
 }
 /**
@@ -9654,32 +9654,32 @@ interface INavigateToTriageParams {
     /**
      * Optional callback function executed before navigation begins.
      * Allows for custom pre-navigation logic and validation before changing to the default agent.
-    */
+     */
     beforeNavigate?: (clientId: string, lastMessage: string | null, lastAgent: AgentName, defaultAgent: AgentName) => Promise<void> | void;
     /**
      * Optional function to transform the last user message for navigation context.
      * Customizes how the previous message is processed when navigating to the triage agent.
-    */
+     */
     lastMessage?: (clientId: string, lastMessage: string | null, defaultAgent: AgentName, lastAgent: AgentName) => string | Promise<string>;
     /**
      * Optional message or function to emit after flushing the session.
      * Used when navigation cannot be completed and the session needs to be reset.
-    */
+     */
     flushMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
     /**
      * Optional message or function to execute when no navigation is needed.
      * Used when already on the default agent and execution should continue.
-    */
+     */
     executeMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
     /**
      * Optional message or function for tool output when navigation to the default agent occurs.
      * Provides feedback when successful navigation to the triage agent happens.
-    */
+     */
     toolOutputAccept?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
     /**
      * Optional message or function for tool output when already on the default agent.
      * Used to inform the user that no navigation was needed since they're already on the target agent.
-    */
+     */
     toolOutputReject?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
 }
 /**
@@ -9738,32 +9738,32 @@ interface INavigateToAgentParams {
     /**
      * Optional callback function executed before navigation begins.
      * Allows for custom pre-navigation logic and validation.
-    */
+     */
     beforeNavigate?: (clientId: string, lastMessage: string | null, lastAgent: AgentName, agentName: AgentName) => void | Promise<void>;
     /**
      * Optional message or function to emit after flushing the session.
      * Used when navigation cannot be completed and the session needs to be reset.
-    */
+     */
     flushMessage?: string | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
     /**
      * Optional message or function for tool output when navigation occurs.
      * Provides feedback about the navigation operation to the model.
-    */
+     */
     toolOutput?: string | ((clientId: string, lastAgent: AgentName, agentName: AgentName) => string | Promise<string>);
     /**
      * Optional function to transform the last user message for navigation context.
      * Allows customization of how the previous message is processed.
-    */
+     */
     lastMessage?: (clientId: string, lastMessage: string | null, lastAgent: AgentName, agentName: AgentName) => string | Promise<string>;
     /**
      * Optional message or function to emit when navigation occurs without execution.
      * Used for navigation scenarios that only require message emission.
-    */
+     */
     emitMessage?: string | ((clientId: string, lastMessage: string, lastAgent: string, agentName: AgentName) => string | Promise<string>);
     /**
      * Optional message or function to execute when navigation occurs with execution.
      * Used to define what message should be executed on the target agent after navigation.
-    */
+     */
     executeMessage?: string | ((clientId: string, lastMessage: string, lastAgent: string, agentName: AgentName) => string | Promise<string>);
 }
 /**
@@ -10776,7 +10776,7 @@ interface IMakeDisposeParams {
     /**
      * Optional callback invoked when the session is closed.
      * Called after the auto-dispose mechanism triggers and the session is successfully disposed.
-    */
+     */
     onDestroy?: (clientId: string, swarmName: SwarmName) => void;
 }
 /**
@@ -10957,7 +10957,7 @@ interface IMakeConnectionConfig {
     /**
      * The delay in milliseconds for scheduling or rate-limiting messages.
      * Controls the timing interval for scheduled or rate-limited message sending operations.
-    */
+     */
     delay?: number;
 }
 
@@ -11037,7 +11037,7 @@ interface ISessionConfig {
     /**
      * Optional callback function invoked when the session is disposed.
      * Called during session cleanup to perform any necessary resource cleanup operations.
-    */
+     */
     onDispose?: () => void;
 }
 
@@ -11054,17 +11054,17 @@ interface IScopeOptions {
     /**
      * The client identifier for the scope operation.
      * Unique identifier used to track and manage the session within the scope.
-    */
+     */
     clientId: string;
     /**
      * The name of the swarm associated with the scope.
      * Identifies which swarm configuration to use for the scoped operation.
-    */
+     */
     swarmName: SwarmName;
     /**
      * Optional callback function to handle errors during execution.
      * Called when an error occurs during the scope operation, allowing for custom error handling.
-    */
+     */
     onError?: (error: Error) => void;
 }
 /**
@@ -11223,22 +11223,22 @@ interface ISessionContext {
     /**
      * The unique identifier of the client session, or null if not available from either context.
      * Derived from either the method context or execution context.
-    */
+     */
     clientId: string | null;
     /**
      * The unique identifier of the process, sourced from GLOBAL_CONFIG.CC_PROCESS_UUID.
      * Identifies the current swarm process instance.
-    */
+     */
     processId: string;
     /**
      * The current method context, or null if no method context is active.
      * Provides access to method-specific metadata and client information.
-    */
+     */
     methodContext: IMethodContext | null;
     /**
      * The current execution context, or null if no execution context is active.
      * Provides access to execution-specific metadata and state information.
-    */
+     */
     executionContext: IExecutionContext | null;
 }
 /**
@@ -11901,23 +11901,23 @@ declare const LOGGER_INSTANCE_WAIT_FOR_INIT: unique symbol;
 interface ILoggerInstanceCallbacks {
     /**
      * Called when the logger instance is initialized, typically during waitForInit.
-    */
+     */
     onInit(clientId: string): void;
     /**
      * Called when the logger instance is disposed, cleaning up resources.
-    */
+     */
     onDispose(clientId: string): void;
     /**
      * Called when a log message is recorded via the log method.
-    */
+     */
     onLog(clientId: string, topic: string, ...args: any[]): void;
     /**
      * Called when a debug message is recorded via the debug method.
-    */
+     */
     onDebug(clientId: string, topic: string, ...args: any[]): void;
     /**
      * Called when an info message is recorded via the info method.
-    */
+     */
     onInfo(clientId: string, topic: string, ...args: any[]): void;
 }
 /**
@@ -11929,12 +11929,12 @@ interface ILoggerInstance extends ILogger {
     /**
      * Initializes the logger instance, invoking the onInit callback if provided.
      * Ensures initialization is performed only once, supporting asynchronous setup.
-    */
+     */
     waitForInit(initial: boolean): Promise<void> | void;
     /**
      * Disposes of the logger instance, invoking the onDispose callback if provided.
      * Cleans up resources associated with the client ID.
-    */
+     */
     dispose(): Promise<void> | void;
 }
 /**
@@ -11945,22 +11945,22 @@ interface ILoggerAdapter {
     /**
      * Logs a message for a client using the client-specific logger instance.
      * Ensures session validation and initialization before logging.
-    */
+     */
     log(clientId: string, topic: string, ...args: any[]): Promise<void>;
     /**
      * Logs a debug message for a client using the client-specific logger instance.
      * Ensures session validation and initialization before logging.
-    */
+     */
     debug(clientId: string, topic: string, ...args: any[]): Promise<void>;
     /**
      * Logs an info message for a client using the client-specific logger instance.
      * Ensures session validation and initialization before logging.
-    */
+     */
     info(clientId: string, topic: string, ...args: any[]): Promise<void>;
     /**
      * Disposes of the logger instance for a client, clearing it from the cache.
      * Ensures initialization before disposal.
-    */
+     */
     dispose(clientId: string): Promise<void>;
 }
 /**
@@ -11971,32 +11971,32 @@ interface ILoggerControl {
     /**
      * Sets a common logger adapter for all logging operations via swarm.loggerService.
      * Overrides the default logger service behavior for centralized logging.
-    */
+     */
     useCommonAdapter(logger: ILogger): void;
     /**
      * Configures client-specific lifecycle callbacks for logger instances.
      * Applies to all instances created by LoggerUtils' LoggerFactory.
-    */
+     */
     useClientCallbacks(Callbacks: Partial<ILoggerInstanceCallbacks>): void;
     /**
      * Sets a custom logger instance constructor for client-specific logging.
      * Replaces the default LoggerInstance with a user-defined constructor.
-    */
+     */
     useClientAdapter(Ctor: TLoggerInstanceCtor): void;
     /**
      * Logs a message for a specific client using the common adapter (swarm.loggerService).
      * Includes session validation and method context tracking.
-    */
+     */
     logClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
     /**
      * Logs an info message for a specific client using the common adapter (swarm.loggerService).
      * Includes session validation and method context tracking.
-    */
+     */
     infoClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
     /**
      * Logs a debug message for a specific client using the common adapter (swarm.loggerService).
      * Includes session validation and method context tracking.
-    */
+     */
     debugClient(clientId: string, topic: string, ...args: any[]): Promise<void>;
 }
 /**
@@ -12072,27 +12072,27 @@ interface IGlobalConfig {
     /**
      * A prompt used to flush the conversation when tool call exceptions occur, specifically for troubleshooting in `llama3.1:8b` models.
      * Applied in `ClientAgent._resurrectModel` with the "flush" strategy to reset the conversation state. Requires `CC_OLLAMA_EMIT_TOOL_PROTOCOL` to be disabled.
-    */
+     */
     CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT: string;
     /**
      * A multi-line prompt to recomplete invalid tool calls, designed as a fix for intermittent issues in `IlyaGusev/saiga_yandexgpt_8b_gguf` (LMStudio).
      * Used in `ClientAgent.getCompletion` with the "recomplete" strategy, instructing the model to analyze, correct, and explain tool call errors.
-    */
+     */
     CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT: string;
     /**
      * An array of placeholder responses for empty model outputs, used in `ClientAgent.createPlaceholder` to greet or prompt the user.
      * Randomly selected in `ClientAgent._resurrectModel` or `RUN_FN` when output is empty, enhancing user experience by avoiding silent failures.
-    */
+     */
     CC_EMPTY_OUTPUT_PLACEHOLDERS: string[];
     /**
      * Maximum number of messages to retain in history, used indirectly in `ClientAgent.history` management.
      * Limits history to 15 messages, though not explicitly enforced in provided `ClientAgent` code.
-    */
+     */
     CC_KEEP_MESSAGES: number;
     /**
      * Maximum number of tool calls allowed per execution, used in `ClientAgent.EXECUTE_FN` to cap `toolCalls`.
      * Limits to 1 tool call by default, preventing excessive tool invocation loops in a single run.
-    */
+     */
     CC_MAX_TOOL_CALLS: number;
     /**
      * Function to map tool calls for an agent, used in `ClientAgent.mapToolCalls` (e.g., `EXECUTE_FN`).
@@ -12101,7 +12101,7 @@ interface IGlobalConfig {
      * setConfig({
      *   CC_AGENT_MAP_TOOLS: async (tools, clientId, agentName) => tools.map(t => ({ ...t, clientId }))
      * });
-    */
+     */
     CC_AGENT_MAP_TOOLS: (tool: IToolCall[], clientId: string, agentName: AgentName) => IToolCall[] | Promise<IToolCall[]>;
     /**
      * Factory function to provide a history adapter for an agent, used in `ClientAgent.history` (e.g., `getCompletion`).
@@ -12110,7 +12110,7 @@ interface IGlobalConfig {
      * setConfig({
      *   CC_GET_AGENT_HISTORY_ADAPTER: () => CustomHistoryAdapter
      * });
-    */
+     */
     CC_GET_AGENT_HISTORY_ADAPTER: (clientId: string, agentName: AgentName) => IHistoryAdapter;
     /**
      * Factory function to provide a logger adapter for clients, used in `ClientAgent.logger` (e.g., debug logging).
@@ -12119,7 +12119,7 @@ interface IGlobalConfig {
      * setConfig({
      *   CC_GET_CLIENT_LOGGER_ADAPTER: () => CustomLoggerAdapter
      * });
-    */
+     */
     CC_GET_CLIENT_LOGGER_ADAPTER: () => ILoggerAdapter;
     /**
      * Callback function triggered when the active agent changes in a swarm, used in swarm-related logic (e.g., `ISwarmParams`).
@@ -12130,7 +12130,7 @@ interface IGlobalConfig {
      *     console.log(`${agentName} is now active for ${clientId} in ${swarmName}`);
      *   }
      * });
-    */
+     */
     CC_SWARM_AGENT_CHANGED: (clientId: string, agentName: AgentName, swarmName: SwarmName) => Promise<void>;
     /**
      * Function to determine the default agent for a swarm, used in swarm initialization (e.g., `ISwarmParams`).
@@ -12139,7 +12139,7 @@ interface IGlobalConfig {
      * setConfig({
      *   CC_SWARM_DEFAULT_AGENT: async (clientId, swarmName) => "customAgent"
      * });
-    */
+     */
     CC_SWARM_DEFAULT_AGENT: (clientId: string, swarmName: SwarmName, defaultAgent: AgentName) => Promise<AgentName>;
     /**
      * Function to provide the default navigation stack for a swarm, used in `ISwarmParams` initialization.
@@ -12148,7 +12148,7 @@ interface IGlobalConfig {
      * setConfig({
      *   CC_SWARM_DEFAULT_STACK: async () => ["initialAgent"]
      * });
-    */
+     */
     CC_SWARM_DEFAULT_STACK: (clientId: string, swarmName: SwarmName) => Promise<AgentName[]>;
     /**
      * Callback function triggered when the navigation stack changes in a swarm, used in `ISwarmParams` (e.g., `navigationPop`).
@@ -12159,12 +12159,12 @@ interface IGlobalConfig {
      *     console.log(`Stack updated for ${clientId} in ${swarmName}: ${stack}`);
      *   }
      * });
-    */
+     */
     CC_SWARM_STACK_CHANGED: (clientId: string, navigationStack: AgentName[], swarmName: SwarmName) => Promise<void>;
     /**
      * Default validation function for agent outputs, used in `ClientAgent.validate` (e.g., `RUN_FN`, `EXECUTE_FN`).
      * Imported from `validateDefault`, returns null if valid or an error string if invalid, ensuring output correctness.
-    */
+     */
     CC_AGENT_DEFAULT_VALIDATION: (output: string) => string | null | Promise<string | null>;
     /**
      * Filter function for agent history, used in `ClientAgent.history.toArrayForAgent` to scope messages.
@@ -12172,12 +12172,12 @@ interface IGlobalConfig {
      * @example
      * const filter = CC_AGENT_HISTORY_FILTER("agent1");
      * const isRelevant = filter({ role: "tool", agentName: "agent1" }); // true
-    */
+     */
     CC_AGENT_HISTORY_FILTER: (agentName: AgentName) => (message: IModelMessage) => boolean;
     /**
      * Default transformation function for agent outputs, used in `ClientAgent.transform` (e.g., `RUN_FN`, `_emitOutput`).
      * Removes XML tags via `removeXmlTags` based on `CC_AGENT_DISALLOWED_TAGS` to clean responses for consistency.
-    */
+     */
     CC_AGENT_OUTPUT_TRANSFORM: (input: string, clientId: string, agentName: AgentName) => Promise<string> | string;
     /**
      * Function to map model messages for agent output, used in `ClientAgent.map` (e.g., `RUN_FN`, `EXECUTE_FN`).
@@ -12186,62 +12186,62 @@ interface IGlobalConfig {
      * setConfig({
      *   CC_AGENT_OUTPUT_MAP: async (msg) => ({ ...msg, content: msg.content.toUpperCase() })
      * });
-    */
+     */
     CC_AGENT_OUTPUT_MAP: (message: IModelMessage) => IModelMessage | Promise<IModelMessage>;
     /**
      * Optional system prompt for agents, used in `ClientAgent.history.toArrayForAgent` (e.g., `getCompletion`).
      * Undefined by default, allowing optional agent-specific instructions to be added to history via `setConfig`.
-    */
+     */
     CC_AGENT_SYSTEM_PROMPT: string[] | undefined;
     /**
      * Array of XML tags disallowed in agent outputs, used with `CC_AGENT_OUTPUT_TRANSFORM` in `ClientAgent.transform`.
      * Filters out tags like "tool_call" via `removeXmlTags` in `RUN_FN` to clean responses for downstream processing.
-    */
+     */
     CC_AGENT_DISALLOWED_TAGS: string[];
     /**
      * Array of symbols disallowed in agent outputs, potentially used in validation or transformation logic.
      * Includes curly braces, suggesting filtering of JSON-like structures, though not directly observed in `ClientAgent`.
-    */
+     */
     CC_AGENT_DISALLOWED_SYMBOLS: string[];
     /**
      * Similarity threshold for storage searches, used in `IStorage.take` for similarity-based retrieval.
      * Set to 0.65, defining the minimum similarity score for search results, though not directly in `ClientAgent`.
-    */
+     */
     CC_STORAGE_SEARCH_SIMILARITY: number;
     /**
      * Maximum number of results for storage searches, used in `IStorage.take` to limit retrieval.
      * Caps search pool at 5 items by default, though not directly observed in `ClientAgent`.
-    */
+     */
     CC_STORAGE_SEARCH_POOL: number;
     /**
      * Flag to enable info-level logging, used in `ClientAgent.logger` for informational logs.
      * Disabled by default (false), controlling verbosity of `ILoggerAdapter` logs.
-    */
+     */
     CC_LOGGER_ENABLE_INFO: boolean;
     /**
      * Flag to enable debug-level logging, used extensively in `ClientAgent.logger.debug` (e.g., `RUN_FN`, `EXECUTE_FN`).
      * Disabled by default (false), gating detailed debug output in `ILoggerAdapter`.
-    */
+     */
     CC_LOGGER_ENABLE_DEBUG: boolean;
     /**
      * Flag to enable general logging, used in `ClientAgent.logger` for basic log output.
      * Enabled by default (true), ensuring core logging functionality in `ILoggerAdapter`.
-    */
+     */
     CC_LOGGER_ENABLE_LOG: boolean;
     /**
      * Flag to enable console logging, used in `ClientAgent.logger` for direct console output.
      * Disabled by default (false), allowing logs to be redirected via `ILoggerAdapter`.
-    */
+     */
     CC_LOGGER_ENABLE_CONSOLE: boolean;
     /**
      * Strategy for handling model resurrection, used in `ClientAgent._resurrectModel` and `getCompletion`.
      * Options: "flush" (reset conversation), "recomplete" (retry tool calls), "custom" (user-defined); determines recovery approach for invalid outputs or tool calls.
-    */
+     */
     CC_RESQUE_STRATEGY: "flush" | "recomplete" | "custom";
     /**
      * Utility function to convert names to title case, used for UI or logging readability.
      * Imported from `nameToTitle`, enhancing presentation of agent or swarm names, though not directly in `ClientAgent`.
-    */
+     */
     CC_NAME_TO_TITLE: (name: string) => string;
     /**
      * Function to process PlantUML diagrams, potentially for visualization purposes.
@@ -12250,17 +12250,17 @@ interface IGlobalConfig {
      * setConfig({
      *   CC_FN_PLANTUML: async (uml) => `Processed: ${uml}`
      * });
-    */
+     */
     CC_FN_PLANTUML: (uml: string) => Promise<string>;
     /**
      * Unique identifier for the current process, used system-wide for tracking or logging.
      * Generated via `randomString`, providing a process-specific UUID, though not directly in `ClientAgent`.
-    */
+     */
     CC_PROCESS_UUID: string;
     /**
      * Placeholder response for banned topics or actions, used in `IPolicy.banClient` enforcement.
      * Indicates refusal to engage, enhancing policy messaging, though not directly in `ClientAgent`.
-    */
+     */
     CC_BANHAMMER_PLACEHOLDER: string;
     /**
      * A custom function to handle tool call exceptions by returning a model message or null, used in `ClientAgent.getCompletion` with the "custom" `CC_RESQUE_STRATEGY`.
@@ -12272,17 +12272,17 @@ interface IGlobalConfig {
      *     content: "Tool call corrected for " + agentName
      *   })
      * });
-    */
+     */
     CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: AgentName) => Promise<IModelMessage | null>;
     /**
      * Flag to enable persistence by default, used in `IStorage` or `IState` initialization.
      * Enabled (true) by default, suggesting data retention unless overridden, though not directly in `ClientAgent`.
-    */
+     */
     CC_PERSIST_ENABLED_BY_DEFAULT: boolean;
     /**
      * Flag to enable autobanning by default, used in `IPolicy` for automatic ban enforcement.
      * Disabled (false) by default, allowing manual ban control unless overridden, though not directly in `ClientAgent`.
-    */
+     */
     CC_AUTOBAN_ENABLED_BY_DEFAULT: boolean;
     /**
      * Default function to set state values, used in `IState.setState` for state persistence.
@@ -12293,7 +12293,7 @@ interface IGlobalConfig {
      *     console.log(`Setting ${stateName} for ${clientId}:`, state);
      *   }
      * });
-    */
+     */
     CC_DEFAULT_STATE_SET: <T = any>(state: T, clientId: string, stateName: StateName) => Promise<void>;
     /**
      * Default function to get state values, used in `IState.getState` for state retrieval.
@@ -12302,7 +12302,7 @@ interface IGlobalConfig {
      * setConfig({
      *   CC_DEFAULT_STATE_GET: async () => ({ count: 0 })
      * });
-    */
+     */
     CC_DEFAULT_STATE_GET: <T = any>(clientId: string, stateName: StateName, defaultState: T) => Promise<T>;
     /**
      * Default function to get banned clients for the policy
@@ -12310,17 +12310,17 @@ interface IGlobalConfig {
      * setConfig({
      *   CC_DEFAULT_POLICY_GET_BAN_CLIENTS: async () => []
      * });
-    */
+     */
     CC_DEFAULT_POLICY_GET_BAN_CLIENTS: (policyName: PolicyName, swarmName: SwarmName) => Promise<SessionId[]> | SessionId[];
     /**
      * Retrieves the list of currently banned clients under this policy.
-    */
+     */
     CC_DEFAULT_POLICY_GET?: (policyName: PolicyName, swarmName: SwarmName) => SessionId[] | Promise<SessionId[]>;
     /**
      * Optional function to set the list of banned clients.
      * Overrides default ban list management if provided.
      * @throws {Error} If updating the ban list fails (e.g., due to persistence issues).
-    */
+     */
     CC_DEFAULT_POLICY_SET?: (clientIds: SessionId[], policyName: PolicyName, swarmName: SwarmName) => Promise<void> | void;
     /**
      * Default function to get storage data, used in `IStorage.take` for storage retrieval.
@@ -12329,7 +12329,7 @@ interface IGlobalConfig {
      * setConfig({
      *   CC_DEFAULT_STORAGE_GET: async () => [{ id: 1 }]
      * });
-    */
+     */
     CC_DEFAULT_STORAGE_GET: <T extends IStorageData = IStorageData>(clientId: string, storageName: StorageName, defaultValue: T[]) => Promise<T[]>;
     /**
      * Default function to set storage data, used in `IStorage.upsert` for storage persistence.
@@ -12340,39 +12340,39 @@ interface IGlobalConfig {
      *     console.log(`Setting ${storageName} for ${clientId}:`, data);
      *   }
      * });
-    */
+     */
     CC_DEFAULT_STORAGE_SET: <T extends IStorageData = IStorageData>(data: T[], clientId: string, storageName: StorageName) => Promise<void>;
     /**
      * Flag to skip POSIX-style renaming, potentially for file operations in persistence layers.
      * Disabled (false) by default, ensuring standard renaming unless overridden, though not directly in `ClientAgent`.
-    */
+     */
     CC_SKIP_POSIX_RENAME: boolean;
     /**
      * Flag to enable persistent storage for `Schema.readValue` and `Schema.writeValue`, separate from general persistence.
      * Enabled (true) by default, ensuring memory storage persistence unless overridden.
-    */
+     */
     CC_PERSIST_MEMORY_STORAGE: boolean;
     /**
      * Flag to enable persistent cache for `embeddings`. Will allow to reduce costs while using openai
      * Disabled (false) by default which faster for ollama local embeddings
-    */
+     */
     CC_PERSIST_EMBEDDING_CACHE: boolean;
     /**
      * Retrieves the embedding vector for a specific string hash, returning null if not found.
      * Used to check if a precomputed embedding exists in the cache.
      * @throws {Error} If reading from storage fails (e.g., file corruption).
-    */
+     */
     CC_DEFAULT_READ_EMBEDDING_CACHE: (embeddingName: EmbeddingName, stringHash: string) => Promise<number[] | null> | number[] | null;
     /**
      * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
      * Used to cache computed embeddings to avoid redundant processing.
      * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-    */
+     */
     CC_DEFAULT_WRITE_EMBEDDING_CACHE: (embeddings: number[], embeddingName: EmbeddingName, stringHash: string) => Promise<void> | void;
     /**
      * Validates the tool parameters before execution.
      * Can return synchronously or asynchronously based on validation complexity.
-    */
+     */
     CC_DEFAULT_AGENT_TOOL_VALIDATE: (dto: {
         clientId: string;
         agentName: AgentName;
@@ -12381,26 +12381,26 @@ interface IGlobalConfig {
     }) => Promise<boolean> | boolean;
     /**
      * Throw an error if agents being changed recursively
-    */
+     */
     CC_THROW_WHEN_NAVIGATION_RECURSION: boolean;
     /**
      * Default function to connect an operator for handling messages and responses.
      * Establishes a connection between a client and an agent, allowing messages to be sent
      * and answers to be received via a callback mechanism.
-    */
+     */
     CC_DEFAULT_CONNECT_OPERATOR: (clientId: string, agentName: AgentName) => (message: string, next: (answer: string) => void) => DisposeFn$1;
     /**
      * Flag to enable operator timeout, used in `ClientOperator` for message processing.
-    */
+     */
     CC_ENABLE_OPERATOR_TIMEOUT: boolean;
     /**
      * Disable fetch of data from all storages. Quite usefull for unit tests
-    */
+     */
     CC_STORAGE_DISABLE_GET_DATA: boolean;
     /**
      * When the model run more than 10 nested tool call iterations including
      * navigations throw an exeption
-    */
+     */
     CC_MAX_NESTED_EXECUTIONS: number;
 }
 
@@ -12528,7 +12528,7 @@ declare class RoundRobin<T, Token = string | symbol | {
      * Creates a RoundRobin function that cycles through tokens
      * @example
      * const rr = RoundRobin.create(['a', 'b'], (t) => () => ({ id: t }));
-    */
+     */
     static create<T, Token = string | symbol | {
         [key: string]: any;
     }, A extends any[] = any[]>(tokens: Token[], factory: (token: Token) => (...args: A) => T): (...args: A) => T;
@@ -12538,7 +12538,7 @@ declare class RoundRobin<T, Token = string | symbol | {
      *
      * @private
      * @throws {Error} If the tokens array is empty.
-    */
+     */
     private call;
 }
 
@@ -12550,7 +12550,7 @@ declare class RoundRobin<T, Token = string | symbol | {
 declare class MCPUtils {
     /**
      * Updates the list of tools for all clients or a specific client.
-    */
+     */
     update(mcpName: MCPName, clientId?: string): Promise<void>;
 }
 /**
@@ -12567,7 +12567,7 @@ declare class PolicyUtils {
      * Bans a client under a specific policy within a swarm.
      * Validates the client, swarm, and policy before delegating to the policy service.
      * @throws {Error} If validation fails or the policy service encounters an error.
-    */
+     */
     banClient: (payload: {
         clientId: string;
         swarmName: SwarmName;
@@ -12577,7 +12577,7 @@ declare class PolicyUtils {
      * Unbans a client under a specific policy within a swarm.
      * Validates the client, swarm, and policy before delegating to the policy service.
      * @throws {Error} If validation fails or the policy service encounters an error.
-    */
+     */
     unbanClient: (payload: {
         clientId: string;
         swarmName: SwarmName;
@@ -12587,7 +12587,7 @@ declare class PolicyUtils {
      * Checks if a client is banned under a specific policy within a swarm.
      * Validates the client, swarm, and policy before querying the policy service.
      * @throws {Error} If validation fails or the policy service encounters an error.
-    */
+     */
     hasBan: (payload: {
         clientId: string;
         swarmName: SwarmName;
@@ -12619,7 +12619,7 @@ declare class StateUtils implements TState {
      * Executes within a context for logging.
      * @template T - The type of the state data to retrieve, defaults to any.
      * @throws {Error} If the client session is invalid, the state is not registered in the agent, or the state service encounters an error.
-    */
+     */
     getState: <T extends unknown = any>(payload: {
         clientId: string;
         agentName: AgentName;
@@ -12632,7 +12632,7 @@ declare class StateUtils implements TState {
      * Executes within a context for logging.
      * @template T - The type of the state data to set, defaults to any.
      * @throws {Error} If the client session is invalid, the state is not registered in the agent, or the state service encounters an error.
-    */
+     */
     setState: <T extends unknown = any>(dispatchFn: T | ((prevState: T) => Promise<T>), payload: {
         clientId: string;
         agentName: AgentName;
@@ -12644,7 +12644,7 @@ declare class StateUtils implements TState {
      * Executes within a context for logging.
      * @template T - The type of the state data, defaults to any (unused in return).
      * @throws {Error} If the client session is invalid, the state is not registered in the agent, or the state service encounters an error.
-    */
+     */
     clearState: <T extends unknown = any>(payload: {
         clientId: string;
         agentName: AgentName;
@@ -12670,13 +12670,13 @@ declare class ComputeUtils {
      * @method update
      * Updates a compute instance with validation and context management.
      * @async
-    */
+     */
     update: (clientId: string, computeName: string) => Promise<void>;
     /**
      * @method getComputeData
      * Retrieves compute data with validation and context management.
      * @async
-    */
+     */
     getComputeData: <T extends IComputeData = any>(clientId: string, computeName: ComputeName) => Promise<T>;
 }
 /**
@@ -12699,13 +12699,13 @@ declare class SharedComputeUtils {
      * @method update
      * Updates a shared compute instance with validation and context management.
      * @async
-    */
+     */
     update: (computeName: string) => Promise<void>;
     /**
      * @method getComputeData
      * Retrieves shared compute data with validation and context management.
      * @async
-    */
+     */
     getComputeData: <T extends IComputeData = any>(clientId: string, computeName: ComputeName) => Promise<T>;
 }
 /**
@@ -12732,7 +12732,7 @@ declare class SharedStateUtils implements TSharedState {
      * Executes within a context for logging and delegates to the shared state service.
      * @template T - The type of the state data to retrieve, defaults to any.
      * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
-    */
+     */
     getState: <T extends unknown = any>(stateName: StateName) => Promise<T>;
     /**
      * Sets the shared state data for a given state name.
@@ -12740,14 +12740,14 @@ declare class SharedStateUtils implements TSharedState {
      * Executes within a context for logging and delegates to the shared state service.
      * @template T - The type of the state data to set, defaults to any.
      * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
-    */
+     */
     setState: <T extends unknown = any>(dispatchFn: T | ((prevSharedState: T) => Promise<T>), stateName: StateName) => Promise<void>;
     /**
      * Clears the shared state for a given state name, resetting it to its initial value.
      * Executes within a context for logging and delegates to the shared state service.
      * @template T - The type of the state data, defaults to any (unused in return).
      * @throws {Error} If the state name is not registered in the agent or the shared state service encounters an error.
-    */
+     */
     clearState: <T extends unknown = any>(stateName: StateName) => Promise<T>;
 }
 /**
@@ -12767,23 +12767,23 @@ type DisposeFn = () => void;
 interface IChatInstance {
     /**
      * Begins a chat session
-    */
+     */
     beginChat(): Promise<void>;
     /**
      * Checks if the chat has been active within the timeout period
-    */
+     */
     checkLastActivity(now: number): Promise<boolean>;
     /**
      * Sends a message in the chat
-    */
+     */
     sendMessage(content: string): Promise<string>;
     /**
      * Disposes of the chat instance
-    */
+     */
     dispose(): Promise<void>;
     /**
      * Adds a listener for dispose events
-    */
+     */
     listenDispose(fn: (clientId: SessionId) => void): void;
 }
 /**
@@ -12793,23 +12793,23 @@ interface IChatInstance {
 interface IChatInstanceCallbacks {
     /**
      * Called when checking activity status
-    */
+     */
     onCheckActivity(clientId: string, swarmName: SwarmName, isActive: boolean, lastActivity: number): void;
     /**
      * Called when instance is initialized
-    */
+     */
     onInit(clientId: string, swarmName: SwarmName, instance: IChatInstance): void;
     /**
      * Called when instance is disposed
-    */
+     */
     onDispose(clientId: string, swarmName: SwarmName, instance: IChatInstance): void;
     /**
      * Called when chat begins
-    */
+     */
     onBeginChat(clientId: string, swarmName: SwarmName): void;
     /**
      * Called when message is sent
-    */
+     */
     onSendMessage(clientId: string, swarmName: SwarmName, content: string): void;
 }
 /**
@@ -12819,11 +12819,11 @@ interface IChatInstanceCallbacks {
 interface IChatControl {
     /**
      * Sets the chat instance constructor
-    */
+     */
     useChatAdapter(Ctor: TChatInstanceCtor): void;
     /**
      * Sets chat instance callbacks
-    */
+     */
     useChatCallbacks(Callbacks: Partial<IChatInstanceCallbacks>): void;
 }
 /**
@@ -12887,31 +12887,31 @@ declare class ChatUtils implements IChatControl {
     /**
      * Gets or creates a chat instance for a client
      * @private
-    */
+     */
     private getChatInstance;
     /**
      * Sets the chat instance constructor
-    */
+     */
     useChatAdapter(Ctor: TChatInstanceCtor): void;
     /**
      * Sets chat instance callbacks
-    */
+     */
     useChatCallbacks(Callbacks: Partial<IChatInstanceCallbacks>): void;
     /**
      * Begins a chat session for a client
-    */
+     */
     beginChat: <Payload extends unknown = any>(clientId: SessionId, swarmName: SwarmName, payload?: Payload) => Promise<boolean>;
     /**
      * Sends a message for a client
-    */
+     */
     sendMessage: (clientId: SessionId, message: string, swarmName: SwarmName) => Promise<string>;
     /**
      * Listens for dispose events for a client
-    */
+     */
     listenDispose: (clientId: SessionId, swarmName: SwarmName, fn: (clientId: SessionId) => void) => void;
     /**
      * Disposes of a chat instance
-    */
+     */
     dispose: (clientId: SessionId, swarmName: SwarmName) => Promise<void>;
 }
 /**
@@ -12940,7 +12940,7 @@ declare class StorageUtils implements TStorage {
      * Executes within a context for logging.
      * @template T - The type of the storage data items, defaults to IStorageData.
      * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-    */
+     */
     take: <T extends IStorageData = IStorageData>(payload: {
         search: string;
         total: number;
@@ -12955,7 +12955,7 @@ declare class StorageUtils implements TStorage {
      * Executes within a context for logging.
      * @template T - The type of the storage data item, defaults to IStorageData.
      * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-    */
+     */
     upsert: <T extends IStorageData = IStorageData>(payload: {
         item: T;
         clientId: string;
@@ -12967,7 +12967,7 @@ declare class StorageUtils implements TStorage {
      * Validates the client session, storage name, and agent-storage registration before removing via the storage service.
      * Executes within a context for logging.
      * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-    */
+     */
     remove: (payload: {
         itemId: IStorageData["id"];
         clientId: string;
@@ -12980,7 +12980,7 @@ declare class StorageUtils implements TStorage {
      * Executes within a context for logging.
      * @template T - The type of the storage data item, defaults to IStorageData.
      * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-    */
+     */
     get: <T extends IStorageData = IStorageData>(payload: {
         itemId: IStorageData["id"];
         clientId: string;
@@ -12993,7 +12993,7 @@ declare class StorageUtils implements TStorage {
      * Executes within a context for logging.
      * @template T - The type of the storage data items, defaults to IStorageData.
      * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-    */
+     */
     list: <T extends IStorageData = IStorageData>(payload: {
         clientId: string;
         agentName: AgentName;
@@ -13006,7 +13006,7 @@ declare class StorageUtils implements TStorage {
      * Executes within a context for logging.
      * The numeric index is determined based on the current number of items in the storage.
      * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-    */
+     */
     createNumericIndex: (payload: {
         clientId: string;
         agentName: AgentName;
@@ -13017,7 +13017,7 @@ declare class StorageUtils implements TStorage {
      * Validates the storage name and agent-storage registration before clearing via the storage service.
      * Executes within a context for logging.
      * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-    */
+     */
     clear: (payload: {
         clientId: string;
         agentName: AgentName;
@@ -13046,7 +13046,7 @@ declare class SharedStorageUtils implements TSharedStorage {
      * Executes within a context for logging and validation, ensuring the storage name is valid.
      * @template T - The type of the storage data items, defaults to IStorageData.
      * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-    */
+     */
     take: <T extends IStorageData = IStorageData>(payload: {
         search: string;
         total: number;
@@ -13058,33 +13058,33 @@ declare class SharedStorageUtils implements TSharedStorage {
      * Executes within a context for logging and validation, ensuring the storage name is valid.
      * @template T - The type of the storage data item, defaults to IStorageData.
      * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-    */
+     */
     upsert: <T extends IStorageData = IStorageData>(item: T, storageName: StorageName) => Promise<void>;
     /**
      * Removes an item from the storage by its ID.
      * Executes within a context for logging and validation, ensuring the storage name is valid.
      * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-    */
+     */
     remove: (itemId: IStorageData["id"], storageName: StorageName) => Promise<void>;
     /**
      * Retrieves an item from the storage by its ID.
      * Executes within a context for logging and validation, ensuring the storage name is valid.
      * @template T - The type of the storage data item, defaults to IStorageData.
      * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-    */
+     */
     get: <T extends IStorageData = IStorageData>(itemId: IStorageData["id"], storageName: StorageName) => Promise<T | null>;
     /**
      * Lists all items in the storage, optionally filtered by a predicate.
      * Executes within a context for logging and validation, ensuring the storage name is valid.
      * @template T - The type of the storage data items, defaults to IStorageData.
      * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-    */
+     */
     list: <T extends IStorageData = IStorageData>(storageName: StorageName, filter?: (item: T) => boolean) => Promise<T[]>;
     /**
      * Clears all items from the storage.
      * Executes within a context for logging and validation, ensuring the storage name is valid.
      * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-    */
+     */
     clear: (storageName: string) => Promise<void>;
 }
 /**
@@ -13111,27 +13111,27 @@ declare class SchemaUtils {
      * avoiding race conditions during concurrent writes.
      *
      * @template T - The type of the memory value to persist, must extend object.
-    */
+     */
     private [PERSIST_WRITE_SYMBOL];
     /**
      * Writes a value to the session memory for a given client.
      * Executes within a context for logging and validation, ensuring the client session is valid.
      * @template T - The type of the value to write, must extend object.
      * @throws {Error} If session validation fails or the memory schema service encounters an error.
-    */
+     */
     writeSessionMemory: <T extends object = object>(clientId: string, value: T) => Promise<T>;
     /**
      * Reads a value from the session memory for a given client.
      * Executes within a context for logging and validation, ensuring the client session is valid.
      * @template T - The type of the value to read, must extend object.
      * @throws {Error} If session validation fails or the memory schema service encounters an error.
-    */
+     */
     readSessionMemory: <T extends object = object>(clientId: string) => Promise<T>;
     /**
      * Serializes an object or array of objects into a formatted string.
      * Flattens nested objects and applies optional key/value mapping functions for formatting.
      * @template T - The type of the object(s) to serialize, defaults to any.
-    */
+     */
     serialize: <T extends object = any>(data: T[] | T, map?: {
         mapKey?: typeof GLOBAL_CONFIG.CC_NAME_TO_TITLE;
         mapValue?: (key: string, value: string) => string;
@@ -13153,35 +13153,35 @@ type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
 declare class AdapterUtils {
     /**
      * Creates a function to interact with Hugging Face Inference API chat completions.
-    */
+     */
     fromHf: (inferenceClient: any, model?: string) => TCompleteFn;
     /**
      * Creates a function to interact with Cortex's chat completions API.
-    */
+     */
     fromCortex: (model?: string, baseUrl?: string) => TCompleteFn;
     /**
      * Creates a function to interact with Grok's chat completions API.
-    */
+     */
     fromGrok: (grok: any, model?: string) => TCompleteFn;
     /**
      * Creates a function to interact with CohereClientV2 chat completions API.
-    */
+     */
     fromCohereClientV2: (cohere: any, model?: string) => TCompleteFn;
     /**
      * Creates a function to interact with OpenAI's chat completions API.
-    */
+     */
     fromOpenAI: (openai: any, model?: string, response_format?: {
         type: string;
     }) => TCompleteFn;
     /**
      * Creates a function to interact with LMStudio's chat completions API.
-    */
+     */
     fromLMStudio: (openai: any, model?: string, response_format?: {
         type: string;
     }) => TCompleteFn;
     /**
      * Creates a function to interact with Ollama's chat completions API.
-    */
+     */
     fromOllama: (ollama: any, model?: string, tool_call_protocol?: string) => TCompleteFn;
 }
 /**
@@ -13250,7 +13250,7 @@ interface JsonSchema {
     /**
      * Whether additional properties are allowed in the schema.
      * Controls validation strictness for object schemas.
-    */
+     */
     additionalProperties?: boolean;
     [key: string]: any;
 }

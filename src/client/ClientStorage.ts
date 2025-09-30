@@ -330,13 +330,13 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Internal map to store items by their IDs, used for fast retrieval and updates.
    * Populated during initialization (waitForInit) and modified by upsert, remove, and clear operations.
-  */
+   */
   _itemMap = new Map<IStorageData["id"], T>();
 
   /**
    * Constructs a ClientStorage instance with the provided parameters.
    * Invokes the onInit callback if provided and logs construction if debugging is enabled.
-  */
+   */
   constructor(readonly params: IStorageParams<T>) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -356,7 +356,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Dispatches a storage action (upsert, remove, or clear) in a queued manner, delegating to DISPATCH_FN.
    * Ensures sequential execution of storage operations, supporting thread-safe updates from ClientAgent or tools.
-  */
+   */
   dispatch = queued(
     async (action, payload) => await DISPATCH_FN<T>(action, this, payload)
   ) as (action: Action, payload: Partial<Payload<T>>) => Promise<void>;
@@ -364,7 +364,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Creates embeddings for the given item, memoized by item ID to avoid redundant calculations via CREATE_EMBEDDING_FN.
    * Caches results for efficiency, cleared on upsert/remove to ensure freshness, supporting EmbeddingSchemaService.
-   */
+    */
   _createEmbedding = memoize(
     ([{ id }]) => id,
     async (item: T) => await CREATE_EMBEDDING_FN(item, this)
@@ -373,7 +373,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Waits for the initialization of the storage, loading initial data and creating embeddings via WAIT_FOR_INIT_FN.
    * Ensures initialization happens only once using singleshot, supporting StorageConnectionService’s lifecycle.
-  */
+   */
   waitForInit = singleshot(
     async (): Promise<void> => await WAIT_FOR_INIT_FN(this)
   );
@@ -382,7 +382,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
    * Retrieves a specified number of items based on similarity to a search string, using embeddings and SortedArray.
    * Executes similarity calculations concurrently via execpool, respecting GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL, and filters by score.
    * Emits an event via BusService, supporting ClientAgent’s search-driven tool execution.
-   */
+    */
   async take(
     search: string,
     total: number,
@@ -487,7 +487,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Upserts an item into the storage via the dispatch queue, delegating to UPSERT_FN.
    * Schedules the operation for sequential execution, supporting ClientAgent’s data persistence needs.
-   */
+    */
   async upsert(item: T): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -504,7 +504,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Removes an item from the storage by its ID via the dispatch queue, delegating to REMOVE_FN.
    * Schedules the operation for sequential execution, supporting ClientAgent’s data management.
-   */
+    */
   async remove(itemId: IStorageData["id"]): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -521,7 +521,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Clears all items from the storage via the dispatch queue, delegating to CLEAR_FN.
    * Schedules the operation for sequential execution, supporting storage reset operations.
-  */
+   */
   async clear(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -533,7 +533,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Retrieves an item from the storage by its ID directly from _itemMap.
    * Emits an event via BusService with the result, supporting quick lookups by ClientAgent or tools.
-   */
+    */
   async get(itemId: IStorageData["id"]): Promise<T | null> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -563,7 +563,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Lists all items in the storage from _itemMap, optionally filtered by a predicate.
    * Emits an event via BusService with the filtered result if a filter is provided, supporting ClientAgent’s data enumeration.
-   */
+    */
   async list(filter?: (item: T) => boolean): Promise<T[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -596,7 +596,7 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   /**
    * Disposes of the storage instance, invoking the onDispose callback if provided and logging via BusService.
    * Ensures proper cleanup with StorageConnectionService when the storage is no longer needed.
-  */
+   */
   async dispose(): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(

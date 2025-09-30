@@ -12,12 +12,12 @@ export interface ISwarmSessionCallbacks {
   /**
    * Optional callback triggered when a client connects to the swarm.
    * Useful for logging or initialization tasks.
-  */
+   */
   onConnect?: (clientId: string, swarmName: SwarmName) => void;
 
   /**
    * Optional callback triggered when a command is executed within the swarm.
-  */
+   */
   onExecute?: (
     clientId: string,
     swarmName: SwarmName,
@@ -27,23 +27,23 @@ export interface ISwarmSessionCallbacks {
 
   /**
    * Optional callback triggered when a stateless completion run is executed.
-  */
+   */
   onRun?: (clientId: string, swarmName: SwarmName, content: string) => void;
 
   /**
    * Optional callback triggered when a message is emitted from the swarm.
-  */
+   */
   onEmit?: (clientId: string, swarmName: SwarmName, message: string) => void;
 
   /**
    * Optional callback triggered when a session is initialized within the swarm.
-  */
+   */
   onInit?: (clientId: string, swarmName: SwarmName) => void;
 
   /**
    * Optional callback triggered when a session is disconnected or disposed of.
    * Note: "disponnected" in original comment corrected to "disconnected".
-  */
+   */
   onDispose?: (clientId: string, swarmName: SwarmName) => void;
 }
 
@@ -56,7 +56,7 @@ export interface ISwarmCallbacks extends ISwarmSessionCallbacks {
   /**
    * Callback triggered when the active agent changes within the swarm.
    * Useful for navigation tracking or state updates.
-  */
+   */
   onAgentChanged: (
     clientId: string,
     agentName: AgentName,
@@ -106,7 +106,7 @@ export interface ISwarmSchema {
 
   /**
    * Optional function to retrieve the initial navigation stack after swarm initialization.
-  */
+   */
   getNavigationStack?: (
     clientId: string,
     swarmName: SwarmName
@@ -115,7 +115,7 @@ export interface ISwarmSchema {
   /**
    * Optional function to persist the navigation stack after a change.
    * @throws {Error} If persistence fails (e.g., due to storage issues).
-  */
+   */
   setNavigationStack?: (
     clientId: string,
     navigationStack: AgentName[],
@@ -124,7 +124,7 @@ export interface ISwarmSchema {
 
   /**
    * Optional function to fetch the active agent upon swarm initialization.
-  */
+   */
   getActiveAgent?: (
     clientId: string,
     swarmName: SwarmName,
@@ -134,7 +134,7 @@ export interface ISwarmSchema {
   /**
    * Optional function to update the active agent after navigation changes.
    * @throws {Error} If the update fails (e.g., due to persistence issues).
-  */
+   */
   setActiveAgent?: (
     clientId: string,
     agentName: AgentName,
@@ -162,56 +162,56 @@ export interface ISwarm {
   /**
    * Removes and returns the most recent agent from the navigation stack, or falls back to the default agent.
    * @throws {Error} If navigation retrieval fails (e.g., due to persistence issues).
-  */
+   */
   navigationPop(): Promise<AgentName>;
 
   /**
    * Cancels the current output operation, resulting in an empty string from waitForOutput.
    * @throws {Error} If cancellation fails (e.g., due to internal errors).
-  */
+   */
   cancelOutput(): Promise<void>;
 
   /**
    * Waits for and retrieves the output from the swarm’s active agent.
    * @throws {Error} If no output is available or waiting times out.
-  */
+   */
   waitForOutput(): Promise<string>;
 
   /**
    * Retrieves the name of the currently active agent in the swarm.
    * @throws {Error} If the active agent cannot be determined (e.g., due to persistence issues).
-  */
+   */
   getAgentName(): Promise<AgentName>;
 
   /**
    * Retrieves the instance of the currently active agent in the swarm.
    * @throws {Error} If the agent instance cannot be retrieved (e.g., due to invalid agent name).
-  */
+   */
   getAgent(): Promise<IAgent>;
 
   /**
    * Registers or updates an agent reference in the swarm’s agent map.
    * @throws {Error} If registration fails (e.g., due to invalid agent or internal errors).
-  */
+   */
   setAgentRef(agentName: AgentName, agent: IAgent): Promise<void>;
 
   /**
    * Sets the active agent in the swarm by name, updating navigation if applicable.
    * @throws {Error} If setting the agent fails (e.g., due to persistence issues or invalid name).
-  */
+   */
   setAgentName(agentName: AgentName): Promise<void>;
 
   /**
    * Emits a message to the session's communication channel.
    * @throws {Error} If the emission fails due to connection issues or invalid message format.
-  */
+   */
   emit(message: string): Promise<void>;
 
   /**
    * Returns the current busy state of the swarm.
    * Used to check if the swarm is currently processing an operation (e.g., waiting for output or switching agents).
    * Supports debugging and flow control in client applications.
-  */
+   */
   getCheckBusy(): Promise<boolean>;
 
   /**
@@ -219,7 +219,7 @@ export interface ISwarm {
    * This method is used to indicate whether the swarm is currently processing an operation.
    * It helps manage flow control and debugging by signaling when the swarm is occupied.
    * @throws {Error} If setting the busy state fails (e.g., due to internal errors).
-  */
+   */
   setBusy(isBusy: boolean): void;
 }
 

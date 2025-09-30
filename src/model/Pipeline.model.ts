@@ -10,18 +10,18 @@ import { AgentName } from "../interfaces/Agent.interface";
 export interface IPipelineSchema<Payload extends object = any> {
   /**
    * The name of the pipeline.
-  */
+   */
   pipelineName: PipelineName;
 
   /**
    * Function to execute the pipeline logic.
-  */
+   */
   execute: <T = any>(clientId: string, agentName: AgentName, payload: Payload) => Promise<T | void>;
 
   /**
    * Optional callbacks for pipeline lifecycle events.
    * Provides hooks for monitoring pipeline execution, handling errors, and customizing behavior.
-  */
+   */
   callbacks?: Partial<IPipelineCallbacks<Payload>>;
 }
 
@@ -31,18 +31,18 @@ export interface IPipelineSchema<Payload extends object = any> {
 export interface IPipelineCallbacks<Payload extends object = any> {
   /**
    * Called when the pipeline execution starts.
-  */
+   */
   onStart: (clientId: string, pipelineName: PipelineName, payload: Payload) => void;
 
   /**
    * Called when the pipeline execution ends, indicating success or failure.
-  */
+   */
   onEnd: (clientId: string, pipelineName: PipelineName, payload: Payload, isError: boolean) => void;
 
   /**
    * Called when an error occurs during pipeline execution.
    * Provides error handling capabilities for pipeline failures and debugging.
-  */
+   */
   onError: (clientId: string, pipelineName: PipelineName, payload: Payload, error: Error) => void;
 }
 

@@ -62,6 +62,6 @@ export interface IBus {
    * 
    * @template T - The type of event, extending IBaseEvent, defining a structured payload with fields like `type`, `source`, `input`, `output`, `context`, and `clientId`.
    * @throws {Error} If emission fails, potentially due to invalid `clientId`, malformed event structure, or delivery issues (e.g., queue overflow, network failure).
-  */
+   */
   emit<T extends IBaseEvent>(clientId: string, event: T): Promise<void>;
 }

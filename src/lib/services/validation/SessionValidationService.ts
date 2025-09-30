@@ -25,63 +25,63 @@ export class SessionValidationService {
    * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
    * @private
    * @readonly
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Map of session IDs to their associated storage names, tracking storage usage per session.
    * Populated by addStorageUsage, modified by removeStorageUsage.
    * @private
-  */
+   */
   private _storageSwarmMap = new Map<SessionId, StorageName[]>();
 
   /**
    * Map of session IDs to their associated agent names for history tracking.
    * Populated by addHistoryUsage, modified by removeHistoryUsage.
    * @private
-  */
+   */
   private _historySwarmMap = new Map<SessionId, AgentName[]>();
 
   /**
    * Map of session IDs to their associated agent names for active usage.
    * Populated by addAgentUsage, modified by removeAgentUsage.
    * @private
-  */
+   */
   private _agentSwarmMap = new Map<SessionId, AgentName[]>();
 
   /**
    * Map of session IDs to their associated state names, tracking state usage per session.
    * Populated by addStateUsage, modified by removeStateUsage.
    * @private
-  */
+   */
   private _stateSwarmMap = new Map<SessionId, StateName[]>();
 
   /**
    * Map of session IDs to their associated compute names, tracking compute usage per session.
    * Populated by addComputeUsage, modified by removeComputeUsage.
    * @private
-  */
+   */
   private _computeSwarmMap = new Map<SessionId, ComputeName[]>();
 
   /**
    * Map of session IDs to their associated swarm names, defining session-swarm relationships.
    * Populated by addSession, removed by removeSession.
    * @private
-  */
+   */
   private _sessionSwarmMap = new Map<SessionId, SwarmName>();
 
   /**
    * Map of session IDs to their modes, defining session behavior.
    * Populated by addSession, removed by removeSession.
    * @private
-  */
+   */
   private _sessionModeMap = new Map<SessionId, SessionMode>();
 
   /**
    * Registers a new session with its swarm and mode.
    * Logs the operation and ensures uniqueness, supporting SessionConnectionService’s session creation.
    * @throws {Error} If the session already exists in _sessionSwarmMap.
-  */
+   */
   public addSession = (
     clientId: SessionId,
     swarmName: SwarmName,
@@ -105,7 +105,7 @@ export class SessionValidationService {
   /**
    * Tracks an agent’s usage within a session, adding it to the session’s agent list.
    * Logs the operation, supporting ClientAgent’s session-specific activity tracking.
-  */
+   */
   public addAgentUsage = (sessionId: SessionId, agentName: AgentName): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("sessionValidationService addAgentUsage", {
@@ -125,7 +125,7 @@ export class SessionValidationService {
   /**
    * Tracks an agent’s history usage within a session, adding it to the session’s history list.
    * Logs the operation, supporting ClientHistory’s session-specific history tracking.
-  */
+   */
   public addHistoryUsage = (
     sessionId: SessionId,
     agentName: AgentName
@@ -148,7 +148,7 @@ export class SessionValidationService {
   /**
    * Tracks a storage’s usage within a session, adding it to the session’s storage list.
    * Logs the operation, supporting ClientStorage’s session-specific storage tracking.
-  */
+   */
   public addStorageUsage = (
     sessionId: SessionId,
     storageName: StorageName
@@ -171,7 +171,7 @@ export class SessionValidationService {
   /**
    * Tracks a state’s usage within a session, adding it to the session’s state list.
    * Logs the operation, supporting ClientState’s session-specific state tracking.
-  */
+   */
   public addStateUsage = (sessionId: SessionId, stateName: StateName): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("sessionValidationService addStateUsage", {
@@ -191,7 +191,7 @@ export class SessionValidationService {
   /**
    * Tracks a compute’s usage within a session, adding it to the session’s compute list.
    * Logs the operation, supporting ClientState’s session-specific compute tracking.
-  */
+   */
   public addComputeUsage = (
     sessionId: SessionId,
     computeName: ComputeName
@@ -215,7 +215,7 @@ export class SessionValidationService {
    * Removes an agent from a session’s agent usage list.
    * Logs the operation and cleans up if the list becomes empty, supporting ClientAgent’s session cleanup.
    * @throws {Error} If no agents are found for the session in _agentSwarmMap.
-  */
+   */
   public removeAgentUsage = (
     sessionId: SessionId,
     agentName: AgentName
@@ -243,7 +243,7 @@ export class SessionValidationService {
    * Removes an agent from a session’s history usage list.
    * Logs the operation and cleans up if the list becomes empty, supporting ClientHistory’s session cleanup.
    * @throws {Error} If no agents are found for the session in _historySwarmMap.
-  */
+   */
   public removeHistoryUsage = (
     sessionId: SessionId,
     agentName: AgentName
@@ -271,7 +271,7 @@ export class SessionValidationService {
    * Removes a storage from a session’s storage usage list.
    * Logs the operation and cleans up if the list becomes empty, supporting ClientStorage’s session cleanup.
    * @throws {Error} If no storages are found for the session in _storageSwarmMap.
-  */
+   */
   public removeStorageUsage = (
     sessionId: SessionId,
     storageName: StorageName
@@ -299,7 +299,7 @@ export class SessionValidationService {
    * Removes a state from a session’s state usage list.
    * Logs the operation and cleans up if the list becomes empty, supporting ClientState’s session cleanup.
    * @throws {Error} If no states are found for the session in _stateSwarmMap.
-  */
+   */
   public removeStateUsage = (
     sessionId: SessionId,
     stateName: StateName
@@ -327,7 +327,7 @@ export class SessionValidationService {
    * Removes a compute from a session’s compute usage list.
    * Logs the operation and cleans up if the list becomes empty, supporting ClientCompute’s session cleanup.
    * @throws {Error} If no computes are found for the session in _computeSwarmMap.
-  */
+   */
   public removeComputeUsage = (
     sessionId: SessionId,
     computeName: ComputeName
@@ -355,7 +355,7 @@ export class SessionValidationService {
    * Retrieves the mode of a session.
    * Logs the operation and validates session existence, supporting ClientSession’s mode-based behavior.
    * @throws {Error} If the session does not exist in _sessionModeMap.
-  */
+   */
   public getSessionMode = (clientId: SessionId): SessionMode => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("sessionValidationService getSessionMode", {
@@ -372,7 +372,7 @@ export class SessionValidationService {
   /**
    * Checks if a session exists.
    * Logs the operation, supporting quick existence checks for SessionConnectionService.
-  */
+   */
   public hasSession = (clientId: SessionId): boolean => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("sessionValidationService hasSession", {
@@ -384,7 +384,7 @@ export class SessionValidationService {
   /**
    * Retrieves the list of all registered session IDs.
    * Logs the operation, supporting SessionConnectionService’s session enumeration.
-  */
+   */
   public getSessionList = (): SessionId[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("sessionValidationService getSessionList");
@@ -394,7 +394,7 @@ export class SessionValidationService {
   /**
    * Retrieves the list of computes associated with a session.
    * Logs the operation, supporting ClientAgent’s session-specific agent queries.
-  */
+   */
   public getSessionComputeList = (clientId: SessionId): ComputeName[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(
@@ -409,7 +409,7 @@ export class SessionValidationService {
   /**
    * Retrieves the list of agents associated with a session.
    * Logs the operation, supporting ClientAgent’s session-specific agent queries.
-  */
+   */
   public getSessionAgentList = (clientId: SessionId): AgentName[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("sessionValidationService getSessionAgentList", {
@@ -421,7 +421,7 @@ export class SessionValidationService {
   /**
    * Retrieves the list of agents in a session’s history.
    * Logs the operation, supporting ClientHistory’s session-specific history queries.
-  */
+   */
   public getSessionHistoryList = (clientId: SessionId): AgentName[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(
@@ -437,7 +437,7 @@ export class SessionValidationService {
    * Retrieves the swarm name associated with a session.
    * Logs the operation and validates session existence, supporting SwarmSchemaService’s session-swarm mapping.
    * @throws {Error} If the session does not exist in _sessionSwarmMap.
-  */
+   */
   public getSwarm = (clientId: SessionId): SwarmName => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("sessionValidationService getSwarm", {
@@ -454,7 +454,7 @@ export class SessionValidationService {
    * Validates if a session exists, memoized by clientId for performance.
    * Logs the operation and checks existence, supporting ClientSession’s session validation needs.
    * @throws {Error} If the clientId is missing or the session does not exist in _sessionSwarmMap.
-  */
+   */
   public validate = memoize(
     ([clientId]) => `${clientId}`,
     (clientId: SessionId, source: string): void => {
@@ -479,7 +479,7 @@ export class SessionValidationService {
   /**
    * Removes a session and its associated mode, clearing validation cache.
    * Logs the operation, supporting SessionConnectionService’s session cleanup.
-  */
+   */
   public removeSession = (clientId: SessionId): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("sessionValidationService removeSession", {
@@ -493,7 +493,7 @@ export class SessionValidationService {
   /**
    * Clears the validation cache for a specific session.
    * Logs the operation, supporting resource cleanup without removing session data.
-  */
+   */
   public dispose = (clientId: SessionId): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("sessionValidationService dispose", {

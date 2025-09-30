@@ -30,14 +30,14 @@ export class PerfService {
    * Logger service instance for logging performance-related information, injected via DI.
    * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO, used across methods (e.g., startExecution, toRecord) for info-level logging.
    * @private
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Session validation service instance, injected via DI.
    * Used to retrieve session lists (e.g., getActiveSessions) and swarm names (e.g., computeClientState).
    * @private
-  */
+   */
   private readonly sessionValidationService = inject<SessionValidationService>(
     TYPES.sessionValidationService
   );
@@ -46,7 +46,7 @@ export class PerfService {
    * Memory schema service instance, injected via DI.
    * Provides session memory data for toClientRecord, aligning with IClientPerfomanceRecord.sessionMemory.
    * @private
-  */
+   */
   private readonly memorySchemaService = inject<MemorySchemaService>(
     TYPES.memorySchemaService
   );
@@ -55,7 +55,7 @@ export class PerfService {
    * Swarm validation service instance, injected via DI.
    * Retrieves agent and policy lists for computeClientState, supporting swarm-level state aggregation.
    * @private
-  */
+   */
   private readonly swarmValidationService = inject<SwarmValidationService>(
     TYPES.swarmValidationService
   );
@@ -64,7 +64,7 @@ export class PerfService {
    * Agent validation service instance, injected via DI.
    * Fetches state lists for agents in computeClientState, enabling client state computation.
    * @private
-  */
+   */
   private readonly agentValidationService = inject<AgentValidationService>(
     TYPES.agentValidationService
   );
@@ -73,7 +73,7 @@ export class PerfService {
    * State public service instance, injected via DI.
    * Retrieves state values for computeClientState, populating IClientPerfomanceRecord.sessionState.
    * @private
-  */
+   */
   private readonly statePublicService = inject<StatePublicService>(
     TYPES.statePublicService
   );
@@ -82,7 +82,7 @@ export class PerfService {
    * Swarm public service instance, injected via DI.
    * Provides agent names for computeClientState, supporting swarm status in sessionState.
    * @private
-  */
+   */
   private readonly swarmPublicService = inject<SwarmPublicService>(
     TYPES.swarmPublicService
   );
@@ -91,7 +91,7 @@ export class PerfService {
    * Policy public service instance, injected via DI.
    * Checks for bans in computeClientState, contributing to policyBans in sessionState.
    * @private
-  */
+   */
   private readonly policyPublicService = inject<PolicyPublicService>(
     TYPES.policyPublicService
   );
@@ -100,7 +100,7 @@ export class PerfService {
    * State connection service instance, injected via DI.
    * Verifies state references in computeClientState, ensuring valid state retrieval.
    * @private
-  */
+   */
   private readonly stateConnectionService = inject<StateConnectionService>(
     TYPES.stateConnectionService
   );
@@ -109,49 +109,49 @@ export class PerfService {
    * Map tracking execution start times for clients, keyed by clientId and executionId.
    * Used in startExecution and endExecution to calculate response times per execution.
    * @private
-  */
+   */
   private executionScheduleMap: Map<string, Map<string, number[]>> = new Map();
 
   /**
    * Map of total output lengths per client, keyed by clientId.
    * Updated in endExecution, used for IClientPerfomanceRecord.executionOutputTotal.
    * @private
-  */
+   */
   private executionOutputLenMap: Map<string, number> = new Map();
 
   /**
    * Map of total input lengths per client, keyed by clientId.
    * Updated in startExecution, used for IClientPerfomanceRecord.executionInputTotal.
    * @private
-  */
+   */
   private executionInputLenMap: Map<string, number> = new Map();
 
   /**
    * Map of execution counts per client, keyed by clientId.
    * Updated in startExecution, used for IClientPerfomanceRecord.executionCount.
    * @private
-  */
+   */
   private executionCountMap: Map<string, number> = new Map();
 
   /**
    * Map of total execution times per client, keyed by clientId.
    * Updated in endExecution, used for IClientPerfomanceRecord.executionTimeTotal.
    * @private
-  */
+   */
   private executionTimeMap: Map<string, number> = new Map();
 
   /**
    * Total response time across all executions, in milliseconds.
    * Aggregated in endExecution, used for IPerformanceRecord.totalResponseTime.
    * @private
-  */
+   */
   private totalResponseTime: number = 0;
 
   /**
    * Total number of execution requests across all clients.
    * Incremented in endExecution, used for IPerformanceRecord.totalExecutionCount.
    * @private
-  */
+   */
   private totalRequestCount = 0;
 
   /**
@@ -159,7 +159,7 @@ export class PerfService {
    * Used in toClientRecord to populate IClientPerfomanceRecord.sessionState, integrating with validation and public services.
    * Logs via loggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true (e.g., ClientAgent-style debug logging).
    * @private
-  */
+   */
   private computeClientState = async (clientId: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`perfService computeClientState`, {
@@ -235,7 +235,7 @@ export class PerfService {
   /**
    * Retrieves the number of active executions for a client’s session.
    * Used to monitor execution frequency, reflecting IClientPerfomanceRecord.executionCount.
-  */
+   */
   public getActiveSessionExecutionCount = (clientId: string): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("perfService getActiveSessionExecutionCount");
@@ -248,7 +248,7 @@ export class PerfService {
   /**
    * Retrieves the total execution time for a client’s sessions, in milliseconds.
    * Used for performance analysis, feeding into IClientPerfomanceRecord.executionTimeTotal.
-  */
+   */
   public getActiveSessionExecutionTotalTime = (clientId: string): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("perfService getActiveSessionExecutionTotalTime");
@@ -261,7 +261,7 @@ export class PerfService {
   /**
    * Calculates the average execution time per execution for a client’s sessions, in milliseconds.
    * Used for performance metrics, contributing to IClientPerfomanceRecord.executionTimeAverage.
-  */
+   */
   public getActiveSessionExecutionAverageTime = (clientId: string): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(
@@ -282,7 +282,7 @@ export class PerfService {
   /**
    * Calculates the average input length per execution for a client’s sessions.
    * Used for data throughput analysis, feeding into IClientPerfomanceRecord.executionInputAverage.
-  */
+   */
   public getActiveSessionAverageInputLength = (clientId: string): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("perfService getActiveSessionAverageInputLength");
@@ -301,7 +301,7 @@ export class PerfService {
   /**
    * Calculates the average output length per execution for a client’s sessions.
    * Used for data throughput analysis, feeding into IClientPerfomanceRecord.executionOutputAverage.
-  */
+   */
   public getActiveSessionAverageOutputLength = (clientId: string): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(
@@ -322,7 +322,7 @@ export class PerfService {
   /**
    * Retrieves the total input length for a client’s sessions.
    * Used for data volume tracking, aligning with IClientPerfomanceRecord.executionInputTotal.
-  */
+   */
   public getActiveSessionTotalInputLength = (clientId: string): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("perfService getActiveSessionTotalInputLength");
@@ -335,7 +335,7 @@ export class PerfService {
   /**
    * Retrieves the total output length for a client’s sessions.
    * Used for data volume tracking, aligning with IClientPerfomanceRecord.executionOutputTotal.
-  */
+   */
   public getActiveSessionTotalOutputLength = (clientId: string): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("perfService getActiveSessionTotalOutputLength");
@@ -348,7 +348,7 @@ export class PerfService {
   /**
    * Retrieves the list of active session client IDs.
    * Sources data from sessionValidationService, used in toRecord to enumerate clients.
-  */
+   */
   public getActiveSessions = (): string[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("perfService getActiveSessions");
@@ -358,7 +358,7 @@ export class PerfService {
   /**
    * Calculates the average response time across all executions, in milliseconds.
    * Used for system-wide performance metrics, feeding into IPerformanceRecord.averageResponseTime.
-  */
+   */
   public getAverageResponseTime = (): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("perfService getAverageResponseTime");
@@ -371,7 +371,7 @@ export class PerfService {
   /**
    * Retrieves the total number of executions across all clients.
    * Used for system-wide metrics, aligning with IPerformanceRecord.totalExecutionCount.
-  */
+   */
   public getTotalExecutionCount = (): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("perfService getTotalExecutionCount");
@@ -381,7 +381,7 @@ export class PerfService {
   /**
    * Retrieves the total response time across all executions, in milliseconds.
    * Used for system-wide metrics, feeding into IPerformanceRecord.totalResponseTime.
-  */
+   */
   public getTotalResponseTime = (): number => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("perfService getTotalResponseTime");
@@ -391,7 +391,7 @@ export class PerfService {
   /**
    * Starts tracking an execution for a client, recording start time and input length.
    * Initializes maps and increments execution count/input length, used with endExecution to measure performance (e.g., ClientAgent.execute).
-  */
+   */
   public startExecution = (
     executionId: string,
     clientId: string,
@@ -437,7 +437,7 @@ export class PerfService {
   /**
    * Ends tracking an execution for a client, calculating response time and updating output length.
    * Pairs with startExecution to compute execution duration, updating totals for IClientPerfomanceRecord metrics.
-  */
+   */
   public endExecution = (
     executionId: string,
     clientId: string,
@@ -488,7 +488,7 @@ export class PerfService {
   /**
    * Serializes performance metrics for a specific client into an IClientPerfomanceRecord.
    * Aggregates execution counts, input/output lengths, times, memory, and state, used in toRecord for per-client data.
-  */
+   */
   public toClientRecord = async (
     clientId: string
   ): Promise<IClientPerfomanceRecord> => {
@@ -524,7 +524,7 @@ export class PerfService {
   /**
    * Serializes performance metrics for all clients into an IPerformanceRecord.
    * Aggregates client records, total execution counts, and response times, used for system-wide performance reporting.
-  */
+   */
   public toRecord = async (): Promise<IPerformanceRecord> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`perfService toRecord`);
@@ -548,7 +548,7 @@ export class PerfService {
   /**
    * Disposes of all performance data associated with a client.
    * Clears maps for the clientId, used to reset or terminate tracking (e.g., session end in ClientAgent).
-  */
+   */
   public dispose = (clientId: string): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`perfService dispose`, { clientId });

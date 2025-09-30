@@ -22,14 +22,14 @@ export class BusService implements IBus {
    * Logger service instance, injected via DI, for logging bus operations.
    * Used in methods like subscribe, emit, and dispose when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with PerfService and DocService logging patterns.
    * @private
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Session validation service instance, injected via DI, for checking active client sessions.
    * Used in emit to ensure events are only emitted for valid sessions, aligning with ClientAgent’s session management (e.g., clientId validation).
    * @private
-  */
+   */
   private readonly sessionValidationService = inject<SessionValidationService>(
     TYPES.sessionValidationService
   );
@@ -38,21 +38,21 @@ export class BusService implements IBus {
    * Set of registered event sources, tracking all unique EventSource values from subscriptions.
    * Used in dispose to clean up subscriptions for a clientId, ensuring comprehensive resource management.
    * @private
-  */
+   */
   private _eventSourceSet = new Set<EventSource>();
 
   /**
    * Map indicating wildcard subscriptions (clientId="*") for each EventSource.
    * Used in emit to broadcast events to wildcard subscribers, enhancing flexibility in event handling (e.g., system-wide monitoring).
    * @private
-  */
+   */
   private _eventWildcardMap = new Map<EventSource, boolean>();
 
   /**
    * Memoized factory function to create or retrieve a Subject for a clientId and EventSource pair.
    * Uses memoize from functools-kit with a key of `${clientId}-${source}`, optimizing performance by reusing Subjects, integral to subscribe, once, and emit operations.
    * @private
-  */
+   */
   private getEventSubject = memoize<
     (clientId: string, source: EventSource) => Subject<IBaseEvent>
   >(
@@ -65,7 +65,7 @@ export class BusService implements IBus {
    * Registers the source in _eventSourceSet and supports wildcard subscriptions (clientId="*") via _eventWildcardMap, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used in ClientAgent (e.g., to monitor execution events) and PerfService (e.g., to track execution metrics indirectly via events).
    * @template T - The event type extending IBaseEvent.
-  */
+   */
   public subscribe = <T extends IBaseEvent>(
     clientId: string,
     source: EventSource,
@@ -88,7 +88,7 @@ export class BusService implements IBus {
    * Registers the source in _eventSourceSet and supports wildcard subscriptions, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Useful for one-time event handling (e.g., ClientAgent awaiting execution completion), complementing subscribe.
    * @template T - The event type extending IBaseEvent.
-  */
+   */
   public once = <T extends IBaseEvent>(
     clientId: string,
     source: EventSource,
@@ -111,7 +111,7 @@ export class BusService implements IBus {
    * Emits an event for a specific client, broadcasting to subscribers of the event’s source, including wildcard subscribers.
    * Validates the client session with SessionValidationService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, and supports PerfService execution tracking (e.g., via commitExecutionBegin).
    * @template T - The event type extending IBaseEvent.
-  */
+   */
   public emit = async <T extends IBaseEvent>(clientId: string, event: T) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`busService emit`, {
@@ -132,7 +132,7 @@ export class BusService implements IBus {
   /**
    * Emits an execution begin event for a specific client, serving as an alias for emit with a predefined IBusEvent structure.
    * Logs via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used in ClientAgent (e.g., EXECUTE_FN start) and PerfService (e.g., startExecution trigger).
-  */
+   */
   public commitExecutionBegin = async (
     clientId: string,
     context: Partial<IBusEventContext>
@@ -154,7 +154,7 @@ export class BusService implements IBus {
   /**
    * Emits an execution end event for a specific client, serving as an alias for emit with a predefined IBusEvent structure.
    * Logs via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, used in ClientAgent (e.g., EXECUTE_FN completion) and PerfService (e.g., endExecution trigger).
-  */
+   */
   public commitExecutionEnd = async (
     clientId: string,
     context: Partial<IBusEventContext>
@@ -176,7 +176,7 @@ export class BusService implements IBus {
   /**
    * Disposes of all event subscriptions for a specific client, unsubscribing and clearing Subjects for all registered sources.
    * Logs via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligns with PerfService’s dispose (e.g., session cleanup) and ClientAgent’s session termination.
-  */
+   */
   public dispose = (clientId: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`busService dispose`, {

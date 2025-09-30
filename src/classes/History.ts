@@ -11,7 +11,7 @@ import { PersistList, TPersistList } from "./Persist";
 export interface IHistoryInstanceCallbacks {
   /**
    * Retrieves dynamic system prompt messages for an agent.
-  */
+   */
   getSystemPrompt?: (
     clientId: string,
     agentName: AgentName
@@ -19,7 +19,7 @@ export interface IHistoryInstanceCallbacks {
 
   /**
    * Determines whether a message should be included in the history iteration.
-  */
+   */
   filterCondition?: (
     message: IModelMessage,
     clientId: string,
@@ -28,7 +28,7 @@ export interface IHistoryInstanceCallbacks {
 
   /**
    * Fetches initial history data for an agent.
-  */
+   */
   getData: (
     clientId: string,
     agentName: AgentName
@@ -36,7 +36,7 @@ export interface IHistoryInstanceCallbacks {
 
   /**
    * Called when the history array changes (e.g., after push or pop).
-  */
+   */
   onChange: (
     data: IModelMessage[],
     clientId: string,
@@ -45,12 +45,12 @@ export interface IHistoryInstanceCallbacks {
 
   /**
    * Called when a new message is pushed to the history.
-  */
+   */
   onPush: (data: IModelMessage, clientId: string, agentName: AgentName) => void;
 
   /**
    * Called when the last message is popped from the history.
-  */
+   */
   onPop: (
     data: IModelMessage | null,
     clientId: string,
@@ -59,7 +59,7 @@ export interface IHistoryInstanceCallbacks {
 
   /**
    * Called for each message during iteration when reading.
-  */
+   */
   onRead: (
     message: IModelMessage,
     clientId: string,
@@ -68,27 +68,27 @@ export interface IHistoryInstanceCallbacks {
 
   /**
    * Called at the start of a history read operation.
-  */
+   */
   onReadBegin: (clientId: string, agentName: AgentName) => void;
 
   /**
    * Called at the end of a history read operation.
-  */
+   */
   onReadEnd: (clientId: string, agentName: AgentName) => void;
 
   /**
    * Called when the history instance is disposed.
-  */
+   */
   onDispose: (clientId: string) => void;
 
   /**
    * Called when the history instance is initialized.
-  */
+   */
   onInit: (clientId: string) => void;
 
   /**
    * Provides a reference to the history instance after creation.
-  */
+   */
   onRef: (history: IHistoryInstance) => void;
 }
 
@@ -98,7 +98,7 @@ export interface IHistoryInstanceCallbacks {
 export interface IHistoryAdapter {
   /**
    * Iterates over history messages for a client and agent.
-  */
+   */
   iterate(
     clientId: string,
     agentName: AgentName
@@ -106,7 +106,7 @@ export interface IHistoryAdapter {
 
   /**
    * Adds a new message to the history.
-  */
+   */
   push: (
     value: IModelMessage,
     clientId: string,
@@ -115,7 +115,7 @@ export interface IHistoryAdapter {
 
   /**
    * Removes and returns the last message from the history.
-  */
+   */
   pop: (
     clientId: string,
     agentName: AgentName
@@ -123,7 +123,7 @@ export interface IHistoryAdapter {
 
   /**
    * Disposes of the history for a client and agent, optionally clearing all data.
-  */
+   */
   dispose: (clientId: string, agentName: AgentName | null) => Promise<void>;
 }
 
@@ -133,12 +133,12 @@ export interface IHistoryAdapter {
 export interface IHistoryControl {
   /**
    * Sets a custom history instance constructor for the adapter.
-  */
+   */
   useHistoryAdapter(Ctor: THistoryInstanceCtor): void;
 
   /**
    * Configures lifecycle callbacks for history instances.
-  */
+   */
   useHistoryCallbacks: (Callbacks: Partial<IHistoryInstanceCallbacks>) => void;
 }
 
@@ -148,27 +148,27 @@ export interface IHistoryControl {
 export interface IHistoryInstance {
   /**
    * Iterates over history messages for an agent.
-  */
+   */
   iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
 
   /**
    * Initializes the history for an agent, loading initial data if needed.
-  */
+   */
   waitForInit(agentName: AgentName, init: boolean): Promise<void>;
 
   /**
    * Adds a new message to the history for an agent.
-  */
+   */
   push(value: IModelMessage, agentName: AgentName): Promise<void>;
 
   /**
    * Removes and returns the last message from the history for an agent.
-  */
+   */
   pop(agentName: AgentName): Promise<IModelMessage | null>;
 
   /**
    * Disposes of the history for an agent, optionally clearing all data.
-  */
+   */
   dispose(agentName: AgentName | null): Promise<void>;
 }
 
@@ -781,7 +781,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
    * Memoized function to create or retrieve a history instance for a client.
    * Defaults to HistoryPersistInstance or HistoryMemoryInstance based on global config.
    * @private
-  */
+   */
   private getHistory = memoize(
     ([clientId]: [string]): string => clientId,
     (clientId: string): IHistoryInstance => {
@@ -805,7 +805,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
 
   /**
    * Sets a custom history instance constructor for the adapter.
-  */
+   */
   public useHistoryAdapter = (Ctor: THistoryInstanceCtor): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_USE_HISTORY_ADAPTER);
@@ -814,7 +814,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
 
   /**
    * Configures lifecycle callbacks for all history instances created by this adapter.
-  */
+   */
   public useHistoryCallbacks = (
     Callbacks: Partial<IHistoryInstanceCallbacks>
   ): void => {
@@ -825,7 +825,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
 
   /**
    * Iterates over history messages for a client and agent, ensuring initialization.
-  */
+   */
   public async *iterate(
     clientId: string,
     agentName: AgentName
@@ -845,7 +845,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
 
   /**
    * Adds a new message to the history for a client and agent, ensuring initialization.
-  */
+   */
   public push = async (
     value: IModelMessage,
     clientId: string,
@@ -865,7 +865,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
 
   /**
    * Removes and returns the last message from the history for a client and agent.
-  */
+   */
   public pop = async (
     clientId: string,
     agentName: AgentName
@@ -883,7 +883,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
 
   /**
    * Disposes of the history for a client and agent, clearing data if agentName is null.
-  */
+   */
   public dispose = async (
     clientId: string,
     agentName: AgentName | null

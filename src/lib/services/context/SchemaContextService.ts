@@ -46,7 +46,7 @@ export interface ISchemaContext {
   /**
    * A collection of registries for different schema types, each managing specific schema records.
    * Provides centralized access to all schema services within the swarm system.
-  */
+   */
   registry: {
     /**
      * @property {ToolRegistry<Record<AgentName, IAgentSchemaInternal>>} agentSchemaService

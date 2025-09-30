@@ -18,7 +18,7 @@ export class MCPValidationService {
   /**
    * Adds a new MCP schema to the map.
    * @throws Error if an MCP with the same name already exists.
-  */
+   */
   public addMCP = (mcpName: MCPName, mcpSchema: IMCPSchema): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("mcpValidationService addMCP", {
@@ -34,7 +34,7 @@ export class MCPValidationService {
   /**
    * Validates the existence of an MCP schema by its name.
    * @throws Error if the MCP does not exist in the map.
-  */
+   */
   public validate = memoize(
     ([mcpName]) => mcpName,
     (mcpName: MCPName, source: string): void => {

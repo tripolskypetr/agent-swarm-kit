@@ -8,17 +8,17 @@ import { scoped } from "di-scoped";
 export interface IExecutionContext {
   /**
    * The unique identifier of the client session, tying to ClientAgent’s clientId and PerfService’s execution tracking.
-  */
+   */
   clientId: string;
 
   /**
    * The unique identifier of the execution instance, used in PerfService (e.g., startExecution) and BusService (e.g., commitExecutionBegin).
-  */
+   */
   executionId: string;
 
   /**
    * The unique identifier of the process, sourced from GLOBAL_CONFIG.CC_PROCESS_UUID, used in PerfService’s IPerformanceRecord.processId.
-  */
+   */
   processId: string;
 }
 

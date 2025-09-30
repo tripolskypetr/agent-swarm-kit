@@ -21,7 +21,7 @@ export class SwarmValidationService {
    * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
    * @private
    * @readonly
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
@@ -29,7 +29,7 @@ export class SwarmValidationService {
    * Injected via DI, used in validate method to check swarm.agentList.
    * @private
    * @readonly
-  */
+   */
   private readonly agentValidationService = inject<AgentValidationService>(
     TYPES.agentValidationService
   );
@@ -39,7 +39,7 @@ export class SwarmValidationService {
    * Injected via DI, used in validate method to check swarm.policies.
    * @private
    * @readonly
-  */
+   */
   private readonly policyValidationService = inject<PolicyValidationService>(
     TYPES.policyValidationService
   );
@@ -48,14 +48,14 @@ export class SwarmValidationService {
    * Map of swarm names to their schemas, used to track and validate swarms.
    * Populated by addSwarm, queried by getAgentList, getPolicyList, and validate.
    * @private
-  */
+   */
   private _swarmMap = new Map<SwarmName, ISwarmSchema>();
 
   /**
    * Registers a new swarm with its schema in the validation service.
    * Logs the operation and ensures uniqueness, supporting SwarmSchemaService’s registration process.
    * @throws {Error} If the swarm name already exists in _swarmMap.
-  */
+   */
   public addSwarm = (swarmName: SwarmName, swarmSchema: ISwarmSchema): void => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("swarmValidationService addSwarm", {
@@ -72,7 +72,7 @@ export class SwarmValidationService {
    * Retrieves the list of agent names associated with a given swarm.
    * Logs the operation and validates swarm existence, supporting ClientSwarm’s agent management.
    * @throws {Error} If the swarm is not found in _swarmMap.
-  */
+   */
   public getAgentList = (swarmName: SwarmName): string[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("swarmValidationService getAgentList", {
@@ -89,7 +89,7 @@ export class SwarmValidationService {
    * Retrieves the set of agent names associated with a given swarm.
    * Logs the operation and validates swarm existence, supporting ClientSwarm’s agent management.
    * @throws {Error} If the swarm is not found in _swarmMap.
-  */
+   */
   public getAgentSet = memoize(
     ([swarmName]) => `${swarmName}`,
     (swarmName: SwarmName): Set<string> => {
@@ -109,7 +109,7 @@ export class SwarmValidationService {
    * Retrieves the list of policy names associated with a given swarm.
    * Logs the operation and validates swarm existence, supporting ClientSwarm’s policy enforcement.
    * @throws {Error} If the swarm is not found in _swarmMap.
-  */
+   */
   public getPolicyList = (swarmName: SwarmName): string[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("swarmValidationService getPolicyList", {
@@ -125,7 +125,7 @@ export class SwarmValidationService {
   /**
    * Retrieves the list of all registered swarm names.
    * Logs the operation, supporting SwarmSchemaService’s swarm enumeration.
-  */
+   */
   public getSwarmList = (): string[] => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("swarmValidationService getSwarmList");
@@ -137,7 +137,7 @@ export class SwarmValidationService {
    * Checks swarm existence, default agent inclusion, and validates all agents and policies.
    * Logs the operation, supporting ClientSwarm’s operational integrity.
    * @throws {Error} If the swarm is not found, the default agent is not in the agent list, or any agent/policy validation fails.
-  */
+   */
   public validate = memoize(
     ([swarmName]) => swarmName,
     (swarmName: SwarmName, source: string): void => {

@@ -49,7 +49,7 @@ export interface INavigateToTriageParams {
   /**
    * Optional callback function executed before navigation begins.
    * Allows for custom pre-navigation logic and validation before changing to the default agent.
-  */
+   */
   beforeNavigate?: (
     clientId: string,
     lastMessage: string | null,
@@ -59,7 +59,7 @@ export interface INavigateToTriageParams {
   /**
    * Optional function to transform the last user message for navigation context.
    * Customizes how the previous message is processed when navigating to the triage agent.
-  */
+   */
   lastMessage?: (
     clientId: string,
     lastMessage: string | null,
@@ -69,28 +69,28 @@ export interface INavigateToTriageParams {
   /**
    * Optional message or function to emit after flushing the session.
    * Used when navigation cannot be completed and the session needs to be reset.
-  */
+   */
   flushMessage?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
   /**
    * Optional message or function to execute when no navigation is needed.
    * Used when already on the default agent and execution should continue.
-  */
+   */
   executeMessage?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
   /**
    * Optional message or function for tool output when navigation to the default agent occurs.
    * Provides feedback when successful navigation to the triage agent happens.
-  */
+   */
   toolOutputAccept?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
   /**
    * Optional message or function for tool output when already on the default agent.
    * Used to inform the user that no navigation was needed since they're already on the target agent.
-  */
+   */
   toolOutputReject?:
     | string
     | ((clientId: string, defaultAgent: AgentName) => string | Promise<string>);
@@ -145,7 +145,7 @@ export const createNavigateToTriageAgent = ({
    * Navigates to the default triage agent for a given client and tool, handling message commits and execution.
    *
    * @throws {Error} If navigation, commit, or execution operations fail (e.g., invalid clientId or swarm configuration).
-  */
+   */
   return beginContext(async (toolId: string, clientId: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {

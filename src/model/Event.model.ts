@@ -15,42 +15,42 @@ export interface IBusEventContext {
    * The unique name of the agent associated with the event.
    * Links the event to a specific agent instance (e.g., this.params.agentName in ClientAgent), consistently included in IBusEvent.context.
    * Example: "Agent1" for an agent emitting a "run" event.
-  */
+   */
   agentName: AgentName;
 
   /**
    * The unique name of the swarm associated with the event.
    * Identifies the swarm context, potentially used in swarm-wide events (e.g., IBus.emit in ISwarmParams), though not observed in ClientAgent.
    * Example: "SwarmA" for a swarm-level navigation event.
-  */
+   */
   swarmName: SwarmName;
 
   /**
    * The unique name of the storage associated with the event.
    * Ties the event to a specific storage instance (e.g., IStorage), potentially for storage-related events, unused in ClientAgent’s agent-centric emissions.
    * Example: "Storage1" for a storage upsert event.
-  */
+   */
   storageName: StorageName;
 
   /**
    * The unique name of the state associated with the event.
    * Links to a specific state instance (e.g., IState), potentially for state change events, not populated in ClientAgent’s context.
    * Example: "StateX" for a state update event.
-  */
+   */
   stateName: StateName;
 
   /**
    * The unique name of the compute associated with the event.
    * Links to a specific compute instance (e.g., ICompute), potentially for compute events, not populated in ClientAgent’s context.
    * Example: "ComputeX" for a compute update event.
-  */
+   */
   computeName: ComputeName;
 
   /**
    * The unique name of the policy associated with the event.
    * Identifies the policy context (e.g., IPolicy), potentially for policy enforcement events (e.g., bans), unused in ClientAgent’s emissions.
    * Example: "PolicyY" for a client ban event.
-  */
+   */
   policyName: PolicyName;
 }
 
@@ -86,14 +86,14 @@ export interface IBaseEvent {
    * The source of the event, identifying its origin within the system.
    * A generic string (EventSource) in IBaseEvent, overridden by EventBusSource in IBusEvent (e.g., "agent-bus" in ClientAgent).
    * Example: "custom-source" for a basic event, or "agent-bus" in practice.
-  */
+   */
   source: EventSource;
 
   /**
    * The unique identifier of the client targeted by the event.
    * Matches the clientId used in runtime params (e.g., this.params.clientId in ClientAgent), ensuring events reach the intended session or agent instance.
    * Example: "client-123" for a user session receiving an "emit-output" event.
-  */
+   */
   clientId: string;
 }
 
@@ -113,35 +113,35 @@ export interface IBusEvent
    * The specific source of the event, restricted to EventBusSource values.
    * Identifies the component emitting the event, consistently "agent-bus" in ClientAgent (e.g., RUN_FN, _emitOutput), with other values for other buses (e.g., "history-bus").
    * Example: "agent-bus" for an agent’s "emit-output" event.
-  */
+   */
   source: EventBusSource;
 
   /**
    * The type of the event, defining its purpose or action.
    * A string identifier unique to the event’s intent, observed in ClientAgent as "run", "emit-output", "commit-user-message", etc.
    * Example: "commit-tool-output" for a tool execution result.
-  */
+   */
   type: string;
 
   /**
    * The input data for the event, as a key-value object.
    * Carries event-specific input (e.g., { message } in "commit-user-message", { mode, rawResult } in "emit-output" from ClientAgent), often tied to IModelMessage content.
    * Example: { toolId: "tool-xyz", content: "result" } for a tool output event.
-  */
+   */
   input: Record<string, any>;
 
   /**
    * The output data for the event, as a key-value object.
    * Contains event-specific results (e.g., { result } in "run" or "emit-output" from ClientAgent), often empty {} for notifications (e.g., "commit-flush").
    * Example: { result: "processed data" } for an execution output.
-  */
+   */
   output: Record<string, any>;
 
   /**
    * The contextual metadata for the event, partially implementing IBusEventContext.
    * Typically includes only agentName in ClientAgent (e.g., { agentName: this.params.agentName }), with other fields optional for broader use cases.
    * Example: { agentName: "Agent1" } for an agent-driven event.
-  */
+   */
   context: Partial<IBusEventContext>;
 }
 

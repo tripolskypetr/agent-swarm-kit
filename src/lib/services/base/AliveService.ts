@@ -19,7 +19,7 @@ export class AliveService {
    * Persists the online status using `PersistAliveAdapter` if persistence is enabled in the global configuration.
    *                               Used to track the specific client’s online status within a `SwarmName`.
    *                                Defines the context in which the client’s online status is managed and persisted.
-  */
+   */
   public markOnline = async (
     clientId: SessionId,
     swarmName: SwarmName,
@@ -41,7 +41,7 @@ export class AliveService {
    * Persists the offline status using `PersistAliveAdapter` if persistence is enabled in the global configuration.
    *                               Used to track the specific client’s offline status within a `SwarmName`.
    *                                Defines the context in which the client’s offline status is managed and persisted.
-  */
+   */
   public markOffline = async (
     clientId: SessionId,
     swarmName: SwarmName,

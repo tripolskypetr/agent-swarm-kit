@@ -44,27 +44,27 @@ const BEGIN_CHAT_FN = (self: TChatInstance) => {
 export interface IChatInstance {
   /**
    * Begins a chat session
-  */
+   */
   beginChat(): Promise<void>;
 
   /**
    * Checks if the chat has been active within the timeout period
-  */
+   */
   checkLastActivity(now: number): Promise<boolean>;
 
   /**
    * Sends a message in the chat
-  */
+   */
   sendMessage(content: string): Promise<string>;
 
   /**
    * Disposes of the chat instance
-  */
+   */
   dispose(): Promise<void>;
 
   /**
    * Adds a listener for dispose events
-  */
+   */
   listenDispose(fn: (clientId: SessionId) => void): void;
 }
 
@@ -75,7 +75,7 @@ export interface IChatInstance {
 export interface IChatInstanceCallbacks {
   /**
    * Called when checking activity status
-  */
+   */
   onCheckActivity(
     clientId: string,
     swarmName: SwarmName,
@@ -85,12 +85,12 @@ export interface IChatInstanceCallbacks {
 
   /**
    * Called when instance is initialized
-  */
+   */
   onInit(clientId: string, swarmName: SwarmName, instance: IChatInstance): void;
 
   /**
    * Called when instance is disposed
-  */
+   */
   onDispose(
     clientId: string,
     swarmName: SwarmName,
@@ -99,12 +99,12 @@ export interface IChatInstanceCallbacks {
 
   /**
    * Called when chat begins
-  */
+   */
   onBeginChat(clientId: string, swarmName: SwarmName): void;
 
   /**
    * Called when message is sent
-  */
+   */
   onSendMessage(clientId: string, swarmName: SwarmName, content: string): void;
 }
 
@@ -115,12 +115,12 @@ export interface IChatInstanceCallbacks {
 export interface IChatControl {
   /**
    * Sets the chat instance constructor
-  */
+   */
   useChatAdapter(Ctor: TChatInstanceCtor): void;
 
   /**
    * Sets chat instance callbacks
-  */
+   */
   useChatCallbacks(Callbacks: Partial<IChatInstanceCallbacks>): void;
 }
 
@@ -274,7 +274,7 @@ export class ChatUtils implements IChatControl {
   /**
    * Gets or creates a chat instance for a client
    * @private
-  */
+   */
   private getChatInstance = <Payload extends unknown = any>(
     clientId: SessionId,
     swarmName: SwarmName,
@@ -298,7 +298,7 @@ export class ChatUtils implements IChatControl {
 
   /**
    * Sets the chat instance constructor
-  */
+   */
   public useChatAdapter(Ctor: TChatInstanceCtor): void {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log("ChatUtils.useChatAdapter");
@@ -307,7 +307,7 @@ export class ChatUtils implements IChatControl {
 
   /**
    * Sets chat instance callbacks
-  */
+   */
   public useChatCallbacks(Callbacks: Partial<IChatInstanceCallbacks>): void {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log("ChatUtils.useChatCallbacks");
@@ -316,7 +316,7 @@ export class ChatUtils implements IChatControl {
 
   /**
    * Begins a chat session for a client
-  */
+   */
   public beginChat = async <Payload extends unknown = any>(
     clientId: SessionId,
     swarmName: SwarmName,
@@ -337,7 +337,7 @@ export class ChatUtils implements IChatControl {
 
   /**
    * Sends a message for a client
-  */
+   */
   public sendMessage = async (
     clientId: SessionId,
     message: string,
@@ -355,7 +355,7 @@ export class ChatUtils implements IChatControl {
 
   /**
    * Listens for dispose events for a client
-  */
+   */
   public listenDispose = (
     clientId: SessionId,
     swarmName: SwarmName,
@@ -371,7 +371,7 @@ export class ChatUtils implements IChatControl {
 
   /**
    * Disposes of a chat instance
-  */
+   */
   public dispose = async (clientId: SessionId, swarmName: SwarmName) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log("ChatUtils.dispose", {

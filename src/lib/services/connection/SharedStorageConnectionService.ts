@@ -31,21 +31,21 @@ export class SharedStorageConnectionService implements IStorage {
    * Logger service instance, injected via DI, for logging shared storage operations.
    * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SharedStoragePublicService and PerfService logging patterns.
    * @private
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Bus service instance, injected via DI, for emitting storage-related events.
    * Passed to ClientStorage for event propagation (e.g., storage updates), aligning with BusService’s event system in AgentConnectionService.
    * @private
-  */
+   */
   private readonly busService = inject<BusService>(TYPES.busService);
 
   /**
    * Method context service instance, injected via DI, for accessing execution context.
    * Used to retrieve storageName in method calls, integrating with MethodContextService’s scoping in SharedStoragePublicService.
    * @private
-  */
+   */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
@@ -54,7 +54,7 @@ export class SharedStorageConnectionService implements IStorage {
    * Storage schema service instance, injected via DI, for retrieving storage configurations.
    * Provides configuration (e.g., persist, getData, embedding) to ClientStorage in getStorage, aligning with AgentMetaService’s schema management.
    * @private
-  */
+   */
   private readonly storageSchemaService = inject<StorageSchemaService>(
     TYPES.storageSchemaService
   );
@@ -63,7 +63,7 @@ export class SharedStorageConnectionService implements IStorage {
    * Embedding schema service instance, injected via DI, for retrieving embedding configurations.
    * Provides embedding logic (e.g., calculateSimilarity, createEmbedding) to ClientStorage in getStorage, supporting similarity-based retrieval in take.
    * @private
-  */
+   */
   private readonly embeddingSchemaService = inject<EmbeddingSchemaService>(
     TYPES.embeddingSchemaService
   );
@@ -74,7 +74,7 @@ export class SharedStorageConnectionService implements IStorage {
    * Configures the storage with schema data from StorageSchemaService, embedding logic from EmbeddingSchemaService, and persistence via PersistStorageAdapter or defaults from GLOBAL_CONFIG, enforcing shared=true via an error check.
    * Supports ClientAgent (shared storage in EXECUTE_FN), AgentConnectionService (storage initialization), and SharedStoragePublicService (public API).
    * @throws {Error} If the storage is not marked as shared in the schema.
-  */
+   */
   public getStorage = memoize(
     ([storageName]) => `${storageName}`,
     (storageName: StorageName) => {
@@ -134,7 +134,7 @@ export class SharedStorageConnectionService implements IStorage {
    * Retrieves a list of storage data items based on a search query, total count, and optional similarity score.
    * Delegates to ClientStorage.take after awaiting initialization, using context from MethodContextService to identify the storage, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SharedStoragePublicService’s take, supporting ClientAgent’s similarity-based data retrieval with embedding support from EmbeddingSchemaService.
-  */
+   */
   public take = async (
     search: string,
     total: number,
@@ -157,7 +157,7 @@ export class SharedStorageConnectionService implements IStorage {
    * Upserts an item into the shared storage, inserting or updating based on its ID.
    * Delegates to ClientStorage.upsert after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SharedStoragePublicService’s upsert, supporting ClientAgent’s data persistence.
-  */
+   */
   public upsert = async (item: IStorageData): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sharedStorageConnectionService upsert`, {
@@ -174,7 +174,7 @@ export class SharedStorageConnectionService implements IStorage {
    * Removes an item from the shared storage by its ID.
    * Delegates to ClientStorage.remove after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SharedStoragePublicService’s remove, supporting ClientAgent’s data deletion.
-  */
+   */
   public remove = async (itemId: IStorageData["id"]): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sharedStorageConnectionService remove`, {
@@ -191,7 +191,7 @@ export class SharedStorageConnectionService implements IStorage {
    * Retrieves an item from the shared storage by its ID.
    * Delegates to ClientStorage.get after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SharedStoragePublicService’s get, supporting ClientAgent’s data access.
-  */
+   */
   public get = async (
     itemId: IStorageData["id"]
   ): Promise<IStorageData | null> => {
@@ -210,7 +210,7 @@ export class SharedStorageConnectionService implements IStorage {
    * Retrieves a list of items from the shared storage, optionally filtered by a predicate function.
    * Delegates to ClientStorage.list after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SharedStoragePublicService’s list, supporting ClientAgent’s bulk data access.
-  */
+   */
   public list = async (
     filter?: (item: IStorageData) => boolean
   ): Promise<IStorageData[]> => {
@@ -227,7 +227,7 @@ export class SharedStorageConnectionService implements IStorage {
    * Clears all items from the shared storage, resetting it to its default state.
    * Delegates to ClientStorage.clear after awaiting initialization, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SharedStoragePublicService’s clear, supporting ClientAgent’s storage reset.
-  */
+   */
   public clear = async (): Promise<void> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`sharedStorageConnectionService clear`);

@@ -32,7 +32,7 @@ export class RoundRobin<
    * Creates a RoundRobin function that cycles through tokens
    * @example
    * const rr = RoundRobin.create(['a', 'b'], (t) => () => ({ id: t }));
-  */
+   */
   public static create<
     T,
     Token = string | symbol | { [key: string]: any },
@@ -54,7 +54,7 @@ export class RoundRobin<
    *
    * @private
    * @throws {Error} If the tokens array is empty.
-  */
+   */
   private call = (...args: A): T => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_CALL, {

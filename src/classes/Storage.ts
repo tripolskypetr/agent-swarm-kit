@@ -50,7 +50,7 @@ export class StorageUtils implements TStorage {
    * Executes within a context for logging.
    * @template T - The type of the storage data items, defaults to IStorageData.
    * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-  */
+   */
   public take = beginContext(
     async (payload: {
       search: string;
@@ -110,7 +110,7 @@ export class StorageUtils implements TStorage {
    * Executes within a context for logging.
    * @template T - The type of the storage data item, defaults to IStorageData.
    * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-  */
+   */
   public upsert = beginContext(
     async (payload: {
       item: IStorageData;
@@ -161,7 +161,7 @@ export class StorageUtils implements TStorage {
    * Validates the client session, storage name, and agent-storage registration before removing via the storage service.
    * Executes within a context for logging.
    * @throws {Error} If the client session is invalid, storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-  */
+   */
   public remove = beginContext(
     async (payload: {
       itemId: IStorageData["id"];
@@ -208,7 +208,7 @@ export class StorageUtils implements TStorage {
    * Executes within a context for logging.
    * @template T - The type of the storage data item, defaults to IStorageData.
    * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-  */
+   */
   public get = beginContext(
     async (payload: {
       itemId: IStorageData["id"];
@@ -260,7 +260,7 @@ export class StorageUtils implements TStorage {
    * Executes within a context for logging.
    * @template T - The type of the storage data items, defaults to IStorageData.
    * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-  */
+   */
   public list = beginContext(
     async (payload: {
       clientId: string;
@@ -311,7 +311,7 @@ export class StorageUtils implements TStorage {
    * Executes within a context for logging.
    * The numeric index is determined based on the current number of items in the storage.
    * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-  */
+   */
   public createNumericIndex = beginContext(
     async (payload: {
       clientId: string;
@@ -355,7 +355,7 @@ export class StorageUtils implements TStorage {
    * Validates the storage name and agent-storage registration before clearing via the storage service.
    * Executes within a context for logging.
    * @throws {Error} If storage validation fails, the storage is not registered in the agent, or the storage service encounters an error.
-  */
+   */
   public clear = beginContext(
     async (payload: {
       clientId: string;

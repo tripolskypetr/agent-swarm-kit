@@ -185,28 +185,28 @@ export interface IPersistBase<Entity extends IEntity = IEntity> {
    * Initializes the storage directory, creating it if needed and validating existing data by removing invalid entities.
    * Ensures the persistence layer is ready for use, handling corrupt files during setup.
    * @throws {Error} If directory creation, file access, or validation fails.
-  */
+   */
   waitForInit(initial: boolean): Promise<void>;
 
   /**
    * Reads an entity from persistent storage by its ID, parsing it from a JSON file.
    * Used to retrieve persisted data such as agent states, memory, or alive status.
    * @throws {Error} If the entity is not found (`ENOENT`) or reading/parsing fails (e.g., invalid JSON).
-  */
+   */
   readValue(entityId: EntityId): Promise<Entity>;
 
   /**
    * Checks if an entity exists in persistent storage by its ID.
    * Useful for conditional operations without reading the full entity (e.g., checking session memory existence).
    * @throws {Error} If checking existence fails for reasons other than the entity not existing.
-  */
+   */
   hasValue(entityId: EntityId): Promise<boolean>;
 
   /**
    * Writes an entity to persistent storage with the specified ID, serializing it to JSON.
    * Uses atomic writes to ensure data integrity, critical for reliable state persistence across swarm operations.
    * @throws {Error} If writing to the file system fails (e.g., permissions or disk issues).
-  */
+   */
   writeValue(entityId: EntityId, entity: Entity): Promise<void>;
 }
 
@@ -806,7 +806,7 @@ export interface IPersistActiveAgentData {
    * The name of the active agent for a given client within a swarm.
    * `AgentName` is a string identifier (e.g., "agent1") representing an agent instance in the swarm system,
    * tied to specific functionality or role within a `SwarmName`.
-  */
+   */
   agentName: AgentName;
 }
 
@@ -820,7 +820,7 @@ export interface IPersistNavigationStackData {
    * The stack of agent names representing navigation history for a client within a swarm.
    * `AgentName` is a string identifier (e.g., "agent1", "agent2") for agents in the swarm system,
    * tracking the sequence of active agents for a `SessionId` within a `SwarmName`.
-  */
+   */
   agentStack: AgentName[];
 }
 
@@ -833,7 +833,7 @@ export interface IPersistSwarmControl {
   /**
    * Sets a custom persistence adapter for active agent storage.
    * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory storage for `SwarmName`).
-  */
+   */
   usePersistActiveAgentAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>
   ): void;
@@ -841,7 +841,7 @@ export interface IPersistSwarmControl {
   /**
    * Sets a custom persistence adapter for navigation stack storage.
    * Overrides the default `PersistBase` implementation for specialized behavior (e.g., database storage for `SwarmName`).
-  */
+   */
   usePersistNavigationStackAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>
   ): void;
@@ -869,7 +869,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
    * Memoized function to create or retrieve storage for active agents.
    * Ensures a single persistence instance per `SwarmName`, improving efficiency.
    * @private
-  */
+   */
   private getActiveAgentStorage = memoize(
     ([swarmName]: [SwarmName]): string => `${swarmName}`,
     (swarmName: SwarmName): IPersistBase<IPersistActiveAgentData> =>
@@ -882,7 +882,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
   /**
    * Configures a custom constructor for active agent persistence, overriding the default `PersistBase`.
    * Allows advanced use cases like in-memory storage for `SwarmName`-specific active agents.
-  */
+   */
   public usePersistActiveAgentAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistActiveAgentData>
   ): void {
@@ -896,7 +896,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
   /**
    * Configures a custom constructor for navigation stack persistence, overriding the default `PersistBase`.
    * Enables customization for navigation tracking within a `SwarmName` (e.g., alternative storage backends).
-  */
+   */
   public usePersistNavigationStackAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistNavigationStackData>
   ): void {
@@ -911,7 +911,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
    * Memoized function to create or retrieve storage for navigation stacks.
    * Ensures a single persistence instance per `SwarmName`, optimizing resource use.
    * @private
-  */
+   */
   private getNavigationStackStorage = memoize(
     ([swarmName]: [SwarmName]): string => `${swarmName}`,
     (swarmName: SwarmName): IPersistBase<IPersistNavigationStackData> =>
@@ -925,7 +925,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
    * Retrieves the active agent for a client within a swarm, falling back to a default if not set.
    * Used to determine the current `AgentName` for a `SessionId` in a `SwarmName` context.
    * @throws {Error} If reading from storage fails (e.g., file corruption or permissions).
-  */
+   */
   public getActiveAgent = async (
     clientId: string,
     swarmName: SwarmName,
@@ -953,7 +953,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
    * Sets the active agent for a client within a swarm, persisting it for future retrieval.
    * Links a `SessionId` to an `AgentName` within a `SwarmName` for runtime agent switching.
    * @throws {Error} If writing to storage fails (e.g., disk space or permissions).
-  */
+   */
   public setActiveAgent = async (
     clientId: string,
     agentName: AgentName,
@@ -978,7 +978,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
    * Retrieves the navigation stack for a client within a swarm, returning an empty array if unset.
    * Tracks navigation history as a stack of `AgentName`s for a `SessionId` within a `SwarmName`.
    * @throws {Error} If reading from storage fails (e.g., file corruption).
-  */
+   */
   public getNavigationStack = async (
     clientId: string,
     swarmName: SwarmName
@@ -1005,7 +1005,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
    * Sets the navigation stack for a client within a swarm, persisting it for future retrieval.
    * Stores a stack of `AgentName`s for a `SessionId` within a `SwarmName` to track navigation history.
    * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-  */
+   */
   public setNavigationStack = async (
     clientId: string,
     agentStack: AgentName[],
@@ -1057,7 +1057,7 @@ export interface IPersistStateControl {
   /**
    * Sets a custom persistence adapter for state storage.
    * Overrides the default `PersistBase` implementation for specialized behavior (e.g., database storage for `StateName`).
-  */
+   */
   usePersistStateAdapter(
     Ctor: TPersistBaseCtor<StateName, IPersistStateData>
   ): void;
@@ -1077,7 +1077,7 @@ export class PersistStateUtils implements IPersistStateControl {
    * Memoized function to create or retrieve storage for a specific state.
    * Ensures a single persistence instance per `StateName`, optimizing resource use.
    * @private
-  */
+   */
   private getStateStorage = memoize(
     ([stateName]: [StateName]): string => `${stateName}`,
     (stateName: StateName): IPersistBase<IPersistStateData> =>
@@ -1090,7 +1090,7 @@ export class PersistStateUtils implements IPersistStateControl {
   /**
    * Configures a custom constructor for state persistence, overriding the default `PersistBase`.
    * Enables advanced state storage for `StateName` (e.g., in-memory or database-backed persistence).
-  */
+   */
   public usePersistStateAdapter(
     Ctor: TPersistBaseCtor<StateName, IPersistStateData>
   ): void {
@@ -1106,7 +1106,7 @@ export class PersistStateUtils implements IPersistStateControl {
    * Stores state data for a `SessionId` under a `StateName` (e.g., agent variables).
    * @template T - The specific type of the state data, defaults to `unknown`.
    * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-  */
+   */
   public setState = async <T = unknown>(
     state: T,
     clientId: string,
@@ -1128,7 +1128,7 @@ export class PersistStateUtils implements IPersistStateControl {
    * Restores state for a `SessionId` under a `StateName` (e.g., resuming agent context).
    * @template T - The specific type of the state data, defaults to `unknown`.
    * @throws {Error} If reading from storage fails (e.g., file corruption).
-  */
+   */
   public getState = async <T = unknown>(
     clientId: string,
     stateName: StateName,
@@ -1181,7 +1181,7 @@ export interface IPersistStorageControl {
   /**
    * Sets a custom persistence adapter for storage.
    * Overrides the default `PersistBase` implementation for specialized behavior (e.g., database storage for `StorageName`).
-  */
+   */
   usePersistStorageAdapter(
     Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>
   ): void;
@@ -1203,7 +1203,7 @@ export class PersistStorageUtils implements IPersistStorageControl {
    * Memoized function to create or retrieve storage for a specific storage name.
    * Ensures a single persistence instance per `StorageName`, optimizing resource use.
    * @private
-  */
+   */
   private getPersistStorage = memoize(
     ([storageName]: [StorageName]): string => `${storageName}`,
     (storageName: StorageName): IPersistBase<IPersistStorageData> =>
@@ -1216,7 +1216,7 @@ export class PersistStorageUtils implements IPersistStorageControl {
   /**
    * Configures a custom constructor for storage persistence, overriding the default `PersistBase`.
    * Enables advanced storage options for `StorageName` (e.g., database-backed persistence).
-  */
+   */
   public usePersistStorageAdapter(
     Ctor: TPersistBaseCtor<StorageName, IPersistStorageData>
   ): void {
@@ -1232,7 +1232,7 @@ export class PersistStorageUtils implements IPersistStorageControl {
    * Accesses persistent storage for a `SessionId` under a `StorageName` (e.g., user records).
    * @template T - The specific type of the storage data, defaults to `IStorageData`.
    * @throws {Error} If reading from storage fails (e.g., file corruption).
-  */
+   */
   public getData = async <T extends IStorageData = IStorageData>(
     clientId: string,
     storageName: StorageName,
@@ -1258,7 +1258,7 @@ export class PersistStorageUtils implements IPersistStorageControl {
    * Stores data for a `SessionId` under a `StorageName` (e.g., user logs).
    * @template T - The specific type of the storage data, defaults to `IStorageData`.
    * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-  */
+   */
   public setData = async <T extends IStorageData = IStorageData>(
     data: T[],
     clientId: string,
@@ -1307,7 +1307,7 @@ export interface IPersistMemoryControl {
   /**
    * Sets a custom persistence adapter for memory storage.
    * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory storage for `SessionId`).
-  */
+   */
   usePersistMemoryAdapter(
     Ctor: TPersistBaseCtor<SessionId, IPersistMemoryData>
   ): void;
@@ -1329,7 +1329,7 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
    * Memoized function to create or retrieve storage for a specific client’s memory.
    * Ensures a single persistence instance per `SessionId`, optimizing resource use.
    * @private
-  */
+   */
   private getMemoryStorage = memoize(
     ([clientId]: [SessionId]): string => `${clientId}`,
     (clientId: SessionId): IPersistBase<IPersistMemoryData> =>
@@ -1342,7 +1342,7 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
   /**
    * Configures a custom constructor for memory persistence, overriding the default `PersistBase`.
    * Enables advanced memory storage for `SessionId` (e.g., in-memory or database-backed persistence).
-  */
+   */
   public usePersistMemoryAdapter(
     Ctor: TPersistBaseCtor<SessionId, IPersistMemoryData>
   ): void {
@@ -1358,7 +1358,7 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
    * Stores session-specific memory for a `SessionId` (e.g., temporary context).
    * @template T - The specific type of the memory data, defaults to `unknown`.
    * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-  */
+   */
   public setMemory = async <T = unknown>(
     data: T,
     clientId: string
@@ -1378,7 +1378,7 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
    * Restores session-specific memory for a `SessionId` (e.g., resuming context).
    * @template T - The specific type of the memory data, defaults to `unknown`.
    * @throws {Error} If reading from storage fails (e.g., file corruption).
-  */
+   */
   public getMemory = async <T = unknown>(
     clientId: string,
     defaultState: T
@@ -1400,7 +1400,7 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
   /**
    * Disposes of the memory storage for a client by clearing its memoized instance.
    * Useful for cleanup when a `SessionId` ends or memory is no longer needed.
-  */
+   */
   public dispose = (clientId: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(PERSIST_MEMORY_UTILS_METHOD_NAME_DISPOSE, {
@@ -1440,7 +1440,7 @@ export interface IPersistAliveControl {
   /**
    * Sets a custom persistence adapter for alive status storage.
    * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory tracking for `SwarmName`).
-  */
+   */
   usePersistAliveAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistAliveData>
   ): void;
@@ -1469,7 +1469,7 @@ export class PersistAliveUtils implements IPersistAliveControl {
    * Memoized function to create or retrieve storage for a specific client’s alive status.
    * Ensures a single persistence instance per client ID, optimizing resource use.
    * @private
-  */
+   */
   private getAliveStorage = memoize(
     ([swarmName]: [SwarmName]): string => `${swarmName}`,
     (swarmName: SwarmName): IPersistBase<IPersistAliveData> =>
@@ -1482,7 +1482,7 @@ export class PersistAliveUtils implements IPersistAliveControl {
   /**
    * Configures a custom constructor for alive status persistence, overriding the default `PersistBase`.
    * Enables advanced tracking (e.g., in-memory or database-backed persistence).
-  */
+   */
   public usePersistAliveAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistAliveData>
   ): void {
@@ -1497,7 +1497,7 @@ export class PersistAliveUtils implements IPersistAliveControl {
    * Marks a client as online, persisting the status for future retrieval.
    * Used to track client availability in swarm operations.
    * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-  */
+   */
   public markOnline = async (
     clientId: string,
     swarmName: SwarmName
@@ -1516,7 +1516,7 @@ export class PersistAliveUtils implements IPersistAliveControl {
    * Marks a client as offline, persisting the status for future retrieval.
    * Used to track client availability in swarm operations.
    * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-  */
+   */
   public markOffline = async (
     clientId: string,
     swarmName: SwarmName
@@ -1535,7 +1535,7 @@ export class PersistAliveUtils implements IPersistAliveControl {
    * Retrieves the online status for a client, defaulting to `false` if unset.
    * Used to check client availability in swarm workflows.
    * @throws {Error} If reading from storage fails (e.g., file corruption).
-  */
+   */
   public getOnline = async (
     clientId: string,
     swarmName: SwarmName
@@ -1584,7 +1584,7 @@ export interface IPersistPolicyControl {
   /**
    * Sets a custom persistence adapter for policy data storage.
    * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory tracking for `SwarmName`).
-  */
+   */
   usePersistPolicyAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistPolicyData>
   ): void;
@@ -1606,7 +1606,7 @@ export class PersistPolicyUtils implements IPersistPolicyControl {
    * Memoized function to create or retrieve storage for a specific policy data.
    * Ensures a single persistence instance per swarm, optimizing resource use.
    * @private
-  */
+   */
   private getPolicyStorage = memoize(
     ([swarmName]: [SwarmName]): string => `${swarmName}`,
     (swarmName: SwarmName): IPersistBase<IPersistPolicyData> =>
@@ -1619,7 +1619,7 @@ export class PersistPolicyUtils implements IPersistPolicyControl {
   /**
    * Configures a custom constructor for policy data persistence, overriding the default `PersistBase`.
    * Enables advanced tracking (e.g., in-memory or database-backed persistence).
-  */
+   */
   public usePersistPolicyAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistPolicyData>
   ): void {
@@ -1634,7 +1634,7 @@ export class PersistPolicyUtils implements IPersistPolicyControl {
    * Retrieves the list of banned clients for a specific policy, defaulting to an empty array if unset.
    * Used to check client ban status in swarm workflows.
    * @throws {Error} If reading from storage fails (e.g., file corruption).
-  */
+   */
   public getBannedClients = async (
     policyName: PolicyName,
     swarmName: SwarmName,
@@ -1661,7 +1661,7 @@ export class PersistPolicyUtils implements IPersistPolicyControl {
    * Sets the list of banned clients for a specific policy, persisting the status for future retrieval.
    * Used to manage client bans in swarm operations.
    * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-  */
+   */
   public setBannedClients = async (
     bannedClients: SessionId[],
     policyName: PolicyName,
@@ -1710,7 +1710,7 @@ export interface IPersistEmbeddingControl {
   /**
    * Sets a custom persistence adapter for embedding data storage.
    * Overrides the default `PersistBase` implementation for specialized behavior (e.g., in-memory tracking for `SwarmName`).
-  */
+   */
   usePersistEmbeddingAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistEmbeddingData>
   ): void;
@@ -1732,7 +1732,7 @@ export class PersistEmbeddingUtils implements IPersistEmbeddingControl {
    * Memoized function to create or retrieve storage for specific embedding data.
    * Ensures a single persistence instance per embedding name, optimizing resource use.
    * @private
-  */
+   */
   private getEmbeddingStorage = memoize(
     ([embeddingName]: [EmbeddingName]): string => `${embeddingName}`,
     (embeddingName: SwarmName): IPersistBase<IPersistEmbeddingData> =>
@@ -1745,7 +1745,7 @@ export class PersistEmbeddingUtils implements IPersistEmbeddingControl {
   /**
    * Configures a custom constructor for embedding data persistence, overriding the default `PersistBase`.
    * Enables advanced tracking (e.g., in-memory or database-backed persistence).
-  */
+   */
   public usePersistEmbeddingAdapter(
     Ctor: TPersistBaseCtor<SwarmName, IPersistEmbeddingData>
   ): void {
@@ -1760,7 +1760,7 @@ export class PersistEmbeddingUtils implements IPersistEmbeddingControl {
    * Retrieves the embedding vector for a specific string hash, returning null if not found.
    * Used to check if a precomputed embedding exists in the cache.
    * @throws {Error} If reading from storage fails (e.g., file corruption).
-  */
+   */
   public readEmbeddingCache = async (
     embeddingName: EmbeddingName,
     stringHash: string
@@ -1786,7 +1786,7 @@ export class PersistEmbeddingUtils implements IPersistEmbeddingControl {
    * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
    * Used to cache computed embeddings to avoid redundant processing.
    * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-  */
+   */
   public writeEmbeddingCache = async (
     embeddings: number[],
     embeddingName: EmbeddingName,

@@ -48,7 +48,7 @@ export class SharedStorageUtils implements TSharedStorage {
    * Executes within a context for logging and validation, ensuring the storage name is valid.
    * @template T - The type of the storage data items, defaults to IStorageData.
    * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-  */
+   */
   public take = beginContext(
     async (payload: {
       search: string;
@@ -87,7 +87,7 @@ export class SharedStorageUtils implements TSharedStorage {
    * Executes within a context for logging and validation, ensuring the storage name is valid.
    * @template T - The type of the storage data item, defaults to IStorageData.
    * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-  */
+   */
   public upsert = beginContext(
     async (item: IStorageData, storageName: StorageName): Promise<void> => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -111,7 +111,7 @@ export class SharedStorageUtils implements TSharedStorage {
    * Removes an item from the storage by its ID.
    * Executes within a context for logging and validation, ensuring the storage name is valid.
    * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-  */
+   */
   public remove = beginContext(
     async (
       itemId: IStorageData["id"],
@@ -136,7 +136,7 @@ export class SharedStorageUtils implements TSharedStorage {
    * Executes within a context for logging and validation, ensuring the storage name is valid.
    * @template T - The type of the storage data item, defaults to IStorageData.
    * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-  */
+   */
   public get = beginContext(
     async (
       itemId: IStorageData["id"],
@@ -164,7 +164,7 @@ export class SharedStorageUtils implements TSharedStorage {
    * Executes within a context for logging and validation, ensuring the storage name is valid.
    * @template T - The type of the storage data items, defaults to IStorageData.
    * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-  */
+   */
   public list = beginContext(
     async (
       storageName: StorageName,
@@ -190,7 +190,7 @@ export class SharedStorageUtils implements TSharedStorage {
    * Clears all items from the storage.
    * Executes within a context for logging and validation, ensuring the storage name is valid.
    * @throws {Error} If storage validation fails or the shared storage service encounters an error.
-  */
+   */
   public clear = beginContext(
     async (storageName: StorageName): Promise<void> => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&

@@ -265,7 +265,7 @@ export class OperatorUtils implements IOperatorControl {
 
   /**
    * Sets custom operator adapter constructor
-  */
+   */
   public useOperatorAdapter(Ctor: TOperatorInstanceCtor) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_USE_OPERATOR_ADAPTER);
@@ -274,7 +274,7 @@ export class OperatorUtils implements IOperatorControl {
 
   /**
    * Sets operator callbacks
-  */
+   */
   public useOperatorCallbacks(Callbacks: Partial<IOperatorInstanceCallbacks>) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_USE_OPERATOR_CALLBACKS);
@@ -283,7 +283,7 @@ export class OperatorUtils implements IOperatorControl {
 
   /**
    * Connects an operator instance
-  */
+   */
   public connectOperator(clientId: string, agentName: AgentName) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_CONNECT_OPERATOR, {

@@ -16,14 +16,14 @@ export interface IModelMessage<Payload extends object = object> {
    * - `"user"`: User-initiated messages (e.g., commitUserMessage, EXECUTE_FN input).
    * - `"resque"`: Error recovery messages during model resurrection (e.g., _resurrectModel).
    * - `"flush"`: Markers for history resets (e.g., commitFlush).
-  */
+   */
   role: "assistant" | "system" | "tool" | "user" | "resque" | "flush" | "developer";
 
   /**
    * The name of the agent associated with the message.
    * Links the message to a specific agent instance (e.g., this.params.agentName in ClientAgent), ensuring context within multi-agent swarms.
    * Used consistently in history pushes and bus events (e.g., context.agentName in IBus.emit).
-  */
+   */
   agentName: string;
 
   /**
@@ -34,7 +34,7 @@ export interface IModelMessage<Payload extends object = object> {
    * - Model response (e.g., result from getCompletion).
    * - Error reasons or placeholders (e.g., _resurrectModel).
    * May be empty (e.g., "" in flush messages) or trimmed for consistency.
-  */
+   */
   content: string;
 
   /**
@@ -43,7 +43,7 @@ export interface IModelMessage<Payload extends object = object> {
    * - `"user"`: Messages from user input or stateless runs (e.g., commitUserMessage, RUN_FN).
    * - `"tool"`: Messages from tool outputs or system actions (e.g., commitToolOutput, _resurrectModel).
    * Drives processing logic, such as validation or tool call handling in ClientAgent.
-  */
+   */
   mode: ExecutionMode;
 
   /**
@@ -51,7 +51,7 @@ export interface IModelMessage<Payload extends object = object> {
    * Populated in getCompletion responses (e.g., ClientAgent EXECUTE_FN), mapped to IToolCall objects for execution.
    * Example: `{ function: { name: "func", arguments: { key: "value" } }, id: "tool-id" }`.
    * Absent in user, system, or tool output messages unless explicitly triggered by the model.
-  */
+   */
   tool_calls?: IToolCall[];
 
   /*
@@ -60,7 +60,7 @@ export interface IModelMessage<Payload extends object = object> {
    * Supports `Uint8Array` for raw binary data or `string` for encoded formats (e.g., base64).
    * Undefined if no images are included in the message.
    * @type {Uint8Array[] | string[] | undefined}
-  */
+   */
   images?: Uint8Array[] | string[];
 
   /**
@@ -68,13 +68,13 @@ export interface IModelMessage<Payload extends object = object> {
    * Set in tool-related messages (e.g., commitToolOutput in ClientAgent) to correlate with a prior tool_calls entry.
    * Example: `tool_call_id: "tool-id"` ties a tool’s output to its originating call.
    * Undefined for non-tool-response messages (e.g., user input, assistant responses without tools).
-  */
+   */
   tool_call_id?: string;
 
   /**
    * Optional payload data attached to the message, providing additional context or metadata.
    * Can be an object of any shape or `null` if no payload is needed; undefined if not present.
    * Example: `{ image_id: <uuid> }` when user send a message
-  */
+   */
   payload?: Payload | null;
 }

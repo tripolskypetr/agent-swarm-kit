@@ -9,7 +9,7 @@ export interface JsonSchema {
   /**
    * Whether additional properties are allowed in the schema.
    * Controls validation strictness for object schemas.
-  */
+   */
   additionalProperties?: boolean;
   [key: string]: any;
 }

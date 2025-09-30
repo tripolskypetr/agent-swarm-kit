@@ -23,14 +23,14 @@ export class CompletionSchemaService {
    * Logger service instance, injected via DI, for logging completion schema operations.
    * Used in validateShallow, register, and get methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with AgentSchemaService and PerfService logging patterns.
    * @readonly
-  */
+   */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
    * @readonly
-  */
+   */
   readonly schemaContextService = inject<TSchemaContextService>(
     TYPES.schemaContextService
   );
@@ -40,7 +40,7 @@ export class CompletionSchemaService {
    * Maps CompletionName keys to ICompletionSchema values, providing efficient storage and retrieval, used in register and get methods.
    * Immutable once set, updated via ToolRegistry’s register method to maintain a consistent schema collection.
    * @private
-  */
+   */
   private _registry = new ToolRegistry<
     Record<CompletionName, ICompletionSchema>
   >("completionSchemaService");
@@ -49,7 +49,7 @@ export class CompletionSchemaService {
    * Retrieves the current registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
    * Otherwise, it falls back to the private `_registry` instance.
-  */
+   */
   public get registry() {
     if (SchemaContextService.hasContext()) {
       return this.schemaContextService.context.registry.completionSchemaService;
@@ -61,7 +61,7 @@ export class CompletionSchemaService {
    * Sets the registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
    * Otherwise, it updates the private `_registry` instance.
-  */
+   */
   public set registry(
     value: ToolRegistry<Record<CompletionName, ICompletionSchema>>
   ) {
@@ -80,7 +80,7 @@ export class CompletionSchemaService {
    * Supports ClientAgent execution by ensuring completion schema validity before registration.
    * @throws {Error} If any validation check fails, with detailed messages including completionName.
    * @private
-  */
+   */
   private validateShallow = (completionSchema: ICompletionSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`completionSchemaService validateShallow`, {
@@ -114,7 +114,7 @@ export class CompletionSchemaService {
    * Logs the registration via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with AgentSchemaService’s completion references.
    * Supports ClientAgent execution by providing validated completion schemas to AgentConnectionService and SwarmConnectionService.
    * @throws {Error} If validation fails in validateShallow, propagated with detailed error messages.
-  */
+   */
   public register = (key: CompletionName, value: ICompletionSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`completionSchemaService register`, { key });
@@ -128,7 +128,7 @@ export class CompletionSchemaService {
    * Logs the override operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports dynamic updates to completion schemas used by AgentSchemaService, ClientAgent, and other swarm components.
    * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
-  */
+   */
   public override = (
     key: CompletionName,
     value: Partial<ICompletionSchema>
@@ -144,7 +144,7 @@ export class CompletionSchemaService {
    * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports AgentConnectionService’s agent instantiation by providing completion logic (getCompletion) referenced in AgentSchemaService schemas, and ClientAgent’s execution flow.
    * @throws {Error} If the key is not found in the registry (inherent to ToolRegistry.get behavior).
-  */
+   */
   public get = (key: CompletionName): ICompletionSchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`completionSchemaService get`, { key });

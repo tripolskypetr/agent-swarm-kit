@@ -16,7 +16,7 @@ export interface IStateMiddleware<T extends IStateData = IStateData> {
   /**
    * Processes the state, potentially modifying it before it’s finalized.
    * @throws {Error} If middleware processing fails or validation conditions are not met.
-  */
+   */
   (state: T, clientId: string, stateName: StateName): Promise<T>;
 }
 
@@ -29,30 +29,30 @@ export interface IStateCallbacks<T extends IStateData = IStateData> {
   /**
    * Callback triggered when the state is initialized.
    * Useful for setup or logging.
-  */
+   */
   onInit: (clientId: string, stateName: StateName) => void;
 
   /**
    * Callback triggered when the state is disposed of.
    * Useful for cleanup or logging.
-  */
+   */
   onDispose: (clientId: string, stateName: StateName) => void;
 
   /**
    * Callback triggered when the state is loaded from storage or initialized.
-  */
+   */
   onLoad: (state: T, clientId: string, stateName: StateName) => void;
 
   /**
    * Callback triggered when the state is read.
    * Useful for monitoring or logging read operations.
-  */
+   */
   onRead: (state: T, clientId: string, stateName: StateName) => void;
 
   /**
    * Callback triggered when the state is written or updated.
    * Useful for tracking changes or triggering side effects.
-  */
+   */
   onWrite: (state: T, clientId: string, stateName: StateName) => void;
 }
 
@@ -76,13 +76,13 @@ export interface IStateSchema<T extends IStateData = IStateData> {
 
   /**
    * Function to retrieve or compute the default state value.
-  */
+   */
   getDefaultState: (clientId: string, stateName: StateName) => T | Promise<T>;
 
   /**
    * Optional function to retrieve the current state, with a fallback to the default state.
    * Overrides default state retrieval behavior if provided.
-  */
+   */
   getState?: (
     clientId: string,
     stateName: StateName,
@@ -93,7 +93,7 @@ export interface IStateSchema<T extends IStateData = IStateData> {
    * Optional function to set or update the state.
    * Overrides default state setting behavior if provided.
    * @throws {Error} If the state update fails (e.g., due to persistence issues).
-  */
+   */
   setState?: (
     state: T,
     clientId: string,
@@ -135,21 +135,21 @@ export interface IState<T extends IStateData = IStateData> {
    * Retrieves the current state value.
    * Applies any configured middleware or custom `getState` logic from the schema.
    * @throws {Error} If state retrieval fails (e.g., due to persistence issues or invalid configuration).
-  */
+   */
   getState: () => Promise<T>;
 
   /**
    * Updates the state using a dispatch function that computes the new state from the previous state.
    * Applies any configured middleware or custom `setState` logic from the schema.
    * @throws {Error} If state update fails (e.g., due to middleware errors or persistence issues).
-  */
+   */
   setState: (dispatchFn: (prevState: T) => Promise<T>) => Promise<T>;
 
   /**
    * Resets the state to its initial default value.
    * Reverts to the value provided by `getDefaultState` in the schema.
    * @throws {Error} If state clearing fails (e.g., due to persistence issues or invalid default state).
-  */
+   */
   clearState: () => Promise<T>;
 }
 

@@ -24,21 +24,21 @@ export class HistoryConnectionService implements IHistory {
    * Logger service instance, injected via DI, for logging history operations.
    * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with HistoryPublicService and PerfService logging patterns.
    * @private
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Bus service instance, injected via DI, for emitting history-related events.
    * Passed to ClientHistory for event propagation (e.g., history updates), aligning with BusService’s event system in AgentConnectionService.
    * @private
-  */
+   */
   private readonly busService = inject<BusService>(TYPES.busService);
 
   /**
    * Method context service instance, injected via DI, for accessing execution context.
    * Used to retrieve clientId and agentName in method calls, integrating with MethodContextService’s scoping in HistoryPublicService.
    * @private
-  */
+   */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
@@ -47,7 +47,7 @@ export class HistoryConnectionService implements IHistory {
    * Session validation service instance, injected via DI, for tracking history usage.
    * Used in getHistory and dispose to manage history lifecycle, supporting SessionPublicService’s validation needs.
    * @private
-  */
+   */
   private readonly sessionValidationService = inject<SessionValidationService>(
     TYPES.sessionValidationService
   );
@@ -56,7 +56,7 @@ export class HistoryConnectionService implements IHistory {
    * Agent schema service instance, injected via DI, for managing agent schema-related operations.
    * Used to validate and process agent schemas within the history connection service.
    * @private
-  */
+   */
   private readonly agentSchemaService = inject<AgentSchemaService>(
     TYPES.agentSchemaService,
   );
@@ -66,7 +66,7 @@ export class HistoryConnectionService implements IHistory {
    * Uses functools-kit’s memoize to cache instances by a composite key (clientId-agentName), ensuring efficient reuse across calls.
    * Initializes the history with items from GLOBAL_CONFIG.CC_GET_AGENT_HISTORY_ADAPTER, and integrates with SessionValidationService for usage tracking.
    * Supports ClientAgent (history in EXECUTE_FN), AgentConnectionService (history provision), and HistoryPublicService (public API).
-  */
+   */
   public getHistory = memoize(
     ([clientId, agentName]) => `${clientId}-${agentName}`,
     (clientId: string, agentName: string) => {
@@ -87,7 +87,7 @@ export class HistoryConnectionService implements IHistory {
    * Pushes a message to the agent’s history.
    * Delegates to ClientHistory.push, using context from MethodContextService to identify the history instance, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors HistoryPublicService’s push, supporting ClientAgent’s history updates (e.g., via commit methods in AgentConnectionService).
-  */
+   */
   public push = async (message: IModelMessage) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`historyConnectionService push`, {
@@ -103,7 +103,7 @@ export class HistoryConnectionService implements IHistory {
    * Pops the most recent message from the agent’s history.
    * Delegates to ClientHistory.pop, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors HistoryPublicService’s pop, supporting ClientAgent’s history manipulation.
-  */
+   */
   public pop = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`historyConnectionService pop`);
@@ -117,7 +117,7 @@ export class HistoryConnectionService implements IHistory {
    * Converts the agent’s history to an array formatted for agent use, incorporating a prompt.
    * Delegates to ClientHistory.toArrayForAgent, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors HistoryPublicService’s toArrayForAgent, supporting ClientAgent’s execution context (e.g., EXECUTE_FN with prompt).
-  */
+   */
   public toArrayForAgent = async (prompt: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`historyConnectionService toArrayForAgent`, {
@@ -133,7 +133,7 @@ export class HistoryConnectionService implements IHistory {
    * Converts the agent’s history to a raw array of messages.
    * Delegates to ClientHistory.toArrayForRaw, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors HistoryPublicService’s toArrayForRaw, supporting ClientAgent’s raw history access or external reporting.
-  */
+   */
   public toArrayForRaw = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`historyConnectionService toArrayForRaw`);
@@ -147,7 +147,7 @@ export class HistoryConnectionService implements IHistory {
    * Disposes of the history connection, cleaning up resources and clearing the memoized instance.
    * Checks if the history exists in the memoization cache before calling ClientHistory.dispose, then clears the cache and updates SessionValidationService.
    * Logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligns with HistoryPublicService’s dispose and PerfService’s cleanup.
-  */
+   */
   public dispose = async () => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`historyConnectionService dispose`);

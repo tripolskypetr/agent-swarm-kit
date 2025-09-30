@@ -14,14 +14,14 @@ export class WikiSchemaService {
   /**
    * @readonly
    * Injected logger service instance
-  */
+   */
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Schema context service instance, injected via DI, for managing schema-related context operations.
    * Provides utilities and methods to interact with schema contexts, supporting schema validation, retrieval, and updates.
    * @readonly
-  */
+   */
   readonly schemaContextService = inject<TSchemaContextService>(
     TYPES.schemaContextService
   );
@@ -29,7 +29,7 @@ export class WikiSchemaService {
   /**
    * @private
    * Registry for storing wiki schemas
-  */
+   */
   private _registry = new ToolRegistry<Record<WikiName, IWikiSchema>>(
     "wikiSchemaService"
   );
@@ -38,7 +38,7 @@ export class WikiSchemaService {
    * Retrieves the current registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
    * Otherwise, it falls back to the private `_registry` instance.
-  */
+   */
   public get registry() {
     if (SchemaContextService.hasContext()) {
       return this.schemaContextService.context.registry.wikiSchemaService;
@@ -50,7 +50,7 @@ export class WikiSchemaService {
    * Sets the registry instance for agent schemas.
    * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
    * Otherwise, it updates the private `_registry` instance.
-  */
+   */
   public set registry(value: ToolRegistry<Record<WikiName, IWikiSchema>>) {
     if (SchemaContextService.hasContext()) {
       this.schemaContextService.context.registry.wikiSchemaService = value;
@@ -63,7 +63,7 @@ export class WikiSchemaService {
    * Validates basic requirements of a wiki schema
    * @private
    * @throws {Error} If validation fails
-  */
+   */
   private validateShallow = (wikiSchema: IWikiSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`wikiSchemaService validateShallow`, {
@@ -84,7 +84,7 @@ export class WikiSchemaService {
   /**
    * Registers a wiki schema with a given key
    * @public
-  */
+   */
   public register = (key: WikiName, value: IWikiSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`wikiSchemaService register`, { key });
@@ -96,7 +96,7 @@ export class WikiSchemaService {
    * Overrides an existing wiki schema with a new value for a given key
    * @public
    * Logs the override operation and updates the registry with the new schema
-  */
+   */
   public override = (key: WikiName, value: Partial<IWikiSchema>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`wikiSchemaService override`, { key });
@@ -107,7 +107,7 @@ export class WikiSchemaService {
   /**
    * Retrieves a wiki schema by key
    * @public
-  */
+   */
   public get = (key: WikiName): IWikiSchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`wikiSchemaService get`, { key });

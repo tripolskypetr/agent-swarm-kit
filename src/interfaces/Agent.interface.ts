@@ -44,7 +44,7 @@ export interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
   /**
    * Optional callback triggered before the tool is executed.
    * Useful for logging, pre-processing, or setup tasks.
-  */
+   */
   onBeforeCall?: (
     toolId: string,
     clientId: string,
@@ -55,7 +55,7 @@ export interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
   /**
    * Optional callback triggered after the tool is executed.
    * Useful for cleanup, logging, or post-processing.
-  */
+   */
   onAfterCall?: (
     toolId: string,
     clientId: string,
@@ -66,7 +66,7 @@ export interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
   /**
    * Optional callback triggered to validate tool parameters before execution.
    * Allows custom validation logic specific to the tool.
-  */
+   */
   onValidate?: (
     clientId: string,
     agentName: AgentName,
@@ -76,7 +76,7 @@ export interface IAgentToolCallbacks<T = Record<string, ToolValue>> {
   /**
    * Optional callback triggered when the tool execution fails.
    * Useful for error logging or recovery actions.
-  */
+   */
   onCallError?: (
     toolId: string,
     clientId: string,
@@ -102,7 +102,7 @@ export interface IAgentTool<T = Record<string, ToolValue>> {
   /**
    * Executes the tool with the specified parameters and context.
    * @throws {Error} If the tool execution fails or parameters are invalid.
-  */
+   */
   call(dto: {
     toolId: string;
     clientId: string;
@@ -118,7 +118,7 @@ export interface IAgentTool<T = Record<string, ToolValue>> {
   /**
    * Checks if the tool is available for execution.
    * This method can be used to determine if the tool can be executed based on the current context.
-  */
+   */
   isAvailable?: (
     clientId: string,
     agentName: AgentName,
@@ -128,7 +128,7 @@ export interface IAgentTool<T = Record<string, ToolValue>> {
   /**
    * Validates the tool parameters before execution.
    * Can return synchronously or asynchronously based on validation complexity.
-  */
+   */
   validate?: (dto: {
     clientId: string;
     agentName: AgentName;
@@ -187,7 +187,7 @@ export interface IAgentParams
 
   /**
    * Validates the agent's output before finalization.
-  */
+   */
   validate: (output: string) => Promise<string | null>;
 }
 
@@ -198,12 +198,12 @@ export interface IAgentParams
 export interface IAgentSchemaInternalCallbacks {
   /**
    * Optional callback triggered when the agent runs statelessly (without history updates).
-  */
+   */
   onRun?: (clientId: string, agentName: AgentName, input: string) => void;
 
   /**
    * Optional callback triggered when the agent begins execution.
-  */
+   */
   onExecute?: (
     clientId: string,
     agentName: AgentName,
@@ -213,7 +213,7 @@ export interface IAgentSchemaInternalCallbacks {
 
   /**
    * Optional callback triggered when a tool produces output.
-  */
+   */
   onToolOutput?: (
     toolId: string,
     clientId: string,
@@ -223,7 +223,7 @@ export interface IAgentSchemaInternalCallbacks {
 
   /**
    * Optional callback triggered when a system message is generated.
-  */
+   */
   onSystemMessage?: (
     clientId: string,
     agentName: AgentName,
@@ -232,7 +232,7 @@ export interface IAgentSchemaInternalCallbacks {
 
   /**
    * Optional callback triggered when a developer message is generated.
-  */
+   */
   onDeveloperMessage?: (
     clientId: string,
     agentName: AgentName,
@@ -243,7 +243,7 @@ export interface IAgentSchemaInternalCallbacks {
    * Optional callback triggered when a tool request is initiated.
    * This callback is used to handle or process tool requests made by the agent.
    * 
-  */
+   */
   onToolRequest?: (
     clientId: string,
     agentName: AgentName,
@@ -254,7 +254,7 @@ export interface IAgentSchemaInternalCallbacks {
    * Optional callback triggered when a tool throw an error
    * This callback is used to log the error before resurrect
    * 
-  */
+   */
   onToolError?: (
     clientId: string,
     agentName: AgentName,
@@ -264,7 +264,7 @@ export interface IAgentSchemaInternalCallbacks {
 
   /**
    * Optional callback triggered when an assistant message is committed.
-  */
+   */
   onAssistantMessage?: (
     clientId: string,
     agentName: AgentName,
@@ -273,7 +273,7 @@ export interface IAgentSchemaInternalCallbacks {
 
   /**
    * Optional callback triggered when a user message is received.
-  */
+   */
   onUserMessage?: (
     clientId: string,
     agentName: AgentName,
@@ -282,18 +282,18 @@ export interface IAgentSchemaInternalCallbacks {
 
   /**
    * Optional callback triggered when the agent's history is flushed.
-  */
+   */
   onFlush?: (clientId: string, agentName: AgentName) => void;
 
   /**
    * Optional callback triggered when the agent produces output.
    * W
-  */
+   */
   onOutput?: (clientId: string, agentName: AgentName, output: string) => void;
 
   /**
    * Optional callback triggered when the agent is resurrected after a pause or failure.
-  */
+   */
   onResurrect?: (
     clientId: string,
     agentName: AgentName,
@@ -303,17 +303,17 @@ export interface IAgentSchemaInternalCallbacks {
 
   /**
    * Optional callback triggered when the agent is initialized.
-  */
+   */
   onInit?: (clientId: string, agentName: AgentName) => void;
 
   /**
    * Optional callback triggered when the agent is disposed of.
-  */
+   */
   onDispose?: (clientId: string, agentName: AgentName) => void;
 
   /**
    * Optional callback triggered after all tool calls in a sequence are completed.
-  */
+   */
   onAfterToolCalls?: (
     clientId: string,
     agentName: AgentName,
@@ -328,7 +328,7 @@ export interface IAgentSchemaInternalCallbacks {
 export interface IAgentSchemaInternal {
   /**
    * Optional function to filter or modify tool calls before execution.
-  */
+   */
   mapToolCalls?: (
     tool: IToolCall[],
     clientId: string,
@@ -388,12 +388,12 @@ export interface IAgentSchemaInternal {
 
   /**
    * Optional function to validate the agent's output before finalization.
-  */
+   */
   validate?: (output: string) => Promise<string | null>;
 
   /**
    * Optional function to transform the model's output before further processing.
-  */
+   */
   transform?: (
     input: string,
     clientId: string,
@@ -402,7 +402,7 @@ export interface IAgentSchemaInternal {
 
   /**
    * Optional function to map assistant messages, e.g., converting JSON to tool calls for specific models.
-  */
+   */
   map?: (
     message: IModelMessage,
     clientId: string,
@@ -438,43 +438,43 @@ export interface IAgent {
    * Runs the agent statelessly without modifying chat history.
    * Useful for one-off computations or previews.
    * @throws {Error} If execution fails due to invalid input or internal errors.
-  */
+   */
   run: (input: string) => Promise<string>;
 
   /**
    * Executes the agent with the given input, potentially updating history based on mode.
    * @throws {Error} If execution fails due to invalid input, tools, or internal errors.
-  */
+   */
   execute: (input: string, mode: ExecutionMode) => Promise<void>;
 
   /**
    * Waits for and retrieves the agent's output after execution.
    * @throws {Error} If no output is available or waiting times out.
-  */
+   */
   waitForOutput: () => Promise<string>;
 
   /**
    * Commits tool output to the agent's history or state.
    * @throws {Error} If the tool ID is invalid or committing fails.
-  */
+   */
   commitToolOutput(toolId: string, content: string): Promise<void>;
 
   /**
    * Commits a system message to the agent's history or state.
    * @throws {Error} If committing the message fails.
-  */
+   */
   commitSystemMessage(message: string): Promise<void>;
 
   /**
    * Commits a developer message to the agent's history or state.
    * @throws {Error} If committing the message fails.
-  */
+   */
   commitDeveloperMessage(message: string): Promise<void>;
 
   /**
    * Commits a user message to the agent's history without triggering a response.
    * @throws {Error} If committing the message fails.
-  */
+   */
   commitUserMessage(message: string, mode: ExecutionMode): Promise<void>;
 
   /**
@@ -482,37 +482,37 @@ export interface IAgent {
    * This method is used to log or process tool requests, which can be a single request or an array of requests.
    * 
    * @throws {Error} If committing the tool request(s) fails.
-  */
+   */
   commitToolRequest(request: IToolRequest[]): Promise<string[]>;
 
   /**
    * Commits an assistant message to the agent's history without triggering a response.
    * @throws {Error} If committing the message fails.
-  */
+   */
   commitAssistantMessage(message: string): Promise<void>;
 
   /**
    * Clears the agent's history, resetting it to an initial state.
    * @throws {Error} If flushing the history fails.
-  */
+   */
   commitFlush(): Promise<void>;
 
   /**
    * Prevents the next tool in the execution sequence from running and stops further tool calls.
    * @throws {Error} If stopping the tools fails.
-  */
+   */
   commitStopTools(): Promise<void>;
 
   /**
    * Unlocks the execution queue and signals an agent change, stopping subsequent tool executions.
    * @throws {Error} If committing the agent change fails.
-  */
+   */
   commitAgentChange(): Promise<void>;
 
   /**
    * Unlocks the execution queue and signals an agent output cancelation, stopping subsequent tool executions.
    * @throws {Error} If committing the agent change fails.
-  */
+   */
   commitCancelOutput(): Promise<void>;
 }
 

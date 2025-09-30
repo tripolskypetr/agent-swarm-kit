@@ -40,13 +40,13 @@ export class AgentPublicService implements TAgentConnectionService {
   /**
    * Logger service instance, injected via DI, for logging agent operations.
    * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with DocService and PerfService logging patterns.
-   */
+    */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Agent connection service instance, injected via DI, for underlying agent operations.
    * Provides core functionality (e.g., getAgent, execute) called by public methods, aligning with ClientAgent’s execution model.
-   */
+    */
   private readonly agentConnectionService = inject<AgentConnectionService>(
     TYPES.agentConnectionService
   );
@@ -55,7 +55,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Creates a reference to an agent for a specific client and method context.
    * Wraps AgentConnectionService.getAgent with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used in ClientAgent (e.g., to initialize agent refs) and PerfService (e.g., to track agent usage via clientId).
-   */
+    */
   public createAgentRef = async (
     methodName: string,
     clientId: string,
@@ -89,7 +89,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Executes a command on the agent with a specified execution mode.
    * Wraps AgentConnectionService.execute with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors ClientAgent’s EXECUTE_FN, triggering BusService events (e.g., commitExecutionBegin) and PerfService tracking (e.g., startExecution).
-  */
+   */
   public execute = async (
     input: string,
     mode: ExecutionMode,
@@ -127,7 +127,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Runs a stateless completion on the agent with the given input.
    * Wraps AgentConnectionService.run with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors ClientAgent’s RUN_FN, used for quick completions without state persistence, tracked by PerfService.
-   */
+    */
   public run = async (
     input: string,
     methodName: string,
@@ -163,7 +163,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Waits for the agent’s output after an operation.
    * Wraps AgentConnectionService.waitForOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used in ClientAgent (e.g., post-execution output retrieval), complementing execute and run.
-   */
+    */
   public waitForOutput = async (
     methodName: string,
     clientId: string,
@@ -197,7 +197,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Commits tool output to the agent’s history, typically for OpenAI-style tool calls.
    * Wraps AgentConnectionService.commitToolOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent’s tool execution (e.g., TOOL_EXECUTOR), documented in DocService (e.g., tool schemas).
-  */
+   */
   public commitToolOutput = async (
     toolId: string,
     content: string,
@@ -238,7 +238,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Commits a system message to the agent’s history.
    * Wraps AgentConnectionService.commitSystemMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used in ClientAgent (e.g., system prompt updates), documented in DocService (e.g., system prompts).
-   */
+    */
   public commitSystemMessage = async (
     message: string,
     methodName: string,
@@ -274,7 +274,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Commits a developer message to the agent’s history.
    * Wraps AgentConnectionService.commitDeveloperMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used for developer-specific messages, enhancing debugging and tracking in agent operations.
-   */
+    */
   public commitDeveloperMessage = async (
     message: string,
     methodName: string,
@@ -311,7 +311,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Wraps AgentConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used for submitting tool requests, typically in scenarios where multiple tools are involved in agent operations.
    *
-   */
+    */
   public commitToolRequest = async (
     request: IToolRequest[],
     methodName: string,
@@ -347,7 +347,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Commits an assistant message to the agent’s history.
    * Wraps AgentConnectionService.commitAssistantMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent’s assistant responses, tracked by PerfService and documented in DocService.
-   */
+    */
   public commitAssistantMessage = async (
     message: string,
     methodName: string,
@@ -385,7 +385,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Commits a user message to the agent’s history without triggering an answer.
    * Wraps AgentConnectionService.commitUserMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used in ClientAgent for user input logging, complementing execute and run.
-   */
+    */
   public commitUserMessage = async (
     message: string,
     mode: ExecutionMode,
@@ -426,7 +426,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Commits a flush of the agent’s history, clearing stored data.
    * Wraps AgentConnectionService.commitFlush with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent session resets, tracked by PerfService for performance cleanup.
-   */
+    */
   public commitFlush = async (
     methodName: string,
     clientId: string,
@@ -460,7 +460,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Commits a change of agent to prevent subsequent tool executions.
    * Wraps AgentConnectionService.commitAgentChange with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used in ClientAgent to manage agent transitions, documented in DocService (e.g., agent dependencies).
-   */
+    */
   public commitAgentChange = async (
     methodName: string,
     clientId: string,
@@ -494,7 +494,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Commits a stop to prevent the next tool from being executed.
    * Wraps AgentConnectionService.commitStopTools with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption).
-   */
+    */
   public commitStopTools = async (
     methodName: string,
     clientId: string,
@@ -528,7 +528,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Commits a stop to prevent the next tool from being executed.
    * Wraps AgentConnectionService.commitCancelOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption).
-   */
+    */
   public commitCancelOutput = async (
     methodName: string,
     clientId: string,
@@ -562,7 +562,7 @@ export class AgentPublicService implements TAgentConnectionService {
    * Disposes of the agent, cleaning up resources.
    * Wraps AgentConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Aligns with PerfService’s dispose (e.g., session cleanup) and BusService’s dispose (e.g., subscription cleanup).
-   */
+    */
   public dispose = async (
     methodName: string,
     clientId: string,

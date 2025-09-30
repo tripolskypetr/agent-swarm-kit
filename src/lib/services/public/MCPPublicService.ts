@@ -45,7 +45,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Lists available tools for a given client within a specified context.
-  */
+   */
   async listTools(
     methodName: string,
     clientId: string,
@@ -75,7 +75,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Updates the list of tools for all clients within a specified context.
-  */
+   */
   async updateToolsForAll(methodName: string, mcpName: string): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpPublicService updateToolsForAll`, {
@@ -101,7 +101,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Updates the list of tools for a specific client within a specified context.
-  */
+   */
   async updateToolsForClient(
     methodName: string,
     clientId: string,
@@ -131,7 +131,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Checks if a specific tool exists for a given client within a specified context.
-  */
+   */
   async hasTool(
     methodName: string,
     clientId: string,
@@ -163,7 +163,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Calls a specific tool with the provided parameters within a specified context.
-  */
+   */
   async callTool<T extends MCPToolValue = MCPToolValue>(
     methodName: string,
     clientId: string,
@@ -196,7 +196,7 @@ export class MCPPublicService implements TMCPConnectionService {
 
   /**
    * Disposes of resources associated with a client within a specified context.
-  */
+   */
   public dispose = async (
     methodName: string,
     clientId: string,

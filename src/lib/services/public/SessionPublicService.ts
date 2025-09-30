@@ -51,25 +51,25 @@ export class SessionPublicService implements TSessionConnectionService {
   /**
    * Logger service instance, injected via DI, for logging session operations.
    * Used across all methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO or CC_LOGGER_ENABLE_LOG is true, consistent with AgentPublicService and PerfService logging patterns.
-   */
+    */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Performance service instance, injected via DI, for tracking execution metrics.
    * Used in connect to measure execution duration (startExecution, endExecution), aligning with PerfService’s sessionState tracking.
-   */
+    */
   private readonly perfService = inject<PerfService>(TYPES.perfService);
 
   /**
    * Service for execution validation to prevent the model to call the tools
    * recursively
-   */
+    */
   private readonly executionValidationService = inject<ExecutionValidationService>(TYPES.executionValidationService);
 
   /**
    * Session connection service instance, injected via DI, for underlying session operations.
    * Provides core functionality (e.g., emit, execute) called by public methods, supporting ClientAgent’s session model.
-   */
+    */
   private readonly sessionConnectionService = inject<SessionConnectionService>(
     TYPES.sessionConnectionService
   );
@@ -77,12 +77,12 @@ export class SessionPublicService implements TSessionConnectionService {
   /**
    * Bus service instance, injected via DI, for emitting session-related events.
    * Used in connect to signal execution start and end (commitExecutionBegin, commitExecutionEnd), integrating with BusService’s event system.
-   */
+    */
   private readonly busService = inject<BusService>(TYPES.busService);
 
   /**
    * Service which prevent tool call to navigate client recursively
-   */
+    */
   private readonly navigationValidationService =
     inject<NavigationValidationService>(TYPES.navigationValidationService);
 
@@ -90,7 +90,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Emits a message to the session, typically for asynchronous communication.
    * Delegates to ClientSession.emit, using context from MethodContextService to identify the session, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors SessionPublicService’s emit, supporting ClientAgent’s output handling and SwarmPublicService’s messaging.
-   */
+    */
   public notify = async (
     content: string,
     methodName: string,
@@ -126,7 +126,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Emits a message to the session for a specific client and swarm.
    * Wraps SessionConnectionService.emit with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used in ClientAgent (e.g., session-level messaging) and AgentPublicService (e.g., swarm context emission).
-   */
+    */
   public emit = async (
     content: string,
     methodName: string,
@@ -162,7 +162,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Executes a command in the session with a specified execution mode.
    * Wraps SessionConnectionService.execute with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors ClientAgent’s EXECUTE_FN at the session level, triggering BusService events and PerfService tracking.
-  */
+   */
   public execute = async (
     content: string,
     mode: ExecutionMode,
@@ -199,7 +199,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Runs a stateless completion in the session with the given content.
    * Wraps SessionConnectionService.run with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors ClientAgent’s RUN_FN at the session level, used for quick completions without state persistence.
-   */
+    */
   public run = async (
     content: string,
     methodName: string,
@@ -234,7 +234,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Connects to the session, establishing a messaging channel with performance tracking and event emission.
    * Uses SessionConnectionService.connect directly, wrapping execution in ExecutionContextService for detailed tracking, logging via LoggerService if enabled.
    * Integrates with ClientAgent (e.g., session-level messaging), PerfService (e.g., execution metrics), and BusService (e.g., execution events).
-   */
+    */
   public connect = (
     connector: SendMessageFn,
     methodName: string,
@@ -300,7 +300,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Commits tool output to the session’s history, typically for OpenAI-style tool calls.
    * Wraps SessionConnectionService.commitToolOutput with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent’s tool execution (e.g., TOOL_EXECUTOR), mirrored in AgentPublicService.
-  */
+   */
   public commitToolOutput = async (
     toolId: string,
     content: string,
@@ -341,7 +341,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Commits a system message to the session’s history.
    * Wraps SessionConnectionService.commitSystemMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used in ClientAgent (e.g., system prompt updates), mirrored in AgentPublicService.
-   */
+    */
   public commitSystemMessage = async (
     message: string,
     methodName: string,
@@ -377,7 +377,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Commits a developer message to the session’s history or state.
    * Wraps SessionConnectionService.commitDeveloperMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent’s developer-level messaging, allowing for detailed session context updates.
-   */
+    */
   public commitDeveloperMessage = async (
     message: string,
     methodName: string,
@@ -414,7 +414,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Wraps SessionConnectionService.commitToolRequest with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent’s tool execution requests, mirrored in AgentPublicService.
    * 
-   */
+    */
   public commitToolRequest = async (
     request: IToolRequest[],
     methodName: string,
@@ -450,7 +450,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Commits an assistant message to the session’s history.
    * Wraps SessionConnectionService.commitAssistantMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent’s assistant responses, mirrored in AgentPublicService and tracked by PerfService.
-   */
+    */
   public commitAssistantMessage = async (
     message: string,
     methodName: string,
@@ -488,7 +488,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Commits a user message to the session’s history without triggering an answer.
    * Wraps SessionConnectionService.commitUserMessage with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used in ClientAgent for user input logging, mirrored in AgentPublicService.
-   */
+    */
   public commitUserMessage = async (
     message: string,
     mode: ExecutionMode,
@@ -529,7 +529,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Commits a flush of the session’s history, clearing stored data.
    * Wraps SessionConnectionService.commitFlush with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent session resets, mirrored in AgentPublicService and tracked by PerfService.
-   */
+    */
   public commitFlush = async (
     methodName: string,
     clientId: string,
@@ -562,7 +562,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Commits a stop to prevent the next tool from being executed in the session.
    * Wraps SessionConnectionService.commitStopTools with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Supports ClientAgent’s tool execution control (e.g., TOOL_EXECUTOR interruption), mirrored in AgentPublicService.
-   */
+    */
   public commitStopTools = async (
     methodName: string,
     clientId: string,
@@ -595,7 +595,7 @@ export class SessionPublicService implements TSessionConnectionService {
    * Disposes of the session, cleaning up resources.
    * Wraps SessionConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Aligns with AgentPublicService’s dispose and PerfService’s session cleanup.
-   */
+    */
   public dispose = async (
     methodName: string,
     clientId: string,

@@ -25,7 +25,7 @@ export interface IEmbeddingCallbacks {
   /**
    * Callback triggered when an embedding is created.
    * Useful for logging or post-processing the generated embeddings.
-  */
+   */
   onCreate(
     text: string,
     embeddings: Embeddings,
@@ -36,7 +36,7 @@ export interface IEmbeddingCallbacks {
   /**
    * Callback triggered when two embeddings are compared for similarity.
    * Useful for logging or analyzing similarity results.
-  */
+   */
   onCompare(
     text1: string,
     text2: string,
@@ -61,21 +61,21 @@ export interface IEmbeddingSchema {
    * Creates an embedding from the provided text.
    * Typically used for indexing or search operations in storage.
    * @throws {Error} If embedding creation fails (e.g., due to invalid text or model errors).
-  */
+   */
   createEmbedding(text: string, embeddingName: EmbeddingName): Promise<Embeddings>;
 
   /**
    * Calculates the similarity between two embeddings.
    * Commonly used for search or ranking operations (e.g., cosine similarity).
    * @throws {Error} If similarity calculation fails (e.g., due to invalid embeddings or computation errors).
-  */
+   */
   calculateSimilarity(a: Embeddings, b: Embeddings): Promise<number>;
 
   /**
    * Stores an embedding vector for a specific string hash, persisting it for future retrieval.
    * Used to cache computed embeddings to avoid redundant processing.
    * @throws {Error} If writing to storage fails (e.g., permissions or disk space).
-  */
+   */
   writeEmbeddingCache?: (
     embeddings: number[],
     embeddingName: EmbeddingName,
@@ -86,7 +86,7 @@ export interface IEmbeddingSchema {
    * Retrieves the embedding vector for a specific string hash, returning null if not found.
    * Used to check if a precomputed embedding exists in the cache.
    * @throws {Error} If reading from storage fails (e.g., file corruption).
-  */
+   */
   readEmbeddingCache?: (
     embeddingName: EmbeddingName,
     stringHash: string

@@ -21,21 +21,21 @@ export class PolicyValidationService {
    * Injected via DI, used for info-level logging controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO.
    * @private
    * @readonly
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
    * Map of policy names to their schemas, used to track and validate policies.
    * Populated by addPolicy, queried by validate.
    * @private
-  */
+   */
   private _policyMap = new Map<PolicyName, IPolicySchema>();
 
   /**
    * Registers a new policy with its schema in the validation service.
    * Logs the operation and ensures uniqueness, supporting PolicySchemaService’s registration process.
    * @throws {Error} If the policy name already exists in _policyMap.
-  */
+   */
   public addPolicy = (
     policyName: PolicyName,
     policySchema: IPolicySchema
@@ -55,7 +55,7 @@ export class PolicyValidationService {
    * Validates if a policy name exists in the registered map, memoized by policyName for performance.
    * Logs the operation and checks existence, supporting ClientPolicy’s policy enforcement validation.
    * @throws {Error} If the policy name is not found in _policyMap.
-  */
+   */
   public validate = memoize(
     ([policyName]) => policyName,
     (policyName: PolicyName, source: string): void => {

@@ -68,17 +68,17 @@ export interface IMCPTool<Properties = MCPToolProperties> {
 export interface IMCP {
   /**
    * Lists available tools for a given client.
-  */
+   */
   listTools(clientId: string): Promise<IMCPTool[]>;
 
   /**
    * Checks if a specific tool exists for a given client.
-  */
+   */
   hasTool(toolName: string, clientId: string): Promise<boolean>;
 
   /**
    * Calls a specific tool with the provided parameters.
-  */
+   */
   callTool<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
@@ -86,12 +86,12 @@ export interface IMCP {
 
   /**
    * Updates the list of tools by clearing the cache and invoking the update callback.
-  */
+   */
   updateToolsForAll(): Promise<void>;
 
   /**
    * Updates the list of tools by clearing the cache and invoking the update callback.
-  */
+   */
   updateToolsForClient(clientId: string): Promise<void>;
 }
 
@@ -104,22 +104,22 @@ export interface IMCPCallbacks {
 
   /**
    * Called when the MCP resources for a client are disposed.
-  */
+   */
   onDispose(clientId: string): void;
 
   /**
    * Called when tools are fetched for a client.
-  */
+   */
   onFetch(clientId: string): void;
 
   /**
    * Called when listing tools for a client.
-  */
+   */
   onList(clientId: string): void;
 
   /**
    * Called when a tool is invoked.
-  */
+   */
   onCall<T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>
@@ -127,7 +127,7 @@ export interface IMCPCallbacks {
 
   /**
    * Called when the list of tools is updated.
-  */
+   */
   onUpdate(mcpName: MCPName, clientId: string | undefined): void;
 }
 
@@ -142,12 +142,12 @@ export interface IMCPSchema {
 
   /**
    * Function to list available tools for a client.
-  */
+   */
   listTools: (clientId: string) => Promise<IMCPTool<unknown>[]>;
 
   /**
    * Function to call a specific tool with the provided parameters.
-  */
+   */
   callTool: <T extends MCPToolValue = MCPToolValue>(
     toolName: string,
     dto: IMCPToolCallDto<T>

@@ -17,7 +17,7 @@ export class MemorySchemaService {
    * Used in writeValue, readValue, and dispose methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, consistent with SessionConnectionService and PerfService logging patterns.
    * @private
    * @readonly
-  */
+   */
   private readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   /**
@@ -25,7 +25,7 @@ export class MemorySchemaService {
    * Maps SessionId (as clientId) to arbitrary objects, providing a simple in-memory store, used in writeValue, readValue, and dispose methods.
    * Not persisted, serving as a transient memory layer for session runtime data.
    * @private
-  */
+   */
   private memoryMap = new Map<SessionId, object>();
 
   /**
@@ -33,7 +33,7 @@ export class MemorySchemaService {
    * Determines whether the memoryMap contains an entry for the specified clientId.
    * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionPublicService’s data access needs.
    * Supports ClientAgent by providing a way to verify session-scoped runtime memory existence.
-  */
+   */
   public hasValue = (clientId: string): boolean => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`memorySchemaService hasValue`, {
@@ -48,7 +48,7 @@ export class MemorySchemaService {
    * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionConnectionService’s session data needs.
    * Supports ClientAgent by providing a flexible, session-scoped memory store for runtime data.
    * @template T - The type of the value to be written, extending object, defaulting to a generic object.
-  */
+   */
   public writeValue = <T extends object = object>(
     clientId: string,
     value: T
@@ -72,7 +72,7 @@ export class MemorySchemaService {
    * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionPublicService’s data access needs.
    * Supports ClientAgent by providing access to session-scoped runtime memory.
    * @template T - The type of the value to be read, extending object, defaulting to a generic object.
-  */
+   */
   public readValue = <T extends object = object>(clientId: string): T => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`memorySchemaService getValue`, {
@@ -86,7 +86,7 @@ export class MemorySchemaService {
    * Deletes the entry associated with the clientId from the memoryMap, effectively clearing session-specific data.
    * Logs the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true, aligning with SessionConnectionService’s cleanup needs.
    * Supports session termination or reset scenarios in SessionPublicService and ClientAgent workflows.
-  */
+   */
   public dispose = (clientId: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`memorySchemaService dispose`, {

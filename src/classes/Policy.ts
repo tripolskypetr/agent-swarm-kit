@@ -23,7 +23,7 @@ const METHOD_NAME_HAS_BAN = "PolicyUtils.hasBan";
 export class NoopPolicy implements IPolicy {
   /**
    * Creates a new NoopPolicy instance.
-  */
+   */
   constructor(readonly swarmName: string) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(`NoopPolicy CTOR swarmName=${swarmName}`);
@@ -31,7 +31,7 @@ export class NoopPolicy implements IPolicy {
 
   /**
    * Checks if a client is banned. Always returns false as this is a no-op policy.
-  */
+   */
   public hasBan(_clientId?: SessionId, _swarmName?: SwarmName): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -42,7 +42,7 @@ export class NoopPolicy implements IPolicy {
 
   /**
    * Retrieves the ban message. Returns a placeholder as no bans are enforced.
-  */
+   */
   public getBanMessage(_clientId?: SessionId, _swarmName?: SwarmName): Promise<string> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -53,7 +53,7 @@ export class NoopPolicy implements IPolicy {
 
   /**
    * Validates incoming data. Always returns true as this is a no-op policy.
-  */
+   */
   public validateInput(
     _incoming?: string,
     _clientId?: SessionId,
@@ -68,7 +68,7 @@ export class NoopPolicy implements IPolicy {
 
   /**
    * Validates outgoing data. Always returns true as this is a no-op policy.
-  */
+   */
   public validateOutput(
     _outgoing?: string,
     _clientId?: SessionId,
@@ -83,7 +83,7 @@ export class NoopPolicy implements IPolicy {
 
   /**
    * Bans a client. No-op implementation, does nothing.
-  */
+   */
   public banClient(_clientId?: SessionId, _swarmName?: SwarmName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -94,7 +94,7 @@ export class NoopPolicy implements IPolicy {
 
   /**
    * Unbans a client. No-op implementation, does nothing.
-  */
+   */
   public unbanClient(_clientId?: SessionId, _swarmName?: SwarmName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -115,7 +115,7 @@ export class MergePolicy implements IPolicy {
 
   /**
    * Creates a new MergePolicy instance combining multiple policies.
-  */
+   */
   constructor(
     private readonly policies: IPolicy[],
     private readonly swarmName: SwarmName
@@ -129,7 +129,7 @@ export class MergePolicy implements IPolicy {
   /**
    * Checks if a client is banned by any of the merged policies.
    * Returns true if any policy reports a ban.
-  */
+   */
   public async hasBan(clientId: SessionId, swarmName: SwarmName): Promise<boolean> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(`MergePolicy hasBan swarmName=${swarmName}`, {
@@ -146,7 +146,7 @@ export class MergePolicy implements IPolicy {
   /**
    * Retrieves the ban message from the most recently triggered policy, or a default if none.
    * Clears the target policy after retrieval.
-  */
+   */
   public async getBanMessage(
     clientId: SessionId,
     swarmName: SwarmName
@@ -169,7 +169,7 @@ export class MergePolicy implements IPolicy {
   /**
    * Validates incoming data against all merged policies.
    * Fails if any policy rejects the input, storing the failing policy as the target.
-  */
+   */
   public async validateInput(
     incoming: string,
     clientId: SessionId,
@@ -195,7 +195,7 @@ export class MergePolicy implements IPolicy {
   /**
    * Validates outgoing data against all merged policies.
    * Fails if any policy rejects the output, storing the failing policy as the target.
-  */
+   */
   public async validateOutput(
     outgoing: string,
     clientId: SessionId,
@@ -220,7 +220,7 @@ export class MergePolicy implements IPolicy {
 
   /**
    * Bans a client using the most recently triggered policy, or the first policy if none triggered.
-  */
+   */
   public async banClient(clientId: SessionId, swarmName: SwarmName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -241,7 +241,7 @@ export class MergePolicy implements IPolicy {
 
   /**
    * Unbans a client using the most recently triggered policy, or the first policy if none triggered.
-  */
+   */
   public async unbanClient(clientId: SessionId, swarmName: SwarmName): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(
@@ -270,7 +270,7 @@ export class PolicyUtils {
    * Bans a client under a specific policy within a swarm.
    * Validates the client, swarm, and policy before delegating to the policy service.
    * @throws {Error} If validation fails or the policy service encounters an error.
-  */
+   */
   public banClient = beginContext(
     async (payload: {
       clientId: string;
@@ -304,7 +304,7 @@ export class PolicyUtils {
    * Unbans a client under a specific policy within a swarm.
    * Validates the client, swarm, and policy before delegating to the policy service.
    * @throws {Error} If validation fails or the policy service encounters an error.
-  */
+   */
   public unbanClient = beginContext(
     async (payload: {
       clientId: string;
@@ -338,7 +338,7 @@ export class PolicyUtils {
    * Checks if a client is banned under a specific policy within a swarm.
    * Validates the client, swarm, and policy before querying the policy service.
    * @throws {Error} If validation fails or the policy service encounters an error.
-  */
+   */
   public hasBan = beginContext(
     async (payload: {
       clientId: string;

@@ -20,19 +20,19 @@ import { scoped } from "di-scoped";
 const NOOP_LOGGER: ILogger = {
   /**
    * Logs normal level messages, no-op implementation.
-  */
+   */
   log() {
     void 0;
   },
   /**
    * Logs debug level messages, no-op implementation.
-  */
+   */
   debug() {
     void 0;
   },
   /**
    * Logs info level messages, no-op implementation.
-  */
+   */
   info() {
     void 0;
   },
@@ -69,7 +69,7 @@ export class LoggerService implements ILogger {
    * Method context service instance, injected via DI, providing method-level context (e.g., clientId).
    * Used in log, debug, and info to attach method-specific metadata, aligning with ClientAgent’s method execution context.
    * @private
-  */
+   */
   private readonly methodContextService = inject<TMethodContextService>(
     TYPES.methodContextService
   );
@@ -78,7 +78,7 @@ export class LoggerService implements ILogger {
    * Execution context service instance, injected via DI, providing execution-level context (e.g., clientId).
    * Used in log, debug, and info to attach execution-specific metadata, complementing ClientAgent’s execution workflows (e.g., EXECUTE_FN).
    * @private
-  */
+   */
   private readonly executionContextService = inject<TExecutionContextService>(
     TYPES.executionContextService
   );
@@ -87,14 +87,14 @@ export class LoggerService implements ILogger {
    * The common logger instance, defaults to NOOP_LOGGER, used for system-wide logging.
    * Updated via setLogger, receives all log messages alongside client-specific loggers, ensuring a fallback logging mechanism.
    * @private
-  */
+   */
   private _commonLogger: ILogger = NOOP_LOGGER;
 
   /**
    * Factory function to create a client-specific logger adapter, memoized with singleshot for efficiency.
    * Sources from GLOBAL_CONFIG.CC_GET_CLIENT_LOGGER_ADAPTER (defaults to LoggerAdapter), used in log, debug, and info to route client-specific logs (e.g., ClientAgent’s clientId).
    * @private
-  */
+   */
   private getLoggerAdapter = singleshot(
     GLOBAL_CONFIG.CC_GET_CLIENT_LOGGER_ADAPTER
   );
@@ -103,7 +103,7 @@ export class LoggerService implements ILogger {
    * Logs messages at the normal level, routing to both the client-specific logger (if clientId exists) and the common logger.
    * Attaches method and execution context (e.g., clientId) for traceability, used across the system (e.g., PerfService’s dispose).
    * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG, defaults to enabled.
-  */
+   */
   public log = async (topic: string, ...args: any[]) => {
     if (ClientLoggerContext.hasContext()) {
       return;
@@ -130,7 +130,7 @@ export class LoggerService implements ILogger {
   /**
    * Logs messages at the debug level, routing to both the client-specific logger (if clientId exists) and the common logger.
    * Attaches method and execution context for detailed debugging, heavily used in ClientAgent (e.g., RUN_FN, EXECUTE_FN) when GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG is true.
-  */
+   */
   public debug = async (topic: string, ...args: any[]) => {
     if (ClientLoggerContext.hasContext()) {
       return;
@@ -157,7 +157,7 @@ export class LoggerService implements ILogger {
   /**
    * Logs messages at the info level, routing to both the client-specific logger (if clientId exists) and the common logger.
    * Attaches method and execution context for informational tracking, used in PerfService (e.g., startExecution) and DocService (e.g., dumpDocs) when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
-  */
+   */
   public info = async (topic: string, ...args: any[]) => {
     if (ClientLoggerContext.hasContext()) {
       return;
@@ -184,7 +184,7 @@ export class LoggerService implements ILogger {
   /**
    * Sets a new common logger instance, replacing the default NOOP_LOGGER or previous logger.
    * Allows runtime customization of system-wide logging behavior, potentially used in testing or advanced configurations (e.g., redirecting logs to a file or console).
-  */
+   */
   public setLogger = (logger: ILogger) => {
     this._commonLogger = logger;
   };
