@@ -1,0 +1,26 @@
+{
+  "name": "outline-format-output",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun ./src/start.ts",
+    "build:docs": "bun ./src/docs.mjs"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@hono/node-server": "1.14.4",
+    "@hono/node-ws": "1.1.6",
+    "agent-swarm-kit": "1.1.158",
+    "hono": "4.7.11",
+    "jsonrepair": "3.13.1",
+    "openai": "5.1.1",
+    "pinolog": "1.0.4",
+    "plantuml": "0.0.2"
+  }
+}
