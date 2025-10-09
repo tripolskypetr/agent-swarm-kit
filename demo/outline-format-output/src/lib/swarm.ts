@@ -1,7 +1,6 @@
 import {
   addCompletion,
   dumpOutlineResult,
-  json,
 } from "agent-swarm-kit";
 import { jsonrepair } from 'jsonrepair'
 import { Ollama } from "ollama";
