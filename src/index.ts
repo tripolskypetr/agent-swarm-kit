@@ -66,7 +66,6 @@ export * from "./functions/commit/commitToolRequestForce";
 export * from "./functions/target/emitForce";
 export * from "./functions/target/executeForce";
 export * from "./functions/target/question";
-export * from "./functions/target/questionForce";
 export * from "./functions/target/json";
 export * from "./functions/target/makeAutoDispose";
 export * from "./functions/target/execute";

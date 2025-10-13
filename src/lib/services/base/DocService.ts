@@ -1021,38 +1021,6 @@ export class DocService {
         }
       }
 
-      if (agentSchema.wikiList) {
-        result.push(`## Used wiki list`);
-        result.push("");
-        for (let i = 0; i !== agentSchema.wikiList.length; i++) {
-          if (!agentSchema.wikiList[i]) {
-            continue;
-          }
-          result.push(
-            `### ${i + 1}. ${sanitizeMarkdown(agentSchema.wikiList[i])}`
-          );
-          const { docDescription, callbacks } = this.wikiSchemaService.get(
-            agentSchema.wikiList[i]
-          );
-          if (docDescription) {
-            result.push("");
-            result.push(`#### Wiki description`);
-            result.push("");
-            result.push(sanitizeMarkdown(docDescription));
-          }
-          if (callbacks) {
-            result.push("");
-            result.push(`#### Wiki callbacks`);
-            result.push("");
-            const callbackList = Object.keys(callbacks);
-            for (let i = 0; i !== callbackList.length; i++) {
-              result.push(`${i + 1}. \`${sanitizeMarkdown(callbackList[i])}\``);
-            }
-          }
-          result.push("");
-        }
-      }
-
       if (agentSchema.callbacks) {
         result.push(`## Used callbacks`);
         result.push("");

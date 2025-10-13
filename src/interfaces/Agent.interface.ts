@@ -374,9 +374,6 @@ export interface IAgentSchemaInternal {
   /** Optional array of storage names utilized by the agent.*/
   storages?: StorageName[];
 
-  /** Optional array of wiki names utilized by the agent.*/
-  wikiList?: WikiName[];
-
   /** Optional array of state names managed by the agent.*/
   states?: StateName[];
 

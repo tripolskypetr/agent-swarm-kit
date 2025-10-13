@@ -1,4 +1,4 @@
-import { AgentName } from "./Agent.interface";
+type Image = Uint8Array | string;
 
 /**
  * @interface IWikiCallbacks
@@ -16,12 +16,10 @@ export interface IWikiCallbacks {
  * Arguments required for chat operations
 */
 export interface IChatArgs {
-    /** Unique identifier for the client*/
-    clientId: string;
-    /** Name of the agent handling the chat*/
-    agentName: AgentName;
     /** Message content for the chat*/
     message: string;
+    /** Optional array of images associated with the chat. */
+    images?: Image[];
 }
 
 /**

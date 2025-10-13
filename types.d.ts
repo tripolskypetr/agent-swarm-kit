@@ -2881,50 +2881,6 @@ interface ICompletionSchema {
 type CompletionName = string;
 
 /**
- * @interface IWikiCallbacks
- * Callback functions for wiki operations
-*/
-interface IWikiCallbacks {
-    /**
-     * Optional callback triggered when a chat operation occurs
-    */
-    onChat?: (args: IChatArgs) => void;
-}
-/**
- * @interface IChatArgs
- * Arguments required for chat operations
-*/
-interface IChatArgs {
-    /** Unique identifier for the client*/
-    clientId: string;
-    /** Name of the agent handling the chat*/
-    agentName: AgentName;
-    /** Message content for the chat*/
-    message: string;
-}
-/**
- * @interface IWikiSchema
- * Schema definition for wiki configuration
-*/
-interface IWikiSchema {
-    /** Optional description of the wiki documentation*/
-    docDescription?: string;
-    /** Name identifier for the wiki*/
-    wikiName: WikiName;
-    /**
-     * Function to get chat response
-    */
-    getChat(args: IChatArgs): Promise<string>;
-    /** Optional callbacks for wiki operations*/
-    callbacks?: IWikiCallbacks;
-}
-/**
- * Type alias for wiki name identifier.
- * Used to identify and reference specific wiki instances.
-*/
-type WikiName = string;
-
-/**
  * Type representing the value of an MCP tool's parameters, which can be an object with string keys or undefined.
 */
 type MCPToolValue = {
@@ -3298,8 +3254,6 @@ interface IAgentSchemaInternal {
     tools?: ToolName[];
     /** Optional array of storage names utilized by the agent.*/
     storages?: StorageName[];
-    /** Optional array of wiki names utilized by the agent.*/
-    wikiList?: WikiName[];
     /** Optional array of state names managed by the agent.*/
     states?: StateName[];
     /** Optional array of mcp names managed by the agent*/
@@ -4182,6 +4136,49 @@ declare class HistoryConnectionService implements IHistory {
      */
     dispose: () => Promise<void>;
 }
+
+type Image$1 = Uint8Array | string;
+/**
+ * @interface IWikiCallbacks
+ * Callback functions for wiki operations
+*/
+interface IWikiCallbacks {
+    /**
+     * Optional callback triggered when a chat operation occurs
+    */
+    onChat?: (args: IChatArgs) => void;
+}
+/**
+ * @interface IChatArgs
+ * Arguments required for chat operations
+*/
+interface IChatArgs {
+    /** Message content for the chat*/
+    message: string;
+    /** Optional array of images associated with the chat. */
+    images?: Image$1[];
+}
+/**
+ * @interface IWikiSchema
+ * Schema definition for wiki configuration
+*/
+interface IWikiSchema {
+    /** Optional description of the wiki documentation*/
+    docDescription?: string;
+    /** Name identifier for the wiki*/
+    wikiName: WikiName;
+    /**
+     * Function to get chat response
+    */
+    getChat(args: IChatArgs): Promise<string>;
+    /** Optional callbacks for wiki operations*/
+    callbacks?: IWikiCallbacks;
+}
+/**
+ * Type alias for wiki name identifier.
+ * Used to identify and reference specific wiki instances.
+*/
+type WikiName = string;
 
 /**
  * Defines interfaces and types for pipeline schemas and callbacks.
@@ -5631,11 +5628,6 @@ declare class AgentValidationService {
      */
     getStorageList: (agentName: AgentName) => StorageName[];
     /**
-     * Retrieves the list of wiki names associated with a given agent.
-     * @throws {Error} If the agent is not found in _agentMap.
-     */
-    getWikiList: (agentName: AgentName) => WikiName[];
-    /**
      * Retrieves the list of state names associated with a given agent.
      * Logs the operation and validates agent existence, supporting ClientState integration.
      * @throws {Error} If the agent is not found in _agentMap.
@@ -5659,11 +5651,6 @@ declare class AgentValidationService {
      * @throws {Error} If the agent is not found in _agentMap.
      */
     hasStorage: ((agentName: AgentName, storageName: StorageName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
-    /**
-     * Checks if an agent has declared wiki
-     * @throws {Error} If the agent is not found in _agentMap.
-     */
-    hasWiki: ((agentName: AgentName, wikiName: WikiName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
      * Checks if an agent has a registered dependency on another agent, memoized for performance.
      * Logs the operation, supporting inter-agent dependency validation within SwarmSchemaService.
@@ -10737,24 +10724,16 @@ declare function emitForce(content: string, clientId: string): Promise<void>;
 */
 declare function executeForce(content: string, clientId: string): Promise<string>;
 
+/** Image type as either an array of Uint8Array or an array of strings */
+type Image = Uint8Array | string;
 /**
  * Initiates a question process within a chat context
  * @function question
  * @param {string} message - The message content to process or send.
- * @param {string} clientId - The unique identifier of the client session.
- * @param {AgentName} agentName - The name of the agent to use or reference.
  * @param {WikiName} wikiName - The name of the wiki.
+ * @param {Image[]} [images] - Optional array of images (as Uint8Array or string).
 */
-declare function question(message: string, clientId: string, agentName: AgentName, wikiName: WikiName): Promise<string>;
-
-/**
- * Initiates a forced question process within a chat context
- * @function questionForce
- * @param {string} message - The message content to process or send.
- * @param {string} clientId - The unique identifier of the client session.
- * @param {WikiName} wikiName - The name of the wiki.
-*/
-declare function questionForce(message: string, clientId: string, wikiName: WikiName): Promise<string>;
+declare function question(message: string, wikiName: WikiName, images?: Image[]): Promise<string>;
 
 /**
  * Processes an outline request to generate structured JSON data based on a specified outline schema.
@@ -13300,4 +13279,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };
+export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };
