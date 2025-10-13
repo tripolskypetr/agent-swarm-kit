@@ -48,15 +48,6 @@ toolValidationService: any
 Tool validation service instance for validating tools associated with agents.
 Injected via DI, used in validate method to check agent tools.
 
-### wikiValidationService
-
-```ts
-wikiValidationService: any
-```
-
-Wiki validation service instance for validating wikies associated with agents.
-Injected via DI, used in validate method to check agent wiki list.
-
 ### mcpValidationService
 
 ```ts
@@ -120,14 +111,6 @@ getStorageList: (agentName: string) => string[]
 Retrieves the list of storage names associated with a given agent.
 Logs the operation and validates agent existence, supporting ClientStorage integration.
 
-### getWikiList
-
-```ts
-getWikiList: (agentName: string) => string[]
-```
-
-Retrieves the list of wiki names associated with a given agent.
-
 ### getStateList
 
 ```ts
@@ -163,14 +146,6 @@ hasStorage: ((agentName: string, storageName: string) => boolean) & IClearableMe
 
 Checks if an agent has a registered storage, memoized for performance.
 Logs the operation and validates agent existence, supporting ClientStorage validation.
-
-### hasWiki
-
-```ts
-hasWiki: ((agentName: string, wikiName: string) => boolean) & IClearableMemoize<string> & IControlMemoize<string, boolean>
-```
-
-Checks if an agent has declared wiki
 
 ### hasDependency
 
