@@ -10,7 +10,6 @@ import { IModelMessage } from "../model/ModelMessage.model";
 import { StorageName } from "./Storage.interface";
 import { StateName } from "./State.interface";
 import { IBus } from "./Bus.interface";
-import { WikiName } from "./Wiki.interface";
 import IMCP, { MCPName } from "./MCP.interface";
 
 /**

@@ -41,7 +41,7 @@ const scopeInternal = beginContext(
       storageSchemaService = swarm.storageSchemaService.registry,
       swarmSchemaService = swarm.swarmSchemaService.registry,
       toolSchemaService = swarm.toolSchemaService.registry,
-      wikiSchemaService = swarm.wikiSchemaService.registry,
+      advisorSchemaService = swarm.advisorSchemaService.registry,
       outlineSchemaService = swarm.outlineSchemaService.registry,
     }: ScopeOptions = {}
   ): Promise<any> => {
@@ -59,7 +59,7 @@ const scopeInternal = beginContext(
         storageSchemaService,
         swarmSchemaService,
         toolSchemaService,
-        wikiSchemaService,
+        advisorSchemaService,
         outlineSchemaService,
       },
     });

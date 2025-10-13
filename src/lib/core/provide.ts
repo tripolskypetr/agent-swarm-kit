@@ -46,8 +46,8 @@ import PolicyConnectionService from "../services/connection/PolicyConnectionServ
 import PayloadContextService from "../services/context/PayloadContextService";
 import AliveService from "../services/base/AliveService";
 import NavigationValidationService from "../services/validation/NavigationValidationService";
-import WikiSchemaService from "../services/schema/WikiSchemaService";
-import WikiValidationService from "../services/validation/WikiValidationService";
+import AdvisorSchemaService from "../services/schema/AdvisorSchemaService";
+import AdvisorValidationService from "../services/validation/AdvisorValidationService";
 import MCPConnectionService from "../services/connection/MCPConnectionService";
 import MCPSchemaService from "../services/schema/MCPSchemaService";
 import MCPPublicService from "../services/public/MCPPublicService";
@@ -107,7 +107,7 @@ import OutlineValidationService from "../services/validation/OutlineValidationSe
     provide(TYPES.stateSchemaService, () => new StateSchemaService());
     provide(TYPES.memorySchemaService, () => new MemorySchemaService());
     provide(TYPES.policySchemaService, () => new PolicySchemaService());
-    provide(TYPES.wikiSchemaService, () => new WikiSchemaService());
+    provide(TYPES.advisorSchemaService, () => new AdvisorSchemaService());
     provide(TYPES.mcpSchemaService, () => new MCPSchemaService());
     provide(TYPES.computeSchemaService, () => new ComputeSchemaService());
     provide(TYPES.pipelineSchemaService, () => new PipelineSchemaService());
@@ -145,7 +145,7 @@ import OutlineValidationService from "../services/validation/OutlineValidationSe
     provide(TYPES.embeddingValidationService, () => new EmbeddingValidationService());
     provide(TYPES.policyValidationService, () => new PolicyValidationService());
     provide(TYPES.navigationValidationService, () => new NavigationValidationService());
-    provide(TYPES.wikiValidationService, () => new WikiValidationService());
+    provide(TYPES.advisorValidationService, () => new AdvisorValidationService());
     provide(TYPES.mcpValidationService, () => new MCPValidationService());
     provide(TYPES.computeValidationService, () => new ComputeValidationService());
     provide(TYPES.stateValidationService, () => new StateValidationService());

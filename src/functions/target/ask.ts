@@ -1,28 +1,28 @@
 import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
-import { IChatArgs, WikiName } from "../../interfaces/Wiki.interface";
+import { IChatArgs, AdvisorName } from "../../interfaces/Advisor.interface";
 
 /** Image type as either an array of Uint8Array or an array of strings */
 type Image = Uint8Array | string;
 
 /** @constant {string} METHOD_NAME - The name of the method used for logging and validation*/
-const METHOD_NAME = "function.target.question";
+const METHOD_NAME = "function.target.ask";
 
 /**
  * Function implementation
 */
-const questionInternal = beginContext(
-  async (message: string, wikiName: WikiName, images: Image[] = []) => {
+const askInternal = beginContext(
+  async (message: string, advisorName: AdvisorName, images: Image[] = []) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         message,
-        wikiName,
+        advisorName,
       });
 
-    swarm.wikiValidationService.validate(wikiName, METHOD_NAME);
+    swarm.advisorValidationService.validate(advisorName, METHOD_NAME);
 
-    const { getChat, callbacks } = swarm.wikiSchemaService.get(wikiName);
+    const { getChat, callbacks } = swarm.advisorSchemaService.get(advisorName);
 
     const args: IChatArgs = {
       message,
@@ -38,12 +38,12 @@ const questionInternal = beginContext(
 );
 
 /**
- * Initiates a question process within a chat context
- * @function question
+ * Initiates an ask process within a chat context
+ * @function ask
  * @param {string} message - The message content to process or send.
- * @param {WikiName} wikiName - The name of the wiki.
+ * @param {AdvisorName} advisorName - The name of the advisor.
  * @param {Image[]} [images] - Optional array of images (as Uint8Array or string).
 */
-export async function question(message: string, wikiName: WikiName, images?: Image[]) {
-  return await questionInternal(message, wikiName, images);
+export async function ask(message: string, advisorName: AdvisorName, images?: Image[]) {
+  return await askInternal(message, advisorName, images);
 }

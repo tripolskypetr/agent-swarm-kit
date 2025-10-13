@@ -44,8 +44,8 @@ import PolicyConnectionService from "../lib/services/connection/PolicyConnection
 import { TPayloadContextService } from "../lib/services/context/PayloadContextService";
 import AliveService from "../lib/services/base/AliveService";
 import NavigationValidationService from "../lib/services/validation/NavigationValidationService";
-import WikiValidationService from "../lib/services/validation/WikiValidationService";
-import WikiSchemaService from "../lib/services/schema/WikiSchemaService";
+import AdvisorValidationService from "../lib/services/validation/AdvisorValidationService";
+import AdvisorSchemaService from "../lib/services/schema/AdvisorSchemaService";
 import MCPConnectionService from "../lib/services/connection/MCPConnectionService";
 import MCPSchemaService from "../lib/services/schema/MCPSchemaService";
 import MCPPublicService from "../lib/services/public/MCPPublicService";
@@ -268,10 +268,10 @@ export interface ISwarmDI {
   computeSchemaService: ComputeSchemaService;
 
   /**
-   * Service for defining and managing agent wikies.
-   * Implements `IWikiSchema` for rule enforcement via `WikiSchemaService`.
+   * Service for defining and managing agent advisors.
+   * Implements `IAdvisorSchema` for rule enforcement via `AdvisorSchemaService`.
    */
-  wikiSchemaService: WikiSchemaService;
+  advisorSchemaService: AdvisorSchemaService;
 
   /**
    * Service for defining and managing pipeline schemas.
@@ -450,9 +450,9 @@ export interface ISwarmDI {
   navigationValidationService: NavigationValidationService;
 
   /**
-   * Service for validating agent wikis
+   * Service for validating agent advisors
    */
-  wikiValidationService: WikiValidationService;
+  advisorValidationService: AdvisorValidationService;
 
   /**
    * Service for validating outlines aka structured JSON outputs

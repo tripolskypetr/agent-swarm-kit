@@ -13,8 +13,6 @@ import StorageValidationService from "./StorageValidationService";
 import { StorageName } from "../../../interfaces/Storage.interface";
 import { StateName } from "../../../interfaces/State.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
-import WikiValidationService from "./WikiValidationService";
-import { WikiName } from "../../../interfaces/Wiki.interface";
 import MCPValidationService from "./MCPValidationService";
 import { MCPName } from "../../../interfaces/MCP.interface";
 import CompletionSchemaService from "../schema/CompletionSchemaService";
@@ -55,16 +53,6 @@ export class AgentValidationService {
    */
   private readonly toolValidationService = inject<ToolValidationService>(
     TYPES.toolValidationService
-  );
-
-  /**
-   * Wiki validation service instance for validating wikies associated with agents.
-   * Injected via DI, used in validate method to check agent wiki list.
-   * @private
-   * @readonly
-   */
-  private readonly wikiValidationService = inject<WikiValidationService>(
-    TYPES.wikiValidationService
   );
 
   /**
