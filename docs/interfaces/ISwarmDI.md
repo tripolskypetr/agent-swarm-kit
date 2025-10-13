@@ -299,14 +299,14 @@ computeSchemaService: ComputeSchemaService
 Service for defining and managing compute schemas.
 Implements `IComputeSchema` for rule enforcement via `ComputeSchemaService`.
 
-### wikiSchemaService
+### advisorSchemaService
 
 ```ts
-wikiSchemaService: WikiSchemaService
+advisorSchemaService: AdvisorSchemaService
 ```
 
-Service for defining and managing agent wikies.
-Implements `IWikiSchema` for rule enforcement via `WikiSchemaService`.
+Service for defining and managing agent advisors.
+Implements `IAdvisorSchema` for rule enforcement via `AdvisorSchemaService`.
 
 ### pipelineSchemaService
 
@@ -568,13 +568,13 @@ navigationValidationService: NavigationValidationService
 
 Service preventing the recursive call of changeToAgent
 
-### wikiValidationService
+### advisorValidationService
 
 ```ts
-wikiValidationService: WikiValidationService
+advisorValidationService: AdvisorValidationService
 ```
 
-Service for validating agent wikis
+Service for validating agent advisors
 
 ### outlineValidationService
 

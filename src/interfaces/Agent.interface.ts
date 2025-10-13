@@ -10,7 +10,6 @@ import { IModelMessage } from "../model/ModelMessage.model";
 import { StorageName } from "./Storage.interface";
 import { StateName } from "./State.interface";
 import { IBus } from "./Bus.interface";
-import { WikiName } from "./Wiki.interface";
 import IMCP, { MCPName } from "./MCP.interface";
 
 /**
@@ -373,9 +372,6 @@ export interface IAgentSchemaInternal {
 
   /** Optional array of storage names utilized by the agent.*/
   storages?: StorageName[];
-
-  /** Optional array of wiki names utilized by the agent.*/
-  wikiList?: WikiName[];
 
   /** Optional array of state names managed by the agent.*/
   states?: StateName[];

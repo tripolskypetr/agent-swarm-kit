@@ -13,7 +13,7 @@ export * from './template/createNavigateToAgent';
 export * from './functions/alias/addAgentNavigation';
 export * from './functions/alias/addTriageNavigation';
 
-export * from "./functions/setup/addWiki";
+export * from "./functions/setup/addAdvisor";
 export * from "./functions/setup/addAgent";
 export * from "./functions/setup/addCompletion";
 export * from "./functions/setup/addSwarm";
@@ -34,9 +34,9 @@ export * from "./functions/test/overridePolicy";
 export * from "./functions/test/overrideState";     
 export * from "./functions/test/overrideStorage";   
 export * from "./functions/test/overrideSwarm";     
-export * from "./functions/test/overrideTool";      
-export * from "./functions/test/overrideMCP";     
-export * from "./functions/test/overrideWiki";  
+export * from "./functions/test/overrideTool";
+export * from "./functions/test/overrideMCP";
+export * from "./functions/test/overrideAdvisor";
 export * from "./functions/test/overrideCompute";        
 export * from "./functions/test/overridePipeline";
 export * from "./functions/test/overrideOutline";
@@ -65,8 +65,7 @@ export * from "./functions/commit/commitToolRequestForce";
 
 export * from "./functions/target/emitForce";
 export * from "./functions/target/executeForce";
-export * from "./functions/target/question";
-export * from "./functions/target/questionForce";
+export * from "./functions/target/ask";
 export * from "./functions/target/json";
 export * from "./functions/target/makeAutoDispose";
 export * from "./functions/target/execute";
@@ -111,7 +110,7 @@ export * from "./functions/dump/getState";
 export * from "./functions/dump/getStorage";
 export * from "./functions/dump/getSwarm";
 export * from "./functions/dump/getTool";
-export * from "./functions/dump/getWiki";
+export * from "./functions/dump/getAdvisor";
 
 export { getRawHistory } from "./functions/history/getRawHistory";
 
@@ -150,8 +149,8 @@ export { ISwarmSchema } from "./interfaces/Swarm.interface";
 export { IAgentTool } from "./interfaces/Agent.interface";
 export { ToolValue } from "./interfaces/Agent.interface";
 
-export { IWikiSchema } from "./interfaces/Wiki.interface";
-export { IChatArgs } from "./interfaces/Wiki.interface";
+export { IAdvisorSchema } from "./interfaces/Advisor.interface";
+export { IChatArgs } from "./interfaces/Advisor.interface";
 
 export { IEmbeddingSchema } from "./interfaces/Embedding.interface";
 export { IStorageSchema } from "./interfaces/Storage.interface";

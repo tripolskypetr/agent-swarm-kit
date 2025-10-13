@@ -34,7 +34,7 @@ import {
   StorageName,
 } from "../../../interfaces/Storage.interface";
 import { ISwarmSchema, SwarmName } from "../../../interfaces/Swarm.interface";
-import { IWikiSchema, WikiName } from "../../../interfaces/Wiki.interface";
+import { IAdvisorSchema, AdvisorName } from "../../../interfaces/Advisor.interface";
 import { IPipelineSchema, PipelineName } from "../../../model/Pipeline.model";
 import { IOutlineSchema, OutlineName } from "../../../interfaces/Outline.interface";
 
@@ -119,10 +119,10 @@ export interface ISchemaContext {
     toolSchemaService: ToolRegistry<Record<ToolName, IAgentTool>>;
 
     /**
-     * @property {ToolRegistry<Record<WikiName, IWikiSchema>>} wikiSchemaService
-     * Registry for wiki schemas, mapping wiki names to their schemas.
+     * @property {ToolRegistry<Record<AdvisorName, IAdvisorSchema>>} advisorSchemaService
+     * Registry for advisor schemas, mapping advisor names to their schemas.
     */
-    wikiSchemaService: ToolRegistry<Record<WikiName, IWikiSchema>>;
+    advisorSchemaService: ToolRegistry<Record<AdvisorName, IAdvisorSchema>>;
 
     /**
      * @property {ToolRegistry<Record<OutlineName, IOutlineSchema>>} outlineSchemaService

@@ -1,9 +1,9 @@
 ---
-title: docs/api-reference/interface/IWikiCallbacks
+title: docs/api-reference/interface/IAdvisorCallbacks
 group: docs
 ---
 
-# IWikiCallbacks
+# IAdvisorCallbacks
 
 ## Properties
 

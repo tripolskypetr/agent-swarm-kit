@@ -167,24 +167,6 @@ export class AgentSchemaService {
         `agent-swarm agent schema validation failed: invalid storages for agentName=${agentSchema.agentName} storages=[${agentSchema.storages}]`
       );
     }
-    if (agentSchema.wikiList && !Array.isArray(agentSchema.wikiList)) {
-      throw new Error(
-        `agent-swarm agent schema validation failed: invalid wikiList for agentName=${agentSchema.agentName} wikiList=${agentSchema.wikiList}`
-      );
-    }
-    if (
-      agentSchema.wikiList &&
-      agentSchema.wikiList.length !== new Set(agentSchema.wikiList).size
-    ) {
-      throw new Error(
-        `agent-swarm agent schema validation failed: found duplicate wikiList for agentName=${agentSchema.agentName} wikiList=[${agentSchema.wikiList}]`
-      );
-    }
-    if (agentSchema.wikiList?.some((value) => typeof value !== "string")) {
-      throw new Error(
-        `agent-swarm agent schema validation failed: invalid wikiList for agentName=${agentSchema.agentName} wikiList=[${agentSchema.wikiList}]`
-      );
-    }
     if (agentSchema.tools && !Array.isArray(agentSchema.tools)) {
       throw new Error(
         `agent-swarm agent schema validation failed: invalid tools for agentName=${agentSchema.agentName} tools=${agentSchema.tools}`

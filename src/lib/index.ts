@@ -54,8 +54,8 @@ import PayloadContextService, {
 import AliveService from "./services/base/AliveService";
 import { ISwarmDI } from "../model/SwarmDI.model";
 import NavigationValidationService from "./services/validation/NavigationValidationService";
-import WikiValidationService from "./services/validation/WikiValidationService";
-import WikiSchemaService from "./services/schema/WikiSchemaService";
+import AdvisorValidationService from "./services/validation/AdvisorValidationService";
+import AdvisorSchemaService from "./services/schema/AdvisorSchemaService";
 import MCPConnectionService from "./services/connection/MCPConnectionService";
 import MCPSchemaService from "./services/schema/MCPSchemaService";
 import MCPPublicService from "./services/public/MCPPublicService";
@@ -155,7 +155,7 @@ const schemaServices = {
   stateSchemaService: inject<StateSchemaService>(TYPES.stateSchemaService),
   memorySchemaService: inject<MemorySchemaService>(TYPES.memorySchemaService),
   policySchemaService: inject<PolicySchemaService>(TYPES.policySchemaService),
-  wikiSchemaService: inject<WikiSchemaService>(TYPES.wikiSchemaService),
+  advisorSchemaService: inject<AdvisorSchemaService>(TYPES.advisorSchemaService),
   mcpSchemaService: inject<MCPSchemaService>(TYPES.mcpSchemaService),
   computeSchemaService: inject<ComputeSchemaService>(
     TYPES.computeSchemaService
@@ -233,8 +233,8 @@ const validationServices = {
   navigationValidationService: inject<NavigationValidationService>(
     TYPES.navigationValidationService
   ),
-  wikiValidationService: inject<WikiValidationService>(
-    TYPES.wikiValidationService
+  advisorValidationService: inject<AdvisorValidationService>(
+    TYPES.advisorValidationService
   ),
   mcpValidationService: inject<MCPValidationService>(
     TYPES.mcpValidationService

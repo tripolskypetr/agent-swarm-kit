@@ -2,15 +2,15 @@ import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import { ToolRegistry } from "functools-kit";
-import { IWikiSchema, WikiName } from "../../../interfaces/Wiki.interface";
+import { IAdvisorSchema, AdvisorName } from "../../../interfaces/Advisor.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
 import SchemaContextService, { TSchemaContextService } from "../context/SchemaContextService";
 
 /**
- * @class WikiSchemaService
- * Service for managing wiki schema registrations and retrieval
+ * @class AdvisorSchemaService
+ * Service for managing advisor schema registrations and retrieval
 */
-export class WikiSchemaService {
+export class AdvisorSchemaService {
   /**
    * @readonly
    * Injected logger service instance
@@ -28,95 +28,95 @@ export class WikiSchemaService {
 
   /**
    * @private
-   * Registry for storing wiki schemas
+   * Registry for storing advisor schemas
    */
-  private _registry = new ToolRegistry<Record<WikiName, IWikiSchema>>(
-    "wikiSchemaService"
+  private _registry = new ToolRegistry<Record<AdvisorName, IAdvisorSchema>>(
+    "advisorSchemaService"
   );
 
   /**
-   * Retrieves the current registry instance for agent schemas.
+   * Retrieves the current registry instance for advisor schemas.
    * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
    * Otherwise, it falls back to the private `_registry` instance.
    */
   public get registry() {
     if (SchemaContextService.hasContext()) {
-      return this.schemaContextService.context.registry.wikiSchemaService;
+      return this.schemaContextService.context.registry.advisorSchemaService;
     }
     return this._registry;
   }
 
   /**
-   * Sets the registry instance for agent schemas.
+   * Sets the registry instance for advisor schemas.
    * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
    * Otherwise, it updates the private `_registry` instance.
    */
-  public set registry(value: ToolRegistry<Record<WikiName, IWikiSchema>>) {
+  public set registry(value: ToolRegistry<Record<AdvisorName, IAdvisorSchema>>) {
     if (SchemaContextService.hasContext()) {
-      this.schemaContextService.context.registry.wikiSchemaService = value;
+      this.schemaContextService.context.registry.advisorSchemaService = value;
       return;
     }
     this._registry = value;
   }
 
   /**
-   * Validates basic requirements of a wiki schema
+   * Validates basic requirements of an advisor schema
    * @private
    * @throws {Error} If validation fails
    */
-  private validateShallow = (wikiSchema: IWikiSchema) => {
+  private validateShallow = (advisorSchema: IAdvisorSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`wikiSchemaService validateShallow`, {
-        wikiSchema,
+      this.loggerService.info(`advisorSchemaService validateShallow`, {
+        advisorSchema,
       });
-    if (typeof wikiSchema.wikiName !== "string") {
+    if (typeof advisorSchema.advisorName !== "string") {
       throw new Error(
-        `agent-swarm wiki schema validation failed: missing wikiName`
+        `agent-swarm advisor schema validation failed: missing advisorName`
       );
     }
-    if (typeof wikiSchema.getChat !== "function") {
+    if (typeof advisorSchema.getChat !== "function") {
       throw new Error(
-        `agent-swarm wiki schema validation failed: missing getChat for wikiName=${wikiSchema.wikiName}`
+        `agent-swarm advisor schema validation failed: missing getChat for advisorName=${advisorSchema.advisorName}`
       );
     }
   };
 
   /**
-   * Registers a wiki schema with a given key
+   * Registers an advisor schema with a given key
    * @public
    */
-  public register = (key: WikiName, value: IWikiSchema) => {
+  public register = (key: AdvisorName, value: IAdvisorSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`wikiSchemaService register`, { key });
+      this.loggerService.info(`advisorSchemaService register`, { key });
     this.validateShallow(value);
     this.registry = this.registry.register(key, value);
   };
 
   /**
-   * Overrides an existing wiki schema with a new value for a given key
+   * Overrides an existing advisor schema with a new value for a given key
    * @public
    * Logs the override operation and updates the registry with the new schema
    */
-  public override = (key: WikiName, value: Partial<IWikiSchema>) => {
+  public override = (key: AdvisorName, value: Partial<IAdvisorSchema>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`wikiSchemaService override`, { key });
+      this.loggerService.info(`advisorSchemaService override`, { key });
     this.registry = this.registry.override(key, value);
     return this.registry.get(key);
   };
 
   /**
-   * Retrieves a wiki schema by key
+   * Retrieves an advisor schema by key
    * @public
    */
-  public get = (key: WikiName): IWikiSchema => {
+  public get = (key: AdvisorName): IAdvisorSchema => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
-      this.loggerService.info(`wikiSchemaService get`, { key });
+      this.loggerService.info(`advisorSchemaService get`, { key });
     return this.registry.get(key);
   };
 }
 
 /**
- * @exports WikiSchemaService
- * Default export of WikiSchemaService class
+ * @exports AdvisorSchemaService
+ * Default export of AdvisorSchemaService class
 */
-export default WikiSchemaService;
+export default AdvisorSchemaService;

@@ -20,7 +20,7 @@ import PerfService from "./PerfService";
 import { getMomentStamp, getTimeStamp } from "get-moment-stamp";
 import PolicySchemaService from "../schema/PolicySchemaService";
 import { writeFileAtomic } from "../../../utils/writeFileAtomic";
-import WikiSchemaService from "../schema/WikiSchemaService";
+import AdvisorSchemaService from "../schema/AdvisorSchemaService";
 import MCPSchemaService from "../schema/MCPSchemaService";
 import ComputeValidationService from "../validation/ComputeValidationService";
 import ComputeSchemaService from "../schema/ComputeSchemaService";
@@ -170,12 +170,12 @@ export class DocService {
   );
 
   /**
-   * Wiki schema service instance, injected via DI.
-   * Supplies wiki details for writeAgentDoc, documenting wiki resources used by agents.
+   * Advisor schema service instance, injected via DI.
+   * Supplies advisor details for writeAgentDoc, documenting advisor resources used by agents.
    * @private
    */
-  private readonly wikiSchemaService = inject<WikiSchemaService>(
-    TYPES.wikiSchemaService
+  private readonly advisorSchemaService = inject<AdvisorSchemaService>(
+    TYPES.advisorSchemaService
   );
 
   /**
@@ -1016,38 +1016,6 @@ export class DocService {
           {
             result.push("");
             result.push(`**Shared:** [${shared ? "x" : " "}]`);
-          }
-          result.push("");
-        }
-      }
-
-      if (agentSchema.wikiList) {
-        result.push(`## Used wiki list`);
-        result.push("");
-        for (let i = 0; i !== agentSchema.wikiList.length; i++) {
-          if (!agentSchema.wikiList[i]) {
-            continue;
-          }
-          result.push(
-            `### ${i + 1}. ${sanitizeMarkdown(agentSchema.wikiList[i])}`
-          );
-          const { docDescription, callbacks } = this.wikiSchemaService.get(
-            agentSchema.wikiList[i]
-          );
-          if (docDescription) {
-            result.push("");
-            result.push(`#### Wiki description`);
-            result.push("");
-            result.push(sanitizeMarkdown(docDescription));
-          }
-          if (callbacks) {
-            result.push("");
-            result.push(`#### Wiki callbacks`);
-            result.push("");
-            const callbackList = Object.keys(callbacks);
-            for (let i = 0; i !== callbackList.length; i++) {
-              result.push(`${i + 1}. \`${sanitizeMarkdown(callbackList[i])}\``);
-            }
           }
           result.push("");
         }

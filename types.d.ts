@@ -2881,50 +2881,6 @@ interface ICompletionSchema {
 type CompletionName = string;
 
 /**
- * @interface IWikiCallbacks
- * Callback functions for wiki operations
-*/
-interface IWikiCallbacks {
-    /**
-     * Optional callback triggered when a chat operation occurs
-    */
-    onChat?: (args: IChatArgs) => void;
-}
-/**
- * @interface IChatArgs
- * Arguments required for chat operations
-*/
-interface IChatArgs {
-    /** Unique identifier for the client*/
-    clientId: string;
-    /** Name of the agent handling the chat*/
-    agentName: AgentName;
-    /** Message content for the chat*/
-    message: string;
-}
-/**
- * @interface IWikiSchema
- * Schema definition for wiki configuration
-*/
-interface IWikiSchema {
-    /** Optional description of the wiki documentation*/
-    docDescription?: string;
-    /** Name identifier for the wiki*/
-    wikiName: WikiName;
-    /**
-     * Function to get chat response
-    */
-    getChat(args: IChatArgs): Promise<string>;
-    /** Optional callbacks for wiki operations*/
-    callbacks?: IWikiCallbacks;
-}
-/**
- * Type alias for wiki name identifier.
- * Used to identify and reference specific wiki instances.
-*/
-type WikiName = string;
-
-/**
  * Type representing the value of an MCP tool's parameters, which can be an object with string keys or undefined.
 */
 type MCPToolValue = {
@@ -3298,8 +3254,6 @@ interface IAgentSchemaInternal {
     tools?: ToolName[];
     /** Optional array of storage names utilized by the agent.*/
     storages?: StorageName[];
-    /** Optional array of wiki names utilized by the agent.*/
-    wikiList?: WikiName[];
     /** Optional array of state names managed by the agent.*/
     states?: StateName[];
     /** Optional array of mcp names managed by the agent*/
@@ -4183,6 +4137,49 @@ declare class HistoryConnectionService implements IHistory {
     dispose: () => Promise<void>;
 }
 
+type Image$1 = Uint8Array | string;
+/**
+ * @interface IAdvisorCallbacks
+ * Callback functions for advisor operations
+*/
+interface IAdvisorCallbacks {
+    /**
+     * Optional callback triggered when a chat operation occurs
+    */
+    onChat?: (args: IChatArgs) => void;
+}
+/**
+ * @interface IChatArgs
+ * Arguments required for chat operations
+*/
+interface IChatArgs {
+    /** Message content for the chat*/
+    message: string;
+    /** Optional array of images associated with the chat. */
+    images?: Image$1[];
+}
+/**
+ * @interface IAdvisorSchema
+ * Schema definition for advisor configuration
+*/
+interface IAdvisorSchema {
+    /** Optional description of the advisor documentation*/
+    docDescription?: string;
+    /** Name identifier for the advisor*/
+    advisorName: AdvisorName;
+    /**
+     * Function to get chat response
+    */
+    getChat(args: IChatArgs): Promise<string>;
+    /** Optional callbacks for advisor operations*/
+    callbacks?: IAdvisorCallbacks;
+}
+/**
+ * Type alias for advisor name identifier.
+ * Used to identify and reference specific advisor instances.
+*/
+type AdvisorName = string;
+
 /**
  * Defines interfaces and types for pipeline schemas and callbacks.
 */
@@ -4295,10 +4292,10 @@ interface ISchemaContext {
         */
         toolSchemaService: ToolRegistry<Record<ToolName, IAgentTool>>;
         /**
-         * @property {ToolRegistry<Record<WikiName, IWikiSchema>>} wikiSchemaService
-         * Registry for wiki schemas, mapping wiki names to their schemas.
+         * @property {ToolRegistry<Record<AdvisorName, IAdvisorSchema>>} advisorSchemaService
+         * Registry for advisor schemas, mapping advisor names to their schemas.
         */
-        wikiSchemaService: ToolRegistry<Record<WikiName, IWikiSchema>>;
+        advisorSchemaService: ToolRegistry<Record<AdvisorName, IAdvisorSchema>>;
         /**
          * @property {ToolRegistry<Record<OutlineName, IOutlineSchema>>} outlineSchemaService
          * Registry for outlines aka structured json outputs
@@ -5580,13 +5577,6 @@ declare class AgentValidationService {
      */
     private readonly toolValidationService;
     /**
-     * Wiki validation service instance for validating wikies associated with agents.
-     * Injected via DI, used in validate method to check agent wiki list.
-     * @private
-     * @readonly
-     */
-    private readonly wikiValidationService;
-    /**
      * MCP validation service instance for validating mcp associated with agents.
      * Injected via DI, used in validate method to check agent mcp list.
      * @private
@@ -5631,11 +5621,6 @@ declare class AgentValidationService {
      */
     getStorageList: (agentName: AgentName) => StorageName[];
     /**
-     * Retrieves the list of wiki names associated with a given agent.
-     * @throws {Error} If the agent is not found in _agentMap.
-     */
-    getWikiList: (agentName: AgentName) => WikiName[];
-    /**
      * Retrieves the list of state names associated with a given agent.
      * Logs the operation and validates agent existence, supporting ClientState integration.
      * @throws {Error} If the agent is not found in _agentMap.
@@ -5659,11 +5644,6 @@ declare class AgentValidationService {
      * @throws {Error} If the agent is not found in _agentMap.
      */
     hasStorage: ((agentName: AgentName, storageName: StorageName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
-    /**
-     * Checks if an agent has declared wiki
-     * @throws {Error} If the agent is not found in _agentMap.
-     */
-    hasWiki: ((agentName: AgentName, wikiName: WikiName) => boolean) & functools_kit.IClearableMemoize<string> & functools_kit.IControlMemoize<string, boolean>;
     /**
      * Checks if an agent has a registered dependency on another agent, memoized for performance.
      * Logs the operation, supporting inter-agent dependency validation within SwarmSchemaService.
@@ -7059,11 +7039,11 @@ declare class DocService {
      */
     private readonly storageSchemaService;
     /**
-     * Wiki schema service instance, injected via DI.
-     * Supplies wiki details for writeAgentDoc, documenting wiki resources used by agents.
+     * Advisor schema service instance, injected via DI.
+     * Supplies advisor details for writeAgentDoc, documenting advisor resources used by agents.
      * @private
      */
-    private readonly wikiSchemaService;
+    private readonly advisorSchemaService;
     /**
      * State schema service instance, injected via DI.
      * Provides state details for writeAgentDoc, documenting state resources used by agents.
@@ -8177,10 +8157,10 @@ declare class NavigationValidationService {
 }
 
 /**
- * @class WikiValidationService
- * Service for managing and validating wiki configurations
+ * @class AdvisorValidationService
+ * Service for managing and validating advisor configurations
 */
-declare class WikiValidationService {
+declare class AdvisorValidationService {
     /**
      * @private
      * @readonly
@@ -8189,29 +8169,29 @@ declare class WikiValidationService {
     private readonly loggerService;
     /**
      * @private
-     * Map storing wiki schemas by wiki name
+     * Map storing advisor schemas by advisor name
      */
-    private _wikiMap;
+    private _advisorMap;
     /**
-     * Adds a wiki schema to the validation service
+     * Adds an advisor schema to the validation service
      * @public
-     * @throws {Error} If wikiName already exists
+     * @throws {Error} If advisorName already exists
      */
-    addWiki: (wikiName: WikiName, wikiSchema: IWikiSchema) => void;
+    addAdvisor: (advisorName: AdvisorName, advisorSchema: IAdvisorSchema) => void;
     /**
-     * Validates the existence of a wiki
+     * Validates the existence of an advisor
      * @public
-     * @throws {Error} If wikiName is not found
+     * @throws {Error} If advisorName is not found
      * Memoized function to cache validation results
      */
-    validate: (wikiName: WikiName, source: string) => void;
+    validate: (advisorName: AdvisorName, source: string) => void;
 }
 
 /**
- * @class WikiSchemaService
- * Service for managing wiki schema registrations and retrieval
+ * @class AdvisorSchemaService
+ * Service for managing advisor schema registrations and retrieval
 */
-declare class WikiSchemaService {
+declare class AdvisorSchemaService {
     /**
      * @readonly
      * Injected logger service instance
@@ -8227,43 +8207,43 @@ declare class WikiSchemaService {
     };
     /**
      * @private
-     * Registry for storing wiki schemas
+     * Registry for storing advisor schemas
      */
     private _registry;
     /**
-     * Retrieves the current registry instance for agent schemas.
+     * Retrieves the current registry instance for advisor schemas.
      * If a schema context is available via `SchemaContextService`, it returns the registry from the context.
      * Otherwise, it falls back to the private `_registry` instance.
      */
-    get registry(): ToolRegistry<Record<WikiName, IWikiSchema>>;
+    get registry(): ToolRegistry<Record<AdvisorName, IAdvisorSchema>>;
     /**
-     * Sets the registry instance for agent schemas.
+     * Sets the registry instance for advisor schemas.
      * If a schema context is available via `SchemaContextService`, it updates the registry in the context.
      * Otherwise, it updates the private `_registry` instance.
      */
-    set registry(value: ToolRegistry<Record<WikiName, IWikiSchema>>);
+    set registry(value: ToolRegistry<Record<AdvisorName, IAdvisorSchema>>);
     /**
-     * Validates basic requirements of a wiki schema
+     * Validates basic requirements of an advisor schema
      * @private
      * @throws {Error} If validation fails
      */
     private validateShallow;
     /**
-     * Registers a wiki schema with a given key
+     * Registers an advisor schema with a given key
      * @public
      */
-    register: (key: WikiName, value: IWikiSchema) => void;
+    register: (key: AdvisorName, value: IAdvisorSchema) => void;
     /**
-     * Overrides an existing wiki schema with a new value for a given key
+     * Overrides an existing advisor schema with a new value for a given key
      * @public
      * Logs the override operation and updates the registry with the new schema
      */
-    override: (key: WikiName, value: Partial<IWikiSchema>) => IWikiSchema;
+    override: (key: AdvisorName, value: Partial<IAdvisorSchema>) => IAdvisorSchema;
     /**
-     * Retrieves a wiki schema by key
+     * Retrieves an advisor schema by key
      * @public
      */
-    get: (key: WikiName) => IWikiSchema;
+    get: (key: AdvisorName) => IAdvisorSchema;
 }
 
 /**
@@ -9384,10 +9364,10 @@ interface ISwarmDI {
      */
     computeSchemaService: ComputeSchemaService;
     /**
-     * Service for defining and managing agent wikies.
-     * Implements `IWikiSchema` for rule enforcement via `WikiSchemaService`.
+     * Service for defining and managing agent advisors.
+     * Implements `IAdvisorSchema` for rule enforcement via `AdvisorSchemaService`.
      */
-    wikiSchemaService: WikiSchemaService;
+    advisorSchemaService: AdvisorSchemaService;
     /**
      * Service for defining and managing pipeline schemas.
      * Implements `IPipelineSchema` for rule enforcement via `PipelineSchemaService`.
@@ -9533,9 +9513,9 @@ interface ISwarmDI {
      */
     navigationValidationService: NavigationValidationService;
     /**
-     * Service for validating agent wikis
+     * Service for validating agent advisors
      */
-    wikiValidationService: WikiValidationService;
+    advisorValidationService: AdvisorValidationService;
     /**
      * Service for validating outlines aka structured JSON outputs
      */
@@ -9852,11 +9832,11 @@ interface ITriageNavigationParams extends INavigateToTriageParams {
 declare function addTriageNavigation(params: ITriageNavigationParams): string;
 
 /**
- * Adds a wiki schema to the system
- * @function addWiki
- * @param {IWikiSchema} wikiSchema - The schema definition for wiki.
+ * Adds an advisor schema to the system
+ * @function addAdvisor
+ * @param {IAdvisorSchema} advisorSchema - The schema definition for advisor.
 */
-declare function addWiki(wikiSchema: IWikiSchema): string;
+declare function addAdvisor(advisorSchema: IAdvisorSchema): string;
 
 /**
  * Adds a new agent to the agent registry for use within the swarm system.
@@ -10291,32 +10271,32 @@ type TMCPSchema = {
 declare function overrideMCP(mcpSchema: TMCPSchema): IMCPSchema;
 
 /**
- * Type representing a partial wiki schema configuration.
- * Used for wiki service configuration with optional properties.
+ * Type representing a partial advisor schema configuration.
+ * Used for advisor service configuration with optional properties.
 */
-type TWikiSchema = {
-    wikiName: IWikiSchema["wikiName"];
-} & Partial<IWikiSchema>;
+type TAdvisorSchema = {
+    advisorName: IAdvisorSchema["advisorName"];
+} & Partial<IAdvisorSchema>;
 /**
- * Overrides an existing wiki schema in the swarm system with a new or partial schema.
- * This function updates the configuration of a wiki identified by its `wikiName`, applying the provided schema properties.
+ * Overrides an existing advisor schema in the swarm system with a new or partial schema.
+ * This function updates the configuration of an advisor identified by its `advisorName`, applying the provided schema properties.
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
  *
- * @param {TWikiSchema} wikiSchema - The schema definition for wiki.
- * @throws {Error} If the wiki schema service encounters an error during the override operation (e.g., invalid wikiName or schema).
+ * @param {TAdvisorSchema} advisorSchema - The schema definition for advisor.
+ * @throws {Error} If the advisor schema service encounters an error during the override operation (e.g., invalid advisorName or schema).
  *
  * @example
- * // Override a wiki’s schema with new properties
- * overrideWiki({
- *   wikiName: "KnowledgeBase",
+ * // Override an advisor's schema with new properties
+ * overrideAdvisor({
+ *   advisorName: "KnowledgeBase",
  *   description: "Updated knowledge repository",
- *   storage: "WikiStorage",
+ *   storage: "AdvisorStorage",
  * });
- * // Logs the operation (if enabled) and updates the wiki schema in the swarm.
+ * // Logs the operation (if enabled) and updates the advisor schema in the swarm.
 */
-declare function overrideWiki(wikiSchema: TWikiSchema): IWikiSchema;
+declare function overrideAdvisor(advisorSchema: TAdvisorSchema): IAdvisorSchema;
 
 /**
  * @module overrideCompute
@@ -10737,24 +10717,16 @@ declare function emitForce(content: string, clientId: string): Promise<void>;
 */
 declare function executeForce(content: string, clientId: string): Promise<string>;
 
+/** Image type as either an array of Uint8Array or an array of strings */
+type Image = Uint8Array | string;
 /**
- * Initiates a question process within a chat context
- * @function question
+ * Initiates an ask process within a chat context
+ * @function ask
  * @param {string} message - The message content to process or send.
- * @param {string} clientId - The unique identifier of the client session.
- * @param {AgentName} agentName - The name of the agent to use or reference.
- * @param {WikiName} wikiName - The name of the wiki.
+ * @param {AdvisorName} advisorName - The name of the advisor.
+ * @param {Image[]} [images] - Optional array of images (as Uint8Array or string).
 */
-declare function question(message: string, clientId: string, agentName: AgentName, wikiName: WikiName): Promise<string>;
-
-/**
- * Initiates a forced question process within a chat context
- * @function questionForce
- * @param {string} message - The message content to process or send.
- * @param {string} clientId - The unique identifier of the client session.
- * @param {WikiName} wikiName - The name of the wiki.
-*/
-declare function questionForce(message: string, clientId: string, wikiName: WikiName): Promise<string>;
+declare function ask(message: string, advisorName: AdvisorName, images?: Image[]): Promise<string>;
 
 /**
  * Processes an outline request to generate structured JSON data based on a specified outline schema.
@@ -11461,13 +11433,13 @@ declare function getSwarm(swarmName: SwarmName): ISwarmSchema;
 declare function getTool(toolName: ToolName): IAgentTool<Record<string, ToolValue>>;
 
 /**
- * Retrieves a wiki schema by its name from the swarm's wiki schema service.
+ * Retrieves an advisor schema by its name from the swarm's advisor schema service.
  * Logs the operation if logging is enabled in the global configuration.
  *
- * @function getWiki
- * @param {WikiName} wikiName - The name of the wiki.
+ * @function getAdvisor
+ * @param {AdvisorName} advisorName - The name of the advisor.
 */
-declare function getWiki(wikiName: WikiName): IWikiSchema;
+declare function getAdvisor(advisorName: AdvisorName): IAdvisorSchema;
 
 /**
  * Retrieves the raw, unmodified history for a given client session.
@@ -13300,4 +13272,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, type IWikiSchema, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, addWiki, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, getWiki, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, overrideWiki, question, questionForce, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };
+export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAdvisorSchema, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAdvisor, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, ask, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAdvisor, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAdvisor, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };
