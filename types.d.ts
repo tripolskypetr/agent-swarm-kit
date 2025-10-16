@@ -3649,6 +3649,7 @@ declare class ClientAgent implements IAgent {
     constructor(params: IAgentParams);
     /**
      * Resolves and combines tools from the agent's parameters and MCP tool list, ensuring no duplicate tool names.
+     * Ensures only one commit action tool is present in the list.
      */
     _resolveTools(): Promise<IAgentTool[]>;
     /**
@@ -9082,6 +9083,41 @@ declare class NavigationSchemaService {
 }
 
 /**
+ * @class ActionSchemaService
+ * Manages a collection of action tool names using a Set for efficient registration and lookup.
+ * Injects LoggerService via dependency injection for logging operations.
+ * Ensures only one action tool is called per tool execution chain, similar to having multiple reads but one write.
+ */
+declare class ActionSchemaService {
+    /**
+     * @private
+     * @readonly
+     * Logger service instance, injected via dependency injection, for logging action schema operations.
+     * Used in register and hasTool methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     */
+    private readonly loggerService;
+    /**
+     * @private
+     * Set for storing action tool names, ensuring uniqueness and efficient lookup.
+     * Updated via the register method and queried via the hasTool method.
+     */
+    private _actionToolNameSet;
+    /**
+     * Registers an action tool name in the internal Set.
+     * Logs the registration operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * @param {ToolName} toolName - The name of the action tool to register.
+     */
+    register: (toolName: ToolName) => void;
+    /**
+     * Checks if an action tool name exists in the internal Set.
+     * Logs the lookup operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * @param {ToolName} toolName - The name of the action tool to check.
+     * @returns {boolean} True if the tool name is registered as an action tool.
+     */
+    hasTool: (toolName: ToolName) => boolean;
+}
+
+/**
  * A service class for managing outline schemas within the agent swarm system.
  * Provides methods to register, override, and retrieve outline schemas, utilizing a `ToolRegistry` for storage.
  * Integrates with dependency injection and context services for logging and schema management.
@@ -9378,6 +9414,12 @@ interface ISwarmDI {
      * When the navigation tool called other one being ignored
      */
     navigationSchemaService: NavigationSchemaService;
+    /**
+     * Service for defining and managing action tools.
+     * Ensures only one action tool is called per execution chain,
+     * similar to having multiple reads but one write operation.
+     */
+    actionSchemaService: ActionSchemaService;
     /**
      * Service for defining and managing outlines
      * Aka structured json outputs

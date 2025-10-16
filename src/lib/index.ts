@@ -74,6 +74,7 @@ import SchemaContextService, {
 } from "./services/context/SchemaContextService";
 import ExecutionValidationService from "./services/validation/ExecutionValidationService";
 import NavigationSchemaService from "./services/schema/NavigationSchemaService";
+import ActionSchemaService from "./services/schema/ActionSchemaService";
 import OutlineSchemaService from "./services/schema/OutlineSchemaService";
 import OutlineValidationService from "./services/validation/OutlineValidationService";
 
@@ -165,6 +166,9 @@ const schemaServices = {
   ),
   navigationSchemaService: inject<NavigationSchemaService>(
     TYPES.navigationSchemaService
+  ),
+  actionSchemaService: inject<ActionSchemaService>(
+    TYPES.actionSchemaService
   ),
   outlineSchemaService: inject<OutlineSchemaService>(
     TYPES.outlineSchemaService

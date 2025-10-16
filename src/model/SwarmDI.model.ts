@@ -62,6 +62,7 @@ import PipelineValidationService from "../lib/services/validation/PipelineValida
 import { TSchemaContextService } from "../lib/services/context/SchemaContextService";
 import ExecutionValidationService from "../lib/services/validation/ExecutionValidationService";
 import NavigationSchemaService from "../lib/services/schema/NavigationSchemaService";
+import ActionSchemaService from "../lib/services/schema/ActionSchemaService";
 import OutlineSchemaService from "../lib/services/schema/OutlineSchemaService";
 import OutlineValidationService from "../lib/services/validation/OutlineValidationService";
 
@@ -284,6 +285,13 @@ export interface ISwarmDI {
    * When the navigation tool called other one being ignored
    */
   navigationSchemaService: NavigationSchemaService;
+
+  /**
+   * Service for defining and managing action tools.
+   * Ensures only one action tool is called per execution chain,
+   * similar to having multiple reads but one write operation.
+   */
+  actionSchemaService: ActionSchemaService;
 
   /**
    * Service for defining and managing outlines

@@ -1,6 +1,6 @@
-import { GLOBAL_CONFIG } from "../config/params";
-import { commitToolOutput } from "../functions/commit/commitToolOutput";
-import { execute } from "../functions/target/execute";
+import { GLOBAL_CONFIG } from "../config/params";;
+import { executeForce } from "../functions/target/executeForce";
+import { commitToolOutputForce } from "../functions/commit/commitToolOutputForce"
 import swarm from "../lib";
 import beginContext from "../utils/beginContext";
 import { AgentName } from "../interfaces/Agent.interface";
@@ -120,17 +120,17 @@ export const createFetchInfo = ({
       }
 
       if (content) {
-        await commitToolOutput(toolId, content, clientId, agentName);
+        await commitToolOutputForce(toolId, content, clientId);
       } else {
         const message =
           typeof unavailableMessage === "string"
             ? unavailableMessage
             : await unavailableMessage(content, clientId, agentName, toolName);
-        await commitToolOutput(toolId, message, clientId, agentName);
+        await commitToolOutputForce(toolId, message, clientId);
       }
 
       if (isLast) {
-        await execute("", clientId, agentName);
+        await executeForce("", clientId);
       }
     }
   );
