@@ -9,9 +9,11 @@ export * from "./cli/dumpOutlineResult";
 
 export * from './template/createNavigateToTriageAgent';
 export * from './template/createNavigateToAgent';
+export * from './template/createFetchInfo';
 
 export * from './functions/alias/addAgentNavigation';
 export * from './functions/alias/addTriageNavigation';
+export * from "./functions/alias/addFetchInfo";
 
 export * from "./functions/setup/addAdvisor";
 export * from "./functions/setup/addAgent";
