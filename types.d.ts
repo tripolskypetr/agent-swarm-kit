@@ -9818,19 +9818,95 @@ interface INavigateToAgentParams {
 declare const createNavigateToAgent: ({ beforeNavigate, lastMessage: lastMessageFn, executeMessage, emitMessage, flushMessage, toolOutput, }: INavigateToAgentParams) => (toolId: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
+ * Configuration parameters for creating a commit action handler.
+ * Defines validation, action execution, and response messages.
+ *
+ * @template T - The type of parameters expected by the action
+ * @interface ICommitActionParams
+ * @property {(params: T, clientId: string, agentName: AgentName) => string | null | Promise<string | null>} [validateParams] - Optional function to validate action parameters. Returns error message string if validation fails, null if valid.
+ * @property {(params: T, clientId: string, agentName: AgentName) => string | Promise<string>} executeAction - Function to execute the actual action (e.g., commitAppAction). Called only when parameters are valid and isLast is true. Returns result string to commit as tool output, or empty string if action produced no result.
+ * @property {string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>)} [unavailableMessage] - Optional message to commit when executeAction returns empty result.
+ * @property {string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>)} successMessage - Message to execute using executeForce after successful action execution.
+ * @property {string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>)} [failureMessage] - Optional message to execute using executeForce when validation fails.
+ *
+ * @example
+ * // Create a payment action handler with validation
+ * const paymentAction = createCommitAction({
+ *   validateParams: async (params) => {
+ *     if (!params.bank_name) return "Bank name is required";
+ *     if (!params.amount) return "Amount is required";
+ *     return null;
+ *   },
+ *   executeAction: async (params, clientId) => {
+ *     await commitAppAction(clientId, "credit-payment", params);
+ *     return "Payment page opened successfully";
+ *   },
+ *   successMessage: "what is this page about",
+ *   failureMessage: "Could not open payment page",
+ * });
+ */
+interface ICommitActionParams<T = Record<string, any>> {
+    /**
+     * Optional function to validate action parameters.
+     * Returns error message string if validation fails, null if valid.
+     */
+    validateParams?: (params: T, clientId: string, agentName: AgentName) => string | null | Promise<string | null>;
+    /**
+     * Function to execute the actual action (e.g., commitAppAction).
+     * Called only when parameters are valid and isLast is true.
+     * Returns result string to commit as tool output.
+     */
+    executeAction: (params: T, clientId: string, agentName: AgentName) => string | Promise<string>;
+    /**
+     * Optional message to commit when executeAction returns empty result.
+     */
+    unavailableMessage?: string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>);
+    /**
+     * Message to execute using executeForce after successful action execution.
+     */
+    successMessage: string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>);
+    /**
+     * Optional message to execute using executeForce when validation fails.
+     */
+    failureMessage?: string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>);
+}
+/**
+ * Creates a function to validate parameters, execute an action, and commit appropriate responses.
+ * The factory generates a handler that validates parameters, executes the action if valid,
+ * commits tool outputs, and optionally triggers follow-up execution.
+ * Logs the operation if logging is enabled in the global configuration.
+ *
+ * @throws {Error} If validation, action execution, commit, or execution operations fail.
+ *
+ * @example
+ * // Create a payment action handler
+ * const handlePayment = createCommitAction({
+ *   validateParams: async (params) => {
+ *     if (!params.amount) return "Amount is required";
+ *     return null;
+ *   },
+ *   executeAction: async (params, clientId) => {
+ *     await commitAppAction(clientId, "payment", params);
+ *     return "Payment processed successfully";
+ *   },
+ *   successMessage: "Check your balance",
+ * });
+ * await handlePayment("tool-123", "client-456", "PaymentAgent", { amount: 100 }, true);
+ */
+declare const createCommitAction: <T = Record<string, any>>({ validateParams, executeAction, unavailableMessage, successMessage, failureMessage, }: ICommitActionParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, isLast: boolean) => Promise<void>;
+
+/**
  * Configuration parameters for creating a fetch info handler.
  * Defines the data fetching logic and optional content transformation.
  *
  * @interface IFetchInfoParams
  * @property {(clientId: string, agentName: AgentName) => string | Promise<string>} fetchContent - Function to fetch the content/data to be provided to the agent. Receives client ID and agent name, returns content string or promise of string.
  * @property {string | ((content: string, clientId: string, agentName: AgentName) => string | Promise<string>)} [unavailableMessage] - Optional message or function to return when content is unavailable. If a function, receives the empty content, client ID, and agent name. Defaults to a generic unavailable message.
- * @property {(content: string, clientId: string, agentName: AgentName) => string | Promise<string>} [transformContent] - Optional function to transform fetched content before committing. Receives content, client ID, and agent name.
  *
  * @example
  * // Create a fetch info handler
  * const fetchUserData = await createFetchInfo({
  *   fetchContent: async (clientId) => await getUserData(clientId),
- *   transformContent: (data) => JSON.stringify(data, null, 2),
  * });
  * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData");
  */
@@ -9845,16 +9921,11 @@ interface IFetchInfoParams {
      * Used when fetchContent returns empty/null content.
      */
     unavailableMessage?: string | ((content: string, clientId: string, agentName: AgentName, toolName: string) => string | Promise<string>);
-    /**
-     * Optional function to transform fetched content before committing.
-     * Allows preprocessing or formatting of the fetched data.
-     */
-    transformContent?: (content: string, clientId: string, agentName: AgentName) => string | Promise<string>;
 }
 /**
  * Creates a function to fetch and commit information for a given client and agent.
- * The factory generates a handler that fetches content, optionally transforms it,
- * emits an event, commits the output, and triggers execution if it's the last tool call.
+ * The factory generates a handler that fetches content, commits the output,
+ * and triggers execution if it's the last tool call.
  * Logs the operation if logging is enabled in the global configuration.
  *
  * @throws {Error} If any internal operation (e.g., fetch, commit, or execution) fails.
@@ -9865,11 +9936,10 @@ interface IFetchInfoParams {
  *   fetchContent: async (clientId, agentName) => {
  *     return await historyService.getHistory(clientId);
  *   },
- *   transformContent: (content) => `History:\n${content}`,
  * });
  * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", true);
  */
-declare const createFetchInfo: ({ fetchContent, unavailableMessage, transformContent, }: IFetchInfoParams) => (toolId: string, clientId: string, agentName: string, toolName: string, isLast: boolean) => Promise<void>;
+declare const createFetchInfo: ({ fetchContent, unavailableMessage, }: IFetchInfoParams) => (toolId: string, clientId: string, agentName: string, toolName: string, isLast: boolean) => Promise<void>;
 
 /**
  * Adds navigation functionality to an agent by creating a tool that allows navigation to a specified agent.
@@ -9926,6 +9996,67 @@ interface ITriageNavigationParams extends INavigateToTriageParams {
  * @param {ITriageNavigationParams} params - The parameters or configuration object.
 */
 declare function addTriageNavigation(params: ITriageNavigationParams): string;
+
+/**
+ * Adds commit action functionality to an agent by creating a tool that validates and executes actions.
+ * @module addCommitAction
+ */
+
+/**
+ * Parameters for configuring commit action tool.
+ * @template T - The type of parameters expected by the action
+ * @interface ICommitActionToolParams
+ * @extends ICommitActionParams
+ */
+interface ICommitActionToolParams<T = Record<string, any>> extends ICommitActionParams<T> {
+    /** The name of the tool to be created. */
+    toolName: ToolName;
+    /** A description of the tool's functionality. */
+    description: string;
+    /** Tool function schema defining parameters and their validation. */
+    functionSchema: Omit<ITool["function"], "name"> | ((clientId: string, agentName: AgentName) => Omit<ITool["function"], "name"> | Promise<Omit<ITool["function"], "name">>);
+    /** Optional documentation note for the tool. */
+    docNote?: string;
+    /** Optional function to determine if the tool is available. */
+    isAvailable?: IAgentTool["isAvailable"];
+    /** Optional custom validation function that runs before tool execution. */
+    validate?: IAgentTool<T>["validate"];
+}
+/**
+ * Creates and registers a commit action tool for an agent to validate and execute actions.
+ * @function addCommitAction
+ * @template T - The type of parameters expected by the action
+ * @param {ICommitActionToolParams<T>} params - The parameters or configuration object.
+ *
+ * @example
+ * // Add a payment tool with validation
+ * addCommitAction({
+ *   toolName: "pay_credit",
+ *   description: "Process credit payment",
+ *   functionSchema: {
+ *     parameters: {
+ *       type: "object",
+ *       properties: {
+ *         bank_name: { type: "string", enum: ["bank1", "bank2"] },
+ *         amount: { type: "string", description: "Amount in currency" },
+ *       },
+ *       required: ["bank_name", "amount"],
+ *     },
+ *   },
+ *   validateParams: async (params) => {
+ *     const errors: ValidationErrors = {};
+ *     if (!params.bank_name) errors.bank_name = "Bank name required";
+ *     if (!params.amount) errors.amount = "Amount required";
+ *     return { isValid: Object.keys(errors).length === 0, errors };
+ *   },
+ *   executeAction: async (params, clientId) => {
+ *     await commitAppAction(clientId, "credit-payment", params);
+ *   },
+ *   successMessage: "Payment page opened successfully",
+ *   followUpMessage: "what is this page about",
+ * });
+ */
+declare function addCommitAction<T = Record<string, any>>(params: ICommitActionToolParams<T>): string;
 
 /**
  * Adds fetch info functionality to an agent by creating a tool that fetches and provides information.
@@ -13395,4 +13526,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAdvisorSchema, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IFetchInfoParams, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAdvisor, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addFetchInfo, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, ask, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createFetchInfo, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAdvisor, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAdvisor, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };
+export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAdvisorSchema, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICommitActionParams, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IFetchInfoParams, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAdvisor, addAgent, addAgentNavigation, addCommitAction, addCompletion, addCompute, addEmbedding, addFetchInfo, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, ask, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createCommitAction, createFetchInfo, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAdvisor, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAdvisor, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };

@@ -349,6 +349,17 @@ const EXECUTE_FN = async (
       self.params.agentName
     );
     toolCalls = toolCalls.slice(-self.params.maxToolCalls);
+
+    {
+      const priorityTool = toolCalls.find((call) =>
+        swarm.navigationSchemaService.hasTool(call.function.name) ||
+        swarm.actionSchemaService.hasTool(call.function.name)
+      );
+      if (priorityTool) {
+        toolCalls = [priorityTool];
+      }
+    }
+
     await self.params.history.push({
       ...message,
       agentName: self.params.agentName,
