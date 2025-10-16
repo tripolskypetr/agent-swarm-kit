@@ -752,8 +752,8 @@ export class ClientAgent implements IAgent {
         return false;
       })
       .sort(({ function: { name: a } }, { function: { name: b } }) => {
-        const aStarts = a.startsWith("navigate_to_");
-        const bStarts = b.startsWith("navigate_to_");
+        const aStarts = swarm.navigationSchemaService.hasTool(a);
+        const bStarts = swarm.navigationSchemaService.hasTool(b);
         return aStarts === bStarts ? 0 : aStarts ? -1 : 1;
       })
       .filter((tool) => {

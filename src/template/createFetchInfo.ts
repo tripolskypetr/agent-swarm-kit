@@ -4,6 +4,7 @@ import { commitToolOutputForce } from "../functions/commit/commitToolOutputForce
 import swarm from "../lib";
 import beginContext from "../utils/beginContext";
 import { AgentName } from "../interfaces/Agent.interface";
+import { getAgentName } from "../functions/common/getAgentName";
 
 const METHOD_NAME = "function.template.fetchInfo";
 
@@ -104,6 +105,8 @@ export const createFetchInfo = ({
       toolName: string,
       isLast: boolean
     ) => {
+      let executeMessage = "";
+
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
         swarm.loggerService.log(METHOD_NAME, {
           clientId,
@@ -112,6 +115,23 @@ export const createFetchInfo = ({
           toolName,
           isLast,
         });
+
+      const currentAgentName = await getAgentName(clientId);
+      if (currentAgentName !== agentName) {
+        GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+          swarm.loggerService.log(
+            `${METHOD_NAME} skipped due to agent change`,
+            {
+              currentAgentName,
+              agentName,
+              clientId,
+            }
+          );
+        if (isLast) {
+          await executeForce(executeMessage, clientId);
+        }
+        return;
+      }
 
       let content = await fetchContent(clientId, agentName);
 
@@ -130,7 +150,7 @@ export const createFetchInfo = ({
       }
 
       if (isLast) {
-        await executeForce("", clientId);
+        await executeForce(executeMessage, clientId);
       }
     }
   );

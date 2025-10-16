@@ -60,13 +60,8 @@ const addCommitActionInternal = beginContext(
       docNote,
       isAvailable,
       validate,
-      call: async ({ toolId, clientId, agentName, params, toolCalls, isLast }) => {
-        if (toolCalls.length > 1) {
-          console.error(
-            "agent-swarm addCommitAction model called multiple tools within action execution"
-          );
-        }
-        await action(toolId, clientId, agentName, params, isLast);
+      call: async ({ toolId, clientId, agentName, toolName, params, isLast }) => {
+        await action(toolId, clientId, agentName, toolName, params, isLast);
       },
       type: "function",
       function: async (clientId: string, agentName: AgentName) => {

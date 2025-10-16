@@ -60,10 +60,10 @@ const addFetchInfoInternal = beginContext(
         toolId,
         clientId,
         agentName,
-        toolName: toolNameParam,
+        toolName,
         isLast,
       }) => {
-        await fetch(toolId, clientId, agentName, toolNameParam, isLast);
+        await fetch(toolId, clientId, agentName, toolName, isLast);
       },
       type: "function",
       function: async (clientId: string, agentName: AgentName) => {
