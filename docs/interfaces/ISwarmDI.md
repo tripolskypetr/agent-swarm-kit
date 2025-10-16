@@ -326,6 +326,16 @@ navigationSchemaService: NavigationSchemaService
 Service for defining and managing navigation tools.
 When the navigation tool called other one being ignored
 
+### actionSchemaService
+
+```ts
+actionSchemaService: ActionSchemaService
+```
+
+Service for defining and managing action tools.
+Ensures only one action tool is called per execution chain,
+similar to having multiple reads but one write operation.
+
 ### outlineSchemaService
 
 ```ts

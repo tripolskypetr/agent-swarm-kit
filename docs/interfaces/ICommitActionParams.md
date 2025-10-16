@@ -1,0 +1,54 @@
+---
+title: docs/api-reference/interface/ICommitActionParams
+group: docs
+---
+
+# ICommitActionParams
+
+Configuration parameters for creating a commit action handler.
+Defines validation, action execution, and response messages.
+
+## Properties
+
+### validateParams
+
+```ts
+validateParams: (params: T, clientId: string, agentName: string) => string | Promise<string>
+```
+
+Optional function to validate action parameters.
+Returns error message string if validation fails, null if valid.
+
+### executeAction
+
+```ts
+executeAction: (params: T, clientId: string, agentName: string) => string | Promise<string>
+```
+
+Function to execute the actual action (e.g., commitAppAction).
+Called only when parameters are valid and isLast is true.
+Returns result string to commit as tool output.
+
+### unavailableMessage
+
+```ts
+unavailableMessage: string | ((params: T, clientId: string, agentName: string) => string | Promise<string>)
+```
+
+Optional message to commit when executeAction returns empty result.
+
+### successMessage
+
+```ts
+successMessage: string | ((params: T, clientId: string, agentName: string) => string | Promise<string>)
+```
+
+Message to execute using executeForce after successful action execution.
+
+### failureMessage
+
+```ts
+failureMessage: string | ((params: T, clientId: string, agentName: string) => string | Promise<string>)
+```
+
+Optional message to execute using executeForce when validation fails.

@@ -120,6 +120,7 @@ _resolveTools(): Promise<IAgentTool[]>;
 ```
 
 Resolves and combines tools from the agent's parameters and MCP tool list, ensuring no duplicate tool names.
+Ensures only one commit action tool is present in the list.
 
 ### _resolveSystemPrompt
 
