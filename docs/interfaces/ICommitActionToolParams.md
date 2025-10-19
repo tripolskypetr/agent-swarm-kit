@@ -5,7 +5,8 @@ group: docs
 
 # ICommitActionToolParams
 
-Parameters for configuring commit action tool.
+Parameters for configuring commit action tool (WRITE pattern).
+Creates a tool that executes actions and modifies system state.
 
 ## Properties
 
@@ -17,21 +18,13 @@ toolName: string
 
 The name of the tool to be created.
 
-### description
+### function
 
 ```ts
-description: string
+function: { name: string; description: string; parameters: { type: string; required: string[]; properties: { [key: string]: { type: string; description: string; enum?: string[]; }; }; }; } | ((clientId: string, agentName: string) => { ...; } | Promise<...>)
 ```
 
-A description of the tool's functionality.
-
-### functionSchema
-
-```ts
-functionSchema: Omit<{ name: string; description: string; parameters: { type: string; required: string[]; properties: { [key: string]: { type: string; description: string; enum?: string[]; }; }; }; }, "name"> | ((clientId: string, agentName: string) => Omit<...> | Promise<...>)
-```
-
-Tool function schema defining parameters and their validation.
+Tool function schema (name, description, parameters).
 
 ### docNote
 
@@ -48,11 +41,3 @@ isAvailable: (clientId: string, agentName: string, toolName: string) => boolean 
 ```
 
 Optional function to determine if the tool is available.
-
-### validate
-
-```ts
-validate: (dto: { clientId: string; agentName: string; toolCalls: IToolCall[]; params: T; }) => boolean | Promise<boolean>
-```
-
-Optional custom validation function that runs before tool execution.

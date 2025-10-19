@@ -5,25 +5,25 @@ group: docs
 
 # IFetchInfoParams
 
-Configuration parameters for creating a fetch info handler.
-Defines the data fetching logic and optional content transformation.
+Configuration parameters for creating a fetch info handler (READ pattern).
+Defines the data fetching logic without modifying system state.
 
 ## Properties
 
 ### fetchContent
 
 ```ts
-fetchContent: (clientId: string, agentName: string) => string | Promise<string>
+fetchContent: (params: T, clientId: string, agentName: string) => string | Promise<string>
 ```
 
 Function to fetch the content/data to be provided to the agent.
 This is the main data retrieval logic.
 
-### unavailableMessage
+### emptyContent
 
 ```ts
-unavailableMessage: string | ((content: string, clientId: string, agentName: string, toolName: string) => string | Promise<string>)
+emptyContent: (content: string, clientId: string, agentName: string, toolName: string) => string | Promise<string>
 ```
 
-Optional message or function to return when content is unavailable.
-Used when fetchContent returns empty/null content.
+Optional function to handle when fetchContent returns empty result.
+Returns message to commit as tool output.

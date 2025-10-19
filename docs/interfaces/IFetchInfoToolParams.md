@@ -5,7 +5,8 @@ group: docs
 
 # IFetchInfoToolParams
 
-Parameters for configuring fetch info tool.
+Parameters for configuring fetch info tool (READ pattern).
+Creates a tool that fetches and returns data to the AI without modifying system state.
 
 ## Properties
 
@@ -17,13 +18,13 @@ toolName: string
 
 The name of the tool to be created.
 
-### description
+### function
 
 ```ts
-description: string | ((clientId: string, agentName: string) => string | Promise<string>)
+function: { name: string; description: string; parameters: { type: string; required: string[]; properties: { [key: string]: { type: string; description: string; enum?: string[]; }; }; }; } | ((clientId: string, agentName: string) => { ...; } | Promise<...>)
 ```
 
-A description of the tool's functionality.
+Tool function schema (name, description, parameters).
 
 ### docNote
 
@@ -40,3 +41,11 @@ isAvailable: (clientId: string, agentName: string, toolName: string) => boolean 
 ```
 
 Optional function to determine if the tool is available.
+
+### validateParams
+
+```ts
+validateParams: (dto: { clientId: string; agentName: string; toolCalls: IToolCall[]; params: T; }) => boolean | Promise<boolean>
+```
+
+Optional validation function that runs before fetchContent. Returns boolean (true if valid, false if invalid).
