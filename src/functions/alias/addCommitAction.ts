@@ -27,6 +27,9 @@ const METHOD_NAME = "function.alias.addCommitAction";
  * @property {IAgentTool["function"]} function - Tool function schema (name, description, parameters)
  * @property {string} [docNote] - Optional documentation note for the tool
  * @property {IAgentTool["isAvailable"]} [isAvailable] - Optional function to determine if the tool is available
+ * @property {ICommitActionParams<T>["fallback"]} [fallback] - Optional error handler for executeAction failures (inherited from ICommitActionParams)
+ *   - Receives: (error: Error, clientId: string, agentName: AgentName)
+ *   - Called when executeAction throws an exception
  * @property {ICommitActionParams<T>["validateParams"]} [validateParams] - Optional validation function (inherited from ICommitActionParams)
  *   - Receives dto object: { clientId, agentName, toolCalls, params }
  *   - Returns: error message string if invalid, null if valid
@@ -108,7 +111,7 @@ const addCommitActionInternal = beginContext(
  * @returns {IAgentTool} The registered agent tool schema
  *
  * @example
- * // Payment action with validation and follow-up
+ * // Payment action with validation, error handling and follow-up
  * addCommitAction({
  *   toolName: "pay_credit",
  *   function: {
@@ -122,6 +125,9 @@ const addCommitActionInternal = beginContext(
  *       },
  *       required: ["bank_name", "amount"],
  *     },
+ *   },
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Payment execution failed", { error, clientId, agentName });
  *   },
  *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
  *     if (!params.bank_name) return "Bank name is required";

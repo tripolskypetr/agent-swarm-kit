@@ -9824,6 +9824,13 @@ declare const createNavigateToAgent: ({ beforeNavigate, lastMessage: lastMessage
  * @template T - The type of parameters expected by the action
  * @interface ICommitActionParams
  *
+ * @property {function} [fallback] - Optional error handler for executeAction failures
+ *   - @param {Error} error - The error object thrown during execution
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - Called when executeAction throws an exception
+ *   - Error message is automatically committed as tool output and failureMessage is executed
+ *
  * @property {function} [validateParams] - Optional function to validate action parameters
  *   - @param {object} dto - Validation context object
  *   - @param {string} dto.clientId - The client identifier
@@ -9855,8 +9862,11 @@ declare const createNavigateToAgent: ({ beforeNavigate, lastMessage: lastMessage
  *   - If not provided: uses the validation error message instead
  *
  * @example
- * // Payment action with validation
+ * // Payment action with validation and error handling
  * const paymentAction = createCommitAction({
+ *   fallback: (error, clientId, agentName) => {
+ *     console.error(`Payment action failed for ${clientId} (${agentName}):`, error);
+ *   },
  *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
  *     if (!params.bank_name) return "Bank name is required";
  *     if (!params.amount) return "Amount is required";
@@ -9871,6 +9881,11 @@ declare const createNavigateToAgent: ({ beforeNavigate, lastMessage: lastMessage
  * });
  */
 interface ICommitActionParams<T = Record<string, any>> {
+    /**
+     * Optional function to handle errors during action execution.
+     * Receives the error object, client ID, and agent name.
+     */
+    fallback?: (error: Error, clientId: string, agentName: AgentName) => void;
     /**
      * Optional function to validate action parameters.
      * Returns error message string if validation fails, null if valid.
@@ -9908,7 +9923,8 @@ interface ICommitActionParams<T = Record<string, any>> {
  * 1. Checks if agent hasn't changed during execution
  * 2. If validateParams provided: validates parameters
  *    - If invalid: commits error message → executes failureMessage (or error message) → stops
- * 3. Calls executeAction to perform the action
+ * 3. Calls executeAction to perform the action (wrapped in trycatch)
+ *    - If executeAction throws: calls fallback handler (if provided) → commits error message → executes failureMessage → stops
  * 4. Commits action result (or emptyContent if result is empty)
  * 5. Executes successMessage via executeForce
  *
@@ -9919,8 +9935,11 @@ interface ICommitActionParams<T = Record<string, any>> {
  * @throws {Error} If validation, action execution, commit, or execution operations fail
  *
  * @example
- * // Create payment handler
+ * // Create payment handler with error handling
  * const handlePayment = createCommitAction({
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Payment execution failed", { error, clientId, agentName });
+ *   },
  *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
  *     if (!params.amount) return "Amount is required";
  *     return null;
@@ -9936,7 +9955,7 @@ interface ICommitActionParams<T = Record<string, any>> {
  * // Usage: called internally by addCommitAction
  * await handlePayment("tool-123", "client-456", "PaymentAgent", "pay", { amount: 100 }, [], true);
  */
-declare const createCommitAction: <T = Record<string, any>>({ validateParams, executeAction, emptyContent, successMessage, failureMessage, }: ICommitActionParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, toolCalls: IToolCall[], isLast: boolean) => Promise<void>;
+declare const createCommitAction: <T = Record<string, any>>({ validateParams, executeAction, emptyContent, fallback, successMessage, failureMessage, }: ICommitActionParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, toolCalls: IToolCall[], isLast: boolean) => Promise<void>;
 
 /**
  * Configuration parameters for creating a fetch info handler (READ pattern).
@@ -9944,6 +9963,13 @@ declare const createCommitAction: <T = Record<string, any>>({ validateParams, ex
  *
  * @template T - The type of parameters expected by the fetch operation
  * @interface IFetchInfoParams
+ *
+ * @property {function} [fallback] - Optional error handler for fetchContent failures
+ *   - @param {Error} error - The error object thrown during fetch
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - Called when fetchContent throws an exception
+ *   - Error message is automatically passed to emptyContent handler
  *
  * @property {function} fetchContent - Function to fetch the content/data to be provided to the AI agent
  *   - @param {T} params - Tool call parameters (validated if validateParams was provided in addFetchInfo)
@@ -9960,17 +9986,25 @@ declare const createCommitAction: <T = Record<string, any>>({ validateParams, ex
  *   - @default "The tool named {toolName} is not available. Do not ever call it again"
  *
  * @example
- * // Fetch user data from database
+ * // Fetch user data from database with error handling
  * const fetchUserData = createFetchInfo({
+ *   fallback: (error, clientId, agentName) => {
+ *     console.error(`Failed to fetch user data for ${clientId} (${agentName}):`, error);
+ *   },
  *   fetchContent: async (params, clientId) => {
  *     const user = await getUserData(params.userId);
  *     return JSON.stringify(user);
  *   },
- *   emptyContent: () => "User not found",
+ *   emptyContent: (content) => content || "User not found",
  * });
  * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData", { userId: "123" }, true);
  */
 interface IFetchInfoParams<T = Record<string, any>> {
+    /**
+     * Optional function to handle errors during fetch execution.
+     * Receives the error object, client ID, and agent name.
+     */
+    fallback?: (error: Error, clientId: string, agentName: AgentName) => void;
     /**
      * Function to fetch the content/data to be provided to the agent.
      * This is the main data retrieval logic.
@@ -9987,7 +10021,8 @@ interface IFetchInfoParams<T = Record<string, any>> {
  *
  * **Execution flow:**
  * 1. Checks if agent hasn't changed during execution
- * 2. Calls fetchContent with parameters
+ * 2. Calls fetchContent with parameters (wrapped in trycatch)
+ *    - If fetchContent throws: calls fallback handler (if provided) → passes error message to emptyContent → commits result
  * 3. If content exists: commits it as tool output
  * 4. If content is empty: calls emptyContent handler and commits result
  * 5. If this is the last tool call (isLast): executes executeForce (always with empty message for fetch)
@@ -9999,18 +10034,21 @@ interface IFetchInfoParams<T = Record<string, any>> {
  * @throws {Error} If fetch, commit, or execution operations fail
  *
  * @example
- * // Fetch conversation history
+ * // Fetch conversation history with error handling
  * const fetchHistory = createFetchInfo({
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Failed to fetch history", { error, clientId, agentName });
+ *   },
  *   fetchContent: async (params, clientId, agentName) => {
  *     const history = await historyService.getHistory(clientId);
  *     return JSON.stringify(history);
  *   },
- *   emptyContent: () => "No history found",
+ *   emptyContent: (content) => content || "No history found",
  * });
  * // Usage: called internally by addFetchInfo
  * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", {}, true);
  */
-declare const createFetchInfo: <T = Record<string, any>>({ fetchContent, emptyContent, }: IFetchInfoParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, isLast: boolean) => Promise<void>;
+declare const createFetchInfo: <T = Record<string, any>>({ fetchContent, fallback, emptyContent, }: IFetchInfoParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, isLast: boolean) => Promise<void>;
 
 /**
  * Adds navigation functionality to an agent by creating a tool that allows navigation to a specified agent.
@@ -10085,6 +10123,9 @@ declare function addTriageNavigation(params: ITriageNavigationParams): string;
  * @property {IAgentTool["function"]} function - Tool function schema (name, description, parameters)
  * @property {string} [docNote] - Optional documentation note for the tool
  * @property {IAgentTool["isAvailable"]} [isAvailable] - Optional function to determine if the tool is available
+ * @property {ICommitActionParams<T>["fallback"]} [fallback] - Optional error handler for executeAction failures (inherited from ICommitActionParams)
+ *   - Receives: (error: Error, clientId: string, agentName: AgentName)
+ *   - Called when executeAction throws an exception
  * @property {ICommitActionParams<T>["validateParams"]} [validateParams] - Optional validation function (inherited from ICommitActionParams)
  *   - Receives dto object: { clientId, agentName, toolCalls, params }
  *   - Returns: error message string if invalid, null if valid
@@ -10131,7 +10172,7 @@ interface ICommitActionToolParams<T = Record<string, any>> extends ICommitAction
  * @returns {IAgentTool} The registered agent tool schema
  *
  * @example
- * // Payment action with validation and follow-up
+ * // Payment action with validation, error handling and follow-up
  * addCommitAction({
  *   toolName: "pay_credit",
  *   function: {
@@ -10145,6 +10186,9 @@ interface ICommitActionToolParams<T = Record<string, any>> extends ICommitAction
  *       },
  *       required: ["bank_name", "amount"],
  *     },
+ *   },
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Payment execution failed", { error, clientId, agentName });
  *   },
  *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
  *     if (!params.bank_name) return "Bank name is required";
@@ -10178,6 +10222,9 @@ declare function addCommitAction<T = Record<string, any>>(params: ICommitActionT
  * @property {IAgentTool["function"]} function - Tool function schema (name, description, parameters)
  * @property {string} [docNote] - Optional documentation note for the tool
  * @property {IAgentTool["isAvailable"]} [isAvailable] - Optional function to determine if the tool is available
+ * @property {IFetchInfoParams<T>["fallback"]} [fallback] - Optional error handler for fetchContent failures (inherited from IFetchInfoParams)
+ *   - Receives: (error: Error, clientId: string, agentName: AgentName)
+ *   - Called when fetchContent throws an exception
  * @property {IAgentTool<T>["validate"]} [validateParams] - Optional validation function that runs before fetchContent
  *   - Receives dto object: { clientId, agentName, toolCalls, params }
  *   - Returns boolean: true if valid, false if invalid (blocks tool execution)
@@ -10218,7 +10265,7 @@ interface IFetchInfoToolParams<T = Record<string, any>> extends IFetchInfoParams
  * @returns {IAgentTool} The registered agent tool schema
  *
  * @example
- * // Fetch user data with parameter validation
+ * // Fetch user data with parameter validation and error handling
  * addFetchInfo({
  *   toolName: "fetch_user_data",
  *   function: {
@@ -10232,6 +10279,9 @@ interface IFetchInfoToolParams<T = Record<string, any>> extends IFetchInfoParams
  *       required: ["userId"],
  *     },
  *   },
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Failed to fetch user data", { error, clientId, agentName });
+ *   },
  *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
  *     // Returns true if valid, false if invalid
  *     return !!params.userId;
@@ -10240,7 +10290,7 @@ interface IFetchInfoToolParams<T = Record<string, any>> extends IFetchInfoParams
  *     const userData = await getUserData(params.userId);
  *     return JSON.stringify(userData);
  *   },
- *   emptyContent: () => "User not found",
+ *   emptyContent: (content) => content || "User not found",
  * });
  */
 declare function addFetchInfo<T = Record<string, any>>(params: IFetchInfoToolParams<T>): string;

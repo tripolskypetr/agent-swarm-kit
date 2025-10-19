@@ -6,9 +6,9 @@ import beginContext from "../utils/beginContext";
 import { AgentName, ToolName } from "../interfaces/Agent.interface";
 import { getAgentName } from "../functions/common/getAgentName";
 import { IToolCall } from "../model/Tool.model";
+import { CATCH_SYMBOL, getErrorMessage, trycatch } from "functools-kit";
 
 const METHOD_NAME = "function.template.commitAction";
-
 
 /**
  * Configuration parameters for creating a commit action handler (WRITE pattern).
@@ -16,6 +16,13 @@ const METHOD_NAME = "function.template.commitAction";
  *
  * @template T - The type of parameters expected by the action
  * @interface ICommitActionParams
+ *
+ * @property {function} [fallback] - Optional error handler for executeAction failures
+ *   - @param {Error} error - The error object thrown during execution
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - Called when executeAction throws an exception
+ *   - Error message is automatically committed as tool output and failureMessage is executed
  *
  * @property {function} [validateParams] - Optional function to validate action parameters
  *   - @param {object} dto - Validation context object
@@ -48,8 +55,11 @@ const METHOD_NAME = "function.template.commitAction";
  *   - If not provided: uses the validation error message instead
  *
  * @example
- * // Payment action with validation
+ * // Payment action with validation and error handling
  * const paymentAction = createCommitAction({
+ *   fallback: (error, clientId, agentName) => {
+ *     console.error(`Payment action failed for ${clientId} (${agentName}):`, error);
+ *   },
  *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
  *     if (!params.bank_name) return "Bank name is required";
  *     if (!params.amount) return "Amount is required";
@@ -64,6 +74,12 @@ const METHOD_NAME = "function.template.commitAction";
  * });
  */
 export interface ICommitActionParams<T = Record<string, any>> {
+  /**
+   * Optional function to handle errors during action execution.
+   * Receives the error object, client ID, and agent name.
+   */
+  fallback?: (error: Error, clientId: string, agentName: AgentName) => void;
+
   /**
    * Optional function to validate action parameters.
    * Returns error message string if validation fails, null if valid.
@@ -90,21 +106,33 @@ export interface ICommitActionParams<T = Record<string, any>> {
    * Optional function to handle when executeAction returns empty result.
    * Returns message to commit as tool output.
    */
-  emptyContent?: (params: T, clientId: string, agentName: AgentName) => string | Promise<string>;
+  emptyContent?: (
+    params: T,
+    clientId: string,
+    agentName: AgentName
+  ) => string | Promise<string>;
 
   /**
    * Message to execute using executeForce after successful action execution.
    */
   successMessage:
     | string
-    | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>);
+    | ((
+        params: T,
+        clientId: string,
+        agentName: AgentName
+      ) => string | Promise<string>);
 
   /**
    * Optional message to execute using executeForce when validation fails.
    */
   failureMessage?:
     | string
-    | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>);
+    | ((
+        params: T,
+        clientId: string,
+        agentName: AgentName
+      ) => string | Promise<string>);
 }
 
 /**
@@ -114,7 +142,8 @@ export interface ICommitActionParams<T = Record<string, any>> {
  * 1. Checks if agent hasn't changed during execution
  * 2. If validateParams provided: validates parameters
  *    - If invalid: commits error message → executes failureMessage (or error message) → stops
- * 3. Calls executeAction to perform the action
+ * 3. Calls executeAction to perform the action (wrapped in trycatch)
+ *    - If executeAction throws: calls fallback handler (if provided) → commits error message → executes failureMessage → stops
  * 4. Commits action result (or emptyContent if result is empty)
  * 5. Executes successMessage via executeForce
  *
@@ -125,8 +154,11 @@ export interface ICommitActionParams<T = Record<string, any>> {
  * @throws {Error} If validation, action execution, commit, or execution operations fail
  *
  * @example
- * // Create payment handler
+ * // Create payment handler with error handling
  * const handlePayment = createCommitAction({
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Payment execution failed", { error, clientId, agentName });
+ *   },
  *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
  *     if (!params.amount) return "Amount is required";
  *     return null;
@@ -146,6 +178,7 @@ export const createCommitAction = <T = Record<string, any>>({
   validateParams,
   executeAction,
   emptyContent,
+  fallback,
   successMessage,
   failureMessage,
 }: ICommitActionParams<T>) => {
@@ -178,14 +211,11 @@ export const createCommitAction = <T = Record<string, any>>({
       const currentAgentName = await getAgentName(clientId);
       if (currentAgentName !== agentName) {
         GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-          swarm.loggerService.log(
-            `${toolName} skipped due to agent change`,
-            {
-              currentAgentName,
-              agentName,
-              clientId,
-            }
-          );
+          swarm.loggerService.log(`${toolName} skipped due to agent change`, {
+            currentAgentName,
+            agentName,
+            clientId,
+          });
         if (isLast) {
           await executeForce(executeMessage, clientId);
         }
@@ -223,11 +253,42 @@ export const createCommitAction = <T = Record<string, any>>({
         }
       }
 
+      let error: Error;
+
+      const runner = trycatch(executeAction, {
+        fallback: (e) => {
+          error = e;
+          fallback && fallback(e, clientId, agentName);
+        },
+      });
+
       // Execute the action and get result
-      const actionResult = await executeAction(params, clientId, agentName);
+      const actionResult = await runner(params, clientId, agentName);
 
       // Commit action result as tool output
-      if (actionResult) {
+      if (actionResult === CATCH_SYMBOL) {
+
+        const errorMessage = getErrorMessage(error);
+
+        await commitToolOutput(toolId, errorMessage, clientId, agentName);
+
+        // Execute failure message if provided
+        if (failureMessage) {
+          executeMessage =
+            typeof failureMessage === "string"
+              ? failureMessage
+              : await failureMessage(params, clientId, agentName);
+        }
+
+        if (!failureMessage) {
+          executeMessage = errorMessage;
+        }
+
+        if (isLast) {
+          await executeForce(executeMessage, clientId);
+        }
+        return;
+      } else if (actionResult) {
         await commitToolOutput(toolId, actionResult, clientId, agentName);
       } else {
         const message = emptyContent

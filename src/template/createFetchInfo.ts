@@ -1,10 +1,11 @@
-import { GLOBAL_CONFIG } from "../config/params";;
+import { GLOBAL_CONFIG } from "../config/params";
 import { executeForce } from "../functions/target/executeForce";
-import { commitToolOutputForce } from "../functions/commit/commitToolOutputForce"
+import { commitToolOutputForce } from "../functions/commit/commitToolOutputForce";
 import swarm from "../lib";
 import beginContext from "../utils/beginContext";
 import { AgentName } from "../interfaces/Agent.interface";
 import { getAgentName } from "../functions/common/getAgentName";
+import { CATCH_SYMBOL, getErrorMessage, trycatch } from "functools-kit";
 
 const METHOD_NAME = "function.template.fetchInfo";
 
@@ -14,6 +15,13 @@ const METHOD_NAME = "function.template.fetchInfo";
  *
  * @template T - The type of parameters expected by the fetch operation
  * @interface IFetchInfoParams
+ *
+ * @property {function} [fallback] - Optional error handler for fetchContent failures
+ *   - @param {Error} error - The error object thrown during fetch
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - Called when fetchContent throws an exception
+ *   - Error message is automatically passed to emptyContent handler
  *
  * @property {function} fetchContent - Function to fetch the content/data to be provided to the AI agent
  *   - @param {T} params - Tool call parameters (validated if validateParams was provided in addFetchInfo)
@@ -30,17 +38,26 @@ const METHOD_NAME = "function.template.fetchInfo";
  *   - @default "The tool named {toolName} is not available. Do not ever call it again"
  *
  * @example
- * // Fetch user data from database
+ * // Fetch user data from database with error handling
  * const fetchUserData = createFetchInfo({
+ *   fallback: (error, clientId, agentName) => {
+ *     console.error(`Failed to fetch user data for ${clientId} (${agentName}):`, error);
+ *   },
  *   fetchContent: async (params, clientId) => {
  *     const user = await getUserData(params.userId);
  *     return JSON.stringify(user);
  *   },
- *   emptyContent: () => "User not found",
+ *   emptyContent: (content) => content || "User not found",
  * });
  * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData", { userId: "123" }, true);
  */
 export interface IFetchInfoParams<T = Record<string, any>> {
+  /**
+   * Optional function to handle errors during fetch execution.
+   * Receives the error object, client ID, and agent name.
+   */
+  fallback?: (error: Error, clientId: string, agentName: AgentName) => void;
+
   /**
    * Function to fetch the content/data to be provided to the agent.
    * This is the main data retrieval logic.
@@ -78,7 +95,8 @@ const DEFAULT_EMPTY_CONTENT_MESSAGE = (
  *
  * **Execution flow:**
  * 1. Checks if agent hasn't changed during execution
- * 2. Calls fetchContent with parameters
+ * 2. Calls fetchContent with parameters (wrapped in trycatch)
+ *    - If fetchContent throws: calls fallback handler (if provided) → passes error message to emptyContent → commits result
  * 3. If content exists: commits it as tool output
  * 4. If content is empty: calls emptyContent handler and commits result
  * 5. If this is the last tool call (isLast): executes executeForce (always with empty message for fetch)
@@ -90,19 +108,23 @@ const DEFAULT_EMPTY_CONTENT_MESSAGE = (
  * @throws {Error} If fetch, commit, or execution operations fail
  *
  * @example
- * // Fetch conversation history
+ * // Fetch conversation history with error handling
  * const fetchHistory = createFetchInfo({
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Failed to fetch history", { error, clientId, agentName });
+ *   },
  *   fetchContent: async (params, clientId, agentName) => {
  *     const history = await historyService.getHistory(clientId);
  *     return JSON.stringify(history);
  *   },
- *   emptyContent: () => "No history found",
+ *   emptyContent: (content) => content || "No history found",
  * });
  * // Usage: called internally by addFetchInfo
  * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", {}, true);
  */
 export const createFetchInfo = <T = Record<string, any>>({
   fetchContent,
+  fallback,
   emptyContent = DEFAULT_EMPTY_CONTENT_MESSAGE,
 }: IFetchInfoParams<T>) => {
   /**
@@ -148,12 +170,34 @@ export const createFetchInfo = <T = Record<string, any>>({
         return;
       }
 
-      const content = await fetchContent(params, clientId, agentName);
+      let error: Error;
 
-      if (content) {
+      const runner = trycatch(fetchContent, {
+        fallback: (e) => {
+          error = e;
+          fallback && fallback(e, clientId, agentName);
+        },
+      });
+
+      const content = await runner(params, clientId, agentName);
+
+      if (content === CATCH_SYMBOL) {
+        const message = await emptyContent(
+          getErrorMessage(error),
+          clientId,
+          agentName,
+          toolName
+        );
+        await commitToolOutputForce(toolId, message, clientId);
+      } else if (content) {
         await commitToolOutputForce(toolId, content, clientId);
       } else {
-        const message = await emptyContent(content, clientId, agentName, toolName);
+        const message = await emptyContent(
+          content,
+          clientId,
+          agentName,
+          toolName
+        );
         await commitToolOutputForce(toolId, message, clientId);
       }
 

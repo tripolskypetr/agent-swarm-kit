@@ -31,6 +31,9 @@ const METHOD_NAME = "function.alias.addFetchInfo";
  * @property {IAgentTool["function"]} function - Tool function schema (name, description, parameters)
  * @property {string} [docNote] - Optional documentation note for the tool
  * @property {IAgentTool["isAvailable"]} [isAvailable] - Optional function to determine if the tool is available
+ * @property {IFetchInfoParams<T>["fallback"]} [fallback] - Optional error handler for fetchContent failures (inherited from IFetchInfoParams)
+ *   - Receives: (error: Error, clientId: string, agentName: AgentName)
+ *   - Called when fetchContent throws an exception
  * @property {IAgentTool<T>["validate"]} [validateParams] - Optional validation function that runs before fetchContent
  *   - Receives dto object: { clientId, agentName, toolCalls, params }
  *   - Returns boolean: true if valid, false if invalid (blocks tool execution)
@@ -105,7 +108,7 @@ const addFetchInfoInternal = beginContext(
  * @returns {IAgentTool} The registered agent tool schema
  *
  * @example
- * // Fetch user data with parameter validation
+ * // Fetch user data with parameter validation and error handling
  * addFetchInfo({
  *   toolName: "fetch_user_data",
  *   function: {
@@ -119,6 +122,9 @@ const addFetchInfoInternal = beginContext(
  *       required: ["userId"],
  *     },
  *   },
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Failed to fetch user data", { error, clientId, agentName });
+ *   },
  *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
  *     // Returns true if valid, false if invalid
  *     return !!params.userId;
@@ -127,7 +133,7 @@ const addFetchInfoInternal = beginContext(
  *     const userData = await getUserData(params.userId);
  *     return JSON.stringify(userData);
  *   },
- *   emptyContent: () => "User not found",
+ *   emptyContent: (content) => content || "User not found",
  * });
  */
 export function addFetchInfo<T = Record<string, any>>(
