@@ -1,67 +1,89 @@
 import { GLOBAL_CONFIG } from "../config/params";
-import { commitToolOutput } from "../functions/commit/commitToolOutput";
-import { execute } from "../functions/target/execute";
+import { executeForce } from "../functions/target/executeForce";
+import { commitToolOutputForce } from "../functions/commit/commitToolOutputForce";
 import swarm from "../lib";
 import beginContext from "../utils/beginContext";
 import { AgentName } from "../interfaces/Agent.interface";
+import { getAgentName } from "../functions/common/getAgentName";
+import { CATCH_SYMBOL, getErrorMessage, trycatch } from "functools-kit";
 
 const METHOD_NAME = "function.template.fetchInfo";
 
 /**
- * Configuration parameters for creating a fetch info handler.
- * Defines the data fetching logic and optional content transformation.
+ * Configuration parameters for creating a fetch info handler (READ pattern).
+ * Defines the data fetching logic without modifying system state.
  *
+ * @template T - The type of parameters expected by the fetch operation
  * @interface IFetchInfoParams
- * @property {(clientId: string, agentName: AgentName) => string | Promise<string>} fetchContent - Function to fetch the content/data to be provided to the agent. Receives client ID and agent name, returns content string or promise of string.
- * @property {string | ((content: string, clientId: string, agentName: AgentName) => string | Promise<string>)} [unavailableMessage] - Optional message or function to return when content is unavailable. If a function, receives the empty content, client ID, and agent name. Defaults to a generic unavailable message.
- * @property {(content: string, clientId: string, agentName: AgentName) => string | Promise<string>} [transformContent] - Optional function to transform fetched content before committing. Receives content, client ID, and agent name.
+ *
+ * @property {function} [fallback] - Optional error handler for fetchContent failures
+ *   - @param {Error} error - The error object thrown during fetch
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - Called when fetchContent throws an exception
+ *   - Error message is automatically passed to emptyContent handler
+ *
+ * @property {function} fetchContent - Function to fetch the content/data to be provided to the AI agent
+ *   - @param {T} params - Tool call parameters (validated if validateParams was provided in addFetchInfo)
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - @returns {string | Promise<string>} Content string to return to AI as tool output
+ *
+ * @property {function} [emptyContent] - Optional function to handle when fetchContent returns empty result
+ *   - @param {string} content - The empty content from fetchContent
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - @param {string} toolName - The tool name
+ *   - @returns {string | Promise<string>} Message to commit as tool output
+ *   - @default "The tool named {toolName} is not available. Do not ever call it again"
  *
  * @example
- * // Create a fetch info handler
- * const fetchUserData = await createFetchInfo({
- *   fetchContent: async (clientId) => await getUserData(clientId),
- *   transformContent: (data) => JSON.stringify(data, null, 2),
+ * // Fetch user data from database with error handling
+ * const fetchUserData = createFetchInfo({
+ *   fallback: (error, clientId, agentName) => {
+ *     console.error(`Failed to fetch user data for ${clientId} (${agentName}):`, error);
+ *   },
+ *   fetchContent: async (params, clientId) => {
+ *     const user = await getUserData(params.userId);
+ *     return JSON.stringify(user);
+ *   },
+ *   emptyContent: (content) => content || "User not found",
  * });
- * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData");
+ * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData", { userId: "123" }, true);
  */
-export interface IFetchInfoParams {
+export interface IFetchInfoParams<T = Record<string, any>> {
+  /**
+   * Optional function to handle errors during fetch execution.
+   * Receives the error object, client ID, and agent name.
+   */
+  fallback?: (error: Error, clientId: string, agentName: AgentName) => void;
+
   /**
    * Function to fetch the content/data to be provided to the agent.
    * This is the main data retrieval logic.
    */
   fetchContent: (
+    params: T,
     clientId: string,
     agentName: AgentName
   ) => string | Promise<string>;
 
   /**
-   * Optional message or function to return when content is unavailable.
-   * Used when fetchContent returns empty/null content.
+   * Optional function to handle when fetchContent returns empty result.
+   * Returns message to commit as tool output.
    */
-  unavailableMessage?:
-    | string
-    | ((
-        content: string,
-        clientId: string,
-        agentName: AgentName,
-        toolName: string
-      ) => string | Promise<string>);
-
-  /**
-   * Optional function to transform fetched content before committing.
-   * Allows preprocessing or formatting of the fetched data.
-   */
-  transformContent?: (
+  emptyContent?: (
     content: string,
     clientId: string,
-    agentName: AgentName
+    agentName: AgentName,
+    toolName: string
   ) => string | Promise<string>;
 }
 
 /**
- * Default message when content is unavailable.
+ * Default message when content is empty.
  */
-const DEFAULT_UNAVAILABLE_MESSAGE = (
+const DEFAULT_EMPTY_CONTENT_MESSAGE = (
   _content: string,
   _clientId: string,
   _agentName: AgentName,
@@ -69,28 +91,42 @@ const DEFAULT_UNAVAILABLE_MESSAGE = (
 ) => `The tool named ${toolName} is not available. Do not ever call it again`;
 
 /**
- * Creates a function to fetch and commit information for a given client and agent.
- * The factory generates a handler that fetches content, optionally transforms it,
- * emits an event, commits the output, and triggers execution if it's the last tool call.
- * Logs the operation if logging is enabled in the global configuration.
+ * Creates a fetch info handler that retrieves data for AI without modifying system state (READ pattern).
  *
- * @throws {Error} If any internal operation (e.g., fetch, commit, or execution) fails.
+ * **Execution flow:**
+ * 1. Checks if agent hasn't changed during execution
+ * 2. Calls fetchContent with parameters (wrapped in trycatch)
+ *    - If fetchContent throws: calls fallback handler (if provided) → passes error message to emptyContent → commits result
+ * 3. If content exists: commits it as tool output
+ * 4. If content is empty: calls emptyContent handler and commits result
+ * 5. If this is the last tool call (isLast): executes executeForce (always with empty message for fetch)
+ *
+ * @template T - The type of parameters expected by the fetch operation
+ * @param {IFetchInfoParams<T>} config - Configuration object
+ * @returns {function} Handler function that executes the fetch operation
+ *
+ * @throws {Error} If fetch, commit, or execution operations fail
  *
  * @example
- * // Create a fetch info handler
- * const fetchHistory = await createFetchInfo({
- *   fetchContent: async (clientId, agentName) => {
- *     return await historyService.getHistory(clientId);
+ * // Fetch conversation history with error handling
+ * const fetchHistory = createFetchInfo({
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Failed to fetch history", { error, clientId, agentName });
  *   },
- *   transformContent: (content) => `History:\n${content}`,
+ *   fetchContent: async (params, clientId, agentName) => {
+ *     const history = await historyService.getHistory(clientId);
+ *     return JSON.stringify(history);
+ *   },
+ *   emptyContent: (content) => content || "No history found",
  * });
- * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", true);
+ * // Usage: called internally by addFetchInfo
+ * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", {}, true);
  */
-export const createFetchInfo = ({
+export const createFetchInfo = <T = Record<string, any>>({
   fetchContent,
-  unavailableMessage = DEFAULT_UNAVAILABLE_MESSAGE,
-  transformContent,
-}: IFetchInfoParams) => {
+  fallback,
+  emptyContent = DEFAULT_EMPTY_CONTENT_MESSAGE,
+}: IFetchInfoParams<T>) => {
   /**
    * Fetches information and commits it as tool output for a given client and agent.
    *
@@ -102,35 +138,71 @@ export const createFetchInfo = ({
       clientId: string,
       agentName: AgentName,
       toolName: string,
+      params: T,
       isLast: boolean
     ) => {
+      let executeMessage = "";
+
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
         swarm.loggerService.log(METHOD_NAME, {
           clientId,
           toolId,
           agentName,
           toolName,
+          params,
           isLast,
         });
 
-      let content = await fetchContent(clientId, agentName);
-
-      if (content && transformContent) {
-        content = await transformContent(content, clientId, agentName);
+      const currentAgentName = await getAgentName(clientId);
+      if (currentAgentName !== agentName) {
+        GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+          swarm.loggerService.log(
+            `${METHOD_NAME} skipped due to agent change`,
+            {
+              currentAgentName,
+              agentName,
+              clientId,
+            }
+          );
+        if (isLast) {
+          await executeForce(executeMessage, clientId);
+        }
+        return;
       }
 
-      if (content) {
-        await commitToolOutput(toolId, content, clientId, agentName);
+      let error: Error;
+
+      const runner = trycatch(fetchContent, {
+        fallback: (e) => {
+          error = e;
+          fallback && fallback(e, clientId, agentName);
+        },
+      });
+
+      const content = await runner(params, clientId, agentName);
+
+      if (content === CATCH_SYMBOL) {
+        const message = await emptyContent(
+          getErrorMessage(error),
+          clientId,
+          agentName,
+          toolName
+        );
+        await commitToolOutputForce(toolId, message, clientId);
+      } else if (content) {
+        await commitToolOutputForce(toolId, content, clientId);
       } else {
-        const message =
-          typeof unavailableMessage === "string"
-            ? unavailableMessage
-            : await unavailableMessage(content, clientId, agentName, toolName);
-        await commitToolOutput(toolId, message, clientId, agentName);
+        const message = await emptyContent(
+          content,
+          clientId,
+          agentName,
+          toolName
+        );
+        await commitToolOutputForce(toolId, message, clientId);
       }
 
       if (isLast) {
-        await execute("", clientId, agentName);
+        await executeForce(executeMessage, clientId);
       }
     }
   );

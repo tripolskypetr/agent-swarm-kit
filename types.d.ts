@@ -3649,6 +3649,7 @@ declare class ClientAgent implements IAgent {
     constructor(params: IAgentParams);
     /**
      * Resolves and combines tools from the agent's parameters and MCP tool list, ensuring no duplicate tool names.
+     * Ensures only one commit action tool is present in the list.
      */
     _resolveTools(): Promise<IAgentTool[]>;
     /**
@@ -9082,6 +9083,41 @@ declare class NavigationSchemaService {
 }
 
 /**
+ * @class ActionSchemaService
+ * Manages a collection of action tool names using a Set for efficient registration and lookup.
+ * Injects LoggerService via dependency injection for logging operations.
+ * Ensures only one action tool is called per tool execution chain, similar to having multiple reads but one write.
+ */
+declare class ActionSchemaService {
+    /**
+     * @private
+     * @readonly
+     * Logger service instance, injected via dependency injection, for logging action schema operations.
+     * Used in register and hasTool methods when GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     */
+    private readonly loggerService;
+    /**
+     * @private
+     * Set for storing action tool names, ensuring uniqueness and efficient lookup.
+     * Updated via the register method and queried via the hasTool method.
+     */
+    private _actionToolNameSet;
+    /**
+     * Registers an action tool name in the internal Set.
+     * Logs the registration operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * @param {ToolName} toolName - The name of the action tool to register.
+     */
+    register: (toolName: ToolName) => void;
+    /**
+     * Checks if an action tool name exists in the internal Set.
+     * Logs the lookup operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
+     * @param {ToolName} toolName - The name of the action tool to check.
+     * @returns {boolean} True if the tool name is registered as an action tool.
+     */
+    hasTool: (toolName: ToolName) => boolean;
+}
+
+/**
  * A service class for managing outline schemas within the agent swarm system.
  * Provides methods to register, override, and retrieve outline schemas, utilizing a `ToolRegistry` for storage.
  * Integrates with dependency injection and context services for logging and schema management.
@@ -9378,6 +9414,12 @@ interface ISwarmDI {
      * When the navigation tool called other one being ignored
      */
     navigationSchemaService: NavigationSchemaService;
+    /**
+     * Service for defining and managing action tools.
+     * Ensures only one action tool is called per execution chain,
+     * similar to having multiple reads but one write operation.
+     */
+    actionSchemaService: ActionSchemaService;
     /**
      * Service for defining and managing outlines
      * Aka structured json outputs
@@ -9776,58 +9818,237 @@ interface INavigateToAgentParams {
 declare const createNavigateToAgent: ({ beforeNavigate, lastMessage: lastMessageFn, executeMessage, emitMessage, flushMessage, toolOutput, }: INavigateToAgentParams) => (toolId: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
- * Configuration parameters for creating a fetch info handler.
- * Defines the data fetching logic and optional content transformation.
+ * Configuration parameters for creating a commit action handler (WRITE pattern).
+ * Defines validation, action execution, and response messages for state-modifying operations.
  *
- * @interface IFetchInfoParams
- * @property {(clientId: string, agentName: AgentName) => string | Promise<string>} fetchContent - Function to fetch the content/data to be provided to the agent. Receives client ID and agent name, returns content string or promise of string.
- * @property {string | ((content: string, clientId: string, agentName: AgentName) => string | Promise<string>)} [unavailableMessage] - Optional message or function to return when content is unavailable. If a function, receives the empty content, client ID, and agent name. Defaults to a generic unavailable message.
- * @property {(content: string, clientId: string, agentName: AgentName) => string | Promise<string>} [transformContent] - Optional function to transform fetched content before committing. Receives content, client ID, and agent name.
+ * @template T - The type of parameters expected by the action
+ * @interface ICommitActionParams
+ *
+ * @property {function} [fallback] - Optional error handler for executeAction failures
+ *   - @param {Error} error - The error object thrown during execution
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - Called when executeAction throws an exception
+ *   - Error message is automatically committed as tool output and failureMessage is executed
+ *
+ * @property {function} [validateParams] - Optional function to validate action parameters
+ *   - @param {object} dto - Validation context object
+ *   - @param {string} dto.clientId - The client identifier
+ *   - @param {AgentName} dto.agentName - The name of the current agent
+ *   - @param {IToolCall[]} dto.toolCalls - Array of tool calls in current execution
+ *   - @param {T} dto.params - Tool call parameters
+ *   - @returns {string | null | Promise<string | null>} Error message if validation fails, null if valid
+ *
+ * @property {function} executeAction - Function to execute the actual action (e.g., commitAppAction)
+ *   - @param {T} params - Tool call parameters (validated if validateParams was provided)
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - @returns {string | Promise<string>} Result string to commit as tool output (empty string if action produced no result)
+ *
+ * @property {function} [emptyContent] - Optional function to handle when executeAction returns empty result
+ *   - @param {T} params - Tool call parameters
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - @returns {string | Promise<string>} Message to commit as tool output
+ *   - @default "Action executed but produced no result"
+ *
+ * @property {string | function} successMessage - Message to execute using executeForce after successful action
+ *   - Can be static string or function that returns string
+ *   - If function: receives (params, clientId, agentName) as arguments
+ *
+ * @property {string | function} [failureMessage] - Optional message to execute using executeForce when validation fails
+ *   - Can be static string or function that returns string
+ *   - If function: receives (params, clientId, agentName) as arguments
+ *   - If not provided: uses the validation error message instead
  *
  * @example
- * // Create a fetch info handler
- * const fetchUserData = await createFetchInfo({
- *   fetchContent: async (clientId) => await getUserData(clientId),
- *   transformContent: (data) => JSON.stringify(data, null, 2),
+ * // Payment action with validation and error handling
+ * const paymentAction = createCommitAction({
+ *   fallback: (error, clientId, agentName) => {
+ *     console.error(`Payment action failed for ${clientId} (${agentName}):`, error);
+ *   },
+ *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
+ *     if (!params.bank_name) return "Bank name is required";
+ *     if (!params.amount) return "Amount is required";
+ *     return null; // Valid
+ *   },
+ *   executeAction: async (params, clientId) => {
+ *     await commitAppAction(clientId, "credit-payment", params);
+ *     return "Payment page opened successfully";
+ *   },
+ *   successMessage: "what is this page about",
+ *   failureMessage: "Could not open payment page",
  * });
- * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData");
  */
-interface IFetchInfoParams {
+interface ICommitActionParams<T = Record<string, any>> {
+    /**
+     * Optional function to handle errors during action execution.
+     * Receives the error object, client ID, and agent name.
+     */
+    fallback?: (error: Error, clientId: string, agentName: AgentName) => void;
+    /**
+     * Optional function to validate action parameters.
+     * Returns error message string if validation fails, null if valid.
+     */
+    validateParams?: (dto: {
+        clientId: string;
+        agentName: AgentName;
+        toolCalls: IToolCall[];
+        params: T;
+    }) => string | null | Promise<string | null>;
+    /**
+     * Function to execute the actual action (e.g., commitAppAction).
+     * Called only when parameters are valid and isLast is true.
+     * Returns result string to commit as tool output.
+     */
+    executeAction: (params: T, clientId: string, agentName: AgentName) => string | Promise<string>;
+    /**
+     * Optional function to handle when executeAction returns empty result.
+     * Returns message to commit as tool output.
+     */
+    emptyContent?: (params: T, clientId: string, agentName: AgentName) => string | Promise<string>;
+    /**
+     * Message to execute using executeForce after successful action execution.
+     */
+    successMessage: string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>);
+    /**
+     * Optional message to execute using executeForce when validation fails.
+     */
+    failureMessage?: string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>);
+}
+/**
+ * Creates a commit action handler that executes actions and modifies system state (WRITE pattern).
+ *
+ * **Execution flow:**
+ * 1. Checks if agent hasn't changed during execution
+ * 2. If validateParams provided: validates parameters
+ *    - If invalid: commits error message → executes failureMessage (or error message) → stops
+ * 3. Calls executeAction to perform the action (wrapped in trycatch)
+ *    - If executeAction throws: calls fallback handler (if provided) → commits error message → executes failureMessage → stops
+ * 4. Commits action result (or emptyContent if result is empty)
+ * 5. Executes successMessage via executeForce
+ *
+ * @template T - The type of parameters expected by the action
+ * @param {ICommitActionParams<T>} config - Configuration object
+ * @returns {function} Handler function that executes the action with validation
+ *
+ * @throws {Error} If validation, action execution, commit, or execution operations fail
+ *
+ * @example
+ * // Create payment handler with error handling
+ * const handlePayment = createCommitAction({
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Payment execution failed", { error, clientId, agentName });
+ *   },
+ *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
+ *     if (!params.amount) return "Amount is required";
+ *     return null;
+ *   },
+ *   executeAction: async (params, clientId) => {
+ *     await commitAppAction(clientId, "payment", params);
+ *     return "Payment processed successfully";
+ *   },
+ *   emptyContent: () => "Payment failed - no result",
+ *   successMessage: "Check your balance",
+ *   failureMessage: "Payment validation failed",
+ * });
+ * // Usage: called internally by addCommitAction
+ * await handlePayment("tool-123", "client-456", "PaymentAgent", "pay", { amount: 100 }, [], true);
+ */
+declare const createCommitAction: <T = Record<string, any>>({ validateParams, executeAction, emptyContent, fallback, successMessage, failureMessage, }: ICommitActionParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, toolCalls: IToolCall[], isLast: boolean) => Promise<void>;
+
+/**
+ * Configuration parameters for creating a fetch info handler (READ pattern).
+ * Defines the data fetching logic without modifying system state.
+ *
+ * @template T - The type of parameters expected by the fetch operation
+ * @interface IFetchInfoParams
+ *
+ * @property {function} [fallback] - Optional error handler for fetchContent failures
+ *   - @param {Error} error - The error object thrown during fetch
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - Called when fetchContent throws an exception
+ *   - Error message is automatically passed to emptyContent handler
+ *
+ * @property {function} fetchContent - Function to fetch the content/data to be provided to the AI agent
+ *   - @param {T} params - Tool call parameters (validated if validateParams was provided in addFetchInfo)
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - @returns {string | Promise<string>} Content string to return to AI as tool output
+ *
+ * @property {function} [emptyContent] - Optional function to handle when fetchContent returns empty result
+ *   - @param {string} content - The empty content from fetchContent
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - @param {string} toolName - The tool name
+ *   - @returns {string | Promise<string>} Message to commit as tool output
+ *   - @default "The tool named {toolName} is not available. Do not ever call it again"
+ *
+ * @example
+ * // Fetch user data from database with error handling
+ * const fetchUserData = createFetchInfo({
+ *   fallback: (error, clientId, agentName) => {
+ *     console.error(`Failed to fetch user data for ${clientId} (${agentName}):`, error);
+ *   },
+ *   fetchContent: async (params, clientId) => {
+ *     const user = await getUserData(params.userId);
+ *     return JSON.stringify(user);
+ *   },
+ *   emptyContent: (content) => content || "User not found",
+ * });
+ * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData", { userId: "123" }, true);
+ */
+interface IFetchInfoParams<T = Record<string, any>> {
+    /**
+     * Optional function to handle errors during fetch execution.
+     * Receives the error object, client ID, and agent name.
+     */
+    fallback?: (error: Error, clientId: string, agentName: AgentName) => void;
     /**
      * Function to fetch the content/data to be provided to the agent.
      * This is the main data retrieval logic.
      */
-    fetchContent: (clientId: string, agentName: AgentName) => string | Promise<string>;
+    fetchContent: (params: T, clientId: string, agentName: AgentName) => string | Promise<string>;
     /**
-     * Optional message or function to return when content is unavailable.
-     * Used when fetchContent returns empty/null content.
+     * Optional function to handle when fetchContent returns empty result.
+     * Returns message to commit as tool output.
      */
-    unavailableMessage?: string | ((content: string, clientId: string, agentName: AgentName, toolName: string) => string | Promise<string>);
-    /**
-     * Optional function to transform fetched content before committing.
-     * Allows preprocessing or formatting of the fetched data.
-     */
-    transformContent?: (content: string, clientId: string, agentName: AgentName) => string | Promise<string>;
+    emptyContent?: (content: string, clientId: string, agentName: AgentName, toolName: string) => string | Promise<string>;
 }
 /**
- * Creates a function to fetch and commit information for a given client and agent.
- * The factory generates a handler that fetches content, optionally transforms it,
- * emits an event, commits the output, and triggers execution if it's the last tool call.
- * Logs the operation if logging is enabled in the global configuration.
+ * Creates a fetch info handler that retrieves data for AI without modifying system state (READ pattern).
  *
- * @throws {Error} If any internal operation (e.g., fetch, commit, or execution) fails.
+ * **Execution flow:**
+ * 1. Checks if agent hasn't changed during execution
+ * 2. Calls fetchContent with parameters (wrapped in trycatch)
+ *    - If fetchContent throws: calls fallback handler (if provided) → passes error message to emptyContent → commits result
+ * 3. If content exists: commits it as tool output
+ * 4. If content is empty: calls emptyContent handler and commits result
+ * 5. If this is the last tool call (isLast): executes executeForce (always with empty message for fetch)
+ *
+ * @template T - The type of parameters expected by the fetch operation
+ * @param {IFetchInfoParams<T>} config - Configuration object
+ * @returns {function} Handler function that executes the fetch operation
+ *
+ * @throws {Error} If fetch, commit, or execution operations fail
  *
  * @example
- * // Create a fetch info handler
- * const fetchHistory = await createFetchInfo({
- *   fetchContent: async (clientId, agentName) => {
- *     return await historyService.getHistory(clientId);
+ * // Fetch conversation history with error handling
+ * const fetchHistory = createFetchInfo({
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Failed to fetch history", { error, clientId, agentName });
  *   },
- *   transformContent: (content) => `History:\n${content}`,
+ *   fetchContent: async (params, clientId, agentName) => {
+ *     const history = await historyService.getHistory(clientId);
+ *     return JSON.stringify(history);
+ *   },
+ *   emptyContent: (content) => content || "No history found",
  * });
- * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", true);
+ * // Usage: called internally by addFetchInfo
+ * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", {}, true);
  */
-declare const createFetchInfo: ({ fetchContent, unavailableMessage, transformContent, }: IFetchInfoParams) => (toolId: string, clientId: string, agentName: string, toolName: string, isLast: boolean) => Promise<void>;
+declare const createFetchInfo: <T = Record<string, any>>({ fetchContent, fallback, emptyContent, }: IFetchInfoParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, isLast: boolean) => Promise<void>;
 
 /**
  * Adds navigation functionality to an agent by creating a tool that allows navigation to a specified agent.
@@ -9886,31 +10107,193 @@ interface ITriageNavigationParams extends INavigateToTriageParams {
 declare function addTriageNavigation(params: ITriageNavigationParams): string;
 
 /**
- * Adds fetch info functionality to an agent by creating a tool that fetches and provides information.
- * @module addFetchInfo
+ * Adds commit action functionality to an agent by creating a tool that validates and executes actions.
+ * @module addCommitAction
  */
 
 /**
- * Parameters for configuring fetch info tool.
- * @interface IFetchInfoToolParams
- * @extends IFetchInfoParams
+ * Parameters for configuring commit action tool (WRITE pattern).
+ * Creates a tool that executes actions and modifies system state.
+ *
+ * @template T - The type of parameters expected by the action
+ * @interface ICommitActionToolParams
+ * @extends ICommitActionParams
+ *
+ * @property {ToolName} toolName - The name of the tool to be created
+ * @property {IAgentTool["function"]} function - Tool function schema (name, description, parameters)
+ * @property {string} [docNote] - Optional documentation note for the tool
+ * @property {IAgentTool["isAvailable"]} [isAvailable] - Optional function to determine if the tool is available
+ * @property {ICommitActionParams<T>["fallback"]} [fallback] - Optional error handler for executeAction failures (inherited from ICommitActionParams)
+ *   - Receives: (error: Error, clientId: string, agentName: AgentName)
+ *   - Called when executeAction throws an exception
+ * @property {ICommitActionParams<T>["validateParams"]} [validateParams] - Optional validation function (inherited from ICommitActionParams)
+ *   - Receives dto object: { clientId, agentName, toolCalls, params }
+ *   - Returns: error message string if invalid, null if valid
+ * @property {ICommitActionParams<T>["executeAction"]} executeAction - Function that executes the action and returns result
+ *   - Receives: (params, clientId, agentName)
+ *   - Returns: string result to commit as tool output
+ * @property {ICommitActionParams<T>["emptyContent"]} [emptyContent] - Optional handler for empty action results
+ *   - Receives: (params, clientId, agentName)
+ *   - Returns: string message to commit as tool output
+ * @property {ICommitActionParams<T>["successMessage"]} successMessage - Message to execute after successful action
+ *   - Can be string or function: (params, clientId, agentName) => string
+ * @property {ICommitActionParams<T>["failureMessage"]} [failureMessage] - Optional message to execute after validation failure
+ *   - Can be string or function: (params, clientId, agentName) => string
  */
-interface IFetchInfoToolParams extends IFetchInfoParams {
+interface ICommitActionToolParams<T = Record<string, any>> extends ICommitActionParams<T> {
     /** The name of the tool to be created. */
     toolName: ToolName;
-    /** A description of the tool's functionality. */
-    description: string | ((clientId: string, agentName: AgentName) => string | Promise<string>);
+    /** Tool function schema (name, description, parameters). */
+    function: IAgentTool["function"];
     /** Optional documentation note for the tool. */
     docNote?: string;
     /** Optional function to determine if the tool is available. */
     isAvailable?: IAgentTool["isAvailable"];
 }
 /**
- * Creates and registers a fetch info tool for an agent to retrieve and provide information.
- * @function addFetchInfo
- * @param {IFetchInfoToolParams} params - The parameters or configuration object.
+ * Creates and registers a commit action tool for AI to execute actions (WRITE pattern).
+ * This implements the WRITE side of the command pattern - AI calls tool to modify system state.
+ *
+ * **Flow:**
+ * 1. AI calls tool with parameters
+ * 2. validateParams runs (if provided) - validates parameters and returns error message or null
+ * 3. If validation fails:
+ *    - Error message is committed as tool output
+ *    - failureMessage is executed (or error message if failureMessage not provided)
+ *    - Flow stops
+ * 4. If validation passes:
+ *    - executeAction runs - performs the action
+ *    - Action result is committed as tool output (or emptyContent if result is empty)
+ *    - successMessage is executed
+ *
+ * @function addCommitAction
+ * @template T - The type of parameters expected by the action
+ * @param {ICommitActionToolParams<T>} params - Configuration object for the action tool
+ * @returns {IAgentTool} The registered agent tool schema
+ *
+ * @example
+ * // Payment action with validation, error handling and follow-up
+ * addCommitAction({
+ *   toolName: "pay_credit",
+ *   function: {
+ *     name: "pay_credit",
+ *     description: "Process credit payment",
+ *     parameters: {
+ *       type: "object",
+ *       properties: {
+ *         bank_name: { type: "string", enum: ["bank1", "bank2"] },
+ *         amount: { type: "string", description: "Amount in currency" },
+ *       },
+ *       required: ["bank_name", "amount"],
+ *     },
+ *   },
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Payment execution failed", { error, clientId, agentName });
+ *   },
+ *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
+ *     if (!params.bank_name) return "Bank name is required";
+ *     if (!params.amount) return "Amount is required";
+ *     return null; // Valid
+ *   },
+ *   executeAction: async (params, clientId) => {
+ *     await commitAppAction(clientId, "credit-payment", params);
+ *     return "Payment page opened successfully";
+ *   },
+ *   successMessage: "what is this page about",
+ *   failureMessage: "Could not process payment",
+ * });
  */
-declare function addFetchInfo(params: IFetchInfoToolParams): string;
+declare function addCommitAction<T = Record<string, any>>(params: ICommitActionToolParams<T>): string;
+
+/**
+ * Adds fetch info functionality to an agent by creating a tool that fetches and provides information.
+ * @module addFetchInfo
+ */
+
+/**
+ * Parameters for configuring fetch info tool (READ pattern).
+ * Creates a tool that fetches and returns data to the AI without modifying system state.
+ *
+ * @template T - The type of parameters expected by the fetch operation
+ * @interface IFetchInfoToolParams
+ * @extends IFetchInfoParams
+ *
+ * @property {ToolName} toolName - The name of the tool to be created
+ * @property {IAgentTool["function"]} function - Tool function schema (name, description, parameters)
+ * @property {string} [docNote] - Optional documentation note for the tool
+ * @property {IAgentTool["isAvailable"]} [isAvailable] - Optional function to determine if the tool is available
+ * @property {IFetchInfoParams<T>["fallback"]} [fallback] - Optional error handler for fetchContent failures (inherited from IFetchInfoParams)
+ *   - Receives: (error: Error, clientId: string, agentName: AgentName)
+ *   - Called when fetchContent throws an exception
+ * @property {IAgentTool<T>["validate"]} [validateParams] - Optional validation function that runs before fetchContent
+ *   - Receives dto object: { clientId, agentName, toolCalls, params }
+ *   - Returns boolean: true if valid, false if invalid (blocks tool execution)
+ * @property {IFetchInfoParams<T>["fetchContent"]} fetchContent - Function to fetch and return content to AI
+ *   - Receives: (params, clientId, agentName)
+ *   - Returns: string content or empty string
+ * @property {IFetchInfoParams<T>["emptyContent"]} [emptyContent] - Optional handler for empty fetch results
+ *   - Receives: (content, clientId, agentName, toolName)
+ *   - Returns: string message to commit as tool output
+ */
+interface IFetchInfoToolParams<T = Record<string, any>> extends IFetchInfoParams<T> {
+    /** The name of the tool to be created. */
+    toolName: ToolName;
+    /** Tool function schema (name, description, parameters). */
+    function: IAgentTool["function"];
+    /** Optional documentation note for the tool. */
+    docNote?: string;
+    /** Optional function to determine if the tool is available. */
+    isAvailable?: IAgentTool["isAvailable"];
+    /** Optional validation function that runs before fetchContent. Returns boolean (true if valid, false if invalid). */
+    validateParams?: IAgentTool<T>["validate"];
+}
+/**
+ * Creates and registers a fetch info tool for AI to retrieve data (READ pattern).
+ * This implements the READ side of the command pattern - AI calls tool to get information without modifying state.
+ *
+ * **Flow:**
+ * 1. AI calls tool with parameters
+ * 2. validateParams runs (if provided) - validates parameters structure. Returns true if valid, false if invalid
+ * 3. If validation fails (returns false), tool execution is blocked
+ * 4. If validation passes, fetchContent executes - retrieves data
+ * 5. AI receives fetched content as tool output
+ * 6. If content is empty, emptyContent handler is called
+ *
+ * @function addFetchInfo
+ * @template T - The type of parameters expected by the fetch operation
+ * @param {IFetchInfoToolParams<T>} params - Configuration object for the fetch tool
+ * @returns {IAgentTool} The registered agent tool schema
+ *
+ * @example
+ * // Fetch user data with parameter validation and error handling
+ * addFetchInfo({
+ *   toolName: "fetch_user_data",
+ *   function: {
+ *     name: "fetch_user_data",
+ *     description: "Fetch user data by user ID",
+ *     parameters: {
+ *       type: "object",
+ *       properties: {
+ *         userId: { type: "string", description: "User ID to fetch" },
+ *       },
+ *       required: ["userId"],
+ *     },
+ *   },
+ *   fallback: (error, clientId, agentName) => {
+ *     logger.error("Failed to fetch user data", { error, clientId, agentName });
+ *   },
+ *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
+ *     // Returns true if valid, false if invalid
+ *     return !!params.userId;
+ *   },
+ *   fetchContent: async (params, clientId) => {
+ *     const userData = await getUserData(params.userId);
+ *     return JSON.stringify(userData);
+ *   },
+ *   emptyContent: (content) => content || "User not found",
+ * });
+ */
+declare function addFetchInfo<T = Record<string, any>>(params: IFetchInfoToolParams<T>): string;
 
 /**
  * Adds an advisor schema to the system
@@ -13353,4 +13736,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAdvisorSchema, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IFetchInfoParams, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAdvisor, addAgent, addAgentNavigation, addCompletion, addCompute, addEmbedding, addFetchInfo, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, ask, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createFetchInfo, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAdvisor, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAdvisor, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };
+export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAdvisorSchema, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICommitActionParams, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IFetchInfoParams, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAdvisor, addAgent, addAgentNavigation, addCommitAction, addCompletion, addCompute, addEmbedding, addFetchInfo, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, ask, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createCommitAction, createFetchInfo, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAdvisor, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAdvisor, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };

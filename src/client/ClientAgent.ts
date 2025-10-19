@@ -349,6 +349,17 @@ const EXECUTE_FN = async (
       self.params.agentName
     );
     toolCalls = toolCalls.slice(-self.params.maxToolCalls);
+
+    {
+      const priorityTool = toolCalls.find((call) =>
+        swarm.navigationSchemaService.hasTool(call.function.name) ||
+        swarm.actionSchemaService.hasTool(call.function.name)
+      );
+      if (priorityTool) {
+        toolCalls = [priorityTool];
+      }
+    }
+
     await self.params.history.push({
       ...message,
       agentName: self.params.agentName,
@@ -668,6 +679,7 @@ export class ClientAgent implements IAgent {
 
   /**
    * Resolves and combines tools from the agent's parameters and MCP tool list, ensuring no duplicate tool names.
+   * Ensures only one commit action tool is present in the list.
    */
   async _resolveTools(): Promise<IAgentTool[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -706,6 +718,8 @@ export class ClientAgent implements IAgent {
     }
     const mcpToolList = await this.params.mcp.listTools(this.params.clientId);
     if (mcpToolList.length) {
+      let commitActionFound = false;
+      let navigationFound = false;
       return agentToolList
         .concat(mcpToolList.map((tool) => mapMcpToolCall(tool, this)))
         .filter(({ function: { name } }) => {
@@ -719,8 +733,27 @@ export class ClientAgent implements IAgent {
           const aStarts = swarm.navigationSchemaService.hasTool(a);
           const bStarts = swarm.navigationSchemaService.hasTool(b);
           return aStarts === bStarts ? 0 : aStarts ? -1 : 1;
+        })
+        .filter((tool) => {
+          const isNavigation = swarm.navigationSchemaService.hasTool(tool.toolName);
+          if (isNavigation) {
+            if (navigationFound) {
+              return false;
+            }
+            navigationFound = true;
+          }
+          const isCommitAction = swarm.actionSchemaService.hasTool(tool.toolName);
+          if (isCommitAction) {
+            if (commitActionFound) {
+              return false;
+            }
+            commitActionFound = true;
+          }
+          return true;
         });
     }
+    let commitActionFound = false;
+    let navigationFound = false;
     return agentToolList
       .filter(({ function: { name } }) => {
         if (!seen.has(name)) {
@@ -730,9 +763,26 @@ export class ClientAgent implements IAgent {
         return false;
       })
       .sort(({ function: { name: a } }, { function: { name: b } }) => {
-        const aStarts = a.startsWith("navigate_to_");
-        const bStarts = b.startsWith("navigate_to_");
-        return aStarts === bStarts ? 0 : aStarts ? 1 : -1;
+        const aStarts = swarm.navigationSchemaService.hasTool(a);
+        const bStarts = swarm.navigationSchemaService.hasTool(b);
+        return aStarts === bStarts ? 0 : aStarts ? -1 : 1;
+      })
+      .filter((tool) => {
+        const isNavigation = swarm.navigationSchemaService.hasTool(tool.toolName);
+        if (isNavigation) {
+          if (navigationFound) {
+            return false;
+          }
+          navigationFound = true;
+        }
+        const isCommitAction = swarm.actionSchemaService.hasTool(tool.toolName);
+        if (isCommitAction) {
+          if (commitActionFound) {
+            return false;
+          }
+          commitActionFound = true;
+        }
+        return true;
       });
   }
 
