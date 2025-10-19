@@ -12,7 +12,6 @@ import {
   ICommitActionParams,
 } from "../../template/createCommitAction";
 import { addTool } from "../setup/addTool";
-import { ITool } from "../../model/Tool.model";
 
 const METHOD_NAME = "function.alias.addCommitAction";
 
@@ -26,16 +25,12 @@ interface ICommitActionToolParams<T = Record<string, any>>
   extends ICommitActionParams<T> {
   /** The name of the tool to be created. */
   toolName: ToolName;
-  /** A description of the tool's functionality. */
-  description: string;
-  /** Tool function schema defining parameters and their validation. */
-  functionSchema: Omit<ITool["function"], "name"> | ((clientId: string, agentName: AgentName) => Omit<ITool["function"], "name"> | Promise<Omit<ITool["function"], "name">>);
+  /** Tool function schema. */
+  function: IAgentTool["function"];
   /** Optional documentation note for the tool. */
   docNote?: string;
   /** Optional function to determine if the tool is available. */
   isAvailable?: IAgentTool["isAvailable"];
-  /** Optional custom validation function that runs before tool execution. */
-  validate?: IAgentTool<T>["validate"];
 }
 
 /**
@@ -45,10 +40,8 @@ const addCommitActionInternal = beginContext(
   <T = Record<string, any>>({
     toolName,
     docNote,
-    description,
-    functionSchema,
+    function: functionSchema,
     isAvailable,
-    validate,
     ...actionProps
   }: ICommitActionToolParams<T>) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
@@ -59,22 +52,12 @@ const addCommitActionInternal = beginContext(
       toolName,
       docNote,
       isAvailable,
-      validate,
+      validate: () => true,
       call: async ({ toolId, clientId, agentName, toolName, params, isLast }) => {
         await action(toolId, clientId, agentName, toolName, params, isLast);
       },
       type: "function",
-      function: async (clientId: string, agentName: AgentName) => {
-        const resolvedSchema = typeof functionSchema === "function"
-          ? await functionSchema(clientId, agentName)
-          : functionSchema;
-
-        return {
-          name: toolName,
-          description,
-          ...resolvedSchema,
-        };
-      },
+      function: functionSchema,
     });
 
     swarm.actionSchemaService.register(toolName);
@@ -93,8 +76,9 @@ const addCommitActionInternal = beginContext(
  * // Add a payment tool with validation
  * addCommitAction({
  *   toolName: "pay_credit",
- *   description: "Process credit payment",
- *   functionSchema: {
+ *   function: {
+ *     name: "pay_credit",
+ *     description: "Process credit payment",
  *     parameters: {
  *       type: "object",
  *       properties: {

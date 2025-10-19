@@ -17,7 +17,7 @@ const METHOD_NAME = "function.template.commitAction";
  * @interface ICommitActionParams
  * @property {(params: T, clientId: string, agentName: AgentName) => string | null | Promise<string | null>} [validateParams] - Optional function to validate action parameters. Returns error message string if validation fails, null if valid.
  * @property {(params: T, clientId: string, agentName: AgentName) => string | Promise<string>} executeAction - Function to execute the actual action (e.g., commitAppAction). Called only when parameters are valid and isLast is true. Returns result string to commit as tool output, or empty string if action produced no result.
- * @property {string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>)} [unavailableMessage] - Optional message to commit when executeAction returns empty result.
+ * @property {(params: T, clientId: string, agentName: AgentName) => string | Promise<string>} [emptyContent] - Optional function to handle when executeAction returns empty result. Returns message to commit as tool output.
  * @property {string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>)} successMessage - Message to execute using executeForce after successful action execution.
  * @property {string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>)} [failureMessage] - Optional message to execute using executeForce when validation fails.
  *
@@ -60,11 +60,10 @@ export interface ICommitActionParams<T = Record<string, any>> {
   ) => string | Promise<string>;
 
   /**
-   * Optional message to commit when executeAction returns empty result.
+   * Optional function to handle when executeAction returns empty result.
+   * Returns message to commit as tool output.
    */
-  unavailableMessage?:
-    | string
-    | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>);
+  emptyContent?: (params: T, clientId: string, agentName: AgentName) => string | Promise<string>;
 
   /**
    * Message to execute using executeForce after successful action execution.
@@ -107,7 +106,7 @@ export interface ICommitActionParams<T = Record<string, any>> {
 export const createCommitAction = <T = Record<string, any>>({
   validateParams,
   executeAction,
-  unavailableMessage,
+  emptyContent,
   successMessage,
   failureMessage,
 }: ICommitActionParams<T>) => {
@@ -167,6 +166,11 @@ export const createCommitAction = <T = Record<string, any>>({
                 ? failureMessage
                 : await failureMessage(params, clientId, agentName);
           }
+
+          if (!failureMessage) {
+            executeMessage = errorMessage;
+          }
+
           if (isLast) {
             await executeForce(executeMessage, clientId);
           }
@@ -181,10 +185,8 @@ export const createCommitAction = <T = Record<string, any>>({
       if (actionResult) {
         await commitToolOutput(toolId, actionResult, clientId, agentName);
       } else {
-        const message = unavailableMessage
-          ? typeof unavailableMessage === "string"
-            ? unavailableMessage
-            : await unavailableMessage(params, clientId, agentName)
+        const message = emptyContent
+          ? await emptyContent(params, clientId, agentName)
           : "Action executed but produced no result";
         await commitToolOutput(toolId, message, clientId, agentName);
       }

@@ -12,45 +12,45 @@ const METHOD_NAME = "function.template.fetchInfo";
  * Configuration parameters for creating a fetch info handler.
  * Defines the data fetching logic and optional content transformation.
  *
+ * @template T - The type of parameters expected by the fetch operation
  * @interface IFetchInfoParams
- * @property {(clientId: string, agentName: AgentName) => string | Promise<string>} fetchContent - Function to fetch the content/data to be provided to the agent. Receives client ID and agent name, returns content string or promise of string.
- * @property {string | ((content: string, clientId: string, agentName: AgentName) => string | Promise<string>)} [unavailableMessage] - Optional message or function to return when content is unavailable. If a function, receives the empty content, client ID, and agent name. Defaults to a generic unavailable message.
+ * @property {(params: T, clientId: string, agentName: AgentName) => string | Promise<string>} fetchContent - Function to fetch the content/data to be provided to the agent. Receives params, client ID and agent name, returns content string or promise of string.
+ * @property {(content: string, clientId: string, agentName: AgentName, toolName: string) => string | Promise<string>} [emptyContent] - Optional function to handle when fetchContent returns empty result. Returns message to commit as tool output.
  *
  * @example
  * // Create a fetch info handler
  * const fetchUserData = await createFetchInfo({
- *   fetchContent: async (clientId) => await getUserData(clientId),
+ *   fetchContent: async (params, clientId) => await getUserData(params.userId),
  * });
- * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData");
+ * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData", { userId: "123" }, true);
  */
-export interface IFetchInfoParams {
+export interface IFetchInfoParams<T = Record<string, any>> {
   /**
    * Function to fetch the content/data to be provided to the agent.
    * This is the main data retrieval logic.
    */
   fetchContent: (
+    params: T,
     clientId: string,
     agentName: AgentName
   ) => string | Promise<string>;
 
   /**
-   * Optional message or function to return when content is unavailable.
-   * Used when fetchContent returns empty/null content.
+   * Optional function to handle when fetchContent returns empty result.
+   * Returns message to commit as tool output.
    */
-  unavailableMessage?:
-    | string
-    | ((
-        content: string,
-        clientId: string,
-        agentName: AgentName,
-        toolName: string
-      ) => string | Promise<string>);
+  emptyContent?: (
+    content: string,
+    clientId: string,
+    agentName: AgentName,
+    toolName: string
+  ) => string | Promise<string>;
 }
 
 /**
- * Default message when content is unavailable.
+ * Default message when content is empty.
  */
-const DEFAULT_UNAVAILABLE_MESSAGE = (
+const DEFAULT_EMPTY_CONTENT_MESSAGE = (
   _content: string,
   _clientId: string,
   _agentName: AgentName,
@@ -68,16 +68,16 @@ const DEFAULT_UNAVAILABLE_MESSAGE = (
  * @example
  * // Create a fetch info handler
  * const fetchHistory = await createFetchInfo({
- *   fetchContent: async (clientId, agentName) => {
+ *   fetchContent: async (params, clientId, agentName) => {
  *     return await historyService.getHistory(clientId);
  *   },
  * });
- * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", true);
+ * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", {}, true);
  */
-export const createFetchInfo = ({
+export const createFetchInfo = <T = Record<string, any>>({
   fetchContent,
-  unavailableMessage = DEFAULT_UNAVAILABLE_MESSAGE,
-}: IFetchInfoParams) => {
+  emptyContent = DEFAULT_EMPTY_CONTENT_MESSAGE,
+}: IFetchInfoParams<T>) => {
   /**
    * Fetches information and commits it as tool output for a given client and agent.
    *
@@ -89,6 +89,7 @@ export const createFetchInfo = ({
       clientId: string,
       agentName: AgentName,
       toolName: string,
+      params: T,
       isLast: boolean
     ) => {
       let executeMessage = "";
@@ -99,6 +100,7 @@ export const createFetchInfo = ({
           toolId,
           agentName,
           toolName,
+          params,
           isLast,
         });
 
@@ -119,15 +121,12 @@ export const createFetchInfo = ({
         return;
       }
 
-      const content = await fetchContent(clientId, agentName);
+      const content = await fetchContent(params, clientId, agentName);
 
       if (content) {
         await commitToolOutputForce(toolId, content, clientId);
       } else {
-        const message =
-          typeof unavailableMessage === "string"
-            ? unavailableMessage
-            : await unavailableMessage(content, clientId, agentName, toolName);
+        const message = await emptyContent(content, clientId, agentName, toolName);
         await commitToolOutputForce(toolId, message, clientId);
       }
 

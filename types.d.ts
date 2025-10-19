@@ -9825,7 +9825,7 @@ declare const createNavigateToAgent: ({ beforeNavigate, lastMessage: lastMessage
  * @interface ICommitActionParams
  * @property {(params: T, clientId: string, agentName: AgentName) => string | null | Promise<string | null>} [validateParams] - Optional function to validate action parameters. Returns error message string if validation fails, null if valid.
  * @property {(params: T, clientId: string, agentName: AgentName) => string | Promise<string>} executeAction - Function to execute the actual action (e.g., commitAppAction). Called only when parameters are valid and isLast is true. Returns result string to commit as tool output, or empty string if action produced no result.
- * @property {string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>)} [unavailableMessage] - Optional message to commit when executeAction returns empty result.
+ * @property {(params: T, clientId: string, agentName: AgentName) => string | Promise<string>} [emptyContent] - Optional function to handle when executeAction returns empty result. Returns message to commit as tool output.
  * @property {string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>)} successMessage - Message to execute using executeForce after successful action execution.
  * @property {string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>)} [failureMessage] - Optional message to execute using executeForce when validation fails.
  *
@@ -9858,9 +9858,10 @@ interface ICommitActionParams<T = Record<string, any>> {
      */
     executeAction: (params: T, clientId: string, agentName: AgentName) => string | Promise<string>;
     /**
-     * Optional message to commit when executeAction returns empty result.
+     * Optional function to handle when executeAction returns empty result.
+     * Returns message to commit as tool output.
      */
-    unavailableMessage?: string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>);
+    emptyContent?: (params: T, clientId: string, agentName: AgentName) => string | Promise<string>;
     /**
      * Message to execute using executeForce after successful action execution.
      */
@@ -9893,34 +9894,35 @@ interface ICommitActionParams<T = Record<string, any>> {
  * });
  * await handlePayment("tool-123", "client-456", "PaymentAgent", { amount: 100 }, true);
  */
-declare const createCommitAction: <T = Record<string, any>>({ validateParams, executeAction, unavailableMessage, successMessage, failureMessage, }: ICommitActionParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, isLast: boolean) => Promise<void>;
+declare const createCommitAction: <T = Record<string, any>>({ validateParams, executeAction, emptyContent, successMessage, failureMessage, }: ICommitActionParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, isLast: boolean) => Promise<void>;
 
 /**
  * Configuration parameters for creating a fetch info handler.
  * Defines the data fetching logic and optional content transformation.
  *
+ * @template T - The type of parameters expected by the fetch operation
  * @interface IFetchInfoParams
- * @property {(clientId: string, agentName: AgentName) => string | Promise<string>} fetchContent - Function to fetch the content/data to be provided to the agent. Receives client ID and agent name, returns content string or promise of string.
- * @property {string | ((content: string, clientId: string, agentName: AgentName) => string | Promise<string>)} [unavailableMessage] - Optional message or function to return when content is unavailable. If a function, receives the empty content, client ID, and agent name. Defaults to a generic unavailable message.
+ * @property {(params: T, clientId: string, agentName: AgentName) => string | Promise<string>} fetchContent - Function to fetch the content/data to be provided to the agent. Receives params, client ID and agent name, returns content string or promise of string.
+ * @property {(content: string, clientId: string, agentName: AgentName, toolName: string) => string | Promise<string>} [emptyContent] - Optional function to handle when fetchContent returns empty result. Returns message to commit as tool output.
  *
  * @example
  * // Create a fetch info handler
  * const fetchUserData = await createFetchInfo({
- *   fetchContent: async (clientId) => await getUserData(clientId),
+ *   fetchContent: async (params, clientId) => await getUserData(params.userId),
  * });
- * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData");
+ * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData", { userId: "123" }, true);
  */
-interface IFetchInfoParams {
+interface IFetchInfoParams<T = Record<string, any>> {
     /**
      * Function to fetch the content/data to be provided to the agent.
      * This is the main data retrieval logic.
      */
-    fetchContent: (clientId: string, agentName: AgentName) => string | Promise<string>;
+    fetchContent: (params: T, clientId: string, agentName: AgentName) => string | Promise<string>;
     /**
-     * Optional message or function to return when content is unavailable.
-     * Used when fetchContent returns empty/null content.
+     * Optional function to handle when fetchContent returns empty result.
+     * Returns message to commit as tool output.
      */
-    unavailableMessage?: string | ((content: string, clientId: string, agentName: AgentName, toolName: string) => string | Promise<string>);
+    emptyContent?: (content: string, clientId: string, agentName: AgentName, toolName: string) => string | Promise<string>;
 }
 /**
  * Creates a function to fetch and commit information for a given client and agent.
@@ -9933,13 +9935,13 @@ interface IFetchInfoParams {
  * @example
  * // Create a fetch info handler
  * const fetchHistory = await createFetchInfo({
- *   fetchContent: async (clientId, agentName) => {
+ *   fetchContent: async (params, clientId, agentName) => {
  *     return await historyService.getHistory(clientId);
  *   },
  * });
- * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", true);
+ * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", {}, true);
  */
-declare const createFetchInfo: ({ fetchContent, unavailableMessage, }: IFetchInfoParams) => (toolId: string, clientId: string, agentName: string, toolName: string, isLast: boolean) => Promise<void>;
+declare const createFetchInfo: <T = Record<string, any>>({ fetchContent, emptyContent, }: IFetchInfoParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, isLast: boolean) => Promise<void>;
 
 /**
  * Adds navigation functionality to an agent by creating a tool that allows navigation to a specified agent.
@@ -10011,16 +10013,12 @@ declare function addTriageNavigation(params: ITriageNavigationParams): string;
 interface ICommitActionToolParams<T = Record<string, any>> extends ICommitActionParams<T> {
     /** The name of the tool to be created. */
     toolName: ToolName;
-    /** A description of the tool's functionality. */
-    description: string;
-    /** Tool function schema defining parameters and their validation. */
-    functionSchema: Omit<ITool["function"], "name"> | ((clientId: string, agentName: AgentName) => Omit<ITool["function"], "name"> | Promise<Omit<ITool["function"], "name">>);
+    /** Tool function schema. */
+    function: IAgentTool["function"];
     /** Optional documentation note for the tool. */
     docNote?: string;
     /** Optional function to determine if the tool is available. */
     isAvailable?: IAgentTool["isAvailable"];
-    /** Optional custom validation function that runs before tool execution. */
-    validate?: IAgentTool<T>["validate"];
 }
 /**
  * Creates and registers a commit action tool for an agent to validate and execute actions.
@@ -10032,8 +10030,9 @@ interface ICommitActionToolParams<T = Record<string, any>> extends ICommitAction
  * // Add a payment tool with validation
  * addCommitAction({
  *   toolName: "pay_credit",
- *   description: "Process credit payment",
- *   functionSchema: {
+ *   function: {
+ *     name: "pay_credit",
+ *     description: "Process credit payment",
  *     parameters: {
  *       type: "object",
  *       properties: {
@@ -10065,25 +10064,53 @@ declare function addCommitAction<T = Record<string, any>>(params: ICommitActionT
 
 /**
  * Parameters for configuring fetch info tool.
+ * @template T - The type of parameters expected by the fetch operation
  * @interface IFetchInfoToolParams
  * @extends IFetchInfoParams
  */
-interface IFetchInfoToolParams extends IFetchInfoParams {
+interface IFetchInfoToolParams<T = Record<string, any>> extends IFetchInfoParams<T> {
     /** The name of the tool to be created. */
     toolName: ToolName;
-    /** A description of the tool's functionality. */
-    description: string | ((clientId: string, agentName: AgentName) => string | Promise<string>);
+    /** Tool function schema. */
+    function: IAgentTool["function"];
     /** Optional documentation note for the tool. */
     docNote?: string;
     /** Optional function to determine if the tool is available. */
     isAvailable?: IAgentTool["isAvailable"];
+    /** Optional custom validation function that runs before tool execution. */
+    validateParams?: IAgentTool<T>["validate"];
 }
 /**
  * Creates and registers a fetch info tool for an agent to retrieve and provide information.
  * @function addFetchInfo
- * @param {IFetchInfoToolParams} params - The parameters or configuration object.
+ * @template T - The type of parameters expected by the fetch operation
+ * @param {IFetchInfoToolParams<T>} params - The parameters or configuration object.
+ *
+ * @example
+ * // Add a user data fetch tool with validation
+ * addFetchInfo({
+ *   toolName: "fetch_user_data",
+ *   function: {
+ *     name: "fetch_user_data",
+ *     description: "Fetch user data by user ID",
+ *     parameters: {
+ *       type: "object",
+ *       properties: {
+ *         userId: { type: "string", description: "User ID to fetch data for" },
+ *       },
+ *       required: ["userId"],
+ *     },
+ *   },
+ *   validateParams: async (params) => {
+ *     if (!params.userId) return false;
+ *     return true;
+ *   },
+ *   fetchContent: async (params, clientId) => {
+ *     return await getUserData(params.userId);
+ *   },
+ * });
  */
-declare function addFetchInfo(params: IFetchInfoToolParams): string;
+declare function addFetchInfo<T = Record<string, any>>(params: IFetchInfoToolParams<T>): string;
 
 /**
  * Adds an advisor schema to the system
