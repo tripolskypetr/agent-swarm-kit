@@ -10,6 +10,15 @@ Defines the data fetching logic without modifying system state.
 
 ## Properties
 
+### fallback
+
+```ts
+fallback: (error: Error, clientId: string, agentName: string) => void
+```
+
+Optional function to handle errors during fetch execution.
+Receives the error object, client ID, and agent name.
+
 ### fetchContent
 
 ```ts

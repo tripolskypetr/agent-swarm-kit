@@ -10,6 +10,15 @@ Defines validation, action execution, and response messages for state-modifying 
 
 ## Properties
 
+### fallback
+
+```ts
+fallback: (error: Error, clientId: string, agentName: string) => void
+```
+
+Optional function to handle errors during action execution.
+Receives the error object, client ID, and agent name.
+
 ### validateParams
 
 ```ts
