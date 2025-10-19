@@ -9,18 +9,34 @@ import { getAgentName } from "../functions/common/getAgentName";
 const METHOD_NAME = "function.template.fetchInfo";
 
 /**
- * Configuration parameters for creating a fetch info handler.
- * Defines the data fetching logic and optional content transformation.
+ * Configuration parameters for creating a fetch info handler (READ pattern).
+ * Defines the data fetching logic without modifying system state.
  *
  * @template T - The type of parameters expected by the fetch operation
  * @interface IFetchInfoParams
- * @property {(params: T, clientId: string, agentName: AgentName) => string | Promise<string>} fetchContent - Function to fetch the content/data to be provided to the agent. Receives params, client ID and agent name, returns content string or promise of string.
- * @property {(content: string, clientId: string, agentName: AgentName, toolName: string) => string | Promise<string>} [emptyContent] - Optional function to handle when fetchContent returns empty result. Returns message to commit as tool output.
+ *
+ * @property {function} fetchContent - Function to fetch the content/data to be provided to the AI agent
+ *   - @param {T} params - Tool call parameters (validated if validateParams was provided in addFetchInfo)
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - @returns {string | Promise<string>} Content string to return to AI as tool output
+ *
+ * @property {function} [emptyContent] - Optional function to handle when fetchContent returns empty result
+ *   - @param {string} content - The empty content from fetchContent
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - @param {string} toolName - The tool name
+ *   - @returns {string | Promise<string>} Message to commit as tool output
+ *   - @default "The tool named {toolName} is not available. Do not ever call it again"
  *
  * @example
- * // Create a fetch info handler
- * const fetchUserData = await createFetchInfo({
- *   fetchContent: async (params, clientId) => await getUserData(params.userId),
+ * // Fetch user data from database
+ * const fetchUserData = createFetchInfo({
+ *   fetchContent: async (params, clientId) => {
+ *     const user = await getUserData(params.userId);
+ *     return JSON.stringify(user);
+ *   },
+ *   emptyContent: () => "User not found",
  * });
  * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData", { userId: "123" }, true);
  */
@@ -58,20 +74,31 @@ const DEFAULT_EMPTY_CONTENT_MESSAGE = (
 ) => `The tool named ${toolName} is not available. Do not ever call it again`;
 
 /**
- * Creates a function to fetch and commit information for a given client and agent.
- * The factory generates a handler that fetches content, commits the output,
- * and triggers execution if it's the last tool call.
- * Logs the operation if logging is enabled in the global configuration.
+ * Creates a fetch info handler that retrieves data for AI without modifying system state (READ pattern).
  *
- * @throws {Error} If any internal operation (e.g., fetch, commit, or execution) fails.
+ * **Execution flow:**
+ * 1. Checks if agent hasn't changed during execution
+ * 2. Calls fetchContent with parameters
+ * 3. If content exists: commits it as tool output
+ * 4. If content is empty: calls emptyContent handler and commits result
+ * 5. If this is the last tool call (isLast): executes executeForce (always with empty message for fetch)
+ *
+ * @template T - The type of parameters expected by the fetch operation
+ * @param {IFetchInfoParams<T>} config - Configuration object
+ * @returns {function} Handler function that executes the fetch operation
+ *
+ * @throws {Error} If fetch, commit, or execution operations fail
  *
  * @example
- * // Create a fetch info handler
- * const fetchHistory = await createFetchInfo({
+ * // Fetch conversation history
+ * const fetchHistory = createFetchInfo({
  *   fetchContent: async (params, clientId, agentName) => {
- *     return await historyService.getHistory(clientId);
+ *     const history = await historyService.getHistory(clientId);
+ *     return JSON.stringify(history);
  *   },
+ *   emptyContent: () => "No history found",
  * });
+ * // Usage: called internally by addFetchInfo
  * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", {}, true);
  */
 export const createFetchInfo = <T = Record<string, any>>({

@@ -9818,24 +9818,49 @@ interface INavigateToAgentParams {
 declare const createNavigateToAgent: ({ beforeNavigate, lastMessage: lastMessageFn, executeMessage, emitMessage, flushMessage, toolOutput, }: INavigateToAgentParams) => (toolId: string, clientId: string, agentName: string) => Promise<void>;
 
 /**
- * Configuration parameters for creating a commit action handler.
- * Defines validation, action execution, and response messages.
+ * Configuration parameters for creating a commit action handler (WRITE pattern).
+ * Defines validation, action execution, and response messages for state-modifying operations.
  *
  * @template T - The type of parameters expected by the action
  * @interface ICommitActionParams
- * @property {(params: T, clientId: string, agentName: AgentName) => string | null | Promise<string | null>} [validateParams] - Optional function to validate action parameters. Returns error message string if validation fails, null if valid.
- * @property {(params: T, clientId: string, agentName: AgentName) => string | Promise<string>} executeAction - Function to execute the actual action (e.g., commitAppAction). Called only when parameters are valid and isLast is true. Returns result string to commit as tool output, or empty string if action produced no result.
- * @property {(params: T, clientId: string, agentName: AgentName) => string | Promise<string>} [emptyContent] - Optional function to handle when executeAction returns empty result. Returns message to commit as tool output.
- * @property {string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>)} successMessage - Message to execute using executeForce after successful action execution.
- * @property {string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>)} [failureMessage] - Optional message to execute using executeForce when validation fails.
+ *
+ * @property {function} [validateParams] - Optional function to validate action parameters
+ *   - @param {object} dto - Validation context object
+ *   - @param {string} dto.clientId - The client identifier
+ *   - @param {AgentName} dto.agentName - The name of the current agent
+ *   - @param {IToolCall[]} dto.toolCalls - Array of tool calls in current execution
+ *   - @param {T} dto.params - Tool call parameters
+ *   - @returns {string | null | Promise<string | null>} Error message if validation fails, null if valid
+ *
+ * @property {function} executeAction - Function to execute the actual action (e.g., commitAppAction)
+ *   - @param {T} params - Tool call parameters (validated if validateParams was provided)
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - @returns {string | Promise<string>} Result string to commit as tool output (empty string if action produced no result)
+ *
+ * @property {function} [emptyContent] - Optional function to handle when executeAction returns empty result
+ *   - @param {T} params - Tool call parameters
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - @returns {string | Promise<string>} Message to commit as tool output
+ *   - @default "Action executed but produced no result"
+ *
+ * @property {string | function} successMessage - Message to execute using executeForce after successful action
+ *   - Can be static string or function that returns string
+ *   - If function: receives (params, clientId, agentName) as arguments
+ *
+ * @property {string | function} [failureMessage] - Optional message to execute using executeForce when validation fails
+ *   - Can be static string or function that returns string
+ *   - If function: receives (params, clientId, agentName) as arguments
+ *   - If not provided: uses the validation error message instead
  *
  * @example
- * // Create a payment action handler with validation
+ * // Payment action with validation
  * const paymentAction = createCommitAction({
- *   validateParams: async (params) => {
+ *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
  *     if (!params.bank_name) return "Bank name is required";
  *     if (!params.amount) return "Amount is required";
- *     return null;
+ *     return null; // Valid
  *   },
  *   executeAction: async (params, clientId) => {
  *     await commitAppAction(clientId, "credit-payment", params);
@@ -9850,7 +9875,12 @@ interface ICommitActionParams<T = Record<string, any>> {
      * Optional function to validate action parameters.
      * Returns error message string if validation fails, null if valid.
      */
-    validateParams?: (params: T, clientId: string, agentName: AgentName) => string | null | Promise<string | null>;
+    validateParams?: (dto: {
+        clientId: string;
+        agentName: AgentName;
+        toolCalls: IToolCall[];
+        params: T;
+    }) => string | null | Promise<string | null>;
     /**
      * Function to execute the actual action (e.g., commitAppAction).
      * Called only when parameters are valid and isLast is true.
@@ -9872,17 +9902,26 @@ interface ICommitActionParams<T = Record<string, any>> {
     failureMessage?: string | ((params: T, clientId: string, agentName: AgentName) => string | Promise<string>);
 }
 /**
- * Creates a function to validate parameters, execute an action, and commit appropriate responses.
- * The factory generates a handler that validates parameters, executes the action if valid,
- * commits tool outputs, and optionally triggers follow-up execution.
- * Logs the operation if logging is enabled in the global configuration.
+ * Creates a commit action handler that executes actions and modifies system state (WRITE pattern).
  *
- * @throws {Error} If validation, action execution, commit, or execution operations fail.
+ * **Execution flow:**
+ * 1. Checks if agent hasn't changed during execution
+ * 2. If validateParams provided: validates parameters
+ *    - If invalid: commits error message → executes failureMessage (or error message) → stops
+ * 3. Calls executeAction to perform the action
+ * 4. Commits action result (or emptyContent if result is empty)
+ * 5. Executes successMessage via executeForce
+ *
+ * @template T - The type of parameters expected by the action
+ * @param {ICommitActionParams<T>} config - Configuration object
+ * @returns {function} Handler function that executes the action with validation
+ *
+ * @throws {Error} If validation, action execution, commit, or execution operations fail
  *
  * @example
- * // Create a payment action handler
+ * // Create payment handler
  * const handlePayment = createCommitAction({
- *   validateParams: async (params) => {
+ *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
  *     if (!params.amount) return "Amount is required";
  *     return null;
  *   },
@@ -9890,25 +9929,44 @@ interface ICommitActionParams<T = Record<string, any>> {
  *     await commitAppAction(clientId, "payment", params);
  *     return "Payment processed successfully";
  *   },
+ *   emptyContent: () => "Payment failed - no result",
  *   successMessage: "Check your balance",
+ *   failureMessage: "Payment validation failed",
  * });
- * await handlePayment("tool-123", "client-456", "PaymentAgent", { amount: 100 }, true);
+ * // Usage: called internally by addCommitAction
+ * await handlePayment("tool-123", "client-456", "PaymentAgent", "pay", { amount: 100 }, [], true);
  */
-declare const createCommitAction: <T = Record<string, any>>({ validateParams, executeAction, emptyContent, successMessage, failureMessage, }: ICommitActionParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, isLast: boolean) => Promise<void>;
+declare const createCommitAction: <T = Record<string, any>>({ validateParams, executeAction, emptyContent, successMessage, failureMessage, }: ICommitActionParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, toolCalls: IToolCall[], isLast: boolean) => Promise<void>;
 
 /**
- * Configuration parameters for creating a fetch info handler.
- * Defines the data fetching logic and optional content transformation.
+ * Configuration parameters for creating a fetch info handler (READ pattern).
+ * Defines the data fetching logic without modifying system state.
  *
  * @template T - The type of parameters expected by the fetch operation
  * @interface IFetchInfoParams
- * @property {(params: T, clientId: string, agentName: AgentName) => string | Promise<string>} fetchContent - Function to fetch the content/data to be provided to the agent. Receives params, client ID and agent name, returns content string or promise of string.
- * @property {(content: string, clientId: string, agentName: AgentName, toolName: string) => string | Promise<string>} [emptyContent] - Optional function to handle when fetchContent returns empty result. Returns message to commit as tool output.
+ *
+ * @property {function} fetchContent - Function to fetch the content/data to be provided to the AI agent
+ *   - @param {T} params - Tool call parameters (validated if validateParams was provided in addFetchInfo)
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - @returns {string | Promise<string>} Content string to return to AI as tool output
+ *
+ * @property {function} [emptyContent] - Optional function to handle when fetchContent returns empty result
+ *   - @param {string} content - The empty content from fetchContent
+ *   - @param {string} clientId - The client identifier
+ *   - @param {AgentName} agentName - The name of the current agent
+ *   - @param {string} toolName - The tool name
+ *   - @returns {string | Promise<string>} Message to commit as tool output
+ *   - @default "The tool named {toolName} is not available. Do not ever call it again"
  *
  * @example
- * // Create a fetch info handler
- * const fetchUserData = await createFetchInfo({
- *   fetchContent: async (params, clientId) => await getUserData(params.userId),
+ * // Fetch user data from database
+ * const fetchUserData = createFetchInfo({
+ *   fetchContent: async (params, clientId) => {
+ *     const user = await getUserData(params.userId);
+ *     return JSON.stringify(user);
+ *   },
+ *   emptyContent: () => "User not found",
  * });
  * await fetchUserData("tool-123", "client-456", "UserAgent", "FetchUserData", { userId: "123" }, true);
  */
@@ -9925,20 +9983,31 @@ interface IFetchInfoParams<T = Record<string, any>> {
     emptyContent?: (content: string, clientId: string, agentName: AgentName, toolName: string) => string | Promise<string>;
 }
 /**
- * Creates a function to fetch and commit information for a given client and agent.
- * The factory generates a handler that fetches content, commits the output,
- * and triggers execution if it's the last tool call.
- * Logs the operation if logging is enabled in the global configuration.
+ * Creates a fetch info handler that retrieves data for AI without modifying system state (READ pattern).
  *
- * @throws {Error} If any internal operation (e.g., fetch, commit, or execution) fails.
+ * **Execution flow:**
+ * 1. Checks if agent hasn't changed during execution
+ * 2. Calls fetchContent with parameters
+ * 3. If content exists: commits it as tool output
+ * 4. If content is empty: calls emptyContent handler and commits result
+ * 5. If this is the last tool call (isLast): executes executeForce (always with empty message for fetch)
+ *
+ * @template T - The type of parameters expected by the fetch operation
+ * @param {IFetchInfoParams<T>} config - Configuration object
+ * @returns {function} Handler function that executes the fetch operation
+ *
+ * @throws {Error} If fetch, commit, or execution operations fail
  *
  * @example
- * // Create a fetch info handler
- * const fetchHistory = await createFetchInfo({
+ * // Fetch conversation history
+ * const fetchHistory = createFetchInfo({
  *   fetchContent: async (params, clientId, agentName) => {
- *     return await historyService.getHistory(clientId);
+ *     const history = await historyService.getHistory(clientId);
+ *     return JSON.stringify(history);
  *   },
+ *   emptyContent: () => "No history found",
  * });
+ * // Usage: called internally by addFetchInfo
  * await fetchHistory("tool-789", "client-012", "HistoryAgent", "FetchHistory", {}, true);
  */
 declare const createFetchInfo: <T = Record<string, any>>({ fetchContent, emptyContent, }: IFetchInfoParams<T>) => (toolId: string, clientId: string, agentName: string, toolName: string, params: T, isLast: boolean) => Promise<void>;
@@ -10005,15 +10074,35 @@ declare function addTriageNavigation(params: ITriageNavigationParams): string;
  */
 
 /**
- * Parameters for configuring commit action tool.
+ * Parameters for configuring commit action tool (WRITE pattern).
+ * Creates a tool that executes actions and modifies system state.
+ *
  * @template T - The type of parameters expected by the action
  * @interface ICommitActionToolParams
  * @extends ICommitActionParams
+ *
+ * @property {ToolName} toolName - The name of the tool to be created
+ * @property {IAgentTool["function"]} function - Tool function schema (name, description, parameters)
+ * @property {string} [docNote] - Optional documentation note for the tool
+ * @property {IAgentTool["isAvailable"]} [isAvailable] - Optional function to determine if the tool is available
+ * @property {ICommitActionParams<T>["validateParams"]} [validateParams] - Optional validation function (inherited from ICommitActionParams)
+ *   - Receives dto object: { clientId, agentName, toolCalls, params }
+ *   - Returns: error message string if invalid, null if valid
+ * @property {ICommitActionParams<T>["executeAction"]} executeAction - Function that executes the action and returns result
+ *   - Receives: (params, clientId, agentName)
+ *   - Returns: string result to commit as tool output
+ * @property {ICommitActionParams<T>["emptyContent"]} [emptyContent] - Optional handler for empty action results
+ *   - Receives: (params, clientId, agentName)
+ *   - Returns: string message to commit as tool output
+ * @property {ICommitActionParams<T>["successMessage"]} successMessage - Message to execute after successful action
+ *   - Can be string or function: (params, clientId, agentName) => string
+ * @property {ICommitActionParams<T>["failureMessage"]} [failureMessage] - Optional message to execute after validation failure
+ *   - Can be string or function: (params, clientId, agentName) => string
  */
 interface ICommitActionToolParams<T = Record<string, any>> extends ICommitActionParams<T> {
     /** The name of the tool to be created. */
     toolName: ToolName;
-    /** Tool function schema. */
+    /** Tool function schema (name, description, parameters). */
     function: IAgentTool["function"];
     /** Optional documentation note for the tool. */
     docNote?: string;
@@ -10021,13 +10110,28 @@ interface ICommitActionToolParams<T = Record<string, any>> extends ICommitAction
     isAvailable?: IAgentTool["isAvailable"];
 }
 /**
- * Creates and registers a commit action tool for an agent to validate and execute actions.
+ * Creates and registers a commit action tool for AI to execute actions (WRITE pattern).
+ * This implements the WRITE side of the command pattern - AI calls tool to modify system state.
+ *
+ * **Flow:**
+ * 1. AI calls tool with parameters
+ * 2. validateParams runs (if provided) - validates parameters and returns error message or null
+ * 3. If validation fails:
+ *    - Error message is committed as tool output
+ *    - failureMessage is executed (or error message if failureMessage not provided)
+ *    - Flow stops
+ * 4. If validation passes:
+ *    - executeAction runs - performs the action
+ *    - Action result is committed as tool output (or emptyContent if result is empty)
+ *    - successMessage is executed
+ *
  * @function addCommitAction
  * @template T - The type of parameters expected by the action
- * @param {ICommitActionToolParams<T>} params - The parameters or configuration object.
+ * @param {ICommitActionToolParams<T>} params - Configuration object for the action tool
+ * @returns {IAgentTool} The registered agent tool schema
  *
  * @example
- * // Add a payment tool with validation
+ * // Payment action with validation and follow-up
  * addCommitAction({
  *   toolName: "pay_credit",
  *   function: {
@@ -10042,17 +10146,17 @@ interface ICommitActionToolParams<T = Record<string, any>> extends ICommitAction
  *       required: ["bank_name", "amount"],
  *     },
  *   },
- *   validateParams: async (params) => {
- *     const errors: ValidationErrors = {};
- *     if (!params.bank_name) errors.bank_name = "Bank name required";
- *     if (!params.amount) errors.amount = "Amount required";
- *     return { isValid: Object.keys(errors).length === 0, errors };
+ *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
+ *     if (!params.bank_name) return "Bank name is required";
+ *     if (!params.amount) return "Amount is required";
+ *     return null; // Valid
  *   },
  *   executeAction: async (params, clientId) => {
  *     await commitAppAction(clientId, "credit-payment", params);
+ *     return "Payment page opened successfully";
  *   },
- *   successMessage: "Payment page opened successfully",
- *   followUpMessage: "what is this page about",
+ *   successMessage: "what is this page about",
+ *   failureMessage: "Could not process payment",
  * });
  */
 declare function addCommitAction<T = Record<string, any>>(params: ICommitActionToolParams<T>): string;
@@ -10063,31 +10167,58 @@ declare function addCommitAction<T = Record<string, any>>(params: ICommitActionT
  */
 
 /**
- * Parameters for configuring fetch info tool.
+ * Parameters for configuring fetch info tool (READ pattern).
+ * Creates a tool that fetches and returns data to the AI without modifying system state.
+ *
  * @template T - The type of parameters expected by the fetch operation
  * @interface IFetchInfoToolParams
  * @extends IFetchInfoParams
+ *
+ * @property {ToolName} toolName - The name of the tool to be created
+ * @property {IAgentTool["function"]} function - Tool function schema (name, description, parameters)
+ * @property {string} [docNote] - Optional documentation note for the tool
+ * @property {IAgentTool["isAvailable"]} [isAvailable] - Optional function to determine if the tool is available
+ * @property {IAgentTool<T>["validate"]} [validateParams] - Optional validation function that runs before fetchContent
+ *   - Receives dto object: { clientId, agentName, toolCalls, params }
+ *   - Returns boolean: true if valid, false if invalid (blocks tool execution)
+ * @property {IFetchInfoParams<T>["fetchContent"]} fetchContent - Function to fetch and return content to AI
+ *   - Receives: (params, clientId, agentName)
+ *   - Returns: string content or empty string
+ * @property {IFetchInfoParams<T>["emptyContent"]} [emptyContent] - Optional handler for empty fetch results
+ *   - Receives: (content, clientId, agentName, toolName)
+ *   - Returns: string message to commit as tool output
  */
 interface IFetchInfoToolParams<T = Record<string, any>> extends IFetchInfoParams<T> {
     /** The name of the tool to be created. */
     toolName: ToolName;
-    /** Tool function schema. */
+    /** Tool function schema (name, description, parameters). */
     function: IAgentTool["function"];
     /** Optional documentation note for the tool. */
     docNote?: string;
     /** Optional function to determine if the tool is available. */
     isAvailable?: IAgentTool["isAvailable"];
-    /** Optional custom validation function that runs before tool execution. */
+    /** Optional validation function that runs before fetchContent. Returns boolean (true if valid, false if invalid). */
     validateParams?: IAgentTool<T>["validate"];
 }
 /**
- * Creates and registers a fetch info tool for an agent to retrieve and provide information.
+ * Creates and registers a fetch info tool for AI to retrieve data (READ pattern).
+ * This implements the READ side of the command pattern - AI calls tool to get information without modifying state.
+ *
+ * **Flow:**
+ * 1. AI calls tool with parameters
+ * 2. validateParams runs (if provided) - validates parameters structure. Returns true if valid, false if invalid
+ * 3. If validation fails (returns false), tool execution is blocked
+ * 4. If validation passes, fetchContent executes - retrieves data
+ * 5. AI receives fetched content as tool output
+ * 6. If content is empty, emptyContent handler is called
+ *
  * @function addFetchInfo
  * @template T - The type of parameters expected by the fetch operation
- * @param {IFetchInfoToolParams<T>} params - The parameters or configuration object.
+ * @param {IFetchInfoToolParams<T>} params - Configuration object for the fetch tool
+ * @returns {IAgentTool} The registered agent tool schema
  *
  * @example
- * // Add a user data fetch tool with validation
+ * // Fetch user data with parameter validation
  * addFetchInfo({
  *   toolName: "fetch_user_data",
  *   function: {
@@ -10096,18 +10227,20 @@ interface IFetchInfoToolParams<T = Record<string, any>> extends IFetchInfoParams
  *     parameters: {
  *       type: "object",
  *       properties: {
- *         userId: { type: "string", description: "User ID to fetch data for" },
+ *         userId: { type: "string", description: "User ID to fetch" },
  *       },
  *       required: ["userId"],
  *     },
  *   },
- *   validateParams: async (params) => {
- *     if (!params.userId) return false;
- *     return true;
+ *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
+ *     // Returns true if valid, false if invalid
+ *     return !!params.userId;
  *   },
  *   fetchContent: async (params, clientId) => {
- *     return await getUserData(params.userId);
+ *     const userData = await getUserData(params.userId);
+ *     return JSON.stringify(userData);
  *   },
+ *   emptyContent: () => "User not found",
  * });
  */
 declare function addFetchInfo<T = Record<string, any>>(params: IFetchInfoToolParams<T>): string;

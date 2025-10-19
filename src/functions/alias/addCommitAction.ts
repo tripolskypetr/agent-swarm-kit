@@ -16,16 +16,36 @@ import { addTool } from "../setup/addTool";
 const METHOD_NAME = "function.alias.addCommitAction";
 
 /**
- * Parameters for configuring commit action tool.
+ * Parameters for configuring commit action tool (WRITE pattern).
+ * Creates a tool that executes actions and modifies system state.
+ *
  * @template T - The type of parameters expected by the action
  * @interface ICommitActionToolParams
  * @extends ICommitActionParams
+ *
+ * @property {ToolName} toolName - The name of the tool to be created
+ * @property {IAgentTool["function"]} function - Tool function schema (name, description, parameters)
+ * @property {string} [docNote] - Optional documentation note for the tool
+ * @property {IAgentTool["isAvailable"]} [isAvailable] - Optional function to determine if the tool is available
+ * @property {ICommitActionParams<T>["validateParams"]} [validateParams] - Optional validation function (inherited from ICommitActionParams)
+ *   - Receives dto object: { clientId, agentName, toolCalls, params }
+ *   - Returns: error message string if invalid, null if valid
+ * @property {ICommitActionParams<T>["executeAction"]} executeAction - Function that executes the action and returns result
+ *   - Receives: (params, clientId, agentName)
+ *   - Returns: string result to commit as tool output
+ * @property {ICommitActionParams<T>["emptyContent"]} [emptyContent] - Optional handler for empty action results
+ *   - Receives: (params, clientId, agentName)
+ *   - Returns: string message to commit as tool output
+ * @property {ICommitActionParams<T>["successMessage"]} successMessage - Message to execute after successful action
+ *   - Can be string or function: (params, clientId, agentName) => string
+ * @property {ICommitActionParams<T>["failureMessage"]} [failureMessage] - Optional message to execute after validation failure
+ *   - Can be string or function: (params, clientId, agentName) => string
  */
 interface ICommitActionToolParams<T = Record<string, any>>
   extends ICommitActionParams<T> {
   /** The name of the tool to be created. */
   toolName: ToolName;
-  /** Tool function schema. */
+  /** Tool function schema (name, description, parameters). */
   function: IAgentTool["function"];
   /** Optional documentation note for the tool. */
   docNote?: string;
@@ -53,8 +73,8 @@ const addCommitActionInternal = beginContext(
       docNote,
       isAvailable,
       validate: () => true,
-      call: async ({ toolId, clientId, agentName, toolName, params, isLast }) => {
-        await action(toolId, clientId, agentName, toolName, params, isLast);
+      call: async ({ toolId, clientId, agentName, toolName, params, toolCalls, isLast }) => {
+        await action(toolId, clientId, agentName, toolName, params, toolCalls, isLast);
       },
       type: "function",
       function: functionSchema,
@@ -67,13 +87,28 @@ const addCommitActionInternal = beginContext(
 );
 
 /**
- * Creates and registers a commit action tool for an agent to validate and execute actions.
+ * Creates and registers a commit action tool for AI to execute actions (WRITE pattern).
+ * This implements the WRITE side of the command pattern - AI calls tool to modify system state.
+ *
+ * **Flow:**
+ * 1. AI calls tool with parameters
+ * 2. validateParams runs (if provided) - validates parameters and returns error message or null
+ * 3. If validation fails:
+ *    - Error message is committed as tool output
+ *    - failureMessage is executed (or error message if failureMessage not provided)
+ *    - Flow stops
+ * 4. If validation passes:
+ *    - executeAction runs - performs the action
+ *    - Action result is committed as tool output (or emptyContent if result is empty)
+ *    - successMessage is executed
+ *
  * @function addCommitAction
  * @template T - The type of parameters expected by the action
- * @param {ICommitActionToolParams<T>} params - The parameters or configuration object.
+ * @param {ICommitActionToolParams<T>} params - Configuration object for the action tool
+ * @returns {IAgentTool} The registered agent tool schema
  *
  * @example
- * // Add a payment tool with validation
+ * // Payment action with validation and follow-up
  * addCommitAction({
  *   toolName: "pay_credit",
  *   function: {
@@ -88,17 +123,17 @@ const addCommitActionInternal = beginContext(
  *       required: ["bank_name", "amount"],
  *     },
  *   },
- *   validateParams: async (params) => {
- *     const errors: ValidationErrors = {};
- *     if (!params.bank_name) errors.bank_name = "Bank name required";
- *     if (!params.amount) errors.amount = "Amount required";
- *     return { isValid: Object.keys(errors).length === 0, errors };
+ *   validateParams: async ({ params, clientId, agentName, toolCalls }) => {
+ *     if (!params.bank_name) return "Bank name is required";
+ *     if (!params.amount) return "Amount is required";
+ *     return null; // Valid
  *   },
  *   executeAction: async (params, clientId) => {
  *     await commitAppAction(clientId, "credit-payment", params);
+ *     return "Payment page opened successfully";
  *   },
- *   successMessage: "Payment page opened successfully",
- *   followUpMessage: "what is this page about",
+ *   successMessage: "what is this page about",
+ *   failureMessage: "Could not process payment",
  * });
  */
 export function addCommitAction<T = Record<string, any>>(
