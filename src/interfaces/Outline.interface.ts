@@ -340,7 +340,7 @@ export interface IOutlineSchema<
    * If a function is provided, it may return a string or a Promise resolving to a string.
    * This prompt is typically sent to the completion engine or model to guide the generation process.
    */
-  prompt: string | ((outlineName: OutlineName) => (string | Promise<string>));
+  prompt?: string | ((outlineName: OutlineName) => (string | Promise<string>));
 
   /**
    * The system prompt(s) provided to the language model for the outline operation.
