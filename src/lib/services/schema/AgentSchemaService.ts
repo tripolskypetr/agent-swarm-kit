@@ -90,11 +90,6 @@ export class AgentSchemaService {
         `agent-swarm agent schema validation failed: missing completion for agentName=${agentSchema.agentName}`
       );
     }
-    if (!agentSchema.operator && agentSchema.prompt === undefined) {
-      throw new Error(
-        `agent-swarm agent schema validation failed: missing prompt for agentName=${agentSchema.agentName}`
-      );
-    }
     if (agentSchema.system && !Array.isArray(agentSchema.system)) {
       throw new Error(
         `agent-swarm agent schema validation failed: invalid system prompt for agentName=${agentSchema.agentName} system=${agentSchema.system}`

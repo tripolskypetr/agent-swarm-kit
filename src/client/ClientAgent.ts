@@ -222,10 +222,11 @@ const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
     );
   self.params.onRun &&
     self.params.onRun(self.params.clientId, self.params.agentName, incoming);
-  const prompt =
-    typeof self.params.prompt === "string"
+  const prompt = self.params.prompt
+    ? typeof self.params.prompt === "string"
       ? self.params.prompt
-      : await self.params.prompt(self.params.clientId, self.params.agentName);
+      : await self.params.prompt(self.params.clientId, self.params.agentName)
+    : "";
   const messages = await self.params.history.toArrayForAgent(
     prompt,
     await self._resolveSystemPrompt()
@@ -1028,10 +1029,11 @@ export class ClientAgent implements IAgent {
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} getCompletion`
       );
-    const prompt =
-      typeof this.params.prompt === "string"
+    const prompt = this.params.prompt
+      ? typeof this.params.prompt === "string"
         ? this.params.prompt
-        : await this.params.prompt(this.params.clientId, this.params.agentName);
+        : await this.params.prompt(this.params.clientId, this.params.agentName)
+      : "";
     const messages = await this.params.history.toArrayForAgent(
       prompt,
       await this._resolveSystemPrompt()
@@ -1097,13 +1099,14 @@ export class ClientAgent implements IAgent {
         agentName: this.params.agentName,
         content: GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT,
       });
-      const prompt =
-        typeof this.params.prompt === "string"
+      const prompt = this.params.prompt
+        ? typeof this.params.prompt === "string"
           ? this.params.prompt
           : await this.params.prompt(
               this.params.clientId,
               this.params.agentName
-            );
+            )
+        : "";
       const messages = await this.params.history.toArrayForAgent(
         prompt,
         await this._resolveSystemPrompt()

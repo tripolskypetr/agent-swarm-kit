@@ -3240,7 +3240,7 @@ interface IAgentSchemaInternal {
     operator?: boolean;
     /** The name of the completion mechanism used by the agent. REQUIRED WHEN AGENT IS NOT OPERATOR*/
     completion?: CompletionName;
-    /** The primary prompt guiding the agent's behavior. REQUIRED WHEN AGENT IS NOT OPERATOR*/
+    /** The primary prompt guiding the agent's behavior.*/
     prompt?: string | ((clientId: string, agentName: AgentName) => (Promise<string> | string));
     /** Optional array of system prompts, typically used for tool-calling protocols.*/
     system?: string[];
@@ -4119,9 +4119,9 @@ declare class HistoryConnectionService implements IHistory {
      */
     pop: () => Promise<IModelMessage<object>>;
     /**
-     * Converts the agent’s history to an array formatted for agent use, incorporating a prompt.
+     * Converts the agent's history to an array formatted for agent use, incorporating a prompt.
      * Delegates to ClientHistory.toArrayForAgent, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
-     * Mirrors HistoryPublicService’s toArrayForAgent, supporting ClientAgent’s execution context (e.g., EXECUTE_FN with prompt).
+     * Mirrors HistoryPublicService's toArrayForAgent, supporting ClientAgent's execution context (e.g., EXECUTE_FN with prompt).
      */
     toArrayForAgent: (prompt: string) => Promise<IModelMessage<object>[]>;
     /**
@@ -5279,7 +5279,7 @@ declare class HistoryPublicService implements THistoryConnectionService {
      */
     pop: (methodName: string, clientId: string, agentName: AgentName) => Promise<IModelMessage<object>>;
     /**
-     * Converts the agent’s history to an array tailored for agent processing, incorporating a prompt.
+     * Converts the agent's history to an array tailored for agent processing, incorporating a prompt.
      * Wraps HistoryConnectionService.toArrayForAgent with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., EXECUTE_FN context preparation) and DocService (e.g., history documentation with prompts).
      */
@@ -11634,7 +11634,7 @@ declare function getAgentName(clientId: string): Promise<string>;
  * @example
  * const history = await getAgentHistory("client-123", "AgentX");
  * console.log(history); // Outputs array of IModelMessage objects
-*/
+ */
 declare function getAgentHistory(clientId: string, agentName: AgentName): Promise<IModelMessage<object>[]>;
 
 /**

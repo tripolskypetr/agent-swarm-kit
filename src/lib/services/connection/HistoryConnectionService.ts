@@ -114,9 +114,9 @@ export class HistoryConnectionService implements IHistory {
   };
 
   /**
-   * Converts the agent’s history to an array formatted for agent use, incorporating a prompt.
+   * Converts the agent's history to an array formatted for agent use, incorporating a prompt.
    * Delegates to ClientHistory.toArrayForAgent, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
-   * Mirrors HistoryPublicService’s toArrayForAgent, supporting ClientAgent’s execution context (e.g., EXECUTE_FN with prompt).
+   * Mirrors HistoryPublicService's toArrayForAgent, supporting ClientAgent's execution context (e.g., EXECUTE_FN with prompt).
    */
   public toArrayForAgent = async (prompt: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&

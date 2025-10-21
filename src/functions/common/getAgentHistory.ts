@@ -7,7 +7,7 @@ const METHOD_NAME = "function.common.getAgentHistory";
 
 /**
  * Function implementation
-*/
+ */
 const getAgentHistoryInternal = beginContext(
   async (clientId: string, agentName: AgentName) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -24,10 +24,11 @@ const getAgentHistoryInternal = beginContext(
     // Retrieve the agent's prompt configuration from the agent schema service
     const { prompt: upperPrompt } = swarm.agentSchemaService.get(agentName);
 
-    const prompt =
-      typeof upperPrompt === "string"
+    const prompt = upperPrompt
+      ? typeof upperPrompt === "string"
         ? upperPrompt
-        : await upperPrompt(clientId, agentName);
+        : await upperPrompt(clientId, agentName)
+      : "";
 
     // Fetch the agent's history using the prompt and rescue tweaks via the history public service
     const history = await swarm.historyPublicService.toArrayForAgent(
@@ -56,7 +57,7 @@ const getAgentHistoryInternal = beginContext(
  * @example
  * const history = await getAgentHistory("client-123", "AgentX");
  * console.log(history); // Outputs array of IModelMessage objects
-*/
+ */
 export async function getAgentHistory(clientId: string, agentName: AgentName) {
   return await getAgentHistoryInternal(clientId, agentName);
 }

@@ -122,7 +122,7 @@ export class HistoryPublicService implements THistoryConnectionService {
   };
 
   /**
-   * Converts the agent’s history to an array tailored for agent processing, incorporating a prompt.
+   * Converts the agent's history to an array tailored for agent processing, incorporating a prompt.
    * Wraps HistoryConnectionService.toArrayForAgent with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Used in ClientAgent (e.g., EXECUTE_FN context preparation) and DocService (e.g., history documentation with prompts).
    */
