@@ -10296,9 +10296,35 @@ interface IFetchInfoToolParams<T = Record<string, any>> extends IFetchInfoParams
 declare function addFetchInfo<T = Record<string, any>>(params: IFetchInfoToolParams<T>): string;
 
 /**
- * Adds an advisor schema to the system
+ * Adds an advisor schema to the system.
+ * Registers the advisor with validation and schema services, making it available for chat operations.
+ *
  * @function addAdvisor
- * @param {IAdvisorSchema} advisorSchema - The schema definition for advisor.
+ * @template T - The type of message content the advisor accepts (defaults to string). Can be a custom object, Blob, or string.
+ * @param {IAdvisorSchema<T>} advisorSchema - The schema definition for advisor, including name, chat handler, and optional callbacks.
+ * @returns {string} The advisorName that was registered.
+ *
+ * @example
+ * // Using default string message type
+ * addAdvisor({
+ *   advisorName: "TextAdvisor",
+ *   getChat: async (args) => `Response to: ${args.message}`
+ * });
+ *
+ * @example
+ * // Using custom message type
+ * interface CustomMessage { text: string; metadata: Record<string, any> }
+ * addAdvisor<CustomMessage>({
+ *   advisorName: "StructuredAdvisor",
+ *   getChat: async (args) => `Processing: ${args.message.text}`
+ * });
+ *
+ * @example
+ * // Using Blob message type
+ * addAdvisor<Blob>({
+ *   advisorName: "BlobAdvisor",
+ *   getChat: async (args) => `Received blob of size: ${args.message.size}`
+ * });
 */
 declare function addAdvisor<T = string>(advisorSchema: IAdvisorSchema<T>): string;
 
@@ -10737,7 +10763,7 @@ declare function overrideMCP(mcpSchema: TMCPSchema): IMCPSchema;
 /**
  * Type representing a partial advisor schema configuration.
  * Used for advisor service configuration with optional properties.
-*/
+ */
 type TAdvisorSchema<T = string> = {
     advisorName: IAdvisorSchema<T>["advisorName"];
 } & Partial<IAdvisorSchema<T>>;
@@ -10746,21 +10772,30 @@ type TAdvisorSchema<T = string> = {
  * This function updates the configuration of an advisor identified by its `advisorName`, applying the provided schema properties.
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
+ * Only the provided properties will be updated - omitted properties remain unchanged.
  *
- *
- * @param {TAdvisorSchema} advisorSchema - The schema definition for advisor.
+ * @function overrideAdvisor
+ * @template T - The type of message content the advisor accepts (defaults to string). Can be a custom object, Blob, or string.
+ * @param {TAdvisorSchema<T>} advisorSchema - Partial schema definition for advisor. Must include `advisorName`, other properties are optional.
+ * @returns {IAdvisorSchema<T>} The updated complete advisor schema.
  * @throws {Error} If the advisor schema service encounters an error during the override operation (e.g., invalid advisorName or schema).
  *
  * @example
- * // Override an advisor's schema with new properties
+ * // Override advisor's description only
  * overrideAdvisor({
  *   advisorName: "KnowledgeBase",
- *   description: "Updated knowledge repository",
- *   storage: "AdvisorStorage",
+ *   docDescription: "Updated knowledge repository",
  * });
- * // Logs the operation (if enabled) and updates the advisor schema in the swarm.
-*/
-declare function overrideAdvisor<T = string>(advisorSchema: TAdvisorSchema<T>): IAdvisorSchema<string>;
+ *
+ * @example
+ * // Override advisor with custom message type
+ * interface CustomMessage { query: string; context: string[] }
+ * overrideAdvisor<CustomMessage>({
+ *   advisorName: "StructuredAdvisor",
+ *   getChat: async (args) => `Query: ${args.message.query}`
+ * });
+ */
+declare function overrideAdvisor<T = string>(advisorSchema: TAdvisorSchema<T>): TAdvisorSchema<T>;
 
 /**
  * @module overrideCompute
@@ -11184,11 +11219,33 @@ declare function executeForce(content: string, clientId: string): Promise<string
 /** Image type as either an array of Uint8Array or an array of strings */
 type Image = Uint8Array | string;
 /**
- * Initiates an ask process within a chat context
+ * Initiates an ask process within a chat context.
+ * Sends a message to the specified advisor and returns the chat response.
+ * Supports custom message types including objects, Blob, or string.
+ *
  * @function ask
- * @param {T} message - The message content to process or send.
- * @param {AdvisorName} advisorName - The name of the advisor.
- * @param {Image[]} [images] - Optional array of images (as Uint8Array or string).
+ * @template T - The type of message content (defaults to string). Can be a custom object, Blob, or string.
+ * @param {T} message - The message content to process or send. Type should match the advisor's expected message type.
+ * @param {AdvisorName} advisorName - The name of the advisor to handle the message.
+ * @param {Image[]} [images] - Optional array of images (as Uint8Array or string) to accompany the message.
+ * @returns {Promise<string>} The response from the advisor's chat handler.
+ *
+ * @example
+ * // Using default string message type
+ * const response = await ask("Hello", "TextAdvisor");
+ *
+ * @example
+ * // Using custom message type
+ * interface CustomMessage { text: string; priority: number }
+ * const response = await ask<CustomMessage>(
+ *   { text: "Important", priority: 1 },
+ *   "StructuredAdvisor"
+ * );
+ *
+ * @example
+ * // Using Blob message type with images
+ * const blob = new Blob(["data"], { type: "text/plain" });
+ * const response = await ask<Blob>(blob, "BlobAdvisor", [imageData]);
 */
 declare function ask<T = string>(message: T, advisorName: AdvisorName, images?: Image[]): Promise<string>;
 

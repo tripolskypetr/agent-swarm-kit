@@ -9,24 +9,29 @@ const METHOD_NAME = "function.test.overrideAdvisor";
 /**
  * Type representing a partial advisor schema configuration.
  * Used for advisor service configuration with optional properties.
-*/
+ */
 type TAdvisorSchema<T = string> = {
   advisorName: IAdvisorSchema<T>["advisorName"];
 } & Partial<IAdvisorSchema<T>>;
 
 /**
  * Function implementation
-*/
-const overrideAdvisorInternal = beginContext((publicAdvisorSchema: TAdvisorSchema) => {
-  GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
-    swarm.loggerService.log(METHOD_NAME, {
-      advisorSchema: publicAdvisorSchema,
-    });
+ */
+const overrideAdvisorInternal = beginContext(
+  (publicAdvisorSchema: TAdvisorSchema) => {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
+      swarm.loggerService.log(METHOD_NAME, {
+        advisorSchema: publicAdvisorSchema,
+      });
 
-  const advisorSchema = removeUndefined(publicAdvisorSchema);
+    const advisorSchema = removeUndefined(publicAdvisorSchema);
 
-  return swarm.advisorSchemaService.override(advisorSchema.advisorName, advisorSchema);
-});
+    return swarm.advisorSchemaService.override(
+      advisorSchema.advisorName,
+      advisorSchema
+    );
+  }
+);
 
 /**
  * Overrides an existing advisor schema in the swarm system with a new or partial schema.
@@ -55,7 +60,9 @@ const overrideAdvisorInternal = beginContext((publicAdvisorSchema: TAdvisorSchem
  *   advisorName: "StructuredAdvisor",
  *   getChat: async (args) => `Query: ${args.message.query}`
  * });
-*/
+ */
 export function overrideAdvisor<T = string>(advisorSchema: TAdvisorSchema<T>) {
-  return overrideAdvisorInternal(advisorSchema as TAdvisorSchema);
+  return overrideAdvisorInternal(
+    advisorSchema as TAdvisorSchema
+  ) as TAdvisorSchema<T>;
 }
