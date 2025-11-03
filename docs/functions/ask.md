@@ -9,12 +9,14 @@ group: docs
 declare function ask<T = string>(message: T, advisorName: AdvisorName, images?: Image[]): Promise<string>;
 ```
 
-Initiates an ask process within a chat context
+Initiates an ask process within a chat context.
+Sends a message to the specified advisor and returns the chat response.
+Supports custom message types including objects, Blob, or string.
 
 ## Parameters
 
 | Parameter | Description |
 |-----------|-------------|
-| `message` | The message content to process or send. |
-| `advisorName` | The name of the advisor. |
-| `images` | Optional array of images (as Uint8Array or string). |
+| `message` | The message content to process or send. Type should match the advisor's expected message type. |
+| `advisorName` | The name of the advisor to handle the message. |
+| `images` | Optional array of images (as Uint8Array or string) to accompany the message. |
