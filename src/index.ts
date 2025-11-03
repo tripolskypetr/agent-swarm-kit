@@ -154,7 +154,6 @@ export { IAgentTool } from "./interfaces/Agent.interface";
 export { ToolValue } from "./interfaces/Agent.interface";
 
 export { IAdvisorSchema } from "./interfaces/Advisor.interface";
-export { IChatArgs } from "./interfaces/Advisor.interface";
 
 export { IEmbeddingSchema } from "./interfaces/Embedding.interface";
 export { IStorageSchema } from "./interfaces/Storage.interface";

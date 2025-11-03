@@ -1,5 +1,3 @@
-type Image = Uint8Array | string;
-
 /**
  * @interface IAdvisorCallbacks
  * Callback functions for advisor operations
@@ -8,18 +6,7 @@ export interface IAdvisorCallbacks<T = string> {
     /**
      * Optional callback triggered when a chat operation occurs
     */
-    onChat?: (args: IChatArgs<T>) => void;
-}
-
-/**
- * @interface IChatArgs
- * Arguments required for chat operations
-*/
-export interface IChatArgs<T = string> {
-    /** Message content for the chat*/
-    message: T;
-    /** Optional array of images associated with the chat. */
-    images?: Image[];
+    onChat?: (message: T) => void;
 }
 
 /**
@@ -34,7 +21,7 @@ export interface IAdvisorSchema<T = string> {
     /**
      * Function to get chat response
      */
-    getChat(args: IChatArgs<T>): Promise<string>;
+    getChat(message: T): Promise<string>;
     /** Optional callbacks for advisor operations*/
     callbacks?: IAdvisorCallbacks<T>;
 }

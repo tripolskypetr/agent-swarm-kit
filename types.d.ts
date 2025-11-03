@@ -4138,7 +4138,6 @@ declare class HistoryConnectionService implements IHistory {
     dispose: () => Promise<void>;
 }
 
-type Image$1 = Uint8Array | string;
 /**
  * @interface IAdvisorCallbacks
  * Callback functions for advisor operations
@@ -4147,17 +4146,7 @@ interface IAdvisorCallbacks<T = string> {
     /**
      * Optional callback triggered when a chat operation occurs
     */
-    onChat?: (args: IChatArgs<T>) => void;
-}
-/**
- * @interface IChatArgs
- * Arguments required for chat operations
-*/
-interface IChatArgs<T = string> {
-    /** Message content for the chat*/
-    message: T;
-    /** Optional array of images associated with the chat. */
-    images?: Image$1[];
+    onChat?: (message: T) => void;
 }
 /**
  * @interface IAdvisorSchema
@@ -4171,7 +4160,7 @@ interface IAdvisorSchema<T = string> {
     /**
      * Function to get chat response
      */
-    getChat(args: IChatArgs<T>): Promise<string>;
+    getChat(message: T): Promise<string>;
     /** Optional callbacks for advisor operations*/
     callbacks?: IAdvisorCallbacks<T>;
 }
@@ -11216,8 +11205,6 @@ declare function emitForce(content: string, clientId: string): Promise<void>;
 */
 declare function executeForce(content: string, clientId: string): Promise<string>;
 
-/** Image type as either an array of Uint8Array or an array of strings */
-type Image = Uint8Array | string;
 /**
  * Initiates an ask process within a chat context.
  * Sends a message to the specified advisor and returns the chat response.
@@ -11227,7 +11214,6 @@ type Image = Uint8Array | string;
  * @template T - The type of message content (defaults to string). Can be a custom object, Blob, or string.
  * @param {T} message - The message content to process or send. Type should match the advisor's expected message type.
  * @param {AdvisorName} advisorName - The name of the advisor to handle the message.
- * @param {Image[]} [images] - Optional array of images (as Uint8Array or string) to accompany the message.
  * @returns {Promise<string>} The response from the advisor's chat handler.
  *
  * @example
@@ -11235,19 +11221,19 @@ type Image = Uint8Array | string;
  * const response = await ask("Hello", "TextAdvisor");
  *
  * @example
- * // Using custom message type
- * interface CustomMessage { text: string; priority: number }
+ * // Using custom message type with structured data
+ * interface CustomMessage { text: string; priority: number; attachments?: Uint8Array[] }
  * const response = await ask<CustomMessage>(
- *   { text: "Important", priority: 1 },
+ *   { text: "Important", priority: 1, attachments: [data] },
  *   "StructuredAdvisor"
  * );
  *
  * @example
- * // Using Blob message type with images
+ * // Using Blob message type
  * const blob = new Blob(["data"], { type: "text/plain" });
- * const response = await ask<Blob>(blob, "BlobAdvisor", [imageData]);
+ * const response = await ask<Blob>(blob, "BlobAdvisor");
 */
-declare function ask<T = string>(message: T, advisorName: AdvisorName, images?: Image[]): Promise<string>;
+declare function ask<T = string>(message: T, advisorName: AdvisorName): Promise<string>;
 
 /**
  * Processes an outline request to generate structured JSON data based on a specified outline schema.
@@ -13793,4 +13779,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAdvisorSchema, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatArgs, type IChatInstance, type IChatInstanceCallbacks, type ICommitActionParams, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IFetchInfoParams, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAdvisor, addAgent, addAgentNavigation, addCommitAction, addCompletion, addCompute, addEmbedding, addFetchInfo, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, ask, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createCommitAction, createFetchInfo, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAdvisor, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAdvisor, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };
+export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAdvisorSchema, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatInstance, type IChatInstanceCallbacks, type ICommitActionParams, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IFetchInfoParams, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAdvisor, addAgent, addAgentNavigation, addCommitAction, addCompletion, addCompute, addEmbedding, addFetchInfo, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, ask, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createCommitAction, createFetchInfo, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAdvisor, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAdvisor, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };
