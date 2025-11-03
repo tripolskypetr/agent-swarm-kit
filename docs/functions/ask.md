@@ -6,7 +6,7 @@ group: docs
 # ask
 
 ```ts
-declare function ask(message: string, advisorName: AdvisorName, images?: Image[]): Promise<string>;
+declare function ask<T = string>(message: T, advisorName: AdvisorName, images?: Image[]): Promise<string>;
 ```
 
 Initiates an ask process within a chat context

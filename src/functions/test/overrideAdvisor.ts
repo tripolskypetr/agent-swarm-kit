@@ -33,19 +33,28 @@ const overrideAdvisorInternal = beginContext((publicAdvisorSchema: TAdvisorSchem
  * This function updates the configuration of an advisor identified by its `advisorName`, applying the provided schema properties.
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
+ * Only the provided properties will be updated - omitted properties remain unchanged.
  *
- *
- * @param {TAdvisorSchema} advisorSchema - The schema definition for advisor.
+ * @function overrideAdvisor
+ * @template T - The type of message content the advisor accepts (defaults to string). Can be a custom object, Blob, or string.
+ * @param {TAdvisorSchema<T>} advisorSchema - Partial schema definition for advisor. Must include `advisorName`, other properties are optional.
+ * @returns {IAdvisorSchema<T>} The updated complete advisor schema.
  * @throws {Error} If the advisor schema service encounters an error during the override operation (e.g., invalid advisorName or schema).
  *
  * @example
- * // Override an advisor's schema with new properties
+ * // Override advisor's description only
  * overrideAdvisor({
  *   advisorName: "KnowledgeBase",
- *   description: "Updated knowledge repository",
- *   storage: "AdvisorStorage",
+ *   docDescription: "Updated knowledge repository",
  * });
- * // Logs the operation (if enabled) and updates the advisor schema in the swarm.
+ *
+ * @example
+ * // Override advisor with custom message type
+ * interface CustomMessage { query: string; context: string[] }
+ * overrideAdvisor<CustomMessage>({
+ *   advisorName: "StructuredAdvisor",
+ *   getChat: async (args) => `Query: ${args.message.query}`
+ * });
 */
 export function overrideAdvisor<T = string>(advisorSchema: TAdvisorSchema<T>) {
   return overrideAdvisorInternal(advisorSchema as TAdvisorSchema);

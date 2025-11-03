@@ -30,9 +30,35 @@ const addAdvisorInternal = beginContext(
 );
 
 /**
- * Adds an advisor schema to the system
+ * Adds an advisor schema to the system.
+ * Registers the advisor with validation and schema services, making it available for chat operations.
+ *
  * @function addAdvisor
- * @param {IAdvisorSchema} advisorSchema - The schema definition for advisor.
+ * @template T - The type of message content the advisor accepts (defaults to string). Can be a custom object, Blob, or string.
+ * @param {IAdvisorSchema<T>} advisorSchema - The schema definition for advisor, including name, chat handler, and optional callbacks.
+ * @returns {string} The advisorName that was registered.
+ *
+ * @example
+ * // Using default string message type
+ * addAdvisor({
+ *   advisorName: "TextAdvisor",
+ *   getChat: async (args) => `Response to: ${args.message}`
+ * });
+ *
+ * @example
+ * // Using custom message type
+ * interface CustomMessage { text: string; metadata: Record<string, any> }
+ * addAdvisor<CustomMessage>({
+ *   advisorName: "StructuredAdvisor",
+ *   getChat: async (args) => `Processing: ${args.message.text}`
+ * });
+ *
+ * @example
+ * // Using Blob message type
+ * addAdvisor<Blob>({
+ *   advisorName: "BlobAdvisor",
+ *   getChat: async (args) => `Received blob of size: ${args.message.size}`
+ * });
 */
 export function addAdvisor<T = string>(advisorSchema: IAdvisorSchema<T>) {
   return addAdvisorInternal(advisorSchema as IAdvisorSchema);

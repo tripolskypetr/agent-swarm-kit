@@ -38,11 +38,33 @@ const askInternal = beginContext(
 );
 
 /**
- * Initiates an ask process within a chat context
+ * Initiates an ask process within a chat context.
+ * Sends a message to the specified advisor and returns the chat response.
+ * Supports custom message types including objects, Blob, or string.
+ *
  * @function ask
- * @param {T} message - The message content to process or send.
- * @param {AdvisorName} advisorName - The name of the advisor.
- * @param {Image[]} [images] - Optional array of images (as Uint8Array or string).
+ * @template T - The type of message content (defaults to string). Can be a custom object, Blob, or string.
+ * @param {T} message - The message content to process or send. Type should match the advisor's expected message type.
+ * @param {AdvisorName} advisorName - The name of the advisor to handle the message.
+ * @param {Image[]} [images] - Optional array of images (as Uint8Array or string) to accompany the message.
+ * @returns {Promise<string>} The response from the advisor's chat handler.
+ *
+ * @example
+ * // Using default string message type
+ * const response = await ask("Hello", "TextAdvisor");
+ *
+ * @example
+ * // Using custom message type
+ * interface CustomMessage { text: string; priority: number }
+ * const response = await ask<CustomMessage>(
+ *   { text: "Important", priority: 1 },
+ *   "StructuredAdvisor"
+ * );
+ *
+ * @example
+ * // Using Blob message type with images
+ * const blob = new Blob(["data"], { type: "text/plain" });
+ * const response = await ask<Blob>(blob, "BlobAdvisor", [imageData]);
 */
 export async function ask<T = string>(message: T, advisorName: AdvisorName, images?: Image[]) {
   return await askInternal(message as string, advisorName, images);

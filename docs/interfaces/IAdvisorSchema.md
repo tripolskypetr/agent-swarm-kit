@@ -26,7 +26,7 @@ Name identifier for the advisor
 ### callbacks
 
 ```ts
-callbacks: IAdvisorCallbacks
+callbacks: IAdvisorCallbacks<T>
 ```
 
 Optional callbacks for advisor operations
@@ -36,7 +36,7 @@ Optional callbacks for advisor operations
 ### getChat
 
 ```ts
-getChat: (args: IChatArgs) => Promise<string>
+getChat: (args: IChatArgs<T>) => Promise<string>
 ```
 
 Function to get chat response

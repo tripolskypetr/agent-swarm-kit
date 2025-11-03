@@ -28,7 +28,7 @@ _advisorMap: any
 ### addAdvisor
 
 ```ts
-addAdvisor: (advisorName: string, advisorSchema: IAdvisorSchema) => void
+addAdvisor: (advisorName: string, advisorSchema: IAdvisorSchema<string>) => void
 ```
 
 Adds an advisor schema to the validation service

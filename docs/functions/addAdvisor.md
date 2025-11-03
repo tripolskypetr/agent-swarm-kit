@@ -6,7 +6,7 @@ group: docs
 # addAdvisor
 
 ```ts
-declare function addAdvisor(advisorSchema: IAdvisorSchema): string;
+declare function addAdvisor<T = string>(advisorSchema: IAdvisorSchema<T>): string;
 ```
 
 Adds an advisor schema to the system

@@ -45,7 +45,7 @@ Validates basic requirements of an advisor schema
 ### register
 
 ```ts
-register: (key: string, value: IAdvisorSchema) => void
+register: (key: string, value: IAdvisorSchema<string>) => void
 ```
 
 Registers an advisor schema with a given key
@@ -53,7 +53,7 @@ Registers an advisor schema with a given key
 ### override
 
 ```ts
-override: (key: string, value: Partial<IAdvisorSchema>) => IAdvisorSchema
+override: (key: string, value: Partial<IAdvisorSchema<string>>) => IAdvisorSchema<string>
 ```
 
 Overrides an existing advisor schema with a new value for a given key
@@ -61,7 +61,7 @@ Overrides an existing advisor schema with a new value for a given key
 ### get
 
 ```ts
-get: (key: string) => IAdvisorSchema
+get: (key: string) => IAdvisorSchema<string>
 ```
 
 Retrieves an advisor schema by key

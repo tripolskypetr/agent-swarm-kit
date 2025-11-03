@@ -6,9 +6,9 @@ group: docs
 # TAdvisorSchema
 
 ```ts
-type TAdvisorSchema = {
-    advisorName: IAdvisorSchema["advisorName"];
-} & Partial<IAdvisorSchema>;
+type TAdvisorSchema<T = string> = {
+    advisorName: IAdvisorSchema<T>["advisorName"];
+} & Partial<IAdvisorSchema<T>>;
 ```
 
 Type representing a partial advisor schema configuration.

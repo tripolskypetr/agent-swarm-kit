@@ -6,7 +6,7 @@ group: docs
 # overrideAdvisor
 
 ```ts
-declare function overrideAdvisor(advisorSchema: TAdvisorSchema): IAdvisorSchema;
+declare function overrideAdvisor<T = string>(advisorSchema: TAdvisorSchema<T>): IAdvisorSchema<string>;
 ```
 
 Overrides an existing advisor schema in the swarm system with a new or partial schema.

@@ -72,7 +72,7 @@ The name of the completion mechanism used by the agent. REQUIRED WHEN AGENT IS N
 prompt: string | ((clientId: string, agentName: string) => string | Promise<string>)
 ```
 
-The primary prompt guiding the agent's behavior. REQUIRED WHEN AGENT IS NOT OPERATOR
+The primary prompt guiding the agent's behavior.
 
 ### system
 

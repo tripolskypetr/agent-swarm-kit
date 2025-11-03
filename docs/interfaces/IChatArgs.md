@@ -10,7 +10,7 @@ group: docs
 ### message
 
 ```ts
-message: string
+message: T
 ```
 
 Message content for the chat
