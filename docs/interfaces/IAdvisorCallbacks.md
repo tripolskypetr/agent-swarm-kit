@@ -10,7 +10,7 @@ group: docs
 ### onChat
 
 ```ts
-onChat: (args: IChatArgs<T>) => void
+onChat: (message: T) => void
 ```
 
 Optional callback triggered when a chat operation occurs

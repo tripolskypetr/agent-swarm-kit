@@ -36,7 +36,7 @@ Optional callbacks for advisor operations
 ### getChat
 
 ```ts
-getChat: (args: IChatArgs<T>) => Promise<string>
+getChat: (message: T) => Promise<string>
 ```
 
 Function to get chat response
