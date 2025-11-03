@@ -10,9 +10,9 @@ const METHOD_NAME = "function.test.overrideAdvisor";
  * Type representing a partial advisor schema configuration.
  * Used for advisor service configuration with optional properties.
 */
-type TAdvisorSchema = {
-  advisorName: IAdvisorSchema["advisorName"];
-} & Partial<IAdvisorSchema>;
+type TAdvisorSchema<T = string> = {
+  advisorName: IAdvisorSchema<T>["advisorName"];
+} & Partial<IAdvisorSchema<T>>;
 
 /**
  * Function implementation
@@ -47,6 +47,6 @@ const overrideAdvisorInternal = beginContext((publicAdvisorSchema: TAdvisorSchem
  * });
  * // Logs the operation (if enabled) and updates the advisor schema in the swarm.
 */
-export function overrideAdvisor(advisorSchema: TAdvisorSchema) {
-  return overrideAdvisorInternal(advisorSchema);
+export function overrideAdvisor<T = string>(advisorSchema: TAdvisorSchema<T>) {
+  return overrideAdvisorInternal(advisorSchema as TAdvisorSchema);
 }

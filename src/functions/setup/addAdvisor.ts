@@ -34,6 +34,6 @@ const addAdvisorInternal = beginContext(
  * @function addAdvisor
  * @param {IAdvisorSchema} advisorSchema - The schema definition for advisor.
 */
-export function addAdvisor(advisorSchema: IAdvisorSchema) {
-  return addAdvisorInternal(advisorSchema);
+export function addAdvisor<T = string>(advisorSchema: IAdvisorSchema<T>) {
+  return addAdvisorInternal(advisorSchema as IAdvisorSchema);
 }

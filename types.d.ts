@@ -4143,19 +4143,19 @@ type Image$1 = Uint8Array | string;
  * @interface IAdvisorCallbacks
  * Callback functions for advisor operations
 */
-interface IAdvisorCallbacks {
+interface IAdvisorCallbacks<T = string> {
     /**
      * Optional callback triggered when a chat operation occurs
     */
-    onChat?: (args: IChatArgs) => void;
+    onChat?: (args: IChatArgs<T>) => void;
 }
 /**
  * @interface IChatArgs
  * Arguments required for chat operations
 */
-interface IChatArgs {
+interface IChatArgs<T = string> {
     /** Message content for the chat*/
-    message: string;
+    message: T;
     /** Optional array of images associated with the chat. */
     images?: Image$1[];
 }
@@ -4163,17 +4163,17 @@ interface IChatArgs {
  * @interface IAdvisorSchema
  * Schema definition for advisor configuration
 */
-interface IAdvisorSchema {
+interface IAdvisorSchema<T = string> {
     /** Optional description of the advisor documentation*/
     docDescription?: string;
     /** Name identifier for the advisor*/
     advisorName: AdvisorName;
     /**
      * Function to get chat response
-    */
-    getChat(args: IChatArgs): Promise<string>;
+     */
+    getChat(args: IChatArgs<T>): Promise<string>;
     /** Optional callbacks for advisor operations*/
-    callbacks?: IAdvisorCallbacks;
+    callbacks?: IAdvisorCallbacks<T>;
 }
 /**
  * Type alias for advisor name identifier.
@@ -8239,7 +8239,7 @@ declare class AdvisorSchemaService {
      * @public
      * Logs the override operation and updates the registry with the new schema
      */
-    override: (key: AdvisorName, value: Partial<IAdvisorSchema>) => IAdvisorSchema;
+    override: (key: AdvisorName, value: Partial<IAdvisorSchema>) => IAdvisorSchema<string>;
     /**
      * Retrieves an advisor schema by key
      * @public
@@ -10300,7 +10300,7 @@ declare function addFetchInfo<T = Record<string, any>>(params: IFetchInfoToolPar
  * @function addAdvisor
  * @param {IAdvisorSchema} advisorSchema - The schema definition for advisor.
 */
-declare function addAdvisor(advisorSchema: IAdvisorSchema): string;
+declare function addAdvisor<T = string>(advisorSchema: IAdvisorSchema<T>): string;
 
 /**
  * Adds a new agent to the agent registry for use within the swarm system.
@@ -10738,9 +10738,9 @@ declare function overrideMCP(mcpSchema: TMCPSchema): IMCPSchema;
  * Type representing a partial advisor schema configuration.
  * Used for advisor service configuration with optional properties.
 */
-type TAdvisorSchema = {
-    advisorName: IAdvisorSchema["advisorName"];
-} & Partial<IAdvisorSchema>;
+type TAdvisorSchema<T = string> = {
+    advisorName: IAdvisorSchema<T>["advisorName"];
+} & Partial<IAdvisorSchema<T>>;
 /**
  * Overrides an existing advisor schema in the swarm system with a new or partial schema.
  * This function updates the configuration of an advisor identified by its `advisorName`, applying the provided schema properties.
@@ -10760,7 +10760,7 @@ type TAdvisorSchema = {
  * });
  * // Logs the operation (if enabled) and updates the advisor schema in the swarm.
 */
-declare function overrideAdvisor(advisorSchema: TAdvisorSchema): IAdvisorSchema;
+declare function overrideAdvisor<T = string>(advisorSchema: TAdvisorSchema<T>): IAdvisorSchema<string>;
 
 /**
  * @module overrideCompute
@@ -11186,11 +11186,11 @@ type Image = Uint8Array | string;
 /**
  * Initiates an ask process within a chat context
  * @function ask
- * @param {string} message - The message content to process or send.
+ * @param {T} message - The message content to process or send.
  * @param {AdvisorName} advisorName - The name of the advisor.
  * @param {Image[]} [images] - Optional array of images (as Uint8Array or string).
 */
-declare function ask(message: string, advisorName: AdvisorName, images?: Image[]): Promise<string>;
+declare function ask<T = string>(message: T, advisorName: AdvisorName, images?: Image[]): Promise<string>;
 
 /**
  * Processes an outline request to generate structured JSON data based on a specified outline schema.
@@ -11903,7 +11903,7 @@ declare function getTool(toolName: ToolName): IAgentTool<Record<string, ToolValu
  * @function getAdvisor
  * @param {AdvisorName} advisorName - The name of the advisor.
 */
-declare function getAdvisor(advisorName: AdvisorName): IAdvisorSchema;
+declare function getAdvisor(advisorName: AdvisorName): IAdvisorSchema<string>;
 
 /**
  * Retrieves the raw, unmodified history for a given client session.

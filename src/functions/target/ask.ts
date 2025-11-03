@@ -40,10 +40,10 @@ const askInternal = beginContext(
 /**
  * Initiates an ask process within a chat context
  * @function ask
- * @param {string} message - The message content to process or send.
+ * @param {T} message - The message content to process or send.
  * @param {AdvisorName} advisorName - The name of the advisor.
  * @param {Image[]} [images] - Optional array of images (as Uint8Array or string).
 */
-export async function ask(message: string, advisorName: AdvisorName, images?: Image[]) {
-  return await askInternal(message, advisorName, images);
+export async function ask<T = string>(message: T, advisorName: AdvisorName, images?: Image[]) {
+  return await askInternal(message as string, advisorName, images);
 }
