@@ -28,7 +28,7 @@ bus: IBus
 ### binding
 
 ```ts
-binding: IStateChangeContract[]
+binding: IStateChangeEvent[]
 ```
 
 Array of state change contracts for state dependencies.

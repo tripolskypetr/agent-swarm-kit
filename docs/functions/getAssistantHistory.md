@@ -6,7 +6,7 @@ group: docs
 # getAssistantHistory
 
 ```ts
-declare function getAssistantHistory(clientId: string): Promise<IModelMessage<object>[]>;
+declare function getAssistantHistory(clientId: string): Promise<ISwarmMessage<object>[]>;
 ```
 
 Retrieves the assistant's history entries for a given client session.

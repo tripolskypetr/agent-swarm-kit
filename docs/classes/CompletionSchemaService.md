@@ -61,7 +61,7 @@ Supports ClientAgent execution by ensuring completion schema validity before reg
 ### register
 
 ```ts
-register: (key: string, value: ICompletionSchema) => void
+register: (key: string, value: ICompletionSchema<IBaseMessage<any>>) => void
 ```
 
 Registers a new completion schema in the registry after validation.
@@ -72,7 +72,7 @@ Supports ClientAgent execution by providing validated completion schemas to Agen
 ### override
 
 ```ts
-override: (key: string, value: Partial<ICompletionSchema>) => ICompletionSchema
+override: (key: string, value: Partial<ICompletionSchema<IBaseMessage<any>>>) => ICompletionSchema<IBaseMessage<any>>
 ```
 
 Overrides an existing completion schema in the registry with a new one.
@@ -83,7 +83,7 @@ Supports dynamic updates to completion schemas used by AgentSchemaService, Clien
 ### get
 
 ```ts
-get: (key: string) => ICompletionSchema
+get: (key: string) => ICompletionSchema<IBaseMessage<any>>
 ```
 
 Retrieves a completion schema from the registry by its name.

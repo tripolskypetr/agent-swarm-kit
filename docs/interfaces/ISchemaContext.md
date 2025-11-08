@@ -10,7 +10,7 @@ group: docs
 ### registry
 
 ```ts
-registry: { agentSchemaService: ToolRegistry<Record<string, IAgentSchemaInternal>>; completionSchemaService: ToolRegistry<Record<string, ICompletionSchema>>; ... 10 more ...; outlineSchemaService: ToolRegistry<...>; }
+registry: { agentSchemaService: ToolRegistry<Record<string, IAgentSchemaInternal>>; completionSchemaService: ToolRegistry<Record<string, ICompletionSchema<IBaseMessage<any>>>>; ... 10 more ...; outlineSchemaService: ToolRegistry<...>; }
 ```
 
 A collection of registries for different schema types, each managing specific schema records.

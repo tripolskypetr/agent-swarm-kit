@@ -6,7 +6,7 @@ group: docs
 # getUserHistory
 
 ```ts
-declare function getUserHistory(clientId: string): Promise<IModelMessage<object>[]>;
+declare function getUserHistory(clientId: string): Promise<ISwarmMessage<object>[]>;
 ```
 
 Retrieves the user-specific history entries for a given client session.

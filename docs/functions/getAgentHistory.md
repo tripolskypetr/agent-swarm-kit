@@ -6,7 +6,7 @@ group: docs
 # getAgentHistory
 
 ```ts
-declare function getAgentHistory(clientId: string, agentName: AgentName): Promise<IModelMessage<object>[]>;
+declare function getAgentHistory(clientId: string, agentName: AgentName): Promise<ISwarmMessage<object>[]>;
 ```
 
 Retrieves the history prepared for a specific agent, incorporating rescue algorithm tweaks.

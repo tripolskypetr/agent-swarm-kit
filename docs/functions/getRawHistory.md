@@ -6,7 +6,7 @@ group: docs
 # getRawHistory
 
 ```ts
-declare function getRawHistory(clientId: string): Promise<IModelMessage<object>[]>;
+declare function getRawHistory(clientId: string): Promise<ISwarmMessage<object>[]>;
 ```
 
 Retrieves the raw, unmodified history for a given client session.

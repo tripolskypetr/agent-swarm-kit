@@ -12,7 +12,7 @@ Interface defining methods for interacting with a history adapter.
 ### push
 
 ```ts
-push: (value: IModelMessage<object>, clientId: string, agentName: string) => Promise<void>
+push: (value: ISwarmMessage<object>, clientId: string, agentName: string) => Promise<void>
 ```
 
 Adds a new message to the history.
@@ -20,7 +20,7 @@ Adds a new message to the history.
 ### pop
 
 ```ts
-pop: (clientId: string, agentName: string) => Promise<IModelMessage<object>>
+pop: (clientId: string, agentName: string) => Promise<ISwarmMessage<object>>
 ```
 
 Removes and returns the last message from the history.
@@ -38,7 +38,7 @@ Disposes of the history for a client and agent, optionally clearing all data.
 ### iterate
 
 ```ts
-iterate: (clientId: string, agentName: string) => AsyncIterableIterator<IModelMessage<object>>
+iterate: (clientId: string, agentName: string) => AsyncIterableIterator<ISwarmMessage<object>>
 ```
 
 Iterates over history messages for a client and agent.

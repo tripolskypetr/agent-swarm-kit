@@ -35,7 +35,7 @@ List of flags for llm model. As example, `/no_think` for `lmstudio-community/Qwe
 ### callbacks
 
 ```ts
-callbacks: Partial<ICompletionCallbacks>
+callbacks: Partial<ICompletionCallbacks<IBaseMessage<string>>>
 ```
 
 Optional partial set of callbacks for completion events, allowing customization of post-completion behavior.
@@ -45,7 +45,7 @@ Optional partial set of callbacks for completion events, allowing customization 
 ### getCompletion
 
 ```ts
-getCompletion: (args: ICompletionArgs) => Promise<IModelMessage<object> | IOutlineMessage>
+getCompletion: (args: ICompletionArgs<Message>) => Promise<Message>
 ```
 
 Retrieves a completion based on the provided arguments.

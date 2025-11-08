@@ -6,7 +6,7 @@ group: docs
 # TCompleteFn
 
 ```ts
-type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
+type TCompleteFn = (args: ICompletionArgs) => Promise<ISwarmMessage>;
 ```
 
 Function type for completing AI model requests.
