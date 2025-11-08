@@ -426,6 +426,17 @@ interface IState<T extends IStateData = IStateData> {
  * Used to identify and reference specific state instances.
 */
 type StateName = string;
+/**
+ * Interface for handling state change events using a subject pattern.
+ * Provides a subject to subscribe to state updates.
+ */
+interface IStateChangeEvent {
+    /**
+     * A subject that emits state names when changes occur, allowing subscribers to react to state updates.
+     * Provides reactive state change notifications throughout the system.
+     */
+    stateChanged: TSubject<StateName>;
+}
 
 /**
  * Interface representing callbacks for policy lifecycle and validation events.
@@ -556,23 +567,6 @@ interface IPolicyParams extends IPolicySchema, IPolicyCallbacks {
 type PolicyName = string;
 
 /**
- * @module StateChangeContract
- * Defines an interface for state change event handling using a subject pattern.
-*/
-
-/**
- * @interface IStateChangeContract
- * Contract for handling state change events, providing a subject to subscribe to state updates.
-*/
-interface IStateChangeContract {
-    /**
-     * A subject that emits state names when changes occur, allowing subscribers to react to state updates.
-     * Provides reactive state change notifications throughout the system.
-     */
-    stateChanged: TSubject<StateName>;
-}
-
-/**
  * @module ComputeInterface
  * Defines interfaces and types for compute-related operations, including schemas, middleware, callbacks, and contracts.
 */
@@ -697,7 +691,7 @@ interface IComputeParams<T extends IComputeData = IComputeData> extends ICompute
      * Array of state change contracts for state dependencies.
      * Defines which state changes trigger compute recalculation and data updates.
      */
-    binding: IStateChangeContract[];
+    binding: IStateChangeEvent[];
 }
 /**
  * @interface ICompute
@@ -6503,7 +6497,7 @@ type Action = "read" | "write";
  * Integrates with StateConnectionService (state instantiation), ClientAgent (state-driven behavior),
  * SwarmConnectionService (swarm-level state), and BusService (event emission).
 */
-declare class ClientState<State extends IStateData = IStateData> implements IState<State>, IStateChangeContract {
+declare class ClientState<State extends IStateData = IStateData> implements IState<State>, IStateChangeEvent {
     readonly params: IStateParams<State>;
     readonly stateChanged: Subject<string>;
     /**

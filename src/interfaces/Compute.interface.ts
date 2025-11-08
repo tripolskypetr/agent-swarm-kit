@@ -3,10 +3,9 @@
  * Defines interfaces and types for compute-related operations, including schemas, middleware, callbacks, and contracts.
 */
 
-import { IStateChangeContract } from "../contract/StateChange.contract";
 import { IBus } from "./Bus.interface";
 import { ILogger } from "./Logger.interface";
-import { StateName } from "./State.interface";
+import { IStateChangeEvent, StateName } from "./State.interface";
 
 /**
  * Generic type for compute data, allowing flexibility in data structure.
@@ -150,7 +149,7 @@ export interface IComputeParams<T extends IComputeData = IComputeData>
    * Array of state change contracts for state dependencies.
    * Defines which state changes trigger compute recalculation and data updates.
    */
-  binding: IStateChangeContract[];
+  binding: IStateChangeEvent[];
 }
 
 /**

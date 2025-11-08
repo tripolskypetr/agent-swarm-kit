@@ -1,13 +1,13 @@
 import { queued, singleshot, Subject } from "functools-kit";
 import {
   IState,
+  IStateChangeEvent,
   IStateData,
   IStateParams,
   StateName,
 } from "../interfaces/State.interface";
 import { IBusEvent } from "../model/Event.model";
 import { GLOBAL_CONFIG } from "../config/params";
-import { IStateChangeContract } from "../contract/StateChange.contract";
 
 /**
  * Type representing a dispatch function for updating the state in ClientState.
@@ -84,7 +84,7 @@ const WAIT_FOR_INIT_FN = async (self: ClientState): Promise<void> => {
  * SwarmConnectionService (swarm-level state), and BusService (event emission).
 */
 export class ClientState<State extends IStateData = IStateData>
-  implements IState<State>, IStateChangeContract
+  implements IState<State>, IStateChangeEvent
 {
   public readonly stateChanged = new Subject<StateName>();
 
