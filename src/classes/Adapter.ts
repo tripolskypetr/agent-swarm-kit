@@ -627,7 +627,7 @@ export class AdapterUtils {
           mode,
           tools,
           clientId,
-        }: ICompletionArgs): Promise<IModelMessage> => {
+        }: ICompletionArgs<IModelMessage>): Promise<IModelMessage> => {
           Logger.logClient(
             clientId,
             "AdapterUtils fromOllama completion",

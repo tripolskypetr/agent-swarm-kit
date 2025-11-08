@@ -1,7 +1,7 @@
-import { IModelMessage } from "../model/ModelMessage.model";
+import { IBaseMessage } from "../model/BaseMessage.model";
 import { ITool } from "../model/Tool.model";
 import { AgentName } from "./Agent.interface";
-import { IOutlineFormat, IOutlineMessage, OutlineName } from "./Outline.interface";
+import { IOutlineFormat, OutlineName } from "./Outline.interface";
 import { ExecutionMode } from "./Session.interface";
 
 /**
@@ -14,8 +14,9 @@ export interface ICompletion extends ICompletionSchema {}
 /**
  * Interface representing the arguments required to request a completion.
  * Encapsulates context and inputs for generating a model response.
+ * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage with string role.
 */
-export interface ICompletionArgs {
+export interface ICompletionArgs<Message extends IBaseMessage<string> = IBaseMessage<string>> {
   /**
    * The unique identifier for the client making the request.
    * This is used to track the request and associate it with the correct client context.
@@ -39,8 +40,8 @@ export interface ICompletionArgs {
   /** The source of the last message, indicating whether it originated from a tool or user.*/
   mode: ExecutionMode;
 
-  /** An array of model messages providing the conversation history or context for the completion.*/
-  messages: (IModelMessage | IOutlineMessage)[];
+  /** An array of messages providing the conversation history or context for the completion.*/
+  messages: Message[];
 
   /** Optional array of tools available for the completion process (e.g., for tool calls).*/
   tools?: ITool[];
@@ -57,20 +58,22 @@ export interface ICompletionArgs {
 /**
  * Interface representing lifecycle callbacks for completion events.
  * Provides hooks for post-completion actions.
+ * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage with string role.
 */
-export interface ICompletionCallbacks {
+export interface ICompletionCallbacks<Message extends IBaseMessage<string> = IBaseMessage<string>> {
   /**
    * Optional callback triggered after a completion is successfully generated.
    * Useful for logging, output processing, or triggering side effects.
    */
-  onComplete?: (args: ICompletionArgs, output: IModelMessage | IOutlineMessage) => void;
+  onComplete?: (args: ICompletionArgs<Message>, output: Message) => void;
 }
 
 /**
  * Interface representing the schema for configuring a completion mechanism.
  * Defines how completions are generated within the swarm.
+ * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage for maximum flexibility.
 */
-export interface ICompletionSchema {
+export interface ICompletionSchema<Message extends IBaseMessage<string> = IBaseMessage<any>> {
   /** The unique name of the completion mechanism within the swarm.*/
   completionName: CompletionName;
 
@@ -79,7 +82,7 @@ export interface ICompletionSchema {
    * Generates a model response using the given context and tools.
    * @throws {Error} If completion generation fails (e.g., due to invalid arguments, model errors, or tool issues).
    */
-  getCompletion(args: ICompletionArgs): Promise<IModelMessage | IOutlineMessage>;
+  getCompletion(args: ICompletionArgs<Message>): Promise<Message>;
 
   /*
    * Flag if the completion is a JSON completion.
