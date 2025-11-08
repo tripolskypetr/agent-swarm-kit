@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import IHistory from "../../../interfaces/History.interface";
-import { IModelMessage } from "../../../model/ModelMessage.model";
+import { IModelMessage } from "../../../contract/ModelMessage.contract";
 import { memoize } from "functools-kit";
 import ClientHistory from "../../../client/ClientHistory";
 import { TMethodContextService } from "../context/MethodContextService";

@@ -7,14 +7,14 @@ import {
   IOutlineData,
   IOutlineHistory,
   OutlineName,
-  IOutlineMessage,
   IOutlineValidationArgs,
   IOutlineResult,
 } from "../../interfaces/Outline.interface";
 import { ICompletionSchema } from "../../interfaces/Completion.interface";
 import { getErrorMessage, randomString } from "functools-kit";
 import { errorSubject } from "../../config/emitters";
-import { IModelMessage } from "../../model/ModelMessage.model";
+import { IModelMessage } from "../../contract/ModelMessage.contract";
+import { IOutlineMessage } from "../../contract/OutlineMessage.contract";
 
 const METHOD_NAME = "function.target.json";
 

@@ -3,7 +3,7 @@ import { HistoryConnectionService } from "../connection/HistoryConnectionService
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import MethodContextService from "../context/MethodContextService";
-import { IModelMessage } from "../../../model/ModelMessage.model";
+import { IModelMessage } from "../../../contract/ModelMessage.contract";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
 

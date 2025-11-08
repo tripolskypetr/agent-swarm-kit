@@ -6,7 +6,7 @@ import {
   ICompletion,
 } from "../interfaces/Completion.interface";
 import { ExecutionMode } from "./Session.interface";
-import { IModelMessage } from "../model/ModelMessage.model";
+import { IModelMessage } from "../contract/ModelMessage.contract";
 import { StorageName } from "./Storage.interface";
 import { StateName } from "./State.interface";
 import { IBus } from "./Bus.interface";

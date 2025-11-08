@@ -2490,6 +2490,20 @@ interface IHistorySchema {
 }
 
 /**
+ * Type representing roles specific to outline messages.
+ * Uses the base message roles without additional extensions.
+ */
+type OutlineMessageRole = BaseMessageRole;
+/**
+ * Interface representing a message in the outline system.
+ * Used to structure messages stored in the outline history, typically for user, assistant, or system interactions.
+ * @extends {IBaseMessage}
+ * @interface IOutlineMessage
+*/
+interface IOutlineMessage extends IBaseMessage<OutlineMessageRole> {
+}
+
+/**
  * Generic type representing arbitrary param for outline operations.
  * Used as a flexible placeholder for input param in outline schemas and arguments.
 */
@@ -2585,19 +2599,6 @@ interface IOutlineCallbacks<Data extends IOutlineData = IOutlineData, Param exte
      * Useful for handling failed validation outcomes or retries.
      */
     onInvalidDocument?: (result: IOutlineResult<Data, Param>) => void;
-}
-/**
- * Type representing roles specific to outline messages.
- * Uses the base message roles without additional extensions.
- */
-type OutlineMessageRole = BaseMessageRole;
-/**
- * Interface representing a message in the outline system.
- * Used to structure messages stored in the outline history, typically for user, assistant, or system interactions.
- * @extends {IBaseMessage}
- * @interface IOutlineMessage
-*/
-interface IOutlineMessage extends IBaseMessage<OutlineMessageRole> {
 }
 /**
  * Interface representing the history management API for outline operations.

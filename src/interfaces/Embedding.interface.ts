@@ -1,4 +1,4 @@
-import { IModelMessage } from "../model/ModelMessage.model";
+import { IModelMessage } from "../contract/ModelMessage.contract";
 import { ITool } from "../model/Tool.model";
 import { AgentName } from "./Agent.interface";
 import { ExecutionMode } from "./Session.interface";

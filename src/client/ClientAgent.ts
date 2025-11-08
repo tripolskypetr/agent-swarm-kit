@@ -8,7 +8,7 @@ import {
   sleep,
   Subject,
 } from "functools-kit";
-import { IModelMessage } from "../model/ModelMessage.model";
+import { IModelMessage } from "../contract/ModelMessage.contract";
 import {
   IAgent,
   IAgentParams,

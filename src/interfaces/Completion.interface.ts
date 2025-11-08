@@ -1,4 +1,4 @@
-import { IBaseMessage } from "../model/BaseMessage.model";
+import { IBaseMessage } from "../contract/BaseMessage.contract";
 import { ITool } from "../model/Tool.model";
 import { AgentName } from "./Agent.interface";
 import { IOutlineFormat, OutlineName } from "./Outline.interface";

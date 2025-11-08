@@ -1,4 +1,4 @@
-import { IToolCall } from "./Tool.model";
+import { IToolCall } from "../model/Tool.model";
 
 /**
  * Type representing the base roles available for all message types.

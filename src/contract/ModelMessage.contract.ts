@@ -1,5 +1,5 @@
 import { ExecutionMode } from "../interfaces/Session.interface";
-import { IBaseMessage, BaseMessageRole } from "./BaseMessage.model";
+import { IBaseMessage, BaseMessageRole } from "./BaseMessage.contract";
 
 /**
  * Type representing extended roles specific to model messages.

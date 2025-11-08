@@ -1,6 +1,6 @@
 import { makeExtendable, memoize, singleshot } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
-import { IModelMessage } from "../model/ModelMessage.model";
+import { IModelMessage } from "../contract/ModelMessage.contract";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 import { PersistList, TPersistList } from "./Persist";

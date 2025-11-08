@@ -4,8 +4,8 @@ import swarm from "../../lib";
 import { CompletionName } from "../../interfaces/Completion.interface";
 import { randomString } from "functools-kit";
 import { errorSubject } from "../../config/emitters";
-import { IBaseMessage } from "../../model/BaseMessage.model";
-import { IOutlineMessage } from "../../interfaces/Outline.interface";
+import { IBaseMessage } from "../../contract/BaseMessage.contract";
+import { IOutlineMessage } from "../../contract/OutlineMessage.contract";
 
 const METHOD_NAME = "function.target.chat";
 

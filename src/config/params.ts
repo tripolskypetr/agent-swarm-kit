@@ -1,5 +1,5 @@
 import { AgentName } from "../interfaces/Agent.interface";
-import { IModelMessage } from "../model/ModelMessage.model";
+import { IModelMessage } from "../contract/ModelMessage.contract";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import validateDefault from "../validation/validateDefault";
 import removeXmlTags from "../utils/removeXmlTags";

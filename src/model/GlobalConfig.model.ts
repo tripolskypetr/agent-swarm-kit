@@ -1,5 +1,5 @@
 import { AgentName } from "../interfaces/Agent.interface";
-import { IModelMessage } from "../model/ModelMessage.model";
+import { IModelMessage } from "../contract/ModelMessage.contract";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import { IHistoryAdapter } from "../classes/History";
 import { ILoggerAdapter } from "../classes/Logger";

@@ -1,4 +1,4 @@
-import { IModelMessage } from "../model/ModelMessage.model";
+import { IModelMessage } from "../contract/ModelMessage.contract";
 import IHistory, { IHistoryParams } from "../interfaces/History.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import { IBusEvent } from "../model/Event.model";

@@ -1,7 +1,7 @@
 import { ICompletionArgs } from "../interfaces/Completion.interface";
 import Logger from "./Logger";
 import { execpool, fetchApi, randomString, retry, str } from "functools-kit";
-import { IModelMessage } from "../model/ModelMessage.model";
+import { IModelMessage } from "../contract/ModelMessage.contract";
 
 /**
  * Prompt template for instructing models on how to format tool calls in responses.
