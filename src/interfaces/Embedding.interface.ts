@@ -1,4 +1,4 @@
-import { IModelMessage } from "../contract/ModelMessage.contract";
+import { ISwarmMessage } from "../contract/SwarmMessage.contract";
 import { ITool } from "../model/Tool.model";
 import { AgentName } from "./Agent.interface";
 import { ExecutionMode } from "./Session.interface";

@@ -6,7 +6,7 @@ import {
   ICompletion,
 } from "../interfaces/Completion.interface";
 import { ExecutionMode } from "./Session.interface";
-import { IModelMessage } from "../contract/ModelMessage.contract";
+import { ISwarmMessage } from "../contract/SwarmMessage.contract";
 import { StorageName } from "./Storage.interface";
 import { StateName } from "./State.interface";
 import { IBus } from "./Bus.interface";
@@ -400,10 +400,10 @@ export interface IAgentSchemaInternal {
    * Optional function to map assistant messages, e.g., converting JSON to tool calls for specific models.
    */
   map?: (
-    message: IModelMessage,
+    message: ISwarmMessage,
     clientId: string,
     agentName: AgentName
-  ) => Promise<IModelMessage> | IModelMessage;
+  ) => Promise<ISwarmMessage> | ISwarmMessage;
 
   /** Optional lifecycle callbacks for the agent, allowing customization of execution flow.*/
   callbacks?: Partial<IAgentSchemaInternalCallbacks>;

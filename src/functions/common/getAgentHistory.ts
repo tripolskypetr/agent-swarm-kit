@@ -56,7 +56,7 @@ const getAgentHistoryInternal = beginContext(
  * @throws {Error} If validation fails (e.g., invalid session or agent) or if the history public service encounters an error during retrieval.
  * @example
  * const history = await getAgentHistory("client-123", "AgentX");
- * console.log(history); // Outputs array of IModelMessage objects
+ * console.log(history); // Outputs array of ISwarmMessage objects
  */
 export async function getAgentHistory(clientId: string, agentName: AgentName) {
   return await getAgentHistoryInternal(clientId, agentName);

@@ -3,7 +3,7 @@ import { HistoryConnectionService } from "../connection/HistoryConnectionService
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import MethodContextService from "../context/MethodContextService";
-import { IModelMessage } from "../../../contract/ModelMessage.contract";
+import { ISwarmMessage } from "../../../contract/SwarmMessage.contract";
 import { AgentName } from "../../../interfaces/Agent.interface";
 import { GLOBAL_CONFIG } from "../../../config/params";
 
@@ -57,7 +57,7 @@ export class HistoryPublicService implements THistoryConnectionService {
    * Used in AgentPublicService (e.g., commitSystemMessage, commitUserMessage) and ClientAgent (e.g., EXECUTE_FN message logging).
    */
   public push = async (
-    message: IModelMessage,
+    message: ISwarmMessage,
     methodName: string,
     clientId: string,
     agentName: AgentName

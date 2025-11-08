@@ -2,7 +2,7 @@ import { inject } from "../../core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "../../core/types";
 import IHistory from "../../../interfaces/History.interface";
-import { IModelMessage } from "../../../contract/ModelMessage.contract";
+import { ISwarmMessage } from "../../../contract/SwarmMessage.contract";
 import { memoize } from "functools-kit";
 import ClientHistory from "../../../client/ClientHistory";
 import { TMethodContextService } from "../context/MethodContextService";
@@ -88,7 +88,7 @@ export class HistoryConnectionService implements IHistory {
    * Delegates to ClientHistory.push, using context from MethodContextService to identify the history instance, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
    * Mirrors HistoryPublicService’s push, supporting ClientAgent’s history updates (e.g., via commit methods in AgentConnectionService).
    */
-  public push = async (message: IModelMessage) => {
+  public push = async (message: ISwarmMessage) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`historyConnectionService push`, {
         message,

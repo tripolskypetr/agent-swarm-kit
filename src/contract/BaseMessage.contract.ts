@@ -9,7 +9,7 @@ export type BaseMessageRole = "assistant" | "system" | "tool" | "user";
 /**
  * Base interface representing common properties shared by all message types in the swarm system.
  * Defines the core structure for messages exchanged between agents, tools, users, and the system.
- * Extended by IModelMessage and IOutlineMessage to add specific properties for their respective contexts.
+ * Extended by ISwarmMessage and IOutlineMessage to add specific properties for their respective contexts.
  * @template Role - The type of role for the message, defaults to BaseMessageRole.
  * @interface IBaseMessage
  */

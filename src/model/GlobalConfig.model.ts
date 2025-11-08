@@ -1,5 +1,5 @@
 import { AgentName } from "../interfaces/Agent.interface";
-import { IModelMessage } from "../contract/ModelMessage.contract";
+import { ISwarmMessage } from "../contract/SwarmMessage.contract";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import { IHistoryAdapter } from "../classes/History";
 import { ILoggerAdapter } from "../classes/Logger";
@@ -166,7 +166,7 @@ export interface IGlobalConfig {
    */
   CC_AGENT_HISTORY_FILTER: (
     agentName: AgentName
-  ) => (message: IModelMessage) => boolean;
+  ) => (message: ISwarmMessage) => boolean;
 
   /**
    * Default transformation function for agent outputs, used in `ClientAgent.transform` (e.g., `RUN_FN`, `_emitOutput`).
@@ -180,15 +180,15 @@ export interface IGlobalConfig {
 
   /**
    * Function to map model messages for agent output, used in `ClientAgent.map` (e.g., `RUN_FN`, `EXECUTE_FN`).
-   * Default implementation returns the message unchanged, allowing customization of `IModelMessage` via `setConfig`.
+   * Default implementation returns the message unchanged, allowing customization of `ISwarmMessage` via `setConfig`.
    * @example
    * setConfig({
    *   CC_AGENT_OUTPUT_MAP: async (msg) => ({ ...msg, content: msg.content.toUpperCase() })
    * });
    */
   CC_AGENT_OUTPUT_MAP: (
-    message: IModelMessage
-  ) => IModelMessage | Promise<IModelMessage>;
+    message: ISwarmMessage
+  ) => ISwarmMessage | Promise<ISwarmMessage>;
 
   /**
    * Optional system prompt for agents, used in `ClientAgent.history.toArrayForAgent` (e.g., `getCompletion`).
@@ -292,7 +292,7 @@ export interface IGlobalConfig {
   CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (
     clientId: string,
     agentName: AgentName
-  ) => Promise<IModelMessage | null>;
+  ) => Promise<ISwarmMessage | null>;
 
   /**
    * Flag to enable persistence by default, used in `IStorage` or `IState` initialization.

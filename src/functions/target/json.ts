@@ -13,7 +13,7 @@ import {
 import { ICompletionSchema } from "../../interfaces/Completion.interface";
 import { getErrorMessage, randomString } from "functools-kit";
 import { errorSubject } from "../../config/emitters";
-import { IModelMessage } from "../../contract/ModelMessage.contract";
+import { ISwarmMessage } from "../../contract/SwarmMessage.contract";
 import { IOutlineMessage } from "../../contract/OutlineMessage.contract";
 
 const METHOD_NAME = "function.target.json";
@@ -145,7 +145,7 @@ const jsonInternal = beginContext(
       await getOutlineHistory(inputArgs);
       const messages = await history.list();
       try {
-        let output: IModelMessage | IOutlineMessage;
+        let output: ISwarmMessage | IOutlineMessage;
         let errorValue = null;
 
         const unError = errorSubject.subscribe(([errorClientId, error]) => {

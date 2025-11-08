@@ -72,6 +72,7 @@ export * from "./functions/target/executeForce";
 export * from "./functions/target/ask";
 export * from "./functions/target/json";
 export * from "./functions/target/chat";
+export * from "./functions/target/chat";
 export * from "./functions/target/makeAutoDispose";
 export * from "./functions/target/execute";
 export * from "./functions/target/emit";
@@ -169,8 +170,9 @@ export { IMCPSchema, IMCPTool, MCPToolProperties, IMCPToolCallDto } from './inte
 export { IOutlineSchema, IOutlineHistory, IOutlineValidationFn, IOutlineResult, IOutlineFormat, IOutlineSchemaFormat, IOutlineObjectFormat } from "./interfaces/Outline.interface";
 
 export { IBaseMessage, BaseMessageRole } from "./contract/BaseMessage.contract";
-export { IModelMessage, ModelMessageRole } from "./contract/ModelMessage.contract";
+export { ISwarmMessage, SwarmMessageRole } from "./contract/SwarmMessage.contract";
 export { IOutlineMessage, OutlineMessageRole } from "./contract/OutlineMessage.contract";
+
 export { IIncomingMessage, IOutgoingMessage } from "./model/EmitMessage.model";
 export { ITool, IToolCall } from "./model/Tool.model";
 

@@ -1,5 +1,5 @@
 import { AgentName } from "../interfaces/Agent.interface";
-import { IModelMessage } from "../contract/ModelMessage.contract";
+import { ISwarmMessage } from "../contract/SwarmMessage.contract";
 import { SwarmName } from "../interfaces/Swarm.interface";
 import validateDefault from "../validation/validateDefault";
 import removeXmlTags from "../utils/removeXmlTags";
@@ -27,7 +27,7 @@ const CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT = str.newline(
 const CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (
   clientId: string,
   agentName: AgentName
-) => Promise<IModelMessage | null> = () => Promise.resolve(null);
+) => Promise<ISwarmMessage | null> = () => Promise.resolve(null);
 
 const CC_EMPTY_OUTPUT_PLACEHOLDERS = [
   "Sorry, I missed that. Could you say it again?",
@@ -77,7 +77,7 @@ const CC_AGENT_DISALLOWED_SYMBOLS = ["{", "}"];
 
 const CC_AGENT_HISTORY_FILTER =
   (agentName: AgentName) =>
-  (message: IModelMessage): boolean => {
+  (message: ISwarmMessage): boolean => {
     let isOk = true;
     if (message.role === "tool") {
       isOk = isOk && message.agentName === agentName;
@@ -108,8 +108,8 @@ const CC_GET_AGENT_HISTORY_ADAPTER: (
 const CC_GET_CLIENT_LOGGER_ADAPTER: () => ILoggerAdapter = () => LoggerAdapter;
 
 const CC_AGENT_OUTPUT_MAP = (
-  message: IModelMessage
-): IModelMessage | Promise<IModelMessage> => message;
+  message: ISwarmMessage
+): ISwarmMessage | Promise<ISwarmMessage> => message;
 
 const CC_AGENT_SYSTEM_PROMPT: string[] | undefined = undefined;
 

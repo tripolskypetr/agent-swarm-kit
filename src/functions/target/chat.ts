@@ -5,7 +5,6 @@ import { CompletionName } from "../../interfaces/Completion.interface";
 import { randomString } from "functools-kit";
 import { errorSubject } from "../../config/emitters";
 import { IBaseMessage } from "../../contract/BaseMessage.contract";
-import { IOutlineMessage } from "../../contract/OutlineMessage.contract";
 
 const METHOD_NAME = "function.target.chat";
 
@@ -80,7 +79,7 @@ const chatInternal = beginContext(
  */
 export async function chat(
   completionName: CompletionName,
-  messages: IOutlineMessage[]
+  messages: IBaseMessage[]
 ): Promise<string> {
   return await chatInternal(completionName, messages);
 }

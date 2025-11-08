@@ -8,7 +8,7 @@ import {
   sleep,
   Subject,
 } from "functools-kit";
-import { IModelMessage } from "../contract/ModelMessage.contract";
+import { ISwarmMessage } from "../contract/SwarmMessage.contract";
 import {
   IAgent,
   IAgentParams,
@@ -245,7 +245,7 @@ const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
     tools: [],
   };
   const completionMessage = await self.params.completion.getCompletion(args);
-  const rawMessage: IModelMessage = {
+  const rawMessage: ISwarmMessage = {
     agentName: self.params.agentName,
     mode: "tool",
     ...completionMessage,
@@ -1024,7 +1024,7 @@ export class ClientAgent implements IAgent {
   async getCompletion(
     mode: ExecutionMode,
     tools: IAgentTool[]
-  ): Promise<IModelMessage> {
+  ): Promise<ISwarmMessage> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} getCompletion`
@@ -1050,7 +1050,7 @@ export class ClientAgent implements IAgent {
       ),
     };
     const rawMessage = await this.params.completion.getCompletion(args);
-    const output: IModelMessage = {
+    const output: ISwarmMessage = {
       agentName: this.params.agentName,
       mode: "tool",
       ...rawMessage,
@@ -1123,7 +1123,7 @@ export class ClientAgent implements IAgent {
         ),
       };
       const rawMessage = await this.params.completion.getCompletion(args);
-      const output: IModelMessage = {
+      const output: ISwarmMessage = {
         agentName: this.params.agentName,
         mode: "tool",
         ...rawMessage,
