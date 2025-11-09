@@ -1,5 +1,9 @@
 import { IBaseMessage } from "../contract/BaseMessage.contract";
 import { IBaseCompletionArgs } from "../contract/BaseCompletion.contract";
+import { addCompletion } from "../functions/setup/addCompletion";
+import { ISwarmCompletionArgs } from "../contract/SwarmCompletion.contract";
+import { ISwarmMessage } from "../contract/SwarmMessage.contract";
+import { IOutlineCompletionArgs } from "../contract/OutlineCompletion.contract";
 
 /**
  * Interface representing a completion mechanism.
@@ -33,10 +37,14 @@ export interface ICompletionSchema<Message extends IBaseMessage<string> = IBaseM
   /**
    * Retrieves a completion based on the provided arguments.
    * Generates a model response using the given context and tools.
-   * @template Args - The type of completion arguments (base, outline, or swarm), inferred from the method call.
    * @throws {Error} If completion generation fails (e.g., due to invalid arguments, model errors, or tool issues).
    */
-  getCompletion<Args extends IBaseCompletionArgs<Message>>(args: Args): Promise<Message>;
+  getCompletion(
+    args:
+      | IBaseCompletionArgs<IBaseMessage<string>>
+      | IOutlineCompletionArgs<IBaseMessage<string>>
+      | ISwarmCompletionArgs<IBaseMessage<string>>
+  ): Promise<Message>;
 
   /*
    * Flag if the completion is a JSON completion.
@@ -57,3 +65,11 @@ export interface ICompletionSchema<Message extends IBaseMessage<string> = IBaseM
  * Used to identify and reference specific completion implementations.
 */
 export type CompletionName = string;
+
+
+addCompletion({
+  completionName: "test",
+  getCompletion: async (params: ISwarmCompletionArgs): Promise<ISwarmMessage> => {
+    return null as never;
+  }
+})

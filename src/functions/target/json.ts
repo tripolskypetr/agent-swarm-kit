@@ -158,7 +158,6 @@ const jsonInternal = beginContext(
         output = await getCompletion({
           clientId,
           messages: await history.list(),
-          mode: "tool",
           outlineName,
           format,
         });
