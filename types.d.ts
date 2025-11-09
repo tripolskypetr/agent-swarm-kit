@@ -426,6 +426,17 @@ interface IState<T extends IStateData = IStateData> {
  * Used to identify and reference specific state instances.
 */
 type StateName = string;
+/**
+ * Interface for handling state change events using a subject pattern.
+ * Provides a subject to subscribe to state updates.
+ */
+interface IStateChangeEvent {
+    /**
+     * A subject that emits state names when changes occur, allowing subscribers to react to state updates.
+     * Provides reactive state change notifications throughout the system.
+     */
+    stateChanged: TSubject<StateName>;
+}
 
 /**
  * Interface representing callbacks for policy lifecycle and validation events.
@@ -556,23 +567,6 @@ interface IPolicyParams extends IPolicySchema, IPolicyCallbacks {
 type PolicyName = string;
 
 /**
- * @module StateChangeContract
- * Defines an interface for state change event handling using a subject pattern.
-*/
-
-/**
- * @interface IStateChangeContract
- * Contract for handling state change events, providing a subject to subscribe to state updates.
-*/
-interface IStateChangeContract {
-    /**
-     * A subject that emits state names when changes occur, allowing subscribers to react to state updates.
-     * Provides reactive state change notifications throughout the system.
-     */
-    stateChanged: TSubject<StateName>;
-}
-
-/**
  * @module ComputeInterface
  * Defines interfaces and types for compute-related operations, including schemas, middleware, callbacks, and contracts.
 */
@@ -697,7 +691,7 @@ interface IComputeParams<T extends IComputeData = IComputeData> extends ICompute
      * Array of state change contracts for state dependencies.
      * Defines which state changes trigger compute recalculation and data updates.
      */
-    binding: IStateChangeContract[];
+    binding: IStateChangeEvent[];
 }
 /**
  * @interface ICompute
@@ -822,7 +816,7 @@ interface IBusEvent extends Omit<IBaseEvent, keyof {
     type: string;
     /**
      * The input data for the event, as a key-value object.
-     * Carries event-specific input (e.g., { message } in "commit-user-message", { mode, rawResult } in "emit-output" from ClientAgent), often tied to IModelMessage content.
+     * Carries event-specific input (e.g., { message } in "commit-user-message", { mode, rawResult } in "emit-output" from ClientAgent), often tied to ISwarmMessage content.
      * Example: { toolId: "tool-xyz", content: "result" } for a tool output event.
      */
     input: Record<string, any>;
@@ -1087,13 +1081,13 @@ type SwarmName = string;
 /**
  * Interface representing a tool call request within the swarm system.
  * Encapsulates a specific invocation of a tool as requested by the model, used in agent workflows (e.g., ClientAgent) to bridge model outputs to executable actions.
- * Appears in IModelMessage.tool_calls (e.g., via ICompletion.getCompletion) and is processed by agents to execute tools, emit events (e.g., IBus.emit "commit-tool-output"), and update history (e.g., IHistory.push).
+ * Appears in ISwarmMessage.tool_calls (e.g., via ICompletion.getCompletion) and is processed by agents to execute tools, emit events (e.g., IBus.emit "commit-tool-output"), and update history (e.g., IHistory.push).
 */
 interface IToolCall {
     /**
      * The unique identifier of the tool call.
      * Assigned to distinguish this invocation from others, often generated randomly (e.g., randomString() in ClientAgent.mapToolCalls) or provided by the model.
-     * Used to correlate tool outputs back to their requests (e.g., tool_call_id in IModelMessage).
+     * Used to correlate tool outputs back to their requests (e.g., tool_call_id in ISwarmMessage).
      * Example: "tool-xyz123" for a specific call in EXECUTE_FN.
      */
     id: string;
@@ -1351,38 +1345,78 @@ type SessionMode = "session" | "makeConnection" | "complete" | "scope";
 type ExecutionMode = "tool" | "user";
 
 /**
- * Interface representing a model message within the swarm system.
+ * Type representing the base roles available for all message types.
+ * These are the common roles shared across the swarm system.
+ */
+type BaseMessageRole = "assistant" | "system" | "tool" | "user";
+/**
+ * Base interface representing common properties shared by all message types in the swarm system.
+ * Defines the core structure for messages exchanged between agents, tools, users, and the system.
+ * Extended by ISwarmMessage and IOutlineMessage to add specific properties for their respective contexts.
+ * @template Role - The type of role for the message, defaults to BaseMessageRole.
+ * @interface IBaseMessage
+ */
+interface IBaseMessage<Role extends string = BaseMessageRole> {
+    /**
+     * The role of the message sender.
+     * Common roles include "assistant", "system", "tool", and "user".
+     * Specific message types may extend this with additional roles.
+     */
+    role: Role;
+    /**
+     * The content of the message, representing the primary data or text being communicated.
+     * Contains the raw text or data of the message, used in history storage or processing.
+     */
+    content: string;
+    /**
+     * Optional array of tool calls associated with the message.
+     * Present when the model requests tool execution.
+     * Each tool call contains function name, arguments, and a unique identifier.
+     */
+    tool_calls?: IToolCall[];
+    /**
+     * Optional array of images associated with the message.
+     * Represented as binary data (Blob) or base64 strings.
+     * Used for messages involving visual content (e.g., user-uploaded images or tool-generated visuals).
+     */
+    images?: Blob[] | string[];
+    /**
+     * Optional identifier of the tool call this message responds to.
+     * Links tool outputs to their originating requests.
+     * Used to correlate tool responses with their corresponding tool calls.
+     */
+    tool_call_id?: string;
+}
+
+/**
+ * Type representing extended roles specific to model messages.
+ * Extends the base message roles with additional roles for model-specific scenarios.
+ */
+type SwarmMessageRole = BaseMessageRole | "resque" | "flush" | "developer";
+/**
+ * Interface representing a swarm message within the swarm system.
  * Encapsulates a single message exchanged between agents, tools, users, or the system, used extensively in agent workflows (e.g., ClientAgent) for history tracking, completion generation, and event emission.
  * Messages are stored in history (e.g., via IHistory.push), generated by completions (e.g., ICompletion.getCompletion), and emitted via the bus (e.g., IBus.emit), serving as the core data structure for communication and state management.
+ * @extends {IBaseMessage}
 */
-interface IModelMessage<Payload extends object = object> {
+interface ISwarmMessage<Payload extends object = object> extends IBaseMessage<SwarmMessageRole> {
     /**
-     * The role of the message sender, defining its origin or purpose in the conversation flow.
-     * Observed in ClientAgent usage:
+     * The role is inherited from IBaseMessage but typed as SwarmMessageRole.
+     * Defines the origin or purpose in the conversation flow:
      * - `"assistant"`: Generated by the model (e.g., getCompletion output, commitAssistantMessage).
      * - `"system"`: System-level notifications (e.g., commitSystemMessage).
      * - `"tool"`: Tool outputs or tool-related messages (e.g., commitToolOutput, resurrection prompts).
      * - `"user"`: User-initiated messages (e.g., commitUserMessage, EXECUTE_FN input).
      * - `"resque"`: Error recovery messages during model resurrection (e.g., _resurrectModel).
      * - `"flush"`: Markers for history resets (e.g., commitFlush).
+     * - `"developer"`: Developer-initiated messages.
      */
-    role: "assistant" | "system" | "tool" | "user" | "resque" | "flush" | "developer";
     /**
      * The name of the agent associated with the message.
      * Links the message to a specific agent instance (e.g., this.params.agentName in ClientAgent), ensuring context within multi-agent swarms.
      * Used consistently in history pushes and bus events (e.g., context.agentName in IBus.emit).
      */
     agentName: string;
-    /**
-     * The content of the message, representing the primary data or text being communicated.
-     * Examples from ClientAgent:
-     * - User input (e.g., incoming in execute).
-     * - Tool output (e.g., content in commitToolOutput).
-     * - Model response (e.g., result from getCompletion).
-     * - Error reasons or placeholders (e.g., _resurrectModel).
-     * May be empty (e.g., "" in flush messages) or trimmed for consistency.
-     */
-    content: string;
     /**
      * The execution mode indicating the source or context of the message.
      * Aligns with ExecutionMode ("user" or "tool") from Session.interface:
@@ -1391,21 +1425,6 @@ interface IModelMessage<Payload extends object = object> {
      * Drives processing logic, such as validation or tool call handling in ClientAgent.
      */
     mode: ExecutionMode;
-    /**
-     * Optional array of tool calls associated with the message, present when the model requests tool execution.
-     * Populated in getCompletion responses (e.g., ClientAgent EXECUTE_FN), mapped to IToolCall objects for execution.
-     * Example: `{ function: { name: "func", arguments: { key: "value" } }, id: "tool-id" }`.
-     * Absent in user, system, or tool output messages unless explicitly triggered by the model.
-     */
-    tool_calls?: IToolCall[];
-    images?: Uint8Array[] | string[];
-    /**
-     * Optional identifier of the tool call this message responds to, linking tool outputs to their requests.
-     * Set in tool-related messages (e.g., commitToolOutput in ClientAgent) to correlate with a prior tool_calls entry.
-     * Example: `tool_call_id: "tool-id"` ties a tool’s output to its originating call.
-     * Undefined for non-tool-response messages (e.g., user input, assistant responses without tools).
-     */
-    tool_call_id?: string;
     /**
      * Optional payload data attached to the message, providing additional context or metadata.
      * Can be an object of any shape or `null` if no payload is needed; undefined if not present.
@@ -2206,27 +2225,27 @@ interface IHistoryInstanceCallbacks {
     /**
      * Determines whether a message should be included in the history iteration.
      */
-    filterCondition?: (message: IModelMessage, clientId: string, agentName: AgentName) => Promise<boolean> | boolean;
+    filterCondition?: (message: ISwarmMessage, clientId: string, agentName: AgentName) => Promise<boolean> | boolean;
     /**
      * Fetches initial history data for an agent.
      */
-    getData: (clientId: string, agentName: AgentName) => Promise<IModelMessage[]> | IModelMessage[];
+    getData: (clientId: string, agentName: AgentName) => Promise<ISwarmMessage[]> | ISwarmMessage[];
     /**
      * Called when the history array changes (e.g., after push or pop).
      */
-    onChange: (data: IModelMessage[], clientId: string, agentName: AgentName) => void;
+    onChange: (data: ISwarmMessage[], clientId: string, agentName: AgentName) => void;
     /**
      * Called when a new message is pushed to the history.
      */
-    onPush: (data: IModelMessage, clientId: string, agentName: AgentName) => void;
+    onPush: (data: ISwarmMessage, clientId: string, agentName: AgentName) => void;
     /**
      * Called when the last message is popped from the history.
      */
-    onPop: (data: IModelMessage | null, clientId: string, agentName: AgentName) => void;
+    onPop: (data: ISwarmMessage | null, clientId: string, agentName: AgentName) => void;
     /**
      * Called for each message during iteration when reading.
      */
-    onRead: (message: IModelMessage, clientId: string, agentName: AgentName) => void;
+    onRead: (message: ISwarmMessage, clientId: string, agentName: AgentName) => void;
     /**
      * Called at the start of a history read operation.
      */
@@ -2255,15 +2274,15 @@ interface IHistoryAdapter {
     /**
      * Iterates over history messages for a client and agent.
      */
-    iterate(clientId: string, agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+    iterate(clientId: string, agentName: AgentName): AsyncIterableIterator<ISwarmMessage>;
     /**
      * Adds a new message to the history.
      */
-    push: (value: IModelMessage, clientId: string, agentName: AgentName) => Promise<void>;
+    push: (value: ISwarmMessage, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Removes and returns the last message from the history.
      */
-    pop: (clientId: string, agentName: AgentName) => Promise<IModelMessage | null>;
+    pop: (clientId: string, agentName: AgentName) => Promise<ISwarmMessage | null>;
     /**
      * Disposes of the history for a client and agent, optionally clearing all data.
      */
@@ -2289,7 +2308,7 @@ interface IHistoryInstance {
     /**
      * Iterates over history messages for an agent.
      */
-    iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+    iterate(agentName: AgentName): AsyncIterableIterator<ISwarmMessage>;
     /**
      * Initializes the history for an agent, loading initial data if needed.
      */
@@ -2297,11 +2316,11 @@ interface IHistoryInstance {
     /**
      * Adds a new message to the history for an agent.
      */
-    push(value: IModelMessage, agentName: AgentName): Promise<void>;
+    push(value: ISwarmMessage, agentName: AgentName): Promise<void>;
     /**
      * Removes and returns the last message from the history for an agent.
      */
-    pop(agentName: AgentName): Promise<IModelMessage | null>;
+    pop(agentName: AgentName): Promise<ISwarmMessage | null>;
     /**
      * Disposes of the history for an agent, optionally clearing all data.
      */
@@ -2322,7 +2341,7 @@ declare const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT: unique symbol;
 declare const HistoryPersistInstance: {
     new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>): {
         /** @private The in-memory array of history messages*/
-        _array: IModelMessage[];
+        _array: ISwarmMessage[];
         /** @private The persistent storage instance for history messages*/
         _persistStorage: TPersistList;
         /**
@@ -2335,17 +2354,17 @@ declare const HistoryPersistInstance: {
          * Iterates over history messages, applying filters and system prompts if configured.
          * Invokes onRead callbacks during iteration if provided.
         */
-        iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+        iterate(agentName: AgentName): AsyncIterableIterator<ISwarmMessage>;
         /**
          * Adds a new message to the history, persisting it to storage.
          * Invokes onPush and onChange callbacks if provided.
         */
-        push(value: IModelMessage, agentName: AgentName): Promise<void>;
+        push(value: ISwarmMessage, agentName: AgentName): Promise<void>;
         /**
          * Removes and returns the last message from the history, updating persistent storage.
          * Invokes onPop and onChange callbacks if provided.
         */
-        pop(agentName: AgentName): Promise<IModelMessage | null>;
+        pop(agentName: AgentName): Promise<ISwarmMessage | null>;
         /**
          * Disposes of the history, clearing all data if agentName is null.
          * Invokes onDispose callback if provided.
@@ -2369,7 +2388,7 @@ type THistoryPersistInstance = InstanceType<typeof HistoryPersistInstance>;
 declare const HistoryMemoryInstance: {
     new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>): {
         /** @private The in-memory array of history messages*/
-        _array: IModelMessage[];
+        _array: ISwarmMessage[];
         /**
          * Initializes the history for an agent, loading initial data if needed.
         */
@@ -2380,17 +2399,17 @@ declare const HistoryMemoryInstance: {
          * Iterates over history messages, applying filters and system prompts if configured.
          * Invokes onRead callbacks during iteration if provided.
         */
-        iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+        iterate(agentName: AgentName): AsyncIterableIterator<ISwarmMessage>;
         /**
          * Adds a new message to the in-memory history.
          * Invokes onPush and onChange callbacks if provided.
         */
-        push(value: IModelMessage, agentName: AgentName): Promise<void>;
+        push(value: ISwarmMessage, agentName: AgentName): Promise<void>;
         /**
          * Removes and returns the last message from the in-memory history.
          * Invokes onPop and onChange callbacks if provided.
         */
-        pop(agentName: AgentName): Promise<IModelMessage | null>;
+        pop(agentName: AgentName): Promise<ISwarmMessage | null>;
         /**
          * Disposes of the history, clearing all data if agentName is null.
          * Invokes onDispose callback if provided.
@@ -2422,24 +2441,24 @@ interface IHistory {
      * Updates the history store asynchronously.
      * @throws {Error} If the push operation fails (e.g., due to storage issues or invalid message).
      */
-    push(message: IModelMessage): Promise<void>;
+    push(message: ISwarmMessage): Promise<void>;
     /**
      * Removes and returns the last message from the history.
      * @throws {Error} If the pop operation fails (e.g., due to internal errors).
      */
-    pop(): Promise<IModelMessage | null>;
+    pop(): Promise<ISwarmMessage | null>;
     /**
      * Converts the history into an array of messages tailored for a specific agent.
      * Filters or formats messages based on the provided prompt and optional system prompts.
      * @throws {Error} If conversion fails (e.g., due to adapter issues or invalid prompt).
      */
-    toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
+    toArrayForAgent(prompt: string, system?: string[]): Promise<ISwarmMessage[]>;
     /**
      * Converts the entire history into an array of raw model messages.
      * Retrieves all messages without agent-specific filtering or formatting.
      * @throws {Error} If conversion fails (e.g., due to adapter issues).
      */
-    toArrayForRaw(): Promise<IModelMessage[]>;
+    toArrayForRaw(): Promise<ISwarmMessage[]>;
 }
 /**
  * Interface representing the parameters required to create a history instance.
@@ -2468,6 +2487,56 @@ interface IHistorySchema {
      * Provides the implementation for history storage and retrieval.
      */
     items: IHistoryAdapter;
+}
+
+/**
+ * Base interface representing the common arguments required for all completion requests.
+ * Contains only the essential fields shared by all completion types.
+ * Extended by IOutlineCompletionArgs and ISwarmCompletionArgs to add specific fields.
+ * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage with string role.
+ * @interface IBaseCompletionArgs
+ */
+interface IBaseCompletionArgs<Message extends IBaseMessage<any> = IBaseMessage<BaseMessageRole>> {
+    /** client identifier for tracking and error handling. */
+    clientId: string;
+    /** An array of messages providing the conversation history or context for the completion.*/
+    messages: Message[];
+}
+
+/**
+ * Interface representing the arguments for swarm (chat) completions.
+ * Extends base completion args with swarm-specific fields for agent-based interactions.
+ * Used for agent completions with tool support, client tracking, and multi-agent context.
+ * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage with string role.
+ * @interface ISwarmCompletionArgs
+ */
+interface ISwarmCompletionArgs<Message extends IBaseMessage<any> = IBaseMessage<SwarmMessageRole>> extends IBaseCompletionArgs<Message> {
+    /**
+     * The agent name (required).
+     * Identifies the agent context for the completion.
+     */
+    agentName: AgentName;
+    /** The source of the last message, indicating whether it originated from a tool or user.*/
+    mode: ExecutionMode;
+    /**
+     * Optional array of tools available for this completion.
+     * Enables the model to call functions and interact with external systems.
+     */
+    tools?: ITool[];
+}
+
+/**
+ * Type representing roles specific to outline messages.
+ * Uses the base message roles without additional extensions.
+ */
+type OutlineMessageRole = BaseMessageRole;
+/**
+ * Interface representing a message in the outline system.
+ * Used to structure messages stored in the outline history, typically for user, assistant, or system interactions.
+ * @extends {IBaseMessage}
+ * @interface IOutlineMessage
+*/
+interface IOutlineMessage extends IBaseMessage<OutlineMessageRole> {
 }
 
 /**
@@ -2566,40 +2635,6 @@ interface IOutlineCallbacks<Data extends IOutlineData = IOutlineData, Param exte
      * Useful for handling failed validation outcomes or retries.
      */
     onInvalidDocument?: (result: IOutlineResult<Data, Param>) => void;
-}
-/**
- * Interface representing a message in the outline system.
- * Used to structure messages stored in the outline history, typically for user, assistant, or system interactions.
- * @interface IOutlineMessage
-*/
-interface IOutlineMessage {
-    /**
-     * The role of the message sender, either user, assistant, or system.
-     * Determines the context or source of the message in the outline history.
-     */
-    role: "assistant" | "system" | "tool" | "user";
-    /**
-     * Optional array of images associated with the message, represented as binary data or base64 strings.
-     * Likely used for messages involving visual content (e.g., user-uploaded images or tool-generated visuals).
-     * Supports Uint8Array for raw binary data or string for encoded formats (e.g., base64).
-     * Undefined if no images are included in the message.
-     */
-    images?: Uint8Array[] | string[];
-    /**
-     * The content of the message.
-     * Contains the raw text or param of the message, used in history storage or processing.
-     */
-    content: string;
-    /**
-     * The name of the agent associated with the message.
-     * Allow to attach tool call request to specific message
-     */
-    tool_calls?: IToolCall[];
-    /**
-     * Optional ID of the tool call associated with the message.
-     * Used to link the message to a specific tool execution request.
-     */
-    tool_call_id?: string;
 }
 /**
  * Interface representing the history management API for outline operations.
@@ -2802,6 +2837,26 @@ interface IOutlineSchema<Data extends IOutlineData = IOutlineData, Param extends
 type OutlineName = string;
 
 /**
+ * Interface representing the arguments for outline (JSON) completions.
+ * Extends base completion args with outline-specific fields for structured JSON output.
+ * Used for completions that return data conforming to a predefined schema.
+ * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage with string role.
+ * @interface IOutlineCompletionArgs
+ */
+interface IOutlineCompletionArgs<Message extends IBaseMessage<any> = IBaseMessage<OutlineMessageRole>> extends IBaseCompletionArgs<Message> {
+    /**
+     * The outline schema name (required).
+     * Defines the structure of the expected JSON response.
+     */
+    outlineName: OutlineName;
+    /**
+     * The outline format (required).
+     * Specifies how the completion should be structured.
+     */
+    format: IOutlineFormat;
+}
+
+/**
  * Interface representing a completion mechanism.
  * Extends the completion schema to provide a complete API for generating model responses.
  * @extends {ICompletionSchema}
@@ -2809,57 +2864,23 @@ type OutlineName = string;
 interface ICompletion extends ICompletionSchema {
 }
 /**
- * Interface representing the arguments required to request a completion.
- * Encapsulates context and inputs for generating a model response.
-*/
-interface ICompletionArgs {
-    /**
-     * The unique identifier for the client making the request.
-     * This is used to track the request and associate it with the correct client context.
-     * For outline completions, this being skipped
-     */
-    clientId?: string;
-    /**
-     * The name of the agent for which the completion is requested.
-     * This is used to identify the agent context in which the completion will be generated.
-     */
-    agentName?: AgentName;
-    /**
-     * The outline used for json completions, if applicable.
-     * This is the name of the outline schema that defines the structure of the expected JSON response.
-     * Used to ensure that the completion adheres to the specified outline format.
-     */
-    outlineName?: OutlineName;
-    /** The source of the last message, indicating whether it originated from a tool or user.*/
-    mode: ExecutionMode;
-    /** An array of model messages providing the conversation history or context for the completion.*/
-    messages: (IModelMessage | IOutlineMessage)[];
-    /** Optional array of tools available for the completion process (e.g., for tool calls).*/
-    tools?: ITool[];
-    /**
-     * Optional format for the outline, specifying how the completion should be structured.
-     * This is used to define the expected output format for JSON completions.
-     * If not provided, the default outline format will be used.
-     * @optional
-     */
-    format?: IOutlineFormat;
-}
-/**
  * Interface representing lifecycle callbacks for completion events.
  * Provides hooks for post-completion actions.
+ * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage with string role.
 */
-interface ICompletionCallbacks {
+interface ICompletionCallbacks<Message extends IBaseMessage<any> = IBaseMessage<string>> {
     /**
      * Optional callback triggered after a completion is successfully generated.
      * Useful for logging, output processing, or triggering side effects.
      */
-    onComplete?: (args: ICompletionArgs, output: IModelMessage | IOutlineMessage) => void;
+    onComplete?: <Args extends IBaseCompletionArgs<Message>>(args: Args, output: Message) => void;
 }
 /**
  * Interface representing the schema for configuring a completion mechanism.
  * Defines how completions are generated within the swarm.
+ * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage for maximum flexibility.
 */
-interface ICompletionSchema {
+interface ICompletionSchema<Message extends IBaseMessage<string> = IBaseMessage<any>> {
     /** The unique name of the completion mechanism within the swarm.*/
     completionName: CompletionName;
     /**
@@ -2867,12 +2888,12 @@ interface ICompletionSchema {
      * Generates a model response using the given context and tools.
      * @throws {Error} If completion generation fails (e.g., due to invalid arguments, model errors, or tool issues).
      */
-    getCompletion(args: ICompletionArgs): Promise<IModelMessage | IOutlineMessage>;
+    getCompletion(args: IBaseCompletionArgs<IBaseMessage<string>> | IOutlineCompletionArgs<IBaseMessage<string>> | ISwarmCompletionArgs<IBaseMessage<string>>): Promise<Message>;
     json?: boolean;
     /** List of flags for llm model. As example, `/no_think` for `lmstudio-community/Qwen3-32B-GGUF` */
     flags?: string[];
     /** Optional partial set of callbacks for completion events, allowing customization of post-completion behavior.*/
-    callbacks?: Partial<ICompletionCallbacks>;
+    callbacks?: Partial<ICompletionCallbacks<Message>>;
 }
 /**
  * Type representing the unique name of a completion mechanism within the swarm.
@@ -3271,7 +3292,7 @@ interface IAgentSchemaInternal {
     /**
      * Optional function to map assistant messages, e.g., converting JSON to tool calls for specific models.
      */
-    map?: (message: IModelMessage, clientId: string, agentName: AgentName) => Promise<IModelMessage> | IModelMessage;
+    map?: (message: ISwarmMessage, clientId: string, agentName: AgentName) => Promise<ISwarmMessage> | ISwarmMessage;
     /** Optional lifecycle callbacks for the agent, allowing customization of execution flow.*/
     callbacks?: Partial<IAgentSchemaInternalCallbacks>;
 }
@@ -3685,7 +3706,7 @@ declare class ClientAgent implements IAgent {
      * Retrieves a completion message from the model using the current history and tools.
      * Applies validation and resurrection strategies (via _resurrectModel) if needed, integrating with CompletionSchemaService.
       */
-    getCompletion(mode: ExecutionMode, tools: IAgentTool[]): Promise<IModelMessage>;
+    getCompletion(mode: ExecutionMode, tools: IAgentTool[]): Promise<ISwarmMessage>;
     /**
      * Commits a user message to the history without triggering a response, notifying the system via BusService.
      * Supports SessionConnectionService by logging user interactions within a session.
@@ -4024,7 +4045,7 @@ declare class ClientHistory implements IHistory {
      * Filter condition function for toArrayForAgent, used to filter messages based on agent-specific criteria.
      * Initialized from GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER, applied to common messages to exclude irrelevant entries.
      */
-    _filterCondition: (message: IModelMessage) => boolean;
+    _filterCondition: (message: ISwarmMessage) => boolean;
     /**
      * Constructs a ClientHistory instance with the provided parameters.
      * Initializes the filter condition using GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER and logs construction if debugging is enabled.
@@ -4034,25 +4055,25 @@ declare class ClientHistory implements IHistory {
      * Pushes a message into the history and emits a corresponding event via BusService.
      * Adds the message to the underlying storage (params.items) and notifies the system, supporting ClientAgent’s history updates.
      */
-    push<Payload extends object = object>(message: IModelMessage<Payload>): Promise<void>;
+    push<Payload extends object = object>(message: ISwarmMessage<Payload>): Promise<void>;
     /**
      * Removes and returns the most recent message from the history, emitting an event via BusService.
      * Retrieves the message from params.items and notifies the system, returning null if the history is empty.
      * Useful for ClientAgent to undo recent actions or inspect the latest entry.
      */
-    pop(): Promise<IModelMessage | null>;
+    pop(): Promise<ISwarmMessage | null>;
     /**
      * Converts the history into an array of raw messages without filtering or transformation.
      * Iterates over params.items to collect all messages as-is, useful for debugging or raw data access.
      */
-    toArrayForRaw(): Promise<IModelMessage[]>;
+    toArrayForRaw(): Promise<ISwarmMessage[]>;
     /**
      * Converts the history into an array of messages tailored for the agent, used by ClientAgent for completions.
      * Filters messages with _filterCondition, limits to GLOBAL_CONFIG.CC_KEEP_MESSAGES, handles resque/flush resets,
      * and prepends prompt and system messages (from params and GLOBAL_CONFIG.CC_AGENT_SYSTEM_PROMPT).
      * Ensures tool call consistency by linking tool outputs to calls, supporting CompletionSchemaService’s context needs.
      */
-    toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
+    toArrayForAgent(prompt: string, system?: string[]): Promise<ISwarmMessage[]>;
     /**
      * Disposes of the history, releasing resources and performing cleanup via params.items.dispose.
      * Called when the agent (e.g., ClientAgent) is disposed, ensuring proper resource management with HistoryConnectionService.
@@ -4111,25 +4132,25 @@ declare class HistoryConnectionService implements IHistory {
      * Delegates to ClientHistory.push, using context from MethodContextService to identify the history instance, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors HistoryPublicService’s push, supporting ClientAgent’s history updates (e.g., via commit methods in AgentConnectionService).
      */
-    push: (message: IModelMessage) => Promise<void>;
+    push: (message: ISwarmMessage) => Promise<void>;
     /**
      * Pops the most recent message from the agent’s history.
      * Delegates to ClientHistory.pop, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors HistoryPublicService’s pop, supporting ClientAgent’s history manipulation.
      */
-    pop: () => Promise<IModelMessage<object>>;
+    pop: () => Promise<ISwarmMessage<object>>;
     /**
      * Converts the agent's history to an array formatted for agent use, incorporating a prompt.
      * Delegates to ClientHistory.toArrayForAgent, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors HistoryPublicService's toArrayForAgent, supporting ClientAgent's execution context (e.g., EXECUTE_FN with prompt).
      */
-    toArrayForAgent: (prompt: string) => Promise<IModelMessage<object>[]>;
+    toArrayForAgent: (prompt: string) => Promise<ISwarmMessage<object>[]>;
     /**
      * Converts the agent’s history to a raw array of messages.
      * Delegates to ClientHistory.toArrayForRaw, using context from MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Mirrors HistoryPublicService’s toArrayForRaw, supporting ClientAgent’s raw history access or external reporting.
      */
-    toArrayForRaw: () => Promise<IModelMessage<object>[]>;
+    toArrayForRaw: () => Promise<ISwarmMessage<object>[]>;
     /**
      * Disposes of the history connection, cleaning up resources and clearing the memoized instance.
      * Checks if the history exists in the memoization cache before calling ClientHistory.dispose, then clears the cache and updates SessionValidationService.
@@ -4844,7 +4865,7 @@ declare class CompletionSchemaService {
      * Supports dynamic updates to completion schemas used by AgentSchemaService, ClientAgent, and other swarm components.
      * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
      */
-    override: (key: CompletionName, value: Partial<ICompletionSchema>) => ICompletionSchema;
+    override: (key: CompletionName, value: Partial<ICompletionSchema>) => ICompletionSchema<IBaseMessage<any>>;
     /**
      * Retrieves a completion schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -5260,25 +5281,25 @@ declare class HistoryPublicService implements THistoryConnectionService {
      * Wraps HistoryConnectionService.push with MethodContextService for scoping, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in AgentPublicService (e.g., commitSystemMessage, commitUserMessage) and ClientAgent (e.g., EXECUTE_FN message logging).
      */
-    push: (message: IModelMessage, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
+    push: (message: ISwarmMessage, methodName: string, clientId: string, agentName: AgentName) => Promise<void>;
     /**
      * Pops the most recent message from the agent’s history.
      * Wraps HistoryConnectionService.pop with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., retrieving last message in EXECUTE_FN) and AgentPublicService (e.g., history manipulation).
      */
-    pop: (methodName: string, clientId: string, agentName: AgentName) => Promise<IModelMessage<object>>;
+    pop: (methodName: string, clientId: string, agentName: AgentName) => Promise<ISwarmMessage<object>>;
     /**
      * Converts the agent's history to an array tailored for agent processing, incorporating a prompt.
      * Wraps HistoryConnectionService.toArrayForAgent with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Used in ClientAgent (e.g., EXECUTE_FN context preparation) and DocService (e.g., history documentation with prompts).
      */
-    toArrayForAgent: (prompt: string, methodName: string, clientId: string, agentName: AgentName) => Promise<IModelMessage<object>[]>;
+    toArrayForAgent: (prompt: string, methodName: string, clientId: string, agentName: AgentName) => Promise<ISwarmMessage<object>[]>;
     /**
      * Converts the agent’s history to a raw array of items.
      * Wraps HistoryConnectionService.toArrayForRaw with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
      * Supports ClientAgent (e.g., raw history access in EXECUTE_FN) and PerfService (e.g., history-based performance metrics).
      */
-    toArrayForRaw: (methodName: string, clientId: string, agentName: AgentName) => Promise<IModelMessage<object>[]>;
+    toArrayForRaw: (methodName: string, clientId: string, agentName: AgentName) => Promise<ISwarmMessage<object>[]>;
     /**
      * Disposes of the agent’s history, cleaning up resources.
      * Wraps HistoryConnectionService.dispose with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -6496,7 +6517,7 @@ type Action = "read" | "write";
  * Integrates with StateConnectionService (state instantiation), ClientAgent (state-driven behavior),
  * SwarmConnectionService (swarm-level state), and BusService (event emission).
 */
-declare class ClientState<State extends IStateData = IStateData> implements IState<State>, IStateChangeContract {
+declare class ClientState<State extends IStateData = IStateData> implements IState<State>, IStateChangeEvent {
     readonly params: IStateParams<State>;
     readonly stateChanged: Subject<string>;
     /**
@@ -10560,7 +10581,7 @@ type TCompletionSchema = {
  * });
  * // Logs the operation (if enabled) and updates the completion schema in the swarm.
 */
-declare function overrideCompletion(completionSchema: TCompletionSchema): ICompletionSchema;
+declare function overrideCompletion(completionSchema: TCompletionSchema): ICompletionSchema<IBaseMessage<any>>;
 
 /**
  * Type representing a partial embedding schema with required embeddingName.
@@ -11252,6 +11273,23 @@ declare function ask<T = string>(message: T, advisorName: AdvisorName): Promise<
 declare function json<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineName: OutlineName, param?: IOutlineParam): Promise<IOutlineResult<Data, Param>>;
 
 /**
+ * Processes a chat completion request by sending messages to a specified completion service.
+ * Delegates to an internal context-isolated function to ensure clean execution.
+ * @async
+ *
+ * @param completionName The name of the completion service to use.
+ * @param messages Array of messages representing the conversation history.
+ * @example
+ * // Example usage
+ * const output = await chat("openai", [
+ *   { role: "system", content: "You are a helpful assistant." },
+ *   { role: "user", content: "Hello, how are you?" }
+ * ]);
+ * console.log(output.content); // Logs the completion output
+ */
+declare function chat(completionName: CompletionName, messages: IBaseMessage[]): Promise<string>;
+
+/**
  * Interface for the parameters of the makeAutoDispose function.
 */
 interface IMakeDisposeParams {
@@ -11676,9 +11714,9 @@ declare function getAgentName(clientId: string): Promise<string>;
  * @throws {Error} If validation fails (e.g., invalid session or agent) or if the history public service encounters an error during retrieval.
  * @example
  * const history = await getAgentHistory("client-123", "AgentX");
- * console.log(history); // Outputs array of IModelMessage objects
+ * console.log(history); // Outputs array of ISwarmMessage objects
  */
-declare function getAgentHistory(clientId: string, agentName: AgentName): Promise<IModelMessage<object>[]>;
+declare function getAgentHistory(clientId: string, agentName: AgentName): Promise<ISwarmMessage<object>[]>;
 
 /**
  * Retrieves the session mode for a given client session in a swarm.
@@ -11790,7 +11828,7 @@ declare function getLastUserMessage(clientId: string): Promise<string>;
  * const userHistory = await getUserHistory("client-123");
  * console.log(userHistory); // Outputs array of user history entries
 */
-declare function getUserHistory(clientId: string): Promise<IModelMessage<object>[]>;
+declare function getUserHistory(clientId: string): Promise<ISwarmMessage<object>[]>;
 
 /**
  * Retrieves the assistant's history entries for a given client session.
@@ -11806,7 +11844,7 @@ declare function getUserHistory(clientId: string): Promise<IModelMessage<object>
  * const assistantHistory = await getAssistantHistory("client-123");
  * console.log(assistantHistory); // Outputs array of assistant history entries
 */
-declare function getAssistantHistory(clientId: string): Promise<IModelMessage<object>[]>;
+declare function getAssistantHistory(clientId: string): Promise<ISwarmMessage<object>[]>;
 
 /**
  * Retrieves the content of the most recent assistant message from a client's session history.
@@ -11856,7 +11894,7 @@ declare function getAgent(agentName: AgentName): IAgentSchemaInternal;
  * @function getCompletion
  * @param {CompletionName} completionName - The name of the completion.
 */
-declare function getCompletion(completionName: CompletionName): ICompletionSchema;
+declare function getCompletion(completionName: CompletionName): ICompletionSchema<IBaseMessage<any>>;
 
 /**
  * Retrieves a compute schema by its name from the swarm's compute schema service.
@@ -11963,7 +12001,7 @@ declare function getAdvisor(advisorName: AdvisorName): IAdvisorSchema<string>;
  * const rawHistory = await getRawHistory("client-123");
  * console.log(rawHistory); // Outputs the full raw history array
 */
-declare function getRawHistory(clientId: string): Promise<IModelMessage<object>[]>;
+declare function getRawHistory(clientId: string): Promise<ISwarmMessage<object>[]>;
 
 /**
  * Emits a custom event to the swarm bus service.
@@ -12656,7 +12694,7 @@ interface IGlobalConfig {
      * const filter = CC_AGENT_HISTORY_FILTER("agent1");
      * const isRelevant = filter({ role: "tool", agentName: "agent1" }); // true
      */
-    CC_AGENT_HISTORY_FILTER: (agentName: AgentName) => (message: IModelMessage) => boolean;
+    CC_AGENT_HISTORY_FILTER: (agentName: AgentName) => (message: ISwarmMessage) => boolean;
     /**
      * Default transformation function for agent outputs, used in `ClientAgent.transform` (e.g., `RUN_FN`, `_emitOutput`).
      * Removes XML tags via `removeXmlTags` based on `CC_AGENT_DISALLOWED_TAGS` to clean responses for consistency.
@@ -12664,13 +12702,13 @@ interface IGlobalConfig {
     CC_AGENT_OUTPUT_TRANSFORM: (input: string, clientId: string, agentName: AgentName) => Promise<string> | string;
     /**
      * Function to map model messages for agent output, used in `ClientAgent.map` (e.g., `RUN_FN`, `EXECUTE_FN`).
-     * Default implementation returns the message unchanged, allowing customization of `IModelMessage` via `setConfig`.
+     * Default implementation returns the message unchanged, allowing customization of `ISwarmMessage` via `setConfig`.
      * @example
      * setConfig({
      *   CC_AGENT_OUTPUT_MAP: async (msg) => ({ ...msg, content: msg.content.toUpperCase() })
      * });
      */
-    CC_AGENT_OUTPUT_MAP: (message: IModelMessage) => IModelMessage | Promise<IModelMessage>;
+    CC_AGENT_OUTPUT_MAP: (message: ISwarmMessage) => ISwarmMessage | Promise<ISwarmMessage>;
     /**
      * Optional system prompt for agents, used in `ClientAgent.history.toArrayForAgent` (e.g., `getCompletion`).
      * Undefined by default, allowing optional agent-specific instructions to be added to history via `setConfig`.
@@ -12756,7 +12794,7 @@ interface IGlobalConfig {
      *   })
      * });
      */
-    CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: AgentName) => Promise<IModelMessage | null>;
+    CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: AgentName) => Promise<ISwarmMessage | null>;
     /**
      * Flag to enable persistence by default, used in `IStorage` or `IState` initialization.
      * Enabled (true) by default, suggesting data retention unless overridden, though not directly in `ClientAgent`.
@@ -13629,7 +13667,7 @@ declare const Schema: SchemaUtils;
  * Function type for completing AI model requests.
  * Takes completion arguments and returns a promise resolving to a model message response.
 */
-type TCompleteFn = (args: ICompletionArgs) => Promise<IModelMessage>;
+type TCompleteFn = (args: ISwarmCompletionArgs) => Promise<ISwarmMessage>;
 /**
  * Utility class providing adapter functions for interacting with various AI completion providers.
 */
@@ -13779,4 +13817,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAdvisorSchema, type IAgentSchemaInternal, type IAgentTool, type IBaseEvent, type IBusEvent, type IBusEventContext, type IChatInstance, type IChatInstanceCallbacks, type ICommitActionParams, type ICompletionArgs, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IFetchInfoParams, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type IModelMessage, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAdvisor, addAgent, addAgentNavigation, addCommitAction, addCompletion, addCompute, addEmbedding, addFetchInfo, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, ask, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createCommitAction, createFetchInfo, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAdvisor, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAdvisor, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };
+export { Adapter, type BaseMessageRole, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAdvisorSchema, type IAgentSchemaInternal, type IAgentTool, type IBaseCompletionArgs, type IBaseEvent, type IBaseMessage, type IBusEvent, type IBusEventContext, type IChatInstance, type IChatInstanceCallbacks, type ICommitActionParams, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IFetchInfoParams, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineCompletionArgs, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmCompletionArgs, type ISwarmMessage, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, type OutlineMessageRole, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type SwarmMessageRole, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAdvisor, addAgent, addAgentNavigation, addCommitAction, addCompletion, addCompute, addEmbedding, addFetchInfo, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, ask, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, chat, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createCommitAction, createFetchInfo, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAdvisor, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAdvisor, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };

@@ -7,13 +7,15 @@ import {
   IOutlineData,
   IOutlineHistory,
   OutlineName,
-  IOutlineMessage,
   IOutlineValidationArgs,
   IOutlineResult,
 } from "../../interfaces/Outline.interface";
+import { ICompletionSchema } from "../../interfaces/Completion.interface";
 import { getErrorMessage, randomString } from "functools-kit";
 import { errorSubject } from "../../config/emitters";
-import { IModelMessage } from "../../model/ModelMessage.model";
+import { ISwarmMessage } from "../../contract/SwarmMessage.contract";
+import { IOutlineMessage } from "../../contract/OutlineMessage.contract";
+import { IOutlineCompletionArgs } from "../../contract/OutlineCompletion.contract";
 
 const METHOD_NAME = "function.target.json";
 
@@ -89,11 +91,13 @@ const jsonInternal = beginContext(
 
     swarm.completionValidationService.validate(completion, METHOD_NAME);
 
+    const completionSchema: ICompletionSchema<IOutlineMessage> = swarm.completionSchemaService.get(completion);
+
     const {
       getCompletion,
       flags = [],
       callbacks: completionCallbacks,
-    } = swarm.completionSchemaService.get(completion);
+    } = completionSchema;
 
     let errorMessage: string = "";
     let history: OutlineHistory;
@@ -142,7 +146,7 @@ const jsonInternal = beginContext(
       await getOutlineHistory(inputArgs);
       const messages = await history.list();
       try {
-        let output: IModelMessage | IOutlineMessage;
+        let output: ISwarmMessage | IOutlineMessage;
         let errorValue = null;
 
         const unError = errorSubject.subscribe(([errorClientId, error]) => {
@@ -154,7 +158,6 @@ const jsonInternal = beginContext(
         output = await getCompletion({
           clientId,
           messages: await history.list(),
-          mode: "tool",
           outlineName,
           format,
         });
@@ -166,11 +169,12 @@ const jsonInternal = beginContext(
         }
 
         if (completionCallbacks?.onComplete) {
-          completionCallbacks.onComplete(
+          completionCallbacks.onComplete<IOutlineCompletionArgs>(
             {
               messages,
-              mode: "tool",
               outlineName,
+              format,
+              clientId,
             },
             output
           );

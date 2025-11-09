@@ -1,5 +1,5 @@
-import { IToolCall } from "../model/Tool.model";
 import { CompletionName } from "./Completion.interface";
+import { IOutlineMessage } from "../contract/OutlineMessage.contract";
 
 /**
  * Generic type representing arbitrary param for outline operations.
@@ -113,45 +113,6 @@ export interface IOutlineCallbacks<
    * Useful for handling failed validation outcomes or retries.
    */
   onInvalidDocument?: (result: IOutlineResult<Data, Param>) => void;
-}
-
-/**
- * Interface representing a message in the outline system.
- * Used to structure messages stored in the outline history, typically for user, assistant, or system interactions.
- * @interface IOutlineMessage
-*/
-export interface IOutlineMessage {
-  /**
-   * The role of the message sender, either user, assistant, or system.
-   * Determines the context or source of the message in the outline history.
-   */
-  role: "assistant" | "system" | "tool" | "user";
-
-  /**
-   * Optional array of images associated with the message, represented as binary data or base64 strings.
-   * Likely used for messages involving visual content (e.g., user-uploaded images or tool-generated visuals).
-   * Supports Uint8Array for raw binary data or string for encoded formats (e.g., base64).
-   * Undefined if no images are included in the message.
-   */
-  images?: Uint8Array[] | string[];
-
-  /**
-   * The content of the message.
-   * Contains the raw text or param of the message, used in history storage or processing.
-   */
-  content: string;
-
-  /**
-   * The name of the agent associated with the message.
-   * Allow to attach tool call request to specific message
-   */
-  tool_calls?: IToolCall[];
-
-  /**
-   * Optional ID of the tool call associated with the message.
-   * Used to link the message to a specific tool execution request.
-   */
-  tool_call_id?: string;
 }
 
 /**

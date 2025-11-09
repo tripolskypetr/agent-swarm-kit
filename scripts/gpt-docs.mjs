@@ -86,9 +86,39 @@ const HEADER_CONTENT =
 
 console.log("Loading model");
 
-await ollama.pull({
-  model: "gemma3:12b",
-});
+const pull = async () => {
+  const response = await ollama.pull({
+    model: "gemma3:12b",
+    stream: true,
+  });
+
+  for await (const part of response) {
+    if (!part.completed || !part.total) {
+      continue;
+    }
+
+    // Calculate progress percentage
+    const progress =
+      part.total > 0 ? ((part.completed / part.total) * 100).toFixed(1) : 0;
+
+    // Create simple progress bar
+    const barLength = 40;
+    const filledLength = Math.round((barLength * part.completed) / part.total);
+    const bar = "█".repeat(filledLength) + "░".repeat(barLength - filledLength);
+
+    // Display progress
+    process.stdout.write(`\r[${bar}] ${progress}% ${part.status}`);
+
+    if (part.status === "success") {
+      console.log("\nModel pulled successfully!");
+      break;
+    }
+  }
+
+  console.log("Done!");
+};
+
+await pull();
 
 const generateDescription = retry(
   async (filePath, prompt) => {

@@ -7,7 +7,7 @@ group: docs
 
 Interface representing a tool call request within the swarm system.
 Encapsulates a specific invocation of a tool as requested by the model, used in agent workflows (e.g., ClientAgent) to bridge model outputs to executable actions.
-Appears in IModelMessage.tool_calls (e.g., via ICompletion.getCompletion) and is processed by agents to execute tools, emit events (e.g., IBus.emit "commit-tool-output"), and update history (e.g., IHistory.push).
+Appears in ISwarmMessage.tool_calls (e.g., via ICompletion.getCompletion) and is processed by agents to execute tools, emit events (e.g., IBus.emit "commit-tool-output"), and update history (e.g., IHistory.push).
 
 ## Properties
 
@@ -19,7 +19,7 @@ id: string
 
 The unique identifier of the tool call.
 Assigned to distinguish this invocation from others, often generated randomly (e.g., randomString() in ClientAgent.mapToolCalls) or provided by the model.
-Used to correlate tool outputs back to their requests (e.g., tool_call_id in IModelMessage).
+Used to correlate tool outputs back to their requests (e.g., tool_call_id in ISwarmMessage).
 Example: "tool-xyz123" for a specific call in EXECUTE_FN.
 
 ### type

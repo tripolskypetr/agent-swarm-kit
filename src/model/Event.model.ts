@@ -125,7 +125,7 @@ export interface IBusEvent
 
   /**
    * The input data for the event, as a key-value object.
-   * Carries event-specific input (e.g., { message } in "commit-user-message", { mode, rawResult } in "emit-output" from ClientAgent), often tied to IModelMessage content.
+   * Carries event-specific input (e.g., { message } in "commit-user-message", { mode, rawResult } in "emit-output" from ClientAgent), often tied to ISwarmMessage content.
    * Example: { toolId: "tool-xyz", content: "result" } for a tool output event.
    */
   input: Record<string, any>;

@@ -30,7 +30,7 @@ params: IHistoryParams
 ### _filterCondition
 
 ```ts
-_filterCondition: (message: IModelMessage<object>) => boolean
+_filterCondition: (message: ISwarmMessage<object>) => boolean
 ```
 
 Filter condition function for toArrayForAgent, used to filter messages based on agent-specific criteria.
@@ -41,7 +41,7 @@ Initialized from GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER, applied to common messag
 ### push
 
 ```ts
-push<Payload extends object = object>(message: IModelMessage<Payload>): Promise<void>;
+push<Payload extends object = object>(message: ISwarmMessage<Payload>): Promise<void>;
 ```
 
 Pushes a message into the history and emits a corresponding event via BusService.
@@ -50,7 +50,7 @@ Adds the message to the underlying storage (params.items) and notifies the syste
 ### pop
 
 ```ts
-pop(): Promise<IModelMessage | null>;
+pop(): Promise<ISwarmMessage | null>;
 ```
 
 Removes and returns the most recent message from the history, emitting an event via BusService.
@@ -60,7 +60,7 @@ Useful for ClientAgent to undo recent actions or inspect the latest entry.
 ### toArrayForRaw
 
 ```ts
-toArrayForRaw(): Promise<IModelMessage[]>;
+toArrayForRaw(): Promise<ISwarmMessage[]>;
 ```
 
 Converts the history into an array of raw messages without filtering or transformation.
@@ -69,7 +69,7 @@ Iterates over params.items to collect all messages as-is, useful for debugging o
 ### toArrayForAgent
 
 ```ts
-toArrayForAgent(prompt: string, system?: string[]): Promise<IModelMessage[]>;
+toArrayForAgent(prompt: string, system?: string[]): Promise<ISwarmMessage[]>;
 ```
 
 Converts the history into an array of messages tailored for the agent, used by ClientAgent for completions.

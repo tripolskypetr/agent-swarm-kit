@@ -71,6 +71,8 @@ export * from "./functions/target/emitForce";
 export * from "./functions/target/executeForce";
 export * from "./functions/target/ask";
 export * from "./functions/target/json";
+export * from "./functions/target/chat";
+export * from "./functions/target/chat";
 export * from "./functions/target/makeAutoDispose";
 export * from "./functions/target/execute";
 export * from "./functions/target/emit";
@@ -145,10 +147,7 @@ export * from "./events/listenExecutionEventOnce";
 export * from "./events/listenPolicyEventOnce";
 
 export { IAgentSchemaInternal } from "./interfaces/Agent.interface";
-export {
-  ICompletionSchema,
-  ICompletionArgs,
-} from "./interfaces/Completion.interface";
+export { ICompletionSchema } from "./interfaces/Completion.interface";
 export { ISwarmSchema } from "./interfaces/Swarm.interface";
 export { IAgentTool } from "./interfaces/Agent.interface";
 export { ToolValue } from "./interfaces/Agent.interface";
@@ -165,9 +164,16 @@ export { IPipelineSchema } from "./model/Pipeline.model";
 
 export { IMCPSchema, IMCPTool, MCPToolProperties, IMCPToolCallDto } from './interfaces/MCP.interface';
 
-export { IOutlineSchema, IOutlineMessage, IOutlineHistory, IOutlineValidationFn, IOutlineResult, IOutlineFormat, IOutlineSchemaFormat, IOutlineObjectFormat } from "./interfaces/Outline.interface";
+export { IOutlineSchema, IOutlineHistory, IOutlineValidationFn, IOutlineResult, IOutlineFormat, IOutlineSchemaFormat, IOutlineObjectFormat } from "./interfaces/Outline.interface";
 
-export { IModelMessage } from "./model/ModelMessage.model";
+export { IBaseMessage, BaseMessageRole } from "./contract/BaseMessage.contract";
+export { ISwarmMessage, SwarmMessageRole } from "./contract/SwarmMessage.contract";
+export { IOutlineMessage, OutlineMessageRole } from "./contract/OutlineMessage.contract";
+
+export { IBaseCompletionArgs } from "./contract/BaseCompletion.contract";
+export { IOutlineCompletionArgs } from "./contract/OutlineCompletion.contract";
+export { ISwarmCompletionArgs } from "./contract/SwarmCompletion.contract";
+
 export { IIncomingMessage, IOutgoingMessage } from "./model/EmitMessage.model";
 export { ITool, IToolCall } from "./model/Tool.model";
 

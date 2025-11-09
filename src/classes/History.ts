@@ -1,6 +1,6 @@
 import { makeExtendable, memoize, singleshot } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
-import { IModelMessage } from "../model/ModelMessage.model";
+import { ISwarmMessage } from "../contract/SwarmMessage.contract";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
 import { PersistList, TPersistList } from "./Persist";
@@ -21,7 +21,7 @@ export interface IHistoryInstanceCallbacks {
    * Determines whether a message should be included in the history iteration.
    */
   filterCondition?: (
-    message: IModelMessage,
+    message: ISwarmMessage,
     clientId: string,
     agentName: AgentName
   ) => Promise<boolean> | boolean;
@@ -32,13 +32,13 @@ export interface IHistoryInstanceCallbacks {
   getData: (
     clientId: string,
     agentName: AgentName
-  ) => Promise<IModelMessage[]> | IModelMessage[];
+  ) => Promise<ISwarmMessage[]> | ISwarmMessage[];
 
   /**
    * Called when the history array changes (e.g., after push or pop).
    */
   onChange: (
-    data: IModelMessage[],
+    data: ISwarmMessage[],
     clientId: string,
     agentName: AgentName
   ) => void;
@@ -46,13 +46,13 @@ export interface IHistoryInstanceCallbacks {
   /**
    * Called when a new message is pushed to the history.
    */
-  onPush: (data: IModelMessage, clientId: string, agentName: AgentName) => void;
+  onPush: (data: ISwarmMessage, clientId: string, agentName: AgentName) => void;
 
   /**
    * Called when the last message is popped from the history.
    */
   onPop: (
-    data: IModelMessage | null,
+    data: ISwarmMessage | null,
     clientId: string,
     agentName: AgentName
   ) => void;
@@ -61,7 +61,7 @@ export interface IHistoryInstanceCallbacks {
    * Called for each message during iteration when reading.
    */
   onRead: (
-    message: IModelMessage,
+    message: ISwarmMessage,
     clientId: string,
     agentName: AgentName
   ) => void;
@@ -102,13 +102,13 @@ export interface IHistoryAdapter {
   iterate(
     clientId: string,
     agentName: AgentName
-  ): AsyncIterableIterator<IModelMessage>;
+  ): AsyncIterableIterator<ISwarmMessage>;
 
   /**
    * Adds a new message to the history.
    */
   push: (
-    value: IModelMessage,
+    value: ISwarmMessage,
     clientId: string,
     agentName: AgentName
   ) => Promise<void>;
@@ -119,7 +119,7 @@ export interface IHistoryAdapter {
   pop: (
     clientId: string,
     agentName: AgentName
-  ) => Promise<IModelMessage | null>;
+  ) => Promise<ISwarmMessage | null>;
 
   /**
    * Disposes of the history for a client and agent, optionally clearing all data.
@@ -149,7 +149,7 @@ export interface IHistoryInstance {
   /**
    * Iterates over history messages for an agent.
    */
-  iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+  iterate(agentName: AgentName): AsyncIterableIterator<ISwarmMessage>;
 
   /**
    * Initializes the history for an agent, loading initial data if needed.
@@ -159,12 +159,12 @@ export interface IHistoryInstance {
   /**
    * Adds a new message to the history for an agent.
    */
-  push(value: IModelMessage, agentName: AgentName): Promise<void>;
+  push(value: ISwarmMessage, agentName: AgentName): Promise<void>;
 
   /**
    * Removes and returns the last message from the history for an agent.
    */
-  pop(agentName: AgentName): Promise<IModelMessage | null>;
+  pop(agentName: AgentName): Promise<ISwarmMessage | null>;
 
   /**
    * Disposes of the history for an agent, optionally clearing all data.
@@ -304,7 +304,7 @@ const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT_FN = async (
 export const HistoryPersistInstance = makeExtendable(
   class implements IHistoryInstance {
     /** @private The in-memory array of history messages*/
-    _array: IModelMessage[] = [];
+    _array: ISwarmMessage[] = [];
 
     /** @private The persistent storage instance for history messages*/
     _persistStorage: TPersistList;
@@ -350,7 +350,7 @@ export const HistoryPersistInstance = makeExtendable(
       if (callbacks.filterCondition) {
         this.iterate = async function* (
           agentName: AgentName
-        ): AsyncIterableIterator<IModelMessage> {
+        ): AsyncIterableIterator<ISwarmMessage> {
           GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
             swarm.loggerService.debug(
               HISTORY_PERSIST_INSTANCE_METHOD_NAME_ITERATE_CONDITION,
@@ -429,7 +429,7 @@ export const HistoryPersistInstance = makeExtendable(
     */
     async *iterate(
       agentName: AgentName
-    ): AsyncIterableIterator<IModelMessage> {
+    ): AsyncIterableIterator<ISwarmMessage> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         swarm.loggerService.debug(
           HISTORY_PERSIST_INSTANCE_METHOD_NAME_ITERATE,
@@ -476,7 +476,7 @@ export const HistoryPersistInstance = makeExtendable(
      * Invokes onPush and onChange callbacks if provided.
     */
     async push(
-      value: IModelMessage,
+      value: ISwarmMessage,
       agentName: AgentName
     ): Promise<void> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -496,7 +496,7 @@ export const HistoryPersistInstance = makeExtendable(
      * Removes and returns the last message from the history, updating persistent storage.
      * Invokes onPop and onChange callbacks if provided.
     */
-    async pop(agentName: AgentName): Promise<IModelMessage | null> {
+    async pop(agentName: AgentName): Promise<ISwarmMessage | null> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         swarm.loggerService.debug(HISTORY_PERSIST_INSTANCE_METHOD_NAME_POP, {
           clientId: this.clientId,
@@ -545,7 +545,7 @@ export type THistoryPersistInstance = InstanceType<typeof HistoryPersistInstance
 export const HistoryMemoryInstance = makeExtendable(
   class implements IHistoryInstance {
     /** @private The in-memory array of history messages*/
-    _array: IModelMessage[] = [];
+    _array: ISwarmMessage[] = [];
 
     /**
      * Memoized initialization function to ensure it runs only once per agent.
@@ -584,7 +584,7 @@ export const HistoryMemoryInstance = makeExtendable(
       if (callbacks.filterCondition) {
         this.iterate = async function* (
           agentName: AgentName
-        ): AsyncIterableIterator<IModelMessage> {
+        ): AsyncIterableIterator<ISwarmMessage> {
           GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
             swarm.loggerService.debug(
               HISTORY_MEMORY_INSTANCE_METHOD_NAME_ITERATE_CONDITION,
@@ -663,7 +663,7 @@ export const HistoryMemoryInstance = makeExtendable(
     */
     async *iterate(
       agentName: AgentName
-    ): AsyncIterableIterator<IModelMessage> {
+    ): AsyncIterableIterator<ISwarmMessage> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_ITERATE, {
           clientId: this.clientId,
@@ -707,7 +707,7 @@ export const HistoryMemoryInstance = makeExtendable(
      * Invokes onPush and onChange callbacks if provided.
     */
     async push(
-      value: IModelMessage,
+      value: ISwarmMessage,
       agentName: AgentName
     ): Promise<void> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -727,7 +727,7 @@ export const HistoryMemoryInstance = makeExtendable(
      * Removes and returns the last message from the in-memory history.
      * Invokes onPop and onChange callbacks if provided.
     */
-    async pop(agentName: AgentName): Promise<IModelMessage | null> {
+    async pop(agentName: AgentName): Promise<ISwarmMessage | null> {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         swarm.loggerService.debug(HISTORY_MEMORY_INSTANCE_METHOD_NAME_POP, {
           clientId: this.clientId,
@@ -829,7 +829,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
   public async *iterate(
     clientId: string,
     agentName: AgentName
-  ): AsyncIterableIterator<IModelMessage> {
+  ): AsyncIterableIterator<ISwarmMessage> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_ITERATE, {
         clientId,
@@ -847,7 +847,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
    * Adds a new message to the history for a client and agent, ensuring initialization.
    */
   public push = async (
-    value: IModelMessage,
+    value: ISwarmMessage,
     clientId: string,
     agentName: AgentName
   ): Promise<void> => {
@@ -869,7 +869,7 @@ export class HistoryUtils implements IHistoryAdapter, IHistoryControl {
   public pop = async (
     clientId: string,
     agentName: AgentName
-  ): Promise<IModelMessage | null> => {
+  ): Promise<ISwarmMessage | null> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_POP, {
         clientId,

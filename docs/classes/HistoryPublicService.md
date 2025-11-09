@@ -41,7 +41,7 @@ Provides core functionality (e.g., push, pop) called by public methods, aligning
 ### push
 
 ```ts
-push: (message: IModelMessage<object>, methodName: string, clientId: string, agentName: string) => Promise<void>
+push: (message: ISwarmMessage<object>, methodName: string, clientId: string, agentName: string) => Promise<void>
 ```
 
 Pushes a message to the agent’s history for a specific client and method context.
@@ -51,7 +51,7 @@ Used in AgentPublicService (e.g., commitSystemMessage, commitUserMessage) and Cl
 ### pop
 
 ```ts
-pop: (methodName: string, clientId: string, agentName: string) => Promise<IModelMessage<object>>
+pop: (methodName: string, clientId: string, agentName: string) => Promise<ISwarmMessage<object>>
 ```
 
 Pops the most recent message from the agent’s history.
@@ -61,17 +61,17 @@ Supports ClientAgent (e.g., retrieving last message in EXECUTE_FN) and AgentPubl
 ### toArrayForAgent
 
 ```ts
-toArrayForAgent: (prompt: string, methodName: string, clientId: string, agentName: string) => Promise<IModelMessage<object>[]>
+toArrayForAgent: (prompt: string, methodName: string, clientId: string, agentName: string) => Promise<ISwarmMessage<object>[]>
 ```
 
-Converts the agent’s history to an array tailored for agent processing, incorporating a prompt.
+Converts the agent's history to an array tailored for agent processing, incorporating a prompt.
 Wraps HistoryConnectionService.toArrayForAgent with MethodContextService, logging via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
 Used in ClientAgent (e.g., EXECUTE_FN context preparation) and DocService (e.g., history documentation with prompts).
 
 ### toArrayForRaw
 
 ```ts
-toArrayForRaw: (methodName: string, clientId: string, agentName: string) => Promise<IModelMessage<object>[]>
+toArrayForRaw: (methodName: string, clientId: string, agentName: string) => Promise<ISwarmMessage<object>[]>
 ```
 
 Converts the agent’s history to a raw array of items.

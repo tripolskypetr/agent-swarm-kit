@@ -1,4 +1,4 @@
-import { IModelMessage } from "../model/ModelMessage.model";
+import { ISwarmMessage } from "../contract/SwarmMessage.contract";
 import IHistory, { IHistoryParams } from "../interfaces/History.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import { IBusEvent } from "../model/Event.model";
@@ -16,7 +16,7 @@ export class ClientHistory implements IHistory {
    * Filter condition function for toArrayForAgent, used to filter messages based on agent-specific criteria.
    * Initialized from GLOBAL_CONFIG.CC_AGENT_HISTORY_FILTER, applied to common messages to exclude irrelevant entries.
    */
-  _filterCondition: (message: IModelMessage) => boolean;
+  _filterCondition: (message: ISwarmMessage) => boolean;
 
   /**
    * Constructs a ClientHistory instance with the provided parameters.
@@ -40,7 +40,7 @@ export class ClientHistory implements IHistory {
    * Adds the message to the underlying storage (params.items) and notifies the system, supporting ClientAgent’s history updates.
    */
   async push<Payload extends object = object>(
-    message: IModelMessage<Payload>
+    message: ISwarmMessage<Payload>
   ): Promise<void> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
@@ -74,7 +74,7 @@ export class ClientHistory implements IHistory {
    * Retrieves the message from params.items and notifies the system, returning null if the history is empty.
    * Useful for ClientAgent to undo recent actions or inspect the latest entry.
    */
-  async pop(): Promise<IModelMessage | null> {
+  async pop(): Promise<ISwarmMessage | null> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientHistory agentName=${this.params.agentName} pop`
@@ -102,12 +102,12 @@ export class ClientHistory implements IHistory {
    * Converts the history into an array of raw messages without filtering or transformation.
    * Iterates over params.items to collect all messages as-is, useful for debugging or raw data access.
    */
-  async toArrayForRaw(): Promise<IModelMessage[]> {
+  async toArrayForRaw(): Promise<ISwarmMessage[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientHistory agentName=${this.params.agentName} toArrayForRaw`
       );
-    const result: IModelMessage[] = [];
+    const result: ISwarmMessage[] = [];
     for await (const item of this.params.items.iterate(
       this.params.clientId,
       this.params.agentName
@@ -126,18 +126,18 @@ export class ClientHistory implements IHistory {
   async toArrayForAgent(
     prompt: string,
     system?: string[]
-  ): Promise<IModelMessage[]> {
+  ): Promise<ISwarmMessage[]> {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientHistory agentName=${this.params.agentName} toArrayForAgent`
       );
-    const commonMessagesRaw: IModelMessage[] = [];
-    const systemMessagesRaw: IModelMessage[] = [];
+    const commonMessagesRaw: ISwarmMessage[] = [];
+    const systemMessagesRaw: ISwarmMessage[] = [];
     for await (const content of this.params.items.iterate(
       this.params.clientId,
       this.params.agentName
     )) {
-      const message: IModelMessage = content;
+      const message: ISwarmMessage = content;
       if (message.role === "resque") {
         commonMessagesRaw.splice(0, commonMessagesRaw.length);
         systemMessagesRaw.splice(0, systemMessagesRaw.length);
@@ -198,7 +198,7 @@ export class ClientHistory implements IHistory {
         return true;
       }
     );
-    const promptMessages: IModelMessage[] = [];
+    const promptMessages: ISwarmMessage[] = [];
     {
       prompt &&
         promptMessages.push({

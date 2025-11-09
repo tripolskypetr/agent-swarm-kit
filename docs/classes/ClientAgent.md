@@ -169,7 +169,7 @@ Useful for external consumers (e.g., SwarmConnectionService) awaiting agent resp
 ### getCompletion
 
 ```ts
-getCompletion(mode: ExecutionMode, tools: IAgentTool[]): Promise<IModelMessage>;
+getCompletion(mode: ExecutionMode, tools: IAgentTool[]): Promise<ISwarmMessage>;
 ```
 
 Retrieves a completion message from the model using the current history and tools.

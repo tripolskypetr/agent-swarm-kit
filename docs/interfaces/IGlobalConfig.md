@@ -132,7 +132,7 @@ Imported from `validateDefault`, returns null if valid or an error string if inv
 ### CC_AGENT_HISTORY_FILTER
 
 ```ts
-CC_AGENT_HISTORY_FILTER: (agentName: string) => (message: IModelMessage<object>) => boolean
+CC_AGENT_HISTORY_FILTER: (agentName: string) => (message: ISwarmMessage<object>) => boolean
 ```
 
 Filter function for agent history, used in `ClientAgent.history.toArrayForAgent` to scope messages.
@@ -150,11 +150,11 @@ Removes XML tags via `removeXmlTags` based on `CC_AGENT_DISALLOWED_TAGS` to clea
 ### CC_AGENT_OUTPUT_MAP
 
 ```ts
-CC_AGENT_OUTPUT_MAP: (message: IModelMessage<object>) => IModelMessage<object> | Promise<IModelMessage<object>>
+CC_AGENT_OUTPUT_MAP: (message: ISwarmMessage<object>) => ISwarmMessage<object> | Promise<ISwarmMessage<object>>
 ```
 
 Function to map model messages for agent output, used in `ClientAgent.map` (e.g., `RUN_FN`, `EXECUTE_FN`).
-Default implementation returns the message unchanged, allowing customization of `IModelMessage` via `setConfig`.
+Default implementation returns the message unchanged, allowing customization of `ISwarmMessage` via `setConfig`.
 
 ### CC_AGENT_SYSTEM_PROMPT
 
@@ -285,7 +285,7 @@ Indicates refusal to engage, enhancing policy messaging, though not directly in 
 ### CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION
 
 ```ts
-CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: string) => Promise<IModelMessage<object>>
+CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION: (clientId: string, agentName: string) => Promise<ISwarmMessage<object>>
 ```
 
 A custom function to handle tool call exceptions by returning a model message or null, used in `ClientAgent.getCompletion` with the "custom" `CC_RESQUE_STRATEGY`.

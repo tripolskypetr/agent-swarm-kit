@@ -64,2244 +64,2291 @@ This architecture could be used for a wide range of applications, including:
 
 ## Function validate
 
-This function checks that all your AI agent swarms, individual agents, and outlines are set up correctly. It's designed to be safe to run repeatedly – it won't cause any problems even if you call it multiple times, as it only validates once per execution. Think of it as a quick health check for your entire AI agent setup.
+This function checks the health and correctness of everything in your AI agent swarm – that includes the swarms themselves, the individual agents within them, and the outlines that guide their actions. It's designed to be safe to run repeatedly; it only validates once each time you run it, so you don't have to worry about it slowing things down if you accidentally call it multiple times. Think of it as a quick system check to ensure everything is set up properly.
 
 ## Function startPipeline
 
-This function lets you kick off a pre-defined workflow, or "pipeline," involving multiple AI agents. Think of it as telling the system, "Hey, I want this specific sequence of agents to work on this data." You identify the pipeline by name, specify which agent should initially handle the task, and provide any data needed for the process – that’s the payload. The function then manages the coordination between agents, ensuring they work together effectively and returns a result based on the pipeline's outcome. Essentially, it's your way of starting a complex task involving your AI agents.
+This function lets you kick off a pre-defined workflow, or "pipeline," within the AI agent system. Think of a pipeline as a sequence of steps handled by different agents. 
 
+You specify which client this workflow belongs to using `clientId`, then identify the specific pipeline you want to run with `pipelineName`, and tell the system which agent should initially handle the request using `agentName`.  You can also provide data, called the `payload`, that the pipeline will use to do its work – this is optional. 
+
+The function returns a promise that will eventually resolve with the result of the pipeline execution, which can be any type of data you define.
 
 ## Function scope
 
-This function lets you run code within a controlled environment, ensuring it has access to the necessary tools and services like agents and pipelines. Think of it as creating a temporary workspace for your code. You provide a function that you want to execute, and this function will be run with a specific setup. You can also customize the tools available to that function by providing options, allowing you to tweak how it interacts with other services. The function you provide will receive information about the client and the agent it’s associated with.
+This function lets you run a piece of code – like a task or a function – within a controlled environment, ensuring it has access to the necessary tools and resources. Think of it as setting up a little workspace just for that specific task.
+
+You provide the code you want to run, and it will execute within this workspace. Optionally, you can customize the tools available in the workspace, like specifying which AI agents or tools the code can use. This allows you to easily manage and control how your code interacts with the broader AI system. The code you provide receives details about the client and agent involved, giving it context for its operations.
 
 ## Function runStatelessForce
 
-This function lets you send a message to your AI agent swarm and have it process it immediately, without adding it to the ongoing conversation history. Think of it as a way to handle tasks like storing information or running one-off commands without cluttering the agent’s memory. 
+This function lets you send a message to your AI agent swarm without it being saved to the ongoing conversation history. It's perfect for tasks like processing data from storage or running quick, isolated commands.
 
-It’s designed to be forceful; it will always execute the message, even if the agent isn’t actively available, ensuring the task gets done. You provide the message content and a client identifier to track the session. The system handles the execution details, monitors performance, and keeps track of related data behind the scenes.
+Unlike other functions, this one *always* runs the message, even if the agent isn't currently considered 'active'. 
+
+You provide the message content and a client ID to identify the session. The system handles the execution, tracks performance, and keeps an organized environment for reliable processing.
 
 ## Function runStateless
 
-This function lets you quickly send a message to one of your AI agents without adding it to the ongoing conversation history. It’s useful for tasks like processing data or storing information where you don't want the agent's responses to build up a long chat log.
+This function lets you send a message to one of your AI agents without adding it to the ongoing conversation history. Think of it as a way to quickly trigger an agent for a specific task, like processing data or handling a one-time request, without worrying about the chat history getting too long. 
 
-You provide the message you want the agent to handle, along with a client identifier and the name of the agent you want to use. The system verifies that the agent is available and then executes the message, keeping track of performance and notifying other parts of the system. 
-
-Essentially, it’s a way to trigger an agent’s action in isolation, ensuring a clean execution environment. If the designated agent isn't active or has been replaced, the request is skipped.
+You provide the message you want the agent to handle, along with a client identifier and the agent's name. The system ensures the agent is still available and running, and then executes the message, keeping track of how long it takes and notifying other parts of the system. It makes sure each message starts with a fresh slate, guaranteeing a consistent and reliable outcome for each request.
 
 
 ## Function overrideTool
 
-This function lets you modify how a tool operates within the AI agent swarm. Think of it as a way to update a tool’s instructions or capabilities without affecting other parts of the system. You provide a new schema – which can be a complete replacement or just a few tweaks – and the system applies those changes to the specified tool. It's designed to be a direct and isolated change, keeping everything else working smoothly. If the system is set up to log events, you’ll see a record of this override happening.
-
-
-
-
-The `toolSchema` parameter is what you'll use to define those changes—it's the blueprint for how the tool will now function.
+This function lets you change how a tool works within the system. Think of it as updating a tool's instructions – you can modify its name, what it does, or any extra details. It’s designed to make these changes cleanly, without impacting anything else that's currently running. The system keeps track of these overrides, logging them if you've enabled logging. You simply provide the new or updated tool information, and the system takes care of the rest.
 
 ## Function overrideSwarm
 
-This function lets you directly change the setup of an existing swarm within the system. Think of it as updating a swarm's blueprint – you can provide a complete new design or just tweak a few details. It's designed to be a clean operation, working independently to avoid unexpected interactions with ongoing tasks. The system keeps a record of these changes if logging is turned on. You give it a schema, and it updates the corresponding swarm’s configuration.
+This function lets you directly update a swarm's configuration. Think of it as replacing or modifying an existing swarm's blueprint. You provide a new schema, and it applies those changes to the swarm in the system. This update happens independently of any ongoing processes, guaranteeing a fresh start for the modifications. If logging is turned on, the system will record this override for tracking purposes. You just pass in the new schema you want the swarm to follow.
 
 ## Function overrideStorage
 
-This function lets you modify how your swarm stores data. Think of it as updating a blueprint for a particular storage location. You provide a new or partial schema – essentially, a set of instructions – and it applies those changes to the existing storage configuration. This change happens independently, ensuring it doesn't interfere with other processes. The system also keeps a record of this change if logging is turned on. You only need to specify what you want to change; you don't need the entire original schema.
+This function lets you change how your swarm system stores data. It allows you to update a storage configuration, adding or modifying its properties. Think of it as refining how your data is organized and managed. The change happens independently, ensuring a clean and isolated process. If your system is set up to log activities, this override will be recorded. You simply provide the updated information for the storage you want to modify.
 
 ## Function overrideState
 
-This function lets you directly change how a state is structured within the swarm. Think of it as a way to update a state's definition, whether you're making small adjustments or completely redefining it. It operates independently, ensuring a safe and isolated update process, and will log the change if you’ve enabled logging.  You provide a partial or complete state schema, and this function applies those changes to the existing state configuration.
+This function lets you change how the swarm system manages a specific type of state. Think of it as a way to update the blueprint for a particular state—you can add new properties, modify existing ones, or even replace the whole thing. It's designed to make these changes directly and safely, separate from any ongoing processes.  The system keeps a record of these changes if logging is turned on. You provide a partial or complete state schema, and it gets applied to the current state configuration.
 
 ## Function overridePolicy
 
-This function lets you change a policy’s settings within the swarm. Think of it as updating a rule – you provide a new or modified version of the policy’s structure, and the system applies those changes. The update happens independently, making sure it doesn't interfere with anything else that's happening.  If logging is turned on, the system will record that you're making this change. You just give it the new policy definition, and it handles the rest.
+This function lets you update a policy's settings within the swarm. Think of it as making direct changes to how a policy behaves. You provide a new schema, which can be a complete replacement or just a few modifications to the existing policy.  The change happens in a separate, isolated environment to prevent conflicts. The system will also record this change in its logs if logging is turned on. You essentially provide the new policy details, and the function takes care of applying them.
 
 ## Function overridePipeline
 
-This function lets you modify an existing pipeline definition. Think of it as a way to make targeted changes to how your AI agents work together. You provide a partial pipeline definition – only the parts you want to change – and this function merges those changes with the original pipeline. It’s handy for experimenting with slight adjustments or tailoring pipelines for specific scenarios without rewriting the entire thing. The `Payload` type ensures that your modifications are type-safe and aligned with the data your pipeline handles.
+This function lets you modify an existing pipeline definition. Think of it as a way to make small adjustments or corrections to a pipeline without having to rewrite the entire thing from scratch. You provide a partial pipeline schema – only the parts you want to change – and this function merges those updates into the original pipeline definition. This is useful for adapting pipelines based on different scenarios or correcting mistakes.
 
 ## Function overrideOutline
 
-This function lets you modify an existing outline schema within the agent swarm system. Think of it as updating a blueprint – you're providing a partial outline schema with the changes you want to make. To keep things predictable and avoid conflicts, it operates in a fresh, isolated environment. The system will also record these changes if logging is turned on. You pass in the updated portion of the outline schema, and the function applies those changes to the existing configuration.
+This function lets you modify an outline schema already in use by the swarm. Think of it as updating a blueprint for how tasks are organized. To keep things reliable and prevent unexpected conflicts, it starts with a fresh slate before making the changes. If your system is set up to log actions, this update will be recorded for tracking purposes. You simply provide the updated parts of the schema, and the function takes care of applying them.
 
 ## Function overrideMCP
 
-This function lets you adjust and customize the structure of an MCP, or Model Context Protocol, which is a way for AI agents to share information. Essentially, you provide an existing MCP definition, and this function allows you to update it with new rules or modifications. It's useful when you need to fine-tune how your AI agents communicate and share data. You’re providing a base schema, and this function allows you to build upon it.
+This function lets you modify an existing Model Context Protocol (MCP) schema. Think of an MCP schema as a blueprint for how AI agents communicate and share information. 
 
+You provide the original schema, and this function returns a new, updated version incorporating your changes. It's useful when you need to adapt an MCP to fit a specific need or integrate new data structures. Essentially, you're giving the framework a way to adjust how agents understand each other. The function takes the existing MCP definition as input and returns a modified version.
 
 ## Function overrideEmbeding
 
-This function lets you change how the swarm system handles embeddings, the way it represents data for understanding and comparison. You can provide a completely new embedding schema or just update parts of an existing one. This change happens independently, ensuring it doesn't interfere with anything else happening in the system. The system will also keep a record of the change if logging is turned on. You just need to provide the new or updated embedding schema as input.
+This function lets you change how the swarm handles embeddings, essentially updating the instructions it uses for understanding and comparing information. You provide a new set of rules or modify the existing ones for embedding, and this function applies those changes directly to the swarm’s configuration. It ensures that the change is made cleanly and independently, keeping things organized. If the swarm is set up to log activity, this override will be recorded for tracking purposes. You only need to provide the new embedding schema; you don't need to deal with the underlying mechanisms.
 
 ## Function overrideCompute
 
-This function lets you modify an existing compute schema, essentially updating parts of its configuration. Think of it as a way to tweak a pre-defined setup without creating a completely new one. You provide a partial schema containing the changes you want to make, and it merges those changes into the original schema. It’s useful for customizing configurations based on different needs or environments.
-
+This function lets you modify existing compute configurations, allowing you to make targeted changes without rewriting everything from scratch. Think of it as a way to apply updates or adjustments to how a specific task or function is executed. You provide a partial configuration – just the bits you want to change – and the function merges it with the original configuration. This is particularly useful for fine-tuning agent behavior or adjusting resource allocation.
 
 ## Function overrideCompletion
 
-This function lets you adjust how the AI agent swarm generates responses, allowing you to customize the completion process. You can provide a new schema or just update parts of an existing one. It works independently, ensuring the changes are applied cleanly without interfering with ongoing tasks. The system will also record this change if logging is turned on. You essentially provide the new or modified completion rules, and the framework takes care of applying them.
+This function lets you modify how the swarm generates responses. Think of it as a way to tweak the instructions given to the AI agents to ensure they produce the kind of output you need. You provide a new schema, which can be a complete replacement or just a few changes to an existing one, and the system applies those changes. The update happens independently, making sure it doesn’s interfere with what’s already happening. If logging is turned on, the system will record that you made this modification.
+
+The key thing you pass in is a schema definition describing the desired completion behavior.
 
 ## Function overrideAgent
 
-This function lets you change the blueprint for an agent already running in the swarm. Think of it as updating an agent's configuration – you can provide a complete new definition or just a few tweaks. The system handles this change carefully, isolating it from other operations to avoid conflicts, and it keeps a record of the change if logging is turned on. You provide the new or modified agent schema, and the framework takes care of applying it to the existing agent within the swarm.
+This function lets you update the blueprint for an agent already working within the swarm. Think of it as modifying an agent's instructions – you can provide a complete new set of instructions, or just tweak a few parts. It operates independently, ensuring a safe and isolated change. If your system is set up to log actions, this function will record that an agent's schema has been updated. You provide the new agent definition, and the framework handles applying those changes.
 
 ## Function overrideAdvisor
 
-This function lets you change how an advisor operates within the swarm. It allows you to update an advisor's settings by providing a new schema, which can be a complete replacement or just a few adjustments. Think of it as tweaking an advisor's personality or rules. This update happens independently, ensuring it doesn't interfere with anything else currently running. If your system is set up to record activity, this override will be logged for tracking purposes. You simply provide the new advisor schema, and the system takes care of applying the changes.
+This function lets you update an advisor's configuration within the swarm. Think of it as making changes to how an advisor operates – you can specify new settings or modify existing ones.  It’s designed to make these changes cleanly and safely, keeping them separate from ongoing processes.  Only the information you provide in the `advisorSchema` will be updated; any settings you don’t include will stay as they are.  You'll need to provide the advisor's name as part of the schema you’re providing.
 
 ## Function notifyForce
 
-This function lets you send a message out from a swarm session directly, without it being processed as a regular incoming message. Think of it as a way to push information out to the system. It’s specifically for sessions created using the “makeConnection” method and ensures the targeted agent is still available before sending.  You provide the message content and a unique client identifier to specify where the notification should be delivered. This ensures a clean environment for sending and logs the action if logging is turned on.
+This function lets you send a message out from your swarm session directly, like a quick announcement or status update, without having the swarm process it as a regular instruction. It’s specifically for sessions set up using the "makeConnection" method. 
+
+Essentially, you provide the message content and a unique ID for the client session, and the system will send that message out. It checks to make sure everything is still working correctly before sending, and it's designed to work even if the agent assigned to the session has been updated. This helps keep things running smoothly and provides a way to communicate outside of the normal message flow.
 
 ## Function notify
 
-This function lets you send messages out from your AI agent swarm without triggering any of the usual message processing. Think of it as a way to broadcast information directly. 
+This function lets you send messages out from your AI agent swarm session without triggering any of the usual processing steps. Think of it as a direct broadcast – it's useful for things like displaying status updates or providing feedback to a user in sessions created with "makeConnection."
 
-It's specifically for sessions created using the "makeConnection" method. Before sending anything, the system checks to make sure the connection, the swarm, and the agent you specify are still working and haven't been replaced. 
+It makes sure everything is set up correctly, verifying the session, the overall swarm, and the specific agent you're sending to is still working. If the agent has been replaced, the notification won’t be sent. 
 
-You provide the message content, a unique client identifier, and the name of the agent you want to associate with the notification. The system keeps things tidy by creating a fresh environment before sending and logs the action if you’ve enabled logging.
+You provide the message content, a unique ID for the client using the session, and the name of the agent you want the message associated with. The function handles the technical details to ensure a smooth delivery.
+
 
 ## Function markOnline
 
-This function lets you tell the system that a specific client is now active and participating in a particular swarm. Think of it as signaling that a worker is ready to receive tasks. You'll need to provide the unique ID of the client and the name of the swarm they're part of to use this function. Essentially, it keeps the orchestration framework aware of which clients are currently online and available.
+This function lets you tell the system that a particular client is now active and participating in a specific group of agents, which we call a swarm. Think of it as updating the status of a worker – you're essentially saying "this client is online and ready to go" within the context of a named swarm. You'll need to provide a unique identifier for the client and the name of the swarm you're updating. It doesn't return a value, it just confirms the update.
 
 
 ## Function markOffline
 
-This function lets you tell the system that a particular client is no longer active within a swarm. Think of it as signaling that a worker has disconnected or become unavailable. You'll need to provide the unique ID of the client and the name of the swarm where that client was participating. This helps the system rebalance tasks and avoid sending work to unavailable agents. It essentially updates the system's view of which clients are currently online and ready to work.
+This function lets you tell the system that a particular client has gone offline. You're essentially informing the framework that a client, identified by its unique ID, is no longer actively participating in a specific swarm. It's useful for managing the state of your agents and ensuring accurate task assignments. To use it, you'll need the client's ID and the name of the swarm it was part of.
 
 ## Function listenEventOnce
 
-This function lets you temporarily listen for a specific event happening within your AI agent swarm. You tell it which client or all clients to watch, and what kind of event (identified by its topic) you’re interested in. A filter helps you narrow down the events you care about, only triggering a callback when a relevant event arrives. Once that single event is processed, the listener automatically stops, ensuring it doesn't interfere with other processes. To cancel the listener before it fires, a function is returned, allowing you to remove it.
+This function lets you temporarily listen for a specific type of event happening within your agent swarm. It's designed to trigger a function only *once* when an event with a certain topic is received from a particular client, or from all clients if you choose. 
+
+You can even provide a filter to ensure that only events that meet certain criteria will trigger your function. The function handles the setup and cleanup of the listener, ensuring everything runs smoothly and automatically unsubscribes after it has executed once. To cancel the listener before it triggers, the function returns a special function that you can call to stop it. 
+
+Essentially, it's a simple way to react to a single event without needing to manage ongoing subscriptions. 
+
+**Parameters:**
+
+*   `clientId`: Identifies which client's events you want to listen to (or use "*" to listen to all).
+*   `topicName`: The name of the event you're interested in.
+*   `filterFn`: A function that checks if the event matches your needs.
+*   `fn`: The function to run when a matching event is received.
 
 ## Function listenEvent
 
-This function lets you listen for specific messages being sent across the agent swarm. You tell it which client (or all clients) you want to hear from and what "topic" or message type you're interested in. When a message matching your criteria arrives, it will trigger a function you provide, allowing your agent to react to events happening within the swarm. To stop listening, the function gives you a way to easily unsubscribe and clean up the listener. The system ensures that certain reserved topic names aren't used and handles the message processing in a controlled sequence.
+This function lets you set up a way to be notified when specific events happen within your AI agent swarm. You tell it which client or all clients you want to listen to, and what event topic you’re interested in. When an event matching your criteria occurs, a function you provide will be executed, giving you access to the event's data. 
 
-You can subscribe to events from a particular client, or use a wildcard to listen for events from any client.
+It’s designed to keep things organized and prevent interference by using a controlled execution environment and restricting certain topic names. To stop receiving these notifications, the function provides a handy "unsubscribe" function that you can call. Think of it as subscribing to a channel and having a way to cancel that subscription when you no longer need it.
 
 ## Function json
 
-This function helps you retrieve data in a well-organized JSON format, following a predefined structure. Think of it as a way to request specific information and receive it neatly packaged. You provide a name that identifies the data you want, and optionally, you can pass along some parameters to fine-tune the request. It’s designed to run in a safe and isolated environment, preventing any interference with other processes. The result will be a structured JSON object containing the data you requested.
+This function lets you request and receive data in a structured JSON format, following a defined outline schema. Think of it as a way to ask for specific information and get it neatly packaged. 
+
+You provide an `outlineName` which tells the system what kind of data you’re looking for. Optionally, you can also provide a `param` to refine your request. The function then handles the data retrieval and organization behind the scenes, ensuring everything runs smoothly and independently. You're guaranteed to get back a JSON response containing the requested data.
 
 ## Function hasSession
 
-This function helps you quickly determine if a client has an active session. It takes a client identifier as input and returns `true` if a session exists, and `false` otherwise. Behind the scenes, it uses a session validation service to do the actual check. If your system is set up for logging, the function will also record that it was called.
+This function helps you quickly determine if a client has an active session. It takes a client ID as input and returns `true` if a session exists, and `false` otherwise. Behind the scenes, it uses a session validation service to do the actual checking. If your system is set up for logging, the function will also record that it was called.
 
 ## Function hasNavigation
 
-This function helps you determine if a particular agent is involved in guiding a client through a process. It checks if the agent is on the navigation path assigned to a specific client session. Behind the scenes, it confirms the agent and client are valid, finds the relevant swarm, and looks at the navigation route to make its decision. If logging is turned on in the system’s settings, this check will also record its activity. You provide the client's ID and the agent’s name to use for this check.
+This function helps you determine if a particular agent is involved in guiding a client through a process. It checks if an agent is part of the planned route for a client’s interaction. Behind the scenes, it verifies that the client and agent are valid, finds the relevant agent swarm, and then looks at the navigation route to see if the agent is included. The system will also record this check if logging is turned on. You provide the unique identifier for the client and the name of the agent you’re interested in knowing about.
 
 ## Function getUserHistory
 
-This function helps you get a record of what a user has said or done during a specific session. You provide a unique identifier for the session, and it returns a list of messages representing the user's interactions. It pulls the raw session history and then carefully selects only the entries marked as being from the user. This makes it easier to track and understand a user's activity within a particular session.
-
+This function helps you get a record of what a user has done during a specific session. It pulls the complete history for a client and then isolates the entries that were initiated by the user. Think of it as retrieving the user's contributions to a conversation or task. You just need to provide the unique ID for the client session to get their history.
 
 ## Function getToolNameForModel
 
-This function helps determine the specific name a model will use to identify a tool, taking into account who is using it and which agent is involved. It's designed to be the primary way external systems interact with the tool naming process. To get the model-friendly tool name, you provide the tool's name, a unique identifier for the user's session, and the agent’s name. The function then returns a promise that resolves to the tool name as it should be presented to the AI model.
-
+This function helps determine the specific name a language model should use when interacting with a tool. It takes the tool's name, a client identifier, and the agent's name as input. Essentially, it translates a tool's internal name into something the language model understands within a particular context. You can use this function to ensure the right tool is called with the correct name, considering the client and agent involved. It's the primary way other systems can interact with this part of the framework.
 
 ## Function getTool
 
-This function lets you fetch the definition of a specific tool that's registered within your AI agent swarm. Think of it as looking up a tool’s blueprint – you provide the tool’s name, and the function returns its schema, detailing how it works and what it accepts. The system will also keep a record of this lookup if you’ve configured logging to be active. You just need to give it the name of the tool you're interested in to get its details.
+This function lets you fetch the definition of a specific tool used by your AI agents. Think of it as looking up the blueprint for a particular tool – it tells the system exactly how that tool works and what it can do. You provide the tool’s name, and the function returns its schema. The system will also keep a record of this request if logging is turned on. 
+
 
 ## Function getSwarm
 
-This function lets you fetch the configuration details – we call it the schema – for a specific swarm. Think of it as looking up the blueprint for how that swarm operates. You provide the swarm's name, and the function returns a detailed description of its setup. If your system is configured to log activity, this function will also record that you requested the swarm’s details.
+This function lets you fetch the details of a specific AI agent swarm. Think of it as looking up a swarm’s configuration. You provide the swarm's name, and it returns a structured object containing its schema – essentially, a blueprint of how that swarm is set up and how it operates. If your system is configured for logging, this retrieval process will be recorded.
 
 ## Function getStorage
 
-This function lets you fetch the details of a specific storage space within your AI agent swarm. Think of it as looking up the blueprint for how a particular storage area is organized and what kind of data it holds. You provide the name of the storage you’re interested in, and the function returns a description of its structure and data types. The system will also record that you requested this information if logging is turned on.
+This function lets you grab the blueprint for a specific storage within your agent swarm. Think of it as looking up how a particular data store is structured and what kind of information it holds. You provide the name of the storage you're interested in, and the function returns a detailed description of its schema.  The system also keeps track of these requests if you’ve configured logging to be active. 
+
+The only thing you need to provide is the name of the storage you want to examine.
 
 ## Function getState
 
-This function lets you fetch a specific state definition from the orchestration system. Think of it as looking up the blueprint for a particular state within the swarm. You provide the name of the state you're interested in, and the function returns the details of that state’s structure. If your system is configured to log actions, this retrieval will also be recorded. The `stateName` parameter is essential; it tells the system exactly which state definition you want.
+This function lets you grab a specific state definition from the system, identifying it by its name. Think of it as looking up a blueprint for how a particular part of the swarm should behave. It's useful for inspecting the configuration of your agents or understanding their expected structure. The system will also record that you asked for this state information if logging is turned on. You just need to provide the name of the state you're interested in to get its definition.
 
 ## Function getSessionMode
 
-This function lets you find out the current operating mode of a specific client session within your AI agent swarm. Think of it as checking what stage a client is in – whether they’re actively in a session, attempting to connect, or have completed their task. You give it the unique ID of the client session, and it returns the mode, which will be one of three options: "session", "makeConnection", or "complete". It's designed to be reliable and runs in a controlled environment to ensure consistent results.
+This function lets you check the current status of a client's session within the swarm. It tells you if the session is active ("session"), attempting to establish a connection ("makeConnection"), or fully completed ("complete"). You provide the unique ID of the client session to find out its mode. The process includes verifying the session's validity and keeping a log of the action if logging is turned on, all while ensuring a fresh, isolated execution environment.
 
 ## Function getSessionContext
 
-This function lets you peek into the current running environment for your AI agents. It gathers important details like who's using the system (client ID), which process is running, and what tools and resources are available. Think of it as getting a snapshot of the agent's current situation. It automatically figures out the client ID, so you don't need to provide it. It checks to make sure things are set up correctly and keeps track of what's happening for debugging purposes.
+This function gives you access to the current session's details, like who's using the system and what resources are available. Think of it as a way to understand the environment your AI agents are operating in. It gathers information such as the client and process IDs, and available methods and execution contexts.  It automatically determines these details based on the current situation, so you don't need to provide any specific IDs – it figures it out on its own.  The function also keeps a record of this process if logging is turned on.
 
 ## Function getRawHistory
 
-This function lets you access the complete, unfiltered history of interactions for a specific client session within your agent swarm. Think of it as getting the raw data directly from the system. 
+This function lets you peek directly at the complete history of messages for a specific client's agent swarm session. It gives you the raw data, exactly as it was recorded, without any changes or filtering applied. 
 
-It provides a way to retrieve all messages and data associated with a client’s agent, without any alterations or filtering applied. You simply provide the client's unique identifier, and it returns an array containing all the historical data. 
+Think of it as retrieving the full, unedited log of the agent's interactions. To get this history, you'll need to provide the unique ID of the client session. 
 
-The function ensures a controlled execution environment and tracks the operation for debugging purposes if logging is enabled. It makes a fresh copy of the history data, so you’re working with a new dataset each time you call it.
+The function handles the complexities of accessing the swarm's data and ensures a consistent environment for retrieving the history. You're given a brand new copy of the history data, so any changes you make won't affect the original.
 
 ## Function getPolicy
 
-This function lets you fetch a specific policy definition from the system, identifying it by its name. Think of it as looking up the blueprint for a particular policy. When you call this function, the system will search for the policy with the provided name and return its full definition. It also keeps a record of this retrieval if the system is set up to log activity. You just need to give it the name of the policy you’re interested in, and it will return the detailed policy schema.
+This function lets you fetch the details of a specific policy that's defined within your AI agent swarm. Think of it as looking up a recipe – you give it the recipe's name (the `policyName`), and it returns all the ingredients and instructions (the `IPolicySchema`). It also keeps a record of this lookup if you've set up logging for your swarm. You just need to provide the name of the policy you're interested in.
 
 ## Function getPipeline
 
-This function lets you fetch the blueprint, or schema, for a specific pipeline within your AI agent swarm. Think of it as looking up the recipe for a particular workflow. You provide the name of the pipeline you want, and it returns the detailed structure that defines how that pipeline operates. The system also keeps a record of this retrieval if you’ve configured logging.
+This function lets you fetch the blueprint for a specific pipeline from the central management system. Think of it as requesting the instructions for how a particular process should run within your AI agent swarm. You simply provide the pipeline's name, and it returns the schema that defines its structure and steps. The system keeps a record of these requests if you’ve enabled logging.
 
 
 
-The only thing you need to provide is the name of the pipeline you’re interested in.
+The `pipelineName` is the unique identifier you use to specify which pipeline you want to retrieve.
 
 ## Function getPayload
 
-This function lets you easily grab the data currently being used by the agent swarm. Think of it as fetching the information the agents are working with right now. If there’s no data available – perhaps no agent is actively processing anything – it will return nothing. It also quietly keeps track of when it’s used if you have logging turned on.
+This function lets you access the data being passed around within the agent swarm system. Think of it as a way to peek at the information an agent is working with. If there's no data currently available, it won’t return anything; it’s like checking a box that's empty. The system will also keep a record of this action if you're configured to track those kinds of events.
 
 ## Function getNavigationRoute
 
-This function helps you figure out the path a client has taken through an AI agent swarm. It essentially tells you which agents a client has interacted with, giving you a trace of their journey. You provide the unique identifier for the client and the name of the swarm you're interested in, and it returns a list of agent names representing that route. Behind the scenes, it uses a navigation validation service to get this information, and might also log activity depending on how the system is configured.
+This function helps you figure out the path a client has taken through an AI agent swarm. It essentially tells you which agents a client has interacted with, giving you a clear picture of their journey. You provide the client's unique ID and the name of the swarm you're interested in, and it returns a list of agent names they've visited. Behind the scenes, it uses a navigation service to get this information, and it can optionally log details depending on how the system is configured.
 
 ## Function getMCP
 
-This function lets you fetch the blueprint, or schema, for a specific Model Context Protocol (MCP) used within your AI agent swarm. Think of it as looking up the instructions for how a particular agent should interact with the system. You provide the name of the MCP you're interested in, and the function returns its complete schema. The system also keeps track of these requests if you’ve configured logging.
-
-The only information you need to provide is the name of the MCP you want to retrieve.
+This function lets you fetch the definition of a specific Model Context Protocol (MCP) from the system. Think of an MCP as a blueprint that describes how an AI agent interacts with the swarm. You provide the name of the MCP you're looking for, and the function returns its full schema. The system keeps track of these schemas, and this function provides a way to access them programmatically. If logging is turned on, the request to get the MCP is recorded.
 
 ## Function getLastUserMessage
 
-This function lets you easily grab the very last message a user sent during a conversation. It finds this message by looking through the conversation history associated with a specific client ID. If a user message exists, you'll get its content as a string; otherwise, it will return nothing. You just need to provide the unique ID of the client's session to use it.
+This function helps you quickly access the last message a user sent. It digs into the session history for a specific client, looking for the most recent message they authored. If a user message exists, you're given its content as a string. If not, it returns null, indicating no user message was found. You just need to provide the unique identifier for the client's session to use it.
 
 ## Function getLastSystemMessage
 
-This function lets you grab the last message sent by the system within a client's ongoing session. It essentially digs into the client's history to find the most recent message specifically marked as coming from the system. If the client hasn't received any system messages yet, it will return nothing. You'll need to provide the unique identifier for the client session to use it.
+This function helps you access the most recent message sent by the system within a specific client's ongoing session. Think of it as retrieving the last instruction or update the system provided. 
+
+It digs through the complete history of messages for that client to find the most recent one labeled as a "system" message. If the system hasn't sent any messages yet, it will return nothing. You need to provide the unique identifier for the client you're interested in to use this function.
 
 ## Function getLastAssistantMessage
 
-This function helps you easily grab the last message sent by the assistant during a client's interaction. It digs into the client’s conversation history to find the most recent message where the assistant provided a response. You provide a unique identifier for the client, and the function returns the content of that last assistant message as text. If no assistant messages are present in the history, it will return nothing.
+This function helps you get the last message sent by the AI assistant for a specific client. It digs into the client's conversation history to find the most recent message where the assistant spoke. If the assistant hasn't sent any messages yet, it will return nothing. You just need to provide the unique ID of the client’s session to use it.
 
 ## Function getEmbeding
 
-This function lets you fetch the details of a specific embedding that your AI agent swarm is using. Think of it as looking up the blueprint for how an embedding works. You provide the name of the embedding you're interested in, and the function returns all the information associated with it. It also keeps a record of this action if your system is configured to log activity.
+This function lets you fetch the details of a specific embedding that your AI agent swarm is using. You provide the name of the embedding you're looking for, and it returns all the information associated with that embedding, like its structure and data types. Think of it as querying a catalog to understand the format of a particular embedding. The system also keeps a record of this request if logging is turned on.
 
 ## Function getCompute
 
-This function lets you fetch the detailed configuration for a specific compute within your AI agent swarm. Think of it as looking up the blueprint for a particular worker. You provide the name of the compute you're interested in, and it returns all the information defining how that compute operates. If your swarm's logging is turned on, this function will also record that it was used.
+This function lets you fetch details about a specific compute resource within your AI agent swarm. Think of it as looking up the configuration for a particular task or tool your agents use. You provide the name of the compute you're interested in, and the function returns its schema, which describes its settings and capabilities. The system will also record this retrieval if logging is turned on. 
 
 
 ## Function getCompletion
 
-This function lets you fetch a specific completion schema, which defines how a particular task or action is performed, using its assigned name. Think of it as looking up the instructions for a certain job within the AI agent swarm. It’s a simple way to retrieve the details of a completion. If your system is set up to record activity, this function will also log when it’s used. You provide the name of the completion you're looking for, and it returns the associated schema.
+This function lets you fetch a pre-defined completion – think of it as a reusable pattern or template for your AI agents – by its unique name. It's how you access the building blocks your agents will use. Behind the scenes, it also keeps a record of the request if you've set up logging. You just need to provide the name of the completion you want to use.
 
 ## Function getCheckBusy
 
-This function lets you quickly see if an AI agent swarm is currently working on a task. You simply provide the unique identifier for the client session, and it will return `true` if the swarm is busy and `false` otherwise. It's a handy way to monitor the status of your agent swarms and avoid sending new requests while they're already occupied. Essentially, it helps you keep track of what your swarms are doing.
+This function lets you quickly see if an AI agent swarm is currently working on a task. You simply provide the unique ID associated with the client session, and it will return `true` if the swarm is busy, and `false` otherwise. It's a simple way to check the swarm's status before sending it new work. The client ID identifies which swarm you’re inquiring about.
 
 ## Function getAssistantHistory
 
-This function lets you pull the conversation history of an AI assistant for a specific client session. Think of it as retrieving all the assistant's responses and contributions to a particular chat. It fetches the full history and then narrows it down to only show messages the assistant sent. It’s designed to run cleanly and provides logging for troubleshooting if needed. You just need to provide the unique ID of the client session to get the relevant history.
+This function lets you see what an AI assistant has said during a particular conversation. It pulls up the complete history for a client session and then specifically shows only the assistant's messages. You provide a unique ID for the client session to retrieve the history. The result is a list of messages representing the assistant's responses within that conversation.
 
 ## Function getAgentName
 
-This function helps you find out what an agent is called for a specific client. Think of it as looking up the agent’s name associated with a particular session in your swarm. It makes sure the session and swarm are valid, keeps a log if that's turned on, and then asks the swarm to provide the agent's name. To keep things running cleanly, it operates in a separate, isolated environment. You just need to give it the unique identifier for the client session you're interested in.
+This function helps you find out the name of the agent currently working on a particular client's session. You provide a unique ID for the client, and the function returns the agent's name. It ensures the client session is valid and handles the process securely, retrieving the agent's name from the swarm system. This is a simple way to identify which agent is responsible for a specific client interaction.
 
 ## Function getAgentHistory
 
-This function lets you view the past interactions and adjustments made for a particular agent within your swarm. It pulls up the agent's history, taking into account any rescue algorithms the system is using to refine its responses. 
+This function lets you see the past interactions and adjustments made for a particular agent within a swarm. It's like looking at an agent’s log, but it also includes any "rescue" strategies applied to keep things running smoothly.
 
-You provide the client ID to identify the session and the agent’s name to specify which agent’s history you want to see. The system verifies your request and carefully retrieves the history using the agent’s prompt configuration. This process is designed to run independently, keeping things clean and reliable.
+You'll need to provide the client ID, which identifies the session, and the agent's name to retrieve its history. 
+
+The system ensures the request is valid and keeps a record of the process, pulling the agent’s history from the central history service. It's designed to run independently, minimizing any interference from other ongoing processes.
 
 ## Function getAgent
 
-This function lets you find a specific agent within your AI agent swarm, identifying it by its assigned name. Think of it as looking up an agent's blueprint or definition. It’s how you access the details of an agent so you can work with it. If your swarm is set up to keep a record of activity, this function will also create a log entry to track when the agent's information is accessed. You provide the agent's name, and it returns the agent's internal schema.
+This function lets you fetch the details of a specific agent within your AI agent swarm. You provide the agent's name, and it returns all the configuration information associated with that agent. The system keeps track of these requests if logging is turned on. Think of it as looking up an agent's profile within the swarm. It’s useful when you need to know exactly how an agent is set up.
 
 ## Function getAdvisor
 
-This function helps you find the details of a specific advisor within your AI agent swarm. Think of it as looking up a profile – you give it the advisor's name, and it returns all the information associated with that advisor. It’s useful for understanding what an advisor is responsible for and how it operates. If your system is set up to log activity, this function will also record that you requested the advisor's information. You simply provide the name of the advisor you’re interested in, and the function does the rest.
+This function lets you fetch the configuration details for a specific advisor within your AI agent swarm. Think of it as looking up the blueprint for how an advisor should behave. You simply provide the name of the advisor you’re interested in, and the function returns its schema – which defines its capabilities and settings. The system will also record this retrieval if logging is turned on.
 
 ## Function fork
 
-This function lets you run a piece of code – a function – inside a controlled environment, ensuring everything related to its session is handled automatically. You provide the function you want to execute, along with some settings like a client ID and swarm name. The function you provide will be called with the client ID and the agent’s name, allowing it to interact with the system. This approach simplifies managing the lifecycle of tasks and makes sure resources are cleaned up properly afterwards.
+This function lets you run a piece of code – a function you provide – in a controlled environment, making sure everything related to that code's session is handled automatically. Think of it as creating a temporary, isolated space for your code to operate. 
+
+You give it a function that contains the actual work you want to do. This function will receive a unique client ID and the name of the agent it's associated with. You also pass in some settings, like the client ID and the swarm name, to configure how this controlled environment behaves. The function then runs your code and returns the result. 
 
 
 ## Function executeForce
 
-This function lets you directly send a message to an agent within a swarm session, acting as if it came from a client. It’s useful for things like checking what an agent has done or starting a conversation between the agent and a client application.
+This function lets you send a message or command directly to an agent within your swarm, acting as if it came from a client. It's particularly useful for things like inspecting an agent’s work or starting a conversation between a model and your application. 
 
-Crucially, this method bypasses checks for agent activity, guaranteeing the message gets through even if the agent isn’t currently running or has been replaced. 
-
-You provide the message you want to send (the `content`) and a unique identifier for the client session (`clientId`) to track where the request came from. The system handles the details of sending the message, keeping track of performance and notifying other parts of the system.
-
+Unlike other functions, it doesn't wait to see if the agent is currently active – it forces the command to run even if the agent’s state has changed.  You provide the message content and a unique identifier for the client session, and the system handles validating the session, tracking performance, and ensuring a clean execution environment.
 
 ## Function execute
 
-This function lets you send messages or commands to a specific agent within your swarm, making it appear as if they came directly from a client. Think of it as a way to review an agent’s work, trigger a conversation, or generally interact with them programmatically.
+This function lets you send messages or commands to a specific agent within a group of agents working together. Think of it as directly communicating with one agent on behalf of a user or application. 
 
-Before anything happens, the system makes sure the agent you’re targeting is still part of the swarm and hasn't been replaced. The message itself is handled carefully, ensuring a clean environment and keeping track of performance and important events.
+It's useful for things like reviewing an agent's work or starting a conversation between an agent and your system. 
 
-You'll need to provide the actual content of the message, a unique identifier for the client, and the name of the agent you want to interact with.
+Before sending the message, it makes sure the agent is still part of the group, the connection is valid, and then sends the content with tracking to monitor performance and keep everyone informed. It essentially creates a fresh, clean workspace for the message to be processed within a controlled environment.
 
 ## Function event
 
-This function lets your application send messages, called events, to the rest of the AI agent swarm. Think of it as a way to broadcast information – your agent can send a notification, a request, or any data it wants to share.
+This function lets you send custom messages, called events, to other parts of your AI agent system. Think of it as a way for different agents to communicate with each other. 
 
-You specify who is sending the message (`clientId`), what kind of message it is (`topicName`), and the actual information being sent (`payload`).
+You specify a unique identifier for the sender (`clientId`), a topic name to categorize the message, and the actual data you want to share (`payload`). The system makes sure you aren’t using any special, reserved topic names. 
 
-It's designed to keep things organized and avoid conflicts, so certain topic names are off-limits. The system ensures that your message is properly formatted and logged for tracking purposes.
+Essentially, it’s a straightforward way to broadcast information within your agent swarm.
 
 ## Function emitForce
 
-This function lets you push a string directly into the AI agent swarm as output, essentially simulating a response without triggering any message processing or checking which agent is active. It's specifically designed to work with sessions created using `makeConnection`, ensuring everything functions smoothly within that environment. 
+This function lets you send a piece of text directly as output from the AI agent swarm, like a simple message. It skips the usual processing of incoming messages and doesn't check which agent is currently active.
 
-Think of it as a shortcut for injecting data into the system. The process creates a fresh context, verifies the session and swarm's health, and won't work if you've set up your connection differently. You'll need to provide the content you want to emit and a unique ID for the client session.
+It’s specifically for sessions that were started using `makeConnection`, ensuring everything works together properly. The system sets up a fresh environment, verifies the session and swarm, and won't work if the session wasn't created through `makeConnection`.
+
+You provide the text you want to send (`content`) and a unique ID for the session (`clientId`). The system keeps a record of this action if logging is enabled, and confirms when the text is successfully sent.
 
 ## Function emit
 
-This function allows you to send information as output from an agent within the swarm, essentially letting the agent "speak" without processing a standard message. It's specifically designed for use when initially establishing a connection – think of it as a way to bootstrap the conversation.
+This function lets you send a message as output from an agent in the swarm, as if it were generated by the agent itself. 
 
-Before sending anything, it makes sure the connection is valid, that the agent is still active and part of the swarm, and that the agent hasn’t been replaced. It sets up a fresh environment for the operation and keeps a record of it if logging is turned on. Importantly, you can only use this function when setting up the initial connection.
+It's specifically intended for use when you've established a connection using `makeConnection`, and allows you to inject content without triggering the normal message processing flow. 
+
+Before sending, it double-checks that the connection, the swarm, and the agent you're referencing are still valid and active. It also creates a fresh environment for the action and keeps a log of what's happening. You can only use this function if the connection mode is set to "makeConnection."
+
+You provide the message content, a unique identifier for the client session, and the name of the agent associated with the output.
 
 ## Function commitUserMessageForce
 
-This function lets you directly add a user's message to the agent's record within a swarm session. Think of it as manually updating the conversation history. It's a forceful action, meaning it doesn't wait to see if the agent is still running and skips some usual checks. 
+This function lets you directly add a user's message to the conversation history of an agent within a swarm session. It's useful when you need to record a message without automatically triggering a response from the agent, or when you want to ensure a message is recorded even if the agent isn’t currently active.
 
-You provide the message content, how it should be handled (the execution mode), and a client identifier. Optionally, you can include extra data in a payload object. The function ensures the process runs cleanly and independently, then passes the update to the session's service.
+Think of it as a way to manually inject a message into the agent’s memory.
 
+The function takes the message content, the execution mode, a client identifier, and optionally a data payload. It handles internal checks and logging, then adds the message to the agent's history. The function ensures that the process runs in a clean environment, independent of other ongoing operations.
 
 ## Function commitUserMessage
 
-This function lets you add a user's message to an agent's record within a swarm session, essentially documenting the interaction without automatically prompting a response from the agent. 
+This function lets you add a user's message to an agent's record within a swarm session, essentially documenting the interaction. Think of it as quietly updating the agent's memory without actually prompting it to respond.
 
-Think of it as a way to build up the agent's history of conversation.
+You provide the message content, the execution mode, a client ID to identify the source, and the name of the agent you're updating.  There's also an optional payload for any extra data you need to associate with the message. 
 
-It ensures the agent and session are still running smoothly, carefully logs the action, and then passes the message along to the session's central service for storage. The function is designed to run independently, avoiding interference from any ongoing processes.
+It makes sure everything is set up correctly before adding the message, logs what’s happening, and then securely handles the update within the swarm system. It runs in a controlled environment to prevent unexpected interference.
 
-You provide the message content, the execution mode, a client identifier, the agent’s name, and optionally, some extra data in a payload.
 
 ## Function commitToolRequestForce
 
-This function lets you directly push tool requests to an agent within the swarm, essentially overriding some of the usual checks. It's useful when you need to ensure a request goes through immediately, even if the standard validation processes might have issues. You provide the tool requests themselves and a unique ID for the client session, and the function handles committing them while keeping track of what's happening. It's wrapped in a system that manages the execution environment and logs all actions for auditing.
+This function allows you to directly push tool requests to an agent within the swarm, even if some validations might be skipped. It's like giving a direct order to the agent, useful in situations where you need to bypass certain checks. You're essentially telling the system to execute these requests immediately, and it does so under the watchful eye of the system’s context management and logging features. The function takes a list of tool requests and a client identifier, then returns a promise resolving to an array of strings.
 
 ## Function commitToolRequest
 
-This function lets you send tool requests to a specific AI agent within the swarm. Think of it as submitting tasks for the agent to handle. 
-
-It makes sure everything is set up correctly – verifying that the agent you’re targeting is actually the one you think it is, and managing the overall environment for the request. 
-
-You provide a list of requests, a unique ID for your client session, and the name of the agent you want to send those requests to. The function then takes care of the rest, sending the requests and keeping track of what's happening.
-
+This function sends tool requests to a specific agent within your AI agent swarm. It makes sure the agent is valid and the session is active before sending the requests. Think of it as a secure way to tell an agent, "Hey, please do these tasks!" The function also handles the background work of keeping track of the execution context and recording what's happening. You’ll need to provide the requests themselves, a client identifier for tracking, and the name of the agent you want to target.
 
 ## Function commitToolOutputForce
 
-This function lets you directly submit the results from a tool back into the agent's workflow, even if you're unsure if the agent is still actively running. It's a way to push data forward without waiting for confirmation.
+This function lets you directly send the results from a tool back to the agent swarm, even if you're not entirely sure the agent is still actively participating. It's a shortcut for pushing tool output, essentially forcing the commit without a prior check on the agent's status.
 
-It handles behind-the-scenes checks for the session and swarm, and logs the action for tracking purposes. The process is isolated to prevent interference with other operations.
+Think of it as a direct line for delivering tool results – it handles the technical details of validating the swarm and logging the action, and then pushes the data to the session's public service. It ensures a fresh execution environment to avoid conflicts with other operations.
 
-To use it, you'll need the tool's unique ID, the output content itself, and the client session ID.
+You'll need to provide the tool's ID, the actual result content, and the client's unique ID to use this function.
+
 
 ## Function commitToolOutput
 
 This function lets you record the results of a tool's work within your AI agent swarm. Think of it as telling the system, "Hey, this tool just finished, and here's what it produced!" 
 
-It makes sure the agent you're referencing is still participating in the session before saving the output. 
+It makes sure the agent you're referencing is still actively involved in the process, ensuring everything stays synchronized. 
 
-Behind the scenes, it checks things are valid, logs the action if you're tracking those kinds of things, and then securely passes the information along. The function is designed to work reliably, regardless of what else might be happening in the system.
+The process includes checks to keep things running smoothly and creates a fresh environment for the task. 
 
-You'll need to provide the tool's ID, the content the tool generated, the client's ID, and the agent's name when you use it.
+You’ll need to provide the tool’s ID, the results of its work (the content), a client identifier, and the name of the agent involved.
 
 ## Function commitSystemMessageForce
 
-This function lets you directly add a system message to a conversation, bypassing the usual checks about which agent is currently active. It’s useful when you need to ensure a specific system message is included, regardless of the current agent's state.
+This function lets you directly push a system message into a session within the swarm, bypassing the usual checks for which agent is active. It's designed for situations where you need to ensure a system message is recorded, regardless of the current agent state.
 
-Think of it as a way to force a system message into the conversation history. 
+Think of it as a way to forcefully commit a message; it validates the session and swarm before proceeding. It handles things like logging and session management behind the scenes, relying on several internal services to do the heavy lifting. 
 
-It verifies the session and swarm before adding the message, and it keeps track of what’s happening through logging.  You provide the message content and a unique identifier for the client session to use this function. This is similar to how `commitAssistantMessageForce` works compared to `commitAssistantMessage`.
+You'll provide the message content and a unique identifier for the session to use this function. It's similar to the "force" commit option for assistant messages, offering a more direct way to record system messages.
+
 
 ## Function commitSystemMessage
 
-This function lets you send important messages directly to an agent within your AI agent swarm. These messages aren't responses from the agent itself – think of them as system instructions or configuration updates.
+This function lets you send special messages directly to an agent within the system – these aren’t responses from the AI, but rather instructions or configurations for the agent itself. 
 
-It carefully checks that the agent you're targeting is valid and belongs to the correct session and swarm before sending the message. This function manages the process behind the scenes, handling things like logging and ensuring everything runs smoothly. 
+Think of it as a way to communicate with the agent to tell it to do something specific.
 
-You'll need to provide the message content, a client identifier to track the session, and the name of the specific agent you want to receive the message. It works similarly to sending regular assistant messages but specifically designed for these system-level communications.
+Before sending the message, the system makes sure everything is set up correctly: that the agent and session exist, and that you're authorized to send messages to that particular agent. 
+
+The function handles the behind-the-scenes details like managing the execution context and keeping a record of the message for tracking purposes. It's designed to work alongside functions that handle regular AI responses, offering a way to control the behavior and setup of your agents.
+
+You'll need to provide the message content, a unique identifier for the client session, and the name of the agent you want to send the message to.
 
 ## Function commitStopToolsForce
 
-This function lets you immediately halt the execution of tools for a particular client, bypassing usual checks. Think of it as a forceful way to pause the process – it won't consider what agent is currently running or whether it's okay to stop. 
+This function provides a way to immediately halt the execution of tools for a particular client within the swarm. It's designed to be a forceful stop, bypassing usual checks to ensure the process is stopped regardless of what's currently happening.
 
-It's designed for situations where you need to quickly prevent further tool actions, similar to a forceful "flush" operation. To use it, you simply provide the client’s unique identifier. 
+Think of it as an emergency brake for tool execution – it’s used when you need to stop things quickly and don’t want to wait for normal checks to complete. It requires a client identifier to specify which session should be stopped. 
 
-Behind the scenes, it confirms the session and swarm are valid, then stops the tool execution directly, while also keeping track of what's happening through logging. It's a way to take direct control and ensure tool execution stops for a specific client.
+Behind the scenes, it carefully validates the session and the swarm before proceeding and keeps track of what's happening with logging. It’s similar to a forceful flush operation, but specifically for stopping tool execution.
 
 ## Function commitStopTools
 
-This function allows you to temporarily halt the execution of tools for a particular agent within a client's session. Think of it as a pause button for a specific agent's workflow. It carefully verifies that you're targeting the correct agent and session before stopping the tool execution, ensuring everything is secure and aligned. 
-
-It works behind the scenes with several other components to manage the process, keeping track of what’s happening and making sure things are logged correctly. Unlike functions that might clear the agent's history, this one simply stops the agent from running the next tool, giving you more granular control over the workflow.
-
-To use it, you'll need to provide the unique identifier for the client’s session and the name of the agent you want to pause.
+This function lets you temporarily halt a specific agent’s tool execution within the swarm. Think of it as pausing an agent’s work – it prevents the agent from running its next tool. It carefully checks that you're stopping the correct agent within the right session and swarm to avoid any mistakes. It’s designed to work alongside other functions like commitFlush, but instead of wiping the agent’s memory, it just pauses its current actions. You’re telling the system, "Hold on, don't let this agent run its next tool for now." It requires the client’s ID and the name of the agent you want to pause.
 
 ## Function commitFlushForce
 
-This function allows you to forcefully clear the history for a specific client’s session within the agent swarm. It's a more direct way to flush the history than the standard commitFlush, bypassing checks to see which agent is currently active.
+This function lets you forcefully clear the agent’s history for a particular user session. It's designed to be a more direct way to flush the history, bypassing checks to see if an agent is currently active. 
 
-Think of it as an emergency clear – it ensures the history is cleared regardless of the system’s current state. 
+Think of it as a “reset” button for the agent’s memory for a specific user. 
 
-It handles security checks (session and swarm validation) and uses logging to keep track of what’s happening, and it’s designed to be a reliable way to reset a client’s history when needed. You just need to provide the unique identifier for the client session.
+It ensures the session and swarm are valid before proceeding with the history flush and keeps a detailed log of the process. This is helpful when you need to guarantee a history clear, even if the agent isn’t actively engaged. You provide the unique ID of the user's session to identify which history to clear.
 
 ## Function commitFlush
 
-This function lets you clear the history of a specific agent within a client’s session. Think of it as a way to essentially reset an agent's memory. It carefully checks that the agent you’re targeting actually exists and is valid before proceeding with the history clear. The process is managed to ensure everything runs correctly, and it keeps a record of the operation through logging. It’s designed to be a complementary action to adding messages, allowing you to wipe the slate clean instead of just adding to the agent's ongoing conversation. You need to specify the client's unique ID and the agent's name to use this function.
+This function allows you to clear the history for a particular agent within a client's session. It's like hitting a reset button on an agent's memory. Before clearing the history, it double-checks that everything – the agent, the session, and the overall swarm – is set up correctly. 
+
+Think of it as a companion to adding messages to an agent's history; instead of adding, it removes the existing record. 
+
+You'll need to provide the unique ID of the client session and the name of the agent whose history you want to clear. This process is carefully managed and logged to ensure accuracy and track what's happening.
 
 ## Function commitDeveloperMessageForce
 
-This function lets you directly push a message into a session, bypassing the usual checks for an active agent. Think of it as a way to manually inject a developer-created message when you need to, regardless of what the agents are currently doing. It verifies that the session and swarm are valid before adding the message, and records what's happening in the logs. You’re essentially forcing the message to be committed, similar to how you might forcefully commit an assistant message. 
+This function lets you directly push a developer message into a session within the swarm system, bypassing the usual checks for an active agent. Think of it as a way to ensure a message is recorded, even if an agent isn's currently handling the session.
 
-You provide the message content and a unique identifier for the session where it should be added.
+It validates that the session and swarm are valid before committing the message.
+
+You’ll need to provide the message content and the unique identifier for the client session.
+
+This function is like a more forceful version of a regular message commit, similar to how `commitAssistantMessageForce` works compared to `commitAssistantMessage`. It utilizes several services under the hood to manage the session, validate components, and log the operation.
 
 ## Function commitDeveloperMessage
 
-This function lets you send messages directly to a specific agent within the swarm, like giving it a developer instruction or user feedback. It makes sure the agent you're targeting is valid and part of the current session before sending the message.
+This function allows developers to send messages directly to a specific agent within the swarm. It's designed for situations where you need to provide instructions or data to an agent, like giving it new context or guiding its actions.
 
-Behind the scenes, it carefully manages the process, checks all the necessary components, and keeps a record of what's happening through logging. Think of it as a way to communicate directly with an agent, distinct from the system's own generated responses.
+Before sending the message, the system checks to make sure everything is valid: the agent, the session, and the swarm itself.  It then carefully manages the process, keeping track of the operation and logging it for review.
 
-You’ll need to provide the actual message content, a unique ID for the user session, and the name of the agent you want to address.
+Think of it as a way to inject developer-created content, distinct from the agent’s automatic responses or system-level communications. You’re essentially telling the agent something directly using a unique client identifier and agent name.
+
 
 ## Function commitAssistantMessageForce
 
-This function lets you directly push a message from an assistant into a conversation, even if the system isn’t expecting it. It’s designed for situations where you need to ensure a message gets recorded, bypassing typical checks about which agent is currently active. 
+This function lets you directly push a message from an assistant into a session, bypassing the usual checks to see which agent is currently active. 
 
-Essentially, it forces the message into the system's memory, verifying that the session and swarm are valid before proceeding. Think of it as a way to guarantee a message is logged, similar to how you might forcefully cancel an output. 
+Think of it as a way to ensure a message gets added to the session regardless of the agent's status – like a “force commit.”
 
-You provide the message content and a unique identifier for the client session so the system knows where to put it. The system handles checking the session and swarm and then commits the message, keeping track of everything with detailed logging.
+It verifies that the session and swarm are valid before adding the message, and it keeps track of everything through logging. 
 
+You'll need to provide the message content and a unique ID for the client session to use this function.
 
 ## Function commitAssistantMessage
 
-This function helps you record messages generated by an AI assistant and associate them with a specific agent within your swarm. It makes sure everything is correctly identified – the agent, the client session, and the swarm itself – before saving the message. Think of it as a way to permanently store the AI's responses, keeping a clear record of the conversation history for each agent. It handles the behind-the-scenes work of ensuring the process is secure and logged correctly. This is the tool you use to save an assistant's contribution, as opposed to discarding it.
+This function lets you send a message generated by an AI assistant to a specific agent within your swarm. Think of it as a way to officially record what the assistant said. 
 
-You'll need to provide the message content, a unique client ID, and the agent’s name to use this function.
+Before sending the message, the system double-checks that the agent, its associated session, and the overall swarm are all valid and that you're targeting the correct agent. 
+
+It handles the details of keeping track of the context, logging everything that happens, and uses various services to make sure everything is secure and accurate. This function is useful for persisting assistant responses, unlike actions that might cancel or discard them.
+
+You’ll need to provide the actual message content, a unique ID for the client session, and the name of the agent you want to associate the message with.
+
+## Function chat
+
+This function lets you interact with your AI agents by sending them a conversation. You provide the name of the AI service you want to use and a list of messages representing the ongoing conversation. The function then handles sending those messages to the AI service and returns the AI's response as a string. Think of it as the main way to have a back-and-forth dialogue with your AI agents.
 
 ## Function changeToPrevAgent
 
-This function lets you switch back to a previously used agent for a client, or to the default agent if there's no history. It's designed to manage agent transitions within a swarm, ensuring a smooth handover and validating that the client and agent are still valid. The process is handled carefully to prevent issues and logs the change if tracking is enabled. Essentially, it's a way to step back in the agent selection process for a specific user session. You need to provide the unique ID of the client’s session to use this function.
+This function lets you switch a client back to a previous agent they were using, or to the default agent if they haven’t used one before. Think of it as a "back" button for agent selection. 
+
+It handles the necessary checks to make sure the client and agent are valid, and keeps track of what's happening by logging if logging is turned on.  The change is managed carefully to avoid any conflicts and is designed to run independently of other processes. 
+
+You need to provide the unique ID of the client's session to tell the system which client you're referring to.
 
 ## Function changeToDefaultAgent
 
-This function allows you to easily return a client's agent selection back to the swarm's pre-configured default. It's designed to handle client sessions and ensures a safe, queued transition to the default agent. The process includes checks to make sure everything is valid and logs activity if logging is turned on. It’s a reliable way to reset an agent choice without disrupting the overall system. You just need to provide the unique identifier for the client session you want to revert.
+This function helps you easily switch a client back to the swarm's standard agent. Think of it as a reset button for a client's agent assignment. It ensures the change is handled safely and reliably, verifying everything is set up correctly before making the switch and handling it in a way that doesn't interfere with ongoing tasks. You just need to provide the unique identifier of the client session you want to revert.
 
 ## Function changeToAgent
 
-This function lets you switch which AI agent is handling a specific client's session within your swarm. It's designed to be a reliable way to change agents, ensuring everything is validated and logged appropriately. The change happens in a controlled manner using a queue, and it's handled independently of any ongoing processes. You'll need to provide the agent's name and the client's unique ID to use this function.
+This function lets you switch which AI agent is handling a specific client session within your swarm. Think of it as assigning a different specialist to assist a client. It checks to make sure the session and agent are valid before making the change, and keeps a log of the switch if you’ve enabled that feature. The change happens in a controlled way, ensuring it’s handled reliably and doesn’t interfere with other ongoing operations. You provide the name of the new agent and a unique ID for the client session to make the switch.
 
 ## Function cancelOutputForce
 
-This function lets you quickly stop an agent from sending its output for a particular client. It's a forceful way to cancel, meaning it doesn't check if the agent is still running or active. 
+This function lets you quickly and forcefully stop an agent from generating output for a particular client. It’s a way to interrupt the process without worrying about whether the agent is currently active or what it's doing. 
 
-Think of it as an emergency stop button – it immediately sends an empty response to the client, effectively halting the process. 
+Think of it as an emergency stop button. 
 
-It makes sure the session and swarm are valid before cancelling and uses several internal services to manage the process safely and log any actions. It’s useful when you need to override what an agent is doing and ensure a clean stop, even if the agent isn’t responding normally.
-
-You only need to provide the unique identifier (clientId) of the client you want to interrupt.
+It ensures the session and swarm are valid before canceling the output by sending an empty string, and handles all the necessary checks and logging behind the scenes. It’s a more direct approach compared to other cancellation methods because it bypasses some usual checks for speed and reliability. You just need to provide the client's ID to use it.
 
 ## Function cancelOutput
 
-This function lets you stop an agent from producing further output for a specific client. It's useful when you want to interrupt a task that an agent is performing.
+This function lets you stop an agent from producing more output for a particular client. It's useful if you realize you don't need the agent’s response anymore.
 
-Essentially, it sends a signal to the agent to cease generating more information, and it confirms that the agent you're targeting actually exists and is the one you intended to cancel. 
+Essentially, it sends a signal to the agent, telling it to stop generating output, and cleans up any ongoing operations.
 
-The function takes the client's ID and the agent's name as input, and it handles all the necessary checks behind the scenes to ensure everything is working correctly. It's designed to be reliable and trackable, managing the execution context and logging actions along the way.
+The function carefully verifies that the agent you're trying to stop is the one you expect, and it keeps track of what's happening through logging.
+
+To use it, you'll need the unique identifier of the client and the name of the agent you want to cancel the output for.
+
 
 ## Function ask
 
-This function lets you send a message to your AI agent swarm and get a response. Think of it as posing a question or giving a task to your advisors. You provide the message you want processed, specify which advisor should handle it, and optionally include images to give more context. The function then returns a promise that resolves to the advisor's answer. It's the core way to interact with your AI agent swarm.
+This function lets you send a message to a specific advisor within your AI agent swarm and get back a response. You can send different kinds of messages – it could be a simple text string, or something more complex like an object or even a file. Think of it as posing a question or giving a task to a particular agent and waiting for their answer. The `message` parameter contains what you want to send, and `advisorName` tells the system which agent should handle it.
 
 ## Function addTriageNavigation
 
-This function lets you set up a way for your AI agents to easily connect with a triage agent when they need assistance or a more specialized review. Think of it as creating a clear pathway for agents to escalate issues to a human expert. You provide some configuration details, and the function registers that navigation route so your agents know how to reach the triage agent. It returns a string representing the registered navigation identifier, which you can use later to manage or reference it.
+This function lets you set up a way for your AI agents to easily connect with a specialized triage agent, almost like providing a direct line for them to request help or guidance. It takes a configuration object that defines how this connection works, and then returns a unique identifier that confirms the navigation tool has been successfully registered. Think of it as creating a specific pathway within your AI agent system to ensure smooth handoffs and efficient problem-solving. The returned identifier can be used to manage or modify the triage navigation later on.
 
 ## Function addTool
 
-This function lets you add new tools that agents in your system can use. Think of it as registering a new skill for your agents – without registering it this way, the agents won't know about it. 
+This function lets you add new tools that agents can use within the system. Think of it as registering a new skill for your agents to leverage – they won’t know about it unless you add it here.
 
-It's designed to keep things clean by running the registration process separately, and it tells you the tool's name once it’s successfully added. You’ll need to provide a schema that describes what the tool does and how it works.
+When you add a tool, it's essentially making it available for agents to perform specific tasks. The function ensures the registration happens in a clean environment and provides confirmation by returning the tool's name. You’ll need to define the tool’s details, like its name and how it functions, when you register it.
 
 ## Function addSwarm
 
-This function lets you register a new group of agents, essentially setting up a framework for managing how they interact and handle client sessions. Think of it as defining the blueprint for a specific type of agent collaboration. Only swarms created using this function will be recognized and work within the system. The process is designed to run independently, ensuring a fresh start for each new swarm. When successful, you'll receive a unique name for the newly created swarm. You'll provide a schema that outlines the swarm's structure and rules when you call this function.
+This function lets you create a new group of AI agents, essentially defining how they'll work together to handle client sessions. Think of it as setting up a blueprint for how your agents will interact and manage tasks. It’s the way you register a swarm so the system knows about it and can use it. The system ensures this creation happens in a controlled environment, and it will give you a unique name for the swarm once it’s created. You’ll need to provide a schema that defines the swarm's structure and how the agents within it should operate.
 
 ## Function addStorage
 
-This function lets you add a new way for your AI agents to store and retrieve information persistently. Think of it as registering a new type of database or file system that the entire swarm can use. 
+This function lets you add a new way for the swarm system to store data, like connecting to a database or cloud service. Think of it as registering a tool that the swarm can use to remember things. Only storage methods registered this way will work with the swarm. 
 
-By providing a schema, you're telling the system how this storage works and how to access it. If this storage is meant to be shared between multiple agents, it automatically sets up the connection and waits for it to be ready. The whole process runs independently to keep things clean and ensures that the swarm knows about and can use your new storage option. You’ll get back the name of the storage you just added.
+If the storage is meant to be shared across agents, the system will automatically connect and wait for it to be ready. It runs in a special, clean environment to avoid any conflicts with what's already happening. The function will confirm the addition and give you the storage's name so you know it's successfully added.
+
+You provide a description of the storage you want to add – essentially, a blueprint of how it works.
 
 ## Function addState
 
-This function lets you define and register new states within the agent swarm system. Think of states as containers for information the agents need to share or use. By adding a state, you're essentially telling the swarm "Hey, this is a new kind of data we'll be working with." If the state is designed to be shared across agents, this registration process also sets up the connection to the shared data service.  The function ensures this registration happens cleanly, independent of other ongoing processes, and provides a name for the registered state. You need to use this to formally introduce new states for the swarm to understand and utilize.
+This function lets you define and register new states within the system, essentially creating containers for information that your AI agents can share and use. Think of it as adding a new type of data structure the swarm understands. Only states registered this way are recognized, so it's essential for creating the building blocks of your AI agent workflows. If the state is intended to be shared across agents, the function automatically handles setting up the connection and waiting for the shared state service to be ready. It ensures the process runs cleanly and independently, and provides confirmation by returning the state’s name. You can update existing states using this function, too.
 
 ## Function addPolicy
 
-This function lets you define and register rules, or "policies," that will guide the behavior of agents within your swarm. Think of it as setting up guardrails to ensure agents operate within defined boundaries. When you add a policy, it's both validated to make sure it’s structured correctly and registered for ongoing management. The system keeps track of these policies, allowing you to easily control and update them as needed, ensuring a well-managed and predictable swarm. It handles the technical details behind the scenes, including logging and schema management, so you can focus on defining the policies themselves.
+This function lets you define and register rules, or "policies," that govern how agents within the swarm operate. Think of it as setting up the guidelines for how agents should behave. It registers your policy with services that handle both validating the policy itself and managing its definition. This helps ensure your agents follow your intended rules and allows for consistent behavior across the swarm. The process is carefully tracked and logged, and it’s an important part of setting up the entire system, working alongside other functions that manage agent actions. You provide a schema defining the policy, and the function takes care of the rest.
 
 ## Function addPipeline
 
-This function lets you register a new pipeline, or update an existing one, within the AI agent orchestration framework. Think of a pipeline as a sequence of steps your agents will follow – this function makes sure that pipeline definition is valid and properly registered so the system knows how to run it. You provide a description of the pipeline, essentially its blueprint, and the function returns a unique identifier for it. It's how you tell the system, "Hey, I've got a new way for agents to work together!" and allows for modifications to existing pipeline configurations.
+This function lets you register a new pipeline configuration or update an existing one. Think of it as adding a blueprint for how your AI agents will work together. It checks to make sure your blueprint is valid before adding it to the system, ensuring everything's set up correctly. The function returns a unique identifier for the pipeline, so you can easily refer to it later. You can provide partial updates to an existing pipeline, modifying just the parts you need to change.
 
 ## Function addOutline
 
-This function lets you define and register the structure for outlining tasks within the AI agent swarm. Think of it as setting up the blueprint for how your agents will break down complex projects. 
+This function lets you add or update an outline schema within the AI agent swarm. Think of an outline schema as a blueprint for how your agents will structure and organize information. When you call this function, it registers the schema, making it available for your agents to use. 
 
-When you call this function, it makes sure everything is handled cleanly and avoids conflicts with other ongoing tasks.  It also keeps a record of the operation if logging is turned on.
+The function ensures everything runs smoothly and avoids conflicts with other ongoing operations. It also keeps a record of the action if logging is turned on. 
 
-You provide an outline schema, which describes the structure of the outlining process, and the function takes care of registering it within the system. You can update existing outlines by providing a partial schema.
+You provide the outline schema as input, which can be a complete definition or just changes to an existing one.
 
 ## Function addMCP
 
-This function lets you define new ways for AI agents to share information and context within the swarm. Think of it as creating a blueprint for how agents can communicate and understand each other’s actions. When you register a new schema using `addMCP`, the system recognizes and supports that specific communication format. You provide the schema definition, and the function returns a unique identifier for that schema, allowing you to reference it later. Essentially, it’s how you customize the language spoken between the agents in your swarm.
+This function lets you add a new Model Context Protocol (MCP) to the system. Think of an MCP as a blueprint for how an AI agent shares information and context with others. By providing a schema definition, you’re essentially telling the framework how this new protocol works. The function returns a unique identifier for the registered MCP, allowing you to refer to it later. 
+
+It's a crucial step in expanding the types of interactions your AI agents can have within the swarm.
 
 ## Function addFetchInfo
 
-This function lets you set up a tool for your AI agents to pull information from external sources. Think of it as giving your AI a way to “read” data without changing anything.
+This function helps you set up a tool that lets your AI agent pull information – think of it as a way for the AI to "read" data without making any changes. 
 
-The process works like this: the AI asks the tool for data, the tool checks if the request is properly formatted, then fetches the information. If the data is missing, a special handler can be triggered. Ultimately, the AI gets the information it requested. 
-
-You provide a configuration object to define how the tool should work, specifying details about the data retrieval process.
+You provide a configuration object, and the function registers this tool so the AI can use it.  Before the AI gets the data, it's possible to set up a validation step to make sure the AI is requesting the information in the right format. If validation fails, the tool won't execute.  If the data retrieval is successful, the AI gets the content; if the data is empty, a special handler can be triggered to manage that scenario.
 
 ## Function addEmbedding
 
-This function lets you add a new way for the swarm to generate embeddings – think of it as teaching the system a new language for understanding data. By providing a schema, you’re essentially registering a new embedding engine that the swarm can then use for various tasks like finding similar pieces of information.  Only embeddings added this way will be recognized by the system.  The process runs in a controlled environment to ensure a clean operation, and it logs the addition for tracking purposes. You’ll get the name of the newly registered embedding back as confirmation.
+This function lets you add a new embedding engine – think of it as a specialized tool for understanding and comparing text – into the swarm's toolbox. By registering your embedding engine with this function, you're telling the swarm, "Hey, I've built something that can help you understand text better!"  The swarm will only use embedding engines that are registered this way. To keep things clean and organized, the registration process runs independently of other ongoing tasks. Once registered, the function returns a name that identifies your new embedding engine. 
+
+The key input is a schema that defines how your embedding engine works.
 
 ## Function addCompute
 
-This function lets you register new types of tasks your AI agents can perform, or update existing ones. Think of it as defining the different jobs your agents are capable of handling.  You provide a description of the task, and the system verifies that it's properly defined before making it available for agents to use. It returns a unique identifier for the registered compute, so you can refer to it later.
+This function lets you register a new type of computational task for your AI agents, or update an existing one. Think of it as defining what kind of work your agents can do. It checks that the task definition is correct and then makes it available for the system to use. You provide a description of the task, and the function returns a unique identifier for that task. This identifier is how you’ll refer to this task when assigning it to an agent.
 
 
 
-It’s designed to let you easily add and modify the range of actions your AI agents can take.
+You can either create a brand-new task type or modify an existing one by providing partial updates.
 
 ## Function addCompletion
 
-This function lets you register new ways for your AI agents to generate text, like connecting to different language models. Think of it as adding a new tool to the agents' toolbox. When you register a completion engine using this function, it becomes available for all the agents in your swarm system to use. It ensures the registration process is clean and isolated, and it will give you a name to identify the newly added completion engine. You provide a description of the completion engine – its schema – to enable this integration.
+This function lets you add a new tool for generating text completions to the system. Think of it as adding a new language model or framework – like GPT4All or OpenAI – that agents can use. It registers the details of this tool, making it available for agents to use when they need to generate text. The process is handled carefully to keep things running smoothly, and you'll get a name confirming the tool has been successfully added. You provide a schema that describes how this tool works.
 
 ## Function addCommitAction
 
-This function lets you define a way for your AI agent to make changes to a system, like writing files or updating databases. Think of it as giving the AI a specific tool it can use to modify something. 
+This function lets you define a specific action an AI agent can take to modify something – think of it as giving the AI a tool to write or change data. When the AI wants to use this tool, it sends information about what it wants to do.
 
-When the AI wants to make a change, it calls this function, providing details about what needs to be done. The system first checks if the provided details are correct. If not, the AI gets an error message. If everything looks good, the actual modification happens, and the AI receives feedback on the result. It’s a structured way to let the AI safely and reliably interact with and alter the environment.
+First, the function checks if the information it received is correct. If not, it reports the error and stops. If everything looks good, the function actually performs the action and provides feedback to the AI. 
+
+Essentially, it’s how you set up a step-by-step process where the AI can request changes, and your system handles those requests safely and reliably. You provide the instructions on how to validate and execute this action.
+
 
 ## Function addAgentNavigation
 
-This function lets you set up a way for one agent in your system to be directed to another. Think of it as creating a "navigation tool" that tells an agent how to find and interact with a specific agent. You provide some configuration details, and the function creates and registers this navigation tool, returning a unique identifier for it. It's a core part of allowing agents to coordinate and work together within the swarm.
+This function lets you set up a way for one agent in your swarm to easily navigate and interact with another. Think of it like giving one agent a direct connection or pathway to another. You provide some configuration details, and the function creates and registers this navigation tool, essentially telling the system how these two agents should be linked. It returns a unique identifier for this established connection, so you can manage it later if needed.
 
 ## Function addAgent
 
-This function lets you add agents to the system, essentially registering them so the swarm can use them. Think of it as formally introducing a new worker to the team. Only agents added this way will be recognized and usable by the swarm. To keep things clean and prevent conflicts, the process runs in a special, isolated environment. You’re given the agent's name back once it's successfully registered. You’ll need to provide a detailed schema definition for each agent you want to add.
+This function lets you register new agents to be used within the swarm. Think of it as officially adding an agent to the system so the swarm can recognize and utilize it.  You provide a schema describing the agent, and the system handles the rest, ensuring it's properly validated and ready for use.  Only agents registered this way can participate in swarm operations. The process is designed to run independently, keeping things clean and avoiding interference with existing workflows, and confirms the agent's name upon successful addition.
 
 ## Function addAdvisor
 
-This function lets you register a new advisor into the agent swarm orchestration system. You provide a schema that describes the advisor's capabilities and how it should behave. The function will then add this advisor to the system, making it available for agents to utilize. It returns a unique identifier for the registered advisor, allowing you to track and manage it later. Think of it as telling the system, "Hey, I'm adding a new expert to help!"
+This function lets you register a new advisor into the agent swarm system. Think of an advisor as a specialized expert that can contribute to conversations. You provide a definition of the advisor, including its name and how it handles chat interactions, and the system takes care of making it ready to be used. This effectively adds the advisor to the pool of available experts the swarm can tap into.
 
 # agent-swarm-kit classes
 
 ## Class ToolValidationService
 
-This service is responsible for making sure the tools your AI agents use are properly configured and exist within the swarm system. It keeps track of all registered tools and their definitions, ensuring that each tool is unique and present when needed.
+This service helps ensure that the tools used by your AI agents are properly configured and registered within the swarm. It keeps track of all the tools the swarm knows about, making sure each one is unique and exists before it’s used.
 
-The service works hand-in-hand with other parts of the system: it gets tool information from the ToolSchemaService, helps AgentValidationService verify agent tools, and interacts with ClientAgent when tools are used. It uses logging to keep track of what’s happening and speeds up validation checks by remembering previous results.
+Think of it as a tool registry and checker – when a new tool is added, this service registers it. And when an agent tries to use a tool, this service verifies that the tool is actually registered.
 
-You can add new tools to the system using `addTool`, which registers them and makes sure they don't already exist. The `validate` function then checks if a tool is registered, making sure everything is in place before an agent tries to use it.
+It works closely with other parts of the system, like the tool registration service and the agent validation service, making sure everything plays nicely together. To keep things efficient, it remembers previously validated tools, avoiding unnecessary checks. Logging is also included, allowing you to monitor tool validation activities.
 
 ## Class ToolSchemaService
 
-This service acts as a central place to manage the blueprints for the tools your agents use. Think of it as a library of tool definitions – each definition describes what a tool does, how to call it, and what kind of data it expects.
+This service manages the blueprints for the tools that agents use. Think of it as a central library where all the instructions for a tool – like how to call it, how to validate its input, and what data it provides – are stored and organized.
 
-It ensures that these tool definitions are valid and consistent. Before a tool can be used by an agent, it's registered with this service, which performs a quick check to make sure it’s structurally sound.
-
-The service works closely with other parts of the system: it gets information about schemas from the Schema Context Service, helps agents connect and execute tasks, and keeps track of agent tools throughout their lifecycle.
-
-You can register new tools, update existing ones, and retrieve them whenever they're needed. The system keeps a log of these operations, providing visibility into how tools are managed within the agent swarm.
+It works closely with other services to ensure agents are properly equipped with the correct tools, and that those tools are reliable and consistent. The system checks new tools to make sure they have the essential information, and it keeps a record of them for easy access. You can register new tools, update existing ones, and retrieve them whenever needed. This system enables agents to perform specific tasks within the swarm, and it helps maintain a standardized approach to agent tooling.
 
 ## Class ToolAbortController
 
-This class helps you manage the process of stopping ongoing tasks, especially when dealing with asynchronous operations. Think of it as a way to gracefully halt something that's running.
+This class helps you manage the process of stopping asynchronous tasks, like those used by your AI agents. Think of it as a way to send a "cancel" signal to a running operation. 
 
-It creates and handles an `AbortController`, giving you access to the signal that lets you interrupt work. 
+It creates and holds an `AbortController`, which is a standard way to signal cancellation in JavaScript. If your environment doesn't support `AbortController`, this class gracefully handles that by doing nothing.
 
-Inside, it keeps track of the `AbortController` itself, and if your environment doesn’t have one, it will simply be empty.
-
-You can use the `abort` method to actually trigger the interruption, effectively telling the running task to stop. If there's nothing to abort, this method won’t do anything.
+The `abort` method is the key – calling it sends that cancellation signal, effectively telling the operation to stop what it's doing.
 
 ## Class SwarmValidationService
 
-This service is responsible for making sure your swarm configurations are set up correctly. It keeps track of all registered swarms and verifies their details, including the agents they use and the policies they follow. 
+The SwarmValidationService is like a quality control system for your AI agent swarms. It keeps track of all registered swarms and makes sure they're set up correctly.
 
-Think of it as a quality control system for your swarm setups. It works closely with other services to handle agent and policy validation, track swarm registrations, and manage operations. It’s designed to be efficient, using techniques to avoid unnecessary checks.
+It ensures each swarm has a unique name and valid configurations, like checking that the list of agents and policies are accurate. When you add a new swarm or modify an existing one, this service verifies everything lines up.
 
-Here's what it can do:
-
-*   **Register new swarms:** Adds a swarm to the system and ensures it's unique.
-*   **Retrieve information:** Provides lists of agents and policies associated with a specific swarm, and a list of all swarms.
-*   **Validate configurations:**  It checks a swarm's setup, making sure everything is as it should be, including agent and policy details. This is a key operation for ensuring that your swarms are working correctly.
+It works closely with other parts of the system, like the service that manages swarm registration, and uses smart caching to speed up the validation process. Think of it as a central place to confirm that your swarms are healthy and ready to go. It also logs all its actions for troubleshooting.
 
 ## Class SwarmSchemaService
 
-This service acts as a central library for defining and managing the blueprints of your AI agent swarms. Think of it as a place to store and organize the configurations that tell your agents how to work together. It makes sure these configurations are valid before they're used, ensuring your swarms operate correctly.
+This service acts as a central place to define and manage the blueprints for your AI agent swarms. Think of it as a library where you store the configurations that tell your agents how to work together.
 
-It keeps track of swarm schemas—essentially, the settings for each swarm—using a special registry. This lets you easily find and update swarm configurations.
+It ensures these configurations are valid before they're used, checking for things like correct agent names and valid policies. This service is crucial for setting up the core components of your swarm system, including the agents themselves and how they interact.
 
-The service is designed to work closely with other parts of the system, like the connection service for clients and agents, and the policy management system. It logs its actions to help with debugging.
-
-You can register new swarm configurations, update existing ones, or retrieve them when needed. The service validates configurations to make sure they have the essential pieces in place, and it makes it easy for other services to access and use these swarm definitions. It’s a core component for building and controlling your AI agent swarms.
+It utilizes a registry, similar to a database, to store these swarm configurations. You can register new configurations, update existing ones, and retrieve them when needed.  The service keeps a log of these operations, helping you track changes and troubleshoot issues. It’s deeply integrated with other parts of the system, ensuring everything connects properly and works as expected, from configuring a new swarm to making sure agents are executing correctly.
 
 ## Class SwarmPublicService
 
-This class acts as a public interface for interacting with a swarm of agents, providing a controlled way for clients to manage and observe swarm activity. It sits on top of the core swarm connection service, adding context and logging for better tracking and debugging.
+This class provides a way to interact with a swarm of agents, acting as a public interface for common operations. It handles tasks like sending messages, navigating the agent flow, checking the swarm's status, and managing output. Think of it as a central hub that makes it easier to control and observe a group of agents working together, always aware of who's using it (the client) and which swarm is involved.
 
-Think of it as a translator – it takes requests from clients (like "get the current agent" or "cancel output") and translates them into actions on the underlying swarm infrastructure, ensuring everything happens within a specific context (client and swarm).
+It logs actions for debugging if enabled, and relies on other services to handle underlying tasks and keep track of performance. This class offers methods for everything from getting the current agent’s name to safely cleaning up a swarm’s resources when it’s no longer needed. It helps coordinate activity between different components of the system, keeping things organized and traceable.
 
-Here’s a breakdown of what it allows you to do:
-
-*   **Communicate with the swarm:** Send messages, check if the swarm is busy, and wait for results.
-*   **Manage the swarm's state:** Switch agents, set the current agent's name, and even dispose of the entire swarm.
-*   **Keep things organized:** Operations are always tied to a specific client and swarm, making it easier to understand what’s happening and troubleshoot issues.
-*   **Log activity:** The system provides detailed logging of all actions, which is useful for debugging and monitoring swarm performance (if enabled).
 
 ## Class SwarmMetaService
 
-This service helps you understand and document your AI agent swarms. It takes the blueprints of your swarms – their schemas – and transforms them into easy-to-understand diagrams using a standard format called UML.
+The SwarmMetaService helps manage and visualize the structure of your AI agent swarms. It takes information about your swarms – their schemas and agents – and organizes them into a tree-like structure. This structure can then be converted into a standard UML diagram, making it much easier to understand and document how your swarms are built and how their components relate to each other. 
 
-Think of it as a translator that converts complex swarm configurations into visual representations. It builds a structured view of your swarm, including its default agent, and then converts this view into a UML string.
-
-This functionality is particularly useful for creating system documentation and helping to debug issues.  The service relies on other components to manage schemas, agents, and logging, ensuring consistent operation across the system.  The resulting UML diagrams are helpful for understanding how your swarms are built and for sharing that information with others.
+Think of it as a translator that takes complex swarm data and turns it into a clear, visual representation. It works closely with other services to ensure consistency in logging and documentation, and it's particularly useful when you need to create diagrams for things like swarm architecture or agent relationships. It builds these diagrams by pulling data from other services and then transforms it into a format that can be easily displayed.
 
 ## Class SwarmConnectionService
 
-This service manages how different parts of your AI agent swarm work together. It's like a central hub that handles connections, keeps track of swarms, and makes sure things run smoothly. 
-
-Think of it as a smart cache - it remembers frequently used swarm configurations to avoid repetitive setup. It also handles communication, lets you manage agents within a swarm, and gives you tools to control the flow of operations, like canceling output or checking if a swarm is currently busy.  Essentially, it’s responsible for coordinating activities across your swarm environment, providing a consistent and efficient interface for agents to interact with. You can emit messages to the session, navigate between agents, and even retrieve the current agent's information, all through this single service. It also helps clean up resources when swarms are no longer needed.
-
-## Class StorageValidationService
-
-This service is responsible for making sure the storage configurations used by your AI agent swarm are set up correctly. It keeps track of all the registered storage locations and their details.
-
-You can add new storage locations to the system using `addStorage`, and the service will verify that each one is unique. 
-
-The `validate` function checks if a specific storage exists and that its embedding configuration is valid, helping to ensure that the agents can reliably read and write data. The service also logs its actions to help with troubleshooting, and it’s designed to be efficient by remembering the results of previous validations.
-
-## Class StorageUtils
-
-This class provides tools for managing data storage for individual clients and agents within the swarm. Think of it as a helper for interacting with the swarm's storage system, ensuring that agents are properly authorized to access and modify data.
-
-You can use it to retrieve items from storage, insert or update data, delete specific items, and list all items within a designated storage space.  It also allows you to create a numeric index for storage and completely empty a storage area.  Before any action is taken, the system verifies that the client and agent have the necessary permissions and are correctly registered within the swarm. This ensures security and proper data management.
-
-## Class StorageSchemaService
-
-This service manages how your AI agents store and access data within the system. Think of it as a central directory for defining storage configurations – like how data should be indexed or where embedding references are located.
-
-It ensures that these storage configurations are valid before they're used, and keeps track of them using a registry. Whenever a new storage configuration is added or an existing one is updated, it logs these actions for monitoring. 
-
-This service works closely with other parts of the system, like those managing storage connections, agent schemas, and even how agents themselves use storage during their work. It’s a foundational piece that makes sure data is stored and accessed in a consistent and reliable way.
-
-## Class StoragePublicService
-
-This service manages storage specifically for each client, distinct from system-wide storage. Think of it as a way to keep each client's data separate and organized. It handles common storage operations like retrieving, saving, updating, deleting, and cleaning out data.
-
-It relies on other services for logging, connection management, and context scoping, and it's designed to be used by components like ClientAgent, PerfService, and DocService.  The service keeps track of what's happening with client storage, helping with debugging and performance monitoring.  Importantly, it ensures each client's data is isolated, making it a crucial element for managing data privacy and security within the system.
-
-Here's a breakdown of what you can do with it:
-
-*   **Retrieve Data:** Fetch a list of items based on a search query, or retrieve a single item by its ID.
-*   **Save/Update Data:** Add new items or modify existing ones in the client's storage.
-*   **Delete Data:** Remove specific items from the client's storage.
-*   **List All Items:** Get a full list of items currently stored for a particular client.
-*   **Clear Storage:** Completely empty a client's storage area.
-*   **Dispose of Storage:** Release resources associated with the client's storage.
-
-## Class StorageConnectionService
-
-This class manages how your agent swarm interacts with storage, handling both client-specific and shared storage. Think of it as a central hub for getting, saving, and managing data for your agents.
-
-It’s designed to be efficient – it caches storage connections so it doesn’t have to recreate them every time. When you need to read or write data, it figures out which storage to use, fetches any necessary configuration, and handles the actual data operations. It also keeps track of what storage is being shared across different agents.
+This class, `SwarmConnectionService`, acts as the central hub for managing how your AI agents work together within a defined "swarm." Think of it as a traffic controller, efficiently handling connections and operations. It remembers previously created swarms to avoid unnecessary setup and ensures smooth communication.
 
 Here's a breakdown of what it does:
 
-*   **Fetching Storage:** When an agent needs to read or write data, this class gets the right storage connection.
-*   **Data Operations:** It provides methods like `take` (retrieve), `upsert` (save/update), `remove`, `get`, `list`, and `clear` to interact with the storage.
-*   **Sharing:** If data needs to be shared between agents, it handles that through a shared storage mechanism.
-*   **Cleanup:** When done, it cleans up connections to free up resources.
-*   **Tracking:** Keeps an eye on storage usage for tracking and validation.
+*   **Connects and Creates Swarms:**  It retrieves or creates a connection to a specific swarm, caching these connections for speed and efficiency.
+*   **Handles Agent Interaction:**  It helps agents communicate, retrieve output, and control their state (busy or idle).
+*   **Manages Navigation:** It helps navigate between agents within a swarm.
+*   **Provides Communication:** Allows sending messages and controlling agent output.
+*   **Keeps Things Organized:** Uses logging and caching to make everything more efficient and traceable.
+
+Essentially, this service simplifies the process of working with AI agents in a coordinated fashion, providing a standardized way to manage their interactions and lifecycle.
+
+## Class StorageValidationService
+
+This service is responsible for making sure all the different storage configurations used by your AI agents are set up correctly. It keeps track of all registered storages and their details, preventing duplicates and ensuring that the configuration information is valid.
+
+The service works closely with other parts of the system, like the storage registration service and the component that handles storage operations. It also checks that embeddings are properly configured.
+
+You can register new storage configurations with the service, and it will validate them to confirm everything is as it should be. The validation process is designed to be efficient, so it doesn't slow down the overall system.
+
+## Class StorageUtils
+
+This class provides a set of tools for managing data storage associated with different clients and agents within the swarm. It handles tasks like retrieving, updating, deleting, and listing data, ensuring proper authorization and registration before interacting with the underlying storage service.
+
+The `take` method fetches a limited number of items based on a search query, while `upsert` lets you add or modify data.  You can also remove specific items with `remove` or retrieve a single item with `get`. `list` allows retrieving all items in a storage, potentially filtered. 
+
+For more advanced operations, `createNumericIndex` establishes an index for quicker searches, and `clear` removes all data.  Before any action, the system verifies permissions and confirms that an agent is authorized to use the requested storage.
+
+## Class StorageSchemaService
+
+The StorageSchemaService acts as a central hub for managing how your AI agents interact with storage. It keeps track of storage configurations, ensuring they’re set up correctly and consistently across the system. Think of it as a librarian for storage blueprints.
+
+It uses a registry – a kind of organized list – to store these blueprints. Before adding a new blueprint, it does a quick check to make sure it's complete and makes sense.
+
+This service works closely with other parts of the system, like those that handle connections to storage and manage agent configurations. It’s a foundational piece that helps to keep your agent storage setup reliable and easy to manage. When something changes about the storage, this service lets you update the existing blueprint, ensuring everyone's on the latest version. Getting a specific blueprint is also straightforward—you just ask for it by name.
+
+## Class StoragePublicService
+
+This service manages storage specifically for each client, distinct from system-wide storage. It allows you to perform common storage operations like retrieving, adding, updating, deleting, listing, and clearing data, but always tied to a particular client’s context.
+
+It relies on other services for logging, connecting to the underlying storage, and managing method contexts. Think of it as a layer of abstraction that ensures each client's data is isolated and handled correctly.
+
+Here’s a quick rundown of what it offers:
+
+*   **`take`**:  Fetches a list of items based on a search and optionally a score, identifying them by client and storage name.
+*   **`upsert`**:  Adds or updates an item within a client’s storage space.
+*   **`remove`**:  Deletes a specific item from a client’s storage.
+*   **`get`**: Retrieves a single item by ID from a client’s storage.
+*   **`list`**: Retrieves all items in a client’s storage, with options to filter the list.
+*   **`clear`**: Empties all data from a client’s storage.
+*   **`dispose`**: Cleans up resources related to a client’s storage.
+
+Essentially, it's designed to keep client data organized and separate within the larger system.
+
+## Class StorageConnectionService
+
+This service manages how the system connects to and interacts with storage, like databases or file systems, for each agent. It cleverly reuses storage connections to avoid overhead, caching them for efficiency.
+
+Think of it as a central hub that handles requests for storage. It delegates specific tasks—like retrieving, updating, or deleting data—to individual storage areas. It distinguishes between publicly shared storage and private storage for each agent, and tracks shared storage separately to ensure proper cleanup.
+
+This service is a key component in the agent swarm system, working closely with other services to handle storage configurations, manage sessions, and track usage. Logging is enabled for troubleshooting, and everything is designed to be efficient and secure.
 
 ## Class StateValidationService
 
-This service helps manage and verify the structure of data used by your AI agents. Think of it as a way to ensure everyone's speaking the same language. 
+This service helps manage and ensure the consistency of data representing the status of your AI agents. Think of it as a data quality controller. 
 
-You can define different "states" – essentially, data formats – using schemas, and tell the service about them.  The `addState` method is how you register these defined data structures. 
+You define the expected structure of this data – what information is needed and in what format – using the `addState` method.  The `validate` method then checks if the actual data received matches your defined structure, letting you know if there are any problems. 
 
-Then, when your agents are working, the `validate` method lets you check if the data they're providing matches the expected format.  This helps catch errors early and keeps your agents working reliably.
-
-The service also uses a logger to keep track of what’s happening, which is accessible through the `loggerService` property, and internally manages state definitions via `_stateMap`.
+The service keeps track of all the defined data structures internally using a map, and includes logging capabilities to help with debugging.
 
 ## Class StateUtils
 
-This class provides tools for managing information related to specific clients and agents within the swarm. Think of it as a way to keep track of what each client and agent knows or is doing.
+This class helps manage the data associated with each client and agent in the system. Think of it as a tool to safely get, update, and reset information specific to a particular client’s interaction with a specific agent. 
 
-You can use it to fetch existing data, update it, or completely reset it. Before retrieving, updating, or clearing data, the system makes sure everything is authorized and registered correctly. It also tracks these operations for monitoring and debugging purposes. 
-
-Essentially, this class simplifies the process of working with client and agent-specific data within the larger agent swarm.
+You can use it to fetch existing data, like retrieving a client's preferences or the status of a task. It also allows you to update that data, either by providing a new value directly or by calculating the new value based on what already exists. Finally, it offers a way to completely reset data for a client and agent back to its original state. The system ensures that only authorized clients and agents can access and modify the data, and all operations are logged for tracking.
 
 ## Class StateSchemaService
 
-The StateSchemaService acts as a central hub for managing the blueprints of how your agents handle data – these blueprints are called state schemas. It keeps track of these schemas, ensuring they are valid and accessible to different parts of the system.
+This service acts as a central place to manage the blueprints for how your agents handle state. Think of it as a library of state definitions, each outlining how agents should interact with and store data.
 
-Think of it as a librarian for agent data: it registers new schema definitions, provides a way to retrieve them, and even lets you update existing ones. It makes sure these schemas are set up correctly before they are used by your agents.
+It ensures these state definitions are consistent and valid before they're used by other parts of the system, like when agents are configured or when shared states are set up. It does this by performing a quick check on each definition to make sure it has the essential parts.
 
-This service works closely with other components of the system, like those handling agent connections, agent execution, and schema definitions, ensuring a consistent and reliable way to manage state configurations. The service also keeps a log of its actions, allowing you to track and debug state management operations.
+The service keeps track of these state blueprints using a specialized registry, making it easy to find and use them. It also logs key operations to help with debugging and monitoring. When updates are needed, you can override existing blueprints, and it integrates closely with other services involved in agent configuration and state management.
 
 ## Class StatePublicService
 
-This class handles state management specifically for individual clients within the swarm system. Think of it as a way to keep track of data that's unique to each client, like their preferences or progress in a task. It's different from shared system-wide state or persistent storage.
+This service manages state specifically tied to individual clients within the swarm system. Think of it as a way to keep track of information unique to each client, distinct from system-wide settings or persistent storage. It uses a central state connection service to perform the actual state operations, but adds extra layers of context and logging for better tracking and control.
 
-It provides methods for setting, clearing, getting, and disposing of this client-specific state. Each of these actions is carefully wrapped with context information and logging, ensuring that operations are tracked and controlled. This class works closely with other services like ClientAgent, PerfService, and DocService to manage client data effectively.
+You'll find this service used in different areas, such as within the ClientAgent to handle client-specific actions or by the PerfService to monitor how state changes affect individual client sessions.
 
-Essentially, it's the central point for dealing with a client's individual state, offering a structured and logged way to interact with that data.
+The core functions allow you to set, clear, retrieve, and release this client-specific state. Each operation is wrapped with extra information for logging and scoping, making it easier to understand what's happening with each client's data. It's designed to be a clear and controlled way to manage client-specific information within the swarm.
 
 ## Class StateConnectionService
 
-This service manages how agents store and use data, especially when dealing with multiple agents and shared information. Think of it as a central hub for agent state.
+This service manages how agents store and access state information within the swarm system. It acts as a central point for handling different types of state – client-specific and shared – ensuring efficient and thread-safe operations.
 
-It’s designed to efficiently handle individual agent's data and any shared data across the whole system. To avoid unnecessary work, it caches frequently used data.
+Think of it as a smart container that holds state data for individual agents. It intelligently reuses these containers to avoid unnecessary overhead, and makes sure updates are handled in a reliable way.
 
-It integrates with several other services to ensure that state is handled securely and tracked effectively, including logging, event handling, and schema management.
+Here's a breakdown of what it does:
 
-Key actions you can perform through this service include:
+*   **State Handling:** It provides a consistent way to get, set, and clear state for individual agents.
+*   **Shared State:** It works with a separate service to manage state that's shared across multiple agents.
+*   **Smart Caching:** It remembers which states have already been created, so it doesn't have to recreate them every time.
+*   **Thread Safety:**  It makes sure that updates to the state happen in the correct order, preventing conflicts.
+*   **Cleanup:** When an agent is finished, this service ensures that its state information is properly cleaned up.
 
-*   **Retrieving or creating state:** This is the main way to access data for an agent. It intelligently reuses data when possible.
-*   **Updating state:**  Allows agents to change their data, ensuring changes are processed safely.
-*   **Clearing state:** Resets an agent's data to its initial state.
-*   **Disposing of connections:** Releases resources used by the connection, ensuring everything is cleaned up properly. Note that shared states aren’t cleaned up here, as they're managed elsewhere.
+
+
+It’s heavily integrated with other parts of the system, like the logging service, event bus, and state schema service, to ensure everything works together seamlessly.
 
 ## Class SharedStorageUtils
 
-This class provides tools to manage shared data accessible by all agents in your swarm. Think of it as a central repository where agents can store and retrieve information. 
+This class provides a simple way to interact with the shared storage used by your agent swarm. Think of it as a toolbox for managing information across your agents.
 
-You can use it to fetch data based on a search query (`take`), add or update data entries (`upsert`), delete specific items by ID (`remove`), retrieve items by their ID (`get`), list all data entries (with optional filtering) (`list`), or completely empty a storage area (`clear`). Before any operation, the system checks to ensure the storage name is valid.
+You can use it to retrieve items, like fetching a specific document or a list of tasks, using `take` and `get`.  `upsert` lets you add new information or update what's already there. If you need to remove something, `remove` handles that.  `list` allows you to see everything in a particular storage area, and you can even filter that list. Finally, `clear` provides a way to completely wipe a storage area clean. Each of these operations is designed to be safe and reliable within the swarm environment.
 
 ## Class SharedStoragePublicService
 
-This service provides a way for different parts of the system to interact with shared storage – think of it as a central place to store and retrieve information. It handles operations like getting, adding, updating, deleting, and clearing items from this shared storage.
+This service handles interactions with shared storage across the system, acting as a public gateway for other components. It provides ways to get, put, update, delete, list, and clear data from shared storage areas. It’s designed to be used by various parts of the system, like client agents and performance tracking, and keeps a record of these operations for debugging and auditing purposes, if logging is enabled.
 
-The service keeps track of what’s happening by logging activity, and it works closely with other services to ensure everything runs smoothly. Different components like ClientAgent and PerfService rely on this service for storage-related tasks.
+Here's a breakdown of what it lets you do:
 
-Here's a breakdown of what you can do:
+*   **Get Data:** Retrieve a list of items based on a search, or a single item by its ID.
+*   **Put/Update Data:** Add new items or update existing ones.
+*   **Delete Data:** Remove items from storage.
+*   **List Data:** Retrieve all items in a storage area, potentially filtered.
+*   **Clear Storage:** Remove all items from a storage area.
 
-*   **`take`**: Retrieves a list of items based on a search, ideal for finding specific data within the storage.
-*   **`upsert`**: Adds new items or updates existing ones in the storage.
-*   **`remove`**: Deletes specific items from the storage.
-*   **`get`**: Retrieves a single item by its unique identifier.
-*   **`list`**: Retrieves all items in a storage area, allowing you to see everything that's been stored.
-*   **`clear`**: Empties an entire storage area, essentially resetting it.
-
-The service is designed to be flexible and integrates well with other parts of the system, enabling different components to share and manage data effectively.
+This service uses other internal services for the actual storage operations and ensures that all actions are properly tracked and scoped within the system.
 
 ## Class SharedStorageConnectionService
 
-This service manages shared storage within the system, acting as a central hub for data access and manipulation. Think of it as a single, unified storage space that all parts of the swarm can use.
+This service manages shared storage for all clients in your swarm system, acting as a central hub for data. It ensures that only one instance of the storage exists, preventing conflicts and maintaining consistency across the entire system.
 
-It retrieves and creates storage areas based on their names, ensuring that all clients work with the same storage instance. When you request data or update something, this service fetches the right storage area for you and handles the underlying details.
+Think of it as a shared whiteboard where all agents can read and write – this service controls access to that whiteboard and makes sure everyone's changes are synchronized.
 
-Key functions include:
+It gets help from other services like the logger, bus (for announcements), and schema services to configure and manage the storage.  The `getStorage` function is the main way to access a shared storage space, cleverly caching instances to optimize performance.
 
-*   **Retrieving data:** You can search for items, retrieve specific items by ID, or list all items, potentially filtering them.
-*   **Updating data:** You can add new items or modify existing ones.
-*   **Clearing storage:** You can reset the entire shared storage to its initial state.
-
-The service is designed to work seamlessly with other components, using logging and event handling to keep things organized and track activity. It smartly caches storage areas to avoid unnecessary overhead, making operations faster and more efficient.
+You can use it to retrieve data (`get`, `list`), add or update data (`upsert`), delete data (`remove`), and even clear the entire storage (`clear`). The `take` function lets you retrieve data based on a search query, potentially using similarity scores to find relevant items. Overall, this service simplifies working with shared data in a distributed environment.
 
 ## Class SharedStateUtils
 
-This class provides simple tools for agents within a swarm to share and manage data. Think of it as a shared whiteboard where agents can write and read information. You can easily grab existing data using `getState`, update it directly or calculate a new version based on what's already there with `setState`, and even completely erase a piece of shared data using `clearState`. These operations are designed to be reliable and logged for better tracking within the swarm.
+This class provides simple tools for your agents to share information within the swarm. Think of it as a shared whiteboard where agents can read, write, and erase data.
+
+You can use `getState` to check what's currently written on the whiteboard for a specific label. 
+
+`setState` allows agents to update the whiteboard, either by providing a new value directly or by providing a function that calculates the new value based on what was already there.
+
+Finally, `clearState` lets an agent completely wipe the whiteboard for a specific label, returning the initial value.
 
 ## Class SharedStatePublicService
 
-This service provides a way to manage and share data across different parts of the swarm system. It acts as a public interface for interacting with shared state, handling operations like setting, clearing, and retrieving data. The system keeps track of what's happening with these operations through logging, and it’s designed to work seamlessly with other services like ClientAgent and PerfService. You can think of it as a central hub for accessing and updating shared information within the swarm. It uses a dispatch function when setting state, allowing for controlled and potentially asynchronous updates.
+This service provides a way to manage and share data across different parts of the system, allowing various components like client agents and performance trackers to work together efficiently. It acts as a central hub for accessing and modifying shared data, making sure operations are tracked and controlled.
+
+You can use this service to set new shared data, clear existing data back to its starting value, or retrieve the current data that's being shared. Every action is carefully tracked through logging, and these operations are integrated with other services to provide a consistent and reliable way to handle shared information. Essentially, it's a controlled and organized way to share data across the swarm.
 
 ## Class SharedStateConnectionService
 
-This service manages shared data across different parts of the system, acting as a central hub for accessing and updating that data. Think of it as a single source of truth for certain pieces of information that multiple agents need to see and potentially modify.
+This service manages shared data accessible across all agents in your system. Think of it as a central whiteboard that everyone can read and, with proper permissions, write to. It ensures that all agents are working with the same version of the data, preventing inconsistencies.
 
-It keeps track of these shared data instances using a clever caching system, making sure everyone's working with the same version and preventing conflicts. When changes are made, it carefully sequences them to ensure that updates happen in a safe and orderly manner.
+It uses a clever caching system to avoid creating unnecessary copies of the shared data, making it efficient. When you need to update the shared data, it queues those changes to make sure everything happens in a safe, thread-friendly manner.
 
-The service integrates closely with other parts of the system, handling things like logging, event notifications, and fetching configurations. It ensures that data is accessed and updated consistently, and it provides a standardized way for different agents to interact with shared information.  If you need a single, reliable place to store and manage data that’s shared across agents, this is the class you're looking for. You're able to get the current state, clear it, or set it using a provided function.
+You can retrieve the current state, update it using a function that transforms the previous state, or completely reset it to its initial value. The service logs its actions when logging is enabled, and it works closely with other system components like the state schema and agent connection services to ensure everything is set up correctly and secure. It provides a consistent API mirroring what other parts of the system use, making interactions predictable and reliable.
 
 ## Class SharedComputeUtils
 
-This utility class provides helpful functions for interacting with shared compute resources within the AI agent swarm. Think of it as a toolkit to manage and retrieve information about the computational power being used by your agents.
+This utility class, `SharedComputeUtils`, helps manage shared computational resources within the agent swarm orchestration system. Think of it as a helper to keep track of and interact with these resources.
 
-The `update` function allows you to refresh the status of a specific compute resource, ensuring you have the latest information about its availability and performance. You can use it to keep your system synchronized with the current state of the compute environment.
+The `update` method lets you refresh the information about a specific compute resource, ensuring your system has the latest details.  You provide the name of the compute you want to update.
 
-The `getComputeData` function lets you request and retrieve data associated with a particular compute resource. It’s a flexible way to get the specific details you need, like resource usage statistics or configuration settings, and the type of data returned is defined by you.
+The `getComputeData` method retrieves information about a compute resource.  You specify the client ID and the compute name, and it returns data related to that compute in a format you define. It's a flexible way to fetch details about a compute resource for use elsewhere in your application.
 
 ## Class SharedComputePublicService
 
-This service helps manage and coordinate shared computing tasks, keeping track of where and how computations are happening. It's designed to work with existing logging and connection services, so you don’t have to build those from scratch. 
+This service helps coordinate tasks that involve shared computing resources, keeping track of what's happening and allowing for context-aware execution. It relies on other services for logging and managing the actual compute connections.
 
-You can use it to fetch previously computed data, request a fresh calculation for a specific compute task, or force an update of the shared compute. Think of it as a central hub for orchestrating shared compute operations, allowing your AI agents to efficiently reuse calculations and avoid unnecessary work.
+You can use `getComputeData` to fetch results that have already been computed. 
+
+If you need to force a recomputation, `calculate` will trigger a fresh calculation.  
+
+`update` lets you manually refresh a shared compute, making sure you're working with the most up-to-date information.
 
 ## Class SharedComputeConnectionService
 
-This component handles connections to shared computational resources, allowing agents in your swarm to work together and share data. It acts as a central hub for accessing and managing these shared resources.
+This component manages how different AI agents in your swarm share and use computing resources. It acts as a central hub for accessing and coordinating these resources, ensuring agents can work together effectively.
 
-The `SharedComputeConnectionService` uses logging and messaging services for communication and tracks the compute resources it manages, caching references for efficiency. It provides functions to retrieve data from these shared computations, and also triggers computations based on state changes. Think of it as a way to synchronize and coordinate tasks across multiple AI agents. It has mechanisms to update and refresh the state of these shared computations.
+The service relies on several other services for logging, communication, managing context, handling shared state, and defining compute schemas. 
+
+You can use `getComputeRef` to get a reference to a specific computing resource by name, and `getComputeData` to retrieve the result of a computation.  `calculate` triggers a computation based on a given state name, while `update` refreshes the available resources. Essentially, it's about making sure everyone in the swarm has access to the right computing power and the latest results.
 
 ## Class SessionValidationService
 
-The `SessionValidationService` keeps track of sessions used by your AI agent swarm, ensuring things stay consistent and organized. Think of it as a central record-keeper for each session, noting which swarms, agents, storage resources, and states are involved.
+This service is responsible for keeping track of sessions within the swarm system and ensuring that everything related to a session – like which agents, storage, states, and swarms are using it – is consistent. Think of it as the central record keeper for active sessions.
 
-It works closely with other services like those managing session connections, agents, and storage to make sure everything is properly associated and cleaned up. The service logs important actions to help with debugging and uses memoization to speed up common validation checks.
+It works closely with other services: it registers new sessions, manages usage of resources (like agents and storage) within those sessions, and verifies that sessions exist when needed. It keeps detailed records of what’s associated with each session, using maps to track things like which agents are using which sessions and how those sessions are configured.
 
-You can use it to register new sessions, track which agents and resources are being used, remove those associations when they're no longer needed, and check whether a session exists.  It’s designed to be flexible, allowing you to query session details like its mode, associated swarm, and the list of agents currently using it. It also provides a way to clear out old validation data for specific sessions.
+The service uses a logger to record its actions and leverages memoization to speed up common validation checks. You can add or remove usage of various resources (agents, storage, etc.) to a session, check if a session exists, or retrieve lists of resources linked to a session. It also handles the cleanup of sessions when they are no longer needed, and it can be cleared for validation caching as needed.
 
 ## Class SessionPublicService
 
-This service acts as the public interface for managing interactions within AI agent sessions. Think of it as the main way client applications (like user interfaces) communicate with the core session handling logic. It's designed to be versatile, handling everything from sending messages to executing commands and tracking performance, all while ensuring proper context and logging. 
+This service acts as the public interface for managing interactions within AI agent sessions. It simplifies how you send messages, run commands, and track activity within a session, abstracting away the more complex underlying operations.
 
-It relies heavily on other services like logging, performance tracking, and session management to do its job, ensuring consistent behavior across the system. The service provides methods for emitting messages, running commands, and handling connections, each carefully wrapped to maintain context and provide insights into what's happening within the session. You’re essentially getting a controlled and monitored access point to manipulate and observe AI agent sessions.
+Think of it as a messenger that relays instructions to the session, handles incoming messages, and keeps track of what’s happening. It uses other services to log events, measure performance, and manage the session's lifecycle.
+
+You can use it to:
+
+*   **Send messages** to the session for communication.
+*   **Execute commands** within the session.
+*   **Run stateless completions** for quick responses.
+*   **Connect to a session** and establish a real-time messaging channel.
+*   **Commit various message types** like tool outputs, system updates, developer notes, and assistant responses to the session's history.
+*   **Manage the session’s lifecycle** by disposing of it when it's no longer needed.
+
+Essentially, this service provides a safe and controlled way to interact with sessions while letting other parts of the system handle the details. It also helps in ensuring that all actions are logged and performance is tracked.
 
 
 ## Class SessionConnectionService
 
-This service manages individual conversation sessions within the swarm system. It's like a central hub for all communication and actions happening during a single interaction with an AI agent. It cleverly reuses session data to avoid unnecessary overhead.
+This service manages connections and actions within AI agent swarms, acting as a central hub for sessions. Think of it as a way to organize interactions between different agents working together.
 
-Think of it this way: whenever a client interacts with the swarm, this service creates or reuses a dedicated "session" to track everything happening. This ensures things like security policies, access to swarm data, and tracking performance are handled consistently.
+It intelligently reuses session instances to improve efficiency, preventing redundant setups. When you need to start a new session, this service fetches existing data or creates one from scratch, making sure everything is set up correctly based on swarm configurations and policies.
 
-Key functions include:
+It handles sending messages, running commands, and logging activity within each session, and offers a reliable way to manage resources and ensure clean shutdowns when finished. Essentially, it provides a structured and controlled environment for agents to collaborate and perform tasks effectively.
 
-*   **getSession:** Creates or retrieves a session for a specific client and swarm - it avoids creating new ones if one already exists.
-*   **notify & emit:** Sends messages to and from the session, enabling real-time communication.
-*   **execute & run:** Allows for executing commands or running specific tasks within the session.
-*   **connect:** Sets up the connection for bidirectional communication within the session.
-*   **commit...Message:** These functions record events (like messages from the user, AI, or system) in the session’s history.
-*   **dispose:** Cleanly shuts down a session when it's no longer needed.
-
-Essentially, it's the backbone for orderly, secure, and trackable interactions within the AI agent swarm.
 
 ## Class SchemaUtils
 
-This class provides helpful tools for managing data related to client sessions and formatting data for communication. 
-
-You can use it to store information specific to each client in a session memory, retrieving it later when needed. This ensures that each client's data is handled securely and consistently.
-
-Furthermore, it offers a way to convert objects or lists of objects into easily readable strings, making it simpler to share data between different parts of the system and potentially for human readability. You can even customize how the keys and values are represented during this serialization process.
+This utility class provides helpful tools for working with session data and formatting information. You can use it to store and retrieve data associated with specific clients, ensuring that the session is valid. It also offers a way to convert objects and arrays into strings, which is useful for things like logging or sending data across systems. The serialization function can even help you customize how the data is formatted, allowing you to map keys and values as needed.
 
 ## Class RoundRobin
 
-This class helps you distribute tasks evenly among a group of different creators, like assigning requests to different AI agents. It works by keeping track of a list of creators (identified by "tokens") and rotating through them one by one. 
+This component, called RoundRobin, helps manage a rotating selection of processes or "instance creators." Think of it as a way to fairly distribute tasks among a set of available workers.
 
-Think of it as a fair scheduler – each creator gets a turn in a predictable order. The `create` method is how you set up this rotating system, providing the list of creators and the function that actually builds the instance for each token. You can easily manage a pool of specialized agents and ensure no single agent gets overloaded. The class internally keeps track of which creator is currently active, allowing for predictable and balanced execution.
+It keeps track of a list of tokens, which are identifiers for these workers, and cycles through them one by one.  Each time you use the RoundRobin, it picks the next worker in the list and executes the task assigned to it.
+
+The `create` method is the main way to set up a RoundRobin. You provide it with a list of tokens and a "factory" function that knows how to create an instance based on each token. The `create` method then returns a function that you can call to perform tasks, automatically rotating through the available workers. It essentially makes managing a rotating set of tasks simple and organized.
 
 ## Class PolicyValidationService
 
-This service helps ensure that policies used within the agent swarm are valid and consistent. It keeps track of all registered policies and their definitions, making sure they haven't been duplicated and exist when needed. 
+This service helps ensure that the policies used by your AI agent swarm are valid and consistent. It keeps track of all registered policies and their definitions, making sure each one is unique. 
 
-It works closely with other services – policy registration, policy enforcement, agent validation, and logging – to keep everything running smoothly.  The service efficiently manages its list of policies and reuses previous validation results to speed things up.
+When a new policy is added, this service registers it, and when a policy needs to be enforced, it verifies that the policy actually exists. To speed things up, the validation checks are cached, so frequently used policies are validated very quickly. 
 
-You can add new policies to the system using the `addPolicy` function, which also checks for duplicates.  The `validate` function confirms a policy exists before it’s used, which is crucial for proper policy enforcement.
+The service relies on other components to handle logging and policy registration, working together to maintain a well-managed and reliable system.
 
 ## Class PolicyUtils
 
-This class helps manage client bans within your AI agent swarm’s security policies. Think of it as a central place to handle adding, removing, and checking the ban status of clients. 
-
-It provides straightforward methods – `banClient`, `unbanClient`, and `hasBan` – to perform these actions. Before anything happens, it makes sure the information provided (client ID, swarm name, policy name) is correct to keep things reliable.  Essentially, it simplifies the process of controlling which clients are allowed to interact with your swarm, all while keeping track of what's happening.
+This class provides tools for managing client bans within your AI agent swarm. Think of it as a helper for keeping unwanted clients out. It offers simple ways to ban a client, unban a client, and check if a client is currently banned, all within the context of a particular swarm and policy. Before taking action, it makes sure everything is set up correctly, ensuring your actions are logged and tracked properly.
 
 ## Class PolicySchemaService
 
-This service acts as a central place to manage the rules (policies) that govern how agents interact within the swarm. It's like a library of policy definitions, ensuring these rules are consistent and reliable. When a new rule is added or an existing one is changed, this service handles the process, making sure it’s properly validated and registered. It works closely with other parts of the system, like the agent execution environment and session management, to enforce these rules and control access. Keeping track of these policy changes is logged for transparency and debugging.
+This service acts as a central place to manage and keep track of policy definitions used throughout the system. Think of it as a library for rules that control access and behavior. It uses a special registry to store these rules and ensures they have the basic structure needed to work correctly.
+
+When a new rule is added or an existing one is changed, the service checks it to make sure it's valid and records this action for tracking purposes. Other parts of the system, like those responsible for enforcing policies or managing client sessions, rely on this service to get the correct rules to use. It’s a foundational piece for making sure the swarm operates according to its defined policies.
 
 ## Class PolicyPublicService
 
-This service is your go-to for managing how policies affect clients interacting with the swarm. It acts as a public interface, handling tasks like checking if a client is banned, retrieving ban messages, and performing input/output validation. Think of it as the gatekeeper ensuring policy compliance.
+This service handles interactions related to policies within the swarm system. It acts as a public interface, making it easier for other parts of the system to manage things like client bans and data validation. 
 
-Behind the scenes, it leverages other services for core functionality – logging for detailed tracking, and policy connection for actual enforcement.  It's used by various parts of the system, including performance monitoring and client agents, to maintain consistency and security.
+Essentially, it provides a way to check if a client is banned, retrieve the reason for a ban, validate incoming or outgoing data based on policy rules, and manage client bans (both applying and removing them). 
 
-You can use this service to:
-
-*   Check if a client is blocked from a specific area of the swarm.
-*   Find out why a client is banned.
-*   Make sure data being sent or received complies with established rules.
-*   Temporarily or permanently restrict a client’s access.
-*   Restore a client's access.
+It works closely with other services – like those responsible for performance monitoring, client interactions, and documentation – to ensure consistent policy enforcement and helpful information for users.  All operations are logged for debugging and auditing purposes, controlled by a global configuration setting.
 
 ## Class PolicyConnectionService
 
-This service is responsible for managing how policies are applied and enforced within the swarm system. It acts as a central point for checking if a client is banned, retrieving ban messages, validating input and output data, and enacting ban/unban actions. To ensure efficiency, it caches frequently used policy information.
+This service manages how policies are applied and enforced within the system. It acts as a central point for things like checking if a client is banned, validating data going in and out, and actually banning or unbanning clients.
 
-It relies on several other services for logging, event handling, retrieving policy configurations, and accessing execution context. It offers consistent functionality, mirroring the behavior of other public services to ensure uniformity across the system. 
-
-Essentially, it's the engine that makes sure the swarm operates according to its defined rules and policies.
+Think of it as a layer of rules – it leverages other services to fetch policy details, log actions, and send notifications.  It avoids unnecessary work by caching commonly used policy configurations. The service is designed to work seamlessly with various parts of the system, including client agents, session management, and public API endpoints. It keeps things consistent by using common logging patterns and mirroring functionality found in other key services.
 
 ## Class PipelineValidationService
 
-This service helps ensure your AI agent pipelines are set up correctly before you start running them. Think of it as a quality control check. 
+This service helps ensure your AI agent pipelines are set up correctly before they run. Think of it as a quality check system. 
 
-You can add your pipeline definitions to this service, describing what each pipeline looks like. Then, when you want to test a pipeline, you provide the source code, and the service will validate it against your defined schema. It uses a logger to keep track of any issues it finds during validation, providing valuable feedback to help you catch errors early. Essentially, it's designed to streamline the setup and debugging of your AI agent workflows.
+You use it to register your pipeline definitions, essentially telling the system what your pipelines look like. Then, when you're ready to run a pipeline, this service can validate it against its definition to catch any potential errors early. 
+
+It keeps track of your pipeline schemas, and the `validate` method checks if a given source (like a configuration file) aligns with a registered pipeline definition. It also has a logger service for recording validation activities.
 
 ## Class PipelineSchemaService
 
-This service helps manage and organize the blueprints for your AI agent workflows – we call them pipeline schemas. Think of it as a central place to store and retrieve these blueprints, ensuring everyone’s using the right structure. 
+This service helps manage and organize the blueprints for your AI agent workflows, which we call pipeline schemas. It acts like a central repository where you can store, update, and retrieve these blueprints. 
 
-It allows you to register new blueprints, update existing ones, and easily retrieve them when needed. The service keeps track of schema-related information, and provides context for working with those schemas. It’s designed to be flexible and integrates with other parts of the system, enabling streamlined workflow orchestration.
+The service relies on a context service to handle schema-related operations, ensuring everything works correctly. You can register new blueprints with unique names, easily replace existing ones with updated information, and then fetch those blueprints when you need them to build your AI agent workflows. Think of it as a well-organized library for your AI agent workflow designs.
 
 ## Class PersistSwarmUtils
 
-This class helps manage how your AI agents and their navigation history are saved and retrieved. It’s designed to keep track of which agent is currently active for each user session and swarm, and to store the sequence of agents a user has interacted with.
+This class helps manage how information about your AI agents – specifically which agent is currently active and the order they're used – is saved and retrieved. It acts as a central point for handling this data, ensuring that it's consistent and readily available.
 
-You can think of it as a central place to store information about active agents and their navigation paths, allowing you to easily load and save this data as needed. 
+You can think of it as a memory for your swarm, remembering which agent a user is working with and the path they took to get there. It’s designed to be flexible, allowing you to customize how this memory is stored, whether it's in a database, a file, or even in memory.
 
-It also allows you to customize how this data is stored – for example, using a database or even keeping it in memory – providing flexibility for different deployment scenarios.  The system ensures that each swarm has its own dedicated storage, which optimizes performance and resource usage.
+The class provides simple functions to get and set the current agent for each user and swarm, and to track the sequence of agents they’ve used. If you need to change how the information is saved (like using a different storage method), you can easily configure it.
 
 ## Class PersistStorageUtils
 
-This utility class helps manage how data is stored and retrieved for each client within the swarm system. It provides a simple way to get and set data associated with a specific client and a descriptive name for that data, like user profiles or session logs.
+This class helps manage how data is saved and retrieved for each client within the swarm system. Think of it as a central place to handle persistent storage, ensuring that data is properly stored and easily accessed later.
 
-The class automatically handles creating and reusing storage instances to ensure efficiency. You can also customize how the data is persisted by plugging in your own storage mechanisms, allowing for more advanced options like using a database instead of a simple file. Essentially, it provides a flexible and efficient way to keep track of data for each client in the swarm.
+It provides simple ways to get and set data for a specific client and storage name. If the data isn’t already saved, it can provide a default value.
+
+The class also allows you to customize how the data is actually persisted – allowing integration with different storage technologies like databases – giving you a lot of flexibility. It remembers previously created storage instances to avoid creating unnecessary duplicates and optimize performance.
 
 ## Class PersistStateUtils
 
-This utility class helps manage how information is saved and retrieved for each agent in the swarm. Think of it as a way to remember things like an agent's current settings or variables.
+This class helps manage how information is saved and retrieved for each agent within the swarm. Think of it as a way to remember things about individual agents, like their settings or progress.
 
-It allows you to store data associated with a specific agent (identified by a unique ID) and a named piece of information.  You can retrieve this information later, or provide a default value if the information hasn't been saved yet.
+It uses a system of `SessionId` (a unique identifier for each agent) and `StateName` (a label for the type of information being saved) to organize this data. You can get and set this information, and the system automatically handles saving it for later use.
 
-Importantly, the system is designed to avoid creating unnecessary duplicate storage.  It intelligently creates and reuses storage instances.
+Importantly, it’s designed to be efficient, ensuring that only one persistence system is used for each type of data being saved.  
 
-You can also customize how the information is actually stored – perhaps in memory, or in a database – using a custom constructor. This gives you a lot of flexibility in managing the persistence layer.
+If you need more control, you can even customize how the data is stored using a custom persistence adapter.
 
 ## Class PersistPolicyUtils
 
-This class helps manage how policy information, specifically lists of banned clients, is saved and retrieved within the AI agent swarm. It provides easy ways to get and set these banned client lists for a particular swarm, making it simple to control which clients can participate. 
+This class helps manage how the swarm system remembers which clients are banned from participating. It provides ways to find out if a client is currently banned and to update the list of banned clients for a particular swarm. 
 
-The system cleverly memoizes the storage mechanism, so it doesn't repeatedly create persistence instances, which helps conserve resources. You can also customize how policy data is stored by providing your own persistence adapter, allowing for advanced tracking options. 
+The system tries to be efficient by ensuring it only creates one persistence mechanism per swarm.
 
-Essentially, this class streamlines the process of managing and persisting client ban status within your swarm environment.
+You can also customize how this data is stored, such as using a different storage method or database, allowing for more specialized tracking and management of banned clients. 
+
+The `getBannedClients` method lets you check if a client is banned, while `setBannedClients` is used to add or remove clients from the banned list.
 
 ## Class PersistMemoryUtils
 
-This utility class helps manage how memory is stored and retrieved for each client within the swarm system. It's designed to keep track of information related to a specific client session, allowing the system to remember things like context or progress.
+This utility class helps manage how memory data is saved and retrieved for each client within the swarm system. It acts as a central place to handle persistence, ensuring that each client's memory is stored and accessed efficiently.
 
-The class uses a clever caching mechanism to ensure that memory isn’t needlessly duplicated - there's only one storage instance for each client. You can retrieve memory data, set new data, or completely clear the memory when a client session is over.
+You can think of it as a way to remember things for each client individually, like their temporary context or other session-specific data. The class uses a smart caching system to make sure you’re not creating unnecessary persistence instances, which saves resources.
 
-If you need more control over how the memory is persisted – maybe you want to use a database instead of a simple file – you can also customize the way it works by providing your own storage constructor.
+If you need more control over where and how the memory is stored, you can even customize the way it persists data by providing your own storage constructor. Finally, when a client’s memory is no longer needed, you can easily clean it up using the `dispose` method.
 
 ## Class PersistEmbeddingUtils
 
-This class helps manage how embedding data is saved and retrieved within the swarm. It provides tools to read and write embedding vectors, letting you customize how this process happens.
+This class helps manage how embedding data is saved and retrieved within the swarm system. It provides a way to store embedding vectors, ensuring they're readily available when needed and avoiding unnecessary recomputation. 
 
-It keeps track of embedding storage, making sure we don't create unnecessary instances to save resources. The class offers a way to check if an embedding has already been computed and saved, preventing redundant work. 
+You can use it to read existing embeddings from storage, write new embeddings to storage, or even customize how the data is persisted using a custom adapter. This lets you choose how embedding data is tracked – whether it's held in memory or stored in a database, for example.  The system intelligently caches embeddings so the same data isn’t processed repeatedly, making the overall process more efficient.
 
-You can also configure how the embedding data is persisted, allowing for advanced options like in-memory or database storage instead of the default behavior.
 
 ## Class PersistAliveUtils
 
-This utility class helps keep track of which clients are currently online and available within your swarm system. It manages their online/offline status, allowing you to reliably check if a client is ready to participate in tasks. The system efficiently handles persistence, ensuring that each client's status is stored only once.
+This utility class helps keep track of which clients are online and offline within your AI agent swarm. It allows you to easily mark clients as active or inactive, and quickly check their current status. The system remembers these statuses so you can rely on them later. 
 
-You can use this class to easily mark a client as online or offline and then quickly check their status later.  It also lets you customize how the system persists this status, so you can integrate it with different storage methods like in-memory stores or databases. Essentially, it's designed to make sure your swarm knows who's active and ready to work.
+The class uses a clever approach to ensure that each client's status is only stored once, which helps to keep things efficient.  You can also customize how the status is saved – for example, using a database instead of just memory.
 
 ## Class PerfService
 
-The `PerfService` is responsible for tracking and logging performance data related to client sessions within your system. It monitors things like execution times, input/output sizes, and session states. Think of it as a performance detective, gathering clues to see how efficiently your agents are working.
+The `PerfService` is responsible for meticulously tracking and logging performance data during client sessions within the swarm system. It essentially monitors how long tasks take, how much data is processed, and the overall state of these sessions.
 
-It collects information during the execution of client tasks (using the `startExecution` and `endExecution` methods) and organizes it into structured records, which you can then use for reporting or analytics. 
+Think of it as a detailed performance observer for each client interaction, gathering information like execution times, input and output sizes, and session status.  This data is then organized into readily digestible structures (`IPerformanceRecord` and `IClientPerfomanceRecord`) for reporting and analysis.
 
-The service relies on several other services (like session validation, memory schema, and state services) to gather all the necessary information, and the logging of detailed information is controlled by a system-wide setting. 
+It works closely with other services—like validation and public services—to pull in necessary details and relies on a logger to record events (when enabled).
 
-You can retrieve performance metrics for individual clients or the entire system, and there's a way to completely clear out the tracked data for a specific client when it’s no longer needed. Essentially, it provides a comprehensive view of how your AI agents are performing over time.
+Key functions allow you to start and end execution tracking, retrieve performance metrics, and prepare the data for reporting.  The service also contains mechanisms for managing and cleaning up performance data when needed. Basically, it's a central component for understanding and optimizing the performance of the entire swarm system.
 
 ## Class OutlineValidationService
 
-This service helps keep track of and verify the structure of outlines used by the agent swarm. It’s responsible for ensuring each outline has a defined schema and that these schemas are unique.
+This service helps keep track of and verify the structure of outlines used by the agent swarm. It's like a librarian for outlines, making sure each one is properly registered and follows the correct format.
 
-It lets you register new outline structures, providing a way to add them to the system. You can also retrieve a list of all the registered outline names.
-
-The core function is to validate outlines – making sure they exist and are properly configured before they're used. This validation is designed to be fast thanks to caching, and it logs details about the validation process. It also relies on other services to handle logging and manage completion schemas.
+You can use it to add new outline structures, get a list of all registered outlines, and most importantly, check if a specific outline exists and is valid before your agents try to use it. To improve performance, the validation checks are cached, so they don't have to be repeated unnecessarily. This service relies on other services – a logger for recording activity and a completion schema service for handling outline completions – all working together to ensure a reliable system.
 
 ## Class OutlineSchemaService
 
-This service helps manage the blueprints, or schemas, that guide your AI agents as they work together. It’s responsible for keeping track of these blueprints, making sure they’re well-formed, and providing ways to add new ones or update existing ones.
+This service helps manage the blueprints for how agents organize their work, called outline schemas. Think of it as a central place to store and update these blueprints.
 
-Think of it as a librarian for your agent blueprints – it registers them, keeps them organized, and lets you quickly find the one you need. It uses a central logging system to record activity, and it works with other parts of the system to handle context-specific blueprint management.
+It keeps track of schemas using an internal registry and relies on other services for logging and context management.
 
-You can add new blueprints, change existing ones, or simply retrieve a blueprint when needed. The service also checks that each blueprint has the necessary elements before it’s added to the system.
+You can use it to add new schemas, update existing ones, or simply retrieve a schema when you need it. Before adding or updating, it checks the schema to make sure it's properly formatted, and it keeps a record of those actions.
 
 ## Class OperatorInstance
 
-This class represents a single instance of an operator within a swarm of AI agents. Think of it as a specific agent participating in a coordinated task.
+This class represents a single instance of an operator within an AI agent swarm. Think of it as a specific agent participating in a coordinated effort. 
 
-Each operator instance is identified by a client ID and a name, and it has a set of callback functions to handle different events.
+When creating an instance, you’ll need to provide a unique client ID, the agent’s name, and some optional callback functions to handle specific events.
 
-You can connect to receive answers from the operator, and methods are provided to send notifications, answers, and messages. Finally, a `dispose` method allows you to properly shut down and release resources associated with the operator instance when it's no longer needed.
+The `connectAnswer` method allows you to subscribe to incoming answers.  You can send notifications to the swarm using the `notify` method and responses using the `answer` method. The `recieveMessage` method is for receiving messages. Finally, `dispose` cleans up the instance when you’re finished with it.
 
 ## Class NavigationValidationService
 
-The NavigationValidationService helps manage how agents move around within the swarm, preventing unnecessary trips and making sure navigation is efficient. It keeps track of which agents have already been visited for each client and swarm. 
+This service helps keep track of where agents have already been navigated within the swarm, preventing unnecessary movements and wasted effort. It maintains a record of visited agents for each client and swarm, using a clever technique called memoization to store and reuse this information efficiently.
 
-You can think of it as a memory for the swarm's navigation – it remembers where agents have been.  It uses a logger to record important events and uses a technique called memoization to quickly access and update this navigation history. 
+You can think of it as a memory for the swarm's navigation. 
 
-To start tracking navigation, you can use `beginMonit`. If you need to clear the memory and start over, you can use `dispose`. The `shouldNavigate` function is the core of the service; it decides whether a new agent should be navigated to, based on whether it's already been visited.
+The `beginMonit` function lets you clear that memory and start fresh. The `dispose` function completely removes the record. `shouldNavigate` is the key function that decides whether a navigation attempt is worthwhile, checking the existing record first. The service also integrates with a logging system for keeping tabs on navigation activity.
 
 ## Class NavigationSchemaService
 
-This service keeps track of which navigation tools are registered within the system. It uses an internal list to store these tool names.
-
-You can register a tool by providing its name using the `register` function, and the system will log this action. 
-
-The `hasTool` function lets you quickly check if a particular navigation tool has already been registered. This is also logged if logging is enabled. Essentially, it's a simple way to manage and verify which navigation tools are part of your AI agent setup.
+This service helps keep track of which navigation tools are being used within the system. It maintains a list of registered tool names, allowing you to easily check if a specific tool is recognized. When you register a new tool, it's added to this list, and the system can optionally log this action. You can then use the `hasTool` method to quickly confirm whether a particular tool is part of the recognized set, which is helpful for validating tool usage and ensuring proper workflow.
 
 ## Class MemorySchemaService
 
-This service acts as a temporary, in-memory storage for data associated with individual sessions within the system. Think of it as a scratchpad where each session has its own space to hold information. It's designed to be lightweight and doesn’t store data permanently or validate its structure.
-
-You can use it to write, read, and remove data specific to each session.  Each session is identified by its ID (which is the same as its client ID). This service works in conjunction with other components like the session connection and agent services, and keeps track of its actions through logging.  It's a simple way to manage session-specific data without relying on more complex storage solutions. When a session ends or resets, this data is simply cleared.
+This service manages temporary, in-memory storage for data associated with different sessions within the system. Think of it as a simple scratchpad for each session, allowing agents to store and retrieve information without relying on persistent storage. It's designed for quick access to session-specific data and is used in coordination with other services to handle session management, agent runtime, and performance tracking. The information stored here isn't saved permanently; it’s cleared when a session ends or needs to be reset. You can check if data exists for a session, write new data or merge it with existing data, read data back, or completely remove the session's data when it’s no longer needed. Logging is enabled for these operations to help monitor memory usage and activity.
 
 ## Class MCPValidationService
 
-This service helps you keep track of and make sure your Model Context Protocols (MCPs) are working correctly. Think of it as a central place to register and check the structure of your MCPs. 
+This class helps manage and check the structure of Model Context Protocols (MCPs), which are like blueprints for how AI agents share information. Think of it as a librarian for MCPs – it keeps track of them and makes sure they're well-formed.
 
-It stores your MCP schemas in a handy map, allowing you to easily add new ones and confirm they're set up as expected. The service uses a logger to record its actions, making it easier to troubleshoot any issues. You can add MCP schemas by name and then validate them against a source to ensure everything lines up.
+You can add new MCP structures to the librarian’s collection using the `addMCP` method. 
+
+The `validate` method is used to verify that a particular MCP exists and can be used. 
+
+A logging service is included to help track what's happening as MCPs are added and validated. 
+
+Internally, the class stores all the MCPs in a map, organized by their name.
 
 ## Class MCPUtils
 
-This class, MCPUtils, helps manage updates to the tools used by your clients connected through the Multi-Client Protocol. Think of it as a way to distribute new versions of tools or software to keep everyone working with the latest versions. You can update the tools for every client connected to your system, or target a specific client for a more focused update. Essentially, it simplifies the process of ensuring all your clients have the tools they need.
+This class, MCPUtils, helps manage updates to the tools used by clients connected through the Multi-Client Protocol (MCP). Think of it as a way to ensure everyone is using the right versions of everything. 
+
+You can use it to update the tools for *all* connected clients at once, or to target a specific client for an update. It simplifies the process of keeping those tools synchronized. The `update` method is your go-to for performing these updates.
 
 ## Class MCPSchemaService
 
-This service is responsible for handling and organizing the blueprints, or schemas, that define how AI agents communicate and share information within a swarm. Think of it as a central library for these blueprints. 
+The MCPSchemaService helps manage the blueprints, or schemas, that define how AI agents interact and share information. Think of it as a central library for these blueprints.
 
-It allows you to add new schema blueprints, update existing ones, and easily find the blueprint you need. The service keeps track of these schemas using an internal registry. 
+It uses a logger to keep track of what’s happening and relies on a schema context service to handle the underlying management of these schemas.
 
-It also uses a logger to record its actions and relies on a schema context service to manage related operations like validating and retrieving schemas.
-
-
-
-Here's a breakdown of what you can do:
-
-*   **Register Schemas:** Add new blueprints to the central library.
-*   **Override Schemas:** Update existing blueprints, perhaps to correct an error or add a new feature.
-*   **Retrieve Schemas:** Find a specific blueprint by its name.
+You can register new schema blueprints, update existing ones with new details, and easily retrieve them by name. It also has a simple check to make sure a new schema is generally structured correctly before it's added to the system.
 
 ## Class MCPPublicService
 
-This class provides a way to interact with Model Context Protocol (MCP) operations, essentially managing how AI agents within a system can use and access tools. It allows you to list available tools for a client, refresh the list of tools for everyone or just a single client, and check if a particular tool exists. You can also use this class to actually execute a tool, providing the necessary parameters and getting the output. The class relies on injected services for logging and handling the underlying MCP connections.
+This class helps you manage and interact with tools within a larger AI system using a standardized protocol. Think of it as a central hub for requesting and using different AI tools for specific clients.
+
+It lets you see what tools are available, confirm if a tool exists for a particular client, and actually run those tools with the data you provide.  You can also refresh the list of available tools for all clients or just a single client.  The system relies on other services for logging and handling the underlying communication, and it offers a way to clean up resources when you're finished.
 
 ## Class MCPConnectionService
 
-This service is responsible for managing connections and interactions with Model Context Protocol (MCP) resources. Think of it as the central hub for accessing and using tools exposed by AI models.
+This class helps manage connections and interactions with different AI models using a standardized protocol. Think of it as a central hub for talking to various AI agents and getting work done. 
 
-It handles things like listing available tools, checking if a tool exists, and actually calling those tools with the information you provide. The service keeps track of these connections to avoid unnecessary re-creation and efficiently manage resources.
+It keeps track of available tools each agent offers, allowing you to easily list them and check if a particular tool exists. You can also use this class to actually call those tools, providing them with input and receiving results. 
 
-You can request a list of tools available for a specific client, refresh that list, or directly execute a tool, and this service takes care of the underlying communication. When you’re finished, it also provides a way to release those connections cleanly. It relies on other services for logging, communication, and managing the context of those tool interactions.
+The system remembers previously accessed AI models to improve performance, and provides ways to refresh the list of available tools for individual clients or the entire system. When you're finished, you can tell it to clean up resources associated with a client. It relies on other services like logging, communication, and schema management to operate.
 
 ## Class LoggerService
 
-This component handles all the logging within the agent swarm system. It provides a way to record events and information at different levels – normal, debug, and informational – making it easier to track what’s happening and troubleshoot issues.
+The LoggerService handles logging messages within the swarm system, ensuring that information is recorded effectively and consistently. It combines system-wide logging with client-specific logging, making it possible to track events at a detailed level while also providing a reliable fallback mechanism.
 
-It automatically includes details about the specific method and execution context alongside each log message, giving you more context when reviewing them. It sends logs to both a central system logger and a client-specific logger, ensuring nothing is missed. 
+It uses context information—like which client is involved and what’s currently being executed—to add detail to log entries. You can control the types of logs generated, from general information to very detailed debug messages, using configuration settings.
 
-The system allows you to easily swap out the central logger if you need to redirect logs somewhere different, for example, to a testing environment or to a file. The level of detail logged (debug, info) is controlled by system-wide settings.
-
+The system also provides the ability to switch out the main logging mechanism at runtime, which is useful for things like testing or tailoring logging behavior for different environments. Think of it as a flexible tool to keep track of what's happening in your swarm, giving you the details you need when you need them.
 
 ## Class LoggerInstance
 
-This component handles logging specifically for a particular client. It lets you customize how messages are logged, including whether they appear in the console and what extra actions you want to take when a log is generated.
+The LoggerInstance helps manage logging specifically for a particular client, allowing you to customize how and where log messages appear. It’s designed to work alongside a global configuration to control whether messages go to the console and to provide hooks for your own custom logging behavior.
 
-You set up a `LoggerInstance` by giving it a client identifier and a set of optional callback functions. These callbacks let you define custom behaviors for logging, like sending logs to a remote server or triggering specific actions based on log messages.
+When you create a LoggerInstance, you give it a client identifier and optionally some callback functions. The `waitForInit` method ensures the logger is properly set up, triggering any initialization callbacks. 
 
-The logger makes it easy to record different types of messages – regular logs, debug messages, and informational messages – and it ensures that initialization only happens once.  When you're finished with a logger, you can dispose of it to run any cleanup routines and trigger a final callback. The console output is controlled by a global configuration setting, so you can easily turn it on or off.
+You can then use methods like `log`, `debug`, `info`, and `dispose` to record messages, handle debugging information, and clean up resources, respectively. Console output is governed by the global configuration, so you can easily turn it on or off. The `dispose` method allows you to perform a final cleanup and trigger a custom disposal callback.
 
 ## Class HistoryPublicService
 
-This service manages how history information is accessed and handled within the swarm system, providing a public-facing interface. It's the go-to place for actions like adding messages to an agent's history, retrieving the most recent message, and getting a complete view of the history as an array. 
+This service handles how history information is managed and accessed within the system, providing a public interface for different parts of the swarm to interact with agent history. It essentially acts as a gatekeeper, delegating the actual history operations to a lower-level service while adding extra context and logging.
 
-Think of it as a controlled access point to the underlying history data, ensuring consistency and providing a place to add extra context and logging. It works closely with other services like the logging system, the core history management, and the agent interaction layer.
+The service allows you to:
 
-You'll use this service when you need to:
+*   **Push messages:** Add new entries to an agent's history, which is useful for tracking interactions and events. This is used by other services like the AgentPublicService and ClientAgent.
+*   **Pop messages:** Retrieve the most recent entry from an agent's history. Similar to pushing, this function is used in ClientAgent and AgentPublicService.
+*   **Convert history to arrays:** Transform the history data into an array format suitable for specific purposes, such as preparing context for an agent or documenting the history.
+*   **Clean up history:** Dispose of the agent's history to release resources when no longer needed.
 
-*   **Add a message:**  Push a new message onto an agent’s history, for example, when a system message is committed or when an agent executes a function.
-*   **Retrieve a message:** Get the most recently added message, useful when you need to see what just happened.
-*   **View the history:**  Get the entire history as an array, perhaps to prepare context for an agent or to document the history.
-*   **Clean up:** Dispose of the history data when an agent is no longer needed, releasing resources.
-
-
-
-It's designed to be consistent with how other parts of the system handle similar operations, ensuring a unified approach to history management.
+The service keeps detailed logs of these operations, and it integrates with other important services for things like performance tracking and agent documentation. Essentially, it’s about providing a structured and controlled way to work with agent history within the overall swarm system.
 
 ## Class HistoryPersistInstance
 
-This component keeps track of a conversation's history, saving messages both in memory and on disk for later use. Each history instance is tied to a specific client ID and allows you to define callback functions for different actions like adding, removing, or reading messages.
+This component is responsible for keeping track of a conversation's history – the messages exchanged – and saving it so it doesn't disappear. It remembers the history for a specific agent, storing messages in memory and also on disk for safekeeping.
 
-The `waitForInit` method sets everything up initially, potentially loading existing data from storage. You can loop through the history using `iterate`, and `push` adds new messages, persisting them.  If you need to retrieve the most recent message, `pop` removes and returns it. Finally, `dispose` cleans up the history, either for a specific agent or completely.
+When you start using it, it initializes itself, loading any existing saved data.  You can add new messages to the history, and it will automatically save them.  It also allows you to retrieve and remove messages from the end of the history.  When you’re finished with the history, you can clear it completely, either for a specific agent or globally. This makes sure data persists across sessions and allows for easy access to past conversations.
 
 ## Class HistoryMemoryInstance
 
-This class provides a simple way to keep track of a conversation's history within an agent's memory, but without saving that history permanently. It's designed for situations where you need to remember what's been said for the current session only.
+This class provides a simple way to keep track of messages for an AI agent, storing them directly in memory. It's useful when you don't need to save the history permanently.
 
-When you create an instance, you're essentially giving it an ID for the agent it's managing and setting up a few optional "hooks" (callbacks) to be notified when things change within the history.
+When you create an instance, you’re essentially giving it an ID for the agent and setting up optional functions to be called when the history changes – like when a new message is added, removed, or the entire history is cleared.
 
-The `waitForInit` method sets up the history for a specific agent.  You can then add new messages using `push`, remove the last message with `pop`, and go through the history messages one by one using `iterate`.  Finally, `dispose` lets you clear the memory completely, either for a single agent or for all agents if you provide a null agent name.
+The `waitForInit` method makes sure the history is ready to use for a specific agent.  You can then use `iterate` to go through the messages in order, potentially applying filters or system prompts. `push` adds new messages, and `pop` removes the most recent one. Finally, `dispose` cleans everything up, optionally removing the history for all agents at once.
 
 ## Class HistoryConnectionService
 
-This service manages the history of interactions with each agent within the swarm system. Think of it as keeping track of what each agent has done and said. It's designed to be efficient, reusing history information whenever possible to avoid unnecessary work.
+This service manages the history of interactions with individual agents within the swarm system. Think of it as a central hub for keeping track of what’s happened between a client and an agent, like a conversation log. It’s designed to be efficient, reusing history data whenever possible thanks to a clever caching system.
 
-It works closely with other parts of the system, like the agent itself, the connection service, and the public history API, making sure everything stays synchronized. It also logs important actions and tracks usage to monitor performance and security.
+It works closely with other parts of the framework, handling things like logging, event tracking, and validating user permissions. When you need to access or modify an agent's history—whether that's retrieving past messages, adding new ones, or cleaning up resources—this service is the go-to place. It also helps ensure the framework keeps track of how often history data is being used.
 
-Key features include:
-
-*   **Efficient History Management:** It intelligently reuses stored history data, preventing redundant creation.
-*   **Centralized Tracking:** It keeps a record of what each agent is doing.
-*   **Integration with Other Services:** It cooperates with various services to provide a consistent and reliable history tracking solution.
-*   **Controlled Logging:** It logs actions for auditing and debugging purposes.
-*   **Proper Cleanup:** It ensures resources are released when history tracking is no longer needed.
-
-
-
-You can retrieve a history for a specific agent using the `getHistory` method.  Adding new messages to the agent's history is done with the `push` method, and removing the most recent message is handled by `pop`.  The `toArrayForAgent` and `toArrayForRaw` functions offer ways to get the history as formatted arrays, depending on the needs. Finally, the `dispose` method cleans up when the history is no longer required.
 
 ## Class ExecutionValidationService
 
-This service helps manage and validate how many times an AI agent is running within a specific group (swarm) for a particular client. It keeps track of running agent executions to prevent issues caused by too many nested runs.
+This service helps manage and validate how many times an AI agent is running within a system. It keeps track of active agent executions for each client and swarm, preventing runaway situations where agents spawn too many nested instances.
 
-You can use it to check how many executions are currently happening, increment the count when a new agent starts, or decrement it when an agent finishes.  If things get out of control, you can clear the current tracked executions or completely remove the count for a client and swarm. Think of it as a way to ensure your AI agents are running in a controlled and stable manner.
+You can retrieve the current execution count for a client and swarm using `getExecutionCount`, which conveniently caches results for efficiency.  `incrementCount` increases the execution count while also checking for overly deep nesting, and `decrementCount` resets the count when an agent finishes.  If you need a complete reset for a client and swarm, `flushCount` clears all tracked executions, and `dispose` permanently removes the cached execution count data.
 
 ## Class EmbeddingValidationService
 
-This service helps ensure that the names of embeddings used throughout the system are correct and consistent. It keeps track of all registered embeddings and their details. 
+This service helps keep track of all the embedding models used within your AI agent swarm. Think of it as a registry ensuring each embedding model has a unique name and is properly registered.
 
-When a new embedding is added, this service registers it and makes sure the name isn't already in use. 
+It works closely with other services – registering new embeddings with the EmbeddingSchemaService, tracking their use with ClientStorage, and potentially validating them for agents. 
 
-When someone tries to use an embedding (like in a search), this service verifies that the embedding name actually exists and is valid. It does this quickly by remembering previous checks. 
-
-The service uses logging to keep track of what's happening and relies on other parts of the system to manage embedding registration and provide information.
+You can add new embeddings to the registry using `addEmbedding`, and the `validate` function checks if a specific embedding model is registered, saving time by remembering previous checks. The service also logs its activities for debugging purposes.
 
 ## Class EmbeddingSchemaService
 
-This service manages how embedding logic – the way data is transformed into a numerical representation for tasks like similarity search – is stored and used within the system. It acts as a central place to register and retrieve these embedding definitions, making sure they’re consistent and valid.
+This service acts as a central library for managing how data is represented as numerical vectors, a crucial step for searching and comparing information within the system. It keeps track of these "embedding schemas," essentially blueprints for converting data into a format suitable for searching.
 
-Think of it as a library of embedding recipes. When a component needs to perform a similarity search or generate embeddings, it uses this service to find the right "recipe."
+Think of it as a secure and organized place to store and retrieve the rules for calculating those numerical representations. Before any embedding schema is used, it's checked to ensure it’s properly defined, and all actions are logged for transparency.
 
-It checks new embedding definitions to ensure they have the necessary parts and logs these actions for tracking purposes. It works closely with other services responsible for storage, client agents, and agent schema management. This helps ensure the system consistently uses the correct embedding logic for operations like retrieving data based on similarity. The service provides functions to register new embedding definitions, update existing ones, and retrieve them when needed.
+This service works closely with other parts of the system – the storage layer, the agent execution engine, and the agent definition system – to ensure that embeddings are handled consistently and reliably. It’s a foundational component for any process that involves searching or comparing data based on meaning or similarity. You can register new embedding methods, update existing ones, and easily access them when needed, all while benefiting from built-in validation and logging.
 
 ## Class DocService
 
-This class is responsible for creating documentation for your swarm system, including the agents, policies, and their underlying schemas. It generates Markdown files for easy readability and JSON files for performance metrics. Think of it as the documentation engine that helps you understand and debug your AI agent swarms.
+This class is responsible for automatically generating documentation for your swarm system, including details about swarms, agents, and their performance. Think of it as a tool that makes it easier to understand and maintain your complex AI agent setup.
 
-The class pulls information from various other services to create these documents, making it a central hub for generating comprehensive system documentation. It uses a thread pool to handle documentation creation efficiently and logs activities for debugging.
+It works by pulling information from various services – like schema and performance data – and assembling it into Markdown files. The generated documentation includes descriptions, UML diagrams for visualizing agent structures, and performance metrics.
 
-Key features include:
-
-*   **Automatic Documentation Generation:**  Automatically creates documentation for swarms and agents, keeping your documentation up-to-date.
-*   **Visual Schema Representations:** Generates UML diagrams for agents and swarms, providing visual overviews of their structures.
-*   **Performance Data Logging:** Captures and logs system-wide and client-specific performance data in JSON format.
-*   **Organized Output:**  Organizes documentation into a structured directory system.
-*   **Dependency on Other Services:** Relies on various other services to retrieve information about swarms, agents, policies, and more.
-
+The `dumpDocs` function is your main entry point; it orchestrates the creation of all swarm and agent documentation, organizing the output into a structured directory. You'll also find functions for dumping system-wide and client-specific performance data to JSON files. This whole process is designed to improve developer understanding and make your system more transparent.
 
 ## Class ComputeValidationService
 
-This class, ComputeValidationService, helps manage and validate the configurations for individual computations within your AI agent swarm. It’s designed to ensure that each computation has the correct structure and data it needs to run properly.
+This class helps manage and verify the state of your AI agent swarm. Think of it as a central hub for ensuring everything is working correctly. 
 
-The service uses a logger to track what's happening and relies on other services for validating state and schemas. It keeps track of the computations you’re using in a map.
-
-You can add new computations to the service, listing all available computations, and then validate specific computations against a source to make sure they're set up correctly. Think of it as a quality control system for your agent swarm’s individual tasks.
+It keeps track of different "compute" units – these are essentially the individual components of your swarm – and their expected structures. You can add new compute units, get a list of all registered ones, and most importantly, validate their current state against a predefined schema to catch errors early. The `loggerService` helps track what's happening, and the other services handle schema definitions and state validation.
 
 ## Class ComputeUtils
 
-This set of tools, ComputeUtils, helps manage and retrieve information about computing resources within the agent swarm. You can use it to update the status of a specific compute resource, identifying it by a client ID and a compute name. It also provides a way to fetch data associated with a compute resource, letting you access details like configuration or performance metrics, and the type of data fetched is flexible, adapting to the specific information you need. Essentially, it simplifies interacting with and understanding the state of your computing infrastructure within the swarm.
+This class provides helpful tools for managing compute resources within the agent swarm. You can use it to update the status of a compute instance, telling the system it's ready or experiencing issues. 
+
+It also lets you easily retrieve information about a specific compute resource, like its configuration or current load, using its client ID and name. The `getComputeData` method is flexible and can return data in whatever format is appropriate for the specific compute resource.
 
 ## Class ComputeSchemaService
 
-The ComputeSchemaService helps manage and organize different schema definitions used within the system. It acts as a central place to store, update, and retrieve these schema blueprints. 
+This service helps manage and organize different schema definitions for your AI agents. Think of it as a central repository where you store and retrieve the blueprints for how your agents understand and process information.
 
-Think of it as a library where you can register new schema types, modify existing ones, and easily access them when needed. The service is designed to keep track of schema-related information, providing a structured way to interact with these definitions and ensuring consistency across the system. 
-
-It uses a logger to track events and relies on a schema context service to handle the underlying management of schema contexts. You can register new schema definitions, override existing ones with updates, and retrieve specific schemas by their key.
+It’s designed to be flexible, allowing you to register new schema types, update existing ones, and easily access them when needed. The schema context service is integrated to ensure that these schema definitions are handled correctly and consistently.  You can register a schema with a specific key, override existing schemas with updated information, and retrieve them using their assigned keys.
 
 ## Class ComputePublicService
 
-This class provides a way to interact with compute resources, making sure operations happen within the right context. It relies on other services to handle logging and the actual compute connections.
+This component provides a way to interact with and manage compute resources, keeping track of the context in which those resources are used. It relies on other services for logging and handling the actual compute connections.
 
-You can use `getComputeData` to fetch calculated values, and `calculate` to force a re-evaluation. If you need to refresh a compute instance, `update` will do the trick. Finally, `dispose` allows you to properly clean up when a computation is finished. It helps manage the lifecycle of compute tasks, ensuring things run smoothly and efficiently.
+You can use it to fetch previously computed data, trigger recalculations when needed, force updates to ensure the data is current, and properly clean up resources when they’re no longer required. Each of these actions is performed within a specific method and context, identified by parameters like method name, client ID, and compute name. The component handles the underlying details, allowing you to focus on orchestrating the overall process.
 
 ## Class ComputeConnectionService
 
-This class manages connections and data flow within the agent swarm. It acts as a central hub, coordinating how different computational units interact and share information.
+This class manages connections and data retrieval for compute tasks within the AI agent swarm. It acts as a central point for accessing and updating compute operations. 
 
-It uses logging and messaging services to keep track of what's happening and communicate effectively. The class also handles validation and manages the overall state of the computations.
+The class relies on several supporting services like logging, messaging, method context, schema management, session validation, and state connection to function properly. 
 
-You can retrieve computed data using `getComputeData`, and `calculate` initiates a new calculation based on a specific state. The `update` method likely refreshes or synchronizes the compute process, while `dispose` cleans up resources when the connection is no longer needed. It also allows retrieving references to specific computational units with `getComputeRef`.
+You can use `getComputeRef` to get a reference to a specific compute task, and `getComputeData` to retrieve the results of that task. The `calculate` method triggers a compute operation based on a given state name, while `update` and `dispose` handle ongoing and cleanup tasks respectively.
 
 ## Class CompletionValidationService
 
-This service helps keep track of valid completion names used within the system, making sure they are unique and properly registered. It’s like a gatekeeper ensuring agents are only using approved completion names.
+This service helps ensure that completion names used within the agent swarm are valid and unique. Think of it as a gatekeeper for completion names, making sure they’re properly registered and haven't been used before.
 
-It works closely with other services, including the completion registration service and agent validation, and it uses logging to record its actions. To speed things up, it remembers the results of past validation checks.
+It keeps track of all the approved completion names and checks against this list whenever a completion is used. This helps prevent errors and ensures consistency across the swarm.
 
-You can add new completion names to the list using `addCompletion`. The `validate` function then checks if a given completion name is valid and keeps track of whether it has been seen before.
+The service logs its activities for monitoring and debugging, and it’s designed to be efficient by remembering previous validation results. It works closely with other services to manage completion registration, agent validation, and overall system operations.
 
 ## Class CompletionSchemaService
 
-The CompletionSchemaService manages how agents within the swarm system define and use specific actions or tasks, essentially acting as a central library for these actions. It keeps track of these actions, making sure they're properly defined and available to the agents that need them.
+This service acts as a central place to manage the rules and logic that agents use to respond to requests – think of it as a library of pre-defined actions. It keeps track of these actions, making sure they’re properly formatted and available when needed.
 
-Think of it like this: each action has a name and a way to perform it (the 'getCompletion' function). This service registers these actions, validates they're set up correctly, and makes them accessible to other parts of the system.
+It works closely with other parts of the system, such as the agent definition service and the agent connection service, ensuring that agents have access to the correct actions. The service validates these actions to make sure they are usable and logs its activities to keep track of what's happening.
 
-It works closely with other services – ensuring agents are properly connected and executing correctly – and keeps a record of all registered actions for easy access. The system logs actions performed by this service to provide transparency and help with troubleshooting. Actions can even be updated or replaced dynamically, allowing for changes in how agents operate.
+You can register new actions, update existing ones, and retrieve them as needed. This helps to standardize how agents respond and makes it easier to manage complex agent behaviors. The service uses a registry to store and retrieve these actions efficiently, ensuring everything runs smoothly.
 
 ## Class ClientSwarm
 
-The `ClientSwarm` class acts as a central manager for a group of AI agents working together. It keeps track of which agent is currently active, manages a history of agent switches, and handles the flow of information between the agents and external systems. Think of it like an air traffic controller for your AI agents, ensuring they operate smoothly and efficiently.
+This class, `ClientSwarm`, is like a conductor for a team of AI agents, making sure they work together smoothly. It manages which agent is currently active and keeps track of where you're navigating between them. Think of it as a central hub for controlling and observing your agents.
 
-It provides ways to wait for an agent to finish its task and cancel ongoing operations if needed.  The class uses a system of notifications to let other parts of the application know when an agent's status changes or output is received.  You can use it to dynamically switch between agents, monitor their progress, and manage their interactions, all while handling errors and ensuring a reliable workflow. Essentially, it provides a structured way to orchestrate a team of AI agents, making their combined efforts more predictable and manageable. The class also ensures everything is cleaned up when it's no longer needed.
+It handles things like waiting for an agent to finish a task, canceling a task if needed, and keeping track of which agent you're using. You can subscribe to notifications about agent changes and output messages.
+
+The `ClientSwarm` class is a core component for controlling AI agents in a larger system. It lets you check if the system is busy, emit messages, and manage the agent navigation stack. If something goes wrong, you can cancel an agent's current output, and the entire process is designed to be flexible and easily updated. When you're done with the swarm, there’s a `dispose` method to clean up everything properly.
 
 ## Class ClientStorage
 
-This class manages how your agent swarm stores and retrieves data, offering efficient search capabilities. Think of it as a central hub for your agents to persist and find information.
+This class is responsible for managing how data is stored and retrieved within the swarm system, and it's designed to work with data that can be represented by embeddings. Think of it as a specialized database that can also find similar data based on its characteristics.
 
-It handles operations like saving new data (upsert), deleting data (remove), and clearing everything out (clear). When you need to find similar items, it uses embeddings to perform a similarity search. These actions are processed in a controlled order to ensure everything happens correctly.
+It lets you add, update, and remove data, and it keeps track of everything in an internal map for quick access.  When you need to add or remove data, the operations are added to a queue to ensure they happen in a reliable order. 
 
-The class keeps track of data internally, allowing for quick lookups. It also creates "embeddings" – numerical representations of your data – which help with the similarity search.  It’s designed to work with other parts of the system, like services that handle connections and events, so data stays synchronized. Finally, when you're done with the storage, it provides a way to cleanly shut it down.
+The class can also generate "embeddings" – numerical representations of your data – so it can efficiently find items that are similar to a given search. 
+
+Key features include:
+
+*   **Adding and Updating Data:** Easily add new data or modify existing entries.
+*   **Removing Data:** Delete items from the storage.
+*   **Similarity Search:** Find data that is similar to a given search term.
+*   **Queueing Operations:** Operations like adding, updating, or removing data are processed in a controlled sequence.
+*   **Embedding Generation:** Automatically creates numerical representations of your data to facilitate similarity searches.
+*   **Clean-up:** Provides a way to properly shut down and release resources when the storage is no longer needed.
 
 ## Class ClientState
 
-This class manages the data and interactions related to a single state within a swarm of AI agents. It acts as a central hub for reading, writing, and reacting to changes in that specific piece of data.
+This class manages a single piece of data within the swarm system, acting as a central hub for reading, writing, and reacting to changes. It keeps track of pending operations and allows for custom logic to be applied when the data is modified.
 
-Think of it as a safe and organized way for agents to share information – it queues actions, handles updates, and ensures that everyone stays informed about what’s happening. 
-
-It integrates with other parts of the system to handle initialization, connecting to the swarm, and keeping everything synchronized. You can subscribe to notifications when the state changes, allowing other agents to respond to those updates. When you're done with a state, the `dispose` method ensures it's cleaned up properly.
+It's designed to work closely with other parts of the system, ensuring that changes are handled consistently and that all connected agents are aware of updates. You can subscribe to notifications when the data changes, and it offers ways to initialize, reset, and retrieve the data. When you've finished with the data, the class provides a way to clean up resources properly.
 
 ## Class ClientSession
 
-This class, `ClientSession`, is the core for managing interactions within your AI agent swarm. Think of it as a dedicated workspace for a client to communicate with the agents. It handles everything from sending messages and validating them against policies to logging actions and maintaining a history of the conversation.
+This class, `ClientSession`, manages interactions within the agent swarm system for a single client. Think of it as a dedicated workspace for a client’s requests and the swarm's responses.
 
-It acts as a central hub, coordinating with other services to ensure smooth communication and responsible agent behavior. For example, it uses a system to broadcast messages to interested listeners and it integrates with a service to fetch the correct agent for the task.
+It handles everything from sending notifications and executing commands to logging actions and managing the session's history. The session works closely with other services to ensure proper communication, policy enforcement, and access to the agents within the swarm.
 
-Here's a breakdown of what you can do with `ClientSession`:
+Here's a breakdown of what it does:
 
-*   **Send Messages:** You can send notifications and regular messages, each handled differently – notifications are simple alerts while regular messages undergo policy checks.
-*   **Execute Tasks:** It allows you to run specific tasks through the swarm's agents, returning the results and enforcing rules along the way.
-*   **Manage History:**  You can commit various types of messages (user input, system updates, developer notes) to the agent’s history, allowing you to track the conversation.
-*   **Control Agent Behavior:**  You can signal the agent to stop further processing or request specific tools.
-*   **Connect and Disconnect:** It provides a way to hook up the session to a real-time communication channel.
-*   **Clean Up:** When you're finished, it handles proper resource cleanup.
-
+*   **Message Handling:**  It allows you to send notifications, execute commands, and run lightweight completions (without emitting results) – all while ensuring everything adheres to predefined rules.
+*   **History Management:** The session meticulously tracks user messages, agent responses, tool outputs, and system updates, storing them in the agent’s history.
+*   **Session Control:** You can use it to signal the agent to stop executing further tools, flush the session history, or add developer notes for internal purposes.
+*   **Real-time Interaction:** It enables real-time communication by connecting to a message connector, allowing for a continuous flow of messages between the client and the swarm.
+*   **Cleanup:**  When the session is finished, it properly cleans up resources to ensure everything runs smoothly.
 
 
-Essentially, `ClientSession` is your go-to class for reliable and controlled interaction with your AI agent swarm.
+
+Essentially, `ClientSession` provides a structured and controlled environment for clients to interact with the agent swarm.
 
 ## Class ClientPolicy
 
-The ClientPolicy class is a core component for managing security and compliance within the swarm system. It essentially acts as a gatekeeper, controlling which clients can interact with the swarm and what they're allowed to send and receive.
+The ClientPolicy class is responsible for managing access control and message filtering for clients interacting with the swarm system. It keeps track of banned clients, handles input and output message validation, and provides feedback to clients when policies are violated. 
 
-It handles banning clients, ensuring their input and output messages meet specific requirements, and managing custom messages related to bans. The ban lists are loaded only when needed, which helps with performance. 
+It uses a lazy-loaded list of banned clients, meaning the list is only fetched when needed, which optimizes performance. The class automatically bans clients if validation fails and a custom message can be provided to explain the ban. 
 
-When a client attempts to interact, this policy checks if they’re banned, validates their messages, and can automatically ban them if necessary.  It communicates with other parts of the system like the connection services, agent, and event bus to enforce these policies and keep everyone informed of any actions taken.  The system remembers bans, optionally persists them, and allows for dynamic adjustments to who is allowed to participate in the swarm.
+ClientPolicies work closely with other parts of the system, like the connection services, agent, and event bus, to ensure security and compliance across the swarm. Actions like banning or unbanning clients trigger events and can be customized with callbacks.
 
 ## Class ClientOperator
 
-The ClientOperator acts as a central hub for coordinating the actions of AI agents within a swarm. It’s responsible for sending instructions and receiving results from the agents. 
+The ClientOperator is a core component for interacting with and controlling an AI agent swarm. Think of it as a manager that sends instructions and receives results from the agents. 
 
-Think of it as a manager relaying tasks and gathering information. It allows you to send data to the agents, control how they operate, and track their progress. Some functions like running, committing tool output, system messages, and flushing are currently unavailable.  You can send messages to the agents, including user and assistant messages, and track changes in agent configuration. Finally, it handles cleanup and releases resources when it's no longer needed.
+It handles the flow of information, allowing you to send inputs, wait for responses, and send messages – both for developers and the end-users.  While some functions like running, committing tool outputs, and flushing are currently unavailable, the others provide the necessary framework for orchestrating agent interactions. 
 
+You can send user messages, commit assistant messages, and even signal agent changes. Finally, the `dispose` method cleanly shuts down the client operator when it's no longer needed.
 
 ## Class ClientMCP
 
-This class helps your application work with tools for AI agents, acting as a bridge between your code and the available tools. It keeps track of which tools are available to different clients and lets you easily call those tools with the necessary information.
+This class lets your application manage and interact with tools used by AI agents. Think of it as a central hub for controlling what tools are available to each agent and executing them.
 
-You can use it to find out what tools are available to a particular client, check if a specific tool exists, and refresh the list of tools when needed. The class also manages the tools' lifecycle, allowing you to release resources when a client is no longer needed. When you want to run a tool, you simply provide the tool's name and the data it needs, and this class handles the rest.
+You can use it to find out what tools an agent has access to, check if a particular tool exists, or actually run a tool with specific data. The system remembers which tools are available to avoid unnecessary re-fetching, and lets you refresh the available tools whenever needed.
+
+When an agent is no longer needed, this class helps to clean up any resources associated with it, ensuring a tidy and efficient operation.
 
 ## Class ClientHistory
 
-This class keeps track of all the messages exchanged with an agent, acting like a memory for the system. It’s designed to store, retrieve, and filter these messages to provide the agent with relevant context.
+This class manages the history of messages for a specific agent within the swarm system. Think of it as a record of everything the agent has said and done. It keeps track of these messages, allowing them to be retrieved and used later, particularly when the agent needs to remember past interactions for generating responses.
 
-The system uses a filter to make sure the agent only sees the most important messages. You can add new messages, retrieve the most recent one, or get the full history as a list.  
-
-When an agent is finished, this class makes sure all resources used for the history are cleaned up properly. It works closely with other parts of the system to manage messages and keep the agent's context up-to-date. It also ensures that tool calls and their results are linked together, which helps the agent understand the flow of information.
+It filters messages to show only the ones relevant to the agent, based on configuration settings, and it can limit the number of messages kept. When a new message is added or an old one is removed, the system is notified. This class integrates with other parts of the swarm, like the connection service for initial setup and the agent itself to log actions and provide context. When the agent is finished, this history can be cleaned up and its resources released.
 
 ## Class ClientCompute
 
-This component handles the logic for performing calculations on the client side, reacting to changes in the application's data. When data changes, it recalculates values as needed, and it keeps track of previously computed results to avoid unnecessary work. 
+This component handles the calculations and updates on the client side for your AI agents. Think of it as the brain managing how your agents process data and react to changes.
 
-You can manually trigger a recalculation using the `calculate` method, or force an update with `update`.  When you're finished with the component, the `dispose` method ensures that all resources are cleaned up and it unsubscribes from any data streams.  It also makes sure any necessary cleanup actions are executed.
+It takes initial configuration settings when it's created, and it keeps track of how data changes impact those calculations. 
+
+You can manually trigger recalculations based on specific data points, force a full update, or let it automatically react to changes. 
+
+When you're finished with the component, a `dispose` method lets you clean everything up, ensuring no resources are left behind.
 
 ## Class ClientAgent
 
-The `ClientAgent` manages how a client-side agent interacts within the swarm system. Think of it as the core engine for processing messages, executing tools, and keeping track of history. It's built to be reliable, preventing overlapping tasks and handling errors gracefully.
+This class, `ClientAgent`, is the core of how individual agents operate within a larger swarm. Think of it as the brain of each agent, handling everything from receiving instructions to producing results. It manages the flow of messages, decides when to use tools, keeps track of the conversation history, and reports events.
 
-Here’s how it works:
+Here's a breakdown of what it does:
 
-*   **Message Handling:** It receives messages, figures out what tools to use, and then executes them. It ensures that multiple tasks don't run at the same time.
-*   **Error Recovery:** If something goes wrong (like a tool failing), it tries to recover – it might retry a tool call or use a placeholder response.
-*   **State Management:** The agent keeps track of its own changes and important events (like tool errors or agent switches) using specialized "subjects" that signal updates to other parts of the system.
-*   **Connections:**  It relies on other services to handle things like connecting to the swarm, managing the history of interactions, defining available tools, and broadcasting events.
+*   **Receives and Processes Instructions:** When an agent receives a message, `ClientAgent` figures out what to do, potentially using tools or needing to retry if something goes wrong.
+*   **Tool Management:** It keeps track of available tools, ensuring there aren't any duplicates. It also handles stopping or canceling tool executions when necessary.
+*   **History Tracking:**  The agent carefully records all messages and actions, storing them in a history for context.
+*   **Error Recovery:**  If something goes wrong, it has strategies to recover and try again, potentially re-generating a response.
+*   **Communication:** It communicates with other parts of the system to share its progress and results.
 
-**Key Features:**
+**Key Components:**
 
-*   **Tool Management:**  It resolves available tools, making sure there are no duplicates, and allows for stopping or canceling tool execution.
-*   **System Prompt Handling:** It combines static and dynamic prompts to create the context for the agent.
-*   **Output Management:** It emits the output after validating it and supports broadcasting agent outputs within a swarm.
-*   **History Management:** It lets you flush or add messages to the agent’s history, which is important for resetting the agent or logging actions.
+*   **`execute` and `run`:** These methods are the primary ways to give the agent instructions. `execute` is used for more complex tasks that might involve tools. `run` is for simpler, stateless tasks.
+*   **Subject-based State:** It uses "Subjects" to keep track of important changes, like tool errors or agent changes, allowing other parts of the system to react to these events.
+*   **Commit Methods:** There are many "commit" methods (like `commitUserMessage`, `commitToolOutput`) which let other parts of the system interact with the agent's state without triggering a full response. These are used for logging, resetting, or coordinating actions.
+*   **`dispose` method**: Cleanly shuts down the agent, releasing any resources it's using.
 
-Essentially, the `ClientAgent` acts as a central hub for message processing, error recovery, and communication within the AI agent swarm.
+
+
+Essentially, `ClientAgent` is the workhorse that orchestrates the activities of a single agent within the swarm, ensuring smooth operation, error handling, and communication with the rest of the system.
 
 ## Class ChatUtils
 
-This component, `ChatUtils`, is like a central manager for handling chat sessions across different AI agents. It's designed to make it easy to start, manage, and end conversations for users or clients.
+The `ChatUtils` class helps manage chat sessions for different clients, acting as a central hub for coordinating interactions within an AI agent swarm. It handles the creation, sending, and disposal of chat instances, ensuring each client has a dedicated communication channel.
 
-Think of it as a factory – it creates and organizes chat instances. You can tell it to begin a chat session for a particular client and swarm, send messages within that session, and even listen for when a chat is finished.
+You can think of it as a factory and manager for chat sessions; it provides methods to start a chat (`beginChat`), send messages (`sendMessage`), and clean up resources when a chat is no longer needed (`dispose`). 
 
-To get it working, you can configure it with a specific way to build chat instances and specify callback functions to handle certain events. It also allows you to properly clean up chat resources when they are no longer needed, ensuring efficient operation. Essentially, it provides a structured way to orchestrate chat interactions within your AI agent system.
+The `listenDispose` function allows you to be notified when a chat session is being terminated.  You have some control over how chat instances are created and what callbacks are used, allowing for customization of behavior.  Finally, `useChatAdapter` lets you define which class will be used to create the chat instances, and `useChatCallbacks` lets you specify functions to be executed during certain chat lifecycle events.
 
 ## Class ChatInstance
 
-The `ChatInstance` class manages a single chat session within an AI agent swarm. It's designed to represent an active conversation and keeps track of its lifecycle. 
+The `ChatInstance` class manages a single chat session within an AI agent swarm. It's given a unique identifier (`clientId`), the name of the swarm it belongs to (`swarmName`), a function to call when the chat is finished (`onDispose`), and optional callback functions for various events. 
 
-When you create a `ChatInstance`, you provide a unique identifier for the client, the name of the swarm the chat belongs to, a function to call when the chat is finished, and optional callback functions for handling specific events. 
-
-The class provides methods to start a chat (`beginChat`), send messages (`sendMessage`), and most importantly, clean up resources when the chat is done (`dispose`). The `checkLastActivity` method helps automatically manage inactive chats, and `listenDispose` allows you to be notified when a chat session ends. Essentially, it provides a structured way to interact with and monitor a chat within the larger AI agent system.
+Essentially, it's responsible for starting, sending messages within, and ultimately cleaning up a chat.  It keeps track of how recently the chat has been active to automatically end inactive sessions. You can also subscribe to be notified when a chat session is closed. The `beginChat` method kicks off the chat, `sendMessage` transmits messages, and `dispose` cleans everything up when you're done.
 
 ## Class BusService
 
-This class, `BusService`, is the central hub for communication within the AI agent swarm. It's like a post office, managing who's listening for what messages (events) and delivering those messages when they's sent.
+The `BusService` acts as the central communication hub for the swarm system, handling all event-driven interactions. Think of it as a post office for events, ensuring messages get to the right recipients.
 
-You can think of it as providing ways for different parts of the system – like the ClientAgents, Performance tracking, and documentation tools – to talk to each other using a standardized event system.
+It lets different parts of the system – like client agents, performance trackers, and documentation services – subscribe to specific events. When something important happens, like a task starting or ending, the `BusService` broadcasts this as an event. This system supports broad notifications ("send this to everyone") as well as targeted messages for individual clients.
+
+The service keeps track of all active subscriptions, ensures that only authorized clients can send events, and cleans up subscriptions when they're no longer needed. It's designed to be efficient, reusing communication channels whenever possible. It is also designed to log activities which can be useful in debugging.
 
 Here's a breakdown of what it does:
 
-*   **Sending messages (Events):** The `emit`, `commitExecutionBegin`, and `commitExecutionEnd` methods allow different components to broadcast information. `commitExecutionBegin` and `commitExecutionEnd` are shortcuts for `emit`, specialized for tracking execution events.
-*   **Receiving messages (Subscriptions):** `subscribe` lets components sign up to receive specific types of events, while `once` provides a way to listen for a single instance of an event.
-*   **Managing connections:** The `dispose` method cleans up all subscriptions for a client, ensuring resources are released when they’re no longer needed.
-*   **Flexible routing:** It supports "wildcard" subscriptions, allowing some events to be sent to all subscribers, and it efficiently reuses connection paths for performance.
-*   **Security and logging:** It verifies that clients are authorized to send and receive events and provides detailed logging to aid in debugging and understanding system behavior.
+*   **Subscriptions:** Clients sign up to receive specific event types.
+*   **Event Emission:** When an event occurs, the `BusService` sends it to all subscribed clients.
+*   **Cleanup:** When a client disconnects, all their subscriptions are automatically removed.
+*   **Special Events:** It offers shortcuts for common events like execution beginnings and endings, simplifying how these are handled.
 
 ## Class AliveService
 
-This service helps you keep track of which clients are actively participating in your AI agent swarms. It lets you easily signal when a client comes online or goes offline, and importantly, it can optionally save that status information so you don’t lose track even if the system restarts. The `markOnline` and `markOffline` methods are your main tools for updating the status, and they’re designed to work within a specific swarm, associating the status change with a particular method call. The service also uses a logger to record these status changes.
+The `AliveService` helps keep track of which clients are currently active within your AI agent swarms. It provides simple ways to register a client as online or offline, and automatically saves this information so it's not lost.  You can think of it as a heartbeat monitor for your agents, letting you know if they’re still responding. It uses a system to store this status, ensuring it's persistent even if the service restarts.  The `markOnline` and `markOffline` functions allow you to easily update a client’s status within a particular swarm, and logging is included to help with debugging.
 
 ## Class AgentValidationService
 
-The AgentValidationService is responsible for ensuring that agents within the swarm are properly configured and can interact correctly. Think of it as a quality control system for your agents.
+This service is responsible for making sure all the agents in your system are properly configured and set up correctly. It acts as a central point for validating agents and their associated resources like storages, states, and dependencies.
 
-It keeps track of registered agents and their associated schemas, dependencies, storage, states, and tools. You can register new agents using `addAgent`, and then retrieve lists of storage, states, and MCP associated with an agent using functions like `getStorageList`, `getStateList`, and `getMCPList`.
-
-The core function, `validate`, checks an agent’s entire configuration, verifying things like its completion, tools, and storage.  It’s designed to be efficient, using techniques like memoization to avoid redundant checks. The service also manages dependencies between agents to ensure compatibility. This validation service works closely with other services, like those handling agent schemas, tools, and storage, to maintain a consistent and reliable agent ecosystem.
-
-
-## Class AgentSchemaService
-
-The AgentSchemaService is the central place where the system keeps track of all the different types of AI agents that can run within the swarm. Think of it as a library containing blueprints for each agent, defining what they do, what resources they need, and how they interact with the rest of the system.
-
-When a new agent type is added, or an existing one is modified, this service ensures the details are correct and consistent. It uses a registry to store these agent blueprints and provides ways to register new ones, update existing ones, and easily retrieve them when needed.
-
-The service also logs important events related to managing these agent blueprints, which helps with troubleshooting and understanding how agents are being used. It's a key component that enables other services to work with agents in a standardized and reliable way, allowing for flexible and scalable AI agent orchestration.
-
-## Class AgentPublicService
-
-This class, `AgentPublicService`, acts as the main entry point for interacting with agents in the swarm system. It provides a public-facing API, handling common agent operations like creating agents, running commands, committing messages, and cleaning up resources. 
-
-Think of it as a friendly layer on top of the more technical agent connection service. It ensures that every action is properly logged, scoped to specific contexts, and integrated with other services for performance tracking and documentation.
+Think of it as a quality control system for your agents.
 
 Here's a breakdown of what it does:
 
-*   **Creating and Executing Agents:** It provides methods like `execute` and `run` to command agents, mirroring how client applications would interact. `execute` is for general commands, while `run` is for quick, stateless operations.
-*   **Message Management:** Functions like `commitToolOutput`, `commitSystemMessage`, and `commitUserMessage` allow you to add messages to the agent's history. These are useful for tracking conversations, providing instructions, or adding developer notes.
-*   **Tool Interactions:** Several methods are specifically for managing tool requests and responses (e.g., `commitToolRequest`, `commitAssistantMessage`).
-*   **Cleanup & Control:** Methods like `dispose` and `commitStopTools` handle cleaning up resources and preventing unwanted actions.
-*   **Logging & Context:** Every action taken through this service is logged and associated with a specific method and client, making it easier to monitor and debug.
+*   **Agent Registration:**  You can register new agents with their configurations, and this service keeps track of them.
+*   **Validation:** It validates the configuration of existing agents, checking things like their completion settings, tools, and storage connections.
+*   **Dependency Tracking:** It manages and verifies dependencies between agents - ensuring that agents rely on each other correctly.
+*   **Resource Queries:** It allows you to quickly find out what storage, state, and mcp resources are associated with a specific agent.
+*   **Performance:** The validation checks are optimized to run quickly by remembering previous results.
 
+The service relies on other specialized services for tasks like schema validation and storage management, and it keeps detailed records of registered agents and their relationships.  It also uses logging to track its operations and provides information for debugging and monitoring the system.
 
+## Class AgentSchemaService
 
-In essence, `AgentPublicService` simplifies agent interaction while maintaining consistency and providing valuable operational context.
+This service acts as a central place to define and manage the blueprints for your AI agents within the system. It's like a library of agent templates, ensuring each agent has a consistent structure and necessary components.
+
+The service keeps track of these agent blueprints, validating them to make sure they are complete and well-formed before they can be used. It registers new blueprints, allows for updating existing ones, and provides a way to retrieve them when needed.
+
+Think of it as a foundation for building your AI agents, providing a reliable and organized way to manage their definitions and ensuring they work together effectively within the swarm. It's used by other services to create agents, configure swarms, and manage their overall behavior.
+
+## Class AgentPublicService
+
+This class acts as a public gateway for interacting with agents within the swarm system. It provides a set of methods like `execute`, `run`, and `commitToolOutput` for common agent operations.
+
+Think of it as a helper layer – when you want to do something with an agent (like run a command or log a message), you go through this class. It handles the underlying details of connecting to the agent and keeps things organized.
+
+This class also adds extra features like logging and context scoping, making sure everything is tracked and consistent. Every method call is carefully logged if enabled, and each operation happens within a defined scope. 
+
+It's designed to be reliable and easy to use, providing a standardized way to interact with agents while maintaining control and visibility into the process. You can think of it as a safe and well-documented interface for working with your agents.
+
 
 ## Class AgentMetaService
 
-The AgentMetaService helps manage information about your AI agents, turning it into a visual format like UML diagrams. It essentially builds a map of how agents connect and what they do, allowing for better understanding and debugging of the entire swarm system.
+This service helps manage information about agents within the system and transform that information into diagrams. It essentially builds a structured representation of each agent, including its dependencies and capabilities. 
 
-This service takes agent definitions and creates structured representations, which can be detailed or focused on just the relationships between agents. It integrates with other services to provide comprehensive agent documentation, including creating visualizations that can be saved as diagrams. The system can log its actions for more detailed troubleshooting, and prevents circular dependencies when building these agent maps. You can request either a complete overview or a simplified view of how agents interact.
+You can use this to get a complete view of an agent's connections, or a simpler view focusing just on its relationships with other agents. The service then converts these representations into a standardized diagram format (UML) that can be used for documentation and debugging – think of it as generating visual maps of your agents.
+
+The system logs its actions when configured to do so, ensuring transparency in how these agent maps are created. It pulls information from other services to build a comprehensive picture of each agent and integrates with services responsible for documentation.
 
 ## Class AgentConnectionService
 
-This service manages how AI agents are created, used, and cleaned up within the system. It acts as a central point for getting agents ready to run, executing commands, and tracking their usage.
+This service manages the lifecycle of AI agents within the swarm system, acting as a central point for creating, running, and coordinating them. It efficiently reuses agent instances to save resources, ensuring consistent behavior across calls. Think of it as a conductor for your AI agents, handling their creation, execution, and cleanup, while also keeping track of their usage and history.
 
-Think of it as a factory and coordinator for AI agents. When you need an agent, it gets one ready, reusing existing ones whenever possible to save resources. It handles everything from setting up the agent's configuration to tracking its history and managing any related data storage.
-
-The service also provides methods for executing commands, running quick tests, and committing messages to the agent's history. It's designed to be consistent with other parts of the system, ensuring a standardized approach to agent lifecycle management and performance tracking. When you're done with an agent, the service makes sure it's properly cleaned up, freeing up resources for other tasks.
+It connects to various other services - like logging, event handling, and data storage – ensuring everything runs smoothly and consistently, and provides methods to execute commands, run completions, and manage agent interactions. The service focuses on efficient management and reuse of AI agent instances. By memoizing agent instances and relying on external services for logging, event handling, and data storage, it delivers consistent behavior and optimizes resource usage.
 
 ## Class AdvisorValidationService
 
-This service helps ensure your AI advisors are properly defined and ready to be used within the system. It acts like a quality control checkpoint, keeping track of the schemas that describe each advisor. 
+This service helps manage and check the setup of AI advisors within your system. Think of it as a gatekeeper ensuring each advisor has a clear plan for how it should operate.
 
-You can add advisor schemas using the `addAdvisor` method, essentially registering them with the validation service. The `validate` method then checks if a specific advisor has been registered, making sure everything is set up correctly before it's put into action. Think of it as verifying that each advisor has its instructions and knows what it's supposed to do.
+You can use it to register advisor schemas, defining their expected structure and requirements. The service keeps track of these registered advisors. 
+
+Then, you can tell it to validate a specific advisor, confirming it’s properly configured according to its registered schema. This helps prevent errors and ensures consistency across your AI agent swarm.
+
 
 ## Class AdvisorSchemaService
 
-This service helps manage and work with advisor schemas, which define the structure and rules for advisors in your system. It’s designed to keep track of these schemas, allowing you to register new ones, update existing ones, and easily retrieve them when needed. The service uses a context service to handle schema-related operations and a logger to keep track of what's happening.
+This service helps manage and organize the blueprints for your AI agents – we call them "advisor schemas." It acts as a central place to store, update, and retrieve these blueprints.
 
-You can register new advisor schemas using the `register` method, update existing ones with the `override` method, and get a specific schema using the `get` method. Think of it as a central repository for your advisor schema definitions. The `validateShallow` property is used to check the very basic requirements of a schema.
+The service keeps track of these blueprints using a registry, and it relies on another service to handle the underlying schema context, managing things like validation.
+
+You can register new blueprints, update existing ones, and easily retrieve them by their unique identifier. This makes it simpler to ensure all your agents are following the correct structure and guidelines.
 
 ## Class AdapterUtils
 
-This utility class offers simple ways to connect to different AI models and services, letting your swarm orchestrate completions across them. It provides pre-built functions to easily interact with popular providers like Hugging Face, Cortex, Grok, Cohere, OpenAI, LMStudio, and Ollama. Each function creates a specialized completion function tailored to the specific API, making it straightforward to integrate different AI models into your agent workflows without needing to handle the underlying API details directly. You can specify the model name and other API-specific parameters when creating these completion functions to customize how your agents communicate with each AI service.
+This utility class provides easy ways to connect to different AI models and use them for generating responses. Think of it as a toolbox for talking to various AI services.
+
+Each function within this class—like `fromHf`, `fromCortex`, `fromGrok`, and others—creates a specialized tool that handles the specifics of communicating with a particular AI platform, such as Hugging Face, Cortex, Grok, OpenAI, LMStudio, or Ollama. You just need to provide the necessary credentials or client objects, and it will take care of sending requests and receiving answers from the AI.  The `model` parameter allows you to select a specific model within the AI platform.
 
 ## Class ActionSchemaService
 
-The ActionSchemaService helps keep track of which action tools are available for your AI agents. It's like a registry for your tools. 
+This service keeps track of the different action tools your AI agents can use. It's like a registry for available tools. 
 
-You can register new tool names using the `register` function, which logs the event for informational purposes if logging is enabled. 
+You register a tool’s name using the `register` method, essentially adding it to the list of known tools. 
 
-To see if a particular tool is registered, you can use the `hasTool` function. It also records the check if logging is turned on. This service uses a logger to record important actions, helping you monitor and troubleshoot.
+The `hasTool` method lets you quickly check if a specific tool is registered and ready to be used by your agents. 
+
+The system also logs some of these actions, which can be useful for debugging or monitoring.
 
 # agent-swarm-kit interfaces
 
 ## Interface ValidationResult
 
-This interface represents the outcome of checking if the arguments provided to a tool are valid. It tells you whether the validation passed or failed. 
+This object represents the outcome of validating tool arguments. It tells you whether the validation process completed successfully or not. 
 
-If everything is good, you'll get back the validated data itself. If there's a problem, you'll receive a descriptive error message explaining what went wrong. Essentially, it's a clear way to know if your tool is receiving the information it needs in the expected format.
+If everything went well, you'll find the validated data inside the `data` property. 
+
+If something went wrong, the `error` property will contain a message explaining what happened.
 
 ## Interface TAbortSignal
 
-This interface helps you signal when an operation should be stopped, similar to how you might cancel a download. It builds on the standard web `AbortSignal` functionality, providing a way to manage and track cancellations in your asynchronous tasks. You can think of it as a standardized way to tell a running process, "Hey, stop what you're doing." It's flexible, so you can add your own custom features if you need something beyond the basic cancellation signal.
+This interface lets you signal when an operation needs to be stopped, building upon the standard web API for handling interruptions. Think of it as a way to gracefully halt processes, especially useful when coordinating multiple AI agents working together. You can adapt and add your own custom features to this signal to better fit how your swarm interacts and cancels tasks.
 
 ## Interface JsonSchema
 
-This describes a JSON Schema, which is a way to define the structure and rules for a JSON object. Think of it as a blueprint for your data.
+This describes a JSON Schema, which is essentially a blueprint for defining the structure of a JSON document. Think of it as a contract ensuring data conforms to a specific format. 
 
-The `type` property simply indicates what kind of data is expected, like a string or an object.
-
-`properties` lists the specific fields that are expected in your JSON data and what kind of values they should hold. 
-
-`required` tells you which fields are absolutely necessary for a valid JSON object.
-
-`additionalProperties` lets you control how strictly the JSON object must adhere to the defined schema. Setting it to `true` allows extra fields that weren't explicitly listed; setting it to `false` enforces a more rigid structure.
+It lets you specify the data type of each field (like string, number, or object), list which fields are mandatory, and control whether extra, unexpected fields are allowed. The `additionalProperties` setting is particularly useful for adjusting how strictly you want to validate your JSON data – set it to `true` to be more flexible, or `false` for stricter validation.
 
 ## Interface ITriageNavigationParams
 
-This interface lets you define how a tool behaves during the triage process. You specify the tool's name and a short explanation of what it does. You can also add an optional note for documentation purposes. Most importantly, you can provide a function that decides whether the tool is accessible based on factors like the client ID and the name of the agent it's interacting with. This allows for dynamic tool availability, adapting to different situations and contexts.
+This interface defines the settings you can use to create a new tool for your AI agents to use. You specify the tool’s name and a description of what it does. There’s also a place to add a note for documentation purposes. Finally, you can provide a function to control when the tool is accessible – this lets you make a tool only available under certain conditions based on things like client ID or the name of another agent.
 
 ## Interface IToolRequest
 
-This interface defines how agents ask the system to run a specific tool. Think of it as a standardized request form. 
-
-It clearly states *which* tool should be used (using the `toolName` property) and provides the necessary information for that tool to work (using the `params` property). 
-
-Essentially, it’s the way agents communicate their needs to the orchestration system, ensuring tools are executed correctly with the right inputs. The system validates these inputs to make sure they match what the tool expects.
+This interface describes what’s needed to ask the system to run a specific tool. Think of it as a way for an agent to tell the swarm, "I need you to use this tool, and here's the information it needs to work." It has two main parts: the name of the tool you want to use, and the specific details or arguments that tool needs to do its job. The system checks these details against what the tool expects to make sure everything is set up correctly.
 
 ## Interface IToolCall
 
-This interface describes a request to use a specific tool within the agent swarm. Think of it as a blueprint for telling the system, "Hey, I need to run this tool with these particular instructions."
-
-Each tool call has a unique ID to keep track of it and a type that currently indicates it’s a function.
-
-Crucially, it contains information about the function itself - its name and the arguments it needs to run correctly. This lets the system know precisely which tool to execute and what data to provide it.
+This interface describes a request to use a tool within the system, essentially a model asking to run a specific action. Each tool call has a unique ID so we can track it as it's processed. Right now, all tool calls are for functions, meaning they execute a specific piece of code. The `function` property tells us exactly which function to run, including its name and any arguments it needs.
 
 ## Interface ITool
 
-This interface describes what a tool looks like within the system. Think of it as a blueprint for functions your AI agents can use.
+This interface describes how tools are defined within the agent swarm system. Think of it as a blueprint for a function an agent can use. 
 
-Each tool has a `type`, which is currently always "function," and detailed information about that function including its `name`, a helpful `description`, and the expected `parameters`. 
+Each tool has a `type`, which is currently always "function," but might expand to include things like API integrations later on.
 
-This definition allows the AI model to understand what actions are available and how to properly request them. The model uses this information to generate requests, and the system uses it to make sure requests are valid.
+The core of the definition is the `function` property, which details the tool’s name, what it does (its description), and most importantly, the structure of the data it expects as input – including the types and descriptions of its parameters. This information helps the AI agent understand how to use the tool effectively.
 
 ## Interface ISwarmSessionCallbacks
 
-This interface lets you listen in on important happenings within your AI agent swarm. You can receive notifications when a new agent connects, when an agent runs a task, when a message is sent, and when a session starts or ends. Think of these notifications as signals that keep you informed about what's going on inside your swarm, allowing you to track progress, log activity, or trigger other actions as needed. You can specify functions to be called when a client connects, a task is executed, a stateless run completes, a message is sent, a session is initialized, or a session is closed.
+This interface lets you listen for important events happening within your AI agent swarm. You can use it to track when agents connect, when commands are run, and when messages are sent. It also provides callbacks for session initialization and cleanup, allowing you to monitor the lifecycle of each agent's connection. Think of it as a way to get notified about what's going on inside the swarm and respond accordingly.
 
 ## Interface ISwarmSchema
 
-This interface defines the blueprint for how a swarm of AI agents is structured and behaves. It lets you configure things like whether the swarm saves its progress, provides a description for documentation, and sets rules for agent access. 
+This interface helps you define how a swarm of AI agents will operate. Think of it as a blueprint for creating and managing your swarm.
 
-You can specify a default agent to start with, list the available agents, and provide functions to manage the swarm's navigation history and which agent is currently active.  There’s also a way to add your own custom code to be triggered at different points in the swarm’s lifecycle, making it highly adaptable. Essentially, this interface provides the foundation for creating and managing unique AI agent swarms.
+You can use it to give your swarm a unique name and specify which agents are available to participate.  It lets you set a default agent to use if no specific agent is selected.
+
+It also allows you to control how the swarm remembers its progress – whether it saves its navigation history and active agent information. You can provide functions to retrieve and update this navigation stack and active agent information as needed. 
+
+Finally, it provides a way to add custom actions that trigger at different stages of the swarm’s lifecycle, giving you flexibility in how the swarm behaves.
 
 ## Interface ISwarmParams
 
-This interface defines the essential information needed to set up and run an AI agent swarm. Think of it as a blueprint for creating a swarm – it specifies things like a unique identifier for the client starting the swarm, a way to log activity and track errors, a communication channel for agents to talk to each other, and a directory of the agents that will be participating.  Essentially, it bundles together the necessary configuration and agent details to get the swarm up and running.
+This interface defines the information needed to set up and run a swarm of AI agents. Think of it as the blueprint for creating a swarm. 
+
+It includes the unique ID of the system requesting the swarm, a logger to keep track of what's happening, and a communication bus for the agents to talk to each other.  Finally, it holds a list of the individual agents that will be part of the swarm, allowing the swarm to interact with them directly.
+
+## Interface ISwarmMessage
+
+This interface defines the structure of messages that flow within the AI agent swarm system. Think of it as the fundamental unit of communication between agents, tools, and users. Each message has an `agentName` to identify which agent sent it, a `mode` indicating whether it originated from a user or a tool, and an optional `payload` that can contain extra information relevant to the message. These messages are vital for keeping track of what's happening, generating responses, and broadcasting events within the swarm.
 
 ## Interface ISwarmDI
 
-This interface acts as a central hub, providing access to all the core components that make up the AI agent swarm system. Think of it as a toolbox filled with services – documentation, communication, performance tracking, and much more – all essential for the swarm to function. It essentially defines all the building blocks needed to manage and orchestrate the swarm, handling everything from agent connections and data storage to policy enforcement and schema validation. By providing these services in a structured way, it simplifies development and ensures a consistent approach to building and managing the AI agent swarm. Each property represents a distinct service offering specific capabilities within the swarm environment.
+This interface acts as a central hub for all the services that power the AI agent swarm system. Think of it as a toolbox containing essential utilities for managing everything from documentation and events to performance tracking and agent connections. It provides access to services for handling documentation, communication between agents, monitoring performance, ensuring system health, logging events, managing execution context, and connecting to various resources like agents, storage, and sessions.  Essentially, it's the foundation for how all the different parts of the swarm interact with each other. It also includes services responsible for validating data and enforcing rules across the swarm, ensuring the stability and integrity of the system. This central access point streamlines configuration and enables consistent access to core functionalities.
 
 ## Interface ISwarmConnectionService
 
-This interface helps us define how different parts of the AI agent swarm connect and communicate. Think of it as a blueprint for creating connection services that are meant for public use. It's designed to strip away any internal workings, so the visible parts focus on the essential connections and interactions within the swarm. This ensures consistency and clarity for anyone building upon or interacting with the system.
+This interface outlines how different agents within your AI agent swarm can communicate and coordinate with each other. Think of it as a blueprint for establishing connections – it defines the essential methods and properties needed for agents to talk and share information. It’s designed to provide a clear, public-facing definition for how agents connect, ensuring a consistent and predictable way for them to interact within the swarm. This helps to separate the core functionality from any internal workings of the connection service.
 
 ## Interface ISwarmCallbacks
 
-This interface provides a way to listen in on important events happening within your AI agent swarm. Specifically, it lets you know when an agent's role or assignment changes within the swarm, giving you the client ID, the new agent's name, and the swarm's name. You can use this to keep track of what agents are doing and adjust your application accordingly. It's like getting notified whenever an agent takes on a new task or responsibility.
+This interface lets you listen in on important moments in your AI agent swarm's life. Specifically, it allows you to be notified whenever an agent starts or stops participating in the swarm. 
+
+You'll receive details like the agent's ID, the name of the agent, and the swarm it belongs to, so you can adjust your application accordingly – maybe update a user interface or track agent activity. Think of it as a way to stay informed about what’s happening with your swarm in real time.
 
 ## Interface ISwarm
 
-This interface lets you interact with a group of AI agents working together. You can use it to control how the agents navigate through tasks, manage individual agents within the group, and get the results of their work. 
+This interface lets you interact with a group of AI agents working together. You can use it to get the name of the currently active agent, or even retrieve the agent itself as an object.
 
-It allows you to retrieve the most recently used agent, cancel any ongoing output, and get the output from the currently active agent. You can also check which agent is currently active, get a direct reference to that agent, and register new agents to be used later.
+Need to change which agent is actively working? You can set the active agent by name, and the system keeps track of your navigation choices. 
 
-The interface also provides methods for setting which agent is currently in charge, sending messages to the overall communication channel, and managing the swarm’s “busy” state, which is helpful for understanding if it’s currently working on something.
+The system can also wait for the group's output, cancel ongoing operations, and send messages to the communication channel. You can check if the group is currently busy processing something, or manually set its busy state for things like debugging and controlling your application's flow.
 
 ## Interface IStorageSchema
 
-This interface describes how a storage component functions within the AI agent swarm. It defines settings like whether data is saved permanently, a descriptive label for documentation, and whether it's shared between agents.
+This interface defines how your AI agents’ data is stored and managed. It lets you configure things like whether the data is saved permanently, whether multiple agents can access the same data, and how the data is indexed for searching.
 
-You can customize data retrieval and saving with optional functions for getting and setting data. The interface also specifies the embedding technique used for indexing data, gives the storage a unique name, and allows for custom lifecycle callbacks.
-
-The `createIndex` function lets you define how items are indexed for searching and retrieval. This interface essentially outlines the behavior and configuration options for any storage component used by the swarm.
+You can provide custom functions to control how data is retrieved, saved, and initially populated. It also gives you the ability to add custom logic for storage events and generate unique indexes for each piece of data, allowing for efficient searching. The `storageName` property uniquely identifies each storage area within the system.
 
 ## Interface IStorageParams
 
-This interface defines how the system manages and interacts with storage. It handles things like connecting to a specific client's storage, calculating similarities between data points, and caching previously computed embeddings to speed up performance. You'll find functions here to create new embeddings for indexing, retrieve cached embeddings, and to log activity and communicate with other parts of the AI agent swarm. It essentially provides the tools needed to manage the persistence and retrieval of data within the overall system.
+This interface defines how your AI agent swarm interacts with storage. Think of it as a set of tools and rules for managing the data your agents use and create.
+
+It includes ways to identify which client is using the storage, a function to measure how similar two pieces of data are, and methods for caching embeddings (numerical representations of text) to speed up processing. You'll also find functions for creating new embeddings and reading from the storage, alongside tools for logging activities and sending messages around the swarm. Essentially, it's all the necessities for your agents to store, retrieve, and work with information effectively.
 
 ## Interface IStorageData
 
-This interface describes the basic information held within our system's storage. Every piece of data saved will have a unique `id`, which acts like a name tag to help us find and manage it. Think of it as the primary key for your stored information.
+This interface, `IStorageData`, outlines the basic information that any piece of data held within the system needs to have. Every item stored will have a unique `id`, which acts like a name tag so we can easily find it later or delete it if needed. Think of it as the essential building block for everything we save.
 
 ## Interface IStorageConnectionService
 
-This interface lays out the blueprint for how different parts of the system connect to storage – think databases or file systems. It's designed to be a clear, typed definition, ensuring consistency and making it easy to understand what a storage connection service should do. This specific version is stripped down to show only the parts that are meant to be used publicly, keeping the internal workings hidden.
+This interface helps us define how different parts of the system will interact with storage connections, but in a way that focuses on the public-facing functionality. It's designed to provide a clear blueprint for creating storage connection services while hiding internal details that users shouldn't need to worry about. Think of it as a template for building reliable and consistent storage connections within the agent swarm orchestration framework.
 
 ## Interface IStorageCallbacks
 
-This interface lets you listen for important events happening within your data storage. Think of it as a way to be notified when data changes, when someone searches for something, or when the storage itself is being set up or taken down. You can use these notifications to track what’s going on, keep other systems in sync, or perform any necessary clean-up routines. Specifically, you’ll get called when data is updated, when a search is performed, when the storage starts up, and when it shuts down, all with information about who triggered the event and what storage it affected.
+This interface defines a set of functions that allow your application to be notified about what's happening with the storage system. Think of them as event listeners – you can use them to react to changes, track searches, or perform setup and cleanup tasks when the storage is created or removed. 
+
+You're given callbacks to respond to data updates, be aware of search activity, handle storage initialization, and manage disposal of the storage. This allows you to monitor the storage's behavior or perform actions in response to those events.
+
 
 ## Interface IStorage
 
-This interface lets you manage data within the agent swarm's memory. You can think of it as a way to store and retrieve information that agents need to work together. 
+This interface lets your AI agents easily manage and access data during their work. Think of it as a shared workspace where agents can store information they find, update their knowledge, and retrieve what they need. 
 
-The `take` method searches the memory and pulls back a specific number of relevant results – it's great for finding information similar to a given query. The `upsert` method is for adding new data or updating existing entries, keeping everything synchronized.  Need to get rid of something? Use `remove` to delete an item by its unique ID.  `get` is your go-to for retrieving a specific item.  You can also `list` all items, possibly narrowing down the results using a custom filter. Finally, `clear` empties the entire memory, giving you a fresh start.
+You can retrieve data using a search term, bringing back a set number of matching items. It also allows agents to add new information or update existing entries. 
+
+Individual items can be removed by their unique identifier, and you can retrieve a single item by its ID. If you need to see everything, you can list all items, even filtering them based on specific criteria. Finally, if you need a fresh start, you can clear the entire workspace.
 
 ## Interface IStateSchema
 
-The `IStateSchema` interface describes how a piece of information, or "state," is managed within the agent swarm. It lets you configure things like whether the state is saved permanently, add a description for clarity, and control whether multiple agents can access the same state.
+The `IStateSchema` interface helps you define how your agents manage data within the swarm. It lets you control things like whether the data is saved permanently, how to initially set up the data, and how to retrieve or update it. 
 
-You can specify a function to generate the initial state value and another to retrieve the current state, providing custom logic if needed. The `setState` function allows you to define how state updates are handled, and you can include middleware to process the state during its lifecycle. Finally, you can register callbacks to respond to specific state events.
+You can give each piece of data a unique name and provide functions to get the starting value or to change the data. Want to share data between agents?  You can enable that. Finally, you can even add custom functions (middlewares) to handle the data as it changes, and set up events to be notified when the data is modified.
 
 ## Interface IStateParams
 
-This interface defines the information needed to manage a state within the agent swarm. Think of it as a package of context – it includes a unique identifier for the client using the state, a way to log what's happening, and a communication channel to share updates with the rest of the swarm. Each state instance gets its own set of these parameters, ensuring everything is properly tracked and coordinated. It's all about providing the necessary tools for each state to function correctly and interact with the larger system.
+This interface, `IStateParams`, defines the essential information needed to manage a state within your AI agent swarm. Think of it as the set of ingredients needed to keep a specific state running smoothly. 
 
+Each state instance knows its unique `clientId`, which helps identify it within the system. 
+
+You also get a `logger` to record what's happening and catch any problems, and a `bus` for sending and receiving messages across the swarm. These components ensure the state can communicate and be monitored effectively.
 
 ## Interface IStateMiddleware
 
-This interface lets you hook into how the AI agent swarm's internal state is managed. Think of it as a way to step in and adjust or check the state before or after certain actions happen within the framework. You can use it to ensure the state is always in a valid form, or to make changes based on specific conditions. It’s all about giving you control over the data that drives the agent swarm's behavior.
+This interface helps you control and shape the data used by your AI agents. Think of it as a checkpoint where you can inspect or adjust the agent's state—the information it’s using—as it progresses through its tasks. You can use this to make sure the data is always in the correct format, or to add extra information that the agents might need. This middleware essentially gives you a place to intervene and guide the data flow within the system.
 
 ## Interface IStateConnectionService
 
-This interface helps ensure the public-facing parts of your agent swarm orchestration framework are clearly defined and consistent. It’s a blueprint for creating services that manage the state connections, but specifically excludes any internal workings. Think of it as a way to guarantee that what developers see and use is the intended public interface, avoiding confusion and unexpected behavior. It's used to create a specialized version of StateConnectionService that focuses only on the essential, outward-facing features.
+This interface helps define how different parts of the system connect and share information about the agent swarm's state. Think of it as a blueprint for making sure the public-facing parts of the orchestration framework have a consistent and predictable way to access and update the swarm's status. It focuses on the essential connections without including any internal workings, helping to keep things organized and reliable.
+
+## Interface IStateChangeEvent
+
+This interface helps you keep track of changes happening within the system. Think of it as a notification system – when something changes, you'll be informed. 
+
+The `stateChanged` property is the key here; it's like a channel that sends out a signal whenever a state changes. You can "subscribe" to this channel to be notified and respond to those changes in your code. It allows different parts of your application to react to changes happening elsewhere.
 
 ## Interface IStateChangeContract
 
-This interface lets you listen for changes in the agent swarm’s state. It provides a notification whenever the swarm transitions to a new state, so you can build systems that respond to these changes, like updating a user interface or triggering new workflows. You can subscribe to this notification to be informed about which state the swarm is currently in.
+This interface helps you keep track of when the system's state changes. It provides a way to be notified whenever a state is updated. Think of it as a notification bell that rings when a new state becomes active, letting you respond to those changes in a reactive way. You can subscribe to this notification to know exactly when and what state has changed.
 
 ## Interface IStateCallbacks
 
-This interface lets you listen for important events related to your agent's state – think of it as getting notified about what's happening behind the scenes. You can set up functions to run when a state is first created, when it's being cleaned up, when data is loaded, when it’s read, or when it's updated. These notifications are handy for things like setting up initial configurations, performing cleanup tasks, keeping an eye on data changes, or logging activity. Essentially, it provides a way to react to different stages of your state's lifecycle.
+This interface lets you listen in on important moments in a state’s life cycle. You can use it to be notified when a state is first created, when it’s being cleaned up, or when its data is loaded, read, or updated. Think of it as a way to get notified about what’s happening with your state data—perfect for things like logging, monitoring, or triggering other actions based on those changes. Each callback provides you with information about the state's ID, its name, and the data itself.
 
 ## Interface IState
 
-This interface helps you manage the current condition of your AI agents. You can think of it as a way to keep track of what's happening and how things are progressing.
-
-The `getState` method lets you see the current status, taking into account any special processing or rules that might be in place.
-
-`setState` provides a way to update the status, but it does so by letting you define how the new status should be calculated based on the previous one – this allows for complex and controlled changes.
-
-Finally, `clearState` provides a simple way to reset everything back to the starting point defined in your setup.
+This interface lets you manage the current status of your AI agents. You can easily check what the current state is using `getState`. When you need to update the status, `setState` lets you calculate the new status based on the old one – it’s like providing a recipe for how the status should change. Finally, `clearState` provides a simple way to reset everything back to the starting point, as defined in your agent configuration.
 
 ## Interface ISharedStorageConnectionService
 
-This interface helps define how different parts of the system interact with shared storage. It acts as a blueprint, laying out the essential methods and properties needed for securely accessing and managing data. Think of it as a standardized way for different AI agents to share information, ensuring everyone is using the same rules and procedures for accessing the shared storage. The goal is to make sure the publicly available functions for working with the storage are clearly defined and consistent.
+This interface helps define how different parts of the system connect to shared storage, like a central place to hold information. Think of it as a blueprint for managing those connections, specifically designed to ensure the publicly accessible parts of the system only interact with storage in a safe and predictable way. It's used to create a reliable and controlled way for AI agents to share data and coordinate their actions.
 
 ## Interface ISharedStateConnectionService
 
-This interface helps define how different parts of the AI agent swarm can share information safely. It acts as a blueprint, ensuring that only the necessary information is exposed publicly and keeping internal workings separate. Think of it as a controlled way to pass data between agents, promoting clarity and security within the overall system. It’s used to create a specific implementation that focuses on the public-facing features for shared state connections.
+This interface helps define how different parts of the AI agent swarm can share information. Think of it as a blueprint for a service that allows agents to communicate and coordinate, but it specifically leaves out the internal workings so that the public-facing parts remain clear and consistent. It's designed to make sure the way agents interact with the shared state is predictable and well-defined.
 
 ## Interface ISharedComputeConnectionService
 
-This interface defines a service that manages connections to shared computing resources, like virtual machines or containers, ensuring a consistent way for different parts of the system to access them. It builds upon the base `SharedComputeConnectionService`, providing type safety and clarity within the AI agent swarm orchestration framework. Think of it as a standardized way to connect your agents to the processing power they need to function.
+This interface defines how your AI agents connect to and utilize shared computational resources. Think of it as the bridge between your agents and the power they need to run – whether that's processing data, running simulations, or interacting with external tools. By implementing this service, you allow your agents to dynamically request and utilize these resources, making your swarm more efficient and adaptable. It builds upon the `SharedComputeConnectionService`, ensuring a consistent and type-safe way to manage these connections within your agent ecosystem.
 
 ## Interface ISessionSchema
 
-This interface, ISessionSchema, is essentially a reserved space for information related to individual sessions within the agent swarm. Right now, it doesn't contain any specific properties, but it’s designed to hold session-specific settings and data as the framework evolves. Think of it as a promise for more detailed session management in the future.
+This interface, `ISessionSchema`, is essentially a space for future expansion. Think of it as a promise for more detailed session settings down the line. Right now, it doesn’t hold any specific data, but it's here to reserve a place for session-related configurations as the framework develops. It acts as a structural blueprint for how session information might be organized in the future.
 
 ## Interface ISessionParams
 
-This interface outlines all the information needed to kick off a new session within the agent swarm system. Think of it as the blueprint for starting a session – it includes things like a unique identifier for the client using the session, a way to track what's happening (logging), rules and limitations for the session, and how the session communicates with the rest of the swarm. It also specifies the swarm itself and its name, establishing the session's place within the larger system.
+This interface defines the information needed to set up a new session for your AI agent swarm. Think of it as a blueprint containing all the essential components.
+
+It includes details like the client's unique identifier, a way to log activities and track errors, rules and limits for the session, a communication channel for agents within the swarm, the swarm itself for management, and the specific name of the swarm the session belongs to. All these pieces work together to define the environment and controls for your AI agents.
 
 ## Interface ISessionContext
 
-This interface acts as a central hub for information about a client's interaction with the AI agent swarm. It bundles together key details, including a unique identifier for the client's session and the process running the swarm. 
+This interface describes the data that’s held for each active session within the swarm. Think of it as a container for key information about who’s using the system, what they’re doing, and how things are running. 
 
-If a specific method or execution is in progress, you’ll also find related metadata like client details and state information contained within this context. Think of it as a single place to get a snapshot of what's happening in a client's session, whether it's a simple request or a complex workflow. It gives you access to client identifiers, the running process ID, and potentially more details about the method and execution taking place.
+It includes a unique identifier for the client (clientId), a unique identifier for the process running the swarm, and then two optional containers: one for details about the specific method being used (methodContext) and another for data about the current execution step (executionContext). If a method or execution isn't happening right now, those containers will be empty.
 
 ## Interface ISessionConnectionService
 
-This interface helps define how different parts of the system connect and communicate during a session. Think of it as a blueprint that ensures the public-facing connection service works consistently and predictably. It’s designed to strip away the internal workings, focusing only on the essential elements that are exposed to the outside world. By using this interface, we can guarantee a clean and reliable connection experience.
+This interface helps us define how the system connects to different AI agents. Think of it as a blueprint for establishing those connections – it outlines the necessary components without including any internal workings. We use it to create a public-facing version of the connection service, focusing only on what users and external systems need to know and use.
 
 ## Interface ISessionConfig
 
-This interface lets you define how long a session can run or how often it can be triggered. You can specify a `delay` to control the timing, essentially setting a pause between session executions. 
-
-If you need to clean up anything specific when a session ends, you can provide an `onDispose` function. This function will be automatically called when the session is finished, allowing you to release resources or perform other necessary actions.
+This interface helps you define how often your AI agents should run or interact, especially when you need to control the pace to avoid overwhelming resources. You can set a `delay` to specify a minimum time between sessions, ensuring agents don't run too frequently.  There’s also an `onDispose` function you can provide; this is a handy way to clean up any resources your agents might be using when a session ends, like closing connections or releasing memory.
 
 ## Interface ISession
 
-The `ISession` interface is like the central control panel for a conversation or workflow managed by your AI agent swarm. It provides the tools to send messages, run commands, and manage the overall state of the session. 
+The `ISession` interface defines how you interact with a single conversation or "session" within the AI agent swarm. It provides methods to send messages, control the flow of execution, and manage the session's internal state.
 
-You can use it to quietly add messages to the session history without triggering a response, for example when adding context or logging.  There's also a way to completely reset the agent's memory by flushing the session. To halt the sequence of tools being used, you can use `commitStopTools`.
+You can use `commitUserMessage` and `commitAssistantMessage` to add messages to the conversation without triggering an immediate response, while `commitSystemMessage`, `commitDeveloperMessage` and `commitToolRequest` allow for adding specific message types to the session’s history. `commitToolOutput` lets you record the results of a tool's execution.
 
-The `notify` function allows you to send messages to listeners.  `emit` sends a general message through the session's channel, while `run` lets you perform quick, isolated tasks without affecting the ongoing conversation. `execute` is the primary way to run commands within the session, and it can update the chat history.
+To trigger an AI agent to process content, use `execute` or `run`, with `execute` also allowing you to specify how the session’s history is handled. You can also clear the entire conversation history with `commitFlush`.  `notify` is for sending alerts that other parts of the system can listen for, and `emit` for general communication within the session.
 
-`connect` creates a two-way communication link, allowing messages to be sent and received. You can also explicitly add tool outputs, tool requests, assistant messages, system messages, and developer messages to the session's record.
+`connect` establishes a two-way communication link, and `commitStopTools` is used to halt the execution of tools within the session.
 
 ## Interface IScopeOptions
 
-This interface, IScopeOptions, helps you define how a specific operation within your AI agent swarm will run. You use it to provide a unique identifier, `clientId`, to track the session. It also lets you specify the `swarmName`, so the system knows which pre-configured swarm to use. Finally, you can provide an `onError` function to catch and manage any errors that pop up during the operation, giving you a way to respond gracefully to problems.
+This interface, `IScopeOptions`, helps you configure how a specific operation within your AI agent swarm will run. You can specify a unique `clientId` to track the session, and a `swarmName` to indicate which predefined swarm setup should be used. If something goes wrong, you can also provide an `onError` function to gracefully handle any errors that pop up during the process.
 
 ## Interface ISchemaContext
 
-This section describes a central hub for accessing different types of schema information used by the AI agent swarm. Think of it as a library where you can find blueprints for how agents work, how they communicate, and how they generate responses. It organizes various schema services – like those defining agent structures, completion methods, and outlines – into a single, easy-to-use collection. This allows different parts of the system to consistently access and utilize these schema definitions.
+This object acts as a central hub for all the different types of schemas used by the AI agent swarm. Think of it as a directory that holds information about how agents are defined and how they communicate. It organizes schema definitions into categories, like agent structures and message formats, making it easy to access and manage them throughout the system. You can use this to find and work with the blueprints for your AI agents and the messages they send to each other.
 
 ## Interface IPolicySchema
 
-This interface describes how you configure a policy for your AI agent swarm. It lets you define rules and manage banned clients in a consistent way. 
+This interface defines the structure for creating and configuring policies within the agent swarm. It lets you dictate how the swarm manages bans and enforces rules. 
 
-You can choose to save the list of banned clients permanently, add descriptions for documentation, and give each policy a unique name. The `policyName` is crucial for identifying and managing each rule set.
+You can choose to persist ban information to storage, add descriptions for clarity, and assign unique names to your policies. 
 
-You can also customize the message shown when a client is banned, or provide functions to generate these messages dynamically.  If you need more control, you can specify how to retrieve, set, or validate client data, and even override the standard validation process for incoming and outgoing messages.  Finally, you can register callbacks to extend the policy's behavior, triggering custom actions during validation or ban events.
+The interface provides ways to customize ban messages, automate the banning process, and even define your own validation logic for incoming and outgoing messages. You can also retrieve and manage lists of banned clients, or completely replace the default ban list management.  Finally, you can define callbacks to extend the functionality and create custom actions when validation or banning events occur.
 
 ## Interface IPolicyParams
 
-This interface defines the information needed to set up a policy, essentially a rule or guideline for your AI agent swarm. It combines the basic policy structure with tools for tracking what's happening and communicating with other agents. 
-
-You'll provide a logger to record events and errors associated with the policy, helping you debug and monitor its behavior. 
-
-Also, you need to specify a communication channel, called a bus, that allows the policy to send and receive messages within the agent swarm.
+This interface defines the information needed to set up a policy, which acts as a rule or guideline for your AI agents. Think of it as giving the policy a way to keep track of what's happening (using a logger) and a way to communicate with the rest of the system (using a bus for sending and receiving messages). It's designed to be flexible and include all the necessary details for the policy to function correctly within the larger AI agent swarm.
 
 ## Interface IPolicyConnectionService
 
-This interface helps us define how services that manage connections based on policies will work. Think of it as a blueprint – it lays out the essential parts of a policy-driven connection service, but leaves out the internal workings. It's specifically designed to create a public-facing service that focuses on what users can actually do, keeping the complex details hidden.
+This interface helps us clearly define how external systems interact with our agent swarm orchestration framework. Think of it as a blueprint that ensures the public-facing parts of the connection service are consistent and predictable. It's designed to strip away any internal details, leaving only the essential functions and properties that others need to use. Essentially, it's about providing a clean and reliable interface for connecting and managing policies within the system.
 
 ## Interface IPolicyCallbacks
 
-This interface lets you plug in custom functions that respond to key events within a policy. Think of it as a way to listen in on what's happening with your policy – when it's first created, when it checks incoming or outgoing messages, and when a client is banned or unbanned.
+This interface lets you connect custom actions to important moments in a policy’s lifecycle. Think of it as a way to get notified and react to events like when a policy starts, when it checks incoming messages, when it sends outgoing messages, or when a client gets banned or unbanned.
 
-You can provide a function for `onInit` to perform setup tasks when a policy is initialized.  `onValidateInput` and `onValidateOutput` are there to let you monitor or log how incoming and outgoing messages are being checked.  Finally, `onBanClient` and `onUnbanClient` give you hooks to react to when a client is blocked or released.
-
+You can provide functions for `onInit` to run code when a policy is first created, and `onValidateInput` and `onValidateOutput` to monitor and potentially influence message validation.  Furthermore, `onBanClient` and `onUnbanClient` allow you to be notified and react whenever a client's access is restricted or restored.  These callbacks give you flexibility to log actions, trigger other processes, or implement custom behaviors in response to these key policy events.
 
 ## Interface IPolicy
 
-This interface defines how your AI agent swarm enforces rules and manages client access. It lets you check if a client is banned, retrieve the reason for a ban, and ensures messages going in and out of the swarm adhere to your defined policies. You can also programmatically ban or unban clients using this interface, giving you granular control over swarm participation. Essentially, it’s the gatekeeper for your AI agents, maintaining order and security.
+This interface defines how policies are enforced within the agent swarm. It lets you check if a client is banned, retrieve the reason for a ban, and validate both incoming and outgoing messages to ensure they comply with the swarm's rules. You can also programmatically ban and unban clients using this interface, giving you fine-grained control over access and behavior within the swarm. Essentially, this is your toolbox for managing client restrictions and message integrity.
 
 ## Interface IPipelineSchema
 
-This interface outlines the structure for defining a pipeline within the agent swarm orchestration framework. Each pipeline needs a descriptive name, and crucially, a function called `execute` that dictates the steps the pipeline will take when triggered. This `execute` function receives information about the client, the agent involved, and any data needing to be processed.
+This interface describes the blueprint for how a sequence of AI agents will work together. Each pipeline gets a unique name to identify it.
 
-You can also optionally add `callbacks` to your pipeline. These callbacks let you monitor the pipeline’s progress, respond to errors, or add custom actions at different stages of its run. Think of them as hooks you can use to fine-tune and observe how the pipeline behaves.
+The core of the pipeline is the `execute` function, which defines the steps involved in running the pipeline, taking into account a client identifier, the agent's name, and some data to work with.
+
+Finally, `callbacks` let you add optional hooks to monitor the pipeline’s progress, gracefully handle any errors that might occur, and generally tweak how it behaves during execution. Think of them as points where you can jump in and influence the pipeline's actions.
 
 ## Interface IPipelineCallbacks
 
-This interface lets you hook into what's happening as your AI agent pipelines run. You can define functions to be notified when a pipeline begins, when it finishes – whether successfully or with an error – and when a specific error pops up during the process. Think of it as a way to get updates and react to the lifecycle of your agent workflows. These callbacks provide essential tools for monitoring and troubleshooting your agent orchestrations.
+This interface lets you hook into what's happening as your AI agent pipelines run. You can define functions to be notified when a pipeline begins, when it finishes (whether successfully or with an error), and specifically when an error occurs. Think of these as event listeners – they allow your system to react to and log pipeline activity, handle failures gracefully, or trigger other actions based on pipeline status. By providing these callbacks, you gain visibility and control over the entire pipeline execution process.
 
 ## Interface IPersistSwarmControl
 
-This framework lets you tailor how your AI agent swarm’s data is saved and loaded. You can swap out the standard storage mechanisms for active agents – the agents actively working within the swarm – and for the navigation stacks – the history of where agents have been – with your own custom solutions. 
+This interface lets you tailor how your AI agent swarm's data is saved and loaded. Think of it as a way to swap out the default storage system for things like which agents are active or the path each agent has taken. 
 
-Think of it like this: the default behavior is a certain way of saving, but if you need something different, like storing agent data in a database instead of a file, or managing navigation stacks in a unique way, you can now plug in your own persistence adapters. This gives you a lot of flexibility in how your swarm’s information is managed, enabling specialized behaviors for different scenarios.
+You can use `usePersistActiveAgentAdapter` to define how the swarm keeps track of which agents are currently working, allowing you to plug in your own way of saving that information. Similarly, `usePersistNavigationStackAdapter` lets you customize how the swarm remembers the routes agents have explored, letting you use a different method to store those paths. This gives you a lot of flexibility in how the swarm’s state is managed.
 
 ## Interface IPersistStorageData
 
-This interface describes how data is saved and loaded for the agent swarm. Think of it as a container holding the information that needs to be stored – it's essentially a list of data items. This structure is used to ensure that the swarm remembers important details between sessions or when needing to recover from interruptions. It's the building block for reliably preserving the swarm's state.
+This interface describes the format for saving data within the agent swarm. Think of it as a container holding a list of information you want to store, like settings or results. It's used to bundle up multiple pieces of data together so they can be reliably saved and retrieved later. The `data` property simply holds the actual list of things you want to persist.
 
 ## Interface IPersistStorageControl
 
-This interface lets you plug in your own way of saving and loading data for a specific storage area. Think of it as swapping out the default saving mechanism with something tailored to your needs, like using a database instead of a simple file. You provide a blueprint for your custom saving tool, and this interface handles integrating it into the system. It gives you fine-grained control over how data is persisted.
+This interface lets you swap out the default way data is saved and loaded for a particular storage area. Think of it as a way to plug in your own custom storage solution, like using a database instead of a simple file. By providing a custom "adapter," you can tailor how the framework manages the storage associated with a specific name. This gives you fine-grained control over persistence operations.
 
 ## Interface IPersistStateData
 
-This interface describes how to save and load information needed by the swarm, like settings or the status of a conversation. Think of it as a container for whatever data an agent needs to remember. The `state` property simply holds that data, and it can be any type of information relevant to the agent's operation. It's used behind the scenes to handle saving and retrieving this data.
+This interface describes the format used when saving state information for your AI agents. Think of it as a container that holds whatever data you need to remember about an agent – maybe its settings, or the progress of a task. The `state` property within this container holds the actual data itself, and it can be any type of data relevant to your application. This structure is used by the system to easily store and retrieve agent state.
 
 ## Interface IPersistStateControl
 
-This interface lets you tailor how the system saves and retrieves agent states. Think of it as a way to plug in your own storage solution, like a database, instead of relying on the default method. You can use it to manage state data specifically for certain agents, allowing for more advanced or specialized storage needs. This gives you greater control over how agent information is handled and preserved.
+This interface lets you personalize how the system saves and reloads agent states. Think of it as a way to swap out the standard storage method with something you build yourself, like connecting to a database instead of using local storage. You can use the `usePersistStateAdapter` method to provide your own custom adapter, tailoring the persistence process for specific agent states. This gives you greater control over state management and opens the door to more advanced storage solutions.
 
 ## Interface IPersistPolicyData
 
-This interface describes how information about banned clients is stored within the swarm system. Essentially, it's a way to keep track of which client sessions (`SessionId`) are blocked from participating in a particular swarm (`SwarmName`). The core of this data is a list of those banned session IDs.
+This interface describes how policy data, specifically lists of banned clients, are stored within the swarm system. Think of it as a way to keep track of which clients shouldn’t be participating in a particular swarm. It holds a list of session IDs – unique identifiers for clients – that are currently blocked from joining or interacting with a swarm. This allows the system to enforce rules and prevent unwanted behavior.
 
 ## Interface IPersistPolicyControl
 
-This interface lets you plug in your own way of saving and loading policy data for a specific swarm. Think of it as a way to customize how the system remembers what policies are active for each swarm. You can use it to store policies in a database, a file, or even just keep them in memory – whatever works best for your needs. By providing your own persistence adapter, you're essentially taking control of how the system handles policy data storage.
+This interface lets you tailor how policy data is saved and retrieved for your AI agent swarm. 
+
+Essentially, it provides a way to swap out the standard data storage mechanism with your own custom solution. This is useful if you need to store policy information in a specific location, like an in-memory cache, a custom database, or any other system that isn't the default. By providing your own persistence adapter, you have fine-grained control over how that policy data is managed.
 
 ## Interface IPersistNavigationStackData
 
-This interface outlines how we keep track of the agents you're interacting with as you navigate within an AI agent swarm. Think of it as a history log for your session. The `agentStack` property holds a simple list of agent names, allowing the system to remember the order in which you've been working with different agents. This helps when you want to go back to a previous agent or understand your navigation path within the swarm.
+This interface describes how to save and restore the history of which agents you're interacting with. Think of it as a "back" button for your agent interactions – it keeps track of the agents you've recently used. The `agentStack` property holds a list of agent names, essentially creating a trail of your navigation through the swarm. This lets the system remember where you were and easily bring you back to a previous agent.
 
 ## Interface IPersistMemoryData
 
-This interface describes how memory information is stored within the agent swarm. Think of it as a container holding whatever data an agent needs to remember, like the details of a conversation or the result of a calculation.  The `data` property inside this container holds the actual information being saved, and it can be any type of data relevant to the agent's tasks. This standardized format makes it easy for the system to manage and retrieve that memory later.
+This interface helps the swarm system remember things between runs. Think of it as a way to package up any kind of data – like information about an ongoing conversation or temporary calculations – so it can be saved and loaded later. The `data` property holds the actual information you want to persist, and it can be any type of data relevant to your agent swarm’s needs. It’s a simple structure designed to make saving and retrieving memory straightforward.
 
 ## Interface IPersistMemoryControl
 
-This interface lets you customize how memory data is saved and retrieved. Think of it as a way to plug in your own system for managing memory, rather than relying on the framework's default. You can use this to store memory in a database, a file, or even just keep it in the program's memory – whatever best suits your needs. By providing your own persistence adapter, you're essentially swapping out the way memory is handled for specific session identifiers.
+This interface lets you plug in your own way of saving and loading memory data associated with a session. Think of it as a way to tell the system *how* to remember things for each session, instead of relying on the built-in method. You can use this to store memory in a database, a file, or any other system you prefer, giving you full control over how the memory is handled. It’s particularly useful if you need to implement unique storage requirements for different session types.
 
 ## Interface IPersistEmbeddingData
 
-This interface describes how embedding data – those numerical representations of text or other data – is stored within the swarm system. Think of it as a way to remember what concepts are related to each other. It holds a list of numbers, forming a vector, which represents the embedding for a specific piece of information identified by a unique string hash and a descriptive name. Essentially, it's a container for the numerical “fingerprint” of a particular data point.
+This interface outlines how embedding data is stored within the swarm system. Think of it as a way to save the numerical representation of a string – essentially, turning text into a list of numbers that the system can understand and use. The core of this data is the `embeddings` property, which is simply an array of numbers representing that numerical representation. It’s a structured way to keep track of these embeddings associated with a specific string.
 
 ## Interface IPersistEmbeddingControl
 
-This interface lets you take control of how embedding data is saved and retrieved. By default, the system handles embedding persistence, but if you need something different—like storing embeddings in a custom database or just keeping track of them temporarily—you can plug in your own persistence adapter. This adapter will manage the saving and loading of embedding data associated with a specific embedding name. It's useful for situations where you want to customize how embedding information is managed, perhaps for testing or integrating with external systems.
+This interface lets you tailor how embedding data is saved and retrieved. 
+
+You can plug in your own code to handle the persistence of embeddings, giving you complete control over where and how that data is stored. 
+
+Think of it as swapping out the default storage mechanism with your own custom solution, which can be useful for things like testing or using a non-standard data store. This method lets you provide a blueprint (called a "Ctor") for your custom persistence adapter.
 
 ## Interface IPersistBase
 
-This interface provides the basic tools for saving and retrieving data persistently within the agent swarm system. Think of it as the foundation for remembering things like agent states or memory.
+This interface is the foundation for how the swarm system saves and retrieves data. It lets you manage entities – think of them as pieces of information like agent states or memory – by storing them as JSON files. 
 
-It handles setting up the storage area, ensuring everything is in good shape before the system starts. You can use it to check if a specific piece of data already exists, read existing data by its unique identifier, or save new data to the storage. The saving process is designed to be very reliable, protecting against data corruption.
+The `waitForInit` method gets things started, creating the storage folder if it doesn't exist and cleaning up any bad data.  `readValue` lets you pull a specific piece of data back based on its ID. If you just need to know if data exists, `hasValue` is a quick check without loading the full information. Finally, `writeValue` is used to save data to the persistent storage, ensuring the information is reliably written to disk.
 
 ## Interface IPersistAliveData
 
-This interface helps keep track of which clients are currently active within your AI agent swarm. It's a simple way to mark a client as online or offline, associating that status with a specific swarm. Essentially, it lets you know if a client is still connected and participating. The key information it holds is whether a client, identified by its session ID, is currently online or not within a particular swarm.
+This interface helps the system keep track of which clients are currently active within a specific swarm. It’s a simple way to note whether a client, identified by its session ID, is online or offline. The `online` property directly tells us the client's status – a `true` value means they’re online, and `false` means they're offline.
 
 ## Interface IPersistAliveControl
 
-This interface lets you customize how the system keeps track of whether an AI agent swarm is still active. Think of it as a way to plug in your own method for saving and retrieving the "alive" status of a swarm. You can use this to, for example, store this status in a database instead of using the default approach, or to create a temporary in-memory solution for testing. By providing your own persistence adapter, you have complete control over where and how this critical information is managed.
+This interface lets you customize how the system keeps track of whether an agent is still active. It provides a way to plug in your own persistence method – maybe you want to store alive status in a database, a file, or even just keep it in memory. By providing your own adapter, you can control exactly how this vital information is saved and retrieved for each swarm.
 
 ## Interface IPersistActiveAgentData
 
-This interface describes the information needed to keep track of which agent is currently active for each client participating in a swarm. It essentially links a client to a specific agent within a larger swarm system. The `agentName` property holds the identifier of that active agent, like "agent1," allowing the system to know which agent is responsible for a client's actions. This data helps the framework remember the agent state when needed.
+This interface describes how we keep track of which agent is currently active for each client within a swarm. Think of it as a simple record noting which agent is "on duty" for a particular client. It uses a name, like "agent1", to identify that agent. This information is vital for the framework to ensure things are working correctly and to restore state if needed.
 
 ## Interface IPerformanceRecord
 
-This interface helps track how well a specific process is running within the system. Think of it as a report card for a task, gathering data from all the clients involved.
+This interface describes a record of how a process performed within the system, collecting data from all the clients involved. It essentially tracks key metrics like the number of times a process ran, the total time it took, and how long each individual client took to respond.
 
-It records key details like the process's unique ID, a list of performance records for each individual client, and overall metrics like the total number of executions, total and average response times, and timestamps. These timestamps use a combination of days since a starting point and seconds since midnight for precise tracking. The date is also recorded in a standard UTC format for easy understanding and reporting. It’s designed to give you a clear picture of process efficiency and pinpoint any performance bottlenecks.
+Think of it as a way to monitor the health and efficiency of your AI agents – you can see how many tasks they completed, how quickly they responded, and get a breakdown of performance for each agent.
+
+The record includes a unique identifier for the process itself, along with details like total execution counts and response times. Timestamps are provided in multiple formats, allowing for both broad historical tracking and more precise event logging. The `clients` property holds specific performance details for each individual client that participated in the process.
 
 ## Interface IPayloadContext
 
-This interface, `IPayloadContext`, acts as a container for information related to a task being processed. Think of it as a package that holds both the data for the task itself (the `payload`) and information about *who* requested it – specifically, a unique identifier called `clientId`. This helps track and manage tasks from different clients or sources. Essentially, it provides a structured way to bundle everything needed for a task's execution, keeping related details together.
-
+This interface, `IPayloadContext`, acts like a container to hold all the important information needed when a task is being handled. Think of it as a package that includes both the data itself (the `payload`) and details about where that data came from – specifically, the `clientId` which identifies the client initiating the work. This structure makes sure you know both *what* is being processed and *who* requested it.
 
 ## Interface IOutlineValidationFn
 
-This type describes a function that checks if an outline operation is set up correctly. Think of it as a quality control step – it takes the details of what needs to be done and the data involved, and determines whether everything is valid and ready to proceed. It's used to ensure that the outline system operates reliably and avoids errors caused by incorrect data or configurations.
+This interface defines a function used to check if an outline operation is valid. Think of it as a quality check for your AI agent's plans – it receives the initial idea (input) and the detailed plan (data) and determines if the plan makes sense and aligns with the original goal. It's used to ensure your AI agents are creating sound and achievable strategies.
 
 ## Interface IOutlineValidationArgs
 
-This interface helps you pass information needed to check if something is correct within your AI agent workflow. Think of it as a package containing both the initial input and the result of a previous step – the "data." This "data" holds the information you want to make sure is valid, like structured results from a task. It's designed to simplify passing everything needed for validation checks in a clear and organized way.
+This interface helps you pass information needed for validating the results of an AI agent's work. Think of it as a container holding both the initial input and the actual data that needs to be checked. The `data` property specifically holds the output from an agent’s task – it's the information you want to make sure is correct or meets certain criteria. Essentially, it's a way to bundle everything needed for a validation process into a single, organized object.
 
 ## Interface IOutlineValidation
 
-This interface describes how to set up checks for your AI agent outlines. Think of it as defining rules to make sure the outline data is correct and useful. You specify a `validate` function – this is the actual logic that performs the check. Optionally, you can add a `docDescription` to explain what that validation is doing, which is really helpful for understanding and maintaining the system. You can even chain validations together or reuse them.
+This interface describes how to set up checks for your outline data, ensuring it meets certain requirements. Think of it as defining rules to make sure your data is correct and consistent. You provide a function that performs the actual validation, and you can also add a description to explain what that validation does – making it easier to understand and maintain. It’s designed to be flexible, allowing you to chain validations together or reuse them across different parts of your system.
 
 ## Interface IOutlineSchemaFormat
 
-This interface describes how an outline is structured using a JSON schema. Think of it as a way to tell the system exactly what shape the data should take. It has two key parts: a "type" that identifies this as a JSON schema format, and the actual JSON schema object itself, which contains all the rules for how the outline should be built. This helps ensure everyone’s on the same page about the data’s format.
+This interface lets you define how your agent outlines should be structured using a JSON schema. Think of it as a blueprint – you tell the system what data types are expected and how the outline should be organized. The `type` property simply identifies the format as being based on a JSON schema, and the `json_schema` property holds the actual schema definition that the system will use to check the outline's validity. This ensures all agent outlines conform to your desired structure.
 
 ## Interface IOutlineSchema
 
-This interface, `IOutlineSchema`, helps you define how an outline operation will work within the system. Think of it as a blueprint for creating structured data.
+The `IOutlineSchema` defines how an outline operation is configured within the AI agent system. Think of it as a blueprint for creating a specific type of outline – a structured plan or framework.
 
-You're able to specify the prompt that will be sent to an AI model to generate the outline, along with system prompts to give the model context and instructions. There's also space for a description that makes it easier to understand what the outline is intended to do.
+You're able to specify a `prompt` to send to the AI model to kick things off, and that prompt can be a simple text string or a more complex function that adjusts the prompt based on the outline's name.  You can also provide `system` prompts to set the context and instructions for the AI model before any user interaction.
 
-The `IOutlineSchema` lets you set up validations to ensure the generated data is correct and follows a defined format. You can even control how many attempts the system will make if something goes wrong. Finally, it includes a way to customize certain steps in the outline generation process with callback functions.
+The `format` property lets you define the expected structure of the data the outline will produce, ensuring it meets certain standards.  `validations` allow you to check if the generated data is correct and complete, and the system will retry a certain number of `maxAttempts` if those checks fail.
 
-The `getOutlineHistory` method is responsible for producing the actual structured data that the outline represents, taking into account previous attempts and any associated parameters.
+For more control, `callbacks` let you customize how different stages of the outline process are handled. Finally, `getOutlineHistory` helps produce structured data utilizing parameters and prior history.
 
 ## Interface IOutlineResult
 
-This interface describes what you get back after running an outline operation, like generating a plan or structure. It tells you if the operation was successful, provides a unique ID for tracking it, and gives you a record of what happened during the process—including any user inputs, assistant responses, and system messages. You're also given the original input parameters and the data that was produced, if any. Finally, it keeps track of how many times the operation was attempted.
+This interface defines what you get back after running an outline operation – think of it as a structured report on how the process went. It tells you whether the outline was successful, provides a unique ID to track it, and keeps a record of all the messages exchanged during the operation. If anything went wrong, you'll find an error message here, and you can see the original input parameters alongside the data that was produced. Finally, a counter keeps track of how many times the operation has been attempted.
 
 ## Interface IOutlineObjectFormat
 
-This interface defines how your outline data should be structured, acting as a blueprint for its format. Think of it as a rulebook ensuring everyone's on the same page about the data's shape. 
+This interface defines the structure and rules for how outline data should be organized. Think of it as a blueprint ensuring everyone uses the same format when working with outlines. 
 
-It tells you what the overall type of the outline is (like whether it's a JSON object), lists the properties that absolutely must be present, and then details what each property should look like – its data type and what it represents. You can even specify allowed values for certain properties using an enumeration. This ensures consistency and clarity when working with outline data.
+It tells you what the basic type of the outline should be (like a JSON object or just a general object), which fields are absolutely necessary, and provides detailed information about each field – what type of data it holds and what it represents. Using this interface helps avoid confusion and ensures that different parts of the system can reliably understand and process outline data.
+
 
 ## Interface IOutlineMessage
 
-This interface defines the structure of a message within the system, essentially how interactions are recorded. Each message has a `role` indicating who sent it – a user, an assistant, the system, or a tool.
-
-Messages can optionally include `images`, either as raw binary data or encoded strings, for things like visual content. The main text or parameters of the message are stored in the `content` property.
-
-If a message is linked to a tool call, information about that call is attached through `tool_calls` and an optional `tool_call_id` allowing for tracking and analysis.
+This interface defines the structure for messages within the system's outline, which helps organize interactions between users, assistants, and the overall system. Think of it as a template to ensure all messages, whether from a user, an AI assistant, or the system itself, are consistently formatted and contain essential information like who sent it and what the content is. It’s all about keeping the conversation history clear and well-organized.
 
 ## Interface IOutlineHistory
 
-This interface helps you keep track of the messages used during outline generation. Think of it as a log of what happened. 
-
-You can add new messages to this log using the `push` method, which can handle adding one message at a time or several messages together. If you need to start fresh, the `clear` method will erase everything in the history. Finally, the `list` method allows you to see all the messages that have been recorded so far.
+This interface helps you keep track of the messages used in creating an outline. It lets you add new messages to the history, either one at a time or in batches. If you need to start fresh, you can easily clear the entire history. Finally, you can retrieve a complete list of all the messages that have been added, allowing you to review the steps taken in outline generation.
 
 ## Interface IOutlineFormat
 
-This interface defines the expected structure for outline data used within the system. Think of it as a blueprint – it tells you what fields are necessary, what data types they should be (like strings or objects), and provides helpful descriptions for each one. It ensures everyone is working with the same understanding of the outline’s format and helps keep the data consistent. The `type` property indicates the overall data structure, `required` lists the essential fields, and `properties` details the specifics of each field's type and purpose.
+This interface describes the expected structure for your outline data – think of it as a blueprint. It defines what types of data are allowed, which fields are absolutely necessary, and provides descriptions for each field to ensure everyone is on the same page. By using this interface, you can guarantee that the data being passed around is consistent and well-understood, making your AI agent swarm orchestration smoother. The “type” field tells you the overall format (like whether it's an object or something else), “required” lists the essential fields, and “properties” details each field's data type and purpose.
 
 ## Interface IOutlineCallbacks
 
-This interface helps you keep track of what's happening during the outline generation process. You can use the `onAttempt` callback to know when a new attempt starts, which is great for monitoring. The `onDocument` callback lets you work with the generated document as soon as it's available. If the document is successful, the `onValidDocument` callback will notify you, and if it fails validation, `onInvalidDocument` gives you a chance to react, perhaps by triggering a retry. Essentially, these callbacks offer you points to plug in your own logic and respond to different stages of the outline creation.
+This interface helps you keep track of what's happening as outlines are created and checked. You can use it to be notified when a new outline creation process begins, when a document is successfully generated, or when a document passes validation. Conversely, you can also be informed if a document fails validation, allowing you to respond to those situations, perhaps by retrying the process. Think of these callbacks as notifications that let you react to different stages of the outline creation workflow.
 
 ## Interface IOutlineArgs
 
-This interface defines the information needed when creating an outline – essentially, it’s a container for all the important details. It includes the actual input parameter you want to outline, a counter to keep track of how many times we’ve tried outlining it (helpful if things need to be retried), and the desired format for the output. You'll also find the history of messages related to this outlining process, which can be useful for debugging or understanding how the outline was generated.
+This interface defines the information needed when working with an outline process. Think of it as a package containing everything the system needs to understand what's being outlined, how many times it's been tried, and what's already happened. It includes the initial input data – the "param" – a counter to track attempts, the desired output format, and a way to access a log of previous interactions. This helps the system keep track of progress and context during complex outlining tasks.
 
 ## Interface IOutgoingMessage
 
-This interface describes a message being sent out from the orchestration system, acting as a way to relay information back to a client, often an agent. Think of it as a notification or a result being passed along.
+This interface defines what an outgoing message looks like when the system sends information back to a client, like an agent's response. Think of it as the structured way the system delivers results or notifications. 
 
-Each message has a `clientId`, which is like an address – it tells the system exactly which client should receive the information. The `data` property holds the actual content of the message, such as the processed result or a response from an agent. Finally, `agentName` identifies which agent is responsible for sending the message, providing context about its origin.
+Each message has three key pieces of information: a `clientId` that specifies which client session should receive it, `data` which holds the actual content of the message (like the answer or a notification), and `agentName` to indicate which agent created the message. This helps ensure the right client gets the correct information from the right agent.
 
 ## Interface IOperatorSchema
 
-This function lets you link your AI agents to an operator dashboard. Think of it as creating a bridge so a human operator can see what the agents are saying and, if needed, step in and take over the conversation. It allows you to monitor agent interactions and potentially intervene when necessary. The function takes a client identifier and the agent's name to establish the connection and then provides a way to pass messages back and forth between the agent and the operator.
+This function lets you link your AI agent swarm to an operator dashboard. Think of it as creating a bridge where a human operator can see what's happening in the agent conversations and even step in. You provide a client ID and the name of the agent, and the function returns a way to send messages and receive responses, allowing the operator to actively manage the agents' work. It's like having a control panel for your AI team.
 
 ## Interface IOperatorParams
 
-This interface, `IOperatorParams`, defines the essential tools and information needed to run an agent within our AI agent swarm. Think of it as a configuration package for each agent. 
-
-It includes the agent's name, a client identifier for tracking, and logging and messaging services to help it communicate and keep track of its actions. The `history` component is particularly important; it allows the agent to remember past interactions, maintaining context and providing a record of conversations.
+This interface defines the essential information needed to configure and run an operator within the AI agent swarm. Think of it as a blueprint for setting up each individual agent. It includes things like the agent's name, a client identifier to track its origin, a logger for recording activity, a communication bus to send and receive messages, and a history service to remember past interactions. The history service is particularly important, enabling agents to learn from and build upon previous conversations.
 
 ## Interface IOperatorInstanceCallbacks
 
-This interface lets you listen in on what's happening with individual agents within your swarm. You can register functions to be called when an agent starts up (`onInit`), provides an answer (`onAnswer`), receives a message (`onMessage`), shuts down (`onDispose`), or sends a notification (`onNotify`). Each of these functions receives information about the client, agent name, and relevant data associated with the event. It's a way to react to and potentially influence the behavior of your agents in real-time.
+This interface lets you listen in on what's happening with individual AI agents as they work within the swarm. Think of it as a way to get notified about key moments in an agent's lifecycle. 
+
+You can be alerted when an agent starts working (onInit), provides an answer (onAnswer), receives a message (onMessage), is finished and cleaned up (onDispose), or sends out a notification (onNotify). Each of these events includes information like the client identifier, the agent's name, and the specific data related to the event. This allows you to monitor and potentially react to agent behavior in real-time.
 
 ## Interface IOperatorInstance
 
-This interface defines how you interact with a single agent within a swarm. Think of it as the doorway to controlling one agent.
+This interface defines how you interact with a single agent within a larger swarm system. Think of it as a blueprint for how to control and communicate with one agent.
 
-You can use `connectAnswer` to set up a way for the agent to send you responses.  The `answer` method lets you send information back to the agent.  `init` gets the agent ready to go, establishing the necessary connections.  You can also use `notify` to send messages that aren't necessarily answers. `recieveMessage` allows you to get information from the agent.  Finally, `dispose` gracefully shuts down the agent's connection when you're finished with it.
+You can use `connectAnswer` to set up a way for the agent to send responses back to your application. The `answer` method is used to send content from your application to the agent. 
+
+`init` establishes the initial connection with the agent, while `notify` lets you send non-blocking messages. `recieveMessage` allows you to receive incoming messages from the agent. Finally, `dispose` cleanly shuts down and releases resources when you're finished with the agent.
 
 ## Interface IOperatorControl
 
-This interface provides a way to manage and customize how operators within your AI agent swarm behave. You can use it to define what actions operators should take and how they should interact with the system. 
+This interface lets you configure how an operator behaves within the AI agent swarm. You can essentially plug in your own code to handle specific actions. 
 
-Specifically, `useOperatorCallbacks` lets you register functions that will be called by the operators at certain points in their lifecycle, allowing you to hook into their actions. `useOperatorAdapter` gives you the ability to swap out the default operator implementation with your own, providing full control over its functionality. This helps tailor your agent swarm to very specific needs.
+The `useOperatorCallbacks` method lets you provide a set of functions that the operator will use for various tasks; you don't have to define all of them, just the ones you want to customize.
+
+Similarly, `useOperatorAdapter` allows you to swap out the default way an operator is created with your own custom constructor, giving you full control over its initialization.
 
 ## Interface INavigateToTriageParams
 
-This interface helps you fine-tune how your agent swarm navigates to a triage agent. You can customize different stages of this process with optional functions.
+This interface helps you customize how your AI agent swarm handles transitions to a triage agent. Think of it as a set of options to fine-tune the communication and actions that happen before, during, and after these transitions.
 
-Before moving to the triage agent, you can run a `beforeNavigate` function to perform checks or run custom logic. The `lastMessage` function allows you to modify the previous user message to provide better context for the new agent.
-
-If navigation fails, you can use the `flushMessage` to send a message to the user indicating a reset is needed.  If the agent is already on the correct agent, you can use `executeMessage` to continue processing.
-
-Finally, you can use `toolOutputAccept` when navigation is successful and `toolOutputReject` to let the user know navigation wasn't required because they are already at the destination agent.
+You can define custom messages or functions to control what happens *before* the agent navigates, to modify the previous user message used for context, and to provide feedback to the user. There are also options to handle situations where navigation isn't possible, or where the agent is already where it needs to be. Basically, it gives you a way to tailor the agent's behavior for a smoother and more informative user experience during these agent-to-agent handoffs.
 
 ## Interface INavigateToAgentParams
 
-This interface lets you fine-tune how the system handles moving between different AI agents. Think of it as a set of customizable hooks you can use to control the process.
+This interface lets you fine-tune how your AI agent swarm navigates between agents. Think of it as a set of customizable hooks you can use to shape the navigation process.
 
-You can provide functions to run before the move happens (`beforeNavigate`), to give feedback to the AI about the move (`toolOutput`), or to define what happens when the move doesn't quite work out (`flushMessage`). 
-
-There are also hooks to modify the previous user message before the move (`lastMessage`) or to send specific messages to the AI based on whether the move involves an action or just a message (`emitMessage`, `executeMessage`). Essentially, it gives you a lot of control over the agent transition process.
+You can provide functions to handle specific situations, such as what happens right before navigation starts (`beforeNavigate`), what to say if navigation fails and the session needs a reset (`flushMessage`), or how to provide feedback to the model when it successfully navigates (`toolOutput`).  You can even modify the previous user's message before it's used in the navigation context with `lastMessage`.  There are also hooks for emitting messages when navigation happens without action (`emitMessage`) and for defining a message that should be executed on the new agent after navigation (`executeMessage`). This allows for a lot of control over the overall experience and flow of interactions within your agent swarm.
 
 ## Interface IModelMessage
 
-This interface defines the structure of a message used throughout the agent swarm system. Think of it as a standardized way for agents, tools, users, and the system itself to communicate.
+This interface, `IModelMessage`, represents a single message exchanged within the AI agent swarm system. Think of it as the standard format for any communication happening between agents, tools, users, or the system itself. It's essential for keeping track of the conversation history, managing how agents generate responses, and broadcasting events.
 
-Each message has a `role` indicating who or what sent it – whether it’s a response from the AI assistant, a message from a tool, something initiated by the user, or a system notification. The `agentName` identifies which agent is involved.
+Each message has a `role` which describes who or what sent it – whether it’s a response from the AI assistant (`assistant`), a system notification (`system`), output from a tool (`tool`), a user's input (`user`), or something related to error recovery (`resque`).  It also includes the `agentName` to identify the agent involved in the message.
 
-The core of the message is the `content`, which is the actual text or data being transmitted.  There's also an `mode` that specifies whether the message originated from user input or a tool.
-
-Messages might also include details about tool calls (`tool_calls`, `tool_call_id`), images, or a custom `payload` for extra information. This structure allows for a detailed record of interactions and helps keep track of the entire conversation flow across multiple agents.
+The core content of the message is found in the `content` property, which holds the actual text or data being shared.  You’re also able to specify an `mode` indicating whether it originates from a user or a tool. When the AI suggests a tool to execute, information about that tool request is packaged in the `tool_calls` array. Images can be sent as well using the `images` property. Finally, messages pertaining to tool responses will have the `tool_call_id` to help connect them back to their original request, and an optional `payload` can be added for extra data or metadata.
 
 ## Interface IMethodContext
 
-This interface, `IMethodContext`, provides a standard way to track details about a method call within the AI agent swarm. Think of it as a little packet of information that travels along with each method execution. It includes things like the client's session ID, the name of the method being called, and the names of the agents, swarms, storage, state, compute, policy, and MCP resources involved. Different services like the ClientAgent, performance tracking, logging, and documentation tools all use this context to understand and monitor the method calls happening within the system.
+This interface helps track details about each method call within the system. It provides a standard way to bundle information like the client, the method being called, and the resources involved – such as storage, compute, or policies – all together. Services use this context to monitor performance, generate logs, and provide documentation related to specific method executions. Think of it as a shared set of labels attached to each action taken by an agent, making it easier to understand and analyze what's happening across the swarm.
 
 ## Interface IMetaNode
 
-This interface, `IMetaNode`, helps organize information about the agents in your swarm. Think of it as a way to build a family tree or diagram showing how agents relate to each other and what resources they use. Each node in this tree has a `name`, which identifies the agent or resource it represents, like "AgentA" or "DatabaseConnection".  It can also have `child` nodes, which represent agents or resources that depend on it, creating a hierarchical structure to visualize complex relationships within the swarm. This structure is particularly useful for understanding agent dependencies and for creating visual representations like UML diagrams.
+This interface, `IMetaNode`, describes the building blocks for representing how agents and resources relate to each other. Think of it like creating a family tree, but for your AI agents – it lets you show which agents depend on others or use specific resources. Each node has a `name`, which is usually the agent’s name or a key identifier for a resource, and it can optionally have `child` nodes to show a hierarchy of dependencies. This structure helps build a clear picture of the relationships within your agent swarm.
 
 ## Interface IMCPToolCallDto
 
-This interface defines the structure of data used when a tool is called within the agent swarm system. Think of it as a message passed around to keep track of who's calling what tool and with what instructions. 
-
-It includes details like a unique ID for the tool itself, who's making the request (the client), the name of the agent involved, and the specific parameters being passed to the tool. There’s also a way to cancel an operation mid-way, and a flag to indicate whether this call is the final one in a series of related calls. You’ll find an array to manage multiple related tool calls bundled together.
+This interface defines the information passed around when an agent requests a tool to be used. It bundles together details like which tool is being used (identified by its ID and name), who is requesting it (the client and agent), the parameters needed for the tool, and whether the call should be stopped prematurely. The `toolCalls` property allows for complex sequences of tool usage to be tracked, and `isLast` signals the end of a particular call chain. Essentially, it’s the blueprint for a request to use a specific tool within the agent swarm.
 
 ## Interface IMCPTool
 
-This interface outlines the structure of a tool used within the AI agent swarm orchestration framework. Every tool needs a `name` to identify it and a way to understand what kind of data it expects – this is handled by the `inputSchema`. The `description` is a friendly explanation of what the tool does, helpful for understanding its purpose. The `inputSchema` specifies what kind of data the tool needs to work, acting like a blueprint for the input it accepts.
+This interface, `IMCPTool`, outlines the essential information needed to describe a tool used within an AI agent swarm. Each tool needs a clear `name` so the system knows what it is, and an optional `description` can provide more context for users or developers. Crucially, the `inputSchema` defines exactly what information the tool expects to receive – it specifies the type and structure of the data it needs to function correctly. Think of it as the tool's data contract.
 
 ## Interface IMCPSchema
 
-This interface describes the blueprint for a Managed Control Process (MCP), essentially defining how an AI agent within a swarm will operate. Each MCP has a unique name and can optionally include a description for documentation purposes. 
+This interface describes the blueprint for a Managed Client Process (MCP), which is the core unit of work within the agent swarm orchestration framework. Think of it as defining what an MCP *is* – its name, a brief explanation, and how it interacts with the system. 
 
-A key function allows the MCP to list the available tools it can use, tailored to a specific client’s needs.  Another crucial function lets you actually *use* those tools, providing a tool's name and specific data for it to process and return a result. Finally, the MCP can also register optional callbacks to be notified about important events happening during its lifecycle.
+Specifically, it outlines how to identify an MCP (using `mcpName`), provide extra documentation (`docDescription`), determine what tools are available to different clients (`listTools`), and actually *use* those tools with provided data (`callTool`). Finally, it allows for optional hooks (`callbacks`) to be triggered at different points in the MCP's lifecycle, letting you monitor or react to its progress.
+
 
 ## Interface IMCPParams
 
-This interface defines the necessary components for managing and tracking your AI agent swarm orchestrations. Think of it as a blueprint that ensures your system has a way to log important events and a communication channel for agents to interact. It requires a logger to record what's happening and a bus to handle messages and coordinate actions within the swarm. This setup allows for better monitoring, debugging, and overall control of your AI agents.
+This interface, `IMCPParams`, helps manage the settings needed for orchestrating AI agents. Think of it as a container for essential tools. It includes a `logger` so you can track what's happening during agent operations and a `bus` which allows for communication and event handling between different parts of the system. Basically, it sets up the foundational components for coordinating your AI agents.
 
 ## Interface IMCPConnectionService
 
-This interface defines how your AI agents connect and communicate with the central orchestration system. Think of it as the foundational link enabling agents to receive instructions and report back on their progress. It specifies methods for establishing a secure connection, sending messages to the agents, and receiving status updates from them. Implementing this interface allows your agents to participate in the swarm and receive tasks efficiently. The connection service is crucial for managing the agents' interaction with the broader orchestration framework.
+This service manages the connections between your AI agents and the central orchestration system, acting like a reliable messenger. It handles setting up, maintaining, and closing these communication pathways. Think of it as ensuring each agent can clearly receive instructions and report back on its progress. The `IMCPConnectionService` allows your agents to reliably participate in the swarm, receiving tasks and sharing results. You'll use this to make sure communication stays strong throughout the entire operation.
 
 ## Interface IMCPCallbacks
 
-This interface defines a set of functions your code can use to listen for and react to important events happening within the AI agent orchestration system. Think of it as a way to be notified when the system is starting up, when a client disconnects, when tools are loaded, or when a tool is actually used. You can hook into these events to perform actions like logging, sending notifications, or updating your application's state. The `onCall` function is especially useful, as it provides details about which tool was used and the data involved in the tool's execution. The `onUpdate` function lets you know when the available tools for a client have changed.
+This interface defines the functions your application can use to listen for and react to key events happening within the AI agent swarm orchestration framework. Think of it as a way to be notified when something important happens, like when the system is starting up, when a client’s resources are cleaned up, or when a tool is actually used. 
+
+You'll get callbacks for tool fetching and listing, allowing you to observe the availability of tools for each client.  The `onCall` function is particularly important – it's triggered every time a tool is invoked, providing details about which tool was used and by whom. Finally, you’re notified whenever the list of available tools is updated.
 
 ## Interface IMCP
 
-This interface lets you manage the tools available to your AI agents. You can use it to see what tools are offered to a particular agent, check if a specific tool is available, and actually run a tool with the data it needs. There's also functionality to refresh the list of available tools, either for all agents or just one specific agent. This helps keep your agent’s toolkit up-to-date.
+The Model Context Protocol (MCP) interface lets you manage the tools available to your AI agents. You can use it to see what tools are available for a particular agent, check if a specific tool is offered, and actually execute a tool with given inputs. There are also functions to refresh the tool lists, either globally or for a single agent, ensuring your agents always have the most up-to-date tool options. Essentially, this interface is your control panel for tool management within the system.
 
 ## Interface IMakeDisposeParams
 
-This interface defines the settings you can provide when you want to automatically shut down an AI agent session. It lets you specify a timeout – how long the session should run before it's automatically closed. You can also provide a function to be called when the session ends, allowing you to perform cleanup actions or receive notifications that the session has been properly terminated. This helps ensure resources are released and sessions are handled gracefully.
+This interface defines the settings you can provide when setting up an automatically disposable AI agent session.
 
+You can specify a `timeoutSeconds` value to determine how long the session will run before being automatically shut down.
+
+Optionally, provide an `onDestroy` callback function. This function will be called once the session is closed, giving you a chance to perform cleanup actions. It will tell you the client ID and swarm name associated with the session that’s ending.
 
 ## Interface IMakeConnectionConfig
 
-This interface lets you control how often messages are sent. Think of it as a way to pause or space out communication between agents. The `delay` property specifies how long, in milliseconds, you want to wait before sending the next message. This is useful for preventing agents from overwhelming systems or for coordinating their actions over time.
+This interface, `IMakeConnectionConfig`, helps control how frequently messages are sent between AI agents. It allows you to specify a `delay`, measured in milliseconds, which determines the interval at which messages are sent. Think of it as setting a pace for the communication between your agents, preventing them from overwhelming each other or external systems.
 
 ## Interface ILoggerInstanceCallbacks
 
-This interface provides a way to connect to a logger, letting you react to important events in its lifecycle. Think of it as a set of hooks – you can define functions to be called when the logger starts up, shuts down, or whenever it records a log message (whether it's a debug, info, or regular log). It’s useful for things like monitoring the logger’s status, capturing log data for analysis, or performing cleanup tasks when the logger is no longer needed. Each callback function receives a client ID and a topic, along with any arguments passed to the logging methods.
+This interface lets you plug into the lifecycle and activity of a logger. Think of it as a way to be notified when a logger starts up, shuts down, or whenever it records a message. 
+
+You can define functions to be called when a logger is initialized (`onInit`), when it's finished and resources are cleaned up (`onDispose`), and each time a log message is created, whether it’s a regular log, a debug message, or an informational message (`onLog`, `onDebug`, `onInfo`). These callbacks provide a way to monitor and potentially react to the logger's behavior. The `clientId` helps you identify which specific logger these events are related to.
 
 ## Interface ILoggerInstance
 
-This interface defines how a logger should behave within the AI agent swarm system, going beyond simple logging. It allows for controlled setup and cleanup of logging functionality specific to each client. The `waitForInit` method lets you ensure the logger is properly initialized, potentially setting it up asynchronously, and prevents it from being initialized more than once. Similarly, the `dispose` method provides a clean way to release any resources the logger is using when it's no longer needed, potentially triggering a final cleanup action.
+This interface defines how a logger should behave within the agent swarm system, going beyond just basic logging. It allows for controlled setup and cleanup of logging functionality for each connected client. 
+
+The `waitForInit` method lets you ensure the logger is properly initialized, potentially with asynchronous tasks, and only happens once. 
+
+The `dispose` method provides a way to gracefully shut down the logger and release any resources it's using when the client connection is closed.
 
 ## Interface ILoggerControl
 
-This interface gives you ways to control how logging works within the system, particularly for different clients. You can use it to set up a central logging adapter for all operations, customize the lifecycle of individual logger instances, or even define your own way of creating those logger instances. 
+This interface gives you tools to customize how logging works within your application. You can set up a central logging adapter to handle all logging messages in one place, or define specific callbacks to manage the lifecycle of individual logger instances. 
 
-It also provides methods to log messages—info, debug, and general log entries—specifically tied to a particular client, ensuring that messages are tracked and validated correctly. Think of it as a toolkit to shape and manage the logging experience for various parts of your application.
+It also allows you to create custom logger constructors tailored to your client’s needs, replacing the default behavior. Finally, you can easily log messages – info, debug, or general messages – tied to a particular client, ensuring clear identification and tracking of events within your system.
 
 ## Interface ILoggerAdapter
 
-This interface helps connect our agent swarm system to different logging tools. Think of it as a translator – it provides a standard way to send log messages, whether you’re using a simple console, a fancy database, or a dedicated logging service.
-
-Each method – `log`, `debug`, `info`, and `dispose` – allows you to record different types of information related to a specific client. Before sending anything, the system makes sure everything is set up correctly.
-
-The `dispose` method is used to clean up after a client is finished, releasing resources used for logging.
+This interface outlines how different parts of the system can communicate with a logging system. Think of it as a contract – it defines the methods available to log messages, debug information, or even shut down logging for a particular client. Each client gets its own logging setup, and these methods ensure those setups are handled correctly, including making sure everything's ready to go before a log entry is created and properly cleaning up when logging is no longer needed. The `log`, `debug`, and `info` methods all work similarly, allowing you to send various types of messages, while `dispose` provides a way to release resources associated with a client’s logging.
 
 ## Interface ILogger
 
-The `ILogger` interface defines how different parts of the AI agent swarm system record information. It provides simple functions for logging messages at different levels of importance: general messages (`log`), detailed debugging information (`debug`), and informational updates (`info`). These logs track everything from agent actions and policy checks to storage operations and successful completions, helping to understand how the system is working and troubleshoot any problems. Think of it as a way to leave a trail of what's happening under the hood.
+This interface defines how different parts of the AI agent swarm system communicate about what's happening. It's a standard way to record events, from simple messages to detailed debugging information.
+
+You can use it to track things like when agents start up, how tools are used, if policies are approved, and even any errors that pop up. Think of it as a central place to keep a record of the swarm’s activity, useful for understanding how things are working and diagnosing problems.
+
+There are three main ways to log information: `log` for general messages, `debug` for very detailed information (usually for developers), and `info` for important updates and confirmations.
 
 ## Interface IIncomingMessage
 
-This interface describes a message that comes into the agent swarm system. Think of it as a standardized way to pass information from somewhere outside the system—like a user's request—into the agents that are working within the swarm.
+This interface describes a message that arrives at the AI agent swarm system. Think of it as a package of information being delivered to the system, often originating from a user or another application. 
 
-Each incoming message includes the identifier of the client that sent it (so we know where it originated), the actual content of the message itself, and the name of the agent that’s supposed to handle it. This allows the system to correctly route messages to the right agent for processing and track the origin of the data.
+Each message has a unique identifier for the client that sent it (clientId), the actual content of the message (data), and the name of the agent that's supposed to handle it (agentName). This helps the system know who sent the message, what the message is, and which agent is responsible for dealing with it, ensuring the message gets to the right place for processing.
 
 ## Interface IHistorySchema
 
-This interface describes how your AI agent swarm remembers past conversations. Think of it as defining the storage system for all the messages exchanged between the agents and the user. It focuses on the `items` property, which specifies the adapter – the specific tool – used to actually save and load that history, allowing you to choose different storage methods like a database, local storage, or even a simple array. This lets you customize how your agent swarm’s memory is managed.
+This interface, `IHistorySchema`, outlines how your AI agent swarm keeps track of past conversations. Think of it as the blueprint for the system's memory. The core of this memory is the `items` property, which uses a special adapter – `IHistoryAdapter` – to handle actually saving and loading those conversation messages.  This adapter decides where that history is stored, whether it's a simple array in memory, a database, or something else entirely.
 
 ## Interface IHistoryParams
 
-This interface defines the information needed to set up and manage a history record for a specific agent within the system. Think of it as a blueprint for how the system remembers what an agent has done. 
+This interface defines the information needed to set up a record of an agent's actions and interactions. Think of it as a blueprint for keeping track of what an agent is doing. 
 
-It includes details like the agent’s name, a limit on how many messages to store for context, a client identifier, a logger to track what’s happening, and a communication channel for the agent to interact with the rest of the swarm. Each history record uses these parameters to keep a structured log of an agent's interactions.
+You'll need to specify the agent's name to identify it, and a client ID to link the history to a specific user or application.  It also includes a way to limit the amount of past messages stored to manage resources and keep things efficient, and provides logging and event communication tools for managing and observing the history.
 
 ## Interface IHistoryInstanceCallbacks
 
-This interface defines a set of callbacks that allow you to customize how the history of an AI agent's interactions is managed. You can use these callbacks to fetch the initial messages for an agent, decide which messages are important enough to keep, and react to changes in the message history – whether a new message is added, an old one is removed, or the entire history is being read.  There are also hooks to run code when the history is first created, cleaned up, or when the whole process of reading the history begins and ends. Finally, you can get a direct reference to the history instance itself to interact with it more directly.
+This interface defines a set of callback functions that allow you to customize how the history of an AI agent's interactions is managed. You can use these callbacks to tailor the system prompts, filter messages, load initial data, and react to changes in the history, like adding or removing messages. There are also hooks to monitor the beginning and end of history reading operations, and to respond when the history instance is created, modified, or discarded. Finally, a reference to the complete history instance is provided after creation so you can interact directly with it if necessary.
 
 ## Interface IHistoryInstance
 
-This interface describes how a history component should work within the agent swarm system. Think of it as a way to keep track of conversations or actions performed by each agent.
+This interface outlines how different history implementations should behave. Think of it as a blueprint for managing a record of interactions for each agent in your swarm.
 
-The `iterate` method lets you loop through all the messages associated with a specific agent, allowing you to review their past interactions. 
-
-`waitForInit` sets up the history for an agent, potentially loading any existing data they might have.
-
-`push` is used to add a new message to an agent’s history.
-
-`pop` retrieves and removes the most recent message from an agent's record.
-
-Finally, `dispose` cleans up the history for a particular agent, giving you the option to erase all the stored information.
+You can use the `iterate` method to step through the history of messages sent and received by a specific agent. `waitForInit` helps get things started by loading any existing data for an agent's history. When a new message comes in, `push` is used to add it to the agent's record. If you need to review or remove the most recent interaction, `pop` lets you take the last message out. Finally, `dispose` provides a way to clean up the history for an agent, potentially clearing all associated data when it's no longer needed.
 
 ## Interface IHistoryControl
 
-This interface lets you fine-tune how history is managed within your agent swarm. You can tell the system which functions to run at different points in a history instance's lifecycle – like when it's created or destroyed – by using `useHistoryCallbacks`.  If you need more control, `useHistoryAdapter` lets you provide your own custom way of building history instances, allowing for tailored behavior.
+This interface lets you fine-tune how the system manages its history. You can tell the framework when and how to record events using lifecycle callbacks. 
+
+It also provides a way to completely replace the default history instance creation with your own custom logic, giving you maximum control over the history objects themselves. Think of it as providing your own blueprints for building the history records.
 
 ## Interface IHistoryConnectionService
 
-This interface lays out the public-facing methods for managing historical data connections within the AI agent swarm. Think of it as a blueprint for how developers can interact with the system to access and potentially modify historical records. It’s designed to clearly define what actions are available without exposing any internal workings, ensuring a stable and predictable interface for everyone using the framework. By providing this type definition, it guarantees that the publicly accessible history service behaves as expected.
+This interface outlines how different services can interact to keep track of what's happening within your AI agent swarm. Think of it as a blueprint for managing a log of actions and data. It's specifically designed to be a public-facing definition, stripping away any internal details that wouldn't be needed for external use, making sure the overall system remains predictable and easy to understand.
 
 ## Interface IHistoryAdapter
 
-This interface helps you connect to different ways of storing conversation history – think databases, files, or even in-memory lists. It provides a standard way to add new messages to the history, retrieve the most recent message, clear out history for a specific conversation, and go through all the messages in a conversation step-by-step. Essentially, it lets your AI agent swarm keep track of what’s been said and manage that information regardless of where it's stored.
+This interface lets you manage a record of interactions within the agent swarm. Think of it as a logbook for what your agents are saying and doing. 
+
+You can add new entries to this logbook using the `push` method.  If you need to retrieve the most recent interaction, `pop` lets you remove and get it. The `dispose` method is used to clean up the history associated with a specific client and agent, essentially resetting it. Finally, `iterate` allows you to step through the history messages in order, one by one, for a particular client and agent.
 
 ## Interface IHistory
 
-This interface helps you keep track of all the messages exchanged with an AI model, whether they're part of a specific agent's conversation or just general usage. You can add new messages using the `push` method, and retrieve the most recent message with `pop`. Need to prepare the message history for a particular agent? The `toArrayForAgent` method lets you format it specifically for them, using a prompt and system messages. And if you just need all the raw messages in sequence, `toArrayForRaw` provides that for you.
+This interface helps you keep track of all the messages exchanged with your AI agents or used directly within the orchestration framework. 
+
+You can add new messages to the history using the `push` method, and remove the last message with `pop`. 
+
+If you need to prepare the history for a particular agent, `toArrayForAgent` transforms it into a structured format based on a prompt and system instructions. Conversely, `toArrayForRaw` gives you access to the complete, unfiltered history of all messages.
 
 ## Interface IGlobalConfig
 
-This section defines global configuration settings that control how the AI agent swarm system functions. Think of it as a central control panel for core behaviors like tool handling, logging, and history management. Many aspects, like how the system recovers from errors or how tool calls are processed, are influenced by these settings.
+This configuration file defines global settings for the AI agent swarm system. Think of it as the central control panel that influences how agents interact, handle tools, log events, and persist data. It's designed to be flexible; you can adjust these settings to tailor the system’s behavior to your specific needs.
 
-You can customize these settings using `setConfig` to tailor the system to specific needs.
+Here’s a breakdown of what you can tweak and why:
 
-**Error Handling & Recovery:**
+**Agent Behavior & Recovery:**
 
-*   **`CC_TOOL_CALL_EXCEPTION_FLUSH_PROMPT`:**  If a tool call fails, this prompt is used to reset the conversation. This is helpful for troubleshooting, especially with specific language models.
-*   **`CC_TOOL_CALL_EXCEPTION_RECOMPLETE_PROMPT`:**  When a tool call goes wrong, this prompt helps the system retry and correct the call.
-*   **`CC_RESQUE_STRATEGY`:**  Determines how the system handles issues during model execution ("flush," "recomplete," or "custom").
+*   **Handling Errors:** When things go wrong (like a tool call failing), you can choose how the system responds. Options include flushing the conversation to start fresh or attempting to correct the tool call.
+*   **Tool Usage Limits:** There's a cap on how many tools a single agent can use in one go, preventing runaway tool loops.
+*   **System Prompts & Output Cleaning:**  You can add instructions to agents' conversations (system prompts) and filter out unwanted elements from their responses (like XML tags).
 
-**Conversation History & Logging:**
+**Logging & Debugging:**
 
-*   **`CC_KEEP_MESSAGES`:** Limits the number of messages stored in the conversation history.
-*   **`CC_AGENT_SYSTEM_PROMPT`:**  Allows you to add specific instructions for agents to their conversation history.
-*   **`CC_LOGGER_ENABLE_DEBUG` & `CC_LOGGER_ENABLE_INFO`:** Control the verbosity of logs - you can enable more details for debugging.
+*   Control the level of detail in the system's logs, from basic info to very detailed debug output.
 
-**Agent Behavior and Tool Calls:**
+**Storage & Persistence:**
 
-*   **`CC_MAX_TOOL_CALLS`:** Restricts the number of tool calls allowed in a single run.
-*   **`CC_AGENT_OUTPUT_TRANSFORM`:**  Removes unwanted tags (like "tool\_call") from agent responses to clean up the output.
-*   **`CC_DEFAULT_AGENT_TOOL_VALIDATE`:** Validates tool parameter before call it.
+*   You can enable or disable the system’s ability to save data, like agent histories or precomputed embeddings.
 
-**Swarm Management:**
+**Navigation and Recursion**:
 
-*   **`CC_SWARM_DEFAULT_AGENT`:**  Determines the default agent selected for a swarm.
-*   **`CC_SWARM_DEFAULT_STACK`:**  Defines the initial navigation stack used by a swarm.
+*   Added a limit on the maximum amount of agents being changed in a swarm, along with a method to enable operator timeout and also disable data fetching from all storages to enable faster testing.
 
-**Storage and Caching**
-
-*   **`CC_PERSIST_MEMORY_STORAGE`:** Enables persistent storage of schema data.
-*    **`CC_PERSIST_EMBEDDING_CACHE`:** Will allow to reduce costs while using openai embeddings cache
-
-**Other Utility Functions**
-
-*   **`CC_NAME_TO_TITLE`:** Converts names to a more readable format.
-*   **`CC_DEFAULT_OPERATOR_TIMEOUT`:** Enables operator timeout
-
-These settings provide a foundation for the AI agent swarm's core functionalities, allowing for significant customization of its behavior.
-
+**Essentially, this configuration file lets you fine-tune the system's overall operation, from how it handles errors to how it saves data, making it adaptable to various applications.**
 
 ## Interface IFetchInfoToolParams
 
-This interface defines how to set up a tool that can retrieve information for an AI agent, acting as a read-only resource. You'll provide a name for the tool, and crucially, a function that describes what the tool does – including its name, what it does, and what parameters it expects. 
+This interface describes how to set up a tool that allows your AI agent to retrieve information – it's designed for "read-only" actions. You define the tool by giving it a name and providing a function that outlines what inputs the AI needs to provide.
 
-You can also add notes to help the AI understand the tool's purpose.  There's an optional way to control when the tool is usable, based on the client and agent involved. Finally, you can set up a check to confirm that the input parameters are correct before the tool actually tries to fetch any information.
+You can also add extra details like documentation notes or specify conditions that must be met before the tool can be used. 
+
+There’s an optional validation step too, allowing you to double-check the inputs provided to the tool before the information is fetched. This ensures the AI is requesting the correct data in the right format.
 
 ## Interface IFetchInfoParams
 
-This interface, `IFetchInfoParams`, helps you define how data is retrieved for your AI agents. Think of it as the recipe for getting the information an agent needs to work with. 
+This interface helps you define how data is retrieved for your AI agents. Think of it as setting up a reliable way to get the information an agent needs to work. 
 
-You'll provide a function, `fetchContent`, which is the core of this recipe – it's where you actually get the data. There's also an optional `fallback` function you can use to gracefully handle any errors that might occur while trying to fetch the data. Finally, if the data retrieval comes up empty, `emptyContent` allows you to provide a custom message as the result.
+You provide functions to handle the actual data fetching (`fetchContent`), what happens if there's an error (`fallback`), and how to deal with situations where the fetch returns nothing (`emptyContent`). These functions all receive context like the client ID and agent name to help you tailor the data retrieval to the specific situation. Ultimately, this interface allows you to control the data flow to your agents without changing the core system.
 
 ## Interface IExecutionContext
 
-This interface, `IExecutionContext`, acts like a shared notebook for different parts of the swarm system. It holds key information about a single run or task, allowing services like the client agent, performance tracking, and message bus to all stay on the same page. Think of it as a way to link everything together – each execution gets a unique client ID, a unique execution ID, and a process ID to identify where it originated. This consistent labeling allows for detailed tracking and coordination across the whole system.
+This interface describes the information available to different parts of the system during a particular run or task. Think of it as a shared record that ties together the client, the specific execution, and the process it’s running within. Each execution gets its own context, allowing services to track progress and performance. The `clientId` links back to the client session, `executionId` identifies the specific run, and `processId` identifies the process responsible for the work.
 
 ## Interface IEntity
 
-This interface, `IEntity`, acts as the foundation for everything that's stored and managed within the agent swarm. Think of it as the blueprint for all persistent data—it ensures that every piece of information has a consistent structure.  Specific types of entities, like those tracking alive status or system state, build upon this base to include their own specialized data.
+This interface acts as the foundation for everything the system remembers and keeps track of. Think of it as a basic template – it ensures all different kinds of data stored within the swarm share a common structure, even though they represent different things. Specialized interfaces build upon `IEntity` to add the specific details for each type of data the swarm manages.
 
 ## Interface IEmbeddingSchema
 
-This interface helps you set up how your AI agents understand and compare information. You can tell it whether to save the agents' progress and how to name the embedding method being used.
+This interface lets you customize how your agent swarm understands and compares information. It's all about defining how text is converted into numerical representations, called embeddings, which the agents use to make decisions.
 
-It defines functions for storing and retrieving pre-calculated embeddings, allowing the system to avoid repeating calculations. You can also customize how embeddings are created and compared by providing your own callback functions.
+You can choose whether to save these embeddings for later use – a handy way to avoid recalculating them repeatedly. Each embedding mechanism has a unique name to keep things organized.
 
-The `createEmbedding` function is used to generate embeddings from text, and `calculateSimilarity` measures how alike two embeddings are – crucial for things like finding similar documents or choosing the best agent for a task.
+The framework provides ways to store and retrieve embeddings, essentially creating a memory for your swarm. You can also add your own custom logic to handle events related to embedding creation and comparison.
+
+Finally, there are built-in functions for generating embeddings from text and for calculating how similar two embeddings are to each other.
 
 ## Interface IEmbeddingCallbacks
 
-This interface lets you tap into what's happening behind the scenes when your AI agents are working with text and creating numerical representations of it – embeddings. You can use it to keep track of when new embeddings are generated, getting information like the original text, the embedding values themselves, and details about which client and embedding name were involved. Similarly, you can monitor the comparisons between different embeddings, seeing which texts are considered similar and how that similarity is measured, again with helpful details about the context of the comparison. This lets you build custom monitoring, debugging, or even adaptive learning systems around your embedding processes.
+This interface lets you tap into what's happening behind the scenes when the system is creating and comparing embeddings, which are essentially numerical representations of text. 
+
+You can use the `onCreate` callback to track when a new embedding is generated, allowing you to log the text used or perform additional processing. 
+
+The `onCompare` callback gives you insight into how similar two pieces of text are, providing a way to monitor and analyze the comparison results. It provides text being compared and similarity score.
 
 ## Interface ICustomEvent
 
-This interface lets you create and send custom events within the system, giving you a lot of freedom to include whatever information you need. Think of it as a way to communicate specialized details that don’t fit neatly into the standard event formats. You can attach any kind of data you want to these events through the 'payload' property, allowing for very specific and unique messages to be passed around the system. It’s perfect for situations where you need to share user-defined information or track something beyond the usual metrics.
+This interface lets you create and send custom events within the swarm system, providing a way to communicate information beyond the standard event types. Think of it as a flexible container for any data you want to share between agents. It builds upon the basic event structure, but offers the freedom to include your own unique data through the `payload` property.  You can use this to signal specific conditions or pass along information that doesn’t fit neatly into the predefined event schemas.
 
 ## Interface IConfig
 
-This setting lets you control how detailed your UML diagram will be. When enabled, the diagram will show relationships and dependencies within subtrees of your agent swarm, providing a more complete picture of the system's structure. Disabling it will create a simpler, higher-level view.
+This setting lets you control how detailed the generated UML diagram is. When enabled, the diagram will show relationships and dependencies within subtrees, providing a more complete view of the system's structure. Disabling it simplifies the diagram, focusing on the top-level components.
 
 ## Interface IComputeSchema
 
-The `IComputeSchema` interface defines the structure for configuring a compute unit within the AI agent swarm. It essentially describes what a specific compute task looks like and how it operates. 
+The `IComputeSchema` interface describes the configuration for a computational unit within the agent swarm. It outlines essential details like a descriptive name (`computeName`), whether it’s shared across the system (`shared`), and how long its data should be stored (`ttl`). 
 
-You’re telling the system its name, a short description, and whether it’s meant to be shared across the swarm. The `ttl` property sets a time-to-live, specifying how long the data associated with the compute should be kept around. 
+You can also specify dependencies on other compute units (`dependsOn`) and chain together processing steps using middlewares. 
 
-The most crucial part is the `getComputeData` function – this is how the system retrieves the actual data that the compute unit processes. Dependencies are listed using `dependsOn`, indicating what other computes need to run first. `middlewares` allows you to add custom logic to the compute's execution, and `callbacks` gives you optional hooks to listen for and react to events related to the compute’s lifecycle, such as updates or changes in data.
+To allow for custom logic, there's a way to define callbacks that are triggered at various points in the compute’s lifecycle, such as when data is updated or the compute is modified.  Finally, `getComputeData` defines a function to retrieve data associated with the compute, given a client identifier and the compute's name.
 
 ## Interface IComputeParams
 
-This interface outlines the essential components needed when you’re setting up a computation process within the system. Think of it as a recipe – you're providing the system with information about who's requesting the computation (the `clientId`), a way to log progress and errors (`logger`), a messaging system for coordination (`bus`), and most importantly, a list of conditions (`binding`) that will trigger a new calculation or data refresh. The `binding` section is particularly important because it allows you to define exactly when your computations should run based on changes in the system's state.
+This interface defines the information needed to run a compute task within the AI agent swarm. It includes a client identifier to track who initiated the work, a logger for recording activity, and a messaging bus for communication. Crucially, it specifies which state changes will automatically trigger a recomputation – essentially telling the system when to refresh data based on external events. Think of it as the blueprint for how a task runs and when it's updated.
 
 ## Interface IComputeMiddleware
 
-This interface defines the structure for middleware components that sit between the orchestration engine and the AI agents. Think of it as a way to inject custom logic – perhaps for logging, data transformation, or rate limiting – into the communication flow with your agents.  Any class that implements `IComputeMiddleware` must provide a `compute` function; this function takes agent input and output, allowing you to modify or observe the data as it moves through the system.  Essentially, it’s a powerful tool for customizing how your agent swarm interacts with the core orchestration.
-
+This interface defines how custom logic can be injected into the agent computation process within the swarm orchestration framework. Think of it as a way to add your own checks, modifications, or enhancements before or after an agent performs its task. It allows you to tailor the behavior of the agents to your specific needs, potentially for things like data validation, security checks, or even adding extra processing steps. Implementing this interface lets you seamlessly integrate your own middleware into the agent workflow.
 
 ## Interface IComputeConnectionService
 
-This interface helps manage connections to computing resources needed by your AI agents. Think of it as a standardized way to link your agents to the infrastructure they need to run, ensuring everything works together smoothly. It builds upon an existing ComputeConnectionService to make sure the types and data structures are consistent across your system.
+This interface, `IComputeConnectionService`, helps manage connections to computing resources, ensuring everything works smoothly and consistently within the agent swarm. Think of it as a blueprint for how different parts of the system communicate with and access the computing power they need. It builds upon the base `ComputeConnectionService`, providing extra type safety and clarity when working with these connections in your TypeScript code.
 
 ## Interface IComputeCallbacks
 
-This interface lets you define callbacks to be notified about different stages of a compute's lifecycle. You can use `onInit` to run code when a compute is first set up, and `onDispose` to clean up resources when it's no longer needed. The `onCompute` callback gets triggered when a compute needs to process some data. If a compute needs to recalculate something, you'll receive a notification through `onCalculate`. Finally, `onUpdate` is called whenever the compute's data or settings are modified, providing a way to react to changes in real-time.
+This interface lets you define callbacks that will be triggered during the lifecycle of a compute unit within the agent swarm. Think of it as a way to hook into what's happening with each compute – you can react to it.
+
+You’re given functions to respond when a compute unit is first created (`onInit`), when it's being cleaned up (`onDispose`), when it performs a calculation (`onCompute`), when a calculation is starting (`onCalculate`), and when its data is updated (`onUpdate`). Each of these callbacks provides information about the client and the specific compute unit involved, letting you tailor your response accordingly.
+
 
 ## Interface ICompute
 
-The `ICompute` interface defines how you interact with a compute component within the agent swarm. It lets you trigger calculations with `calculate`, updating the compute's status with `update`, and retrieving the result of the computation using `getComputeData`. Think of `calculate` as sending a request to run a specific task, `update` as providing feedback on its progress, and `getComputeData` as getting the final answer. This interface allows you to manage and monitor the computation process within the swarm.
+The `ICompute` interface defines how to interact with a compute component within the AI agent swarm. It provides methods for triggering calculations (`calculate`), updating the component's state (`update`), and retrieving the results of the computation (`getComputeData`). Think of `calculate` as starting a computation job, `update` as informing the component about changes, and `getComputeData` as checking what the computation has produced so far. The `getComputeData` method is particularly useful for monitoring the progress of a longer-running calculation.
 
 ## Interface ICompletionSchema
 
-This interface lets you define how your AI agents within the swarm generate responses – essentially, how they "complete" a task or thought process. You'll use it to name each completion method and customize its behavior.
+This interface, `ICompletionSchema`, helps you define how your AI agents within the swarm will generate responses or completions. Think of it as a blueprint for creating a specific completion method. 
 
-You can specify flags to pass directly to the language model, like disabling certain thinking processes. 
+You'll give it a unique name (`completionName`) to identify it. You can also specify if the completion should be formatted as JSON, and provide a list of flags to pass to the underlying language model.
 
-It also allows you to set up callbacks so you can respond to events after a completion happens, giving you more control over the overall workflow.
-
-Finally, the `getCompletion` method is how you actually trigger a response generation based on the defined configuration and some input arguments.
+Optionally, you can add callbacks to customize what happens after a completion is generated. The core of the schema is the `getCompletion` method, which is what’s actually used to retrieve a completion based on given input.
 
 ## Interface ICompletionCallbacks
 
-This interface lets you define what happens after an AI agent completes its task. You can use the `onComplete` callback to react to the finished work—maybe you want to record the result, adjust settings based on the output, or start another process automatically. It gives you a way to tie into the completion process and make things happen afterwards. The callback receives information about the completion itself and the actual output from the AI model.
+This interface lets you react to when an AI agent completes its task. You can use it to do things like record the results, process the output in a special way, or even start another process based on the completed work. The `onComplete` property is your main entry point—it's a function you provide that gets called when the agent finishes, giving you the original request details and the generated response.
 
 ## Interface ICompletionArgs
 
-This interface defines the information needed to ask the system to generate a completion, like a response to a question or a continuation of a task. You’ll provide a unique identifier for your application (`clientId`), specify which agent you're interacting with (`agentName`), and optionally indicate an `outlineName` if the completion should follow a specific JSON structure. 
+This interface describes what’s needed to ask for a completion from the system. Think of it as a container for all the information the AI agent needs to understand your request and generate a relevant response. 
 
-The `messages` property holds the conversation history – what’s already been said – to give the system the context it needs. If the agent has access to tools, you can list them in the `tools` array. Finally, `format` allows you to further refine the expected structure of a JSON completion.
+You’ll provide a unique identifier for who's making the request (the `clientId`), the name of the agent that should handle it (`agentName`), and if you’re expecting a structured JSON response, the name of the outline to follow (`outlineName`). The `messages` property is the core – this is the conversation history, providing context for the completion. Optionally, you can specify tools the agent can use (`tools`) and define the output format with `format`. The `mode` lets the agent know if the last message came from a tool or directly from a user.
 
 ## Interface ICompletion
 
-This interface defines how your AI agents can request and receive responses from language models. Think of it as the standard way agents talk to the AI to get their work done. It provides all the necessary methods and properties to ensure consistent and reliable communication, letting you build complex AI agent workflows with ease.
+This interface defines how your AI agents can get responses from language models. Think of it as the standard way your agents ask for and receive answers, ensuring everything works together smoothly. It provides all the necessary functions to generate model responses, giving you a reliable and predictable way to interact with AI models within your orchestration framework.
 
 ## Interface ICommitActionToolParams
 
-This interface defines how to set up a tool that can make changes and affect the system's state – think of it as a way to let an AI agent directly interact with and modify something. 
+This interface defines how to set up a tool that allows an AI agent to make changes to a system, specifically using the "WRITE" action pattern. You'll provide a name for the tool, and then describe what it does with a function – including its name, a description, and the expected parameters. 
 
-You’re essentially describing the tool’s identity with a `toolName`.  The core of the tool is defined by its `function`, which includes a name, description, and the expected parameters for it to work.  You can also add a `docNote` to provide extra information about the tool.  Finally, an optional `isAvailable` function lets you control when the tool can be used, based on things like the client and agent involved.
+You can also add a helpful note to the documentation for the tool and, if needed, define a function that determines when the tool should be made available to an agent. This allows for fine-grained control over which agents can use which tools.
 
 ## Interface ICommitActionParams
 
-This interface helps you set up how actions are performed, especially when those actions modify some state. Think of it as defining the rules and procedures for a specific task. 
+This interface helps you define how an action is committed – think of it as the recipe for safely updating something based on an AI agent's work.
 
-You can provide functions to check if the action parameters are correct before it’s executed, and to handle any errors that might occur during the process. There's also a way to define what happens if the action doesn’t produce any results – you can provide a custom message to be used. Finally, you can define success and failure messages that will be used after the action is completed, which will be displayed as tool output.
+You can provide a fallback function to gracefully handle any errors that might happen while trying to commit the action.
+
+There's also a way to validate the action's parameters beforehand; this allows you to check if the information is correct before proceeding.
+
+The core of the interface is the `executeAction` function, which contains the actual logic for committing the change.
+
+If the action results in no data, an `emptyContent` function can generate a message to represent that.
+
+You can set a `successMessage` to be displayed after a successful commit, and a `failureMessage` to inform the user if something went wrong during validation.
 
 ## Interface IClientPerfomanceRecord
 
-This interface defines how we track performance details for each individual client, like a specific user session or agent. It collects information about how much memory and data is being used, how many operations are being performed, and how long those operations take.
+This interface describes performance data collected for a single client, like a user session or an agent. It's a way to track how each client is performing within a larger process.
 
-Each client record includes a unique identifier (`clientId`) so we can easily link the performance data back to the originating session or agent. You'll find details on things like session memory (`sessionMemory`), persistent state (`sessionState`), the total number of executions (`executionCount`), and the amount of data processed for inputs and outputs (`executionInputTotal`, `executionOutputTotal`).
+You're essentially getting a breakdown of what's happening on an individual client level. Things like memory usage, the number of operations performed, input and output sizes, and overall execution time are all recorded.
 
-We also capture timing information, including total execution time (`executionTimeTotal`) and the average time per execution (`executionTimeAverage`), which is crucial for identifying bottlenecks and optimizing performance. This data allows us to understand precisely how each client is impacting the overall system performance.
+Each record includes a unique identifier for the client (clientId) to easily connect the data to a specific session or agent. You're also able to see key-value stores representing client memory and state, mimicking how data might be managed within the client itself. The data helps identify bottlenecks or areas for improvement related to specific client interactions.
 
 ## Interface IChatInstanceCallbacks
 
-This interface defines a set of callbacks that allow you to be notified about key events happening within a chat instance managed by the AI agent swarm orchestration framework. You'll receive updates when a chat is initialized, when it's finished, and when messages are sent. Specifically, `onInit` lets you know when a new chat instance starts, `onDispose` signals when it's being shut down, `onBeginChat` announces the beginning of a conversation, and `onSendMessage` is triggered each time a message is transmitted. You also get information about activity status through `onCheckActivity`, including whether an agent is active and the timestamp of its last activity.
+This interface defines a set of callbacks that you can use to monitor and react to events happening within a chat instance managed by the AI agent swarm orchestration framework. Think of these callbacks as notifications – they let your application know when a chat session starts, when a message is sent, or when an instance is set up or taken down. You can use `onInit` to prepare your application when a new chat instance is ready, `onDispose` to clean up resources when one is finished, and `onCheckActivity` to track how active the chat instance is. `onBeginChat` signals the start of a conversation, while `onSendMessage` lets you know when a message has been transmitted.
 
 ## Interface IChatInstance
 
-This interface represents a single chat session within your AI agent swarm. Think of it as a container for one conversation happening between agents. 
+This interface, `IChatInstance`, represents a single chat session within the agent swarm. Think of it as a dedicated space for an agent to communicate. 
 
-You use the `beginChat` method to start a new conversation. To keep things running smoothly, `checkLastActivity` lets you periodically verify the chat is still active. When you have a message to send, `sendMessage` handles delivering it.  When the chat is finished, `dispose` cleans up the resources associated with it. Finally, `listenDispose` allows you to be notified when a chat session is closed, so you can handle any necessary cleanup or updates on your end.
+You can start a chat using `beginChat`, and send messages to the chat with `sendMessage`, which will return the agent's response.  To keep the chat alive, `checkLastActivity` periodically verifies if the chat is still considered active.  When you’re finished, `dispose` gracefully shuts down the chat session and frees up resources. 
+
+If you want to be notified when a chat session ends, you can register a listener with `listenDispose`, which will provide you with the client ID of the session being closed.
 
 ## Interface IChatControl
 
-This API lets you configure how your AI agent swarm interacts and communicates. Specifically, you can tell the system which class to use for creating chat instances, essentially defining the underlying technology handling the conversations. 
+This framework lets you easily swap in different chat adapters, which are the engines that actually handle the conversation with your AI agents. The `useChatAdapter` method allows you to specify which adapter you want to use by providing a constructor for the chat instance.
 
-You also have the ability to customize the system’s behavior by providing callback functions, allowing you to react to certain events within the chat process. This lets you inject your own logic and responses based on what’s happening in the agent swarm's conversations.
-
-## Interface IChatArgs
-
-This interface, `IChatArgs`, defines the information needed to send a message to an AI agent. It's essentially a container for what you want the agent to know. You provide the core message content through the `message` property, which is a simple text string. If your message includes images, you can also include an array of image data using the `images` property. This allows you to provide visual context alongside your text.
+You can also customize how the chat instances behave by setting callbacks. The `useChatCallbacks` method lets you provide a set of functions that will be triggered at different points during the chat process, giving you fine-grained control over the interaction.
 
 ## Interface IBusEventContext
 
-This interface provides extra information about what's happening within the agent swarm system. Think of it as a way to label events with details about the agents, swarms, storage, states, compute resources, or policies involved.
+This interface provides extra information about what's happening within the agent swarm system. Think of it as a way to tag events with details about the agent, swarm, storage, state, compute, or policy involved.
 
-When an agent sends an event, it often includes its own name (agentName) to help track its activity. Other fields, like swarmName, storageName, stateName, computeName, and policyName, are mainly used for events happening at a larger system level, not typically filled in by individual agents. Basically, it's a toolkit for providing context around various system events, helping to understand where and why things are happening.
+When an agent is doing something, like sending a message, the `agentName` will usually be included to identify which agent triggered the event. Other fields like `swarmName`, `storageName`, `stateName`, `computeName`, and `policyName` are available for broader system events, offering context beyond just the agent’s actions. They help understand the larger operation within the swarm.
 
 ## Interface IBusEvent
 
-This interface defines the standard format for messages sent between different parts of the agent swarm system. Think of it as a structured way for agents and other components to communicate.
+This interface defines the structure for messages sent across the system’s internal communication channels. Think of it as a standardized way for different parts of the system, particularly agents, to talk to each other and inform the core system about what's happening.
 
-Each message contains information about where it's coming from (the `source`), what it's about (`type`), any data it's carrying (`input` and `output`), and some extra details about the situation (`context`).  The `source` consistently indicates it's coming from an agent, while the `type` specifies the action being performed – like running a function or committing a message.  The `input` and `output` properties hold the relevant data for that action, and the `context` usually includes the agent’s name.
+Each message will have a clear origin, identified as "agent-bus" for events originating from an agent, although other buses might use different sources. The `type` property specifies the kind of event, like a request to run a function or a notification about a message being processed.  
+
+The `input` and `output` properties carry specific data relevant to that event - things like the content of a message being sent, or the result of a task being completed. Finally, `context` provides additional information, typically including the name of the agent sending the message, allowing the system to track who is doing what.
 
 ## Interface IBus
 
-The `IBus` interface provides a way for different parts of the system, especially agents, to communicate with each other without needing to know all the details about how the other part works. Think of it as a central messaging system.
+The `IBus` interface is the central communication channel within the agent swarm system. Think of it as a way for different parts of the system, especially agents, to send updates and information to specific clients.
 
-Agents use the `emit` method to send notifications about what they're doing. These notifications, or events, are targeted to a specific client, ensuring the right recipient gets the information. Events contain important details like the event type, where it came from, any input data, any results, and metadata about the originating agent.
+It provides a way to broadcast things like when an agent finishes a task, a tool generates output, or a message is committed.  This keeps different components loosely connected – one agent doesn't need to know exactly *how* another agent or the client handles the information it sends.
 
-For example, when an agent finishes a task or produces an output, it uses `emit` to send a message to the client. This keeps everyone informed about the system's progress. The `clientId` is included in both the target and within the event itself for extra certainty. The `emit` function uses a promise, meaning the messages are handled asynchronously, improving overall system responsiveness.
+The main method, `emit`, is how you send these messages. It takes a client identifier and an event object.  The event object always follows a standard structure, including information about the event's type, where it came from, the input and output data, metadata about the agent that sent it, and confirmation of the intended client.
+
+This `emit` method sends the event asynchronously, meaning it's added to a queue or sent over a channel and the process continues without waiting for immediate confirmation. The client ID is repeated within the event data itself, which can be helpful for filtering and verification later on. The process is designed to be safe and reliable, using types to ensure events are properly structured.
+
+## Interface IBaseMessage
+
+The `IBaseMessage` interface describes the fundamental structure of any message sent within the agent swarm. Every message, whether from an agent, a tool, a user, or the system itself, will adhere to this base structure. 
+
+Each message will always have a `role` indicating who sent it, and `content` which holds the actual message data.
+
+Additionally, messages can optionally include `tool_calls` if a tool needs to be used, an identifier for a specific `tool_call`, or `images` to represent visual data. These optional properties provide flexibility for different communication scenarios.
 
 ## Interface IBaseEvent
 
-This interface lays the groundwork for all events happening within the agent swarm system. Every event, whether it’s a standard message or something custom, inherits from this base. 
+This interface sets the groundwork for all events happening within the AI agent swarm system. Every event, whether it’s a standard message or something custom, will inherit from this structure.
 
-Think of it as the essential building block for communication—it ensures all events have a defined origin ("source") and a target ("clientId"). The "source" tells you where the event came from, like a specific agent or a system component. The "clientId" makes sure the event reaches the right session or agent that needs to handle it. This consistent structure makes it easy for different parts of the system to understand and react to events.
+Each event will have a `source` property, telling you where the event came from – it could be a specific agent or a system component.  It also includes a `clientId` property, which ensures that the event reaches the correct client or agent instance. Think of it as an address label for your events, making sure they get delivered to the right place.
 
 ## Interface IAgentToolCallbacks
 
-This interface defines events you can subscribe to when an agent uses a tool. Think of it as a way to listen in on what's happening and react accordingly. 
+This interface lets you hook into the lifecycle of individual tools used by your AI agents. Think of it as a way to add extra steps before, after, or even during a tool’s use.
 
-You can use `onBeforeCall` to run some code *before* a tool is used, like recording what's about to happen.  Similarly, `onAfterCall` lets you run code *after* a tool completes its work, good for cleaning up or logging results. 
-
-`onValidate` provides a chance to check the input parameters to a tool before it’s run, ensuring everything is correct.  Finally, `onCallError` lets you handle situations where a tool fails – log the error or try a different approach. Each of these callbacks gives you control and visibility into the tool’s lifecycle.
+You can use `onBeforeCall` to do things like record what’s about to happen, or prepare some data.  `onAfterCall` lets you clean up afterwards, perhaps logging the results.  Want to make sure the tool gets the right input? `onValidate` allows you to check the parameters before anything runs.  And finally, `onCallError` gives you a way to gracefully handle any problems that might occur while the tool is running. These callbacks give you fine-grained control and visibility into how your agents are using tools.
 
 ## Interface IAgentTool
 
-This interface defines a tool that an AI agent can use, building upon a more general tool definition. Each tool has a name for easy identification and an optional description to help users understand how to use it. You can specify when a tool is available for use, and you can also implement checks to ensure the provided input parameters are valid before the tool runs.
-
-To customize how a tool behaves, you can add lifecycle callbacks. A tool's functionality is described through a `function` property, which can include details about its parameters. The `call` method is the primary way to actually run the tool, passing along information about the client, agent, and the reason for the call.
+This interface defines a tool that an AI agent can use, building upon a more basic tool definition. Each tool has a name and a description to help users understand its purpose. Before a tool runs, it’s checked to see if it's available and its parameters are validated to ensure everything is correct. You can also add custom actions that happen before or after the tool runs, giving you more control over its behavior. The tool itself can be a standard function or defined using a dynamic factory to provide more flexibility in how it's resolved. Finally, the `call` method is what actually runs the tool, passing in all the necessary information about the request and the agent’s current state.
 
 ## Interface IAgentSchemaInternalCallbacks
 
-This interface defines a set of optional hooks you can use to monitor and react to different stages in an agent's lifecycle. Think of them as event listeners that give you insight into what the agent is doing.
-
-You can use `onRun` to be notified when an agent executes without storing its conversation history. `onExecute` lets you know when an agent actually begins processing a request. `onToolOutput` is triggered whenever a tool used by the agent generates some output, while `onSystemMessage` alerts you to any messages the system itself produces.
-
-If you need to track developer interactions, `onDeveloperMessage` is available. `onToolRequest` fires when the agent decides to use a tool, and `onToolError` handles any errors that occur during tool usage.
-
-`onAssistantMessage` provides insight into the agent's responses, and `onUserMessage` notifies you when a user message is received.  `onFlush` tells you when the agent's memory of past conversations is cleared. `onOutput` is a more general callback for agent output, and `onResurrect` alerts you when an agent recovers from a pause or problem. 
-
-Initialization and cleanup are also covered: `onInit` triggers when an agent is first created, and `onDispose` when it’s being shut down. Finally, `onAfterToolCalls` lets you know when a series of tool usages is complete.
+This interface lets you tap into the key moments in an agent’s lifecycle. Think of it as a series of notification hooks that give you visibility into what the agent is doing – from when it first starts up (`onInit`) to when it's finally shut down (`onDispose`). You can use these callbacks to monitor the agent's progress, log important events, or even react to specific actions like when a tool is used (`onToolOutput`) or a request is made to an external tool (`onToolRequest`).  There are hooks for tracking system messages (`onSystemMessage`), developer-specific messages (`onDeveloperMessage`), and even messages from the assistant (`onAssistantMessage`) or user (`onUserMessage`).  If the agent encounters an error with a tool, you’ll be notified through `onToolError`, and if the agent needs to be restarted after a pause or failure, `onResurrect` will alert you. You can even receive a notification when the agent’s history is cleared (`onFlush`) or after a series of tool calls is finished (`onAfterToolCalls`).
 
 ## Interface IAgentSchemaInternal
 
-This interface defines the blueprint for how an agent within the swarm will behave and function. It outlines all the key settings, from its name and primary instructions to the tools and data it can access.
+This interface defines the blueprint for how an AI agent functions within a larger swarm. It outlines all the settings you can use to configure an agent’s behavior, including its name, the initial prompt that guides its actions, and the tools it can use.
 
-You can specify a name for the agent and give it a description to help users understand its purpose. It dictates how the agent responds, including what prompts it follows and whether it’s designed to hand off conversations to a human operator.
+You can control aspects like the maximum number of tool calls allowed, how much conversation history the agent remembers, and provide detailed descriptions for documentation purposes. The interface also allows defining dynamic system prompts that change based on the specific client and agent involved. 
 
-The configuration includes settings for managing the number of tool calls and messages to maintain context, as well as options to customize its behavior through callback functions. This lets you precisely control the agent's tools, how it handles data, and how it interacts with other agents in the swarm. You can also define what validations and transformations the agent's output will undergo before it's finalized.
+For advanced setups, you can customize how the agent handles tool calls, maps messages, validates output, and even connect to an operator dashboard. A series of optional callbacks let you fine-tune the agent's lifecycle events and integrate it with other systems. Finally, it specifies dependencies on other agents within the swarm.
 
 ## Interface IAgentSchemaCallbacks
 
-This interface lets you hook into different moments in an agent's lifecycle. You can register functions to be notified when an agent starts running, when it uses a tool, when it produces system messages, or when it's initialized or disposed. It’s a way to observe and potentially influence the agent’s behavior without directly modifying its core logic, offering flexibility for monitoring, logging, or custom integrations. Specific callbacks exist for tool requests, assistant and user messages, and even for situations like when an agent is resurrected after a pause. You can also be notified when an agent’s memory is cleared or when it finishes processing a series of tool calls.
+This interface lets you hook into different points in an agent's lifecycle, giving you opportunities to monitor its behavior or intervene if needed. You can set up callbacks to be notified when an agent starts running, when it uses a tool, when it generates messages, or when its memory is cleared. There are also callbacks for specific events like agent initialization, disposal, and resurrection after interruptions, allowing you to manage the agent's overall state and respond to different scenarios. These hooks enable custom logic around tool requests, assistant messages, user inputs, and the completion of tool call sequences.
 
 ## Interface IAgentSchema
 
-This interface, `IAgentSchema`, defines the structure for describing an individual agent within a swarm. Think of it as a blueprint for creating agents.
+This interface defines the structure for describing an AI agent's foundational instructions. Think of it as the blueprint for how an agent should behave. 
 
-It allows you to specify the initial instructions given to each agent using the `system` property – this could be a single string or an array of strings. `systemStatic` serves as another way to provide these initial instructions, effectively acting as an alias for `system`.
+You can provide a set of static instructions for the agent using the `system` property – this is a common way to guide its actions. The `systemStatic` property works identically to `system` and can be used as an alias. 
 
-For more complex setups, the `systemDynamic` property lets you define instructions that change based on the agent's client ID and name. This means the system prompt can be customized on the fly, allowing for more adaptable and personalized agent behavior.
-
+For more adaptable instructions, the `systemDynamic` property lets you provide a function that generates system prompts. This function can tailor the instructions based on things like a client identifier or the agent's name, allowing for much more personalized and flexible agent behavior.
 
 ## Interface IAgentParams
 
-This interface defines the information needed to run an individual agent within the larger orchestration system. Think of it as a configuration package that tells the agent how to operate. It includes things like a unique client ID, a way to log activity, communication channels for interacting with other agents, tools the agent can use, a way to track past interactions, and a mechanism for generating responses.  There’s also a validation step to ensure the agent’s output is correct before it's considered finished. Essentially, this interface holds all the context an agent needs to do its job effectively.
+This interface defines the information needed to run an agent within the system. Think of it as a set of instructions and resources given to each agent. 
+
+It includes things like a unique ID for the client using the agent, a logger for tracking what the agent is doing, and a communication channel (the 'bus') for talking to other agents. There's also a way to access external tools ('mcp'), keep track of past interactions ('history'), generate responses ('completion'), and a list of available tools the agent can use. Finally, there's a validation step to ensure the agent's output is correct before it's used.
 
 ## Interface IAgentNavigationParams
 
-This interface defines the settings you use to tell your agents how to move between each other and use tools. It lets you specify the name and description of a new tool, along with the agent it should navigate to. You can also add a helpful note to explain the tool's purpose and provide a function to dynamically control whether a tool is accessible based on the client and agent involved.
+This interface defines the settings you use to tell the system how an agent should move and interact with others. You specify a `toolName` to identify the action the agent will take, along with a `description` explaining what that action does. Crucially, you define the `navigateTo` property to indicate which agent the action is directed towards.  A `docNote` allows you to add extra context or instructions.  Finally, an optional `isAvailable` function lets you dynamically control whether this tool can be used depending on the client, agent, and tool name—essentially, you can decide if the action is possible in a given situation.
 
 ## Interface IAgentConnectionService
 
-This interface helps define how different agents connect and communicate within the system. It's designed to ensure that the parts of the agent connection service that are meant for public use – the parts other components interact with – are clearly defined and consistent. Think of it as a blueprint for creating agent connection services, focusing on the features that are exposed to the outside world while keeping internal workings separate.
+This interface helps define how different AI agents connect and communicate within the orchestration framework. Think of it as a blueprint for managing those connections, making sure the public-facing parts are clearly defined and consistent. It's designed to be used when creating a specific connection service, focusing on the essential interactions without including any internal workings.
 
 ## Interface IAgent
 
-This interface describes how you interact with an agent within the system. You can use the `run` method to quickly test what an agent will do with a given input without affecting its ongoing memory. The `execute` method is used to actually run the agent and potentially update its history.
+The `IAgent` interface defines how you interact with an individual agent within the swarm orchestration framework. Think of it as the blueprint for an agent's behavior and how it handles information.
 
-To manage the agent's internal workings, you have several methods. `commitToolOutput` lets you record the results from tools the agent uses. You can add system messages, messages for developers, or regular user messages to the agent’s history.  `commitToolRequest` is used to log and process tool requests the agent makes.
+You can use the `run` method for quick, isolated tasks without affecting the agent’s memory.  The `execute` method is the main way to make the agent work, potentially updating its memory along the way. You can retrieve the agent’s output with `waitForOutput`.
 
-You can also control the agent's behavior by flushing its memory with `commitFlush`, stopping ongoing tool execution with `commitStopTools`, unlocking the execution queue with `commitAgentChange`, or cancelling output with `commitCancelOutput`. These methods provide fine-grained control over the agent's lifecycle.
+To manage the agent's memory and history, there are several `commit...` methods.  These allow you to add information like tool outputs, system instructions, developer notes, user prompts, tool requests, assistant responses, and even clear the history entirely with `commitFlush`. You can also use methods like `commitStopTools` and `commitCancelOutput` to control the agent's execution flow and stop further actions.
 
 ## Interface IAdvisorSchema
 
-This interface, `IAdvisorSchema`, defines the structure for an advisor within the AI agent swarm. Think of it as a blueprint for how each advisor should be set up. 
+This interface, `IAdvisorSchema`, defines the structure for an advisor within your AI agent swarm orchestration framework. Think of an advisor as a specialized agent with a specific role.
 
-Each advisor needs a descriptive name (`advisorName`) so you can easily identify it. You can also provide a `docDescription` to explain what the advisor does. 
+It includes a `docDescription` for clarifying what the advisor does and an `advisorName` to easily identify it.
 
-Optionally, you can include `callbacks` to hook into specific advisor actions.
+You can also provide `callbacks` to hook into the advisor's lifecycle events, allowing for customization and monitoring. 
 
-Finally, every advisor has a `getChat` method, which is the core function it uses to generate responses based on the input provided in `IChatArgs`.
+The core functionality of an advisor is handled by the `getChat` method. This method takes a message as input and returns a promise that resolves to the advisor's response – essentially, its answer or action based on that message.
 
 ## Interface IAdvisorCallbacks
 
-This interface defines a set of optional callbacks that can be used to receive notifications about events within the AI agent swarm orchestration framework. Specifically, the `onChat` callback is triggered whenever a chat interaction happens, providing you with details about that chat session. You can use these callbacks to monitor activity, log interactions, or react to specific chat events in real-time.
+This interface defines a set of optional callbacks that you can use to receive updates from the Advisor component. Specifically, the `onChat` property lets you listen for chat messages – essentially, you're notified whenever a chat interaction happens, and you receive the chat message data. You can think of it as a way to stay informed about what's happening in the chat process.
