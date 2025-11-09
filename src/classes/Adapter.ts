@@ -1,4 +1,4 @@
-import { ICompletionArgs } from "../interfaces/Completion.interface";
+import { ISwarmCompletionArgs } from "../contract/SwarmCompletion.contract";
 import Logger from "./Logger";
 import { execpool, fetchApi, randomString, retry, str } from "functools-kit";
 import { ISwarmMessage } from "../contract/SwarmMessage.contract";
@@ -39,7 +39,7 @@ const RETRY_DELAY = 5_000;
  * Function type for completing AI model requests.
  * Takes completion arguments and returns a promise resolving to a model message response.
 */
-type TCompleteFn = (args: ICompletionArgs) => Promise<ISwarmMessage>;
+type TCompleteFn = (args: ISwarmCompletionArgs) => Promise<ISwarmMessage>;
 
 /**
  * Utility class providing adapter functions for interacting with various AI completion providers.
@@ -62,7 +62,7 @@ export class AdapterUtils {
           mode,
           tools: rawTools,
           clientId,
-        }: ICompletionArgs): Promise<ISwarmMessage> => {
+        }: ISwarmCompletionArgs): Promise<ISwarmMessage> => {
           Logger.logClient(
             clientId,
             "AdapterUtils fromHf completion",
@@ -169,7 +169,7 @@ export class AdapterUtils {
           tools: rawTools,
           mode,
           clientId,
-        }: ICompletionArgs) => {
+        }: ISwarmCompletionArgs) => {
           Logger.logClient(
             clientId,
             "AdapterUtils fromCortex completion",
@@ -305,7 +305,7 @@ export class AdapterUtils {
           mode,
           tools,
           clientId,
-        }: ICompletionArgs): Promise<ISwarmMessage> => {
+        }: ISwarmCompletionArgs): Promise<ISwarmMessage> => {
           Logger.logClient(
             clientId,
             "AdapterUtils fromGrok completion",
@@ -381,7 +381,7 @@ export class AdapterUtils {
           mode,
           tools: rawTools,
           clientId,
-        }: ICompletionArgs): Promise<ISwarmMessage> => {
+        }: ISwarmCompletionArgs): Promise<ISwarmMessage> => {
           Logger.logClient(
             clientId,
             "AdapterUtils fromCohereClientV2 completion",
@@ -467,7 +467,7 @@ export class AdapterUtils {
           mode,
           tools,
           clientId,
-        }: ICompletionArgs): Promise<ISwarmMessage> => {
+        }: ISwarmCompletionArgs): Promise<ISwarmMessage> => {
           Logger.logClient(
             clientId,
             "AdapterUtils fromOpenAI completion",
@@ -547,7 +547,7 @@ export class AdapterUtils {
           mode,
           tools,
           clientId,
-        }: ICompletionArgs): Promise<ISwarmMessage> => {
+        }: ISwarmCompletionArgs): Promise<ISwarmMessage> => {
           Logger.logClient(
             clientId,
             "AdapterUtils fromLMStudio completion",
@@ -627,7 +627,7 @@ export class AdapterUtils {
           mode,
           tools,
           clientId,
-        }: ICompletionArgs<ISwarmMessage>): Promise<ISwarmMessage> => {
+        }: ISwarmCompletionArgs<ISwarmMessage>): Promise<ISwarmMessage> => {
           Logger.logClient(
             clientId,
             "AdapterUtils fromOllama completion",

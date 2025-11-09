@@ -147,10 +147,7 @@ export * from "./events/listenExecutionEventOnce";
 export * from "./events/listenPolicyEventOnce";
 
 export { IAgentSchemaInternal } from "./interfaces/Agent.interface";
-export {
-  ICompletionSchema,
-  ICompletionArgs,
-} from "./interfaces/Completion.interface";
+export { ICompletionSchema } from "./interfaces/Completion.interface";
 export { ISwarmSchema } from "./interfaces/Swarm.interface";
 export { IAgentTool } from "./interfaces/Agent.interface";
 export { ToolValue } from "./interfaces/Agent.interface";
@@ -172,6 +169,10 @@ export { IOutlineSchema, IOutlineHistory, IOutlineValidationFn, IOutlineResult, 
 export { IBaseMessage, BaseMessageRole } from "./contract/BaseMessage.contract";
 export { ISwarmMessage, SwarmMessageRole } from "./contract/SwarmMessage.contract";
 export { IOutlineMessage, OutlineMessageRole } from "./contract/OutlineMessage.contract";
+
+export { IBaseCompletionArgs } from "./contract/BaseCompletion.contract";
+export { IOutlineCompletionArgs } from "./contract/OutlineCompletion.contract";
+export { ISwarmCompletionArgs } from "./contract/SwarmCompletion.contract";
 
 export { IIncomingMessage, IOutgoingMessage } from "./model/EmitMessage.model";
 export { ITool, IToolCall } from "./model/Tool.model";

@@ -1,6 +1,10 @@
 import { ICompletionSchema } from "../interfaces/Completion.interface";
+import { IBaseCompletionArgs } from "../contract/BaseCompletion.contract";
+import { IOutlineCompletionArgs } from "../contract/OutlineCompletion.contract";
+import { ISwarmCompletionArgs } from "../contract/SwarmCompletion.contract";
 import removeUndefined from "./removeUndefined";
 import { errorSubject } from "../config/emitters";
+import { IBaseMessage } from "../contract/BaseMessage.contract";
 
 type TCompletionSchema = {
   completionName: ICompletionSchema["completionName"];
@@ -19,34 +23,17 @@ export const mapCompletionSchema = ({
   removeUndefined({
     ...schema,
     getCompletion: getCompletion
-      ? async ({
-          mode,
-          messages,
-          agentName,
-          clientId,
-          format,
-          outlineName,
-          tools,
-        }) => {
-          const params = {
-            mode,
-            messages,
-            agentName,
-            clientId,
-            format,
-            outlineName,
-            tools,
-          };
+      ? async (args: IBaseCompletionArgs<IBaseMessage> | IOutlineCompletionArgs<IBaseMessage> | ISwarmCompletionArgs<IBaseMessage>) => {
           try {
-            return await getCompletion(params);
+            return await getCompletion(args);
           } catch (error) {
-            if (clientId) {
-              errorSubject.next([clientId, error]);
+            if ("clientId" in args && args.clientId) {
+              errorSubject.next([args.clientId, error]);
             }
             return {
-              agentName,
+              agentName: ("agentName" in args && args.agentName) || "",
               content: "",
-              mode,
+              mode: args.mode,
               role: "assistant",
             };
           }

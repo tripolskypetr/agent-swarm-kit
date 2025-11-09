@@ -15,6 +15,7 @@ import { getErrorMessage, randomString } from "functools-kit";
 import { errorSubject } from "../../config/emitters";
 import { ISwarmMessage } from "../../contract/SwarmMessage.contract";
 import { IOutlineMessage } from "../../contract/OutlineMessage.contract";
+import { IOutlineCompletionArgs } from "src/contract/OutlineCompletion.contract";
 
 const METHOD_NAME = "function.target.json";
 
@@ -169,11 +170,13 @@ const jsonInternal = beginContext(
         }
 
         if (completionCallbacks?.onComplete) {
-          completionCallbacks.onComplete(
+          completionCallbacks.onComplete<IOutlineCompletionArgs>(
             {
               messages,
               mode: "tool",
               outlineName,
+              format,
+              clientId,
             },
             output
           );

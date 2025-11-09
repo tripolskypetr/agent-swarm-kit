@@ -1,8 +1,5 @@
 import { IBaseMessage } from "../contract/BaseMessage.contract";
-import { ITool } from "../model/Tool.model";
-import { AgentName } from "./Agent.interface";
-import { IOutlineFormat, OutlineName } from "./Outline.interface";
-import { ExecutionMode } from "./Session.interface";
+import { IBaseCompletionArgs } from "../contract/BaseCompletion.contract";
 
 /**
  * Interface representing a completion mechanism.
@@ -12,60 +9,16 @@ import { ExecutionMode } from "./Session.interface";
 export interface ICompletion extends ICompletionSchema {}
 
 /**
- * Interface representing the arguments required to request a completion.
- * Encapsulates context and inputs for generating a model response.
- * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage with string role.
-*/
-export interface ICompletionArgs<Message extends IBaseMessage<string> = IBaseMessage<string>> {
-  /**
-   * The unique identifier for the client making the request.
-   * This is used to track the request and associate it with the correct client context.
-   * For outline completions, this being skipped
-   */
-  clientId?: string;
-
-  /**
-   * The name of the agent for which the completion is requested.
-   * This is used to identify the agent context in which the completion will be generated.
-   */
-  agentName?: AgentName;
-
-  /**
-   * The outline used for json completions, if applicable.
-   * This is the name of the outline schema that defines the structure of the expected JSON response.
-   * Used to ensure that the completion adheres to the specified outline format.
-   */
-  outlineName?: OutlineName;
-
-  /** The source of the last message, indicating whether it originated from a tool or user.*/
-  mode: ExecutionMode;
-
-  /** An array of messages providing the conversation history or context for the completion.*/
-  messages: Message[];
-
-  /** Optional array of tools available for the completion process (e.g., for tool calls).*/
-  tools?: ITool[];
-
-  /**
-   * Optional format for the outline, specifying how the completion should be structured.
-   * This is used to define the expected output format for JSON completions.
-   * If not provided, the default outline format will be used.
-   * @optional
-   */
-  format?: IOutlineFormat;
-}
-
-/**
  * Interface representing lifecycle callbacks for completion events.
  * Provides hooks for post-completion actions.
  * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage with string role.
 */
-export interface ICompletionCallbacks<Message extends IBaseMessage<string> = IBaseMessage<string>> {
+export interface ICompletionCallbacks<Message extends IBaseMessage<any> = IBaseMessage<string>> {
   /**
    * Optional callback triggered after a completion is successfully generated.
    * Useful for logging, output processing, or triggering side effects.
    */
-  onComplete?: (args: ICompletionArgs<Message>, output: Message) => void;
+  onComplete?: <Args extends IBaseCompletionArgs<Message>>(args: Args, output: Message) => void;
 }
 
 /**
@@ -80,9 +33,10 @@ export interface ICompletionSchema<Message extends IBaseMessage<string> = IBaseM
   /**
    * Retrieves a completion based on the provided arguments.
    * Generates a model response using the given context and tools.
+   * @template Args - The type of completion arguments (base, outline, or swarm), inferred from the method call.
    * @throws {Error} If completion generation fails (e.g., due to invalid arguments, model errors, or tool issues).
    */
-  getCompletion(args: ICompletionArgs<Message>): Promise<Message>;
+  getCompletion<Args extends IBaseCompletionArgs<Message>>(args: Args): Promise<Message>;
 
   /*
    * Flag if the completion is a JSON completion.
@@ -95,7 +49,7 @@ export interface ICompletionSchema<Message extends IBaseMessage<string> = IBaseM
   flags?: string[];
 
   /** Optional partial set of callbacks for completion events, allowing customization of post-completion behavior.*/
-  callbacks?: Partial<ICompletionCallbacks>;
+  callbacks?: Partial<ICompletionCallbacks<Message>>;
 }
 
 /**
