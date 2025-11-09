@@ -45,7 +45,7 @@ Optional partial set of callbacks for completion events, allowing customization 
 ### getCompletion
 
 ```ts
-getCompletion: <Args extends IBaseCompletionArgs<Message>>(args: Args) => Promise<Message>
+getCompletion: (args: IBaseCompletionArgs<IBaseMessage<string>> | IOutlineCompletionArgs<IBaseMessage<string>> | ISwarmCompletionArgs<...>) => Promise<...>
 ```
 
 Retrieves a completion based on the provided arguments.

@@ -23,18 +23,18 @@ constructor(params: IComputeParams<Compute>);
 params: IComputeParams<Compute>
 ```
 
-### __@DISPOSE_SLOT_FN_SYMBOL@3149
+### __@DISPOSE_SLOT_FN_SYMBOL@3157
 
 ```ts
-__@DISPOSE_SLOT_FN_SYMBOL@3149: any
+__@DISPOSE_SLOT_FN_SYMBOL@3157: any
 ```
 
 Stores the composed dispose function.
 
-### __@GET_COMPUTE_DATA_FN_SYMBOL@3150
+### __@GET_COMPUTE_DATA_FN_SYMBOL@3158
 
 ```ts
-__@GET_COMPUTE_DATA_FN_SYMBOL@3150: any
+__@GET_COMPUTE_DATA_FN_SYMBOL@3158: any
 ```
 
 Memoized function for retrieving compute data.
