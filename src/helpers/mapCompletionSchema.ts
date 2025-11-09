@@ -5,6 +5,7 @@ import { ISwarmCompletionArgs } from "../contract/SwarmCompletion.contract";
 import removeUndefined from "./removeUndefined";
 import { errorSubject } from "../config/emitters";
 import { IBaseMessage } from "../contract/BaseMessage.contract";
+import { getErrorMessage } from "functools-kit";
 
 type TCompletionSchema = {
   completionName: ICompletionSchema["completionName"];
@@ -31,6 +32,7 @@ export const mapCompletionSchema = ({
               errorSubject.next([args.clientId, error]);
             }
             return {
+              error: getErrorMessage(error),
               agentName: ("agentName" in args && args.agentName) || "",
               content: "",
               mode: ("mode" in args && args.mode) || "",
