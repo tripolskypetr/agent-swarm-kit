@@ -33,7 +33,7 @@ export const mapCompletionSchema = ({
             return {
               agentName: ("agentName" in args && args.agentName) || "",
               content: "",
-              mode: args.mode,
+              mode: ("mode" in args && args.mode) || "",
               role: "assistant",
             };
           }

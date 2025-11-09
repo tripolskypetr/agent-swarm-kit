@@ -2499,8 +2499,6 @@ interface IHistorySchema {
 interface IBaseCompletionArgs<Message extends IBaseMessage<any> = IBaseMessage<BaseMessageRole>> {
     /** client identifier for tracking and error handling. */
     clientId: string;
-    /** The source of the last message, indicating whether it originated from a tool or user.*/
-    mode: ExecutionMode;
     /** An array of messages providing the conversation history or context for the completion.*/
     messages: Message[];
 }
@@ -12407,6 +12405,8 @@ interface ISwarmCompletionArgs<Message extends IBaseMessage<any> = IBaseMessage<
      * Identifies the agent context for the completion.
      */
     agentName: AgentName;
+    /** The source of the last message, indicating whether it originated from a tool or user.*/
+    mode: ExecutionMode;
     /**
      * Optional array of tools available for this completion.
      * Enables the model to call functions and interact with external systems.

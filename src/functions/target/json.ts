@@ -173,7 +173,6 @@ const jsonInternal = beginContext(
           completionCallbacks.onComplete<IOutlineCompletionArgs>(
             {
               messages,
-              mode: "tool",
               outlineName,
               format,
               clientId,

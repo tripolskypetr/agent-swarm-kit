@@ -13,8 +13,6 @@ export interface IBaseCompletionArgs<
 > {
   /** client identifier for tracking and error handling. */
   clientId: string;
-  /** The source of the last message, indicating whether it originated from a tool or user.*/
-  mode: ExecutionMode;
   /** An array of messages providing the conversation history or context for the completion.*/
   messages: Message[];
 }
