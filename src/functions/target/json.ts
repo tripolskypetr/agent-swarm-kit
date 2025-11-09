@@ -15,7 +15,7 @@ import { getErrorMessage, randomString } from "functools-kit";
 import { errorSubject } from "../../config/emitters";
 import { ISwarmMessage } from "../../contract/SwarmMessage.contract";
 import { IOutlineMessage } from "../../contract/OutlineMessage.contract";
-import { IOutlineCompletionArgs } from "src/contract/OutlineCompletion.contract";
+import { IOutlineCompletionArgs } from "../../contract/OutlineCompletion.contract";
 
 const METHOD_NAME = "function.target.json";
 
