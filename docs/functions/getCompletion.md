@@ -6,7 +6,7 @@ group: docs
 # getCompletion
 
 ```ts
-declare function getCompletion(completionName: CompletionName): ICompletionSchema<IBaseMessage<any>>;
+declare function getCompletion(completionName: CompletionName): ICompletionSchema<IBaseMessage<any>, IBaseCompletionArgs<IBaseMessage<any>>>;
 ```
 
 Retrieves a completion schema by its name from the swarm's completion schema service.

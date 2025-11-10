@@ -13,7 +13,7 @@ Provides hooks for post-completion actions.
 ### onComplete
 
 ```ts
-onComplete: <Args extends IBaseCompletionArgs<Message>>(args: Args, output: Message) => void
+onComplete: (args: Args, output: Message) => void
 ```
 
 Optional callback triggered after a completion is successfully generated.
