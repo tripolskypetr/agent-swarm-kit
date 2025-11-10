@@ -1,9 +1,9 @@
 import { IBaseMessage } from "../contract/BaseMessage.contract";
 import { IBaseCompletionArgs } from "../contract/BaseCompletion.contract";
 import { addCompletion } from "../functions/setup/addCompletion";
-import { ISwarmCompletionArgs } from "../contract/SwarmCompletion.contract";
 import { ISwarmMessage } from "../contract/SwarmMessage.contract";
 import { IOutlineCompletionArgs } from "../contract/OutlineCompletion.contract";
+import { ISwarmCompletionArgs } from "src/contract/SwarmCompletion.contract";
 
 /**
  * Interface representing a completion mechanism.
@@ -29,8 +29,12 @@ export interface ICompletionCallbacks<Message extends IBaseMessage<any> = IBaseM
  * Interface representing the schema for configuring a completion mechanism.
  * Defines how completions are generated within the swarm.
  * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage for maximum flexibility.
+ * @template Args - The type of completion arguments, defaults to any completion args type.
 */
-export interface ICompletionSchema<Message extends IBaseMessage<string> = IBaseMessage<any>> {
+export interface ICompletionSchema<
+  Message extends IBaseMessage<string> = IBaseMessage<any>,
+  Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<IBaseMessage<string>>
+> {
   /** The unique name of the completion mechanism within the swarm.*/
   completionName: CompletionName;
 
@@ -39,12 +43,7 @@ export interface ICompletionSchema<Message extends IBaseMessage<string> = IBaseM
    * Generates a model response using the given context and tools.
    * @throws {Error} If completion generation fails (e.g., due to invalid arguments, model errors, or tool issues).
    */
-  getCompletion(
-    args:
-      | IBaseCompletionArgs<IBaseMessage<string>>
-      | IOutlineCompletionArgs<IBaseMessage<string>>
-      | ISwarmCompletionArgs<IBaseMessage<string>>
-  ): Promise<Message>;
+  getCompletion(args: Args): Promise<Message>;
 
   /*
    * Flag if the completion is a JSON completion.
@@ -65,3 +64,12 @@ export interface ICompletionSchema<Message extends IBaseMessage<string> = IBaseM
  * Used to identify and reference specific completion implementations.
 */
 export type CompletionName = string;
+
+
+addCompletion({
+  completionName: "test",
+  getCompletion: async (params: ISwarmCompletionArgs): Promise<ISwarmMessage> => {
+    params.messages[0].role === "assistant"
+    return null as never;
+  }
+})
