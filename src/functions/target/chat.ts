@@ -8,8 +8,8 @@ import {
 import { randomString } from "functools-kit";
 import { errorSubject } from "../../config/emitters";
 import { IBaseMessage } from "../../contract/BaseMessage.contract";
-import { ISwarmMessage } from "src/contract/SwarmMessage.contract";
-import { ISwarmCompletionArgs } from "src/contract/SwarmCompletion.contract";
+import { ISwarmMessage } from "../../contract/SwarmMessage.contract";
+import { ISwarmCompletionArgs } from "../../contract/SwarmCompletion.contract";
 
 const METHOD_NAME = "function.target.chat";
 

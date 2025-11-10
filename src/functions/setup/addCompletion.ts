@@ -3,12 +3,14 @@ import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
 import mapCompletionSchema from "../../helpers/mapCompletionSchema";
+import { IBaseMessage } from "../../contract/BaseMessage.contract";
+import { IBaseCompletionArgs } from "../../contract/BaseCompletion.contract";
 
 const METHOD_NAME = "function.setup.addCompletion";
 
 /**
  * Function implementation
-*/
+ */
 const addCompletionInternal = beginContext(
   (completionPublicSchema: ICompletionSchema) => {
     // Log the operation details if logging is enabled in GLOBAL_CONFIG
@@ -48,7 +50,12 @@ const addCompletionInternal = beginContext(
  * const completionSchema = { completionName: "OpenAI", model: "gpt-3.5-turbo" };
  * const completionName = addCompletion(completionSchema);
  * console.log(completionName); // Outputs "OpenAI"
-*/
-export function addCompletion(completionSchema: ICompletionSchema) {
+ */
+export function addCompletion<
+  Message extends IBaseMessage<any> = IBaseMessage<string>,
+  Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<
+    IBaseMessage<string>
+  >
+>(completionSchema: ICompletionSchema<Message, Args>) {
   return addCompletionInternal(completionSchema);
 }

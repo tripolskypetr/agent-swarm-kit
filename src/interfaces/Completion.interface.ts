@@ -1,6 +1,27 @@
 import { IBaseMessage } from "../contract/BaseMessage.contract";
 import { IBaseCompletionArgs } from "../contract/BaseCompletion.contract";
 
+/*
+import { addCompletion } from "../functions/setup/addCompletion";
+import { ISwarmMessage } from "../contract/SwarmMessage.contract";
+import { IOutlineCompletionArgs } from "../contract/OutlineCompletion.contract";
+import { ISwarmCompletionArgs } from "../contract/SwarmCompletion.contract";
+
+
+addCompletion({
+  completionName: "test",
+  getCompletion: async (
+    params: ISwarmCompletionArgs
+  ): Promise<ISwarmMessage> => {
+    params.messages[0].role === "assistant";
+    return null as never;
+  },
+  callbacks: {
+    onComplete: (args) => {}
+  }
+});
+*/
+
 /**
  * Interface representing a completion mechanism.
  * Extends the completion schema to provide a complete API for generating model responses.
@@ -15,9 +36,9 @@ export interface ICompletion extends ICompletionSchema {}
  */
 export interface ICompletionCallbacks<
   Message extends IBaseMessage<any> = IBaseMessage<string>,
-  Args extends IBaseCompletionArgs<
+  Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<
     IBaseMessage<string>
-  > = IBaseCompletionArgs<Message>
+  >
 > {
   /**
    * Optional callback triggered after a completion is successfully generated.
@@ -34,9 +55,9 @@ export interface ICompletionCallbacks<
  */
 export interface ICompletionSchema<
   Message extends IBaseMessage<string> = IBaseMessage<any>,
-  Args extends IBaseCompletionArgs<
+  Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<
     IBaseMessage<string>
-  > = IBaseCompletionArgs<Message>
+  >
 > {
   /** The unique name of the completion mechanism within the swarm.*/
   completionName: CompletionName;
