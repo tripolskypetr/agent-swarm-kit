@@ -54,7 +54,7 @@ const addCompletionInternal = beginContext(
 export function addCompletion<
   Message extends IBaseMessage<any> = IBaseMessage<string>,
   Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<
-    IBaseMessage<string>
+    Message
   >
 >(completionSchema: ICompletionSchema<Message, Args>) {
   return addCompletionInternal(completionSchema);

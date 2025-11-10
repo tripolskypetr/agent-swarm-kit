@@ -2515,7 +2515,7 @@ interface ICompletion extends ICompletionSchema {
  * Provides hooks for post-completion actions.
  * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage with string role.
  */
-interface ICompletionCallbacks<Message extends IBaseMessage<any> = IBaseMessage<string>, Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<IBaseMessage<string>>> {
+interface ICompletionCallbacks<Message extends IBaseMessage<any> = IBaseMessage<string>, Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<Message>> {
     /**
      * Optional callback triggered after a completion is successfully generated.
      * Useful for logging, output processing, or triggering side effects.
@@ -2528,7 +2528,7 @@ interface ICompletionCallbacks<Message extends IBaseMessage<any> = IBaseMessage<
  * @template Message - The type of message, extending IBaseMessage with any role type. Defaults to IBaseMessage for maximum flexibility.
  * @template Args - The type of completion arguments, defaults to any completion args type.
  */
-interface ICompletionSchema<Message extends IBaseMessage<string> = IBaseMessage<any>, Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<IBaseMessage<string>>> {
+interface ICompletionSchema<Message extends IBaseMessage<string> = IBaseMessage<any>, Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<Message>> {
     /** The unique name of the completion mechanism within the swarm.*/
     completionName: CompletionName;
     /**
@@ -4824,7 +4824,7 @@ declare class CompletionSchemaService {
      * Supports dynamic updates to completion schemas used by AgentSchemaService, ClientAgent, and other swarm components.
      * @throws {Error} If the key does not exist in the registry (inherent to ToolRegistry.override behavior).
      */
-    override: (key: CompletionName, value: Partial<ICompletionSchema>) => ICompletionSchema<IBaseMessage<any>, IBaseCompletionArgs<IBaseMessage<string>>>;
+    override: (key: CompletionName, value: Partial<ICompletionSchema>) => ICompletionSchema<IBaseMessage<any>, IBaseCompletionArgs<IBaseMessage<any>>>;
     /**
      * Retrieves a completion schema from the registry by its name.
      * Fetches the schema from ToolRegistry using the provided key, logging the operation via LoggerService if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is true.
@@ -10331,7 +10331,7 @@ declare function addAgent(agentSchema: IAgentSchema): string;
  * const completionName = addCompletion(completionSchema);
  * console.log(completionName); // Outputs "OpenAI"
  */
-declare function addCompletion<Message extends IBaseMessage<any> = IBaseMessage<string>, Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<IBaseMessage<string>>>(completionSchema: ICompletionSchema<Message, Args>): string;
+declare function addCompletion<Message extends IBaseMessage<any> = IBaseMessage<string>, Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<Message>>(completionSchema: ICompletionSchema<Message, Args>): string;
 
 /**
  * Adds a new swarm to the system for managing client sessions.
@@ -10540,7 +10540,7 @@ type TCompletionSchema = {
  * });
  * // Logs the operation (if enabled) and updates the completion schema in the swarm.
 */
-declare function overrideCompletion(completionSchema: TCompletionSchema): ICompletionSchema<IBaseMessage<any>, IBaseCompletionArgs<IBaseMessage<string>>>;
+declare function overrideCompletion(completionSchema: TCompletionSchema): ICompletionSchema<IBaseMessage<any>, IBaseCompletionArgs<IBaseMessage<any>>>;
 
 /**
  * Type representing a partial embedding schema with required embeddingName.
@@ -11853,7 +11853,7 @@ declare function getAgent(agentName: AgentName): IAgentSchemaInternal;
  * @function getCompletion
  * @param {CompletionName} completionName - The name of the completion.
 */
-declare function getCompletion(completionName: CompletionName): ICompletionSchema<IBaseMessage<any>, IBaseCompletionArgs<IBaseMessage<string>>>;
+declare function getCompletion(completionName: CompletionName): ICompletionSchema<IBaseMessage<any>, IBaseCompletionArgs<IBaseMessage<any>>>;
 
 /**
  * Retrieves a compute schema by its name from the swarm's compute schema service.

@@ -37,7 +37,7 @@ export interface ICompletion extends ICompletionSchema {}
 export interface ICompletionCallbacks<
   Message extends IBaseMessage<any> = IBaseMessage<string>,
   Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<
-    IBaseMessage<string>
+    Message
   >
 > {
   /**
@@ -56,7 +56,7 @@ export interface ICompletionCallbacks<
 export interface ICompletionSchema<
   Message extends IBaseMessage<string> = IBaseMessage<any>,
   Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<
-    IBaseMessage<string>
+    Message
   >
 > {
   /** The unique name of the completion mechanism within the swarm.*/
