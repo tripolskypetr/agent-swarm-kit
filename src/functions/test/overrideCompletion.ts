@@ -3,6 +3,8 @@ import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
 import mapCompletionSchema from "../../helpers/mapCompletionSchema";
+import { IBaseMessage } from "../../contract/BaseMessage.contract";
+import { IBaseCompletionArgs } from "../../contract/BaseCompletion.contract";
 
 const METHOD_NAME = "function.test.overrideCompletion";
 
@@ -10,14 +12,21 @@ const METHOD_NAME = "function.test.overrideCompletion";
  * Type representing a partial completion schema with required completionName.
  * Used for overriding existing completion configurations with selective updates.
  * Combines required completion name with optional completion properties.
-*/
-type TCompletionSchema = {
-  completionName: ICompletionSchema["completionName"];
-} & Partial<ICompletionSchema>;
+ * @template Message - The type of message, extending IBaseMessage with any role type.
+ * @template Args - The type of completion arguments.
+ */
+type TCompletionSchema<
+  Message extends IBaseMessage<string> = IBaseMessage<any>,
+  Args extends IBaseCompletionArgs<
+    IBaseMessage<string>
+  > = IBaseCompletionArgs<Message>
+> = {
+  completionName: ICompletionSchema<Message, Args>["completionName"];
+} & Partial<ICompletionSchema<Message, Args>>;
 
 /**
  * Function implementation
-*/
+ */
 const overrideCompletionInternal = beginContext(
   (publicCompletionSchema: TCompletionSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
@@ -40,19 +49,25 @@ const overrideCompletionInternal = beginContext(
  * It operates outside any existing method or execution contexts to ensure isolation, leveraging `beginContext` for a clean execution scope.
  * Logs the override operation if logging is enabled in the global configuration.
  *
- *
- * @param {TCompletionSchema} completionSchema - The schema definition for completion.
+ * @template Message - The type of message, extending IBaseMessage with any role type.
+ * @template Args - The type of completion arguments.
+ * @param {TCompletionSchema<Message, Args>} completionSchema - The schema definition for completion.
  * @throws {Error} If the completion schema service encounters an error during the override operation (e.g., invalid completionName or schema).
  *
  * @example
- * // Override a completion’s schema with new properties
+ * // Override a completion's schema with new properties
  * overrideCompletion({
  *   completionName: "TextCompletion",
  *   model: "gpt-4",
  *   maxTokens: 500,
  * });
  * // Logs the operation (if enabled) and updates the completion schema in the swarm.
-*/
-export function overrideCompletion(completionSchema: TCompletionSchema) {
+ */
+export function overrideCompletion<
+  Message extends IBaseMessage<any> = IBaseMessage<string>,
+  Args extends IBaseCompletionArgs<
+    IBaseMessage<string>
+  > = IBaseCompletionArgs<Message>
+>(completionSchema: TCompletionSchema<Message, Args>) {
   return overrideCompletionInternal(completionSchema);
 }
