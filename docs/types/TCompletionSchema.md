@@ -6,9 +6,9 @@ group: docs
 # TCompletionSchema
 
 ```ts
-type TCompletionSchema = {
-    completionName: ICompletionSchema["completionName"];
-} & Partial<ICompletionSchema>;
+type TCompletionSchema<Message extends IBaseMessage<string> = IBaseMessage<any>, Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<Message>> = {
+    completionName: ICompletionSchema<Message, Args>["completionName"];
+} & Partial<ICompletionSchema<Message, Args>>;
 ```
 
 Type representing a partial completion schema with required completionName.
