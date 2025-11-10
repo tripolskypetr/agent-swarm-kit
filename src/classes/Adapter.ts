@@ -627,7 +627,7 @@ export class AdapterUtils {
           mode,
           tools,
           clientId,
-        }: ISwarmCompletionArgs<ISwarmMessage>): Promise<ISwarmMessage> => {
+        }: ISwarmCompletionArgs): Promise<ISwarmMessage> => {
           Logger.logClient(
             clientId,
             "AdapterUtils fromOllama completion",

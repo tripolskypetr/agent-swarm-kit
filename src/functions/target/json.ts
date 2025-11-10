@@ -26,7 +26,7 @@ const MAX_ATTEMPTS = 5;
  * Provides methods to append, clear, and retrieve messages for tracking interactions in an outline process.
  * @class
  * @implements {IOutlineHistory }
-*/
+ */
 class OutlineHistory implements IOutlineHistory {
   /** @private*/
   private messages: IOutlineMessage[] = [];
@@ -64,7 +64,7 @@ class OutlineHistory implements IOutlineHistory {
  * Attempts to produce a valid structured data based on the outline schema, handling validations and retries up to a configurable maximum.
  * @private
  * @async
-*/
+ */
 const jsonInternal = beginContext(
   async (
     outlineName: OutlineName,
@@ -91,7 +91,10 @@ const jsonInternal = beginContext(
 
     swarm.completionValidationService.validate(completion, METHOD_NAME);
 
-    const completionSchema: ICompletionSchema<IOutlineMessage> = swarm.completionSchemaService.get(completion);
+    const completionSchema: ICompletionSchema<
+      IOutlineMessage,
+      IOutlineCompletionArgs
+    > = swarm.completionSchemaService.get(completion);
 
     const {
       getCompletion,
@@ -169,7 +172,7 @@ const jsonInternal = beginContext(
         }
 
         if (completionCallbacks?.onComplete) {
-          completionCallbacks.onComplete<IOutlineCompletionArgs>(
+          completionCallbacks.onComplete(
             {
               messages,
               outlineName,
@@ -245,7 +248,7 @@ const jsonInternal = beginContext(
  * // Example usage
  * const result = await json<"MyOutline", { query: string }>("MyOutline", { query: "example" });
  * console.log(result.isValid, result.data); // Logs validation status and data
-*/
+ */
 export async function json<
   Data extends IOutlineData = IOutlineData,
   Param extends IOutlineParam = IOutlineParam

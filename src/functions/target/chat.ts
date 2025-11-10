@@ -1,10 +1,15 @@
 import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
-import { CompletionName } from "../../interfaces/Completion.interface";
+import {
+  CompletionName,
+  ICompletionSchema,
+} from "../../interfaces/Completion.interface";
 import { randomString } from "functools-kit";
 import { errorSubject } from "../../config/emitters";
 import { IBaseMessage } from "../../contract/BaseMessage.contract";
+import { ISwarmMessage } from "src/contract/SwarmMessage.contract";
+import { ISwarmCompletionArgs } from "src/contract/SwarmCompletion.contract";
 
 const METHOD_NAME = "function.target.chat";
 
@@ -28,7 +33,10 @@ const chatInternal = beginContext(
     const resultId = randomString();
     const clientId = `${resultId}_chat`;
 
-    const completionSchema = swarm.completionSchemaService.get(completionName);
+    const completionSchema = swarm.completionSchemaService.get(completionName) as ICompletionSchema<
+      ISwarmMessage,
+      ISwarmCompletionArgs
+    >;
 
     if (completionSchema.json) {
       throw new Error(
@@ -48,7 +56,8 @@ const chatInternal = beginContext(
 
     const { content } = await getCompletion({
       clientId,
-      messages,
+      messages: messages as ISwarmMessage[],
+      agentName: "chat",
       mode: "user",
     });
 

@@ -1,7 +1,5 @@
 import { ICompletionSchema } from "../interfaces/Completion.interface";
 import { IBaseCompletionArgs } from "../contract/BaseCompletion.contract";
-import { IOutlineCompletionArgs } from "../contract/OutlineCompletion.contract";
-import { ISwarmCompletionArgs } from "../contract/SwarmCompletion.contract";
 import removeUndefined from "./removeUndefined";
 import { errorSubject } from "../config/emitters";
 import { IBaseMessage } from "../contract/BaseMessage.contract";
@@ -24,7 +22,7 @@ export const mapCompletionSchema = ({
   removeUndefined({
     ...schema,
     getCompletion: getCompletion
-      ? async (args: IBaseCompletionArgs<IBaseMessage> | IOutlineCompletionArgs<IBaseMessage> | ISwarmCompletionArgs<IBaseMessage>) => {
+      ? async (args: IBaseCompletionArgs<IBaseMessage>) => {
           try {
             return await getCompletion(args);
           } catch (error) {
