@@ -65,11 +65,3 @@ export interface ICompletionSchema<Message extends IBaseMessage<string> = IBaseM
  * Used to identify and reference specific completion implementations.
 */
 export type CompletionName = string;
-
-
-addCompletion({
-  completionName: "test",
-  getCompletion: async (params: ISwarmCompletionArgs): Promise<ISwarmMessage> => {
-    return null as never;
-  }
-})
