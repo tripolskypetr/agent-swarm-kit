@@ -5,7 +5,9 @@ export * from "./cli/dumpAgent";
 export * from "./cli/dumpSwarm";
 export * from "./cli/dumpPerfomance";
 export * from "./cli/dumpClientPerfomance";
+
 export * from "./cli/dumpOutlineResult";
+export * from "./cli/dumpAdvisorResult";
 
 export * from './template/createNavigateToTriageAgent';
 export * from './template/createNavigateToAgent';

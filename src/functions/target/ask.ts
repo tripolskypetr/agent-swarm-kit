@@ -2,6 +2,7 @@ import beginContext from "../../utils/beginContext";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
 import { AdvisorName } from "../../interfaces/Advisor.interface";
+import { randomString } from "functools-kit";
 
 /** @constant {string} METHOD_NAME - The name of the method used for logging and validation*/
 const METHOD_NAME = "function.target.ask";
@@ -17,6 +18,8 @@ const askInternal = beginContext(
         advisorName,
       });
 
+    const resultId = randomString();
+
     swarm.advisorValidationService.validate(advisorName, METHOD_NAME);
 
     const { getChat, callbacks } = swarm.advisorSchemaService.get(advisorName);
@@ -25,7 +28,13 @@ const askInternal = beginContext(
       callbacks.onChat(message)
     }
 
-    return await getChat(message);
+    const result = await getChat(message);
+
+    if (callbacks?.onResult) {
+      callbacks.onResult(resultId, result);
+    }
+
+    return result;
   }
 );
 

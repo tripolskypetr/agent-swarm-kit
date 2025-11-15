@@ -5,14 +5,18 @@
 export interface IAdvisorCallbacks<T = string> {
     /**
      * Optional callback triggered when a chat operation occurs
-    */
+     */
     onChat?: (message: T) => void;
+    /**
+     * Optional callback triggered when a result is obtained
+     */
+    onResult?: (resultId: string, content: string) => void;
 }
 
 /**
  * @interface IAdvisorSchema
  * Schema definition for advisor configuration
-*/
+ */
 export interface IAdvisorSchema<T = string> {
     /** Optional description of the advisor documentation*/
     docDescription?: string;
