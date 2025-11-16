@@ -552,6 +552,31 @@ Perfect for preparing training data to fine-tune agents within `agent-swarm-kit`
 #### Get Started
 Visit [agent-tune.github.io](https://agent-tune.github.io/) to try it out, or clone the repository to customize it further. Combine it with `agent-swarm-kit` for a seamless workflow from dataset creation to agent deployment. 🚀
 
+### Trading Signals MCP Server
+
+> **[Explore Trading Signals MCP](https://github.com/tripolskypetr/trading-signals-mcp)** 📊
+
+The **Trading Signals MCP Server** is a comprehensive technical analysis service designed to provide real-time cryptocurrency trading signals and market insights through the Binance exchange. It delivers multi-timeframe analysis, advanced technical indicators, order book data, and historical candle patterns to support informed trading decisions using the Model Context Protocol (MCP) framework.
+
+#### Key Features
+- 📈 **Multi-Timeframe Analysis**: Supports 1-minute to 1-hour candles for different trading strategies (scalping, day trading, swing trading)
+
+- 📊 **Technical Indicators**: RSI, MACD, Bollinger Bands, Fibonacci levels, ATR, Stochastic, ADX, and more
+
+- 📚 **Order Book Analysis**: Real-time liquidity zones and whale order detection
+
+- 💹 **Volume Analysis**: Pivot points, volume spikes, and institutional activity detection
+
+- ⚡ **Trend Slope Analysis**: Minute-by-minute trend slope for immediate momentum shifts
+
+- 🕐 **Historical Data**: OHLCV data with volatility metrics across multiple timeframes
+
+#### Use Case
+Ideal for integrating trading intelligence into AI agents within `agent-swarm-kit`. Use it to build agents that analyze market conditions, generate trading signals, or provide investment insights. The MCP framework ensures structured data delivery for seamless AI model integration.
+
+#### Get Started
+Install via NPX with no setup required, or clone the repository for local deployment. Perfect for combining with `agent-swarm-kit` to create sophisticated trading analysis agents.
+
 ---
 
 ## 🤝 Contribute
