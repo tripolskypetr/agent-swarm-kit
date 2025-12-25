@@ -13831,11 +13831,6 @@ interface ValidateArgs<T = Enum> {
      */
     PolicyName?: T;
     /**
-     * Session ID enum to validate
-     * @example { SESSION_1: "session-1" }
-     */
-    SessionId?: T;
-    /**
      * State name enum to validate
      * @example { MY_STATE: "my-state" }
      */
@@ -13855,8 +13850,8 @@ interface ValidateArgs<T = Enum> {
  * Validates the existence of all provided entity names across validation services.
  *
  * This function accepts enum objects for various entity types (swarms, agents, outlines,
- * advisors, completions, computes, embeddings, MCPs, pipelines, policies, sessions,
- * states, storages, tools) and validates that each entity name exists in its respective
+ * advisors, completions, computes, embeddings, MCPs, pipelines, policies, states,
+ * storages, tools) and validates that each entity name exists in its respective
  * registry. Validation results are memoized for performance.
  *
  * If no arguments are provided (or specific entity types are omitted), the function

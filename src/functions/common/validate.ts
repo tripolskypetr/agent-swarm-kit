@@ -83,12 +83,6 @@ interface ValidateArgs<T = Enum> {
   PolicyName?: T;
 
   /**
-   * Session ID enum to validate
-   * @example { SESSION_1: "session-1" }
-   */
-  SessionId?: T;
-
-  /**
    * State name enum to validate
    * @example { MY_STATE: "my-state" }
    */
@@ -157,19 +151,6 @@ const getComputeMap = () => {
     Object.assign(computeMap, { [computeName]: computeName });
   }
   return computeMap;
-};
-
-/**
- * Retrieves all registered sessions as a map
- * @private
- * @returns Map of session IDs
- */
-const getSessionMap = () => {
-  const sessionMap: Record<string, string> = {};
-  for (const sessionId of swarm.sessionValidationService.getSessionList()) {
-    Object.assign(sessionMap, { [sessionId]: sessionId });
-  }
-  return sessionMap;
 };
 
 /**
@@ -303,7 +284,6 @@ const validateInternal = (args: ValidateArgs<Enum>) => {
     AgentName = getAgentMap(),
     OutlineName = getOutlineMap(),
     ComputeName = getComputeMap(),
-    SessionId = getSessionMap(),
     AdvisorName = getAdvisorMap(),
     CompletionName = getCompletionMap(),
     EmbeddingName = getEmbeddingMap(),
@@ -333,11 +313,6 @@ const validateInternal = (args: ValidateArgs<Enum>) => {
   // Validate computes (validates state dependencies)
   for (const computeName of Object.values(ComputeName)) {
     swarm.computeValidationService.validate(computeName, METHOD_NAME);
-  }
-
-  // Validate sessions (validates swarm assignments)
-  for (const sessionId of Object.values(SessionId)) {
-    swarm.sessionValidationService.validate(sessionId, METHOD_NAME);
   }
 
   // Validate optional direct entities
@@ -384,8 +359,8 @@ const validateInternal = (args: ValidateArgs<Enum>) => {
  * Validates the existence of all provided entity names across validation services.
  *
  * This function accepts enum objects for various entity types (swarms, agents, outlines,
- * advisors, completions, computes, embeddings, MCPs, pipelines, policies, sessions,
- * states, storages, tools) and validates that each entity name exists in its respective
+ * advisors, completions, computes, embeddings, MCPs, pipelines, policies, states,
+ * storages, tools) and validates that each entity name exists in its respective
  * registry. Validation results are memoized for performance.
  *
  * If no arguments are provided (or specific entity types are omitted), the function
