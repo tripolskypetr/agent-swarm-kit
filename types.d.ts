@@ -13764,11 +13764,147 @@ declare const Adapter: AdapterUtils;
 declare const beginContext: <T extends (...args: any[]) => any>(run: T) => ((...args: Parameters<T>) => ReturnType<T>);
 
 /**
- * Validates all swarms, agents, and outlines in the system.
- * This function is idempotent and will only perform validation once per process.
+ * Type alias for enum objects with string key-value pairs
+ */
+type Enum = Record<string, string>;
+/**
+ * Type alias for ValidateArgs with any enum type
+ */
+type Args = ValidateArgs<any>;
+/**
+ * Interface defining validation arguments for all entity types.
  *
-*/
-declare function validate(): void;
+ * Each property accepts an enum object where values will be validated
+ * against registered entities in their respective validation services.
+ *
+ * @template T - Enum type extending Record<string, string>
+ */
+interface ValidateArgs<T = Enum> {
+    /**
+     * Swarm name enum to validate
+     * @example { MY_SWARM: "my-swarm" }
+     */
+    SwarmName?: T;
+    /**
+     * Agent name enum to validate
+     * @example { MY_AGENT: "my-agent" }
+     */
+    AgentName?: T;
+    /**
+     * Outline name enum to validate
+     * @example { MY_OUTLINE: "my-outline" }
+     */
+    OutlineName?: T;
+    /**
+     * Advisor name enum to validate
+     * @example { MY_ADVISOR: "my-advisor" }
+     */
+    AdvisorName?: T;
+    /**
+     * Completion name enum to validate
+     * @example { CLAUDE_SONNET: "claude-sonnet-4-5" }
+     */
+    CompletionName?: T;
+    /**
+     * Compute name enum to validate
+     * @example { MY_COMPUTE: "my-compute" }
+     */
+    ComputeName?: T;
+    /**
+     * Embedding name enum to validate
+     * @example { TEXT_EMBEDDING: "text-embedding-3-small" }
+     */
+    EmbeddingName?: T;
+    /**
+     * MCP name enum to validate
+     * @example { MY_MCP: "my-mcp" }
+     */
+    MCPName?: T;
+    /**
+     * Pipeline name enum to validate
+     * @example { MY_PIPELINE: "my-pipeline" }
+     */
+    PipelineName?: T;
+    /**
+     * Policy name enum to validate
+     * @example { MY_POLICY: "my-policy" }
+     */
+    PolicyName?: T;
+    /**
+     * Session ID enum to validate
+     * @example { SESSION_1: "session-1" }
+     */
+    SessionId?: T;
+    /**
+     * State name enum to validate
+     * @example { MY_STATE: "my-state" }
+     */
+    StateName?: T;
+    /**
+     * Storage name enum to validate
+     * @example { MY_STORAGE: "my-storage" }
+     */
+    StorageName?: T;
+    /**
+     * Tool name enum to validate
+     * @example { MY_TOOL: "my-tool" }
+     */
+    ToolName?: T;
+}
+/**
+ * Validates the existence of all provided entity names across validation services.
+ *
+ * This function accepts enum objects for various entity types (swarms, agents, outlines,
+ * advisors, completions, computes, embeddings, MCPs, pipelines, policies, sessions,
+ * states, storages, tools) and validates that each entity name exists in its respective
+ * registry. Validation results are memoized for performance.
+ *
+ * If no arguments are provided (or specific entity types are omitted), the function
+ * automatically fetches and validates ALL registered entities from their respective
+ * validation services. This is useful for comprehensive validation of the entire setup.
+ *
+ * Use this before running operations to ensure all referenced entities are properly
+ * registered and configured.
+ *
+ * @public
+ * @param args - Partial validation arguments containing entity name enums to validate.
+ *                If empty or omitted, validates all registered entities.
+ * @throws {Error} If any entity name is not found in its validation service
+ *
+ * @example
+ * ```typescript
+ * // Validate ALL registered entities (swarms, agents, outlines, etc.)
+ * validate({});
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Define your entity name enums
+ * enum SwarmName {
+ *   MY_SWARM = "my-swarm"
+ * }
+ *
+ * enum AgentName {
+ *   MY_AGENT = "my-agent"
+ * }
+ *
+ * // Validate specific entities
+ * validate({
+ *   SwarmName,
+ *   AgentName,
+ * });
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Validate specific entity types
+ * validate({
+ *   CompletionName: { CLAUDE_SONNET: "claude-sonnet-4-5" },
+ *   EmbeddingName: { TEXT_EMBEDDING: "text-embedding-3-small" },
+ * });
+ * ```
+ */
+declare function validate(args?: Partial<Args>): void;
 
 /**
  * Converts a given schema object into a JSON schema format object.
