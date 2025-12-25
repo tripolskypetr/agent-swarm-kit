@@ -11246,7 +11246,7 @@ declare function ask<T = string>(message: T, advisorName: AdvisorName): Promise<
  * const result = await json<"MyOutline", { query: string }>("MyOutline", { query: "example" });
  * console.log(result.isValid, result.data); // Logs validation status and data
  */
-declare function json<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineName: OutlineName, param?: IOutlineParam): Promise<IOutlineResult<Data, Param>>;
+declare function json<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineName: OutlineName, param?: Param): Promise<IOutlineResult<Data, Param>>;
 
 /**
  * Processes a chat completion request by sending messages to a specified completion service.

@@ -254,7 +254,7 @@ export async function json<
   Param extends IOutlineParam = IOutlineParam
 >(
   outlineName: OutlineName,
-  param = {} as IOutlineParam
+  param = {} as Param
 ): Promise<IOutlineResult<Data, Param>> {
   return await jsonInternal(outlineName, param);
 }
