@@ -6,7 +6,7 @@ group: docs
 # json
 
 ```ts
-declare function json<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineName: OutlineName, param?: IOutlineParam): Promise<IOutlineResult<Data, Param>>;
+declare function json<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineName: OutlineName, param?: Param): Promise<IOutlineResult<Data, Param>>;
 ```
 
 Processes an outline request to generate structured JSON data based on a specified outline schema.

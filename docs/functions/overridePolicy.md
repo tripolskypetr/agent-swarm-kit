@@ -6,7 +6,7 @@ group: docs
 # overridePolicy
 
 ```ts
-declare function overridePolicy(policySchema: TPolicySchema): IPolicySchema;
+declare function overridePolicy(policySchema: TPolicySchema): Promise<IPolicySchema>;
 ```
 
 Overrides an existing policy schema in the swarm system with a new or partial schema.

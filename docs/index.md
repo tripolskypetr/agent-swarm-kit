@@ -7,6 +7,8 @@ group: docs
 
 ## Classes
 
+- [PersistBase](classes/PersistBase.md)
+- [PersistList](classes/PersistList.md)
 - [PersistSwarmUtils](classes/PersistSwarmUtils.md)
 - [PersistStateUtils](classes/PersistStateUtils.md)
 - [PersistStorageUtils](classes/PersistStorageUtils.md)
@@ -14,6 +16,8 @@ group: docs
 - [PersistAliveUtils](classes/PersistAliveUtils.md)
 - [PersistPolicyUtils](classes/PersistPolicyUtils.md)
 - [PersistEmbeddingUtils](classes/PersistEmbeddingUtils.md)
+- [HistoryPersistInstance](classes/HistoryPersistInstance.md)
+- [HistoryMemoryInstance](classes/HistoryMemoryInstance.md)
 - [LoggerService](classes/LoggerService.md)
 - [ToolAbortController](classes/ToolAbortController.md)
 - [ClientAgent](classes/ClientAgent.md)
@@ -88,6 +92,8 @@ group: docs
 - [ActionSchemaService](classes/ActionSchemaService.md)
 - [OutlineSchemaService](classes/OutlineSchemaService.md)
 - [OutlineValidationService](classes/OutlineValidationService.md)
+- [LoggerInstance](classes/LoggerInstance.md)
+- [OperatorInstance](classes/OperatorInstance.md)
 - [RoundRobin](classes/RoundRobin.md)
 - [MCPUtils](classes/MCPUtils.md)
 - [PolicyUtils](classes/PolicyUtils.md)
@@ -95,6 +101,7 @@ group: docs
 - [ComputeUtils](classes/ComputeUtils.md)
 - [SharedComputeUtils](classes/SharedComputeUtils.md)
 - [SharedStateUtils](classes/SharedStateUtils.md)
+- [ChatInstance](classes/ChatInstance.md)
 - [ChatUtils](classes/ChatUtils.md)
 - [StorageUtils](classes/StorageUtils.md)
 - [SharedStorageUtils](classes/SharedStorageUtils.md)
@@ -359,6 +366,7 @@ group: docs
 - [IChatInstance](interfaces/IChatInstance.md)
 - [IChatInstanceCallbacks](interfaces/IChatInstanceCallbacks.md)
 - [IChatControl](interfaces/IChatControl.md)
+- [ValidateArgs](interfaces/ValidateArgs.md)
 - [JsonSchema](interfaces/JsonSchema.md)
 - [ValidationResult](interfaces/ValidationResult.md)
 
@@ -464,3 +472,5 @@ group: docs
 - [TStorage](types/TStorage.md)
 - [TSharedStorage](types/TSharedStorage.md)
 - [TCompleteFn](types/TCompleteFn.md)
+- [Enum](types/Enum.md)
+- [Args](types/Args.md)

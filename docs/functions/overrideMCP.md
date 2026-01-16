@@ -6,7 +6,7 @@ group: docs
 # overrideMCP
 
 ```ts
-declare function overrideMCP(mcpSchema: TMCPSchema): IMCPSchema;
+declare function overrideMCP(mcpSchema: TMCPSchema): Promise<IMCPSchema>;
 ```
 
 Overrides an existing MCP (Model Context Protocol) schema with a new or partial schema.

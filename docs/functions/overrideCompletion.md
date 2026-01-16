@@ -6,7 +6,7 @@ group: docs
 # overrideCompletion
 
 ```ts
-declare function overrideCompletion<Message extends IBaseMessage<any> = IBaseMessage<string>, Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<Message>>(completionSchema: TCompletionSchema<Message, Args>): ICompletionSchema<IBaseMessage<any>, IBaseCompletionArgs<IBaseMessage<any>>>;
+declare function overrideCompletion<Message extends IBaseMessage<any> = IBaseMessage<string>, Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<Message>>(completionSchema: TCompletionSchema<Message, Args>): Promise<ICompletionSchema<IBaseMessage<any>, IBaseCompletionArgs<IBaseMessage<any>>>>;
 ```
 
 Overrides an existing completion schema in the swarm system with a new or partial schema.

@@ -32,13 +32,13 @@ callbacks: Partial<IHistoryInstanceCallbacks>
 ### _array
 
 ```ts
-_array: IModelMessage[]
+_array: ISwarmMessage<object>[]
 ```
 
-### __@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@761
+### __@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@934
 
 ```ts
-__@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@761: any
+__@HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT@934: ((agentName: string) => Promise<void>) & ISingleshotClearable
 ```
 
 Memoized initialization function to ensure it runs only once per agent.
@@ -56,7 +56,7 @@ Initializes the history for an agent, loading initial data if needed.
 ### iterate
 
 ```ts
-iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+iterate(agentName: AgentName): AsyncIterableIterator<ISwarmMessage>;
 ```
 
 Iterates over history messages, applying filters and system prompts if configured.
@@ -65,7 +65,7 @@ Invokes onRead callbacks during iteration if provided.
 ### push
 
 ```ts
-push(value: IModelMessage, agentName: AgentName): Promise<void>;
+push(value: ISwarmMessage, agentName: AgentName): Promise<void>;
 ```
 
 Adds a new message to the in-memory history.
@@ -74,7 +74,7 @@ Invokes onPush and onChange callbacks if provided.
 ### pop
 
 ```ts
-pop(agentName: AgentName): Promise<IModelMessage | null>;
+pop(agentName: AgentName): Promise<ISwarmMessage | null>;
 ```
 
 Removes and returns the last message from the in-memory history.

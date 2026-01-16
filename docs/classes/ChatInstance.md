@@ -10,7 +10,7 @@ Implements `IChatInstance`
 ## Constructor
 
 ```ts
-constructor(clientId: string, swarmName: string, onDispose: DisposeFn, callbacks: Partial<IChatInstanceCallbacks>);
+constructor(clientId: string, swarmName: string, onDispose: DisposeFn, callbacks: Partial<IChatInstanceCallbacks>, payload: Payload);
 ```
 
 ## Properties
@@ -18,44 +18,58 @@ constructor(clientId: string, swarmName: string, onDispose: DisposeFn, callbacks
 ### clientId
 
 ```ts
-clientId: any
+clientId: string
 ```
 
 ### swarmName
 
 ```ts
-swarmName: any
+swarmName: string
 ```
 
 ### onDispose
 
 ```ts
-onDispose: any
+onDispose: DisposeFn
 ```
 
 ### callbacks
 
 ```ts
-callbacks: any
+callbacks: Partial<IChatInstanceCallbacks>
+```
+
+### payload
+
+```ts
+payload: Payload
 ```
 
 ### _disposeSubject
 
 ```ts
-_disposeSubject: any
+_disposeSubject: Subject<string>
 ```
 
 ### _chatSession
 
 ```ts
-_chatSession: any
+_chatSession: { complete: (content: string, payload?: object) => Promise<string>; dispose: () => Promise<void>; }
 ```
 
 ### _lastActivity
 
 ```ts
-_lastActivity: any
+_lastActivity: number
 ```
+
+### beginChat
+
+```ts
+beginChat: (() => Promise<void>) & ISingleshotClearable
+```
+
+Begins a chat session
 
 ## Methods
 
@@ -66,14 +80,6 @@ checkLastActivity(now: number): Promise<boolean>;
 ```
 
 Checks if the chat has been active within the timeout period
-
-### beginChat
-
-```ts
-beginChat(): Promise<void>;
-```
-
-Begins a chat session
 
 ### sendMessage
 

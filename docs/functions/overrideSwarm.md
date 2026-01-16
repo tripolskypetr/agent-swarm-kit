@@ -6,7 +6,7 @@ group: docs
 # overrideSwarm
 
 ```ts
-declare function overrideSwarm(swarmSchema: TSwarmSchema): ISwarmSchema;
+declare function overrideSwarm(swarmSchema: TSwarmSchema): Promise<ISwarmSchema>;
 ```
 
 Overrides an existing swarm schema in the swarm system with a new or partial schema.

@@ -6,7 +6,7 @@ group: docs
 # overridePipeline
 
 ```ts
-declare function overridePipeline<Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>): IPipelineSchema<Payload>;
+declare function overridePipeline<Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>): Promise<IPipelineSchema<Payload>>;
 ```
 
 Overrides an existing pipeline schema with provided partial updates.

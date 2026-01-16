@@ -6,7 +6,7 @@ group: docs
 # overrideAgent
 
 ```ts
-declare function overrideAgent(agentSchema: TAgentSchema): IAgentSchemaInternal;
+declare function overrideAgent(agentSchema: TAgentSchema): Promise<IAgentSchemaInternal>;
 ```
 
 Overrides an existing agent schema in the swarm system with a new or partial schema.

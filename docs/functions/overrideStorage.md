@@ -6,7 +6,7 @@ group: docs
 # overrideStorage
 
 ```ts
-declare function overrideStorage<T extends IStorageData = IStorageData>(storageSchema: TStorageSchema<T>): IStorageSchema<T>;
+declare function overrideStorage<T extends IStorageData = IStorageData>(storageSchema: TStorageSchema<T>): Promise<IStorageSchema<T>>;
 ```
 
 Overrides an existing storage schema in the swarm system with a new or partial schema.

@@ -6,7 +6,7 @@ group: docs
 # overrideState
 
 ```ts
-declare function overrideState<T extends unknown = any>(stateSchema: TStateSchema<T>): IStateSchema<T>;
+declare function overrideState<T extends unknown = any>(stateSchema: TStateSchema<T>): Promise<IStateSchema<T>>;
 ```
 
 Overrides an existing state schema in the swarm system with a new or partial schema.

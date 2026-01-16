@@ -38,7 +38,13 @@ callbacks: Partial<IOperatorInstanceCallbacks>
 ### _answerSubject
 
 ```ts
-_answerSubject: any
+_answerSubject: Subject<string>
+```
+
+### _isDisposed
+
+```ts
+_isDisposed: boolean
 ```
 
 ## Methods
@@ -50,6 +56,14 @@ connectAnswer(next: (answer: string) => void): void;
 ```
 
 Connects an answer subscription
+
+### init
+
+```ts
+init(): Promise<void>;
+```
+
+Init the operator connection
 
 ### notify
 

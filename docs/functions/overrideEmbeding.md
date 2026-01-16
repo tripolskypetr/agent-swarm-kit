@@ -6,7 +6,7 @@ group: docs
 # overrideEmbeding
 
 ```ts
-declare function overrideEmbeding(embeddingSchema: TEmbeddingSchema): IEmbeddingSchema;
+declare function overrideEmbeding(embeddingSchema: TEmbeddingSchema): Promise<IEmbeddingSchema>;
 ```
 
 Overrides an existing embedding schema in the swarm system with a new or partial schema.

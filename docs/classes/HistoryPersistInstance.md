@@ -32,7 +32,7 @@ callbacks: Partial<IHistoryInstanceCallbacks>
 ### _array
 
 ```ts
-_array: IModelMessage[]
+_array: ISwarmMessage<object>[]
 ```
 
 ### _persistStorage
@@ -41,10 +41,10 @@ _array: IModelMessage[]
 _persistStorage: PersistList<string>
 ```
 
-### __@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@742
+### __@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@913
 
 ```ts
-__@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@742: any
+__@HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT@913: ((agentName: string) => Promise<void>) & ISingleshotClearable
 ```
 
 Memoized initialization function to ensure it runs only once per agent.
@@ -62,7 +62,7 @@ Initializes the history for an agent, loading data from persistent storage if ne
 ### iterate
 
 ```ts
-iterate(agentName: AgentName): AsyncIterableIterator<IModelMessage>;
+iterate(agentName: AgentName): AsyncIterableIterator<ISwarmMessage>;
 ```
 
 Iterates over history messages, applying filters and system prompts if configured.
@@ -71,7 +71,7 @@ Invokes onRead callbacks during iteration if provided.
 ### push
 
 ```ts
-push(value: IModelMessage, agentName: AgentName): Promise<void>;
+push(value: ISwarmMessage, agentName: AgentName): Promise<void>;
 ```
 
 Adds a new message to the history, persisting it to storage.
@@ -80,7 +80,7 @@ Invokes onPush and onChange callbacks if provided.
 ### pop
 
 ```ts
-pop(agentName: AgentName): Promise<IModelMessage | null>;
+pop(agentName: AgentName): Promise<ISwarmMessage | null>;
 ```
 
 Removes and returns the last message from the history, updating persistent storage.
