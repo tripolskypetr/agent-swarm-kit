@@ -19,11 +19,13 @@ type TAgentSchema = {
  * Function implementation
 */
 const overrideAgentInternal = beginContext(
-  (publicAgentSchema: TAgentSchema) => {
+  async (publicAgentSchema: TAgentSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         agentSchema: publicAgentSchema,
       });
+
+    await swarm.agentValidationService.validate(publicAgentSchema.agentName, METHOD_NAME);
 
     const agentSchema = mapAgentSchema(publicAgentSchema);
 
@@ -53,6 +55,6 @@ const overrideAgentInternal = beginContext(
  * });
  * // Logs the operation (if enabled) and updates the agent schema in the swarm.
 */
-export function overrideAgent(agentSchema: TAgentSchema) {
-  return overrideAgentInternal(agentSchema);
+export async function overrideAgent(agentSchema: TAgentSchema) {
+  return await overrideAgentInternal(agentSchema);
 }

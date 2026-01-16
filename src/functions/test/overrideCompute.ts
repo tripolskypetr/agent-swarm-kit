@@ -27,11 +27,13 @@ type TComputeSchema<T extends IComputeData = any> = {
 /**
  * Function implementation
 */
-const overrideComputeInternal = beginContext((publicComputeSchema: TComputeSchema) => {
+const overrideComputeInternal = beginContext(async (publicComputeSchema: TComputeSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       computeSchema: publicComputeSchema,
     });
+
+  await swarm.agentValidationService.validate(publicComputeSchema.computeName, METHOD_NAME);
 
   const computeSchema = removeUndefined(publicComputeSchema);
 
@@ -43,6 +45,6 @@ const overrideComputeInternal = beginContext((publicComputeSchema: TComputeSchem
  *
  * @param computeSchema Partial compute schema with updates to be applied to the existing compute configuration.
 */
-export function overrideCompute<T extends IComputeData = any>(computeSchema: TComputeSchema<T>) {
-  return overrideComputeInternal(computeSchema)
+export async function overrideCompute<T extends IComputeData = any>(computeSchema: TComputeSchema<T>) {
+  return await overrideComputeInternal(computeSchema)
 }

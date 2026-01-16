@@ -10525,7 +10525,7 @@ type TAgentSchema = {
  * });
  * // Logs the operation (if enabled) and updates the agent schema in the swarm.
 */
-declare function overrideAgent(agentSchema: TAgentSchema): IAgentSchemaInternal;
+declare function overrideAgent(agentSchema: TAgentSchema): Promise<IAgentSchemaInternal>;
 
 /**
  * Type representing a partial completion schema with required completionName.
@@ -10557,7 +10557,7 @@ type TCompletionSchema<Message extends IBaseMessage<string> = IBaseMessage<any>,
  * });
  * // Logs the operation (if enabled) and updates the completion schema in the swarm.
  */
-declare function overrideCompletion<Message extends IBaseMessage<any> = IBaseMessage<string>, Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<Message>>(completionSchema: TCompletionSchema<Message, Args>): ICompletionSchema<IBaseMessage<any>, IBaseCompletionArgs<IBaseMessage<any>>>;
+declare function overrideCompletion<Message extends IBaseMessage<any> = IBaseMessage<string>, Args extends IBaseCompletionArgs<IBaseMessage<string>> = IBaseCompletionArgs<Message>>(completionSchema: TCompletionSchema<Message, Args>): Promise<ICompletionSchema<IBaseMessage<any>, IBaseCompletionArgs<IBaseMessage<any>>>>;
 
 /**
  * Type representing a partial embedding schema with required embeddingName.
@@ -10588,7 +10588,7 @@ type TEmbeddingSchema = {
  * });
  * // Logs the operation (if enabled) and updates the embedding schema in the swarm.
 */
-declare function overrideEmbeding(embeddingSchema: TEmbeddingSchema): IEmbeddingSchema;
+declare function overrideEmbeding(embeddingSchema: TEmbeddingSchema): Promise<IEmbeddingSchema>;
 
 /**
  * Type representing a partial policy schema with required policyName.
@@ -10617,7 +10617,7 @@ type TPolicySchema = {
  * });
  * // Logs the operation (if enabled) and updates the policy schema in the swarm.
 */
-declare function overridePolicy(policySchema: TPolicySchema): IPolicySchema;
+declare function overridePolicy(policySchema: TPolicySchema): Promise<IPolicySchema>;
 
 /**
  * Type representing a partial state schema configuration.
@@ -10646,7 +10646,7 @@ type TStateSchema<T extends unknown = any> = {
  * });
  * // Logs the operation (if enabled) and updates the state schema in the swarm.
 */
-declare function overrideState<T extends unknown = any>(stateSchema: TStateSchema<T>): IStateSchema<T>;
+declare function overrideState<T extends unknown = any>(stateSchema: TStateSchema<T>): Promise<IStateSchema<T>>;
 
 /**
  * Type representing a partial storage schema configuration.
@@ -10676,7 +10676,7 @@ type TStorageSchema<T extends IStorageData = IStorageData> = {
  * });
  * // Logs the operation (if enabled) and updates the storage schema in the swarm.
 */
-declare function overrideStorage<T extends IStorageData = IStorageData>(storageSchema: TStorageSchema<T>): IStorageSchema<T>;
+declare function overrideStorage<T extends IStorageData = IStorageData>(storageSchema: TStorageSchema<T>): Promise<IStorageSchema<T>>;
 
 /**
  * Type representing a partial swarm schema configuration.
@@ -10704,7 +10704,7 @@ type TSwarmSchema = {
  * });
  * // Logs the operation (if enabled) and updates the swarm schema in the swarm system.
 */
-declare function overrideSwarm(swarmSchema: TSwarmSchema): ISwarmSchema;
+declare function overrideSwarm(swarmSchema: TSwarmSchema): Promise<ISwarmSchema>;
 
 /**
  * Type representing a partial agent tool schema with required toolName.
@@ -10732,7 +10732,7 @@ type TAgentTool<T extends any = Record<string, ToolValue>> = {
  * });
  * // Logs the operation (if enabled) and updates the tool schema in the swarm.
 */
-declare function overrideTool<T extends any = Record<string, ToolValue>>(toolSchema: TAgentTool<T>): IAgentTool<Record<string, ToolValue>>;
+declare function overrideTool<T extends any = Record<string, ToolValue>>(toolSchema: TAgentTool<T>): Promise<IAgentTool<Record<string, ToolValue>>>;
 
 /**
  * Type definition for a partial MCP schema, requiring at least an mcpName.
@@ -10744,7 +10744,7 @@ type TMCPSchema = {
  * Overrides an existing MCP (Model Context Protocol) schema with a new or partial schema.
  * @param {TMCPSchema} mcpSchema - The schema definition for mcp.
 */
-declare function overrideMCP(mcpSchema: TMCPSchema): IMCPSchema;
+declare function overrideMCP(mcpSchema: TMCPSchema): Promise<IMCPSchema>;
 
 /**
  * Type representing a partial advisor schema configuration.
@@ -10781,7 +10781,7 @@ type TAdvisorSchema<T = string> = {
  *   getChat: async (args) => `Query: ${args.message.query}`
  * });
  */
-declare function overrideAdvisor<T = string>(advisorSchema: TAdvisorSchema<T>): TAdvisorSchema<T>;
+declare function overrideAdvisor<T = string>(advisorSchema: TAdvisorSchema<T>): Promise<TAdvisorSchema<T>>;
 
 /**
  * @module overrideCompute
@@ -10800,7 +10800,7 @@ type TComputeSchema<T extends IComputeData = any> = {
  *
  * @param computeSchema Partial compute schema with updates to be applied to the existing compute configuration.
 */
-declare function overrideCompute<T extends IComputeData = any>(computeSchema: TComputeSchema<T>): IComputeSchema<any>;
+declare function overrideCompute<T extends IComputeData = any>(computeSchema: TComputeSchema<T>): Promise<IComputeSchema<any>>;
 
 /**
  * @module overridePipeline
@@ -10813,7 +10813,7 @@ declare function overrideCompute<T extends IComputeData = any>(computeSchema: TC
  * @param pipelineSchema Partial pipeline schema with updates to be applied to the existing pipeline configuration.
  * @template Payload - Type extending object for the pipeline payload.
 */
-declare function overridePipeline<Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>): IPipelineSchema<Payload>;
+declare function overridePipeline<Payload extends object = any>(pipelineSchema: IPipelineSchema<Payload>): Promise<IPipelineSchema<Payload>>;
 
 /**
  * Type definition for a partial outline schema, requiring an outline name and allowing optional properties from `IOutlineSchema`.
@@ -10832,7 +10832,7 @@ type TOutlineSchema<Data extends IOutlineData = IOutlineData, Param extends IOut
  * @param outlineSchema Partial outline schema with updates to be applied to the existing outline configuration.
  * @param Param> The Param> parameter.
 */
-declare function overrideOutline<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineSchema: TOutlineSchema<Data, Param>): IOutlineSchema<any, any>;
+declare function overrideOutline<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineSchema: TOutlineSchema<Data, Param>): Promise<IOutlineSchema<any, any>>;
 
 /**
  * Marks a client as online in the specified swarm.

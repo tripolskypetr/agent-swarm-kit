@@ -17,11 +17,13 @@ type TSwarmSchema = {
 /**
  * Function implementation
 */
-const overrideSwarmInternal = beginContext((publicSwarmSchema: TSwarmSchema) => {
+const overrideSwarmInternal = beginContext(async (publicSwarmSchema: TSwarmSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       swarmSchema: publicSwarmSchema,
     });
+
+  await swarm.agentValidationService.validate(publicSwarmSchema.swarmName, METHOD_NAME);
 
   const swarmSchema = removeUndefined(publicSwarmSchema);
 
@@ -47,6 +49,6 @@ const overrideSwarmInternal = beginContext((publicSwarmSchema: TSwarmSchema) => 
  * });
  * // Logs the operation (if enabled) and updates the swarm schema in the swarm system.
 */
-export function overrideSwarm(swarmSchema: TSwarmSchema) {
-  return overrideSwarmInternal(swarmSchema);
+export async function overrideSwarm(swarmSchema: TSwarmSchema) {
+  return await overrideSwarmInternal(swarmSchema);
 }

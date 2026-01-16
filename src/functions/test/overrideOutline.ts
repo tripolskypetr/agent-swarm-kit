@@ -31,11 +31,13 @@ type TOutlineSchema<
  * @private
 */
 const overrideOutlineInternal = beginContext(
-  (publicOutlineSchema: TOutlineSchema) => {
+  async (publicOutlineSchema: TOutlineSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         outlineSchema: publicOutlineSchema,
       });
+
+    await swarm.agentValidationService.validate(publicOutlineSchema.outlineName, METHOD_NAME);
 
     const outlineSchema = removeUndefined(publicOutlineSchema);
 
@@ -54,9 +56,9 @@ const overrideOutlineInternal = beginContext(
  * @param outlineSchema Partial outline schema with updates to be applied to the existing outline configuration.
  * @param Param> The Param> parameter.
 */
-export function overrideOutline<
+export async function overrideOutline<
   Data extends IOutlineData = IOutlineData,
   Param extends IOutlineParam = IOutlineParam
 >(outlineSchema: TOutlineSchema<Data, Param>) {
-  return overrideOutlineInternal(outlineSchema);
+  return await overrideOutlineInternal(outlineSchema);
 }

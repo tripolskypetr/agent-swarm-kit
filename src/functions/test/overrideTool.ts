@@ -18,11 +18,13 @@ type TAgentTool<T extends any = Record<string, ToolValue>> = {
 /**
  * Function implementation
 */
-const overrideToolInternal = beginContext((publicToolSchema: TAgentTool<unknown>) => {
+const overrideToolInternal = beginContext(async (publicToolSchema: TAgentTool<unknown>) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       toolSchema: publicToolSchema,
     });
+
+  await swarm.agentValidationService.validate(publicToolSchema.toolName, METHOD_NAME);
 
   const toolSchema = removeUndefined(publicToolSchema);
 
@@ -47,6 +49,6 @@ const overrideToolInternal = beginContext((publicToolSchema: TAgentTool<unknown>
  * });
  * // Logs the operation (if enabled) and updates the tool schema in the swarm.
 */
-export function overrideTool<T extends any = Record<string, ToolValue>>(toolSchema: TAgentTool<T>) {
-  return overrideToolInternal(toolSchema);
+export async function overrideTool<T extends any = Record<string, ToolValue>>(toolSchema: TAgentTool<T>) {
+  return await overrideToolInternal(toolSchema);
 }

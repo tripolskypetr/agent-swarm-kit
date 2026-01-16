@@ -21,11 +21,13 @@ type TStorageSchema<T extends IStorageData = IStorageData> = {
  * Function implementation
 */
 const overrideStorageInternal = beginContext(
-  (publicStorageSchema: TStorageSchema<IStorageData>): IStorageSchema<any> => {
+  async (publicStorageSchema: TStorageSchema<IStorageData>): Promise<IStorageSchema<any>> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         storageSchema: publicStorageSchema,
       });
+
+    await swarm.agentValidationService.validate(publicStorageSchema.storageName, METHOD_NAME);
 
     const storageSchema = removeUndefined(publicStorageSchema);
 
@@ -57,8 +59,8 @@ const overrideStorageInternal = beginContext(
  * });
  * // Logs the operation (if enabled) and updates the storage schema in the swarm.
 */
-export function overrideStorage<T extends IStorageData = IStorageData>(
+export async function overrideStorage<T extends IStorageData = IStorageData>(
   storageSchema: TStorageSchema<T>
-): IStorageSchema<T> {
-  return overrideStorageInternal(storageSchema);
+): Promise<IStorageSchema<T>> {
+  return await overrideStorageInternal(storageSchema);
 }

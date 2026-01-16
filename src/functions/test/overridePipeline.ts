@@ -27,11 +27,13 @@ type TPipelineSchema = {
  * Function implementation
 */
 const overridePipelineInternal = beginContext(
-  (publicPipelineSchema: TPipelineSchema) => {
+  async (publicPipelineSchema: TPipelineSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         pipelineSchema: publicPipelineSchema,
       });
+
+    await swarm.agentValidationService.validate(publicPipelineSchema.pipelineName, METHOD_NAME);
 
     const pipelineSchema = removeUndefined(publicPipelineSchema);
 
@@ -48,8 +50,8 @@ const overridePipelineInternal = beginContext(
  * @param pipelineSchema Partial pipeline schema with updates to be applied to the existing pipeline configuration.
  * @template Payload - Type extending object for the pipeline payload.
 */
-export function overridePipeline<Payload extends object = any>(
+export async function overridePipeline<Payload extends object = any>(
   pipelineSchema: IPipelineSchema<Payload>
-): IPipelineSchema<Payload> {
-  return overridePipelineInternal(pipelineSchema);
+): Promise<IPipelineSchema<Payload>> {
+  return await overridePipelineInternal(pipelineSchema);
 }

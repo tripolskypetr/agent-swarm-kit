@@ -18,11 +18,13 @@ type TAdvisorSchema<T = string> = {
  * Function implementation
  */
 const overrideAdvisorInternal = beginContext(
-  (publicAdvisorSchema: TAdvisorSchema) => {
+  async (publicAdvisorSchema: TAdvisorSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         advisorSchema: publicAdvisorSchema,
       });
+
+    await swarm.agentValidationService.validate(publicAdvisorSchema.advisorName, METHOD_NAME);
 
     const advisorSchema = removeUndefined(publicAdvisorSchema);
 
@@ -61,8 +63,8 @@ const overrideAdvisorInternal = beginContext(
  *   getChat: async (args) => `Query: ${args.message.query}`
  * });
  */
-export function overrideAdvisor<T = string>(advisorSchema: TAdvisorSchema<T>) {
-  return overrideAdvisorInternal(
+export async function overrideAdvisor<T = string>(advisorSchema: TAdvisorSchema<T>) {
+  return (await overrideAdvisorInternal(
     advisorSchema as TAdvisorSchema
-  ) as TAdvisorSchema<T>;
+  )) as TAdvisorSchema<T>;
 }

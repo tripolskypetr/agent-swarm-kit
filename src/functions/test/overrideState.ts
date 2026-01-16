@@ -17,11 +17,13 @@ type TStateSchema<T extends unknown = any> = {
 /**
  * Function implementation
 */
-const overrideStateInternal = beginContext((publicStateSchema: TStateSchema) => {
+const overrideStateInternal = beginContext(async (publicStateSchema: TStateSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       stateSchema: publicStateSchema,
     });
+
+  await swarm.agentValidationService.validate(publicStateSchema.stateName, METHOD_NAME);
 
   const stateSchema = removeUndefined(publicStateSchema);
 
@@ -48,8 +50,8 @@ const overrideStateInternal = beginContext((publicStateSchema: TStateSchema) => 
  * });
  * // Logs the operation (if enabled) and updates the state schema in the swarm.
 */
-export function overrideState<T extends unknown = any>(
+export async function overrideState<T extends unknown = any>(
   stateSchema: TStateSchema<T>
-): IStateSchema<T> {
-  return overrideStateInternal(stateSchema);
+): Promise<IStateSchema<T>> {
+  return await overrideStateInternal(stateSchema);
 }

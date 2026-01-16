@@ -19,11 +19,13 @@ type TEmbeddingSchema = {
  * Function implementation
 */
 const overrideEmbedingInternal = beginContext(
-  (publicEmbeddingSchema: TEmbeddingSchema) => {
+  async (publicEmbeddingSchema: TEmbeddingSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         embeddingSchema: publicEmbeddingSchema,
       });
+
+    await swarm.agentValidationService.validate(publicEmbeddingSchema.embeddingName, METHOD_NAME);
 
     const embeddingSchema = removeUndefined(publicEmbeddingSchema);
 
@@ -55,6 +57,6 @@ const overrideEmbedingInternal = beginContext(
  * });
  * // Logs the operation (if enabled) and updates the embedding schema in the swarm.
 */
-export function overrideEmbeding(embeddingSchema: TEmbeddingSchema) {
-  return overrideEmbedingInternal(embeddingSchema);
+export async function overrideEmbeding(embeddingSchema: TEmbeddingSchema) {
+  return await overrideEmbedingInternal(embeddingSchema);
 }

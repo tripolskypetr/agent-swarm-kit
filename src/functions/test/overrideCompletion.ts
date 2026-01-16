@@ -28,11 +28,13 @@ type TCompletionSchema<
  * Function implementation
  */
 const overrideCompletionInternal = beginContext(
-  (publicCompletionSchema: TCompletionSchema) => {
+  async (publicCompletionSchema: TCompletionSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
         completionSchema: publicCompletionSchema,
       });
+
+    await swarm.agentValidationService.validate(publicCompletionSchema.completionName, METHOD_NAME);
 
     const completionSchema = mapCompletionSchema(publicCompletionSchema);
 
@@ -63,11 +65,11 @@ const overrideCompletionInternal = beginContext(
  * });
  * // Logs the operation (if enabled) and updates the completion schema in the swarm.
  */
-export function overrideCompletion<
+export async function overrideCompletion<
   Message extends IBaseMessage<any> = IBaseMessage<string>,
   Args extends IBaseCompletionArgs<
     IBaseMessage<string>
   > = IBaseCompletionArgs<Message>
 >(completionSchema: TCompletionSchema<Message, Args>) {
-  return overrideCompletionInternal(completionSchema);
+  return await overrideCompletionInternal(completionSchema);
 }

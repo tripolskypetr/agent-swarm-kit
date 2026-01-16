@@ -18,11 +18,13 @@ type TPolicySchema = {
 /**
  * Function implementation
 */
-const overridePolicyInternal = beginContext((publicPolicySchema: TPolicySchema) => {
+const overridePolicyInternal = beginContext(async (publicPolicySchema: TPolicySchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       policySchema: publicPolicySchema,
     });
+
+  await swarm.agentValidationService.validate(publicPolicySchema.policyName, METHOD_NAME);
 
   const policySchema = removeUndefined(publicPolicySchema);
 
@@ -48,6 +50,6 @@ const overridePolicyInternal = beginContext((publicPolicySchema: TPolicySchema) 
  * });
  * // Logs the operation (if enabled) and updates the policy schema in the swarm.
 */
-export function overridePolicy(policySchema: TPolicySchema) {
-  return overridePolicyInternal(policySchema);
+export async function overridePolicy(policySchema: TPolicySchema) {
+  return await overridePolicyInternal(policySchema);
 }

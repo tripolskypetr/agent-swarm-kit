@@ -16,11 +16,13 @@ type TMCPSchema = {
 /**
  * Function implementation
 */
-const overrideMCPInternal = beginContext((publicMcpSchema: TMCPSchema) => {
+const overrideMCPInternal = beginContext(async (publicMcpSchema: TMCPSchema) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME, {
       mcpSchema: publicMcpSchema,
     });
+
+  await swarm.agentValidationService.validate(publicMcpSchema.mcpName, METHOD_NAME);
 
   const mcpSchema = removeUndefined(publicMcpSchema);
 
@@ -31,6 +33,6 @@ const overrideMCPInternal = beginContext((publicMcpSchema: TMCPSchema) => {
  * Overrides an existing MCP (Model Context Protocol) schema with a new or partial schema.
  * @param {TMCPSchema} mcpSchema - The schema definition for mcp.
 */
-export function overrideMCP(mcpSchema: TMCPSchema) {
-  return overrideMCPInternal(mcpSchema);
+export async function overrideMCP(mcpSchema: TMCPSchema) {
+  return await overrideMCPInternal(mcpSchema);
 }
