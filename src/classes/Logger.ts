@@ -11,7 +11,7 @@ const LOGGER_INSTANCE_WAIT_FOR_INIT = Symbol("wait-for-init");
  * Initializes the logger instance by invoking the onInit callback if provided.
  * Ensures initialization runs asynchronously and is executed only once via singleshot.
  * @private
-*/
+ */
 const LOGGER_INSTANCE_WAIT_FOR_FN = async (
   self: TLoggerInstance
 ): Promise<void> => {
@@ -23,7 +23,7 @@ const LOGGER_INSTANCE_WAIT_FOR_FN = async (
 /**
  * Callbacks for managing logger instance lifecycle and log events.
  * Used by LoggerInstance to hook into initialization, disposal, and logging operations.
-*/
+ */
 export interface ILoggerInstanceCallbacks {
   /**
    * Called when the logger instance is initialized, typically during waitForInit.
@@ -55,7 +55,7 @@ export interface ILoggerInstanceCallbacks {
  * Interface for logger instances, extending the base ILogger with lifecycle methods.
  * Implemented by LoggerInstance for client-specific logging with initialization and disposal support.
  * @extends {ILogger}
-*/
+ */
 export interface ILoggerInstance extends ILogger {
   /**
    * Initializes the logger instance, invoking the onInit callback if provided.
@@ -73,7 +73,7 @@ export interface ILoggerInstance extends ILogger {
 /**
  * Interface defining methods for interacting with a logger adapter.
  * Implemented by LoggerUtils to provide client-specific logging operations.
-*/
+ */
 export interface ILoggerAdapter {
   /**
    * Logs a message for a client using the client-specific logger instance.
@@ -103,7 +103,7 @@ export interface ILoggerAdapter {
 /**
  * Interface defining control methods for configuring logger behavior.
  * Implemented by LoggerUtils to manage common adapters, callbacks, and custom constructors.
-*/
+ */
 export interface ILoggerControl {
   /**
    * Sets a common logger adapter for all logging operations via swarm.loggerService.
@@ -145,7 +145,7 @@ export interface ILoggerControl {
 /**
  * Constructor type for creating logger instances.
  * Used by LoggerUtils to instantiate custom or default LoggerInstance objects.
-*/
+ */
 export type TLoggerInstanceCtor = new (
   clientId: string,
   callbacks: Partial<ILoggerInstanceCallbacks>
@@ -156,85 +156,86 @@ export type TLoggerInstanceCtor = new (
  * Implements ILoggerInstance for client-specific logging with lifecycle management.
  * Integrates with GLOBAL_CONFIG for console logging control and callbacks for custom behavior.
  * @implements {ILoggerInstance}
-*/
-export const LoggerInstance = makeExtendable(
-  class implements ILoggerInstance {
-    /**
-     * Creates a new logger instance for a specific client.
-    */
-    constructor(
-      readonly clientId: string,
-      readonly callbacks: Partial<ILoggerInstanceCallbacks>
-    ) {}
+ */
+class LoggerInstance implements ILoggerInstance {
+  /**
+   * Creates a new logger instance for a specific client.
+   */
+  constructor(
+    readonly clientId: string,
+    readonly callbacks: Partial<ILoggerInstanceCallbacks>
+  ) {}
 
-    /**
-     * Memoized initialization function to ensure it runs only once using singleshot.
-     * Invokes LOGGER_INSTANCE_WAIT_FOR_FN to handle onInit callback execution.
-     * @private
-    */
-    [LOGGER_INSTANCE_WAIT_FOR_INIT] = singleshot(
-      async (): Promise<void> => await LOGGER_INSTANCE_WAIT_FOR_FN(this)
-    );
+  /**
+   * Memoized initialization function to ensure it runs only once using singleshot.
+   * Invokes LOGGER_INSTANCE_WAIT_FOR_FN to handle onInit callback execution.
+   * @private
+   */
+  [LOGGER_INSTANCE_WAIT_FOR_INIT] = singleshot(
+    async (): Promise<void> => await LOGGER_INSTANCE_WAIT_FOR_FN(this)
+  );
 
-    /**
-     * Initializes the logger instance, invoking the onInit callback if provided.
-     * Ensures initialization is performed only once, memoized via singleshot.
-    */
-    async waitForInit(): Promise<void> {
-      return await this[LOGGER_INSTANCE_WAIT_FOR_INIT]();
-    }
+  /**
+   * Initializes the logger instance, invoking the onInit callback if provided.
+   * Ensures initialization is performed only once, memoized via singleshot.
+   */
+  async waitForInit(): Promise<void> {
+    return await this[LOGGER_INSTANCE_WAIT_FOR_INIT]();
+  }
 
-    /**
-     * Logs a message to the console (if enabled) and invokes the onLog callback if provided.
-     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
-    */
-    log(topic: string, ...args: any[]): void {
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
-        console.log(`[clientId=${this.clientId}]`, topic, ...args);
-      if (this.callbacks.onLog) {
-        this.callbacks.onLog(this.clientId, topic, ...args);
-      }
-    }
-
-    /**
-     * Logs a debug message to the console (if enabled) and invokes the onDebug callback if provided.
-     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
-    */
-    debug(topic: string, ...args: any[]): void {
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
-        console.debug(`[clientId=${this.clientId}]`, topic, ...args);
-      if (this.callbacks.onDebug) {
-        this.callbacks.onDebug(this.clientId, topic, ...args);
-      }
-    }
-
-    /**
-     * Logs an info message to the console (if enabled) and invokes the onInfo callback if provided.
-     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
-    */
-    info(topic: string, ...args: any[]): void {
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
-        console.info(`[clientId=${this.clientId}]`, topic, ...args);
-      if (this.callbacks.onInfo) {
-        this.callbacks.onInfo(this.clientId, topic, ...args);
-      }
-    }
-
-    /**
-     * Disposes of the logger instance, invoking the onDispose callback if provided.
-     * Performs synchronous cleanup without additional resource management.
-    */
-    dispose(): void {
-      if (this.callbacks.onDispose) {
-        this.callbacks.onDispose(this.clientId);
-      }
+  /**
+   * Logs a message to the console (if enabled) and invokes the onLog callback if provided.
+   * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+   */
+  log(topic: string, ...args: any[]): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
+      console.log(`[clientId=${this.clientId}]`, topic, ...args);
+    if (this.callbacks.onLog) {
+      this.callbacks.onLog(this.clientId, topic, ...args);
     }
   }
-);
+
+  /**
+   * Logs a debug message to the console (if enabled) and invokes the onDebug callback if provided.
+   * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+   */
+  debug(topic: string, ...args: any[]): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
+      console.debug(`[clientId=${this.clientId}]`, topic, ...args);
+    if (this.callbacks.onDebug) {
+      this.callbacks.onDebug(this.clientId, topic, ...args);
+    }
+  }
+
+  /**
+   * Logs an info message to the console (if enabled) and invokes the onInfo callback if provided.
+   * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+   */
+  info(topic: string, ...args: any[]): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE &&
+      console.info(`[clientId=${this.clientId}]`, topic, ...args);
+    if (this.callbacks.onInfo) {
+      this.callbacks.onInfo(this.clientId, topic, ...args);
+    }
+  }
+
+  /**
+   * Disposes of the logger instance, invoking the onDispose callback if provided.
+   * Performs synchronous cleanup without additional resource management.
+   */
+  dispose(): void {
+    if (this.callbacks.onDispose) {
+      this.callbacks.onDispose(this.clientId);
+    }
+  }
+}
+
+// @ts-ignore
+LoggerInstance = makeExtendable(LoggerInstance);
 
 /**
  * Type alias for an instance of LoggerInstance.
-*/
+ */
 export type TLoggerInstance = InstanceType<typeof LoggerInstance>;
 
 /**
@@ -244,7 +245,7 @@ export type TLoggerInstance = InstanceType<typeof LoggerInstance>;
  * MethodContextService (execution context), and GLOBAL_CONFIG (logging control).
  * @implements {ILoggerAdapter}
  * @implements {ILoggerControl}
-*/
+ */
 export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
   /** @private The custom logger instance constructor, defaults to LoggerInstance*/
   private LoggerFactory: TLoggerInstanceCtor = LoggerInstance;
@@ -466,17 +467,19 @@ export class LoggerUtils implements ILoggerAdapter, ILoggerControl {
 /**
  * Singleton instance of LoggerUtils implementing the logger adapter and control interfaces.
  * Provides a centralized utility for client-specific and common logging operations.
-*/
+ */
 export const LoggerAdapter = new LoggerUtils();
 
 /**
  * Exported Logger Control interface for configuring logger behavior.
  * Exposes LoggerUtils' control methods (useCommonAdapter, useClientCallbacks, useClientAdapter, etc.).
-*/
+ */
 export const Logger = LoggerAdapter as ILoggerControl;
+
+export { LoggerInstance }
 
 /**
  * Default export of the LoggerAdapter singleton.
  * Combines ILoggerAdapter and ILoggerControl implementations for comprehensive logging management.
-*/
+ */
 export default LoggerAdapter;

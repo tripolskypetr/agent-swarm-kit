@@ -1436,13 +1436,13 @@ interface ISwarmMessage<Payload extends object = object> extends IBaseMessage<Sw
 /**
  * Represents an identifier for an entity, which can be either a string or a number.
  * Used across persistence classes to uniquely identify stored entities such as agents, states, or memory records.
-*/
+ */
 type EntityId = string | number;
 /**
  * Base interface for all persistent entities in the swarm system.
  * Extended by specific entity types (e.g., `IPersistAliveData`, `IPersistStateData`) to define their structure.
  * @interface IEntity
-*/
+ */
 interface IEntity {
 }
 /** @private Symbol for memoizing the wait-for-initialization operation in PersistBase*/
@@ -1458,7 +1458,7 @@ declare const LIST_POP_SYMBOL: unique symbol;
  * Provides methods for managing entities stored as JSON files in the file system, used across swarm utilities.
  * @template Entity - The type of entity stored, defaults to `IEntity` (e.g., `IPersistAliveData`, `IPersistStateData`).
  * @interface IPersistBase
-*/
+ */
 interface IPersistBase<Entity extends IEntity = IEntity> {
     /**
      * Initializes the storage directory, creating it if needed and validating existing data by removing invalid entities.
@@ -1490,261 +1490,176 @@ interface IPersistBase<Entity extends IEntity = IEntity> {
  * Enables customization of persistence behavior through subclassing or adapter injection (e.g., for swarm or state persistence).
  * @template EntityName - The type of entity name (e.g., `SwarmName`, `SessionId`), defaults to `string`.
  * @template Entity - The type of entity (e.g., `IPersistAliveData`), defaults to `IEntity`.
-*/
+ */
 type TPersistBaseCtor<EntityName extends string = string, Entity extends IEntity = IEntity> = new (entityName: EntityName, baseDir: string) => IPersistBase<Entity>;
 /**
  * Base class for persistent storage of entities in the swarm system, using the file system.
  * Provides foundational methods for reading, writing, and managing entities as JSON files, supporting swarm utilities like `PersistAliveUtils`.
  * @template EntityName - The type of entity name (e.g., `SwarmName`, `SessionId`), defaults to `string`, used as a subdirectory.
  * @implements {IPersistBase}
-*/
-declare const PersistBase: {
-    new <EntityName extends string = string>(entityName: EntityName, baseDir?: string): {
-        /** @private The directory path where entity files are stored (e.g., `./logs/data/alive/` for alive status)*/
-        _directory: string;
-        readonly entityName: EntityName;
-        readonly baseDir: string;
-        /**
-         * Computes the full file path for an entity based on its ID.
-         * @private
-        */
-        _getFilePath(entityId: EntityId): string;
-        /**
-         * Initializes the storage directory, creating it if it doesn’t exist, and validates existing entities.
-         * Removes invalid JSON files during initialization to ensure data integrity (e.g., for `SwarmName`-based alive status).
-         * @throws {Error} If directory creation or entity validation fails (e.g., permissions or I/O errors).
-        */
-        waitForInit(initial: boolean): Promise<void>;
-        /**
-         * Retrieves the number of entities stored in the directory.
-         * Counts only files with a `.json` extension, useful for monitoring storage usage (e.g., active sessions).
-         * @throws {Error} If reading the directory fails (e.g., permissions or directory not found).
-        */
-        getCount(): Promise<number>;
-        /**
-         * Reads an entity from storage by its ID, parsing it from a JSON file.
-         * Core method for retrieving persisted data (e.g., alive status for a `SessionId` in a `SwarmName` context).
-         * @template T - The specific type of the entity (e.g., `IPersistAliveData`), defaults to `IEntity`.
-         * @throws {Error} If the file is not found (`ENOENT`) or parsing fails (e.g., invalid JSON).
-        */
-        readValue<T extends IEntity = IEntity>(entityId: EntityId): Promise<T>;
-        /**
-         * Checks if an entity exists in storage by its ID.
-         * Efficiently verifies presence without reading the full entity (e.g., checking if a `SessionId` has memory).
-         * @throws {Error} If checking existence fails for reasons other than the file not existing.
-        */
-        hasValue(entityId: EntityId): Promise<boolean>;
-        /**
-         * Writes an entity to storage with the specified ID, serializing it to JSON.
-         * Uses atomic file writing via `writeFileAtomic` to ensure data integrity (e.g., persisting `AgentName` for a `SwarmName`).
-         * @template T - The specific type of the entity (e.g., `IPersistActiveAgentData`), defaults to `IEntity`.
-         * @throws {Error} If writing to the file system fails (e.g., permissions or disk space).
-        */
-        writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
-        /**
-         * Removes an entity from storage by its ID.
-         * Deletes the corresponding JSON file, used for cleanup (e.g., removing a `SessionId`’s memory).
-         * @throws {Error} If the entity is not found (`ENOENT`) or deletion fails (e.g., permissions).
-        */
-        removeValue(entityId: EntityId): Promise<void>;
-        /**
-         * Removes all entities from storage under this entity name.
-         * Deletes all `.json` files in the directory, useful for resetting persistence (e.g., clearing a `SwarmName`’s data).
-         * @throws {Error} If reading the directory or deleting files fails (e.g., permissions).
-        */
-        removeAll(): Promise<void>;
-        /**
-         * Iterates over all entities in storage, sorted numerically by ID.
-         * Yields entities in ascending order, useful for batch processing (e.g., listing all `SessionId`s in a `SwarmName`).
-         * @template T - The specific type of the entities (e.g., `IPersistAliveData`), defaults to `IEntity`.
-         * @throws {Error} If reading the directory or entity files fails (e.g., permissions or invalid JSON).
-        */
-        values<T extends IEntity = IEntity>(): AsyncGenerator<T>;
-        /**
-         * Iterates over all entity IDs in storage, sorted numerically.
-         * Yields IDs in ascending order, useful for key enumeration (e.g., listing `SessionId`s in a `SwarmName`).
-         * @throws {Error} If reading the directory fails (e.g., permissions or directory not found).
-        */
-        keys(): AsyncGenerator<EntityId>;
-        /**
-         * Filters entities based on a predicate function, yielding only matching entities.
-         * Useful for selective retrieval (e.g., finding online `SessionId`s in a `SwarmName`).
-         * @template T - The specific type of the entities (e.g., `IPersistAliveData`), defaults to `IEntity`.
-         * @throws {Error} If reading entities fails during iteration (e.g., invalid JSON).
-        */
-        filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<T>;
-        /**
-         * Takes a limited number of entities, optionally filtered by a predicate.
-         * Stops yielding after reaching the specified total, useful for pagination (e.g., sampling `SessionId`s).
-         * @template T - The specific type of the entities (e.g., `IPersistStateData`), defaults to `IEntity`.
-         * @throws {Error} If reading entities fails during iteration (e.g., permissions).
-        */
-        take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<T>;
-        /**
-         * Memoized initialization function ensuring it runs only once per instance.
-         * Uses `singleshot` to prevent redundant initialization calls, critical for swarm setup efficiency.
-         * @private
-        */
-        [BASE_WAIT_FOR_INIT_SYMBOL]: (() => Promise<void>) & functools_kit.ISingleshotClearable;
-        /**
-         * Implements the async iterator protocol for iterating over entities.
-         * Delegates to the `values` method for iteration, enabling `for await` loops over entities.
-        */
-        [Symbol.asyncIterator](): AsyncIterableIterator<any>;
-    };
-};
+ */
+declare class PersistBase<EntityName extends string = string> implements IPersistBase {
+    readonly entityName: EntityName;
+    readonly baseDir: string;
+    /** @private The directory path where entity files are stored (e.g., `./logs/data/alive/` for alive status)*/
+    _directory: string;
+    /**
+     * Creates a new `PersistBase` instance for managing persistent storage of entities.
+     * Sets up the storage directory based on the entity name (e.g., `SwarmName` for swarm-specific data) and base directory.
+     */
+    constructor(entityName: EntityName, baseDir?: string);
+    /**
+     * Computes the full file path for an entity based on its ID.
+     * @private
+     */
+    _getFilePath(entityId: EntityId): string;
+    /**
+     * Memoized initialization function ensuring it runs only once per instance.
+     * Uses `singleshot` to prevent redundant initialization calls, critical for swarm setup efficiency.
+     * @private
+     */
+    [BASE_WAIT_FOR_INIT_SYMBOL]: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    /**
+     * Initializes the storage directory, creating it if it doesn’t exist, and validates existing entities.
+     * Removes invalid JSON files during initialization to ensure data integrity (e.g., for `SwarmName`-based alive status).
+     * @throws {Error} If directory creation or entity validation fails (e.g., permissions or I/O errors).
+     */
+    waitForInit(initial: boolean): Promise<void>;
+    /**
+     * Retrieves the number of entities stored in the directory.
+     * Counts only files with a `.json` extension, useful for monitoring storage usage (e.g., active sessions).
+     * @throws {Error} If reading the directory fails (e.g., permissions or directory not found).
+     */
+    getCount(): Promise<number>;
+    /**
+     * Reads an entity from storage by its ID, parsing it from a JSON file.
+     * Core method for retrieving persisted data (e.g., alive status for a `SessionId` in a `SwarmName` context).
+     * @template T - The specific type of the entity (e.g., `IPersistAliveData`), defaults to `IEntity`.
+     * @throws {Error} If the file is not found (`ENOENT`) or parsing fails (e.g., invalid JSON).
+     */
+    readValue<T extends IEntity = IEntity>(entityId: EntityId): Promise<T>;
+    /**
+     * Checks if an entity exists in storage by its ID.
+     * Efficiently verifies presence without reading the full entity (e.g., checking if a `SessionId` has memory).
+     * @throws {Error} If checking existence fails for reasons other than the file not existing.
+     */
+    hasValue(entityId: EntityId): Promise<boolean>;
+    /**
+     * Writes an entity to storage with the specified ID, serializing it to JSON.
+     * Uses atomic file writing via `writeFileAtomic` to ensure data integrity (e.g., persisting `AgentName` for a `SwarmName`).
+     * @template T - The specific type of the entity (e.g., `IPersistActiveAgentData`), defaults to `IEntity`.
+     * @throws {Error} If writing to the file system fails (e.g., permissions or disk space).
+     */
+    writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
+    /**
+     * Removes an entity from storage by its ID.
+     * Deletes the corresponding JSON file, used for cleanup (e.g., removing a `SessionId`’s memory).
+     * @throws {Error} If the entity is not found (`ENOENT`) or deletion fails (e.g., permissions).
+     */
+    removeValue(entityId: EntityId): Promise<void>;
+    /**
+     * Removes all entities from storage under this entity name.
+     * Deletes all `.json` files in the directory, useful for resetting persistence (e.g., clearing a `SwarmName`’s data).
+     * @throws {Error} If reading the directory or deleting files fails (e.g., permissions).
+     */
+    removeAll(): Promise<void>;
+    /**
+     * Iterates over all entities in storage, sorted numerically by ID.
+     * Yields entities in ascending order, useful for batch processing (e.g., listing all `SessionId`s in a `SwarmName`).
+     * @template T - The specific type of the entities (e.g., `IPersistAliveData`), defaults to `IEntity`.
+     * @throws {Error} If reading the directory or entity files fails (e.g., permissions or invalid JSON).
+     */
+    values<T extends IEntity = IEntity>(): AsyncGenerator<T>;
+    /**
+     * Iterates over all entity IDs in storage, sorted numerically.
+     * Yields IDs in ascending order, useful for key enumeration (e.g., listing `SessionId`s in a `SwarmName`).
+     * @throws {Error} If reading the directory fails (e.g., permissions or directory not found).
+     */
+    keys(): AsyncGenerator<EntityId>;
+    /**
+     * Implements the async iterator protocol for iterating over entities.
+     * Delegates to the `values` method for iteration, enabling `for await` loops over entities.
+     */
+    [Symbol.asyncIterator](): AsyncIterableIterator<any>;
+    /**
+     * Filters entities based on a predicate function, yielding only matching entities.
+     * Useful for selective retrieval (e.g., finding online `SessionId`s in a `SwarmName`).
+     * @template T - The specific type of the entities (e.g., `IPersistAliveData`), defaults to `IEntity`.
+     * @throws {Error} If reading entities fails during iteration (e.g., invalid JSON).
+     */
+    filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<T>;
+    /**
+     * Takes a limited number of entities, optionally filtered by a predicate.
+     * Stops yielding after reaching the specified total, useful for pagination (e.g., sampling `SessionId`s).
+     * @template T - The specific type of the entities (e.g., `IPersistStateData`), defaults to `IEntity`.
+     * @throws {Error} If reading entities fails during iteration (e.g., permissions).
+     */
+    take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<T>;
+}
 /**
  * Type alias for an instance of `PersistBase`, used for type safety in extensions and utilities (e.g., `PersistAliveUtils`).
-*/
+ */
 type TPersistBase = InstanceType<typeof PersistBase>;
 /**
  * Extends `PersistBase` to provide a persistent list structure with push/pop operations.
  * Manages entities with numeric keys for ordered access, suitable for queues or logs in the swarm system.
  * @template EntityName - The type of entity name (e.g., `SwarmName`), defaults to `string`, used as a subdirectory.
  * @extends {PersistBase<EntityName>}
-*/
-declare const PersistList: {
-    new <EntityName extends string = string>(entityName: EntityName, baseDir?: string): {
-        /** @private Tracks the last used numeric key for the list, initialized to `null` until computed*/
-        _lastCount: number | null;
-        /**
-         * Adds an entity to the end of the persistent list with a new unique numeric key.
-         * Useful for appending items like messages or events in swarm operations (e.g., within a `SwarmName`).
-         * @template T - The specific type of the entity (e.g., `IPersistStateData`), defaults to `IEntity`.
-         * @throws {Error} If writing to the file system fails (e.g., permissions or disk space).
-        */
-        push<T extends IEntity = IEntity>(entity: T): Promise<void>;
-        /**
-         * Removes and returns the last entity from the persistent list.
-         * Useful for dequeuing items or retrieving recent entries (e.g., latest event in a `SwarmName` log).
-         * @template T - The specific type of the entity (e.g., `IPersistStateData`), defaults to `IEntity`.
-         * @throws {Error} If reading or removing the entity fails (e.g., file not found).
-        */
-        pop<T extends IEntity = IEntity>(): Promise<T | null>;
-        /**
-         * Queued function to create a new unique key for a list item.
-         * Ensures sequential key generation under concurrent calls using `queued` decorator.
-         * @private
-         * @throws {Error} If key generation fails due to underlying storage issues.
-        */
-        [LIST_CREATE_KEY_SYMBOL]: () => Promise<string>;
-        /**
-         * Retrieves the key of the last item in the list.
-         * Scans all keys to find the highest numeric value, used for pop operations (e.g., dequeuing from a `SwarmName` log).
-         * @private
-         * @throws {Error} If key retrieval fails due to underlying storage issues.
-        */
-        [LIST_GET_LAST_KEY_SYMBOL]: () => Promise<string | null>;
-        /**
-         * Queued function to remove and return the last item in the list.
-         * Ensures atomic pop operations under concurrent calls using `queued` decorator.
-         * @private
-         * @template T - The specific type of the entity (e.g., `IPersistStateData`), defaults to `IEntity`.
-         * @throws {Error} If reading or removing the item fails.
-        */
-        [LIST_POP_SYMBOL]: <T extends IEntity = IEntity>() => Promise<T | null>;
-        /** @private The directory path where entity files are stored (e.g., `./logs/data/alive/` for alive status)*/
-        _directory: string;
-        readonly entityName: EntityName;
-        readonly baseDir: string;
-        /**
-         * Computes the full file path for an entity based on its ID.
-         * @private
-        */
-        _getFilePath(entityId: EntityId): string;
-        /**
-         * Initializes the storage directory, creating it if it doesn’t exist, and validates existing entities.
-         * Removes invalid JSON files during initialization to ensure data integrity (e.g., for `SwarmName`-based alive status).
-         * @throws {Error} If directory creation or entity validation fails (e.g., permissions or I/O errors).
-        */
-        waitForInit(initial: boolean): Promise<void>;
-        /**
-         * Retrieves the number of entities stored in the directory.
-         * Counts only files with a `.json` extension, useful for monitoring storage usage (e.g., active sessions).
-         * @throws {Error} If reading the directory fails (e.g., permissions or directory not found).
-        */
-        getCount(): Promise<number>;
-        /**
-         * Reads an entity from storage by its ID, parsing it from a JSON file.
-         * Core method for retrieving persisted data (e.g., alive status for a `SessionId` in a `SwarmName` context).
-         * @template T - The specific type of the entity (e.g., `IPersistAliveData`), defaults to `IEntity`.
-         * @throws {Error} If the file is not found (`ENOENT`) or parsing fails (e.g., invalid JSON).
-        */
-        readValue<T extends IEntity = IEntity>(entityId: EntityId): Promise<T>;
-        /**
-         * Checks if an entity exists in storage by its ID.
-         * Efficiently verifies presence without reading the full entity (e.g., checking if a `SessionId` has memory).
-         * @throws {Error} If checking existence fails for reasons other than the file not existing.
-        */
-        hasValue(entityId: EntityId): Promise<boolean>;
-        /**
-         * Writes an entity to storage with the specified ID, serializing it to JSON.
-         * Uses atomic file writing via `writeFileAtomic` to ensure data integrity (e.g., persisting `AgentName` for a `SwarmName`).
-         * @template T - The specific type of the entity (e.g., `IPersistActiveAgentData`), defaults to `IEntity`.
-         * @throws {Error} If writing to the file system fails (e.g., permissions or disk space).
-        */
-        writeValue<T extends IEntity = IEntity>(entityId: EntityId, entity: T): Promise<void>;
-        /**
-         * Removes an entity from storage by its ID.
-         * Deletes the corresponding JSON file, used for cleanup (e.g., removing a `SessionId`’s memory).
-         * @throws {Error} If the entity is not found (`ENOENT`) or deletion fails (e.g., permissions).
-        */
-        removeValue(entityId: EntityId): Promise<void>;
-        /**
-         * Removes all entities from storage under this entity name.
-         * Deletes all `.json` files in the directory, useful for resetting persistence (e.g., clearing a `SwarmName`’s data).
-         * @throws {Error} If reading the directory or deleting files fails (e.g., permissions).
-        */
-        removeAll(): Promise<void>;
-        /**
-         * Iterates over all entities in storage, sorted numerically by ID.
-         * Yields entities in ascending order, useful for batch processing (e.g., listing all `SessionId`s in a `SwarmName`).
-         * @template T - The specific type of the entities (e.g., `IPersistAliveData`), defaults to `IEntity`.
-         * @throws {Error} If reading the directory or entity files fails (e.g., permissions or invalid JSON).
-        */
-        values<T extends IEntity = IEntity>(): AsyncGenerator<T>;
-        /**
-         * Iterates over all entity IDs in storage, sorted numerically.
-         * Yields IDs in ascending order, useful for key enumeration (e.g., listing `SessionId`s in a `SwarmName`).
-         * @throws {Error} If reading the directory fails (e.g., permissions or directory not found).
-        */
-        keys(): AsyncGenerator<EntityId>;
-        /**
-         * Filters entities based on a predicate function, yielding only matching entities.
-         * Useful for selective retrieval (e.g., finding online `SessionId`s in a `SwarmName`).
-         * @template T - The specific type of the entities (e.g., `IPersistAliveData`), defaults to `IEntity`.
-         * @throws {Error} If reading entities fails during iteration (e.g., invalid JSON).
-        */
-        filter<T extends IEntity = IEntity>(predicate: (value: T) => boolean): AsyncGenerator<T>;
-        /**
-         * Takes a limited number of entities, optionally filtered by a predicate.
-         * Stops yielding after reaching the specified total, useful for pagination (e.g., sampling `SessionId`s).
-         * @template T - The specific type of the entities (e.g., `IPersistStateData`), defaults to `IEntity`.
-         * @throws {Error} If reading entities fails during iteration (e.g., permissions).
-        */
-        take<T extends IEntity = IEntity>(total: number, predicate?: (value: T) => boolean): AsyncGenerator<T>;
-        /**
-         * Memoized initialization function ensuring it runs only once per instance.
-         * Uses `singleshot` to prevent redundant initialization calls, critical for swarm setup efficiency.
-         * @private
-        */
-        [BASE_WAIT_FOR_INIT_SYMBOL]: (() => Promise<void>) & functools_kit.ISingleshotClearable;
-        /**
-         * Implements the async iterator protocol for iterating over entities.
-         * Delegates to the `values` method for iteration, enabling `for await` loops over entities.
-        */
-        [Symbol.asyncIterator](): AsyncIterableIterator<any>;
-    };
-};
+ */
+declare class PersistList<EntityName extends string = string> extends PersistBase<EntityName> {
+    /** @private Tracks the last used numeric key for the list, initialized to `null` until computed*/
+    _lastCount: number | null;
+    /**
+     * Creates a new `PersistList` instance for managing a persistent list of entities.
+     * Inherits directory setup from `PersistBase` and adds list-specific functionality (e.g., for `SwarmName`-based event logs).
+     */
+    constructor(entityName: EntityName, baseDir?: string);
+    /**
+     * Queued function to create a new unique key for a list item.
+     * Ensures sequential key generation under concurrent calls using `queued` decorator.
+     * @private
+     * @throws {Error} If key generation fails due to underlying storage issues.
+     */
+    [LIST_CREATE_KEY_SYMBOL]: () => Promise<string>;
+    /**
+     * Retrieves the key of the last item in the list.
+     * Scans all keys to find the highest numeric value, used for pop operations (e.g., dequeuing from a `SwarmName` log).
+     * @private
+     * @throws {Error} If key retrieval fails due to underlying storage issues.
+     */
+    [LIST_GET_LAST_KEY_SYMBOL]: () => Promise<string | null>;
+    /**
+     * Queued function to remove and return the last item in the list.
+     * Ensures atomic pop operations under concurrent calls using `queued` decorator.
+     * @private
+     * @template T - The specific type of the entity (e.g., `IPersistStateData`), defaults to `IEntity`.
+     * @throws {Error} If reading or removing the item fails.
+     */
+    [LIST_POP_SYMBOL]: <T extends IEntity = IEntity>() => Promise<T | null>;
+    /**
+     * Adds an entity to the end of the persistent list with a new unique numeric key.
+     * Useful for appending items like messages or events in swarm operations (e.g., within a `SwarmName`).
+     * @template T - The specific type of the entity (e.g., `IPersistStateData`), defaults to `IEntity`.
+     * @throws {Error} If writing to the file system fails (e.g., permissions or disk space).
+     */
+    push<T extends IEntity = IEntity>(entity: T): Promise<void>;
+    /**
+     * Removes and returns the last entity from the persistent list.
+     * Useful for dequeuing items or retrieving recent entries (e.g., latest event in a `SwarmName` log).
+     * @template T - The specific type of the entity (e.g., `IPersistStateData`), defaults to `IEntity`.
+     * @throws {Error} If reading or removing the entity fails (e.g., file not found).
+     */
+    pop<T extends IEntity = IEntity>(): Promise<T | null>;
+}
 /**
  * Type alias for an instance of `PersistList`, used for type safety in list-based operations (e.g., swarm event logs).
-*/
+ */
 type TPersistList = InstanceType<typeof PersistList>;
 /**
  * Defines the structure for data stored in active agent persistence.
  * Used by `PersistSwarmUtils` to track the currently active agent per client and swarm.
  * @interface IPersistActiveAgentData
-*/
+ */
 interface IPersistActiveAgentData {
     /**
      * The name of the active agent for a given client within a swarm.
@@ -1757,7 +1672,7 @@ interface IPersistActiveAgentData {
  * Defines the structure for data stored in navigation stack persistence.
  * Used by `PersistSwarmUtils` to maintain a stack of agent names for navigation history.
  * @interface IPersistNavigationStackData
-*/
+ */
 interface IPersistNavigationStackData {
     /**
      * The stack of agent names representing navigation history for a client within a swarm.
@@ -1770,7 +1685,7 @@ interface IPersistNavigationStackData {
  * Defines control methods for customizing swarm persistence operations.
  * Allows injection of custom persistence adapters for active agents and navigation stacks tied to `SwarmName`.
  * @interface IPersistSwarmControl
-*/
+ */
 interface IPersistSwarmControl {
     /**
      * Sets a custom persistence adapter for active agent storage.
@@ -1787,7 +1702,7 @@ interface IPersistSwarmControl {
  * Utility class for managing swarm-related persistence, including active agents and navigation stacks.
  * Provides methods to get/set active agents and navigation stacks per client (`SessionId`) and swarm (`SwarmName`), with customizable adapters.
  * @implements {IPersistSwarmControl}
-*/
+ */
 declare class PersistSwarmUtils implements IPersistSwarmControl {
     /** @private Default constructor for active agent persistence, defaults to `PersistBase`*/
     private PersistActiveAgentFactory;
@@ -1843,14 +1758,14 @@ declare class PersistSwarmUtils implements IPersistSwarmControl {
 /**
  * Exported singleton for swarm persistence operations, cast as the control interface.
  * Provides a global point of access for managing active agents and navigation stacks tied to `SwarmName`.
-*/
+ */
 declare const PersistSwarm: IPersistSwarmControl;
 /**
  * Defines the structure for state data persistence in the swarm system.
  * Wraps arbitrary state data for storage, used by `PersistStateUtils`.
  * @template T - The type of the state data, defaults to `unknown`.
  * @interface IPersistStateData
-*/
+ */
 interface IPersistStateData<T = unknown> {
     /** The state data to persist (e.g., agent configuration or session state)*/
     state: T;
@@ -1859,7 +1774,7 @@ interface IPersistStateData<T = unknown> {
  * Defines control methods for customizing state persistence operations.
  * Allows injection of a custom persistence adapter for states tied to `StateName`.
  * @interface IPersistStateControl
-*/
+ */
 interface IPersistStateControl {
     /**
      * Sets a custom persistence adapter for state storage.
@@ -1871,7 +1786,7 @@ interface IPersistStateControl {
  * Utility class for managing state persistence per client (`SessionId`) and state name (`StateName`) in the swarm system.
  * Provides methods to get/set state data with a customizable persistence adapter.
  * @implements {IPersistStateControl}
-*/
+ */
 declare class PersistStateUtils implements IPersistStateControl {
     /** @private Default constructor for state persistence, defaults to `PersistBase`*/
     private PersistStateFactory;
@@ -1904,14 +1819,14 @@ declare class PersistStateUtils implements IPersistStateControl {
 /**
  * Exported singleton for state persistence operations, cast as the control interface.
  * Provides a global point of access for managing state persistence tied to `StateName` and `SessionId`.
-*/
+ */
 declare const PersistState: IPersistStateControl;
 /**
  * Defines the structure for storage data persistence in the swarm system.
  * Wraps an array of storage data for persistence, used by `PersistStorageUtils`.
  * @template T - The type of storage data, defaults to `IStorageData`.
  * @interface IPersistStorageData
-*/
+ */
 interface IPersistStorageData<T extends IStorageData = IStorageData> {
     /** The array of storage data to persist (e.g., key-value pairs or records)*/
     data: T[];
@@ -1920,7 +1835,7 @@ interface IPersistStorageData<T extends IStorageData = IStorageData> {
  * Defines control methods for customizing storage persistence operations.
  * Allows injection of a custom persistence adapter for storage tied to `StorageName`.
  * @interface IPersistStorageControl
-*/
+ */
 interface IPersistStorageControl {
     /**
      * Sets a custom persistence adapter for storage.
@@ -1932,7 +1847,7 @@ interface IPersistStorageControl {
  * Utility class for managing storage persistence per client (`SessionId`) and storage name (`StorageName`) in the swarm system.
  * Provides methods to get/set storage data with a customizable persistence adapter.
  * @implements {IPersistStorageControl}
-*/
+ */
 declare class PersistStorageUtils implements IPersistStorageControl {
     /** @private Default constructor for storage persistence, defaults to `PersistBase`*/
     private PersistStorageFactory;
@@ -1965,14 +1880,14 @@ declare class PersistStorageUtils implements IPersistStorageControl {
 /**
  * Exported singleton for storage persistence operations, cast as the control interface.
  * Provides a global point of access for managing storage persistence tied to `StorageName` and `SessionId`.
-*/
+ */
 declare const PersistStorage: IPersistStorageControl;
 /**
  * Defines the structure for memory data persistence in the swarm system.
  * Wraps arbitrary memory data for storage, used by `PersistMemoryUtils`.
  * @template T - The type of the memory data, defaults to `unknown`.
  * @interface IPersistMemoryData
-*/
+ */
 interface IPersistMemoryData<T = unknown> {
     /** The memory data to persist (e.g., session context or temporary state)*/
     data: T;
@@ -1981,7 +1896,7 @@ interface IPersistMemoryData<T = unknown> {
  * Defines control methods for customizing memory persistence operations.
  * Allows injection of a custom persistence adapter for memory tied to `SessionId`.
  * @interface IPersistMemoryControl
-*/
+ */
 interface IPersistMemoryControl {
     /**
      * Sets a custom persistence adapter for memory storage.
@@ -1993,7 +1908,7 @@ interface IPersistMemoryControl {
  * Utility class for managing memory persistence per client (`SessionId`) in the swarm system.
  * Provides methods to get/set memory data with a customizable persistence adapter.
  * @implements {IPersistMemoryControl}
-*/
+ */
 declare class PersistMemoryUtils implements IPersistMemoryControl {
     /** @private Default constructor for memory persistence, defaults to `PersistBase`*/
     private PersistMemoryFactory;
@@ -2031,13 +1946,13 @@ declare class PersistMemoryUtils implements IPersistMemoryControl {
 /**
  * Exported singleton for memory persistence operations, cast as the control interface.
  * Provides a global point of access for managing memory persistence tied to `SessionId`.
-*/
+ */
 declare const PersistMemory: IPersistMemoryControl;
 /**
  * Defines the structure for alive status persistence in the swarm system.
  * Tracks whether a client (`SessionId`) is online or offline within a `SwarmName`.
  * @interface IPersistAliveData
-*/
+ */
 interface IPersistAliveData {
     /** Indicates whether the client is online (`true`) or offline (`false`)*/
     online: boolean;
@@ -2046,7 +1961,7 @@ interface IPersistAliveData {
  * Defines control methods for customizing alive status persistence operations.
  * Allows injection of a custom persistence adapter for alive status tied to `SwarmName`.
  * @interface IPersistAliveControl
-*/
+ */
 interface IPersistAliveControl {
     /**
      * Sets a custom persistence adapter for alive status storage.
@@ -2058,7 +1973,7 @@ interface IPersistAliveControl {
  * Utility class for managing alive status persistence per client (`SessionId`) in the swarm system.
  * Provides methods to mark clients as online/offline and check their status within a `SwarmName`, with a customizable adapter.
  * @implements {IPersistAliveControl}
-*/
+ */
 declare class PersistAliveUtils implements IPersistAliveControl {
     /** @private Default constructor for alive status persistence, defaults to `PersistBase`*/
     private PersistAliveFactory;
@@ -2095,13 +2010,13 @@ declare class PersistAliveUtils implements IPersistAliveControl {
 /**
  * Exported singleton for alive status persistence operations, cast as the control interface.
  * Provides a global point of access for managing client online/offline status in the swarm.
-*/
+ */
 declare const PersistAlive: IPersistAliveControl;
 /**
  * Defines the structure for policy data persistence in the swarm system.
  * Tracks banned clients (`SessionId`) within a `SwarmName` under a specific policy.
  * @interface IPersistPolicyData
-*/
+ */
 interface IPersistPolicyData {
     /** Array of session IDs that are banned under this policy*/
     bannedClients: SessionId[];
@@ -2110,7 +2025,7 @@ interface IPersistPolicyData {
  * Defines control methods for customizing policy persistence operations.
  * Allows injection of a custom persistence adapter for policy data tied to `SwarmName`.
  * @interface IPersistPolicyControl
-*/
+ */
 interface IPersistPolicyControl {
     /**
      * Sets a custom persistence adapter for policy data storage.
@@ -2122,7 +2037,7 @@ interface IPersistPolicyControl {
  * Utility class for managing policy data persistence in the swarm system.
  * Provides methods to get and set banned clients within a `SwarmName`, with a customizable adapter.
  * @implements {IPersistPolicyControl}
-*/
+ */
 declare class PersistPolicyUtils implements IPersistPolicyControl {
     /** @private Default constructor for policy data persistence, defaults to `PersistBase`*/
     private PersistPolicyFactory;
@@ -2153,13 +2068,13 @@ declare class PersistPolicyUtils implements IPersistPolicyControl {
 /**
  * Exported singleton for policy persistence operations, cast as the control interface.
  * Provides a global point of access for managing client bans in the swarm.
-*/
+ */
 declare const PersistPolicy: IPersistPolicyControl;
 /**
  * Defines the structure for embedding data persistence in the swarm system.
  * Stores numerical embeddings for a `stringHash` within an `EmbeddingName`.
  * @interface IPersistEmbeddingData
-*/
+ */
 interface IPersistEmbeddingData {
     /** Array of numerical values representing the embedding vector*/
     embeddings: number[];
@@ -2168,7 +2083,7 @@ interface IPersistEmbeddingData {
  * Defines control methods for customizing embedding persistence operations.
  * Allows injection of a custom persistence adapter for embedding data tied to `EmbeddingName`.
  * @interface IPersistEmbeddingControl
-*/
+ */
 interface IPersistEmbeddingControl {
     /**
      * Sets a custom persistence adapter for embedding data storage.
@@ -2180,7 +2095,7 @@ interface IPersistEmbeddingControl {
  * Utility class for managing embedding data persistence in the swarm system.
  * Provides methods to read and write embedding vectors with a customizable adapter.
  * @implements {IPersistEmbeddingControl}
-*/
+ */
 declare class PersistEmbeddingUtils implements IPersistEmbeddingControl {
     /** @private Default constructor for embedding data persistence, defaults to `PersistBase`*/
     private PersistEmbeddingFactory;
@@ -2211,12 +2126,12 @@ declare class PersistEmbeddingUtils implements IPersistEmbeddingControl {
 /**
  * Exported singleton for embedding persistence operations, cast as the control interface.
  * Provides a global point of access for managing embedding cache in the system.
-*/
+ */
 declare const PersistEmbedding: IPersistEmbeddingControl;
 
 /**
  * Callbacks for managing history instance lifecycle and message handling.
-*/
+ */
 interface IHistoryInstanceCallbacks {
     /**
      * Retrieves dynamic system prompt messages for an agent.
@@ -2269,7 +2184,7 @@ interface IHistoryInstanceCallbacks {
 }
 /**
  * Interface defining methods for interacting with a history adapter.
-*/
+ */
 interface IHistoryAdapter {
     /**
      * Iterates over history messages for a client and agent.
@@ -2290,7 +2205,7 @@ interface IHistoryAdapter {
 }
 /**
  * Interface defining control methods for configuring history behavior.
-*/
+ */
 interface IHistoryControl {
     /**
      * Sets a custom history instance constructor for the adapter.
@@ -2303,7 +2218,7 @@ interface IHistoryControl {
 }
 /**
  * Interface defining methods for a history instance implementation.
-*/
+ */
 interface IHistoryInstance {
     /**
      * Iterates over history messages for an agent.
@@ -2328,7 +2243,7 @@ interface IHistoryInstance {
 }
 /**
  * Constructor type for creating history instances.
-*/
+ */
 type THistoryInstanceCtor = new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>) => IHistoryInstance;
 /** @private Symbol for memoizing the waitForInit method in HistoryMemoryInstance*/
 declare const HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT: unique symbol;
@@ -2337,98 +2252,104 @@ declare const HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT: unique symbol;
 /**
  * Manages a persistent history of messages, storing them in memory and on disk.
  * @implements {IHistoryInstance}
-*/
-declare const HistoryPersistInstance: {
-    new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>): {
-        /** @private The in-memory array of history messages*/
-        _array: ISwarmMessage[];
-        /** @private The persistent storage instance for history messages*/
-        _persistStorage: TPersistList;
-        /**
-         * Initializes the history for an agent, loading data from persistent storage if needed.
-        */
-        waitForInit(agentName: AgentName): Promise<void>;
-        readonly clientId: string;
-        readonly callbacks: Partial<IHistoryInstanceCallbacks>;
-        /**
-         * Iterates over history messages, applying filters and system prompts if configured.
-         * Invokes onRead callbacks during iteration if provided.
-        */
-        iterate(agentName: AgentName): AsyncIterableIterator<ISwarmMessage>;
-        /**
-         * Adds a new message to the history, persisting it to storage.
-         * Invokes onPush and onChange callbacks if provided.
-        */
-        push(value: ISwarmMessage, agentName: AgentName): Promise<void>;
-        /**
-         * Removes and returns the last message from the history, updating persistent storage.
-         * Invokes onPop and onChange callbacks if provided.
-        */
-        pop(agentName: AgentName): Promise<ISwarmMessage | null>;
-        /**
-         * Disposes of the history, clearing all data if agentName is null.
-         * Invokes onDispose callback if provided.
-        */
-        dispose(agentName: AgentName | null): Promise<void>;
-        /**
-         * Memoized initialization function to ensure it runs only once per agent.
-         * @private
-        */
-        [HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT]: ((agentName: AgentName) => Promise<void>) & functools_kit.ISingleshotClearable;
-    };
-};
+ */
+declare class HistoryPersistInstance implements IHistoryInstance {
+    readonly clientId: string;
+    readonly callbacks: Partial<IHistoryInstanceCallbacks>;
+    /** @private The in-memory array of history messages*/
+    _array: ISwarmMessage[];
+    /** @private The persistent storage instance for history messages*/
+    _persistStorage: TPersistList;
+    /**
+     * Memoized initialization function to ensure it runs only once per agent.
+     * @private
+     */
+    [HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT]: ((agentName: AgentName) => Promise<void>) & functools_kit.ISingleshotClearable;
+    /**
+     * Initializes the history for an agent, loading data from persistent storage if needed.
+     */
+    waitForInit(agentName: AgentName): Promise<void>;
+    /**
+     * Creates a new persistent history instance.
+     * Invokes onInit and onRef callbacks if provided.
+     */
+    constructor(clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>);
+    /**
+     * Iterates over history messages, applying filters and system prompts if configured.
+     * Invokes onRead callbacks during iteration if provided.
+     */
+    iterate(agentName: AgentName): AsyncIterableIterator<ISwarmMessage>;
+    /**
+     * Adds a new message to the history, persisting it to storage.
+     * Invokes onPush and onChange callbacks if provided.
+     */
+    push(value: ISwarmMessage, agentName: AgentName): Promise<void>;
+    /**
+     * Removes and returns the last message from the history, updating persistent storage.
+     * Invokes onPop and onChange callbacks if provided.
+     */
+    pop(agentName: AgentName): Promise<ISwarmMessage | null>;
+    /**
+     * Disposes of the history, clearing all data if agentName is null.
+     * Invokes onDispose callback if provided.
+     */
+    dispose(agentName: AgentName | null): Promise<void>;
+}
 /**
  * Type alias for an instance of HistoryPersistInstance.
-*/
+ */
 type THistoryPersistInstance = InstanceType<typeof HistoryPersistInstance>;
 /**
  * Manages an in-memory history of messages without persistence.
  * @implements {IHistoryInstance}
-*/
-declare const HistoryMemoryInstance: {
-    new (clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>): {
-        /** @private The in-memory array of history messages*/
-        _array: ISwarmMessage[];
-        /**
-         * Initializes the history for an agent, loading initial data if needed.
-        */
-        waitForInit(agentName: AgentName): Promise<void>;
-        readonly clientId: string;
-        readonly callbacks: Partial<IHistoryInstanceCallbacks>;
-        /**
-         * Iterates over history messages, applying filters and system prompts if configured.
-         * Invokes onRead callbacks during iteration if provided.
-        */
-        iterate(agentName: AgentName): AsyncIterableIterator<ISwarmMessage>;
-        /**
-         * Adds a new message to the in-memory history.
-         * Invokes onPush and onChange callbacks if provided.
-        */
-        push(value: ISwarmMessage, agentName: AgentName): Promise<void>;
-        /**
-         * Removes and returns the last message from the in-memory history.
-         * Invokes onPop and onChange callbacks if provided.
-        */
-        pop(agentName: AgentName): Promise<ISwarmMessage | null>;
-        /**
-         * Disposes of the history, clearing all data if agentName is null.
-         * Invokes onDispose callback if provided.
-        */
-        dispose(agentName: AgentName | null): Promise<void>;
-        /**
-         * Memoized initialization function to ensure it runs only once per agent.
-         * @private
-        */
-        [HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT]: ((agentName: AgentName) => Promise<void>) & functools_kit.ISingleshotClearable;
-    };
-};
+ */
+declare class HistoryMemoryInstance implements IHistoryInstance {
+    readonly clientId: string;
+    readonly callbacks: Partial<IHistoryInstanceCallbacks>;
+    /** @private The in-memory array of history messages*/
+    _array: ISwarmMessage[];
+    /**
+     * Memoized initialization function to ensure it runs only once per agent.
+     * @private
+     */
+    [HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT]: ((agentName: AgentName) => Promise<void>) & functools_kit.ISingleshotClearable;
+    /**
+     * Initializes the history for an agent, loading initial data if needed.
+     */
+    waitForInit(agentName: AgentName): Promise<void>;
+    /**
+     * Creates a new in-memory history instance.
+     * Invokes onInit and onRef callbacks if provided.
+     */
+    constructor(clientId: string, callbacks: Partial<IHistoryInstanceCallbacks>);
+    /**
+     * Iterates over history messages, applying filters and system prompts if configured.
+     * Invokes onRead callbacks during iteration if provided.
+     */
+    iterate(agentName: AgentName): AsyncIterableIterator<ISwarmMessage>;
+    /**
+     * Adds a new message to the in-memory history.
+     * Invokes onPush and onChange callbacks if provided.
+     */
+    push(value: ISwarmMessage, agentName: AgentName): Promise<void>;
+    /**
+     * Removes and returns the last message from the in-memory history.
+     * Invokes onPop and onChange callbacks if provided.
+     */
+    pop(agentName: AgentName): Promise<ISwarmMessage | null>;
+    /**
+     * Disposes of the history, clearing all data if agentName is null.
+     * Invokes onDispose callback if provided.
+     */
+    dispose(agentName: AgentName | null): Promise<void>;
+}
 /**
  * Type alias for an instance of HistoryMemoryInstance.
-*/
+ */
 type THistoryMemoryInstance = InstanceType<typeof HistoryMemoryInstance>;
 /**
  * Exported History Control interface for configuring history behavior.
-*/
+ */
 declare const History: IHistoryControl;
 
 /**
@@ -12434,7 +12355,7 @@ declare const LOGGER_INSTANCE_WAIT_FOR_INIT: unique symbol;
 /**
  * Callbacks for managing logger instance lifecycle and log events.
  * Used by LoggerInstance to hook into initialization, disposal, and logging operations.
-*/
+ */
 interface ILoggerInstanceCallbacks {
     /**
      * Called when the logger instance is initialized, typically during waitForInit.
@@ -12461,7 +12382,7 @@ interface ILoggerInstanceCallbacks {
  * Interface for logger instances, extending the base ILogger with lifecycle methods.
  * Implemented by LoggerInstance for client-specific logging with initialization and disposal support.
  * @extends {ILogger}
-*/
+ */
 interface ILoggerInstance extends ILogger {
     /**
      * Initializes the logger instance, invoking the onInit callback if provided.
@@ -12477,7 +12398,7 @@ interface ILoggerInstance extends ILogger {
 /**
  * Interface defining methods for interacting with a logger adapter.
  * Implemented by LoggerUtils to provide client-specific logging operations.
-*/
+ */
 interface ILoggerAdapter {
     /**
      * Logs a message for a client using the client-specific logger instance.
@@ -12503,7 +12424,7 @@ interface ILoggerAdapter {
 /**
  * Interface defining control methods for configuring logger behavior.
  * Implemented by LoggerUtils to manage common adapters, callbacks, and custom constructors.
-*/
+ */
 interface ILoggerControl {
     /**
      * Sets a common logger adapter for all logging operations via swarm.loggerService.
@@ -12539,59 +12460,61 @@ interface ILoggerControl {
 /**
  * Constructor type for creating logger instances.
  * Used by LoggerUtils to instantiate custom or default LoggerInstance objects.
-*/
+ */
 type TLoggerInstanceCtor = new (clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>) => ILoggerInstance;
 /**
  * Manages logging operations for a specific client, with customizable callbacks and console output.
  * Implements ILoggerInstance for client-specific logging with lifecycle management.
  * Integrates with GLOBAL_CONFIG for console logging control and callbacks for custom behavior.
  * @implements {ILoggerInstance}
-*/
-declare const LoggerInstance: {
-    new (clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>): {
-        readonly clientId: string;
-        readonly callbacks: Partial<ILoggerInstanceCallbacks>;
-        /**
-         * Initializes the logger instance, invoking the onInit callback if provided.
-         * Ensures initialization is performed only once, memoized via singleshot.
-        */
-        waitForInit(): Promise<void>;
-        /**
-         * Logs a message to the console (if enabled) and invokes the onLog callback if provided.
-         * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
-        */
-        log(topic: string, ...args: any[]): void;
-        /**
-         * Logs a debug message to the console (if enabled) and invokes the onDebug callback if provided.
-         * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
-        */
-        debug(topic: string, ...args: any[]): void;
-        /**
-         * Logs an info message to the console (if enabled) and invokes the onInfo callback if provided.
-         * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
-        */
-        info(topic: string, ...args: any[]): void;
-        /**
-         * Disposes of the logger instance, invoking the onDispose callback if provided.
-         * Performs synchronous cleanup without additional resource management.
-        */
-        dispose(): void;
-        /**
-         * Memoized initialization function to ensure it runs only once using singleshot.
-         * Invokes LOGGER_INSTANCE_WAIT_FOR_FN to handle onInit callback execution.
-         * @private
-        */
-        [LOGGER_INSTANCE_WAIT_FOR_INIT]: (() => Promise<void>) & functools_kit.ISingleshotClearable;
-    };
-};
+ */
+declare class LoggerInstance implements ILoggerInstance {
+    readonly clientId: string;
+    readonly callbacks: Partial<ILoggerInstanceCallbacks>;
+    /**
+     * Creates a new logger instance for a specific client.
+     */
+    constructor(clientId: string, callbacks: Partial<ILoggerInstanceCallbacks>);
+    /**
+     * Memoized initialization function to ensure it runs only once using singleshot.
+     * Invokes LOGGER_INSTANCE_WAIT_FOR_FN to handle onInit callback execution.
+     * @private
+     */
+    [LOGGER_INSTANCE_WAIT_FOR_INIT]: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    /**
+     * Initializes the logger instance, invoking the onInit callback if provided.
+     * Ensures initialization is performed only once, memoized via singleshot.
+     */
+    waitForInit(): Promise<void>;
+    /**
+     * Logs a message to the console (if enabled) and invokes the onLog callback if provided.
+     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+     */
+    log(topic: string, ...args: any[]): void;
+    /**
+     * Logs a debug message to the console (if enabled) and invokes the onDebug callback if provided.
+     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+     */
+    debug(topic: string, ...args: any[]): void;
+    /**
+     * Logs an info message to the console (if enabled) and invokes the onInfo callback if provided.
+     * Controlled by GLOBAL_CONFIG.CC_LOGGER_ENABLE_CONSOLE for console output.
+     */
+    info(topic: string, ...args: any[]): void;
+    /**
+     * Disposes of the logger instance, invoking the onDispose callback if provided.
+     * Performs synchronous cleanup without additional resource management.
+     */
+    dispose(): void;
+}
 /**
  * Type alias for an instance of LoggerInstance.
-*/
+ */
 type TLoggerInstance = InstanceType<typeof LoggerInstance>;
 /**
  * Exported Logger Control interface for configuring logger behavior.
  * Exposes LoggerUtils' control methods (useCommonAdapter, useClientCallbacks, useClientAdapter, etc.).
-*/
+ */
 declare const Logger: ILoggerControl;
 
 /**
@@ -12953,7 +12876,7 @@ declare const setConfig: (config: Partial<IGlobalConfig>) => void;
 /**
  * Callbacks interface for OperatorInstance events
  * @interface IOperatorInstanceCallbacks
-*/
+ */
 interface IOperatorInstanceCallbacks {
     /** Called when operator instance is initialized*/
     onInit: (clientId: string, agentName: AgentName) => void;
@@ -12969,7 +12892,7 @@ interface IOperatorInstanceCallbacks {
 /**
  * Interface for Operator instance functionality
  * @interface IOperatorInstance
-*/
+ */
 interface IOperatorInstance {
     /** Connects an answer handler*/
     connectAnswer(next: (answer: string) => void): void;
@@ -12987,58 +12910,60 @@ interface IOperatorInstance {
 /**
  * Constructor type for OperatorInstance.
  * Defines the signature for creating operator instances with client ID, agent name, and callbacks.
-*/
+ */
 type TOperatorInstanceCtor = new (clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>) => IOperatorInstance;
 /**
  * Operator instance implementation
  * @class OperatorInstance
  * @implements {IOperatorInstance}
-*/
-declare const OperatorInstance: {
-    new (clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>): {
-        _answerSubject: Subject<string>;
-        _isDisposed: boolean;
-        /**
-         * Disposed flag for child class
-        */
-        readonly isDisposed: boolean;
-        readonly clientId: string;
-        readonly agentName: AgentName;
-        readonly callbacks: Partial<IOperatorInstanceCallbacks>;
-        /**
-         * Connects an answer subscription
-        */
-        connectAnswer(next: (answer: string) => void): void;
-        /**
-         * Init the operator connection
-        */
-        init(): Promise<void>;
-        /**
-         * Sends a notification
-        */
-        notify(content: string): Promise<void>;
-        /**
-         * Sends an answer
-        */
-        answer(content: string): Promise<void>;
-        /**
-         * Receives a message
-        */
-        recieveMessage(message: string): Promise<void>;
-        /**
-         * Disposes the operator instance
-        */
-        dispose(): Promise<void>;
-    };
-};
+ */
+declare class OperatorInstance implements IOperatorInstance {
+    readonly clientId: string;
+    readonly agentName: AgentName;
+    readonly callbacks: Partial<IOperatorInstanceCallbacks>;
+    _answerSubject: Subject<string>;
+    _isDisposed: boolean;
+    /**
+     * Disposed flag for child class
+     */
+    get isDisposed(): boolean;
+    /**
+     * Creates an OperatorInstance
+     */
+    constructor(clientId: string, agentName: AgentName, callbacks: Partial<IOperatorInstanceCallbacks>);
+    /**
+     * Connects an answer subscription
+     */
+    connectAnswer(next: (answer: string) => void): void;
+    /**
+     * Init the operator connection
+     */
+    init(): Promise<void>;
+    /**
+     * Sends a notification
+     */
+    notify(content: string): Promise<void>;
+    /**
+     * Sends an answer
+     */
+    answer(content: string): Promise<void>;
+    /**
+     * Receives a message
+     */
+    recieveMessage(message: string): Promise<void>;
+    /**
+     * Disposes the operator instance
+     */
+    dispose(): Promise<void>;
+}
 /**
  * Type alias for an instance of OperatorInstance.
-*/
+ */
 type TOperatorInstance = InstanceType<typeof OperatorInstance>;
 /**
  * Operator control interface
  * @interface IOperatorControl
-*/
+ */
 interface IOperatorControl {
     /** Sets custom operator adapter*/
     useOperatorAdapter(Ctor: TOperatorInstanceCtor): void;
@@ -13295,12 +13220,12 @@ declare const SharedState: SharedStateUtils;
 /**
  * Function type for cleanup operations.
  * Called when resources need to be disposed.
-*/
+ */
 type DisposeFn = () => void;
 /**
  * @interface IChatInstance
  * Interface for chat instance functionality
-*/
+ */
 interface IChatInstance {
     /**
      * Begins a chat session
@@ -13326,7 +13251,7 @@ interface IChatInstance {
 /**
  * @interface IChatInstanceCallbacks
  * Callback interface for chat instance events
-*/
+ */
 interface IChatInstanceCallbacks {
     /**
      * Called when checking activity status
@@ -13352,7 +13277,7 @@ interface IChatInstanceCallbacks {
 /**
  * @interface IChatControl
  * Interface for controlling chat instances
-*/
+ */
 interface IChatControl {
     /**
      * Sets the chat instance constructor
@@ -13365,53 +13290,55 @@ interface IChatControl {
 }
 /**
  * Constructor type for creating chat instances with dispose callback.
-*/
+ */
 type TChatInstanceCtor = new <Payload extends unknown = any>(clientId: SessionId, swarmName: SwarmName, onDispose: DisposeFn, callbacks: IChatInstanceCallbacks, payload: Payload) => IChatInstance;
 /**
  * @class ChatInstance
  * @implements {IChatInstance}
  * Implementation of a single chat instance
-*/
-declare const ChatInstance: {
-    new <Payload extends unknown = any>(clientId: SessionId, swarmName: SwarmName, onDispose: DisposeFn, callbacks: Partial<IChatInstanceCallbacks>, payload: Payload): {
-        /** @private*/
-        _disposeSubject: Subject<string>;
-        /** @private*/
-        _chatSession: ReturnType<typeof session>;
-        /** @private*/
-        _lastActivity: number;
-        readonly clientId: SessionId;
-        readonly swarmName: SwarmName;
-        readonly onDispose: DisposeFn;
-        readonly callbacks: Partial<IChatInstanceCallbacks>;
-        readonly payload: Payload;
-        /**
-         * Checks if the chat has been active within the timeout period
-        */
-        checkLastActivity(now: number): Promise<boolean>;
-        /**
-         * Begins a chat session
-        */
-        beginChat: (() => Promise<void>) & functools_kit.ISingleshotClearable;
-        /**
-         * Sends a message in the chat
-        */
-        sendMessage(content: string): Promise<string>;
-        /**
-         * Disposes of the chat instance
-        */
-        dispose(): Promise<void>;
-        /**
-         * Adds a listener for dispose events
-        */
-        listenDispose(fn: (clientId: SessionId) => void): () => void;
-    };
-};
+ */
+declare class ChatInstance<Payload extends unknown = any> implements IChatInstance {
+    readonly clientId: SessionId;
+    readonly swarmName: SwarmName;
+    readonly onDispose: DisposeFn;
+    readonly callbacks: Partial<IChatInstanceCallbacks>;
+    readonly payload: Payload;
+    /** @private*/
+    _disposeSubject: Subject<string>;
+    /** @private*/
+    _chatSession: ReturnType<typeof session>;
+    /** @private*/
+    _lastActivity: number;
+    /**
+     * @constructor
+     */
+    constructor(clientId: SessionId, swarmName: SwarmName, onDispose: DisposeFn, callbacks: Partial<IChatInstanceCallbacks>, payload: Payload);
+    /**
+     * Checks if the chat has been active within the timeout period
+     */
+    checkLastActivity(now: number): Promise<boolean>;
+    /**
+     * Begins a chat session
+     */
+    beginChat: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    /**
+     * Sends a message in the chat
+     */
+    sendMessage(content: string): Promise<string>;
+    /**
+     * Disposes of the chat instance
+     */
+    dispose(): Promise<void>;
+    /**
+     * Adds a listener for dispose events
+     */
+    listenDispose(fn: (clientId: SessionId) => void): () => void;
+}
 /**
  * @class ChatUtils
  * @implements {IChatControl}
  * Utility class for managing multiple chat instances
-*/
+ */
 declare class ChatUtils implements IChatControl {
     /** @private*/
     private ChatInstanceFactory;
@@ -13454,7 +13381,7 @@ declare class ChatUtils implements IChatControl {
 /**
  * @constant {ChatUtils} Chat
  * Singleton instance of ChatUtils
-*/
+ */
 declare const Chat: ChatUtils;
 
 /**

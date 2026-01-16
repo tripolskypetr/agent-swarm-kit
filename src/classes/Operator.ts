@@ -6,13 +6,13 @@ import { GLOBAL_CONFIG } from "../config/params";
 /**
  * Function type for cleanup operations.
  * Called when operator connections need to be disposed.
-*/
+ */
 type DisposeFn = () => void;
 
 /**
  * Callbacks interface for OperatorInstance events
  * @interface IOperatorInstanceCallbacks
-*/
+ */
 interface IOperatorInstanceCallbacks {
   /** Called when operator instance is initialized*/
   onInit: (clientId: string, agentName: AgentName) => void;
@@ -29,7 +29,7 @@ interface IOperatorInstanceCallbacks {
 /**
  * Interface for Operator instance functionality
  * @interface IOperatorInstance
-*/
+ */
 interface IOperatorInstance {
   /** Connects an answer handler*/
   connectAnswer(next: (answer: string) => void): void;
@@ -48,7 +48,7 @@ interface IOperatorInstance {
 /**
  * Constructor type for OperatorInstance.
  * Defines the signature for creating operator instances with client ID, agent name, and callbacks.
-*/
+ */
 export type TOperatorInstanceCtor = new (
   clientId: string,
   agentName: AgentName,
@@ -91,150 +91,145 @@ const METHOD_NAME_CONNECT_OPERATOR = "OperatorUtils.connectOperator";
  * Operator instance implementation
  * @class OperatorInstance
  * @implements {IOperatorInstance}
-*/
-export const OperatorInstance = makeExtendable(
-  class implements IOperatorInstance {
-    _answerSubject = new Subject<string>();
-    _isDisposed = false;
+ */
+class OperatorInstance implements IOperatorInstance {
+  _answerSubject = new Subject<string>();
+  _isDisposed = false;
 
-    /**
-     * Disposed flag for child class
-    */
-    public get isDisposed() {
-      return this._isDisposed;
-    }
+  /**
+   * Disposed flag for child class
+   */
+  public get isDisposed() {
+    return this._isDisposed;
+  }
 
-    /**
-     * Creates an OperatorInstance
-    */
-    constructor(
-      readonly clientId: string,
-      readonly agentName: AgentName,
-      readonly callbacks: Partial<IOperatorInstanceCallbacks>
-    ) {
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-        swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_CTOR, {
-          clientId: this.clientId,
-          agentName,
-        });
-    }
+  /**
+   * Creates an OperatorInstance
+   */
+  constructor(
+    readonly clientId: string,
+    readonly agentName: AgentName,
+    readonly callbacks: Partial<IOperatorInstanceCallbacks>
+  ) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_CTOR, {
+        clientId: this.clientId,
+        agentName,
+      });
+  }
 
-    /**
-     * Connects an answer subscription
-    */
-    public connectAnswer(next: (answer: string) => void) {
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-        swarm.loggerService.debug(
-          OPERATOR_INSTANCE_METHOD_NAME_CONNECT_ANSWER,
-          {
-            clientId: this.clientId,
-            agentName: this.agentName,
-          }
-        );
-      this._answerSubject.unsubscribeAll();
-      this._answerSubject.subscribe(next);
-    }
+  /**
+   * Connects an answer subscription
+   */
+  public connectAnswer(next: (answer: string) => void) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_CONNECT_ANSWER, {
+        clientId: this.clientId,
+        agentName: this.agentName,
+      });
+    this._answerSubject.unsubscribeAll();
+    this._answerSubject.subscribe(next);
+  }
 
-    /**
-     * Init the operator connection
-    */
-    public async init() {
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-        swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_INIT, {
-          clientId: this.clientId,
-          agentName: this.agentName,
-        });
-      if (this.callbacks.onInit) {
-        this.callbacks.onInit(this.clientId, this.agentName);
-      }
-    }
-
-    /**
-     * Sends a notification
-    */
-    public async notify(content: string) {
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-        swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_NOTIFY, {
-          clientId: this.clientId,
-          agentName: this.agentName,
-          content,
-        });
-      if (this._isDisposed) {
-        return;
-      }
-      if (this.callbacks.onNotify) {
-        this.callbacks.onNotify(content, this.clientId, this.agentName);
-      }
-    }
-
-    /**
-     * Sends an answer
-    */
-    public async answer(content: string) {
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-        swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_ANSWER, {
-          clientId: this.clientId,
-          agentName: this.agentName,
-          content,
-        });
-      if (this._isDisposed) {
-        return;
-      }
-      if (this._answerSubject.hasListeners) {
-        this.callbacks.onAnswer &&
-          this.callbacks.onAnswer(content, this.clientId, this.agentName);
-        await this._answerSubject.next(content);
-      } else {
-        await this.notify(content);
-      }
-      this._answerSubject.unsubscribeAll();
-    }
-
-    /**
-     * Receives a message
-    */
-    public async recieveMessage(message: string) {
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-        swarm.loggerService.debug(
-          OPERATOR_INSTANCE_METHOD_NAME_RECEIVE_MESSAGE,
-          {
-            clientId: this.clientId,
-            agentName: this.agentName,
-            message,
-          }
-        );
-      if (this.callbacks.onMessage) {
-        this.callbacks.onMessage(message, this.clientId, this.agentName);
-      }
-    }
-
-    /**
-     * Disposes the operator instance
-    */
-    public async dispose() {
-      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-        swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_DISPOSE, {
-          clientId: this.clientId,
-          agentName: this.agentName,
-        });
-      if (this.callbacks.onDispose) {
-        this.callbacks.onDispose(this.clientId, this.agentName);
-      }
-      this._answerSubject.unsubscribeAll();
-      this._isDisposed = true;
+  /**
+   * Init the operator connection
+   */
+  public async init() {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_INIT, {
+        clientId: this.clientId,
+        agentName: this.agentName,
+      });
+    if (this.callbacks.onInit) {
+      this.callbacks.onInit(this.clientId, this.agentName);
     }
   }
-);
+
+  /**
+   * Sends a notification
+   */
+  public async notify(content: string) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_NOTIFY, {
+        clientId: this.clientId,
+        agentName: this.agentName,
+        content,
+      });
+    if (this._isDisposed) {
+      return;
+    }
+    if (this.callbacks.onNotify) {
+      this.callbacks.onNotify(content, this.clientId, this.agentName);
+    }
+  }
+
+  /**
+   * Sends an answer
+   */
+  public async answer(content: string) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_ANSWER, {
+        clientId: this.clientId,
+        agentName: this.agentName,
+        content,
+      });
+    if (this._isDisposed) {
+      return;
+    }
+    if (this._answerSubject.hasListeners) {
+      this.callbacks.onAnswer &&
+        this.callbacks.onAnswer(content, this.clientId, this.agentName);
+      await this._answerSubject.next(content);
+    } else {
+      await this.notify(content);
+    }
+    this._answerSubject.unsubscribeAll();
+  }
+
+  /**
+   * Receives a message
+   */
+  public async recieveMessage(message: string) {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_RECEIVE_MESSAGE, {
+        clientId: this.clientId,
+        agentName: this.agentName,
+        message,
+      });
+    if (this.callbacks.onMessage) {
+      this.callbacks.onMessage(message, this.clientId, this.agentName);
+    }
+  }
+
+  /**
+   * Disposes the operator instance
+   */
+  public async dispose() {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      swarm.loggerService.debug(OPERATOR_INSTANCE_METHOD_NAME_DISPOSE, {
+        clientId: this.clientId,
+        agentName: this.agentName,
+      });
+    if (this.callbacks.onDispose) {
+      this.callbacks.onDispose(this.clientId, this.agentName);
+    }
+    this._answerSubject.unsubscribeAll();
+    this._isDisposed = true;
+  }
+}
+
+// @ts-ignore
+OperatorInstance = makeExtendable(OperatorInstance);
 
 /**
  * Type alias for an instance of OperatorInstance.
-*/
+ */
 export type TOperatorInstance = InstanceType<typeof OperatorInstance>;
 
 /**
  * Operator control interface
  * @interface IOperatorControl
-*/
+ */
 export interface IOperatorControl {
   /** Sets custom operator adapter*/
   useOperatorAdapter(Ctor: TOperatorInstanceCtor): void;
@@ -248,7 +243,7 @@ export interface IOperatorControl {
  * Operator utilities class
  * @class OperatorUtils
  * @implements {IOperatorControl}
-*/
+ */
 export class OperatorUtils implements IOperatorControl {
   private OperatorFactory: TOperatorInstanceCtor = OperatorInstance;
   private OperatorCallbacks: Partial<IOperatorInstanceCallbacks> = {};
@@ -309,3 +304,5 @@ export const OperatorAdapter = new OperatorUtils();
 
 /** @type {IOperatorControl} Operator control instance*/
 export const Operator = OperatorAdapter as IOperatorControl;
+
+export { OperatorInstance }
