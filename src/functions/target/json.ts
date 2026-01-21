@@ -212,7 +212,6 @@ const jsonInternal = beginContext(
         console.error(
           `agent-swarm outline error outlineName=${outlineName} attempt=${attempt}`,
           {
-            param,
             lastData,
             errorMessage,
           }
