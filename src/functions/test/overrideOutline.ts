@@ -20,10 +20,10 @@ const METHOD_NAME = "function.test.overrideOutline";
 */
 type TOutlineSchema<
   Data extends IOutlineData = IOutlineData,
-  Param extends IOutlineParam = IOutlineParam
+  Params extends IOutlineParam[] = IOutlineParam[]
 > = {
-  outlineName: IOutlineSchema<Data, Param>["outlineName"];
-} & Partial<IOutlineSchema<Data, Param>>;
+  outlineName: IOutlineSchema<Data, Params>["outlineName"];
+} & Partial<IOutlineSchema<Data, Params>>;
 
 /**
  * Internal implementation of the outline override logic, wrapped in a clean context.
@@ -58,7 +58,7 @@ const overrideOutlineInternal = beginContext(
 */
 export async function overrideOutline<
   Data extends IOutlineData = IOutlineData,
-  Param extends IOutlineParam = IOutlineParam
->(outlineSchema: TOutlineSchema<Data, Param>) {
+  Params extends IOutlineParam[] = IOutlineParam[]
+>(outlineSchema: TOutlineSchema<Data, Params>) {
   return await overrideOutlineInternal(outlineSchema);
 }

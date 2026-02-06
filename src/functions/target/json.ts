@@ -68,7 +68,7 @@ class OutlineHistory implements IOutlineHistory {
 const jsonInternal = beginContext(
   async (
     outlineName: OutlineName,
-    param: IOutlineParam
+    ...params: IOutlineParam[]
   ): Promise<IOutlineResult> => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {});
@@ -140,13 +140,12 @@ const jsonInternal = beginContext(
       const inputArgs: IOutlineArgs = {
         attempt,
         format,
-        param,
         history,
       };
       if (outlineCallbacks?.onAttempt) {
         outlineCallbacks.onAttempt(inputArgs);
       }
-      await getOutlineHistory(inputArgs);
+      await getOutlineHistory(inputArgs, ...params);
       const messages = await history.list();
       try {
         let output: ISwarmMessage | IOutlineMessage;
@@ -198,7 +197,7 @@ const jsonInternal = beginContext(
         const result = {
           isValid: true,
           attempt,
-          param,
+          params,
           history: await history.list(),
           data,
           resultId,
@@ -222,7 +221,7 @@ const jsonInternal = beginContext(
       isValid: false,
       error: errorMessage ?? "Unknown error",
       attempt: maxAttempts,
-      param,
+      params,
       history: await history.list(),
       data: null,
       resultId,
@@ -240,7 +239,7 @@ const jsonInternal = beginContext(
  * @async
  *
  * @param outlineName The outlineName parameter.
- * @param param The param parameter.
+ * @param params The spread params passed to getOutlineHistory.
  * @template Data - The type of the outline data, extending IOutlineData.
  * @template Param - The type of the input param, extending IOutlineParam.
  * @example
@@ -250,10 +249,10 @@ const jsonInternal = beginContext(
  */
 export async function json<
   Data extends IOutlineData = IOutlineData,
-  Param extends IOutlineParam = IOutlineParam
+  Params extends IOutlineParam[] = IOutlineParam[]
 >(
   outlineName: OutlineName,
-  param = {} as Param
-): Promise<IOutlineResult<Data, Param>> {
-  return await jsonInternal(outlineName, param);
+  ...params: Params
+): Promise<IOutlineResult<Data, Params>> {
+  return await jsonInternal(outlineName, ...params) as IOutlineResult<Data, Params>;
 }

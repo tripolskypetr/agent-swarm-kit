@@ -45,7 +45,7 @@ const addOutlineInternal = beginContext((outlineSchema: IOutlineSchema) => {
 */
 export function addOutline<
   Data extends IOutlineData = IOutlineData,
-  Param extends IOutlineParam = IOutlineParam
->(outlineSchema: IOutlineSchema<Data, Param>) {
+  Params extends IOutlineParam[] = IOutlineParam[]
+>(outlineSchema: IOutlineSchema<Data, Params>) {
   return addOutlineInternal(outlineSchema);
 }

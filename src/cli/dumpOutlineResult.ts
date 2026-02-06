@@ -53,10 +53,10 @@ export const dumpOutlineResult = beginContext(
         summary += `\n`;
       }
 
-      if (result.param) {
+      if (result.params) {
         summary += `## Input Parameters\n\n`;
         summary += "```json\n";
-        summary += JSON.stringify(result.param, null, 2);
+        summary += JSON.stringify(result.params, null, 2);
         summary += "\n```\n\n";
       }
 
@@ -116,10 +116,10 @@ export const dumpOutlineResult = beginContext(
       let content = `# Full Outline Result\n\n`;
       content += `**ResultId**: ${result.resultId}\n\n`;
 
-      if (result.param) {
+      if (result.params) {
         content += `## Completion Input Data\n\n`;
         content += "```json\n";
-        content += JSON.stringify(result.param, null, 2);
+        content += JSON.stringify(result.params, null, 2);
         content += "\n```\n\n";
       }
 
