@@ -426,9 +426,13 @@ class PersistBase<EntityName extends string = string> implements IPersistBase {
    * @throws {Error} If reading the directory fails (e.g., permissions or directory not found).
    */
   async getCount(): Promise<number> {
-    const files = await fs.readdir(this._directory);
-    const { length } = files.filter((file) => file.endsWith(".json"));
-    return length;
+    let count = 0;
+    for await (const entry of await fs.opendir(this._directory)) {
+      if (entry.isFile() && entry.name.endsWith(".json")) {
+        count++;
+      }
+    }
+    return count;
   }
 
   /**
@@ -553,9 +557,13 @@ class PersistBase<EntityName extends string = string> implements IPersistBase {
         entityName: this.entityName,
       });
     try {
-      const files = await fs.readdir(this._directory);
-      const entityFiles = files.filter((file) => file.endsWith(".json"));
-      for (const file of entityFiles) {
+      const filesToRemove: string[] = [];
+      for await (const entry of await fs.opendir(this._directory)) {
+        if (entry.isFile() && entry.name.endsWith(".json")) {
+          filesToRemove.push(entry.name);
+        }
+      }
+      for (const file of filesToRemove) {
         await fs.unlink(join(this._directory, file));
       }
     } catch (error) {
@@ -579,16 +587,18 @@ class PersistBase<EntityName extends string = string> implements IPersistBase {
         entityName: this.entityName,
       });
     try {
-      const files = await fs.readdir(this._directory);
-      const entityIds = files
-        .filter((file) => file.endsWith(".json"))
-        .map((file) => file.slice(0, -5))
-        .sort((a, b) =>
-          a.localeCompare(b, undefined, {
-            numeric: true,
-            sensitivity: "base",
-          })
-        );
+      const entityIds: string[] = [];
+      for await (const entry of await fs.opendir(this._directory)) {
+        if (entry.isFile() && entry.name.endsWith(".json")) {
+          entityIds.push(entry.name.slice(0, -5));
+        }
+      }
+      entityIds.sort((a, b) =>
+        a.localeCompare(b, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        })
+      );
       for (const entityId of entityIds) {
         const entity = await this.readValue<T>(entityId);
         yield entity;
@@ -613,16 +623,18 @@ class PersistBase<EntityName extends string = string> implements IPersistBase {
         entityName: this.entityName,
       });
     try {
-      const files = await fs.readdir(this._directory);
-      const entityIds = files
-        .filter((file) => file.endsWith(".json"))
-        .map((file) => file.slice(0, -5))
-        .sort((a, b) =>
-          a.localeCompare(b, undefined, {
-            numeric: true,
-            sensitivity: "base",
-          })
-        );
+      const entityIds: string[] = [];
+      for await (const entry of await fs.opendir(this._directory)) {
+        if (entry.isFile() && entry.name.endsWith(".json")) {
+          entityIds.push(entry.name.slice(0, -5));
+        }
+      }
+      entityIds.sort((a, b) =>
+        a.localeCompare(b, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        })
+      );
       for (const entityId of entityIds) {
         yield entityId;
       }
