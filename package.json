@@ -1,6 +1,6 @@
 {
   "name": "agent-swarm-kit",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "A TypeScript library for building orchestrated framework-agnostic multi-agent AI systems",
   "author": {
     "name": "Petr Tripolsky",
@@ -73,13 +73,13 @@
     "tslib": "2.7.0",
     "typedoc": "0.27.9",
     "undici": "6.21.2",
-    "worker-testbed": "1.0.10"
+    "worker-testbed": "1.0.12"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "di-kit": "^1.0.18",
+    "di-kit": "^1.1.1",
     "di-scoped": "^1.0.21",
     "functools-kit": "^1.0.95",
     "get-moment-stamp": "^1.1.1",
