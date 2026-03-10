@@ -24,7 +24,7 @@ const overrideToolInternal = beginContext(async (publicToolSchema: TAgentTool<un
       toolSchema: publicToolSchema,
     });
 
-  await swarm.agentValidationService.validate(publicToolSchema.toolName, METHOD_NAME);
+  await swarm.toolValidationService.validate(publicToolSchema.toolName, METHOD_NAME);
 
   const toolSchema = removeUndefined(publicToolSchema);
 
