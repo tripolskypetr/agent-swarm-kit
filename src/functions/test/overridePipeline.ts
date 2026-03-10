@@ -33,7 +33,7 @@ const overridePipelineInternal = beginContext(
         pipelineSchema: publicPipelineSchema,
       });
 
-    await swarm.agentValidationService.validate(publicPipelineSchema.pipelineName, METHOD_NAME);
+    await swarm.pipelineValidationService.validate(publicPipelineSchema.pipelineName, METHOD_NAME);
 
     const pipelineSchema = removeUndefined(publicPipelineSchema);
 

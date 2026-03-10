@@ -33,7 +33,7 @@ const overrideComputeInternal = beginContext(async (publicComputeSchema: TComput
       computeSchema: publicComputeSchema,
     });
 
-  await swarm.agentValidationService.validate(publicComputeSchema.computeName, METHOD_NAME);
+  await swarm.computeValidationService.validate(publicComputeSchema.computeName, METHOD_NAME);
 
   const computeSchema = removeUndefined(publicComputeSchema);
 

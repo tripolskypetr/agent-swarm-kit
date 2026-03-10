@@ -27,7 +27,7 @@ const overrideStorageInternal = beginContext(
         storageSchema: publicStorageSchema,
       });
 
-    await swarm.agentValidationService.validate(publicStorageSchema.storageName, METHOD_NAME);
+    await swarm.storageValidationService.validate(publicStorageSchema.storageName, METHOD_NAME);
 
     const storageSchema = removeUndefined(publicStorageSchema);
 

@@ -34,7 +34,7 @@ const overrideCompletionInternal = beginContext(
         completionSchema: publicCompletionSchema,
       });
 
-    await swarm.agentValidationService.validate(publicCompletionSchema.completionName, METHOD_NAME);
+    await swarm.completionValidationService.validate(publicCompletionSchema.completionName, METHOD_NAME);
 
     const completionSchema = mapCompletionSchema(publicCompletionSchema);
 

@@ -23,7 +23,7 @@ const overrideSwarmInternal = beginContext(async (publicSwarmSchema: TSwarmSchem
       swarmSchema: publicSwarmSchema,
     });
 
-  await swarm.agentValidationService.validate(publicSwarmSchema.swarmName, METHOD_NAME);
+  await swarm.swarmValidationService.validate(publicSwarmSchema.swarmName, METHOD_NAME);
 
   const swarmSchema = removeUndefined(publicSwarmSchema);
 

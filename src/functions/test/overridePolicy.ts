@@ -24,7 +24,7 @@ const overridePolicyInternal = beginContext(async (publicPolicySchema: TPolicySc
       policySchema: publicPolicySchema,
     });
 
-  await swarm.agentValidationService.validate(publicPolicySchema.policyName, METHOD_NAME);
+  await swarm.policyValidationService.validate(publicPolicySchema.policyName, METHOD_NAME);
 
   const policySchema = removeUndefined(publicPolicySchema);
 

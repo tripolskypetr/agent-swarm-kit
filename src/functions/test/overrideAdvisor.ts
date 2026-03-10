@@ -24,7 +24,7 @@ const overrideAdvisorInternal = beginContext(
         advisorSchema: publicAdvisorSchema,
       });
 
-    await swarm.agentValidationService.validate(publicAdvisorSchema.advisorName, METHOD_NAME);
+    await swarm.advisorValidationService.validate(publicAdvisorSchema.advisorName, METHOD_NAME);
 
     const advisorSchema = removeUndefined(publicAdvisorSchema);
 

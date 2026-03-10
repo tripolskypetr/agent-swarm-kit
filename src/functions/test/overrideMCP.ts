@@ -22,7 +22,7 @@ const overrideMCPInternal = beginContext(async (publicMcpSchema: TMCPSchema) => 
       mcpSchema: publicMcpSchema,
     });
 
-  await swarm.agentValidationService.validate(publicMcpSchema.mcpName, METHOD_NAME);
+  await swarm.mcpValidationService.validate(publicMcpSchema.mcpName, METHOD_NAME);
 
   const mcpSchema = removeUndefined(publicMcpSchema);
 

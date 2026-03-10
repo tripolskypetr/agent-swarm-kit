@@ -23,7 +23,7 @@ const overrideStateInternal = beginContext(async (publicStateSchema: TStateSchem
       stateSchema: publicStateSchema,
     });
 
-  await swarm.agentValidationService.validate(publicStateSchema.stateName, METHOD_NAME);
+  await swarm.stateValidationService.validate(publicStateSchema.stateName, METHOD_NAME);
 
   const stateSchema = removeUndefined(publicStateSchema);
 

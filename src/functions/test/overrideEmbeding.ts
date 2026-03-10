@@ -25,7 +25,7 @@ const overrideEmbedingInternal = beginContext(
         embeddingSchema: publicEmbeddingSchema,
       });
 
-    await swarm.agentValidationService.validate(publicEmbeddingSchema.embeddingName, METHOD_NAME);
+    await swarm.embeddingValidationService.validate(publicEmbeddingSchema.embeddingName, METHOD_NAME);
 
     const embeddingSchema = removeUndefined(publicEmbeddingSchema);
 

@@ -37,7 +37,7 @@ const overrideOutlineInternal = beginContext(
         outlineSchema: publicOutlineSchema,
       });
 
-    await swarm.agentValidationService.validate(publicOutlineSchema.outlineName, METHOD_NAME);
+    await swarm.outlineValidationService.validate(publicOutlineSchema.outlineName, METHOD_NAME);
 
     const outlineSchema = removeUndefined(publicOutlineSchema);
 
