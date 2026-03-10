@@ -1379,7 +1379,7 @@ interface IBaseMessage<Role extends string = BaseMessageRole> {
      * Represented as binary data (Blob) or base64 strings.
      * Used for messages involving visual content (e.g., user-uploaded images or tool-generated visuals).
      */
-    images?: Blob[] | string[];
+    images?: Blob[] | Uint8Array[] | string[];
     /**
      * Optional identifier of the tool call this message responds to.
      * Links tool outputs to their originating requests.
