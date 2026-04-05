@@ -57,7 +57,7 @@ Used to manage registered outlines and retrieve them for validation.
 ### addOutline
 
 ```ts
-addOutline: (outlineName: string, outlineSchema: IOutlineSchema<any, any>) => void
+addOutline: (outlineName: string, outlineSchema: IOutlineSchema<any, any[]>) => void
 ```
 
 Registers a new outline schema with the given name.

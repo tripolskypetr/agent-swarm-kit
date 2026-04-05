@@ -46,14 +46,14 @@ error: string
 Optional error message if the outline operation or validation fails.
 Null if no error occurs.
 
-### param
+### params
 
 ```ts
-param: Param
+params: Params
 ```
 
-The input param used for the outline operation.
-Reflects the original param provided in the arguments.
+The input params used for the outline operation.
+Reflects the original params provided to json().
 
 ### data
 

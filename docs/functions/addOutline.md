@@ -6,7 +6,7 @@ group: docs
 # addOutline
 
 ```ts
-declare function addOutline<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineSchema: IOutlineSchema<Data, Param>): string;
+declare function addOutline<Data extends IOutlineData = IOutlineData, Params extends IOutlineParam[] = IOutlineParam[]>(outlineSchema: IOutlineSchema<Data, Params>): string;
 ```
 
 Adds an outline schema to the swarm system by registering it with the outline validation and schema services.

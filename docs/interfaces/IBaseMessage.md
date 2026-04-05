@@ -43,7 +43,7 @@ Each tool call contains function name, arguments, and a unique identifier.
 ### images
 
 ```ts
-images: string[] | Blob[]
+images: string[] | Blob[] | Uint8Array[]
 ```
 
 Optional array of images associated with the message.

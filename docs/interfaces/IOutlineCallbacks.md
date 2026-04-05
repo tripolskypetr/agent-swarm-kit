@@ -13,7 +13,7 @@ Provides hooks for handling attempt initiation, document generation, and validat
 ### onAttempt
 
 ```ts
-onAttempt: (args: IOutlineArgs<Param>) => void
+onAttempt: (args: IOutlineArgs) => void
 ```
 
 Optional callback triggered when an outline attempt is initiated.
@@ -22,7 +22,7 @@ Useful for logging or tracking attempt starts.
 ### onDocument
 
 ```ts
-onDocument: (result: IOutlineResult<Data, Param>) => void
+onDocument: (result: IOutlineResult<Data, Params>) => void
 ```
 
 Optional callback triggered when an outline document is generated.
@@ -31,7 +31,7 @@ Useful for processing or logging the generated document.
 ### onValidDocument
 
 ```ts
-onValidDocument: (result: IOutlineResult<Data, Param>) => void
+onValidDocument: (result: IOutlineResult<Data, Params>) => void
 ```
 
 Optional callback triggered when a document passes validation.
@@ -40,7 +40,7 @@ Useful for handling successful validation outcomes.
 ### onInvalidDocument
 
 ```ts
-onInvalidDocument: (result: IOutlineResult<Data, Param>) => void
+onInvalidDocument: (result: IOutlineResult<Data, Params>) => void
 ```
 
 Optional callback triggered when a document fails validation.

@@ -141,6 +141,7 @@ const jsonInternal = beginContext(
         attempt,
         format,
         history,
+        resultId,
       };
       if (outlineCallbacks?.onAttempt) {
         outlineCallbacks.onAttempt(inputArgs);

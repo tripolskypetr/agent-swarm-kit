@@ -6,9 +6,9 @@ group: docs
 # TOutlineSchema
 
 ```ts
-type TOutlineSchema<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam> = {
-    outlineName: IOutlineSchema<Data, Param>["outlineName"];
-} & Partial<IOutlineSchema<Data, Param>>;
+type TOutlineSchema<Data extends IOutlineData = IOutlineData, Params extends IOutlineParam[] = IOutlineParam[]> = {
+    outlineName: IOutlineSchema<Data, Params>["outlineName"];
+} & Partial<IOutlineSchema<Data, Params>>;
 ```
 
 Type definition for a partial outline schema, requiring an outline name and allowing optional properties from `IOutlineSchema`.

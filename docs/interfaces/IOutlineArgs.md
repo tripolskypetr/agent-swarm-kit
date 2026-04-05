@@ -10,15 +10,6 @@ Encapsulates the input param, attempt number, and history for processing.
 
 ## Properties
 
-### param
-
-```ts
-param: Param
-```
-
-The input param for the outline operation.
-Contains the raw or structured param to be processed.
-
 ### attempt
 
 ```ts
@@ -44,3 +35,12 @@ history: IOutlineHistory
 
 The history management API for the outline operation.
 Provides access to message history for context or logging.
+
+### resultId
+
+```ts
+resultId: string
+```
+
+The unique identifier for the execution instance of the outline operation.
+Used for tracking or debugging specific runs.

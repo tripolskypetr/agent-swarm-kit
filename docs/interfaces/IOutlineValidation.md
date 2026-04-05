@@ -13,7 +13,7 @@ Defines the validation logic and optional documentation for a specific validator
 ### validate
 
 ```ts
-validate: IOutlineValidationFn<Data, Param>
+validate: IOutlineValidationFn<Data>
 ```
 
 The validation function or configuration to apply to the outline data.

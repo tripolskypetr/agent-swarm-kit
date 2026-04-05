@@ -3963,6 +3963,11 @@ interface IOutlineArgs {
      * Provides access to message history for context or logging.
      */
     history: IOutlineHistory;
+    /**
+     * The unique identifier for the execution instance of the outline operation.
+     * Used for tracking or debugging specific runs.
+     */
+    resultId: string;
 }
 /**
  * Interface extending outline arguments with data param for validation.

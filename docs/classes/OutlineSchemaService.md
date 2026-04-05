@@ -56,7 +56,7 @@ Logs validation attempts if `CC_LOGGER_ENABLE_INFO` is enabled.
 ### register
 
 ```ts
-register: (key: string, value: IOutlineSchema<any, any>) => void
+register: (key: string, value: IOutlineSchema<any, any[]>) => void
 ```
 
 Registers an outline schema with the specified key in the active registry.
@@ -65,7 +65,7 @@ Validates the schema before registration and logs the operation if `CC_LOGGER_EN
 ### override
 
 ```ts
-override: (key: string, value: Partial<IOutlineSchema<any, any>>) => IOutlineSchema<any, any>
+override: (key: string, value: Partial<IOutlineSchema<any, any[]>>) => IOutlineSchema<any, any[]>
 ```
 
 Overrides an existing outline schema with partial updates for the specified key.
@@ -74,7 +74,7 @@ Logs the operation if `CC_LOGGER_ENABLE_INFO` is enabled and returns the updated
 ### get
 
 ```ts
-get: (key: string) => IOutlineSchema<any, any>
+get: (key: string) => IOutlineSchema<any, any[]>
 ```
 
 Retrieves an outline schema by its key from the active registry.

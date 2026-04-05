@@ -60,7 +60,7 @@ Identifies the specific outline configuration.
 ### validations
 
 ```ts
-validations: (IOutlineValidation<Data, Param> | IOutlineValidationFn<Data, Param>)[]
+validations: (IOutlineValidation<Data> | IOutlineValidationFn<Data>)[]
 ```
 
 Array of validation functions or configurations to apply to the outline data.
@@ -87,7 +87,7 @@ Limits the number of retries if validations fail.
 ### callbacks
 
 ```ts
-callbacks: IOutlineCallbacks<any, any>
+callbacks: IOutlineCallbacks<any, any[]>
 ```
 
 Optional set of callbacks for outline lifecycle events.
@@ -98,8 +98,8 @@ Allows customization of attempt, document, and validation handling.
 ### getOutlineHistory
 
 ```ts
-getOutlineHistory: (args: IOutlineArgs<Param>) => Promise<void>
+getOutlineHistory: (arg: IOutlineArgs, ...params: Params) => Promise<void>
 ```
 
 Function to generate structured data for the outline operation.
-Processes input param and history to produce the desired data.
+Receives spread arguments: attempt, format, history, plus any additional params passed to json().

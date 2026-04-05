@@ -6,7 +6,7 @@ group: docs
 # json
 
 ```ts
-declare function json<Data extends IOutlineData = IOutlineData, Param extends IOutlineParam = IOutlineParam>(outlineName: OutlineName, param?: Param): Promise<IOutlineResult<Data, Param>>;
+declare function json<Data extends IOutlineData = IOutlineData, Params extends IOutlineParam[] = IOutlineParam[]>(outlineName: OutlineName, ...params: Params): Promise<IOutlineResult<Data, Params>>;
 ```
 
 Processes an outline request to generate structured JSON data based on a specified outline schema.
@@ -17,4 +17,4 @@ Delegates to an internal context-isolated function to ensure clean execution.
 | Parameter | Description |
 |-----------|-------------|
 | `outlineName` | The outlineName parameter. |
-| `param` | The param parameter. |
+| `params` | The spread params passed to getOutlineHistory. |
