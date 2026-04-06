@@ -4113,7 +4113,7 @@ interface IOutlineSchema<Data extends IOutlineData = IOutlineData, Params extend
      * Optional set of callbacks for outline lifecycle events.
      * Allows customization of attempt, document, and validation handling.
      */
-    callbacks?: IOutlineCallbacks;
+    callbacks?: IOutlineCallbacks<Data, Params>;
 }
 /**
  * Type representing the unique name of an outline within the system.

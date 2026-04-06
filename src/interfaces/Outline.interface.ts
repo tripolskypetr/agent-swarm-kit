@@ -350,7 +350,7 @@ export interface IOutlineSchema<
    * Optional set of callbacks for outline lifecycle events.
    * Allows customization of attempt, document, and validation handling.
    */
-  callbacks?: IOutlineCallbacks;
+  callbacks?: IOutlineCallbacks<Data, Params>;
 }
 
 /**
