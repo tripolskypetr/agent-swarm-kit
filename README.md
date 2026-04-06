@@ -528,29 +528,54 @@ See the **[Test Cases](https://github.com/tripolskypetr/agent-swarm-kit/blob/mas
 
 The `agent-swarm-kit` ecosystem extends beyond the core library, offering complementary tools to enhance your multi-agent AI development experience. One such tool is:
 
-### Agent Tune Dataset Constructor
 
-> **[Explore Agent Tune](https://agent-tune.github.io)** 🌟
+### AI Fundamental Analysis Backtester
 
-The **Agent Tune Dataset Constructor** is a React-based tool designed for crafting fine-tuning datasets tailored for AI models, published on GitHub Pages at [agent-tune.github.io](https://agent-tune.github.io/). It provides a dynamic, user-friendly interface with list and grid layouts, enabling you to define user inputs, preferred and non-preferred outputs, and multi-turn chat histories—complete with tool definitions and calls. Built with the `react-declarative` library and styled using Material-UI, it’s optimized for creating JSONL files compatible with OpenAI’s fine-tuning API. 🛠️
+> **[Explore node-ccxt-backtest](https://github.com/tripolskypetr/node-ccxt-backtest)** 🧿
 
+The **node-ccxt-backtest** is an AI-driven trading strategy framework built on the ReAct (Reason + Act) pattern. Instead of hardcoded indicators, it replaces rule-based logic with reasoning: 8 specialist LLM agents independently research the market via iterative web search, covering on-chain reserves, capital flows, network fundamentals, smart money activity, macro environment, and price history — then a portfolio manager synthesises all findings into a single BUY/SELL/WAIT signal.
 
 #### Key Features
-- 📝 **Dynamic Forms**: Build dataset entries with configurable user inputs, outputs, and tools (up to five per entry), featuring autocomplete for tool names and enum values. 💻
+- 🕵️ **8 Specialist Agents**: Each covers a distinct analytical angle (balance sheet, cash flow, valuation, income, insider transactions, news, macro, technical) with no context overlap between them.
 
-- 💬 **Chat History**: Include conversational context with tool calls, supporting up to five messages per entry. 🗂️
+- 🔒 **Anti-Bias Prompting**: Agents are instructed to reject undated sources, avoid look-ahead bias, bias toward negative signals, and require multiple queries before concluding.
 
-- 💾 **Data Management**: Import/export datasets as JSONL files (`SFT` and `DPO` both), with automatic `tool_call_id` generation, and persist changes to local storage. 📥
+- 🔬 **Two-Stage Pipeline**: Stage 1 produces a daily fundamental signal (cached to disk); Stage 2 applies an hourly technical entry filter using the last 240 one-minute candles before placing any order.
 
-- ✅ **Validation**: Ensures tool consistency, message order, and data integrity. 🛡️
+- 🏗️ **Structured Output via Tool-Call Forcing**: JSON schema compliance is enforced by wrapping the schema into a `provide_answer` tool, with automatic retry and `jsonrepair` for malformed responses.
 
-- 🚀 **Ease of Use**: Navigate with breadcrumbs, save drafts, and export directly for fine-tuning with commands like openai api [fine_tunes.create](https://platform.openai.com/docs/api-reference/fine-tuning). 📤
+- 📋 **Multiple Run Modes**: Supports `--backtest`, `--paper`, `--live`, `--pine`, and `--dump` CLI flags via CCXT.
 
 #### Use Case
-Perfect for preparing training data to fine-tune agents within `agent-swarm-kit`, Agent Tune lets you define precise behaviors—like how a sales agent responds or a triage agent routes requests—before integrating them into your swarm. Export your dataset and fine-tune your models to enhance performance across your agent network. 🌐
+Ideal for researchers and quant developers who want to evaluate LLM-based fundamental analysis as a trading signal source. Use it standalone or combine with `agent-swarm-kit` to embed the research pipeline into a broader multi-agent system.
 
 #### Get Started
-Visit [agent-tune.github.io](https://agent-tune.github.io/) to try it out, or clone the repository to customize it further. Combine it with `agent-swarm-kit` for a seamless workflow from dataset creation to agent deployment. 🚀
+Clone the repository and set the `OLLAMA_TOKEN` environment variable. Optionally configure Telegram notifications and run with the desired CLI mode.
+
+
+### Multi-User Telegram Agent Swarm
+
+> **[Explore node-ollama-telegram-agent-swarm](https://github.com/tripolskypetr/node-ollama-telegram-agent-swarm)** 🐝
+
+The **node-ollama-telegram-agent-swarm** is a production-ready reference implementation of a multi-user Telegram chatbot powered by Ollama and `agent-swarm-kit`. It demonstrates how to handle concurrent chat sessions with isolated per-user history, agent navigation, and tool call integration — with a detailed walkthrough of the library's core API.
+
+#### Key Features
+- 💬 **Multi-User Sessions**: Each Telegram user gets an independent swarm session with its own conversation history and active agent state.
+
+- 🔄 **Agent Navigation**: A triage agent routes users to a pharma sales agent via tool calls, with automatic greeting injection on agent switch.
+
+- 🛠️ **Runtime System Prompt Injection**: Uses `commitSystemMessage` to dynamically supplement agent context mid-conversation (e.g., suppressing recursive tool calls after a successful search).
+
+- 📖 **Comprehensive API Walkthrough**: Covers `addAgent`, `addCompletion`, `addTool`, `changeAgent`, `execute`, `commitToolOutput`, `commitSystemMessage`, `commitFlush`, `getLastUserMessage`, and more.
+
+- 🔌 **Provider-Agnostic**: Completion interface works identically with Ollama, OpenAI, DeepSeek, or any other provider without changing business logic.
+
+#### Use Case
+A practical starting point for anyone building a Telegram bot with `agent-swarm-kit`. The codebase is intentionally readable and serves as living documentation for the library's orchestration model.
+
+#### Get Started
+Clone the repository, configure Ollama, and connect a Telegram bot token. The swarm handles session lifecycle, message routing, and agent recovery automatically.
+
 
 ### Trading Signals MCP Server
 
@@ -576,6 +601,31 @@ Ideal for integrating trading intelligence into AI agents within `agent-swarm-ki
 
 #### Get Started
 Install via NPX with no setup required, or clone the repository for local deployment. Perfect for combining with `agent-swarm-kit` to create sophisticated trading analysis agents.
+
+
+### Agent Tune Dataset Constructor
+
+> **[Explore Agent Tune](https://agent-tune.github.io)** 🌟
+
+The **Agent Tune Dataset Constructor** is a React-based tool designed for crafting fine-tuning datasets tailored for AI models, published on GitHub Pages at [agent-tune.github.io](https://agent-tune.github.io/). It provides a dynamic, user-friendly interface with list and grid layouts, enabling you to define user inputs, preferred and non-preferred outputs, and multi-turn chat histories—complete with tool definitions and calls. Built with the `react-declarative` library and styled using Material-UI, it’s optimized for creating JSONL files compatible with OpenAI’s fine-tuning API. 🛠️
+
+
+#### Key Features
+- 📝 **Dynamic Forms**: Build dataset entries with configurable user inputs, outputs, and tools (up to five per entry), featuring autocomplete for tool names and enum values. 💻
+
+- 💬 **Chat History**: Include conversational context with tool calls, supporting up to five messages per entry. 🗂️
+
+- 💾 **Data Management**: Import/export datasets as JSONL files (`SFT` and `DPO` both), with automatic `tool_call_id` generation, and persist changes to local storage. 📥
+
+- ✅ **Validation**: Ensures tool consistency, message order, and data integrity. 🛡️
+
+- 🚀 **Ease of Use**: Navigate with breadcrumbs, save drafts, and export directly for fine-tuning with commands like openai api [fine_tunes.create](https://platform.openai.com/docs/api-reference/fine-tuning). 📤
+
+#### Use Case
+Perfect for preparing training data to fine-tune agents within `agent-swarm-kit`, Agent Tune lets you define precise behaviors—like how a sales agent responds or a triage agent routes requests—before integrating them into your swarm. Export your dataset and fine-tune your models to enhance performance across your agent network. 🌐
+
+#### Get Started
+Visit [agent-tune.github.io](https://agent-tune.github.io/) to try it out, or clone the repository to customize it further. Combine it with `agent-swarm-kit` for a seamless workflow from dataset creation to agent deployment. 🚀
 
 ---
 
