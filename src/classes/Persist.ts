@@ -370,7 +370,7 @@ const LIST_GET_LAST_KEY_FN = async (
  * @implements {IPersistBase}
  */
 class PersistBase<EntityName extends string = string> implements IPersistBase {
-  /** @private The directory path where entity files are stored (e.g., `./logs/data/alive/` for alive status)*/
+  /** @private The directory path where entity files are stored (e.g., `./dump/agent/alive/` for alive status)*/
   _directory: string;
 
   /**
@@ -379,7 +379,7 @@ class PersistBase<EntityName extends string = string> implements IPersistBase {
    */
   constructor(
     readonly entityName: EntityName,
-    readonly baseDir = join(process.cwd(), "logs/data")
+    readonly baseDir = join(process.cwd(), "dump/agent")
   ) {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       swarm.loggerService.debug(PERSIST_BASE_METHOD_NAME_CTOR, {
@@ -884,7 +884,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
     (swarmName: SwarmName): IPersistBase<IPersistActiveAgentData> =>
       Reflect.construct(this.PersistActiveAgentFactory, [
         swarmName,
-        `./logs/data/swarm/active_agent/`,
+        `./dump/agent/swarm/active_agent/`,
       ])
   );
 
@@ -926,7 +926,7 @@ export class PersistSwarmUtils implements IPersistSwarmControl {
     (swarmName: SwarmName): IPersistBase<IPersistNavigationStackData> =>
       Reflect.construct(this.PersistNavigationStackFactory, [
         swarmName,
-        `./logs/data/swarm/navigation_stack/`,
+        `./dump/agent/swarm/navigation_stack/`,
       ])
   );
 
@@ -1092,7 +1092,7 @@ export class PersistStateUtils implements IPersistStateControl {
     (stateName: StateName): IPersistBase<IPersistStateData> =>
       Reflect.construct(this.PersistStateFactory, [
         stateName,
-        `./logs/data/state/`,
+        `./dump/agent/state/`,
       ])
   );
 
@@ -1218,7 +1218,7 @@ export class PersistStorageUtils implements IPersistStorageControl {
     (storageName: StorageName): IPersistBase<IPersistStorageData> =>
       Reflect.construct(this.PersistStorageFactory, [
         storageName,
-        `./logs/data/storage/`,
+        `./dump/agent/storage/`,
       ])
   );
 
@@ -1344,7 +1344,7 @@ export class PersistMemoryUtils implements IPersistMemoryControl {
     (clientId: SessionId): IPersistBase<IPersistMemoryData> =>
       Reflect.construct(this.PersistMemoryFactory, [
         clientId,
-        `./logs/data/memory/`,
+        `./dump/agent/memory/`,
       ])
   );
 
@@ -1484,7 +1484,7 @@ export class PersistAliveUtils implements IPersistAliveControl {
     (swarmName: SwarmName): IPersistBase<IPersistAliveData> =>
       Reflect.construct(this.PersistAliveFactory, [
         swarmName,
-        `./logs/data/alive/`,
+        `./dump/agent/alive/`,
       ])
   );
 
@@ -1621,7 +1621,7 @@ export class PersistPolicyUtils implements IPersistPolicyControl {
     (swarmName: SwarmName): IPersistBase<IPersistPolicyData> =>
       Reflect.construct(this.PersistPolicyFactory, [
         swarmName,
-        `./logs/data/policy/`,
+        `./dump/agent/policy/`,
       ])
   );
 
@@ -1747,7 +1747,7 @@ export class PersistEmbeddingUtils implements IPersistEmbeddingControl {
     (embeddingName: SwarmName): IPersistBase<IPersistEmbeddingData> =>
       Reflect.construct(this.PersistEmbeddingFactory, [
         embeddingName,
-        `./logs/data/embedding/`,
+        `./dump/agent/embedding/`,
       ])
   );
 

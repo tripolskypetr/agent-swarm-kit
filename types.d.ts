@@ -1501,7 +1501,7 @@ type TPersistBaseCtor<EntityName extends string = string, Entity extends IEntity
 declare class PersistBase<EntityName extends string = string> implements IPersistBase {
     readonly entityName: EntityName;
     readonly baseDir: string;
-    /** @private The directory path where entity files are stored (e.g., `./logs/data/alive/` for alive status)*/
+    /** @private The directory path where entity files are stored (e.g., `./dump/agent/alive/` for alive status)*/
     _directory: string;
     /**
      * Creates a new `PersistBase` instance for managing persistent storage of entities.
@@ -7011,13 +7011,13 @@ declare class DocService {
     /**
      * Dumps system-wide performance data to a JSON file using PerfService.toRecord.
      * Ensures the output directory exists, then writes a timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
-     * Outputs to dirName/[momentStamp].[timeStamp].json (default: "logs/meta"), providing a snapshot of system performance (e.g., tied to ClientAgent executions).
+     * Outputs to dirName/[momentStamp].[timeStamp].json (default: "dump/agent/meta"), providing a snapshot of system performance (e.g., tied to ClientAgent executions).
      */
     dumpPerfomance: (dirName?: string) => Promise<void>;
     /**
      * Dumps performance data for a specific client to a JSON file using PerfService.toClientRecord.
      * Ensures the output directory exists, then writes a client-specific timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
-     * Outputs to dirName/[clientId].[momentStamp].json (default: "logs/client"), documenting client-specific metrics (e.g., ClientAgent session performance).
+     * Outputs to dirName/[clientId].[momentStamp].json (default: "dump/agent/client"), documenting client-specific metrics (e.g., ClientAgent session performance).
      */
     dumpClientPerfomance: (clientId: string, dirName?: string) => Promise<void>;
 }

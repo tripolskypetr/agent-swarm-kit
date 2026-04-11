@@ -12,7 +12,7 @@ const METHOD_NAME_EXECUTE = "cli.dumpClientPerformance.execute";
  *
 */
 const dumpClientPerformanceInternal = beginContext(
-  async (clientId: string, dirName = "./logs/client") => {
+  async (clientId: string, dirName = "./dump/agent/client") => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_INTERNAL);
     return await swarm.docService.dumpClientPerfomance(clientId, dirName);
@@ -26,7 +26,7 @@ const dumpClientPerformanceInternal = beginContext(
 */
 const dumpClientPerformance = async (
   clientId: string,
-  dirName = "./logs/client"
+  dirName = "./dump/agent/client"
 ) => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
   await dumpClientPerformanceInternal(clientId, dirName);
@@ -38,7 +38,7 @@ const dumpClientPerformance = async (
  *
 */
 dumpClientPerformance.runAfterExecute = beginContext(
-  async (dirName = "./logs/client") => {
+  async (dirName = "./dump/agent/client") => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_EXECUTE);
     return listenExecutionEvent("*", async ({ type, clientId }) => {

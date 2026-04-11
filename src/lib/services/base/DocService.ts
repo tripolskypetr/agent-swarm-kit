@@ -1108,10 +1108,10 @@ export class DocService {
   /**
    * Dumps system-wide performance data to a JSON file using PerfService.toRecord.
    * Ensures the output directory exists, then writes a timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
-   * Outputs to dirName/[momentStamp].[timeStamp].json (default: "logs/meta"), providing a snapshot of system performance (e.g., tied to ClientAgent executions).
+   * Outputs to dirName/[momentStamp].[timeStamp].json (default: "dump/agent/meta"), providing a snapshot of system performance (e.g., tied to ClientAgent executions).
    */
   public dumpPerfomance = async (
-    dirName = join(process.cwd(), "logs/meta")
+    dirName = join(process.cwd(), "dump/agent/meta")
   ) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("docService dumpPerfomance", {
@@ -1129,11 +1129,11 @@ export class DocService {
   /**
    * Dumps performance data for a specific client to a JSON file using PerfService.toClientRecord.
    * Ensures the output directory exists, then writes a client-specific timestamped file, logging the process if GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO is enabled.
-   * Outputs to dirName/[clientId].[momentStamp].json (default: "logs/client"), documenting client-specific metrics (e.g., ClientAgent session performance).
+   * Outputs to dirName/[clientId].[momentStamp].json (default: "dump/agent/client"), documenting client-specific metrics (e.g., ClientAgent session performance).
    */
   public dumpClientPerfomance = async (
     clientId: string,
-    dirName = join(process.cwd(), "logs/client")
+    dirName = join(process.cwd(), "dump/agent/client")
   ) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info("docService dumpPerfomance", {

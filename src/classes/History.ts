@@ -338,7 +338,7 @@ class HistoryPersistInstance implements IHistoryInstance {
       });
     this._persistStorage = new PersistList(
       this.clientId,
-      `./logs/data/history`
+      `./dump/agent/history`
     );
     if (callbacks.onInit) {
       callbacks.onInit(clientId);

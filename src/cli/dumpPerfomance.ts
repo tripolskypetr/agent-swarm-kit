@@ -10,7 +10,7 @@ const METHOD_NAME_INTERVAL = "cli.dumpPerfomance.interval";
 /**
  * The internal HOF for handling the performance dump
 */
-const dumpPerfomanceInternal = beginContext(async (dirName = "./logs/meta") => {
+const dumpPerfomanceInternal = beginContext(async (dirName = "./dump/agent/meta") => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
     swarm.loggerService.log(METHOD_NAME_INTERNAL);
   return await swarm.docService.dumpPerfomance(dirName);
@@ -21,7 +21,7 @@ const dumpPerfomanceInternal = beginContext(async (dirName = "./logs/meta") => {
  * Logs the method name if logging is enabled in the global configuration.
  *
 */
-const dumpPerfomance = async (dirName = "./logs/meta") => {
+const dumpPerfomance = async (dirName = "./dump/agent/meta") => {
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG && swarm.loggerService.log(METHOD_NAME);
   await dumpPerfomanceInternal(dirName);
 };
@@ -32,7 +32,7 @@ const dumpPerfomance = async (dirName = "./logs/meta") => {
  *
 */
 dumpPerfomance.runInterval = beginContext(
-  (dirName = "./logs/meta", interval = 30_000) => {
+  (dirName = "./dump/agent/meta", interval = 30_000) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME_INTERVAL);
     return Source.fromInterval(interval).connect(() => dumpPerfomance(dirName));
