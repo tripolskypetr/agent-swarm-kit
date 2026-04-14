@@ -3856,10 +3856,44 @@ interface IOutlineSchemaFormat {
     json_schema: object;
 }
 /**
- * Interface representing the format/schema definition for outline data.
- * Specifies the structure, required fields, and property metadata for outline operations.
- * Used to enforce and document the expected shape of outline data.
-*/
+ * Describes a single property in an outline format schema.
+ * Supports primitives, enums, nested objects, and arrays.
+ */
+interface IOutlineObjectProperty {
+    /**
+     * The JSON Schema type of the property.
+     * Primitives: "string" | "number" | "boolean" | "integer"
+     * Composite: "object" | "array"
+     */
+    type: string;
+    /**
+     * A human-readable description of the property.
+     */
+    description?: string;
+    /**
+     * Optional array of allowed values (for string/number enums).
+     */
+    enum?: string[];
+    /**
+     * Nested properties for type "object".
+     */
+    properties?: {
+        [key: string]: IOutlineObjectProperty;
+    };
+    /**
+     * Required property names for type "object".
+     */
+    required?: string[];
+    /**
+     * Item schema for type "array".
+     */
+    items?: IOutlineObjectProperty;
+}
+/**
+ * Interface representing a format definition using an object-based schema.
+ * Specifies the type, required properties, and property definitions for validation.
+ * Used when the outline format is defined by a structured object schema.
+ */
 interface IOutlineObjectFormat {
     /**
      * The root type of the outline format (e.g., "object").
@@ -3872,24 +3906,11 @@ interface IOutlineObjectFormat {
      */
     required: string[];
     /**
-     * An object mapping property names to their type, description, and optional enum values.
-     * Each property describes a field in the outline data.
+     * An object mapping property names to their schemas.
+     * Supports primitives, enums, nested objects, and arrays.
      */
     properties: {
-        [key: string]: {
-            /**
-             * The type of the property (e.g., "string", "number", "boolean", etc.).
-            */
-            type: string;
-            /**
-             * A human-readable description of the property.
-            */
-            description: string;
-            /**
-             * Optional array of allowed values for the property.
-            */
-            enum?: string[];
-        };
+        [key: string]: IOutlineObjectProperty;
     };
 }
 /**
