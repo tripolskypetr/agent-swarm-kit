@@ -3,7 +3,7 @@ import * as path from "path";
 import { IOutlineResult } from "../interfaces/Outline.interface";
 import beginContext from "../utils/beginContext";
 
-const WARN_KB = 35;
+const WARN_KB = 45;
 
 /**
  * Dumps the outline result into a folder structure with markdown files.
