@@ -1518,7 +1518,7 @@ declare class PersistBase<EntityName extends string = string> implements IPersis
      * Uses `singleshot` to prevent redundant initialization calls, critical for swarm setup efficiency.
      * @private
      */
-    [BASE_WAIT_FOR_INIT_SYMBOL]: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    [BASE_WAIT_FOR_INIT_SYMBOL]: (() => Promise<void>) & functools_kit.ISingleshotClearable<() => Promise<void>>;
     /**
      * Initializes the storage directory, creating it if it doesn’t exist, and validates existing entities.
      * Removes invalid JSON files during initialization to ensure data integrity (e.g., for `SwarmName`-based alive status).
@@ -2264,7 +2264,7 @@ declare class HistoryPersistInstance implements IHistoryInstance {
      * Memoized initialization function to ensure it runs only once per agent.
      * @private
      */
-    [HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT]: ((agentName: AgentName) => Promise<void>) & functools_kit.ISingleshotClearable;
+    [HISTORY_PERSIST_INSTANCE_WAIT_FOR_INIT]: ((agentName: AgentName) => Promise<void>) & functools_kit.ISingleshotClearable<(agentName: AgentName) => Promise<void>>;
     /**
      * Initializes the history for an agent, loading data from persistent storage if needed.
      */
@@ -2312,7 +2312,7 @@ declare class HistoryMemoryInstance implements IHistoryInstance {
      * Memoized initialization function to ensure it runs only once per agent.
      * @private
      */
-    [HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT]: ((agentName: AgentName) => Promise<void>) & functools_kit.ISingleshotClearable;
+    [HISTORY_MEMORY_INSTANCE_WAIT_FOR_INIT]: ((agentName: AgentName) => Promise<void>) & functools_kit.ISingleshotClearable<(agentName: AgentName) => Promise<void>>;
     /**
      * Initializes the history for an agent, loading initial data if needed.
      */
@@ -6095,7 +6095,7 @@ declare class ClientStorage<T extends IStorageData = IStorageData> implements IS
      * Waits for the initialization of the storage, loading initial data and creating embeddings via WAIT_FOR_INIT_FN.
      * Ensures initialization happens only once using singleshot, supporting StorageConnectionService’s lifecycle.
      */
-    waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable<() => Promise<void>>;
     /**
      * Retrieves a specified number of items based on similarity to a search string, using embeddings and SortedArray.
      * Executes similarity calculations concurrently via execpool, respecting GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL, and filters by score.
@@ -6444,7 +6444,7 @@ declare class ClientState<State extends IStateData = IStateData> implements ISta
      * Waits for the state to initialize via WAIT_FOR_INIT_FN, ensuring it’s only called once using singleshot.
      * Loads the initial state into _state, supporting StateConnectionService’s lifecycle management.
      */
-    waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    waitForInit: (() => Promise<void>) & functools_kit.ISingleshotClearable<() => Promise<void>>;
     /**
      * Sets the state using the provided dispatch function, applying middlewares and persisting via params.setState.
      * Invokes the onWrite callback and emits an event via BusService, supporting ClientAgent’s state updates.
@@ -12501,7 +12501,7 @@ declare class LoggerInstance implements ILoggerInstance {
      * Invokes LOGGER_INSTANCE_WAIT_FOR_FN to handle onInit callback execution.
      * @private
      */
-    [LOGGER_INSTANCE_WAIT_FOR_INIT]: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    [LOGGER_INSTANCE_WAIT_FOR_INIT]: (() => Promise<void>) & functools_kit.ISingleshotClearable<() => Promise<void>>;
     /**
      * Initializes the logger instance, invoking the onInit callback if provided.
      * Ensures initialization is performed only once, memoized via singleshot.
@@ -13341,7 +13341,7 @@ declare class ChatInstance<Payload extends unknown = any> implements IChatInstan
     /**
      * Begins a chat session
      */
-    beginChat: (() => Promise<void>) & functools_kit.ISingleshotClearable;
+    beginChat: (() => Promise<void>) & functools_kit.ISingleshotClearable<() => Promise<void>>;
     /**
      * Sends a message in the chat
      */
