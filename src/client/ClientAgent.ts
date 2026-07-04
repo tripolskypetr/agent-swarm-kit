@@ -21,6 +21,7 @@ import { IBusEvent } from "../model/Event.model";
 import { MCPToolProperties } from "../interfaces/MCP.interface";
 import createToolRequest from "../utils/createToolRequest";
 import { resolveTools } from "../utils/resolveTools";
+import { errorSubject } from "../config/emitters";
 import swarm from "../lib";
 
 const CANCEL_OUTPUT_SYMBOL = Symbol("cancel-output");
@@ -388,6 +389,29 @@ const EXECUTE_FN = async (
       self.params.clientId,
       self.params.agentName
     );
+    {
+      const toolCallIds = new Set(toolCalls.map(({ id }) => id));
+      if (toolCallIds.size !== toolCalls.length) {
+        // Duplicate ids break the call-to-output linkage in history and mean
+        // the model output is malformed: surface it as an exception to the
+        // caller (via errorSubject) and recover the flow with a placeholder.
+        const error = new Error(
+          `agent-swarm duplicate tool call id detected agentName=${
+            self.params.agentName
+          } clientId=${self.params.clientId} ids=${JSON.stringify(
+            toolCalls.map(({ id }) => id)
+          )}`
+        );
+        console.error(error.message);
+        await errorSubject.next([self.params.clientId, error]);
+        const result = await self._resurrectModel(
+          mode,
+          `Duplicate tool call id in model output`
+        );
+        await self._emitOutput(mode, result, outputEpoch);
+        return;
+      }
+    }
     toolCalls = toolCalls.slice(-self.params.maxToolCalls);
 
     {

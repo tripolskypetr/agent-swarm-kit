@@ -468,6 +468,22 @@ export interface IGlobalConfig {
   CC_ENABLE_OPERATOR_TIMEOUT: boolean;
 
   /**
+   * Timeout in milliseconds for operator signal waiting in `ClientOperator.waitForOutput`.
+   * Applied only when CC_ENABLE_OPERATOR_TIMEOUT is true; expired wait resolves with an empty output.
+   */
+  CC_OPERATOR_SIGNAL_TIMEOUT: number;
+
+  /**
+   * Interval in milliseconds between chat inactivity sweeps in `ChatUtils`.
+   */
+  CC_CHAT_INACTIVITY_CHECK: number;
+
+  /**
+   * Inactivity duration in milliseconds after which an idle chat instance is disposed by `ChatUtils`.
+   */
+  CC_CHAT_INACTIVITY_TIMEOUT: number;
+
+  /**
    * Disable fetch of data from all storages. Quite usefull for unit tests
    */
   CC_STORAGE_DISABLE_GET_DATA: boolean;

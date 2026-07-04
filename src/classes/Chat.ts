@@ -17,10 +17,7 @@ interface TChatInstance extends IChatInstance {
  */
 type DisposeFn = () => void;
 
-/** @constant {number} INACTIVITY_CHECK - Interval for checking inactivity in milliseconds (1 minute)*/
-const INACTIVITY_CHECK = 60 * 1_000;
-/** @constant {number} INACTIVITY_TIMEOUT - Timeout duration for inactivity in milliseconds (15 minutes)*/
-const INACTIVITY_TIMEOUT = 15 * 60 * 1000;
+
 
 /**
  * @constant {Function} BEGIN_CHAT_FN
@@ -179,7 +176,8 @@ class ChatInstance<Payload extends unknown = any> implements IChatInstance {
         clientId: this.clientId,
         swarmName: this.swarmName,
       });
-    const isActive = now - this._lastActivity <= INACTIVITY_TIMEOUT;
+    const isActive =
+      now - this._lastActivity <= GLOBAL_CONFIG.CC_CHAT_INACTIVITY_TIMEOUT;
     this.callbacks.onCheckActivity &&
       this.callbacks.onCheckActivity(
         this.clientId,
@@ -269,7 +267,7 @@ export class ChatUtils implements IChatControl {
         await chat.dispose();
       }
     };
-    setInterval(handleCleanup, INACTIVITY_CHECK);
+    setInterval(handleCleanup, GLOBAL_CONFIG.CC_CHAT_INACTIVITY_CHECK);
   });
 
   /**

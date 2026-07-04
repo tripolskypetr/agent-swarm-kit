@@ -10,9 +10,6 @@ import { GLOBAL_CONFIG } from "../config/params";
 */
 type DisposeFn = () => void;
 
-/** Timeout duration for operator signal in milliseconds*/
-const OPERATOR_SIGNAL_TIMEOUT = 90_000;
-
 /** Symbol representing operator timeout*/
 const OPERATOR_SIGNAL_SYMBOL = Symbol("operator-timeout");
 
@@ -139,12 +136,14 @@ export class ClientOperator implements IAgent {
     }
     const result = await Promise.race([
       this._outgoingSubject.toPromise(),
-      sleep(OPERATOR_SIGNAL_TIMEOUT).then(() => OPERATOR_SIGNAL_SYMBOL),
+      sleep(GLOBAL_CONFIG.CC_OPERATOR_SIGNAL_TIMEOUT).then(
+        () => OPERATOR_SIGNAL_SYMBOL
+      ),
     ]);
     if (typeof result === "symbol") {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         this.params.logger.debug(
-          `ClientOperator agentName=${this.params.agentName} clientId=${this.params.clientId} waitForOutput timeout after ${OPERATOR_SIGNAL_TIMEOUT}ms`
+          `ClientOperator agentName=${this.params.agentName} clientId=${this.params.clientId} waitForOutput timeout after ${GLOBAL_CONFIG.CC_OPERATOR_SIGNAL_TIMEOUT}ms`
         );
       await this._operatorSignal.dispose();
       return "";

@@ -485,6 +485,32 @@ complete=HANG)
 - MergePolicy: бан живёт в одной политике (hasBan per-policy), блокирует весь
   вход, unban именно этой политики восстанавливает.
 
+## 23-й заход: исключение на дубль tool_call id + конфигурируемые таймеры (+4 теста)
+
+### Изменения поведения (по требованию)
+1. Дубликат tool_call id от модели теперь КИДАЕТ ИСКЛЮЧЕНИЕ (раньше оба вызова
+   молча выполнялись). `src/client/ClientAgent.ts`: проверка уникальности id
+   после нормализации, до среза maxToolCalls; ошибка доставляется через
+   errorSubject + флоу восстанавливается placeholder'ом (не виснет).
+   `src/functions/target/session.ts`: session.complete подписан на errorSubject
+   (раньше только execute/executeForce/runStateless*/chat/json) — теперь
+   session.complete реджектится и на дубль id, и на ошибки провайдера.
+2. Таймеры вынесены в GLOBAL_CONFIG (тестируемость через setConfig в воркере):
+   - CC_OPERATOR_SIGNAL_TIMEOUT (было константой 90_000 в ClientOperator);
+   - CC_CHAT_INACTIVITY_CHECK (было 60с в Chat.ts);
+   - CC_CHAT_INACTIVITY_TIMEOUT (было 15мин в Chat.ts).
+   Дефолты не изменены. Файлы: config/params.ts, model/GlobalConfig.model.ts,
+   client/ClientOperator.ts, classes/Chat.ts.
+
+### Новые тесты (4), сьют вырос до 246/246 — test/spec/modelguard.test.mjs
+- дубль tool_call id → session.complete реджектится ("duplicate tool call id"),
+  ни один из вызовов не выполнен, сессия остаётся рабочей;
+- дубль tool_call id → execute() тоже кидает;
+- операторский таймаут: оператор молчит → complete возвращает "" через
+  ~CC_OPERATOR_SIGNAL_TIMEOUT (300мс в тесте);
+- Chat: простаивающий чат авто-диспоузится по CC_CHAT_INACTIVITY_TIMEOUT
+  (onDispose колбэк, hasSession=false).
+
 ## Найденные и исправленные баги (24 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)

@@ -12,6 +12,7 @@ import { disposeConnection } from "./disposeConnection";
 import beginContext from "../../utils/beginContext";
 import PayloadContextService from "../../lib/services/context/PayloadContextService";
 import { markOnline } from "../other/markOnline";
+import { errorSubject } from "../../config/emitters";
 
 /**
  * Type definition for the complete function used in session objects.
@@ -61,6 +62,15 @@ const sessionInternal = (
         swarm.navigationValidationService.beginMonit(clientId, swarmName);
         try {
           swarm.busService.commitExecutionBegin(clientId, { swarmName });
+
+          let errorValue: Error = null;
+
+          const unError = errorSubject.subscribe(([errorClientId, error]) => {
+            if (clientId === errorClientId) {
+              errorValue = error;
+            }
+          });
+
           const result = await swarm.sessionPublicService.execute(
             content,
             "user",
@@ -68,6 +78,13 @@ const sessionInternal = (
             clientId,
             swarmName
           );
+
+          unError();
+
+          if (errorValue) {
+            throw errorValue;
+          }
+
           isFinished = swarm.perfService.endExecution(
             executionId,
             clientId,
