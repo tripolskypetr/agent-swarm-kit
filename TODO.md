@@ -322,7 +322,34 @@ callbacks: v2}) → прогон флоу → «v2 сработали, v1 мол
   после next(TOOL_ERROR) — если активных цепочек нет (поздняя ошибка), локально
   вызывается _resurrectModel + _emitOutput, выполнение завершается placeholder'ом.
 
-## Найденные и исправленные баги (20 итого)
+## 16-й заход: бросающие коллбеки addTool (+5 тестов, +1 баг)
+
+### Новые тесты (5), сьют вырос до 204/204 — test/spec/toolguard.test.mjs
+Каждый тест кидает исключение из коллбека/валидатора тула и проверяет: complete()
+не виснет, unhandled rejection нет, флоу завершается ожидаемо:
+- throwing onValidate → лог + флоу продолжается (echo:finish);
+- throwing onBeforeCall → лог + флоу продолжается;
+- throwing onAfterCall → НЕ считается ошибкой тула, флоу завершён (echo:finish);
+- тул кидает И onCallError кидает → TOOL_ERROR всё равно эмитится, placeholder;
+- throwing validate тула → трактуется как проваленная валидация (placeholder).
+
+### Баг №21: бросающий коллбек addTool ронял выполнение в вечное зависание
+Файл: `src/client/ClientAgent.ts` (найден репро-раундом 16: 4 из 5 векторов
+давали hang + unhandledRejection)
+- onValidate/onBeforeCall вызывались в теле EXECUTE_FN без try/catch: бросок →
+  реджект queued execute → unhandled rejection (ClientSession запускает
+  agent.execute fire-and-forget) → вывод не эмитится → complete() виснет.
+- targetFn.validate с throw — тот же путь.
+- onCallError с throw в catch createToolCall глушил _toolErrorSubject.next →
+  рекавери не запускалось → hang.
+- onAfterCall с throw попадал в catch createToolCall и превращал УСПЕШНЫЙ вызов
+  тула в ошибку (лишний resurrect).
+- Исправление: все четыре коллбека обёрнуты в try/catch (console.error, флоу
+  продолжается — коллбеки это наблюдатели); throw из validate трактуется как
+  проваленная валидация (resurrect-путь); next(TOOL_ERROR) гарантированно
+  выполняется независимо от ошибок в error-коллбеках.
+
+## Найденные и исправленные баги (21 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
 Файл: `src/client/ClientSwarm.ts`

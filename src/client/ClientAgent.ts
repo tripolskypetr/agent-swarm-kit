@@ -125,13 +125,23 @@ const createToolCall = async (
       callReason: reason,
       toolCalls,
     });
-    targetFn.callbacks?.onAfterCall &&
-      targetFn.callbacks?.onAfterCall(
-        tool.id,
-        self.params.clientId,
-        self.params.agentName,
-        tool.function.arguments
+    try {
+      targetFn.callbacks?.onAfterCall &&
+        targetFn.callbacks?.onAfterCall(
+          tool.id,
+          self.params.clientId,
+          self.params.agentName,
+          tool.function.arguments
+        );
+    } catch (error) {
+      // Callbacks are observers: a throwing onAfterCall must not turn a
+      // successful tool call into a tool error.
+      console.error(
+        `agent-swarm onAfterCall callback error functionName=${
+          tool.function.name
+        } error=${getErrorMessage(error)}`
       );
+    }
   } catch (error) {
     console.error(
       `agent-swarm tool call error functionName=${
@@ -145,21 +155,31 @@ const createToolCall = async (
         error: errorData(error),
       }
     );
-    targetFn.callbacks?.onCallError &&
-      targetFn.callbacks?.onCallError(
-        tool.id,
-        self.params.clientId,
-        self.params.agentName,
-        tool.function.arguments,
-        error
+    try {
+      targetFn.callbacks?.onCallError &&
+        targetFn.callbacks?.onCallError(
+          tool.id,
+          self.params.clientId,
+          self.params.agentName,
+          tool.function.arguments,
+          error
+        );
+      self.params.onToolError &&
+        self.params.onToolError(
+          self.params.clientId,
+          self.params.agentName,
+          targetFn.toolName,
+          error
+        );
+    } catch (callbackError) {
+      // Error callbacks must not be able to suppress the TOOL_ERROR signal
+      // below — otherwise the execution would never recover and hang.
+      console.error(
+        `agent-swarm onCallError callback error functionName=${
+          tool.function.name
+        } error=${getErrorMessage(callbackError)}`
       );
-    self.params.onToolError &&
-      self.params.onToolError(
-        self.params.clientId,
-        self.params.agentName,
-        targetFn.toolName,
-        error
-      );
+    }
     await self._toolErrorSubject.next(TOOL_ERROR_SYMBOL);
     if (!self._activeToolChains) {
       // The status chain already consumed TOOL_COMMIT and finished, so nobody
@@ -415,22 +435,42 @@ const EXECUTE_FN = async (
         run(false);
         return;
       }
-      targetFn.callbacks?.onValidate &&
-        targetFn.callbacks?.onValidate(
-          self.params.clientId,
-          self.params.agentName,
-          tool.function.arguments
+      try {
+        targetFn.callbacks?.onValidate &&
+          targetFn.callbacks?.onValidate(
+            self.params.clientId,
+            self.params.agentName,
+            tool.function.arguments
+          );
+      } catch (error) {
+        // Callbacks are observers: a throwing onValidate must not reject the
+        // queued EXECUTE_FN (unhandled rejection + hung waitForOutput).
+        console.error(
+          `agent-swarm onValidate callback error functionName=${
+            tool.function.name
+          } error=${getErrorMessage(error)}`
         );
-      if (
-        await not(
+      }
+      let validationPassed = false;
+      try {
+        validationPassed = !(await not(
           targetFn.validate({
             clientId: self.params.clientId,
             agentName: self.params.agentName,
             params: tool.function.arguments,
             toolCalls,
           })
-        )
-      ) {
+        ));
+      } catch (error) {
+        // A throwing validate is a failed validation, not a crashed execution.
+        console.error(
+          `agent-swarm tool validate error functionName=${
+            tool.function.name
+          } error=${getErrorMessage(error)}`
+        );
+        validationPassed = false;
+      }
+      if (!validationPassed) {
         GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
           self.params.logger.debug(
             `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} tool validation not passed`
@@ -449,13 +489,23 @@ const EXECUTE_FN = async (
         run(false);
         return;
       }
-      targetFn.callbacks?.onBeforeCall &&
-        targetFn.callbacks?.onBeforeCall(
-          tool.id,
-          self.params.clientId,
-          self.params.agentName,
-          tool.function.arguments
+      try {
+        targetFn.callbacks?.onBeforeCall &&
+          targetFn.callbacks?.onBeforeCall(
+            tool.id,
+            self.params.clientId,
+            self.params.agentName,
+            tool.function.arguments
+          );
+      } catch (error) {
+        // Callbacks are observers: a throwing onBeforeCall must not reject the
+        // queued EXECUTE_FN (unhandled rejection + hung waitForOutput).
+        console.error(
+          `agent-swarm onBeforeCall callback error functionName=${
+            tool.function.name
+          } error=${getErrorMessage(error)}`
         );
+      }
       /**
        * Do not await directly to avoid deadlock! The tool can send messages to other agents by emulating user messages.
        */
