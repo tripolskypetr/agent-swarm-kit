@@ -151,8 +151,8 @@ const createToolCall = async (
         tool.function.arguments,
         error
       );
-    self.params.callbacks?.onToolError &&
-      self.params.callbacks.onToolError(
+    self.params.onToolError &&
+      self.params.onToolError(
         self.params.clientId,
         self.params.agentName,
         targetFn.toolName,
@@ -361,8 +361,11 @@ const EXECUTE_FN = async (
       }
     }
 
+    // Persist the normalized tool calls (ids ensured, sliced, priority-filtered)
+    // so history keeps the call-to-output linkage even when the model omits ids.
     await self.params.history.push({
       ...message,
+      tool_calls: toolCalls,
       agentName: self.params.agentName,
     });
 
@@ -495,8 +498,8 @@ const EXECUTE_FN = async (
             self.params.logger.debug(
               `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the model resque`
             );
-          self.params.callbacks?.onAfterToolCalls &&
-            self.params.callbacks.onAfterToolCalls(
+          self.params.onAfterToolCalls &&
+            self.params.onAfterToolCalls(
               self.params.clientId,
               self.params.agentName,
               toolCalls
@@ -507,8 +510,8 @@ const EXECUTE_FN = async (
             self.params.logger.debug(
               `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the agent changed`
             );
-          self.params.callbacks?.onAfterToolCalls &&
-            self.params.callbacks.onAfterToolCalls(
+          self.params.onAfterToolCalls &&
+            self.params.onAfterToolCalls(
               self.params.clientId,
               self.params.agentName,
               toolCalls
@@ -519,8 +522,8 @@ const EXECUTE_FN = async (
             self.params.logger.debug(
               `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the commitStopTools call`
             );
-          self.params.callbacks?.onAfterToolCalls &&
-            self.params.callbacks.onAfterToolCalls(
+          self.params.onAfterToolCalls &&
+            self.params.onAfterToolCalls(
               self.params.clientId,
               self.params.agentName,
               toolCalls
@@ -531,8 +534,8 @@ const EXECUTE_FN = async (
             self.params.logger.debug(
               `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the commitCancelOutput call`
             );
-          self.params.callbacks?.onAfterToolCalls &&
-            self.params.callbacks.onAfterToolCalls(
+          self.params.onAfterToolCalls &&
+            self.params.onAfterToolCalls(
               self.params.clientId,
               self.params.agentName,
               toolCalls
@@ -559,8 +562,8 @@ const EXECUTE_FN = async (
       });
     }
     lastToolStatusRef.finally(() => {
-      self.params.callbacks?.onAfterToolCalls &&
-        self.params.callbacks.onAfterToolCalls(
+      self.params.onAfterToolCalls &&
+        self.params.onAfterToolCalls(
           self.params.clientId,
           self.params.agentName,
           toolCalls
