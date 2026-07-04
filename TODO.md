@@ -290,7 +290,39 @@ callbacks: v2}) → прогон флоу → «v2 сработали, v1 мол
   самостоятелен и должен оставаться в FIFO — первый вариант фикса (join для
   любого mode tool) ронял тест попарности server-side emit (178/179).
 
-## Найденные и исправленные баги (19 итого)
+## 15-й заход: целенаправленное зацикливание агента (+7 тестов, +1 баг)
+
+### Новые тесты (7), сьют вырос до 199/199 — test/spec/loop.test.mjs
+Каждый сценарий — попытка загнать агента в вечный цикл; проверяется, что защита
+обрывает цикл, число комплишенов ограничено и complete() не зависает:
+- бесконечная executeForce-рекурсия при ДЕФОЛТНОМ CC_MAX_NESTED_EXECUTIONS=20 →
+  placeholder, ≤30 комплишенов;
+- навигационный пинг-понг A↔B через alias-тулы в одном выполнении → гашение
+  маршрутом NavigationValidationService;
+- навигационный треугольник A→B→C→A → гашение на повторном входе;
+- самонавигация A→A → ветка "same agent" в шаблоне навигации, терминация за 2
+  комплишена;
+- кросс-агентный пинг-понг через plain-тулы (changeToAgent+executeForce туда-сюда)
+  → recursion-guard changeToAgent (см. баг №20 ниже);
+- модель вечно отвечает пустым при CC_RESQUE_STRATEGY="recomplete" → placeholder,
+  без resque-цикла, ≤8 комплишенов;
+- вечно падающий тул: два complete подряд оба получают placeholder, третий
+  нормальный — сессия не заклинивает.
+
+### Баг №20: поздняя ошибка тула (после commitToolOutput) вешала complete() навсегда
+Файл: `src/client/ClientAgent.ts` (найден сценарием L5 — пинг-понг plain-тулами)
+- Паттерн: тул делает commitToolOutput → цепочка статусов EXECUTE_FN съедает
+  TOOL_COMMIT и завершается → потом тул кидает (например, changeToAgent
+  срабатывает recursion-guard'ом при CC_THROW_WHEN_NAVIGATION_RECURSION=true,
+  дефолт). _toolErrorSubject.next() уходил в пустоту (слушателей нет), resurrect
+  не запускался, вывод не эмитился — pending waitForOutput и complete() висли
+  навсегда. Т.е. защита от рекурсии навигации превращала цикл в дедлок.
+- Исправление: счётчик активных цепочек _activeToolChains (inc перед
+  постановкой tool-цепочки, dec в finally); createToolCall получил mode; в catch
+  после next(TOOL_ERROR) — если активных цепочек нет (поздняя ошибка), локально
+  вызывается _resurrectModel + _emitOutput, выполнение завершается placeholder'ом.
+
+## Найденные и исправленные баги (20 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
 Файл: `src/client/ClientSwarm.ts`

@@ -109,6 +109,7 @@ const createToolCall = async (
   toolCalls: IToolCall[],
   targetFn: IAgentTool,
   reason: string,
+  mode: ExecutionMode,
   self: ClientAgent
 ) => {
   self._runningToolCalls += 1;
@@ -159,7 +160,20 @@ const createToolCall = async (
         targetFn.toolName,
         error
       );
-    self._toolErrorSubject.next(TOOL_ERROR_SYMBOL);
+    await self._toolErrorSubject.next(TOOL_ERROR_SYMBOL);
+    if (!self._activeToolChains) {
+      // The status chain already consumed TOOL_COMMIT and finished, so nobody
+      // handles this late error (e.g. changeToAgent recursion guard thrown after
+      // commitToolOutput). Without a recovery emission the pending waitForOutput
+      // of the enclosing execution would hang forever.
+      const result = await self._resurrectModel(
+        mode,
+        `Late tool error after commit: name=${
+          tool.function.name
+        } error=${getErrorMessage(error)}`
+      );
+      await self._emitOutput(mode, result);
+    }
   } finally {
     self._runningToolCalls -= 1;
   }
@@ -374,6 +388,8 @@ const EXECUTE_FN = async (
 
     let lastToolStatusRef = Promise.resolve(null);
 
+    self._activeToolChains += 1;
+
     const [runAwaiter, { resolve: run }] = createAwaiter<boolean>();
 
     for (let idx = 0; idx !== toolCalls.length; idx++) {
@@ -489,6 +505,7 @@ const EXECUTE_FN = async (
           toolCalls,
           targetFn,
           message.content || "",
+          mode,
           self
         );
         const status = await statusAwaiter;
@@ -565,6 +582,7 @@ const EXECUTE_FN = async (
       });
     }
     lastToolStatusRef.finally(() => {
+      self._activeToolChains -= 1;
       self.params.onAfterToolCalls &&
         self.params.onAfterToolCalls(
           self.params.clientId,
@@ -633,6 +651,14 @@ export class ClientAgent implements IAgent {
    * detect nested tool-mode executions that must join the parent output waiter.
    */
   _runningToolCalls = 0;
+
+  /**
+   * Count of EXECUTE_FN tool status chains still consuming tool events.
+   * While non-zero, tool errors are handled by the chain (stop + resurrect);
+   * once it drops to zero a late tool error must recover on its own in
+   * createToolCall, or the pending execution output would never be emitted.
+   */
+  _activeToolChains = 0;
 
   /**
    * Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.

@@ -27,6 +27,7 @@ import "./spec/override.test.mjs";
 import "./spec/persist.test.mjs";
 import "./spec/misc.test.mjs";
 import "./spec/schema-callbacks.test.mjs";
+import "./spec/loop.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");

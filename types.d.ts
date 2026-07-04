@@ -3204,6 +3204,13 @@ declare class ClientAgent implements IAgent {
      */
     _runningToolCalls: number;
     /**
+     * Count of EXECUTE_FN tool status chains still consuming tool events.
+     * While non-zero, tool errors are handled by the chain (stop + resurrect);
+     * once it drops to zero a late tool error must recover on its own in
+     * createToolCall, or the pending execution output would never be emitted.
+     */
+    _activeToolChains: number;
+    /**
      * Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.
      * @readonly
      */
