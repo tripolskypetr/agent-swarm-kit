@@ -397,14 +397,20 @@ export class ClientStorage<T extends IStorageData = IStorageData>
         }
       );
     const indexed = new SortedArray<T>();
+    const searchHash = createSHA256Hash(search);
     let searchEmbeddings = await this.params.readEmbeddingCache(
       this.params.embedding,
-      createSHA256Hash(search)
+      searchHash
     );
     if (!searchEmbeddings) {
       searchEmbeddings = await this.params.createEmbedding(
         search,
         this.params.embedding
+      );
+      await this.params.writeEmbeddingCache(
+        searchEmbeddings,
+        this.params.embedding,
+        searchHash
       );
     }
     if (this.params.onCreate) {

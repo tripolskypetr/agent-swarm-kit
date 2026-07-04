@@ -18,6 +18,8 @@ import "./spec/commit.test.mjs";
 import "./spec/orchestration.test.mjs";
 import "./spec/compute.test.mjs";
 import "./spec/infra.test.mjs";
+import "./spec/policy.test.mjs";
+import "./spec/adapters.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");

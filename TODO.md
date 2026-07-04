@@ -123,7 +123,33 @@ worker-testbed 2→3). До исправлений тест-сьют падал 
   появлялись литеральные строки "undefined: ".
 - Исправление: пустой ключ рендерится пустой строкой-разделителем.
 
-## Найденные и исправленные баги (17 итого)
+## 8-й заход: policy/навигационные гарды/адаптеры (+15 тестов, +1 баг)
+
+### Новые тесты (15), сьют вырос до 124/124
+- test/spec/policy.test.mjs (7): бан/разбан через Policy utils (banClient/hasBan/
+  unbanClient) с banMessage при complete; validateOutput с кастомным getBanMessage;
+  MergePolicy отдаёт сообщение именно упавшей политики; повторный changeToAgent в одном
+  выполнении кидает recursion-ошибку при CC_THROW_WHEN_NAVIGATION_RECURSION;
+  changeToAgent на агента вне свармы возвращает false без смены; дубль session() на
+  один clientId кидает "already exist"; swarm-колбэки onInit/onExecute/onAgentChanged/
+  onDispose за жизненный цикл сессии
+- test/spec/adapters.test.mjs (8): Operator.useOperatorAdapter (кастомный
+  OperatorInstance) + useOperatorCallbacks — полный цикл operator-агента; кастомный
+  PersistState-адаптер (usePersistStateAdapter) с persist:true; кэш эмбеддингов
+  поисковой строки между двумя take() — регрессионный тест бага №18;
+  session.rate ограничивает повторный complete (возврат ""); Storage.createNumericIndex
+  1→2; getPayload + getSessionContext внутри tool call; getAgentHistory содержит
+  prompt/user/assistant; commitAssistantMessageForce виден в messages следующего
+  комплишена
+
+### Баг №18: ClientStorage.take не кэшировал эмбеддинг поисковой строки
+Файл: `src/client/ClientStorage.ts` (найден тестом AD3 в repro)
+- Для item'ов кэш эмбеддингов писался, а для search-текста — только читался: на промахе
+  эмбеддинг пересчитывался при каждом take() с тем же запросом (created=["aa","zz","zz"]).
+- Исправление: на промахе после createEmbedding вызывается writeEmbeddingCache для
+  hash поисковой строки.
+
+## Найденные и исправленные баги (18 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
 Файл: `src/client/ClientSwarm.ts`
