@@ -149,6 +149,21 @@ worker-testbed 2→3). До исправлений тест-сьют падал 
 - Исправление: на промахе после createEmbedding вызывается writeEmbeddingCache для
   hash поисковой строки.
 
+## 9-й заход: addOutline/json + addAdvisor/ask (+8 тестов, багов не найдено)
+
+### Новые тесты (8), сьют вырос до 132/132
+- test/spec/outline.test.mjs (8): happy path json() — prompt/system/flags комплишена
+  попадают в history, format и clientId `*_outline` доходят до getCompletion,
+  onAttempt/onValidDocument; ретраи — невалидный JSON (attempt 0) → провал validation
+  (attempt 1) → успех (attempt 2), history пересобирается на каждой попытке (один
+  user-месседж в итоге); исчерпание maxAttempts — isValid:false, data:null, error
+  сохранён, onInvalidDocument; гарды outline — json() на незарегистрированном имени
+  и дубль addOutline кидают; outline с комплишеном без `json: true` отклоняется
+  валидатором ("completion schema is not JSON"); addAdvisor/ask happy path с
+  onChat/onResult (resultId непустой); ask со структурным message-объектом
+  (generic T); гарды advisor — ask на незарегистрированном имени и дубль
+  addAdvisor кидают
+
 ## Найденные и исправленные баги (18 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)

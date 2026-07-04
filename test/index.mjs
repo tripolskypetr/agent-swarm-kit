@@ -20,6 +20,7 @@ import "./spec/compute.test.mjs";
 import "./spec/infra.test.mjs";
 import "./spec/policy.test.mjs";
 import "./spec/adapters.test.mjs";
+import "./spec/outline.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");
