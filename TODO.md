@@ -258,7 +258,39 @@ navigationPop; тул, закоммитивший output без продолже
 Осталось непокрытым осознанно: таймаут оператора (константа 90с, не конфигурируется),
 Chat inactivity-таймауты (константы минутного масштаба).
 
-## Найденные и исправленные баги (18 итого)
+## 14-й заход: редекларация коллбеков через override* для всех 13 схем (+13 тестов, +1 баг)
+
+### Новые тесты (13), сьют вырос до 192/192 — test/spec/schema-callbacks.test.mjs
+Для каждого типа схемы: регистрация с v1-коллбеками → await override*({name,
+callbacks: v2}) → прогон флоу → «v2 сработали, v1 молчат» (callbacks заменяются
+целиком, не мержатся поэлементно):
+- agent (onInit/onExecute/onOutput/onDispose), swarm (onInit/onExecute/
+  onAgentChanged/onDispose), completion (onComplete), tool (onValidate/
+  onBeforeCall/onAfterCall), policy (onInit/onValidateInput), state (onInit/
+  onLoad/onRead/onWrite), storage (onInit/onUpdate/onSearch), embedding
+  (onCreate/onCompare), compute (onInit/onUpdate), mcp (onList/onCall),
+  outline (onAttempt/onValidDocument), advisor (onChat/onResult),
+  pipeline (onStart/onEnd).
+
+### Баг №19: await executeForce внутри тула никогда не резолвился
+Файлы: `src/client/ClientSwarm.ts`, `src/client/ClientSession.ts`,
+`src/client/ClientAgent.ts` (найден тестом S4 — onAfterCall не срабатывал)
+- Вложенный executeForce/execute (mode "tool") из работающего тула вставал в
+  FIFO-цепочку waitForOutput ЗА родительским ожидателем. Вывод вложенного
+  выполнения по попарности доставался родителю, вложенный ожидатель стартовал
+  уже после эмита и висел вечно. Следствия: код после `await executeForce(...)`
+  в туле мёртв; onAfterCall тула не вызывался для самого распространённого
+  паттерна (commitToolOutput + executeForce).
+- Исправление: ClientSwarm ведёт список нерезолвленных ожидателей
+  (_pendingOutputAwaiters) и даёт joinOutput() — присоединение к первому из них;
+  ClientAgent считает выполняющиеся тулы (_runningToolCalls, inc/dec вокруг
+  targetFn.call); ClientSession.execute для mode "tool" при активном туле у
+  любого агента свармы использует joinOutput() вместо waitForOutput().
+- Точность критерия важна: server-side execute() тоже идёт с mode "tool", но
+  самостоятелен и должен оставаться в FIFO — первый вариант фикса (join для
+  любого mode tool) ронял тест попарности server-side emit (178/179).
+
+## Найденные и исправленные баги (19 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
 Файл: `src/client/ClientSwarm.ts`

@@ -446,6 +446,12 @@ export class ClientSwarm implements ISwarm {
   private _lastOutputAwaiter: Promise<unknown> = Promise.resolve();
 
   /**
+   * Waiters created by waitForOutput that have not settled yet, in creation order.
+   * joinOutput attaches nested tool executions to the head of this list.
+   */
+  private _pendingOutputAwaiters: Promise<string>[] = [];
+
+  /**
    * Waits for output from the active agent, delegating to WAIT_FOR_OUTPUT_FN.
    * Pending waiters run in FIFO order so each one consumes the next emitted output,
    * but once a started waiter settles the chain is reset: a waiter that subscribed
@@ -458,11 +464,30 @@ export class ClientSwarm implements ISwarm {
       async () => await WAIT_FOR_OUTPUT_FN(this)
     );
     this._lastOutputAwaiter = currentPromise;
+    this._pendingOutputAwaiters.push(currentPromise);
     const reset = () => {
       this._lastOutputAwaiter = Promise.resolve();
+      const idx = this._pendingOutputAwaiters.indexOf(currentPromise);
+      if (idx !== -1) {
+        this._pendingOutputAwaiters.splice(idx, 1);
+      }
     };
     currentPromise.then(reset, reset);
     return currentPromise;
+  };
+
+  /**
+   * Awaits the same output as the oldest pending waitForOutput call, or starts a
+   * fresh wait when none is pending. Nested executions triggered from inside a tool
+   * (execute/executeForce with "tool" mode) must use this instead of waitForOutput:
+   * their emitted output resolves the parent waiter, so queueing behind it would
+   * leave the nested caller pending forever and skip the tool's onAfterCall.
+   */
+  joinOutput = (): Promise<string> => {
+    if (this._pendingOutputAwaiters.length) {
+      return this._pendingOutputAwaiters[0];
+    }
+    return this.waitForOutput();
   };
 
   /**

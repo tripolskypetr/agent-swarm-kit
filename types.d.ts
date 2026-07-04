@@ -3198,6 +3198,12 @@ declare class ClientAgent implements IAgent {
      */
     readonly _toolAbortController: ToolAbortController;
     /**
+     * Count of tool calls currently executing for this agent.
+     * Non-zero while any targetFn.call promise is pending; ClientSession uses it to
+     * detect nested tool-mode executions that must join the parent output waiter.
+     */
+    _runningToolCalls: number;
+    /**
      * Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.
      * @readonly
      */
@@ -4488,6 +4494,11 @@ declare class ClientSwarm implements ISwarm {
      */
     private _lastOutputAwaiter;
     /**
+     * Waiters created by waitForOutput that have not settled yet, in creation order.
+     * joinOutput attaches nested tool executions to the head of this list.
+     */
+    private _pendingOutputAwaiters;
+    /**
      * Waits for output from the active agent, delegating to WAIT_FOR_OUTPUT_FN.
      * Pending waiters run in FIFO order so each one consumes the next emitted output,
      * but once a started waiter settles the chain is reset: a waiter that subscribed
@@ -4496,6 +4507,14 @@ declare class ClientSwarm implements ISwarm {
      * execute whose output was already consumed would deadlock every later completion.
      */
     waitForOutput: () => Promise<string>;
+    /**
+     * Awaits the same output as the oldest pending waitForOutput call, or starts a
+     * fresh wait when none is pending. Nested executions triggered from inside a tool
+     * (execute/executeForce with "tool" mode) must use this instead of waitForOutput:
+     * their emitted output resolves the parent waiter, so queueing behind it would
+     * leave the nested caller pending forever and skip the tool's onAfterCall.
+     */
+    joinOutput: () => Promise<string>;
     /**
      * Retrieves the name of the active agent, lazily fetching it via params.getActiveAgent if not loaded.
      * Emits an event via BusService with the result, supporting ClientSession's agent identification.

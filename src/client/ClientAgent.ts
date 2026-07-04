@@ -111,6 +111,7 @@ const createToolCall = async (
   reason: string,
   self: ClientAgent
 ) => {
+  self._runningToolCalls += 1;
   try {
     await targetFn.call({
       toolId: tool.id,
@@ -159,6 +160,8 @@ const createToolCall = async (
         error
       );
     self._toolErrorSubject.next(TOOL_ERROR_SYMBOL);
+  } finally {
+    self._runningToolCalls -= 1;
   }
 };
 
@@ -623,6 +626,13 @@ export class ClientAgent implements IAgent {
    * @readonly
    */
   readonly _toolAbortController = new ToolAbortController();
+
+  /**
+   * Count of tool calls currently executing for this agent.
+   * Non-zero while any targetFn.call promise is pending; ClientSession uses it to
+   * detect nested tool-mode executions that must join the parent output waiter.
+   */
+  _runningToolCalls = 0;
 
   /**
    * Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.

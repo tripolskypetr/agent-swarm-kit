@@ -13,6 +13,7 @@ import { GLOBAL_CONFIG } from "../config/params";
 import { IToolRequest } from "../model/Tool.model";
 import swarm from "../lib";
 import ClientSwarm from "./ClientSwarm";
+import ClientAgent from "./ClientAgent";
 
 const BUSY_DELAY = 100;
 
@@ -204,7 +205,18 @@ export class ClientSession implements ISession {
     if (mode === "user") {
       await this.AQUIRE_LOCK(this);
     }
-    const outputAwaiter = this.params.swarm.waitForOutput();
+    // A tool-mode execute issued while a tool call is still running is a nested
+    // continuation of that execution: its output resolves the already pending
+    // waiter, so it must join it. Standalone server-side tool-mode executes keep
+    // the FIFO waitForOutput pairing.
+    const isNestedToolExecution =
+      mode === "tool" &&
+      Object.values((this.params.swarm as ClientSwarm).params.agentMap).some(
+        (agentRef) => agentRef instanceof ClientAgent && agentRef._runningToolCalls > 0
+      );
+    const outputAwaiter = isNestedToolExecution
+      ? (this.params.swarm as ClientSwarm).joinOutput()
+      : this.params.swarm.waitForOutput();
     agent.execute(message, mode);
     let output = "";
     try {
