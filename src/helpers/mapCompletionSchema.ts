@@ -17,10 +17,32 @@ type TCompletionSchema = {
 */
 export const mapCompletionSchema = ({
   getCompletion,
+  callbacks,
   ...schema
 }: TCompletionSchema): ICompletionSchema =>
   removeUndefined({
     ...schema,
+    callbacks: callbacks
+      ? {
+          ...callbacks,
+          onComplete: callbacks.onComplete
+            ? (...args: Parameters<NonNullable<typeof callbacks.onComplete>>) => {
+                try {
+                  // Observer callback: a throw here would reject getCompletion
+                  // inside the queued EXECUTE_FN and hang the pending
+                  // waitForOutput of the execution.
+                  return callbacks.onComplete(...args);
+                } catch (error) {
+                  console.error(
+                    `agent-swarm onComplete completion callback error completionName=${
+                      schema.completionName
+                    } error=${getErrorMessage(error)}`
+                  );
+                }
+              }
+            : undefined,
+        }
+      : undefined,
     getCompletion: getCompletion
       ? async (args: IBaseCompletionArgs<IBaseMessage>) => {
           try {

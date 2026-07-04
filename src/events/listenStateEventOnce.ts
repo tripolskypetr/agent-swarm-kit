@@ -1,6 +1,6 @@
 import { IBusEvent } from "../model/Event.model";
 import swarm from "../lib";
-import { queued } from "functools-kit";
+import { getErrorMessage, queued } from "functools-kit";
 import beginContext from "../utils/beginContext";
 
 /**
@@ -57,7 +57,17 @@ export const listenStateEventOnce = beginContext(
       clientId,
       "state-bus",
       filterFn,
-      queued(async (e) => await fn(e))
+      queued(async (e) => {
+        try {
+          // A throwing listener must not reject the queued chain: that surfaces
+          // as an unhandled rejection and can crash the host process.
+          return await fn(e);
+        } catch (error) {
+          console.error(
+            `agent-swarm event listener error source=listenStateEventOnce error=${getErrorMessage(error)}`
+          );
+        }
+      })
     );
   }
 );

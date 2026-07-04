@@ -36,6 +36,7 @@ import "./spec/lifecycle.test.mjs";
 import "./spec/numindex.test.mjs";
 import "./spec/banhammer.test.mjs";
 import "./spec/modelguard.test.mjs";
+import "./spec/hookguard.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");

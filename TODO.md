@@ -511,7 +511,40 @@ complete=HANG)
 - Chat: простаивающий чат авто-диспоузится по CC_CHAT_INACTIVITY_TIMEOUT
   (onDispose колбэк, hasSession=false).
 
-## Найденные и исправленные баги (24 итого)
+## 24-й заход: бросающие схемные хуки и слушатели шины (+8 тестов, +1 баг)
+
+### Баг №25: бросок из любого схемного хука/слушателя вешал выполнение или ронял процесс
+Файлы: `src/helpers/guardAgentHooks.ts` (новый),
+`src/lib/services/connection/AgentConnectionService.ts`,
+`src/helpers/mapCompletionSchema.ts`, `src/lib/services/base/BusService.ts`,
+`src/events/listen*.ts` (16 файлов), `src/functions/event/listenEvent(Once).ts`
+(найден пробами: 5 из 5 хуков давали вечное зависание + unhandled rejection)
+- transform/map/mapToolCalls/prompt-функция/systemDynamic вызывались в
+  EXECUTE_FN/RUN_FN/getCompletion без защиты; agent.execute — fire-and-forget →
+  бросок = unhandled rejection + вечный complete(). Исправление:
+  guardAgentTransformer в AgentConnectionService — ошибка уходит в errorSubject
+  (session.complete/execute реджектятся), флоу продолжается с identity-фолбэком
+  (НЕ пустым значением — пустое повторно роняло бы resurrect-путь на том же
+  transform → дедлок).
+- Агентные schema-коллбеки (onInit/onExecute/onOutput/... — спред в params root)
+  и onComplete комплишена — наблюдатели: guardAgentCallbacks + обёртка в
+  mapCompletionSchema (console.error, флоу продолжается).
+- Бросающий подписчик listen*Event: queued-цепочка functools-kit реджектится
+  внутренне (catch на возвращённом промисе не помогает) → unhandled rejection,
+  роняющий процесс на современном Node. Исправление: try/catch внутри
+  queued-обёртки во всех 18 listen*-файлах + страховочный GUARD_LISTENER_FN в
+  BusService.subscribe/once.
+
+### Новые тесты (8), сьют вырос до 254/254 — test/spec/hookguard.test.mjs
+- throwing transform/map/mapToolCalls → session.complete реджектится с исходной
+  ошибкой, БЕЗ зависания, сессия жива, ноль unhandled;
+- throwing onComplete комплишена и throwing агентные коллбеки → флоу невредим;
+- throwing слушатель listenAgentEvent → флоу невредим, ноль unhandled;
+- emit во время работающего ТУЛА (поздний executeForce после подмены) →
+  следующий обмен не отравлен (продолжение бага №22 через вложенный путь);
+- cancelOutput во время работающего тула → аналогично чисто.
+
+## Найденные и исправленные баги (25 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
 Файл: `src/client/ClientSwarm.ts`

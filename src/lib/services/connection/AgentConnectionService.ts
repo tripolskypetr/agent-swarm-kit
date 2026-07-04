@@ -20,6 +20,10 @@ import ClientOperator from "../../../client/ClientOperator";
 import MCPConnectionService from "./MCPConnectionService";
 import { MergeMCP, NoopMCP } from "../../../classes/MCP";
 import { IToolRequest } from "../../../model/Tool.model";
+import {
+  guardAgentCallbacks,
+  guardAgentTransformer,
+} from "../../../helpers/guardAgentHooks";
 
 /**
  * Service class for managing agent connections and operations in the swarm system.
@@ -176,7 +180,7 @@ export class AgentConnectionService implements IAgent {
           history,
           logger: this.loggerService,
           connectOperator,
-          ...callbacks,
+          ...guardAgentCallbacks(callbacks, agentName),
         });
       }
       return new ClientAgent({
@@ -184,21 +188,56 @@ export class AgentConnectionService implements IAgent {
         agentName,
         validate,
         maxToolCalls,
-        mapToolCalls,
+        mapToolCalls: guardAgentTransformer(
+          mapToolCalls,
+          "mapToolCalls",
+          agentName,
+          (_calls, callClientId) => callClientId,
+          (calls) => calls
+        ),
         logger: this.loggerService,
         bus: this.busService,
         mcp: mcp
           ? new MergeMCP(mcp.map(this.mcpConnectionService.getMCP), agentName)
           : new NoopMCP(agentName),
         history,
-        prompt,
+        prompt:
+          typeof prompt === "function"
+            ? guardAgentTransformer(
+                prompt,
+                "prompt",
+                agentName,
+                (callClientId) => callClientId,
+                () => ""
+              )
+            : prompt,
         systemStatic,
-        systemDynamic,
-        transform,
-        map,
+        systemDynamic: systemDynamic
+          ? guardAgentTransformer(
+              systemDynamic,
+              "systemDynamic",
+              agentName,
+              (callClientId) => callClientId,
+              () => []
+            )
+          : systemDynamic,
+        transform: guardAgentTransformer(
+          transform,
+          "transform",
+          agentName,
+          (_text, callClientId) => callClientId,
+          (text) => text
+        ),
+        map: guardAgentTransformer(
+          map,
+          "map",
+          agentName,
+          (_message, callClientId) => callClientId,
+          (message) => message
+        ),
         tools: tools?.map(this.toolSchemaService.get),
         completion: this.completionSchemaService.get(completionName),
-        ...callbacks,
+        ...guardAgentCallbacks(callbacks, agentName),
       });
     }
   );

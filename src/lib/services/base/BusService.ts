@@ -1,4 +1,37 @@
-import { memoize, Subject } from "functools-kit";
+import { getErrorMessage, memoize, Subject } from "functools-kit";
+
+/**
+ * Wraps a bus listener so its exceptions cannot escape into the emit path.
+ * ClientAgent awaits bus.emit inside executions: a throwing subscriber would
+ * otherwise surface as an unhandled rejection (crashing the host process on
+ * modern Node) or reject the execution itself.
+ */
+const GUARD_LISTENER_FN =
+  <T,>(fn: (event: T) => void, clientId: string, source: string) =>
+  (event: T) => {
+    try {
+      const output = fn(event) as unknown;
+      if (
+        output &&
+        typeof (output as Promise<unknown>).catch === "function"
+      ) {
+        (output as Promise<unknown>).catch((error) =>
+          console.error(
+            `agent-swarm bus listener error clientId=${clientId} source=${source} error=${getErrorMessage(
+              error
+            )}`
+          )
+        );
+      }
+      return output;
+    } catch (error) {
+      console.error(
+        `agent-swarm bus listener error clientId=${clientId} source=${source} error=${getErrorMessage(
+          error
+        )}`
+      );
+    }
+  };
 import { inject } from "../../../lib/core/di";
 import LoggerService from "./LoggerService";
 import TYPES from "../../../lib/core/types";
@@ -80,7 +113,9 @@ export class BusService implements IBus {
       this._eventWildcardMap.set(source, true);
     }
     this._eventSourceSet.add(source);
-    return this.getEventSubject(clientId, source).subscribe(fn);
+    return this.getEventSubject(clientId, source).subscribe(
+      GUARD_LISTENER_FN(fn, clientId, source)
+    );
   };
 
   /**
@@ -104,7 +139,9 @@ export class BusService implements IBus {
       this._eventWildcardMap.set(source, true);
     }
     this._eventSourceSet.add(source);
-    return this.getEventSubject(clientId, source).filter(filterFn).once(fn);
+    return this.getEventSubject(clientId, source)
+      .filter(filterFn)
+      .once(GUARD_LISTENER_FN(fn, clientId, source));
   };
 
   /**

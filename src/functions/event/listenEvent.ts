@@ -1,7 +1,7 @@
 import { EventSource, ICustomEvent } from "../../model/Event.model";
 import { GLOBAL_CONFIG } from "../../config/params";
 import swarm from "../../lib";
-import { queued } from "functools-kit";
+import { getErrorMessage, queued } from "functools-kit";
 import beginContext from "../../utils/beginContext";
 
 const METHOD_NAME = "function.event.listenEvent";
@@ -66,7 +66,17 @@ const listenEventInternal = beginContext(
     return swarm.busService.subscribe<ICustomEvent<object>>(
       clientId,
       topicName,
-      queued(async ({ payload }) => await fn(payload))
+      queued(async ({ payload }) => {
+        try {
+          // A throwing listener must not reject the queued chain: that surfaces
+          // as an unhandled rejection and can crash the host process.
+          return await fn(payload);
+        } catch (error) {
+          console.error(
+            `agent-swarm event listener error source=${METHOD_NAME} error=${getErrorMessage(error)}`
+          );
+        }
+      })
     );
   }
 );
