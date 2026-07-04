@@ -3211,6 +3211,14 @@ declare class ClientAgent implements IAgent {
      */
     _activeToolChains: number;
     /**
+     * Generation counter for output emissions. Bumped by commitCancelOutput and by
+     * swarm-level output substitution (emit). Executions capture the epoch at start
+     * and _emitOutput drops their result when the epoch moved on — otherwise the
+     * stale output of a cancelled/substituted execution would resolve the waiter
+     * of the NEXT message, poisoning that exchange.
+     */
+    _outputEpoch: number;
+    /**
      * Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.
      * @readonly
      */
@@ -3272,13 +3280,19 @@ declare class ClientAgent implements IAgent {
      * Supports SwarmConnectionService by broadcasting agent outputs within the swarm.
      * @throws {Error} If validation fails after model resurrection, indicating an unrecoverable state.
      **/
-    _emitOutput(mode: ExecutionMode, rawResult: string): Promise<void>;
+    _emitOutput(mode: ExecutionMode, rawResult: string, outputEpoch?: number): Promise<void>;
     /**
      * Resurrects the model in case of failures using configured strategies (flush, recomplete, custom).
      * Updates history with failure details and returns a placeholder or transformed result, signaling via _resqueSubject.
      * Supports error recovery for CompletionSchemaService’s getCompletion calls.
       */
     _resurrectModel(mode: ExecutionMode, reason?: string): Promise<string>;
+    /**
+     * Marks in-flight executions as substituted: the swarm emitted a replacement
+     * output (ClientSwarm.emit), so results of executions started earlier must not
+     * reach _outputSubject — they would pair with the next waiter otherwise.
+     */
+    commitOutputSubstituted(): void;
     /**
      * Waits for the next output to be emitted via _outputSubject, typically after execute or run.
      * Useful for external consumers (e.g., SwarmConnectionService) awaiting agent responses.

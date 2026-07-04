@@ -367,6 +367,15 @@ export class ClientSwarm implements ISwarm {
       this.params.logger.debug(
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} emit`
       );
+    // The emitted message substitutes the output of any in-flight execution:
+    // invalidate agents' pending emissions so a stale result cannot resolve
+    // the waiter of the next message.
+    for (const [, agent] of this._agentList) {
+      const agentRef = agent as unknown as {
+        commitOutputSubstituted?: () => void;
+      };
+      agentRef.commitOutputSubstituted?.();
+    }
     await this._emitSubject.next({
       agentName: await this.getAgentName(),
       output: message,

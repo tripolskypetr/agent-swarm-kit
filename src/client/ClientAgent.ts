@@ -110,6 +110,7 @@ const createToolCall = async (
   targetFn: IAgentTool,
   reason: string,
   mode: ExecutionMode,
+  outputEpoch: number,
   self: ClientAgent
 ) => {
   self._runningToolCalls += 1;
@@ -192,7 +193,7 @@ const createToolCall = async (
           tool.function.name
         } error=${getErrorMessage(error)}`
       );
-      await self._emitOutput(mode, result);
+      await self._emitOutput(mode, result, outputEpoch);
     }
   } finally {
     self._runningToolCalls -= 1;
@@ -359,6 +360,7 @@ const EXECUTE_FN = async (
       incoming,
       mode
     );
+  const outputEpoch = self._outputEpoch;
   await self.params.history.push({
     role: "user",
     mode,
@@ -431,7 +433,7 @@ const EXECUTE_FN = async (
           self.params.logger.debug(
             `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
           );
-        await self._emitOutput(mode, result);
+        await self._emitOutput(mode, result, outputEpoch);
         run(false);
         return;
       }
@@ -485,7 +487,7 @@ const EXECUTE_FN = async (
           self.params.logger.debug(
             `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
           );
-        await self._emitOutput(mode, result);
+        await self._emitOutput(mode, result, outputEpoch);
         run(false);
         return;
       }
@@ -556,6 +558,7 @@ const EXECUTE_FN = async (
           targetFn,
           message.content || "",
           mode,
+          outputEpoch,
           self
         );
         const status = await statusAwaiter;
@@ -626,7 +629,7 @@ const EXECUTE_FN = async (
             self.params.logger.debug(
               `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
             );
-          await self._emitOutput(mode, result);
+          await self._emitOutput(mode, result, outputEpoch);
         }
         return status;
       });
@@ -669,14 +672,14 @@ const EXECUTE_FN = async (
       mode,
       `Invalid model output: ${result}`
     );
-    await self._emitOutput(mode, result1);
+    await self._emitOutput(mode, result1, outputEpoch);
     return;
   }
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
       `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
     );
-  await self._emitOutput(mode, result);
+  await self._emitOutput(mode, result, outputEpoch);
 };
 
 /**
@@ -709,6 +712,15 @@ export class ClientAgent implements IAgent {
    * createToolCall, or the pending execution output would never be emitted.
    */
   _activeToolChains = 0;
+
+  /**
+   * Generation counter for output emissions. Bumped by commitCancelOutput and by
+   * swarm-level output substitution (emit). Executions capture the epoch at start
+   * and _emitOutput drops their result when the epoch moved on — otherwise the
+   * stale output of a cancelled/substituted execution would resolve the waiter
+   * of the NEXT message, poisoning that exchange.
+   */
+  _outputEpoch = 0;
 
   /**
    * Subject for signaling agent changes, halting subsequent tool executions via commitAgentChange.
@@ -915,7 +927,19 @@ export class ClientAgent implements IAgent {
    * Supports SwarmConnectionService by broadcasting agent outputs within the swarm.
    * @throws {Error} If validation fails after model resurrection, indicating an unrecoverable state.
    **/
-  async _emitOutput(mode: ExecutionMode, rawResult: string): Promise<void> {
+  async _emitOutput(
+    mode: ExecutionMode,
+    rawResult: string,
+    outputEpoch = this._outputEpoch
+  ): Promise<void> {
+    if (outputEpoch !== this._outputEpoch) {
+      GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+        this.params.logger.debug(
+          `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} _emitOutput skipped for stale execution (cancelled or substituted)`,
+          { mode, rawResult }
+        );
+      return;
+    }
     const result = await this.params.transform(
       rawResult,
       this.params.clientId,
@@ -938,6 +962,9 @@ export class ClientAgent implements IAgent {
         throw new Error(
           `agent-swarm-kit ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} model resurrect failed: ${validation}`
         );
+      }
+      if (outputEpoch !== this._outputEpoch) {
+        return;
       }
       this.params.onOutput &&
         this.params.onOutput(
@@ -967,6 +994,9 @@ export class ClientAgent implements IAgent {
         },
         clientId: this.params.clientId,
       });
+      return;
+    }
+    if (outputEpoch !== this._outputEpoch) {
       return;
     }
     this.params.onOutput &&
@@ -1092,6 +1122,19 @@ export class ClientAgent implements IAgent {
     }
     await this._resqueSubject.next(MODEL_RESQUE_SYMBOL);
     return placeholder;
+  }
+
+  /**
+   * Marks in-flight executions as substituted: the swarm emitted a replacement
+   * output (ClientSwarm.emit), so results of executions started earlier must not
+   * reach _outputSubject — they would pair with the next waiter otherwise.
+   */
+  commitOutputSubstituted(): void {
+    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+      this.params.logger.debug(
+        `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitOutputSubstituted`
+      );
+    this._outputEpoch += 1;
   }
 
   /**
@@ -1366,6 +1409,7 @@ export class ClientAgent implements IAgent {
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} commitCancelOutput`
       );
+    this._outputEpoch += 1;
     this._toolAbortController.abort();
     await this._cancelOutputSubject.next(CANCEL_OUTPUT_SYMBOL);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
