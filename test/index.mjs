@@ -13,6 +13,9 @@ import "./spec/storage.test.mjs"
 import "./spec/state.test.mjs";
 import "./spec/toolcall.test.mjs";
 import "./spec/mcp.test.mjs";
+import "./spec/agentflow.test.mjs";
+import "./spec/commit.test.mjs";
+import "./spec/orchestration.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");

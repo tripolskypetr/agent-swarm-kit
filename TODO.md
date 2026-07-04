@@ -63,7 +63,42 @@ worker-testbed 2→3). До исправлений тест-сьют падал 
 - Исправление: в историю пушится нормализованный список tool_calls (id проставлены,
   срез и приоритет применены) — связка сохраняется для любого провайдера.
 
-## Найденные и исправленные баги (15 итого)
+## 6-й заход: полное покрытие агентского флоу (+31 тест, +1 баг)
+
+### Новые тесты (31), сьют вырос до 88/88
+- test/spec/agentflow.test.mjs (12): prompt-функция + systemStatic + systemDynamic +
+  completion flags доходят до модели; transform; map; mapToolCalls фильтрует вызовы;
+  keepMessages обрезает контекст; runStateless не трогает историю; runStateless → ""
+  при tool_calls; resque-стратегии recomplete и custom; жизненный цикл колбэков
+  (init/execute/output/afterToolCalls/dispose — закрепляет фикс №14); commitToolRequest
+  пишет в историю с генерированными id; всё семейство history-геттеров (включая
+  getLastToolMessage — закрепляет фикс №13)
+- test/spec/commit.test.mjs (8): skip-vs-force для commitSystemMessage /
+  commitAssistantMessage / commitDeveloperMessage; payload у commitUserMessage;
+  commitFlushForce сбрасывает контекст модели; cancelOutputForce разрешает зависший
+  execute пустым выводом; notify — guard по режиму сессии + доставка в makeConnection;
+  emitForce подменяет вывод идущего выполнения
+- test/spec/orchestration.test.mjs (11): fork/scope (сессия внутри, очистка после);
+  startPipeline (переключение агента и восстановление, onStart/onEnd) и error-путь
+  (onError, isError, результат null); policy autoBan (бан по validateInput, повторный
+  запрос банится); operator-агент (маршрутизация к оператору, ответ через next,
+  dispose сигнала — закрепляет фикс №3); makeAutoDispose закрывает простаивающую
+  сессию; getSessionMode/getCheckBusy/hasNavigation/getToolNameForModel/hasSession;
+  outline json() — валидный и невалидный (maxAttempts) пути; chat(); advisor ask();
+  кастомные события event/listenEvent
+- Все 31 сценарий предварительно прогнаны standalone-скриптом (защита от зависаний).
+  Один сценарий поправил по факту семантики: emit — не push в коннектор (это notify),
+  а подстановка вывода для уже идущего выполнения.
+
+### Баг №16: operator-агент без completion не проходил валидацию
+Файл: `src/lib/services/validation/AgentValidationService.ts` (найден тестом C5)
+- validate() безусловно вызывал `completionSchemaService.get(agent.completion)` для
+  проверки json-флага ДО проверки operator. У operator-агента completion легально
+  отсутствует (validateShallow разрешает) → ToolRegistry.get(undefined) кидал
+  «Tool not registered name=undefined» — session() с operator-агентом был сломан.
+- Исправление: json-проверка выполняется только при наличии completion.
+
+## Найденные и исправленные баги (16 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
 Файл: `src/client/ClientSwarm.ts`

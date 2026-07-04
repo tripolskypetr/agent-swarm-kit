@@ -268,13 +268,17 @@ export class AgentValidationService {
           `agent-swarm agent ${agentName} not found source=${source}`
         );
       }
-      const completionSchema = this.completionSchemaService.get(
-        agent.completion
-      );
-      if (completionSchema.json) {
-        throw new Error(
-          `agent-swarm agent ${agentName} completion schema is JSON source=${source}`
+      // Operator agents may omit completion entirely (see validateShallow),
+      // so the JSON-flag check only applies when a completion is configured.
+      if (agent.completion) {
+        const completionSchema = this.completionSchemaService.get(
+          agent.completion
         );
+        if (completionSchema.json) {
+          throw new Error(
+            `agent-swarm agent ${agentName} completion schema is JSON source=${source}`
+          );
+        }
       }
       if (!agent.operator) {
         this.completionValidationService.validate(agent.completion, source);
