@@ -255,7 +255,7 @@ export { Storage } from "./classes/Storage";
 export { SharedStorage } from "./classes/SharedStorage";
 
 export { Schema } from "./classes/Schema";
-export { Adapter } from "./classes/Adapter";
+export { Adapter, TOOL_PROTOCOL_PROMPT } from "./classes/Adapter";
 
 export { ExecutionContextService } from "./lib/services/context/ExecutionContextService";
 export { PayloadContextService } from "./lib/services/context/PayloadContextService";

@@ -22,6 +22,10 @@ import "./spec/policy.test.mjs";
 import "./spec/adapters.test.mjs";
 import "./spec/outline.test.mjs";
 import "./spec/resilience.test.mjs";
+import "./spec/providers.test.mjs";
+import "./spec/override.test.mjs";
+import "./spec/persist.test.mjs";
+import "./spec/misc.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");
