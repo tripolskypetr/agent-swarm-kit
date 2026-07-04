@@ -341,12 +341,22 @@ export class StorageUtils implements TStorage {
           `agent-swarm StorageUtils ${payload.storageName} not registered in ${payload.agentName} (createNumericIndex)`
         );
       }
-      const { length } = await swarm.storagePublicService.list(
+      const items = await swarm.storagePublicService.list(
         METHOD_NAME_CREATE_NUMERIC_INDEX,
         payload.clientId,
         payload.storageName
       );
-      return length + 1;
+      // length + 1 collides with surviving ids once anything was removed
+      // (items [1,2,3] minus 1 -> length 2 -> next "3" overwrites live item 3),
+      // so the next index must come from the maximum numeric id instead.
+      let maxId = 0;
+      for (const { id } of items) {
+        const numericId = Number(id);
+        if (!Number.isNaN(numericId)) {
+          maxId = Math.max(maxId, numericId);
+        }
+      }
+      return maxId + 1;
     }
   );
 
