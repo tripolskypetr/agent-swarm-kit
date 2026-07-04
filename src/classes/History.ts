@@ -435,6 +435,19 @@ class HistoryPersistInstance implements IHistoryInstance {
         this.callbacks.onRead(item, this.clientId, agentName);
         yield item;
       }
+      if (this.callbacks.getSystemPrompt) {
+        for (const content of await this.callbacks.getSystemPrompt(
+          this.clientId,
+          agentName
+        )) {
+          yield {
+            role: "system",
+            content,
+            agentName,
+            mode: "tool",
+          };
+        }
+      }
       this.callbacks.onReadEnd &&
         this.callbacks.onReadEnd(this.clientId, agentName);
       return;
@@ -656,6 +669,19 @@ class HistoryMemoryInstance implements IHistoryInstance {
       for (const item of this._array) {
         this.callbacks.onRead(item, this.clientId, agentName);
         yield item;
+      }
+      if (this.callbacks.getSystemPrompt) {
+        for (const content of await this.callbacks.getSystemPrompt(
+          this.clientId,
+          agentName
+        )) {
+          yield {
+            role: "system",
+            content,
+            agentName,
+            mode: "tool",
+          };
+        }
       }
       this.callbacks.onReadEnd &&
         this.callbacks.onReadEnd(this.clientId, agentName);

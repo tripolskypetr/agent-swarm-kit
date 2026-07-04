@@ -13198,7 +13198,7 @@ declare class SharedComputeUtils {
      * Retrieves shared compute data with validation and context management.
      * @async
      */
-    getComputeData: <T extends IComputeData = any>(clientId: string, computeName: ComputeName) => Promise<T>;
+    getComputeData: <T extends IComputeData = any>(computeName: ComputeName) => Promise<T>;
 }
 /**
  * @constant {SharedComputeUtils} SharedCompute

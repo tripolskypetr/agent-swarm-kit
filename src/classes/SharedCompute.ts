@@ -63,7 +63,7 @@ export class SharedComputeUtils {
         computeName,
       );
     }
-  ) as <T extends IComputeData = any>(clientId: string, computeName: ComputeName) => Promise<T>;
+  ) as <T extends IComputeData = any>(computeName: ComputeName) => Promise<T>;
 }
 
 /**

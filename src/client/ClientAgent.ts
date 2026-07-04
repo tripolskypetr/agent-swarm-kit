@@ -195,7 +195,7 @@ const mapMcpToolCall = (
           }),
           {}
         ),
-        required: inputSchema.required,
+        required: inputSchema?.required,
       },
     },
     call: async (dto) => {

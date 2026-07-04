@@ -58,8 +58,9 @@ class OperatorSignal {
         `OperatorSignal agentName=${this.params.agentName} clientId=${this.params.clientId} dispose`
       );
     if (this._disposeRef) {
+      const disposeRef = this._disposeRef;
       this._disposeRef = null;
-      await this._disposeRef();
+      await disposeRef();
     }
   }
 }
