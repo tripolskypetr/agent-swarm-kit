@@ -124,14 +124,15 @@ export class MCPConnectionService implements IMCP {
   public dispose = async (clientId: string) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_INFO &&
       this.loggerService.info(`mcpConnectionService dispose`, { clientId });
-    const key = `${this.methodContextService.context.clientId}-${this.methodContextService.context.agentName}`;
+    const key = `${this.methodContextService.context.mcpName}`;
     if (!this.getMCP.has(key)) {
       return;
     }
+    // The ClientMCP instance is shared across clients (memoized by mcpName),
+    // so only the client-scoped resources are released; the instance stays cached.
     await this.getMCP(this.methodContextService.context.mcpName).dispose(
       clientId
     );
-    this.getMCP.clear(clientId);
   };
 }
 

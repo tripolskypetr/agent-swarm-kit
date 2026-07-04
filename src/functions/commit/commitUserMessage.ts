@@ -3,7 +3,7 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import swarm, { PayloadContextService } from "../../lib";
 import { ExecutionMode } from "../../interfaces/Session.interface";
 
-const METHOD_NAME = "function.commit.commitSystemMessage";
+const METHOD_NAME = "function.commit.commitUserMessage";
 
 /**
  * Function implementation

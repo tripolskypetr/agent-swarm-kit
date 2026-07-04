@@ -876,7 +876,7 @@ export class DocService {
               {
                 result.push("");
                 result.push(
-                  `*Required:* [${fn.parameters.required.includes(key) ? "x" : " "
+                  `*Required:* [${fn.parameters.required?.includes(key) ? "x" : " "
                   }]`
                 );
               }

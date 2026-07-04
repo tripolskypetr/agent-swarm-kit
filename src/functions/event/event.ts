@@ -3,7 +3,7 @@ import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
 
-const METHOD_NAME = "function.event.listenEvent";
+const METHOD_NAME = "function.event.event";
 
 /**
  * Set of reserved event source names that cannot be used for custom events.
