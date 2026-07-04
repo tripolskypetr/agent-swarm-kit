@@ -80,7 +80,7 @@ export class SharedComputeConnectionService<T extends IComputeData = IComputeDat
     (computeName: ComputeName) => {
       const {
         getComputeData,
-        dependsOn,
+        dependsOn = [],
         middlewares = [],
         callbacks,
         shared = false,

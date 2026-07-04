@@ -4,7 +4,7 @@ import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
 import removeUndefined from "../../helpers/removeUndefined";
 
-const METHOD_NAME = "function.test.overrideEmbeding";
+const METHOD_NAME = "function.test.overrideEmbedding";
 
 /**
  * Type representing a partial embedding schema with required embeddingName.
@@ -18,7 +18,7 @@ type TEmbeddingSchema = {
 /**
  * Function implementation
 */
-const overrideEmbedingInternal = beginContext(
+const overrideEmbeddingInternal = beginContext(
   async (publicEmbeddingSchema: TEmbeddingSchema) => {
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_LOG &&
       swarm.loggerService.log(METHOD_NAME, {
@@ -48,7 +48,7 @@ const overrideEmbedingInternal = beginContext(
  *
  * @example
  * // Override an embedding’s schema with new properties
- * overrideEmbeding({
+ * overrideEmbedding({
  *   embeddingName: "TextEmbedding",
  *   persist: true,
  *   callbacks: {
@@ -57,6 +57,12 @@ const overrideEmbedingInternal = beginContext(
  * });
  * // Logs the operation (if enabled) and updates the embedding schema in the swarm.
 */
-export async function overrideEmbeding(embeddingSchema: TEmbeddingSchema) {
-  return await overrideEmbedingInternal(embeddingSchema);
+export async function overrideEmbedding(embeddingSchema: TEmbeddingSchema) {
+  return await overrideEmbeddingInternal(embeddingSchema);
 }
+
+/**
+ * Backward-compatible alias for {@link overrideEmbedding}.
+ * @deprecated Use `overrideEmbedding` instead; kept to preserve the public API of earlier releases.
+*/
+export const overrideEmbeding = overrideEmbedding;

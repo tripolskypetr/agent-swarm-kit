@@ -56,16 +56,16 @@ const emitInternal = beginContext(
 /**
  * Emits a string as model output without executing an incoming message, with agent activity validation.
  *
- * This function directly emits a provided string as output from the swarm session, bypassing message execution, and is designed exclusively
- * for sessions established via `makeConnection`. It validates the session, swarm, and specified agent, ensuring the agent is still active
- * before emitting. If the active agent has changed, the operation is skipped. The execution is wrapped in `beginContext` for a clean environment,
- * logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
+ * This function directly emits a provided string as output from the swarm session, bypassing message execution.
+ * It validates the session, swarm, and specified agent, ensuring the agent is still active before emitting.
+ * If the active agent has changed, the operation is skipped. The execution is wrapped in `beginContext` for a
+ * clean environment and logs the operation if enabled. Works for any session mode.
  *
  *
  * @param {string} content - The content to be processed or stored.
  * @param {string} clientId - The unique identifier of the client session.
  * @param {AgentName} agentName - The name of the agent to use or reference.
- * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
+ * @throws {Error} If agent, session, or swarm validation fails.
  * @example
  * await emit("Direct output", "client-123", "AgentX"); // Emits "Direct output" if AgentX is active
 */

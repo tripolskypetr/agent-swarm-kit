@@ -1,31 +1,30 @@
 /**
- * Removes XML tags and their contents from a string, cleaning up excess whitespace.
- * Strips all matched XML-like tags (e.g., `<tag>content</tag>`) and normalizes newlines, returning a trimmed result.
- *
- *                  Returns an empty string if the input is falsy.
+ * Removes XML-like blocks — the tags TOGETHER with everything between them — from a string, cleaning up excess whitespace.
+ * Any `<tag>content</tag>` pair is stripped entirely (tag and content), so only text outside such blocks survives.
+ * Returns an empty string if the input is falsy.
  *
  * @example
- * // Basic usage with XML tags
- * console.log(removeXmlTags("<p>Hello</p>")); // "Hello"
- * console.log(removeXmlTags("<div><span>Text</span></div>")); // "Text"
+ * // Whole blocks are removed, including their contents
+ * console.log(removeXmlTags("<p>Hello</p>")); // ""
+ * console.log(removeXmlTags("Text <tool>action</tool>")); // "Text"
  * console.log(removeXmlTags("No tags here")); // "No tags here"
  *
  * @example
- * // Handling multiline input and edge cases
- * console.log(removeXmlTags("<tag>\nLine1\nLine2\n</tag>")); // "Line1\nLine2"
- * console.log(removeXmlTags("<tag>  <nested>Text</nested>  </tag>")); // "Text"
+ * // Edge cases
+ * console.log(removeXmlTags("<think>\nreasoning\n</think>Answer")); // "Answer"
+ * console.log(removeXmlTags("<invalid>")); // "<invalid>" (unpaired tags are kept)
  * console.log(removeXmlTags("")); // ""
  * console.log(removeXmlTags(null)); // ""
  *
  * @remarks
  * This function:
  * - Returns an empty string (`""`) for falsy inputs (e.g., `null`, `undefined`, empty string) to ensure safe handling.
- * - Uses a regular expression (`/<[^>]+>[\s\S]*?<\/[^>]+>/g`) to match and remove XML tags and their contents, including nested tags,
- *   where `[\s\S]*?` ensures non-greedy matching across newlines.
+ * - Uses a regular expression (`/<[^>]+>[\s\S]*?<\/[^>]+>/g`) to match an opening tag, its (non-greedy) contents across
+ *   newlines, and a closing tag, removing the whole block; unpaired tags without a closing counterpart are left as-is.
  * - Collapses multiple consecutive newlines (`\n\s*\n`) into a single newline (`\n`) to clean up formatting.
  * - Trims leading and trailing whitespace from the final result for a polished output.
- * Useful in the agent swarm system for sanitizing model outputs, user inputs, or logs that may contain XML markup,
- * such as when processing tool call responses or cleaning structured text.
+ * Useful in the agent swarm system for stripping structured blocks from model outputs — e.g., `<think>…</think>`
+ * reasoning sections or inline `<tool_call>…</tool_call>` artifacts — leaving only the plain-text answer.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions|Regular Expressions}
  * for details on the regex patterns used.

@@ -1,10 +1,34 @@
-# Учёт проверки файлов ./src на баги — ЗАВЕРШЕНО (покрыт весь src)
+# Учёт проверки файлов ./src на баги — ЗАВЕРШЕНО, ПОЛНАЯ ГЛУБИНА (весь src построчно)
 
 Контекст: в рабочем дереве обновлены мажорные версии зависимостей (functools-kit 3→4,
 worker-testbed 2→3). До исправлений тест-сьют падал 39/42 (зависание с 4-го теста).
-Итог: 42/42 стабильно (2 финальных прогона), `npx tsc --noEmit` чисто, сборка ок.
+Итог: 42/42 стабильно, `npx tsc --noEmit` чисто, сборка ок.
 
-## Найденные и исправленные баги (10)
+## 4-й заход: закрыты 5 наблюдений + полная глубина
+
+### Закрытые наблюдения
+1. msToTime — JSDoc приведён к факту (msToTime(0) → "00:00:00.0", компоненты не опускаются)
+2. removeXmlTags — JSDoc переписан: удаляются теги ВМЕСТЕ с содержимым (примеры исправлены)
+3. emit/emitForce — из JSDoc убрано ложное требование makeConnection-режима и throw
+4. addEmbeding/getEmbeding/overrideEmbeding → файлы переименованы в *Embedding* (git mv),
+   функции getEmbedding/overrideEmbedding; старые публичные имена сохранены как
+   deprecated-алиасы (API не сломан, алиасы есть в types.d.ts)
+5. createNavigateToTriageAgent — toolOutputAccept теперь получает defaultAgent (цель
+   навигации), а не lastAgent: дефолтное сообщение "Successfully navigated to X"
+   называло НЕВЕРНОГО агента — это был поведенческий фикс, не только типовой
+
+### Новые баги, найденные при полной глубине (№11–13)
+11. SharedComputeConnectionService.getComputeRef — деструктуризация `dependsOn` БЕЗ
+    дефолта `= []` (в парном ComputeConnectionService дефолт есть) с последующим
+    `dependsOn.map(...)`: shared-compute без dependsOn ронял процесс TypeError.
+    `dependsOn?` в IComputeSchema опционален — подтверждено. Исправлено.
+12. CompletionSchemaService.validateShallow — тексты ошибок «invalid flags for
+    computeName=…» вместо completionName (копипаст). Исправлено.
+13. src/index.ts — `getLastToolMessage` (единственный из history-семейства) не
+    экспортировался вообще (сирота); добавлен экспорт. Также удалён дубликат
+    экспорта `./functions/target/chat`.
+
+## Найденные и исправленные баги (13 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
 Файл: `src/client/ClientSwarm.ts`
@@ -61,17 +85,9 @@ worker-testbed 2→3). До исправлений тест-сьют падал 
 без защиты (рядом в writeObjectFormat guard есть; тип требует required, но JS-схема
 без него роняла dumpDocs). Исправлено на `required?.includes`.
 
-## Некритичные наблюдения (не баги, не исправлялись)
-- msToTime: JSDoc обещает "" для 0, код даёт "00:00:00.0"
-- removeXmlTags: JSDoc противоречит коду (удаляет теги ВМЕСТЕ с содержимым — намеренно)
-- emit/emitForce: JSDoc упоминает проверку makeConnection-режима, которой нет в коде —
-  устаревший док; emitForce намеренно используется в navigation-шаблонах для обычных сессий
-- addEmbeding.ts / getEmbeding.ts / overrideEmbeding.ts: опечатка в имени ФАЙЛОВ
-  (экспорты и METHOD_NAME корректны: addEmbedding); переименование тронуло бы импорты
-- createNavigateToTriageAgent: toolOutputAccept вызывается с (clientId, lastAgent),
-  а типизирован как (clientId, defaultAgent) — расхождение только в семантике имени
+## Некритичные наблюдения — ВСЕ ЗАКРЫТЫ в 4-м заходе (см. выше)
 
-## Покрытие: прочитано ВСЁ (278 файлов)
+## Покрытие: прочитано ВСЁ (278 файлов), полная глубина
 
 ### Построчно (полностью)
 - utils/ (9), helpers/ (4), validation/ (4) — все
@@ -106,8 +122,25 @@ worker-testbed 2→3). До исправлений тест-сьют падал 
   остальных сверено, что memoized validate возвращает значение (критично для v4)
 - lib/services/public/ — SessionPublicService и делегирование всех 11 сверено по grep
 
-### Типы (проверены tsc, runtime-кода нет — подтверждено grep)
-- contract/ (6), model/ (7), interfaces/ (17), src/index.ts (реэкспорты)
+### Дочитано в 4-м заходе до полной глубины (ранее скимом/структурно)
+- functions/commit — все 18 построчно; setup — все 13; test — все 13; dump — все 12;
+  target — chat, startPipeline, все *Force построчно; common/history — добиты остатки
+- events/ — все 16: нормализованный diff против эталона, код идентичен (различия
+  только в JSDoc-формулировках)
+- lib/services/schema — validateShallow всех 12 ToolRegistry-сервисов построчно
+  (✏️ CompletionSchemaService: computeName→completionName в текстах ошибок)
+- lib/services/connection — все 12 дочитаны построчно целиком
+  (✏️ SharedComputeConnectionService: dependsOn = [])
+- lib/services/public — Agent и MCP целиком, Session (head + connect с perf-трекингом);
+  у всех 12 сверены поля контекста runInContext (свой *Name передаётся переменной)
+- lib/services/validation — все 16 целиком (validate-тела + шапки addX/getX)
+- lib/services/base — LoggerService, AliveService, DocService целиком
+- lib/services/{context,meta} — все 6; lib/core — di/types/provide (67 TYPES = 67 provide);
+  lib/index.ts целиком
+- classes/Persist.ts — дочитан построчно 1060–1845 (все Persist*Utils)
+- src/index.ts целиком (✏️ дубликат chat удалён, добавлен экспорт getLastToolMessage)
+- contract/ — все 6 построчно; model/ — все 7 построчно (SwarmDI сверен ключ-в-ключ
+  с lib/index.ts); interfaces/ — все 17 построчно
 
 ### Системные проверки
 - METHOD_NAME ↔ имя файла по всем functions/* (нашло баги №8, №9)
@@ -119,7 +152,9 @@ worker-testbed 2→3). До исправлений тест-сьют падал 
 - свип «обнулить ссылку до вызова» по всему src (нашло баг №3, других нет)
 - аудит queued/cancelable/memoize/ttl/SortedArray/LimitedSet под семантику functools-kit v4
 
-## Верификация
+## Верификация (после 4-го захода)
 - `npx tsc --noEmit` — чисто
-- `npm run build` — ок (types.d.ts перегенерирован)
+- `npm run build` — ок (types.d.ts перегенерирован; deprecated-алиасы getEmbeding/
+  overrideEmbeding и новый экспорт getLastToolMessage присутствуют в types.d.ts)
 - `node ./test/index.mjs` — 42/42, два финальных прогона подряд
+- Непрочитанных файлов в src не осталось

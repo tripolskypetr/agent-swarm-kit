@@ -35,16 +35,16 @@ const emitForceInternal = beginContext(
  * Emits a string as model output without executing an incoming message or checking the active agent.
  *
  * This function directly emits a provided string as output from the swarm session, bypassing message execution and agent activity checks.
- * It is designed exclusively for sessions established via `makeConnection`, ensuring compatibility with its connection model.
- * The execution is wrapped in `beginContext` for a clean environment, validates the session and swarm, and throws an error if the session mode
- * is not "makeConnection". The operation is logged if enabled, and resolves when the content is successfully emitted.
+ * Unlike `emit`, it does not verify that a specific agent is still active, ensuring emission even after navigation.
+ * The execution is wrapped in `beginContext` for a clean environment, validates the session and swarm,
+ * logs the operation if enabled, and resolves when the content is successfully emitted. Works for any session mode.
  *
  *
  * @param {string} content - The content to be processed or stored.
  * @param {string} clientId - The unique identifier of the client session.
- * @throws {Error} If the session mode is not "makeConnection", or if session or swarm validation fails.
+ * @throws {Error} If session or swarm validation fails.
  * @example
- * await emitForce("Direct output", "client-123"); // Emits "Direct output" in a makeConnection session
+ * await emitForce("Direct output", "client-123"); // Emits "Direct output" regardless of the active agent
 */
 export async function emitForce(content: string, clientId: string) {
   return await emitForceInternal(content, clientId);

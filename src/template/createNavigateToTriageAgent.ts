@@ -168,7 +168,7 @@ export const createNavigateToTriageAgent = ({
         toolId,
         typeof toolOutputAccept === "string"
           ? toolOutputAccept
-          : await toolOutputAccept(clientId, lastAgent),
+          : await toolOutputAccept(clientId, defaultAgent),
         clientId
       );
       await changeToDefaultAgent(clientId);

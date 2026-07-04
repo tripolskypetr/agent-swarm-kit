@@ -9,7 +9,7 @@
  * console.log(msToTime(3600000));  // "01:00:00.0"
  * console.log(msToTime(61000));    // "00:01:01.0"
  * console.log(msToTime(500));      // "00:00:00.500"
- * console.log(msToTime(0));        // ""
+ * console.log(msToTime(0));        // "00:00:00.0"
  *
  * @example
  * // Edge cases
@@ -21,8 +21,7 @@
  * - Breaks down milliseconds into hours, minutes, seconds, and remaining milliseconds using integer division and modulo operations.
  * - Pads hours, minutes, and seconds with leading zeros if they are single-digit (e.g., "5" becomes "05").
  * - Includes milliseconds with no leading zeros, fixed to zero decimal places for simplicity (e.g., "500" not "500.0").
- * - Omits leading components (hours or minutes) if they are zero, but always includes seconds and milliseconds if any time is present.
- * - Returns an empty string for an input of 0, treating it as no duration.
+ * - Always includes all components, so an input of 0 yields "00:00:00.0".
  * Useful in the agent swarm system for logging execution times, profiling operations, or displaying human-readable durations.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed|Number.toFixed}

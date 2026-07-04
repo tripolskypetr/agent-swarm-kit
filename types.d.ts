@@ -10530,7 +10530,7 @@ type TEmbeddingSchema = {
  *
  * @example
  * // Override an embedding’s schema with new properties
- * overrideEmbeding({
+ * overrideEmbedding({
  *   embeddingName: "TextEmbedding",
  *   persist: true,
  *   callbacks: {
@@ -10539,7 +10539,12 @@ type TEmbeddingSchema = {
  * });
  * // Logs the operation (if enabled) and updates the embedding schema in the swarm.
 */
-declare function overrideEmbeding(embeddingSchema: TEmbeddingSchema): Promise<IEmbeddingSchema>;
+declare function overrideEmbedding(embeddingSchema: TEmbeddingSchema): Promise<IEmbeddingSchema>;
+/**
+ * Backward-compatible alias for {@link overrideEmbedding}.
+ * @deprecated Use `overrideEmbedding` instead; kept to preserve the public API of earlier releases.
+*/
+declare const overrideEmbeding: typeof overrideEmbedding;
 
 /**
  * Type representing a partial policy schema with required policyName.
@@ -11122,16 +11127,16 @@ declare function commitToolRequestForce(request: IToolRequest[], clientId: strin
  * Emits a string as model output without executing an incoming message or checking the active agent.
  *
  * This function directly emits a provided string as output from the swarm session, bypassing message execution and agent activity checks.
- * It is designed exclusively for sessions established via `makeConnection`, ensuring compatibility with its connection model.
- * The execution is wrapped in `beginContext` for a clean environment, validates the session and swarm, and throws an error if the session mode
- * is not "makeConnection". The operation is logged if enabled, and resolves when the content is successfully emitted.
+ * Unlike `emit`, it does not verify that a specific agent is still active, ensuring emission even after navigation.
+ * The execution is wrapped in `beginContext` for a clean environment, validates the session and swarm,
+ * logs the operation if enabled, and resolves when the content is successfully emitted. Works for any session mode.
  *
  *
  * @param {string} content - The content to be processed or stored.
  * @param {string} clientId - The unique identifier of the client session.
- * @throws {Error} If the session mode is not "makeConnection", or if session or swarm validation fails.
+ * @throws {Error} If session or swarm validation fails.
  * @example
- * await emitForce("Direct output", "client-123"); // Emits "Direct output" in a makeConnection session
+ * await emitForce("Direct output", "client-123"); // Emits "Direct output" regardless of the active agent
 */
 declare function emitForce(content: string, clientId: string): Promise<void>;
 
@@ -11272,16 +11277,16 @@ declare function execute(content: string, clientId: string, agentName: AgentName
 /**
  * Emits a string as model output without executing an incoming message, with agent activity validation.
  *
- * This function directly emits a provided string as output from the swarm session, bypassing message execution, and is designed exclusively
- * for sessions established via `makeConnection`. It validates the session, swarm, and specified agent, ensuring the agent is still active
- * before emitting. If the active agent has changed, the operation is skipped. The execution is wrapped in `beginContext` for a clean environment,
- * logs the operation if enabled, and throws an error if the session mode is not "makeConnection".
+ * This function directly emits a provided string as output from the swarm session, bypassing message execution.
+ * It validates the session, swarm, and specified agent, ensuring the agent is still active before emitting.
+ * If the active agent has changed, the operation is skipped. The execution is wrapped in `beginContext` for a
+ * clean environment and logs the operation if enabled. Works for any session mode.
  *
  *
  * @param {string} content - The content to be processed or stored.
  * @param {string} clientId - The unique identifier of the client session.
  * @param {AgentName} agentName - The name of the agent to use or reference.
- * @throws {Error} If the session mode is not "makeConnection", or if agent, session, or swarm validation fails.
+ * @throws {Error} If agent, session, or swarm validation fails.
  * @example
  * await emit("Direct output", "client-123", "AgentX"); // Emits "Direct output" if AgentX is active
 */
@@ -11806,6 +11811,22 @@ declare function getLastAssistantMessage(clientId: string): Promise<string>;
 declare function getLastSystemMessage(clientId: string): Promise<string>;
 
 /**
+ * Retrieves the content of the most recent tool message from a client's session history.
+ *
+ * This function fetches the raw history for a specified client using `getRawHistory` and finds the last entry where the role is "tool".
+ * It is wrapped in `beginContext` for a clean execution environment and logs the operation if enabled via `GLOBAL_CONFIG`. The result is the content
+ * of the last tool message as a string, or `null` if no tool message exists in the history.
+ *
+ *
+ * @param {string} clientId - The unique identifier of the client session.
+ * @throws {Error} If `getRawHistory` fails due to session validation or history retrieval issues.
+ * @example
+ * const lastMessage = await getLastToolMessage("client-123");
+ * console.log(lastMessage); // Outputs the last tool message or null
+*/
+declare function getLastToolMessage(clientId: string): Promise<string>;
+
+/**
  * Retrieves an agent schema by its name from the swarm's agent schema service.
  * Logs the operation if logging is enabled in the global configuration.
  *
@@ -11839,7 +11860,12 @@ declare function getCompute(computeName: ComputeName): IComputeSchema<any>;
  * @function getEmbedding
  * @param {EmbeddingName} embeddingName - The name of the embedding.
 */
-declare function getEmbeding(embeddingName: EmbeddingName): IEmbeddingSchema;
+declare function getEmbedding(embeddingName: EmbeddingName): IEmbeddingSchema;
+/**
+ * Backward-compatible alias for {@link getEmbedding}.
+ * @deprecated Use `getEmbedding` instead; kept to preserve the public API of earlier releases.
+*/
+declare const getEmbeding: typeof getEmbedding;
 
 /**
  * Retrieves an MCP (Model Context Protocol) schema by its name from the swarm's MCP schema service.
@@ -13921,4 +13947,4 @@ declare const Utils: {
     PersistEmbeddingUtils: typeof PersistEmbeddingUtils;
 };
 
-export { Adapter, type BaseMessageRole, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAdvisorSchema, type IAgentSchemaInternal, type IAgentTool, type IBaseCompletionArgs, type IBaseEvent, type IBaseMessage, type IBusEvent, type IBusEventContext, type IChatInstance, type IChatInstanceCallbacks, type ICommitActionParams, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IFetchInfoParams, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineCompletionArgs, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmCompletionArgs, type ISwarmMessage, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, type OutlineMessageRole, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type SwarmMessageRole, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAdvisor, addAgent, addAgentNavigation, addCommitAction, addCompletion, addCompute, addEmbedding, addFetchInfo, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, ask, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, chat, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createCommitAction, createFetchInfo, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAdvisorResult, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAdvisor, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAdvisor, overrideAgent, overrideCompletion, overrideCompute, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };
+export { Adapter, type BaseMessageRole, Chat, ChatInstance, Compute, type EventSource, ExecutionContextService, History, HistoryMemoryInstance, HistoryPersistInstance, type IAdvisorSchema, type IAgentSchemaInternal, type IAgentTool, type IBaseCompletionArgs, type IBaseEvent, type IBaseMessage, type IBusEvent, type IBusEventContext, type IChatInstance, type IChatInstanceCallbacks, type ICommitActionParams, type ICompletionSchema, type IComputeSchema, type ICustomEvent, type IEmbeddingSchema, type IFetchInfoParams, type IGlobalConfig, type IHistoryAdapter, type IHistoryControl, type IHistoryInstance, type IHistoryInstanceCallbacks, type IIncomingMessage, type ILoggerAdapter, type ILoggerInstance, type ILoggerInstanceCallbacks, type IMCPSchema, type IMCPTool, type IMCPToolCallDto, type IMakeConnectionConfig, type IMakeDisposeParams, type INavigateToAgentParams, type INavigateToTriageParams, type IOutgoingMessage, type IOutlineCompletionArgs, type IOutlineFormat, type IOutlineHistory, type IOutlineMessage, type IOutlineObjectFormat, type IOutlineResult, type IOutlineSchema, type IOutlineSchemaFormat, type IOutlineValidationFn, type IPersistActiveAgentData, type IPersistAliveData, type IPersistBase, type IPersistEmbeddingData, type IPersistMemoryData, type IPersistNavigationStackData, type IPersistPolicyData, type IPersistStateData, type IPersistStorageData, type IPipelineSchema, type IPolicySchema, type IScopeOptions, type ISessionConfig, type ISessionContext, type IStateSchema, type IStorageData, type IStorageSchema, type ISwarmCompletionArgs, type ISwarmMessage, type ISwarmSchema, type ITool, type IToolCall, Logger, LoggerInstance, MCP, type MCPToolProperties, MethodContextService, Operator, OperatorInstance, type OutlineMessageRole, PayloadContextService, PersistAlive, PersistBase, PersistEmbedding, PersistList, PersistMemory, PersistPolicy, PersistState, PersistStorage, PersistSwarm, Policy, type ReceiveMessageFn, RoundRobin, Schema, SchemaContextService, type SendMessageFn, SharedCompute, SharedState, SharedStorage, State, Storage, type SwarmMessageRole, type THistoryInstanceCtor, type THistoryMemoryInstance, type THistoryPersistInstance, type TLoggerInstance, type TOperatorInstance, type TPersistBase, type TPersistBaseCtor, type TPersistList, type ToolValue, Utils, addAdvisor, addAgent, addAgentNavigation, addCommitAction, addCompletion, addCompute, addEmbedding, addFetchInfo, addMCP, addOutline, addPipeline, addPolicy, addState, addStorage, addSwarm, addTool, addTriageNavigation, ask, beginContext, cancelOutput, cancelOutputForce, changeToAgent, changeToDefaultAgent, changeToPrevAgent, chat, commitAssistantMessage, commitAssistantMessageForce, commitDeveloperMessage, commitDeveloperMessageForce, commitFlush, commitFlushForce, commitStopTools, commitStopToolsForce, commitSystemMessage, commitSystemMessageForce, commitToolOutput, commitToolOutputForce, commitToolRequest, commitToolRequestForce, commitUserMessage, commitUserMessageForce, complete, createCommitAction, createFetchInfo, createNavigateToAgent, createNavigateToTriageAgent, disposeConnection, dumpAdvisorResult, dumpAgent, dumpClientPerformance, dumpDocs, dumpOutlineResult, dumpPerfomance, dumpSwarm, emit, emitForce, event, execute, executeForce, fork, getAdvisor, getAgent, getAgentHistory, getAgentName, getAssistantHistory, getCheckBusy, getCompletion, getCompute, getEmbedding, getEmbeding, getLastAssistantMessage, getLastSystemMessage, getLastToolMessage, getLastUserMessage, getMCP, getNavigationRoute, getPayload, getPipeline, getPolicy, getRawHistory, getSessionContext, getSessionMode, getState, getStorage, getSwarm, getTool, getToolNameForModel, getUserHistory, hasNavigation, hasSession, json, listenAgentEvent, listenAgentEventOnce, listenEvent, listenEventOnce, listenExecutionEvent, listenExecutionEventOnce, listenHistoryEvent, listenHistoryEventOnce, listenPolicyEvent, listenPolicyEventOnce, listenSessionEvent, listenSessionEventOnce, listenStateEvent, listenStateEventOnce, listenStorageEvent, listenStorageEventOnce, listenSwarmEvent, listenSwarmEventOnce, makeAutoDispose, makeConnection, markOffline, markOnline, notify, notifyForce, overrideAdvisor, overrideAgent, overrideCompletion, overrideCompute, overrideEmbedding, overrideEmbeding, overrideMCP, overrideOutline, overridePipeline, overridePolicy, overrideState, overrideStorage, overrideSwarm, overrideTool, runStateless, runStatelessForce, scope, session, setConfig, startPipeline, swarm, toJsonSchema, validate, validateToolArguments };
