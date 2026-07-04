@@ -18,9 +18,3 @@ export function getEmbedding(embeddingName: EmbeddingName) {
     });
   return swarm.embeddingSchemaService.get(embeddingName);
 }
-
-/**
- * Backward-compatible alias for {@link getEmbedding}.
- * @deprecated Use `getEmbedding` instead; kept to preserve the public API of earlier releases.
-*/
-export const getEmbeding = getEmbedding;

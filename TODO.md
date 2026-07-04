@@ -11,8 +11,9 @@ worker-testbed 2→3). До исправлений тест-сьют падал 
 2. removeXmlTags — JSDoc переписан: удаляются теги ВМЕСТЕ с содержимым (примеры исправлены)
 3. emit/emitForce — из JSDoc убрано ложное требование makeConnection-режима и throw
 4. addEmbeding/getEmbeding/overrideEmbeding → файлы переименованы в *Embedding* (git mv),
-   функции getEmbedding/overrideEmbedding; старые публичные имена сохранены как
-   deprecated-алиасы (API не сломан, алиасы есть в types.d.ts)
+   функции getEmbedding/overrideEmbedding. Deprecated-алиасы старых имён удалены по
+   решению владельца (обратная совместимость не требуется) — BREAKING: getEmbeding и
+   overrideEmbeding больше не экспортируются
 5. createNavigateToTriageAgent — toolOutputAccept теперь получает defaultAgent (цель
    навигации), а не lastAgent: дефолтное сообщение "Successfully navigated to X"
    называло НЕВЕРНОГО агента — это был поведенческий фикс, не только типовой
@@ -154,7 +155,7 @@ worker-testbed 2→3). До исправлений тест-сьют падал 
 
 ## Верификация (после 4-го захода)
 - `npx tsc --noEmit` — чисто
-- `npm run build` — ок (types.d.ts перегенерирован; deprecated-алиасы getEmbeding/
-  overrideEmbeding и новый экспорт getLastToolMessage присутствуют в types.d.ts)
-- `node ./test/index.mjs` — 42/42, два финальных прогона подряд
+- `npm run build` — ок (types.d.ts перегенерирован; упоминаний "Embeding" в src/test/
+  types.d.ts не осталось; новый экспорт getLastToolMessage присутствует)
+- `node ./test/index.mjs` — 42/42
 - Непрочитанных файлов в src не осталось

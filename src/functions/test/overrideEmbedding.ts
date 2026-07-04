@@ -60,9 +60,3 @@ const overrideEmbeddingInternal = beginContext(
 export async function overrideEmbedding(embeddingSchema: TEmbeddingSchema) {
   return await overrideEmbeddingInternal(embeddingSchema);
 }
-
-/**
- * Backward-compatible alias for {@link overrideEmbedding}.
- * @deprecated Use `overrideEmbedding` instead; kept to preserve the public API of earlier releases.
-*/
-export const overrideEmbeding = overrideEmbedding;
