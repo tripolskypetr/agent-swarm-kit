@@ -1,4 +1,4 @@
-import { makeExtendable, memoize, Subject } from "functools-kit";
+import { getErrorMessage, makeExtendable, memoize, Subject } from "functools-kit";
 import { AgentName } from "../interfaces/Agent.interface";
 import swarm from "../lib";
 import { GLOBAL_CONFIG } from "../config/params";
@@ -290,7 +290,13 @@ export class OperatorUtils implements IOperatorControl {
     isInitial && operator.init();
     return (message: string, next: (answer: string) => void): DisposeFn => {
       operator.connectAnswer(next);
-      operator.recieveMessage(message);
+      Promise.resolve(operator.recieveMessage(message)).catch((error) =>
+        console.error(
+          `agent-swarm operator recieveMessage error clientId=${clientId} agentName=${agentName} error=${getErrorMessage(
+            error
+          )}`
+        )
+      );
       return async () => {
         this.getOperator.clear(`${clientId}-${agentName}`);
         await operator.dispose();

@@ -544,7 +544,36 @@ complete=HANG)
   следующий обмен не отравлен (продолжение бага №22 через вложенный путь);
 - cancelOutput во время работающего тула → аналогично чисто.
 
-## Найденные и исправленные баги (25 итого)
+## 25-й заход: систематический свип ВСЕХ точек входа пользовательского кода (+9 тестов, +1 баг)
+
+### Методика (гарантийный свип)
+Перечислены все места, где библиотека вызывает пользовательский код, каждое
+проверено пробой «бросок → зависание/крэш?». После этого захода каждая точка
+входа либо напрямую await'ится вызывающим (реджект доставляется), либо ограждена.
+
+### Баг №26: восемь незакрытых точек входа (продолжение семейства №21/№25)
+Файлы: ClientAgent.ts, ClientHistory.ts, ClientStorage.ts, ClientState.ts,
+ClientSession.ts, AgentConnectionService.ts, Operator.ts, addStorage.ts, addState.ts
+- validate вывода агента, динамическая function тула, isAvailable, push/iterate
+  кастомного history-адаптера — бросок вешал complete() навсегда (+unhandled);
+- waitForInit сторэджа/стейта — fire-and-forget из getAgent: реджект persist-
+  адаптера РОНЯЛ ПРОЦЕСС (catch на singleshot-промисе functools-kit не гасит
+  внутренний реджект — гасить нужно у источника, внутри WAIT_FOR_INIT_FN);
+- CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION с throw — вешал recomplete-путь;
+- бросающий connector в notify-подписке connect — unhandled rejection;
+- operator.recieveMessage — fire-and-forget в connectOperator: unhandled;
+- CC_AGENT_HISTORY_FILTER — бросок в toArrayForAgent вешал getCompletion.
+- Исправление: та же дисциплина — трансформеры/валидаторы → errorSubject +
+  деградация (validate→null, тул→skip, история→částичный список, storage→пусто),
+  наблюдатели/фоновые → console.error + продолжение.
+
+### Новые тесты (9), сьют вырос до 263/263 — test/spec/sweepguard.test.mjs
+Каждый: «THREW с исходной ошибкой или деградация, ноль unhandled, без зависания»
+для: validate вывода, динамической function, isAvailable, history-адаптера,
+persist-init сторэджа, операторского адаптера (таймаут-выход), кастомного resque,
+бросающего connector, бросающего CC_AGENT_HISTORY_FILTER.
+
+## Найденные и исправленные баги (26 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
 Файл: `src/client/ClientSwarm.ts`

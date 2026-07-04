@@ -20,6 +20,7 @@ import ClientOperator from "../../../client/ClientOperator";
 import MCPConnectionService from "./MCPConnectionService";
 import { MergeMCP, NoopMCP } from "../../../classes/MCP";
 import { IToolRequest } from "../../../model/Tool.model";
+import { getErrorMessage } from "functools-kit";
 import {
   guardAgentCallbacks,
   guardAgentTransformer,
@@ -166,11 +167,25 @@ export class AgentConnectionService implements IAgent {
         this.storageConnectionService
           .getStorage(clientId, storageName)
           .waitForInit()
+          .catch((error) =>
+            console.error(
+              `agent-swarm storage waitForInit error storageName=${storageName} clientId=${clientId} error=${getErrorMessage(
+                error
+              )}`
+            )
+          )
       );
       states?.forEach((stateName) =>
         this.stateConnectionService
           .getStateRef(clientId, stateName)
           .waitForInit()
+          .catch((error) =>
+            console.error(
+              `agent-swarm state waitForInit error stateName=${stateName} clientId=${clientId} error=${getErrorMessage(
+                error
+              )}`
+            )
+          )
       );
       if (operator) {
         return new ClientOperator({
@@ -186,7 +201,13 @@ export class AgentConnectionService implements IAgent {
       return new ClientAgent({
         clientId,
         agentName,
-        validate,
+        validate: guardAgentTransformer(
+          validate,
+          "validate",
+          agentName,
+          () => clientId,
+          () => null
+        ),
         maxToolCalls,
         mapToolCalls: guardAgentTransformer(
           mapToolCalls,

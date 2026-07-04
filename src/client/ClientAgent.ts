@@ -823,17 +823,46 @@ export class ClientAgent implements IAgent {
             isAvailable = TOOL_AVAILABLE_DEFAULT,
             ...other
           } = tool;
-          if (
-            await not(
-              isAvailable(this.params.clientId, this.params.agentName, toolName)
-            )
-          ) {
+          try {
+            if (
+              await not(
+                isAvailable(
+                  this.params.clientId,
+                  this.params.agentName,
+                  toolName
+                )
+              )
+            ) {
+              return;
+            }
+          } catch (error) {
+            // A throwing isAvailable would reject the queued EXECUTE_FN and
+            // hang the pending waitForOutput: treat it as "not available".
+            console.error(
+              `agent-swarm isAvailable error toolName=${toolName} error=${getErrorMessage(
+                error
+              )}`
+            );
+            await errorSubject.next([this.params.clientId, error as Error]);
             return;
           }
-          const fn =
-            typeof upperFn === "function"
-              ? await upperFn(this.params.clientId, this.params.agentName)
-              : upperFn;
+          let fn: typeof upperFn;
+          try {
+            fn =
+              typeof upperFn === "function"
+                ? await upperFn(this.params.clientId, this.params.agentName)
+                : upperFn;
+          } catch (error) {
+            // Same rationale: a throwing dynamic tool schema must not crash
+            // the execution — the tool is skipped for this completion.
+            console.error(
+              `agent-swarm dynamic tool function error toolName=${toolName} error=${getErrorMessage(
+                error
+              )}`
+            );
+            await errorSubject.next([this.params.clientId, error as Error]);
+            return;
+          }
           agentToolList.push({
             ...other,
             toolName,
@@ -1294,10 +1323,28 @@ export class ClientAgent implements IAgent {
       console.warn(
         `agent-swarm model using custom resurrect for agentName=${this.params.agentName} clientId=${this.params.clientId} validation=${validation}`
       );
-      const output = await GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION(
-        this.params.clientId,
-        this.params.agentName
-      );
+      let output: ISwarmMessage;
+      try {
+        output = await GLOBAL_CONFIG.CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION(
+          this.params.clientId,
+          this.params.agentName
+        );
+      } catch (error) {
+        // A throwing custom resque function must not reject the queued
+        // EXECUTE_FN: degrade to a placeholder answer instead.
+        console.error(
+          `agent-swarm CC_TOOL_CALL_EXCEPTION_CUSTOM_FUNCTION error agentName=${
+            this.params.agentName
+          } error=${getErrorMessage(error)}`
+        );
+        await errorSubject.next([this.params.clientId, error as Error]);
+        output = {
+          agentName: this.params.agentName,
+          mode: "tool",
+          role: "assistant",
+          content: createPlaceholder(),
+        };
+      }
       this.params.completion.callbacks?.onComplete &&
         this.params.completion.callbacks?.onComplete(args, output);
       return output;

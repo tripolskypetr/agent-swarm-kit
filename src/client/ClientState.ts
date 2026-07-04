@@ -1,4 +1,5 @@
-import { queued, singleshot, Subject } from "functools-kit";
+import { getErrorMessage, queued, singleshot, Subject } from "functools-kit";
+import { errorSubject } from "../config/emitters";
 import {
   IState,
   IStateChangeEvent,
@@ -55,14 +56,25 @@ const WAIT_FOR_INIT_FN = async (self: ClientState): Promise<void> => {
     self.params.logger.debug(
       `ClientState stateName=${self.params.stateName} clientId=${self.params.clientId} shared=${self.params.shared} waitForInit`
     );
-  self._state = await self.params.getState(
-    self.params.clientId,
-    self.params.stateName,
-    await self.params.getDefaultState(
+  try {
+    self._state = await self.params.getState(
       self.params.clientId,
-      self.params.stateName
-    )
-  );
+      self.params.stateName,
+      await self.params.getDefaultState(
+        self.params.clientId,
+        self.params.stateName
+      )
+    );
+  } catch (error) {
+    // waitForInit is fired without await from AgentConnectionService.getAgent:
+    // a rejecting persistence adapter would otherwise crash the host process.
+    console.error(
+      `agent-swarm state init error stateName=${
+        self.params.stateName
+      } clientId=${self.params.clientId} error=${getErrorMessage(error)}`
+    );
+    await errorSubject.next([self.params.clientId, error as Error]);
+  }
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
       `ClientState stateName=${self.params.stateName} clientId=${self.params.clientId} shared=${self.params.shared} waitForInit output`,

@@ -13,6 +13,8 @@ import {
 import { GLOBAL_CONFIG } from "../config/params";
 import { IBusEvent } from "../model/Event.model";
 import { Embeddings } from "../interfaces/Embedding.interface";
+import { errorSubject } from "../config/emitters";
+import { getErrorMessage } from "functools-kit";
 import { createHash } from "crypto";
 
 const STORAGE_POOL_DELAY = 0;
@@ -138,23 +140,35 @@ const WAIT_FOR_INIT_FN = async (self: ClientStorage): Promise<void> => {
   if (!self.params.getData) {
     return;
   }
-  const data = await self.params.getData(
-    self.params.clientId,
-    self.params.storageName,
-    await self.params.getDefaultData(
+  try {
+    const data = await self.params.getData(
       self.params.clientId,
-      self.params.storageName
-    )
-  );
-  await Promise.all(
-    data.map(
-      execpool(self._createEmbedding, {
-        delay: STORAGE_POOL_DELAY,
-        maxExec: GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL,
-      })
-    )
-  );
-  self._itemMap = new Map(data.map((item) => [item.id, item]));
+      self.params.storageName,
+      await self.params.getDefaultData(
+        self.params.clientId,
+        self.params.storageName
+      )
+    );
+    await Promise.all(
+      data.map(
+        execpool(self._createEmbedding, {
+          delay: STORAGE_POOL_DELAY,
+          maxExec: GLOBAL_CONFIG.CC_STORAGE_SEARCH_POOL,
+        })
+      )
+    );
+    self._itemMap = new Map(data.map((item) => [item.id, item]));
+  } catch (error) {
+    // waitForInit is fired without await from AgentConnectionService.getAgent:
+    // a rejecting persistence adapter would otherwise crash the host process.
+    // Degrade to an empty storage and surface the error.
+    console.error(
+      `agent-swarm storage init error storageName=${
+        self.params.storageName
+      } clientId=${self.params.clientId} error=${getErrorMessage(error)}`
+    );
+    await errorSubject.next([self.params.clientId, error as Error]);
+  }
 };
 
 /**

@@ -1,4 +1,4 @@
-import { not, queued, sleep, Subject } from "functools-kit";
+import { getErrorMessage, not, queued, sleep, Subject } from "functools-kit";
 import { IIncomingMessage } from "../model/EmitMessage.model";
 
 import {
@@ -553,15 +553,25 @@ export class ClientSession implements ISession {
       clientId: this.params.clientId,
     });
     this._notifySubject.subscribe(async (data: string) => {
-      await swarm.executionValidationService.flushCount(
-        this.params.clientId,
-        this.params.swarmName,
-      );
-      await connector({
-        data,
-        agentName: await this.params.swarm.getAgentName(),
-        clientId: this.params.clientId,
-      });
+      try {
+        await swarm.executionValidationService.flushCount(
+          this.params.clientId,
+          this.params.swarmName,
+        );
+        await connector({
+          data,
+          agentName: await this.params.swarm.getAgentName(),
+          clientId: this.params.clientId,
+        });
+      } catch (error) {
+        // A throwing connector must not reject the notify subject chain
+        // (unhandled rejection that can crash the host process).
+        console.error(
+          `agent-swarm connector error clientId=${
+            this.params.clientId
+          } error=${getErrorMessage(error)}`
+        );
+      }
     });
     return async (incoming: IIncomingMessage): Promise<string> => {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&

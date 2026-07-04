@@ -3,6 +3,8 @@ import IHistory, { IHistoryParams } from "../interfaces/History.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import { IBusEvent } from "../model/Event.model";
 import { getPayload } from "../functions/common/getPayload";
+import { errorSubject } from "../config/emitters";
+import { getErrorMessage } from "functools-kit";
 
 /**
  * Class representing the history of client messages in the swarm system, implementing the IHistory interface.
@@ -50,11 +52,23 @@ export class ClientHistory implements IHistory {
     if (message.mode === "user" && message.role === "user") {
       message = { ...message, payload: getPayload<Payload>() };
     }
-    await this.params.items.push(
-      message,
-      this.params.clientId,
-      this.params.agentName
-    );
+    try {
+      await this.params.items.push(
+        message,
+        this.params.clientId,
+        this.params.agentName
+      );
+    } catch (error) {
+      // A throwing history adapter must not reject the queued EXECUTE_FN
+      // (unhandled rejection + hung waitForOutput): drop the record, surface
+      // the error through errorSubject so the caller's complete() rejects.
+      console.error(
+        `agent-swarm history push error agentName=${
+          this.params.agentName
+        } clientId=${this.params.clientId} error=${getErrorMessage(error)}`
+      );
+      await errorSubject.next([this.params.clientId, error as Error]);
+    }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "push",
       source: "history-bus",
@@ -108,11 +122,20 @@ export class ClientHistory implements IHistory {
         `ClientHistory agentName=${this.params.agentName} toArrayForRaw`
       );
     const result: ISwarmMessage[] = [];
-    for await (const item of this.params.items.iterate(
-      this.params.clientId,
-      this.params.agentName
-    )) {
-      result.push(item);
+    try {
+      for await (const item of this.params.items.iterate(
+        this.params.clientId,
+        this.params.agentName
+      )) {
+        result.push(item);
+      }
+    } catch (error) {
+      console.error(
+        `agent-swarm history iterate error agentName=${
+          this.params.agentName
+        } clientId=${this.params.clientId} error=${getErrorMessage(error)}`
+      );
+      await errorSubject.next([this.params.clientId, error as Error]);
     }
     return result;
   }
@@ -133,10 +156,25 @@ export class ClientHistory implements IHistory {
       );
     const commonMessagesRaw: ISwarmMessage[] = [];
     const systemMessagesRaw: ISwarmMessage[] = [];
-    for await (const content of this.params.items.iterate(
-      this.params.clientId,
-      this.params.agentName
-    )) {
+    const iterated: ISwarmMessage[] = [];
+    try {
+      for await (const content of this.params.items.iterate(
+        this.params.clientId,
+        this.params.agentName
+      )) {
+        iterated.push(content);
+      }
+    } catch (error) {
+      // A throwing history adapter or filter must not reject getCompletion
+      // inside the queued EXECUTE_FN: continue with what was collected.
+      console.error(
+        `agent-swarm history iterate error agentName=${
+          this.params.agentName
+        } clientId=${this.params.clientId} error=${getErrorMessage(error)}`
+      );
+      await errorSubject.next([this.params.clientId, error as Error]);
+    }
+    for (const content of iterated) {
       const message: ISwarmMessage = content;
       if (message.role === "resque") {
         commonMessagesRaw.splice(0, commonMessagesRaw.length);
@@ -167,7 +205,18 @@ export class ClientHistory implements IHistory {
         content: content || "",
       }))
       .filter(({ content, tool_calls }) => !!content || !!tool_calls?.length)
-      .filter(this._filterCondition)
+      .filter((message) => {
+        try {
+          return this._filterCondition(message);
+        } catch (error) {
+          console.error(
+            `agent-swarm history filter error agentName=${
+              this.params.agentName
+            } error=${getErrorMessage(error)}`
+          );
+          return true;
+        }
+      })
       .slice(-this.params.keepMessages);
     const assistantToolOutputCallSet = new Set<string>(
       commonMessages

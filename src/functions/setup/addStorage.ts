@@ -5,6 +5,7 @@ import {
 import swarm from "../../lib";
 import { GLOBAL_CONFIG } from "../../config/params";
 import beginContext from "../../utils/beginContext";
+import { getErrorMessage } from "functools-kit";
 
 const METHOD_NAME = "function.setup.addStorage";
 
@@ -29,7 +30,12 @@ const addStorageInternal = beginContext((storageSchema: IStorageSchema<IStorageD
   if (storageSchema.shared) {
     swarm.sharedStorageConnectionService
       .getStorage(storageSchema.storageName)
-      .waitForInit();
+      .waitForInit()
+      .catch((error) =>
+        console.error(
+          `agent-swarm shared storage waitForInit error error=${getErrorMessage(error)}`
+        )
+      );
   }
 
   // Return the storage's name as confirmation of registration
