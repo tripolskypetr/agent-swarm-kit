@@ -29,6 +29,7 @@ import "./spec/misc.test.mjs";
 import "./spec/schema-callbacks.test.mjs";
 import "./spec/loop.test.mjs";
 import "./spec/toolguard.test.mjs";
+import "./spec/aliastools.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");

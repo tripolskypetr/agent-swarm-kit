@@ -349,6 +349,27 @@ callbacks: v2}) → прогон флоу → «v2 сработали, v1 мол
   проваленная валидация (resurrect-путь); next(TOOL_ERROR) гарантированно
   выполняется независимо от ошибок в error-коллбеках.
 
+## 17-й заход: поведение предзаготовок addCommitAction/addFetchInfo после фиксов №19–21 (+7 тестов)
+
+### Новые тесты (7), сьют вырос до 211/211 — test/spec/aliastools.test.mjs
+Проверено, что шаблонные тулы корректно опираются на фиксы (багов не найдено,
+каждый тест дополнительно проверяет отсутствие unhandled rejection):
+- commit action: throwing validateParams → TOOL_ERROR цепочкой → placeholder
+  (фикс №21 гарантирует, что error-путь не глохнет);
+- commit action: throwing executeAction → ВНУТРЕННИЙ trycatch шаблона →
+  fallback-колбэк, текст ошибки в tool output, failureMessage через executeForce;
+- commit action: throwing successMessage ПОСЛЕ commitToolOutput → ловится
+  late-error-восстановлением (фикс №20, "Late tool error after commit") →
+  placeholder вместо вечного зависания;
+- commit action happy path: `await executeForce(...)` в хвосте шаблона теперь
+  резолвится (фикс №19) — call завершается, счётчики дренируются, следующий
+  complete работает;
+- fetch info: throwing fetchContent → внутренний trycatch → default emptyContent
+  закоммичен tool output'ом, флоу завершается;
+- fetch info: пустой результат → кастомный emptyContent;
+- fetch info: throwing validateParams (проксируется в validate тула) →
+  "Function validation failed" → placeholder (фикс №21).
+
 ## Найденные и исправленные баги (21 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
