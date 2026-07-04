@@ -125,20 +125,16 @@ export class SchemaUtils {
       mapKey = GLOBAL_CONFIG.CC_NAME_TO_TITLE,
       mapValue = (_, value) => value.slice(0, 50),
     } = map;
+    // objectFlat emits ["", ""] entries as structural separators; render them
+    // as blank lines instead of leaking "undefined: " into the model prompt.
+    const mapEntry = ([key, value]: [string, string]) =>
+      key ? `${mapKey(key)}: ${mapValue(key, String(value))}` : "";
     if (Array.isArray(data)) {
       return data
-        .map((item: T) =>
-          objectFlat(item)
-            .map(([key, value]) => [mapKey(key), mapValue(key, String(value))])
-            .map(([key, value]) => `${key}: ${value}`)
-            .join("\n")
-        )
+        .map((item: T) => objectFlat(item).map(mapEntry).join("\n"))
         .join(`\n\n\n\n`);
     }
-    return objectFlat(data)
-      .map(([key, value]) => [mapKey(key), mapValue(key, String(value))])
-      .map(([key, value]) => `${key}: ${value}`)
-      .join("\n");
+    return objectFlat(data).map(mapEntry).join("\n");
   };
 }
 

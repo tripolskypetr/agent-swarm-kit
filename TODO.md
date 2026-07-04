@@ -98,7 +98,32 @@ worker-testbed 2→3). До исправлений тест-сьют падал 
   «Tool not registered name=undefined» — session() с operator-агентом был сломан.
 - Исправление: json-проверка выполняется только при наличии completion.
 
-## Найденные и исправленные баги (16 итого)
+## 7-й заход: compute/state/storage-глубина + инфраструктура (+21 тест, +1 баг)
+
+### Новые тесты (21), сьют вырос до 109/109
+- test/spec/compute.test.mjs (8): кэш compute по TTL + пересчёт по изменению связанного
+  state (stateChanged-binding) + middlewares; Compute.update форсит refetch; shared
+  compute БЕЗ dependsOn (закрепляет фиксы №5 и №11); shared state set/get/clear;
+  state middlewares + clearState; storage take() по similarity со score-фильтром +
+  onUpdate-колбэки + list с фильтром; shared storage upsert/list/get; Schema.serialize
+  без "undefined"-строк + writeSessionMemory/readSessionMemory
+- test/spec/infra.test.mjs (13): History.useHistoryCallbacks onPush; getSystemPrompt +
+  onRead доходит до модели (закрепляет фикс №4); Logger.useClientCallbacks onLog;
+  PersistBase write/read/keys с игнором .tmp-файлов (закрепляет фикс №2); PersistList
+  LIFO push/pop; RoundRobin; commit-события на agent-bus через listenAgentEvent;
+  wildcard-подписчик "*"; listenEventOnce с фильтром срабатывает один раз; зацикленная
+  навигация A↔B гасится flushMessage; CC_MAX_NESTED_EXECUTIONS рвёт бесконечный
+  tool-цикл (executeForce-рекурсия) placeholder'ом без зависания; Chat.beginChat/
+  sendMessage/dispose; overrideCompletion меняет поведение новых сессий
+
+### Баг №17: Schema.serialize отдавал модели строки "undefined: "
+Файл: `src/classes/Schema.ts` (найден тестом E3)
+- objectFlat вставляет записи-разделители ["",""], а serialize прогонял их через
+  mapKey → nameToTitle("") → undefined → в результирующем тексте для модели
+  появлялись литеральные строки "undefined: ".
+- Исправление: пустой ключ рендерится пустой строкой-разделителем.
+
+## Найденные и исправленные баги (17 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
 Файл: `src/client/ClientSwarm.ts`

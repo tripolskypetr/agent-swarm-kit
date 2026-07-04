@@ -16,6 +16,8 @@ import "./spec/mcp.test.mjs";
 import "./spec/agentflow.test.mjs";
 import "./spec/commit.test.mjs";
 import "./spec/orchestration.test.mjs";
+import "./spec/compute.test.mjs";
+import "./spec/infra.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");
