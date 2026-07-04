@@ -164,6 +164,39 @@ worker-testbed 2→3). До исправлений тест-сьют падал 
   (generic T); гарды advisor — ask на незарегистрированном имени и дубль
   addAdvisor кидают
 
+## 10-й заход: аудит src/client/* на уязвимые места (+11 тестов, багов не найдено)
+
+Отдельно перечитаны все 10 файлов клиентского слоя (ClientAgent, ClientCompute,
+ClientHistory, ClientMCP, ClientOperator, ClientPolicy, ClientSession, ClientState,
+ClientStorage, ClientSwarm) с фокусом на уязвимые сценарии: рекурсивная навигация,
+гонки, обрывы tool-цепочек, битые ссылки на агентов, потеря целостности history.
+
+### Новые тесты (11), сьют вырос до 143/143 — test/spec/resilience.test.mjs
+- приоритет навигационного тула: батч [data-тул, nav-тул] выполняет ТОЛЬКО навигацию
+  (защита от двойных side-эффектов при навигации);
+- maxToolCalls=2 срезает батч из 3 вызовов до хвостовых [b,c];
+- дефолт CC_MAX_TOOL_CALLS=1: из батча в 2 вызова выполняется только последний
+  (закреплено как контракт — важный неочевидный дефолт);
+- неизвестный тул от модели → placeholder-ответ + resque-flush истории (следующий
+  комплишен не видит старых сообщений);
+- validate тула вернул false → placeholder, call не выполняется;
+- упавший тул (throw) останавливает цепочку: второй тул не вызывается, placeholder;
+- битая целостность history не доходит до модели: commitToolRequest без output
+  (висячие tool_calls) и commitToolOutput с чужим toolId (сиротский tool-месседж)
+  отфильтровываются в toArrayForAgent;
+- keepMessages=2: модель видит ровно хвостовое окно [echo:turn3, turn4];
+- два параллельных complete() сохраняют попарность вход→выход (busy-lock +
+  FIFO-цепочка waitForOutput);
+- 10 параллельных setState-инкрементов без потерянных обновлений (queued dispatch);
+- битый активный агент ("ghost" не из свармы через CC_SWARM_DEFAULT_AGENT) →
+  NoopAgent-фолбэк на defaultAgent, complete не падает и отвечает.
+
+Замечания без фикса (by design): рекурсивная навигация уже покрыта в 8-м заходе
+(CC_THROW_WHEN_NAVIGATION_RECURSION, A↔B гасится flushMessage, CC_MAX_NESTED_EXECUTIONS);
+_navigationStack растёт при каждой навигации и не дедуплицируется — это история для
+navigationPop; тул, закоммитивший output без продолжения флоу (executeForce/emit),
+оставляет complete висеть — контракт библиотеки (страховка: warning через 15с).
+
 ## Найденные и исправленные баги (18 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
