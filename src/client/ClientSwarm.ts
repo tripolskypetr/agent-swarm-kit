@@ -656,6 +656,19 @@ export class ClientSwarm implements ISwarm {
       this.params.logger.debug(
         `ClientSession clientId=${this.params.clientId} dispose`
       );
+    if (this._pendingOutputAwaiters.length) {
+      // Resolve in-flight waitForOutput calls with an empty output (same
+      // contract as cancelOutput) before unsubscribing — otherwise a complete()
+      // pending at dispose time would never settle.
+      const agentName =
+        this._activeAgent === AGENT_NEED_FETCH
+          ? this.params.defaultAgent
+          : this._activeAgent;
+      await this._cancelOutputSubject.next({
+        agentName,
+        output: "",
+      });
+    }
     {
       this._agentChangedSubject.unsubscribeAll();
       this._emitSubject.unsubscribeAll();

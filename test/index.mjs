@@ -32,6 +32,7 @@ import "./spec/toolguard.test.mjs";
 import "./spec/aliastools.test.mjs";
 import "./spec/multiclient.test.mjs";
 import "./spec/doublesend.test.mjs";
+import "./spec/lifecycle.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");
