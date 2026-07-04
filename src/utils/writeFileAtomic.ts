@@ -7,6 +7,13 @@ import { GLOBAL_CONFIG } from "../config/params";
 const IS_WINDOWS = os.platform() === "win32";
 
 /**
+ * Default prefix for temporary files created during atomic writes.
+ * Exposed so directory scanners (e.g. PersistBase) can exclude in-flight
+ * or leftover temporary files from entity listings.
+*/
+export const TMP_FILE_PREFIX = ".tmp-";
+
+/**
  * Options for configuring the atomic file write operation.
 */
 interface Options {
@@ -72,7 +79,7 @@ export async function writeFileAtomic(
     options = {};
   }
 
-  const { encoding = "utf8", mode = 0o666, tmpPrefix = ".tmp-" } = options;
+  const { encoding = "utf8", mode = 0o666, tmpPrefix = TMP_FILE_PREFIX } = options;
 
   let fileHandle: fs.FileHandle = null;
 

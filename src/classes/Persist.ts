@@ -14,7 +14,7 @@ import { SwarmName } from "../interfaces/Swarm.interface";
 import { AgentName } from "../interfaces/Agent.interface";
 import { StateName } from "../interfaces/State.interface";
 import { IStorageData, StorageName } from "../interfaces/Storage.interface";
-import { writeFileAtomic } from "../utils/writeFileAtomic";
+import { writeFileAtomic, TMP_FILE_PREFIX } from "../utils/writeFileAtomic";
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
 import { SessionId } from "../interfaces/Session.interface";
@@ -33,6 +33,15 @@ export type EntityId = string | number;
  * @interface IEntity
  */
 export interface IEntity {}
+
+/**
+ * Checks whether a directory entry name represents a persisted entity file.
+ * Excludes temporary files produced by atomic writes so in-flight or leftover
+ * `.tmp-*` files are never listed, counted, read, or removed as entities.
+ * @private
+ */
+const isEntityFileName = (name: string) =>
+  name.endsWith(".json") && !name.startsWith(TMP_FILE_PREFIX);
 
 /** @private Symbol for memoizing the wait-for-initialization operation in PersistBase*/
 const BASE_WAIT_FOR_INIT_SYMBOL = Symbol("wait-for-init");
@@ -173,6 +182,8 @@ const LIST_GET_LAST_KEY_FN_METHOD_NAME = "PersistList.getLastKeyFn";
 const BASE_UNLINK_RETRY_COUNT = 5;
 /** @private Delay for retry attempts for unlink in waitForInit (in milliseconds)*/
 const BASE_UNLINK_RETRY_DELAY = 1_000;
+/** @private Minimum age for a temporary atomic-write file to be reaped as a leftover in waitForInit (in milliseconds)*/
+const BASE_STALE_TMP_FILE_AGE = 120_000;
 
 /**
  * Defines the core interface for persistent storage operations in the swarm system.
@@ -263,6 +274,25 @@ const BASE_WAIT_FOR_INIT_FN = async (self: TPersistBase): Promise<void> => {
       directory: self._directory,
     });
   await fs.mkdir(self._directory, { recursive: true });
+  for await (const entry of await fs.opendir(self._directory)) {
+    if (entry.isFile() && entry.name.startsWith(TMP_FILE_PREFIX)) {
+      const filePath = join(self._directory, entry.name);
+      // An in-flight atomic write from a concurrent process also produces a
+      // temporary file here; only reap ones old enough to be true leftovers.
+      const stat = await fs.stat(filePath).catch(() => null);
+      if (!stat || Date.now() - stat.mtimeMs < BASE_STALE_TMP_FILE_AGE) {
+        continue;
+      }
+      console.error(
+        `agent-swarm PersistBase found leftover temporary file for filePath=${filePath} entityName=${self.entityName}`
+      );
+      if (await not(BASE_WAIT_FOR_INIT_UNLINK_FN(filePath))) {
+        console.error(
+          `agent-swarm PersistBase failed to remove leftover temporary file for filePath=${filePath} entityName=${self.entityName}`
+        );
+      }
+    }
+  }
   for await (const key of self.keys()) {
     try {
       await self.readValue(key);
@@ -428,7 +458,7 @@ class PersistBase<EntityName extends string = string> implements IPersistBase {
   async getCount(): Promise<number> {
     let count = 0;
     for await (const entry of await fs.opendir(this._directory)) {
-      if (entry.isFile() && entry.name.endsWith(".json")) {
+      if (entry.isFile() && isEntityFileName(entry.name)) {
         count++;
       }
     }
@@ -559,7 +589,7 @@ class PersistBase<EntityName extends string = string> implements IPersistBase {
     try {
       const filesToRemove: string[] = [];
       for await (const entry of await fs.opendir(this._directory)) {
-        if (entry.isFile() && entry.name.endsWith(".json")) {
+        if (entry.isFile() && isEntityFileName(entry.name)) {
           filesToRemove.push(entry.name);
         }
       }
@@ -589,7 +619,7 @@ class PersistBase<EntityName extends string = string> implements IPersistBase {
     try {
       const entityIds: string[] = [];
       for await (const entry of await fs.opendir(this._directory)) {
-        if (entry.isFile() && entry.name.endsWith(".json")) {
+        if (entry.isFile() && isEntityFileName(entry.name)) {
           entityIds.push(entry.name.slice(0, -5));
         }
       }
@@ -625,7 +655,7 @@ class PersistBase<EntityName extends string = string> implements IPersistBase {
     try {
       const entityIds: string[] = [];
       for await (const entry of await fs.opendir(this._directory)) {
-        if (entry.isFile() && entry.name.endsWith(".json")) {
+        if (entry.isFile() && isEntityFileName(entry.name)) {
           entityIds.push(entry.name.slice(0, -5));
         }
       }

@@ -2,7 +2,6 @@ import {
   cancelable,
   CANCELED_PROMISE_SYMBOL,
   createAwaiter,
-  queued,
   Subject,
 } from "functools-kit";
 import { GLOBAL_CONFIG } from "../config/params";
@@ -441,12 +440,30 @@ export class ClientSwarm implements ISwarm {
   }
 
   /**
-   * Waits for output from the active agent in a queued manner, delegating to WAIT_FOR_OUTPUT_FN.
-   * Ensures only one wait operation runs at a time, handling cancellation and agent changes, supporting ClientSession's output retrieval.
+   * Chain of pending waitForOutput calls, reset to a resolved promise whenever
+   * the most recently started waiter settles. See waitForOutput for the rationale.
    */
-  waitForOutput = queued(
-    async (): Promise<string> => await WAIT_FOR_OUTPUT_FN(this)
-  ) as () => Promise<string>;
+  private _lastOutputAwaiter: Promise<unknown> = Promise.resolve();
+
+  /**
+   * Waits for output from the active agent, delegating to WAIT_FOR_OUTPUT_FN.
+   * Pending waiters run in FIFO order so each one consumes the next emitted output,
+   * but once a started waiter settles the chain is reset: a waiter that subscribed
+   * too late to observe its output stays pending without blocking waiters created
+   * afterwards. Strict sequential queueing must be avoided here — a nested tool
+   * execute whose output was already consumed would deadlock every later completion.
+   */
+  waitForOutput = (): Promise<string> => {
+    const currentPromise = this._lastOutputAwaiter.then(
+      async () => await WAIT_FOR_OUTPUT_FN(this)
+    );
+    this._lastOutputAwaiter = currentPromise;
+    const reset = () => {
+      this._lastOutputAwaiter = Promise.resolve();
+    };
+    currentPromise.then(reset, reset);
+    return currentPromise;
+  };
 
   /**
    * Retrieves the name of the active agent, lazily fetching it via params.getActiveAgent if not loaded.

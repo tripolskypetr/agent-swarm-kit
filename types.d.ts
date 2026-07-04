@@ -4483,8 +4483,17 @@ declare class ClientSwarm implements ISwarm {
      */
     cancelOutput(): Promise<void>;
     /**
-     * Waits for output from the active agent in a queued manner, delegating to WAIT_FOR_OUTPUT_FN.
-     * Ensures only one wait operation runs at a time, handling cancellation and agent changes, supporting ClientSession's output retrieval.
+     * Chain of pending waitForOutput calls, reset to a resolved promise whenever
+     * the most recently started waiter settles. See waitForOutput for the rationale.
+     */
+    private _lastOutputAwaiter;
+    /**
+     * Waits for output from the active agent, delegating to WAIT_FOR_OUTPUT_FN.
+     * Pending waiters run in FIFO order so each one consumes the next emitted output,
+     * but once a started waiter settles the chain is reset: a waiter that subscribed
+     * too late to observe its output stays pending without blocking waiters created
+     * afterwards. Strict sequential queueing must be avoided here — a nested tool
+     * execute whose output was already consumed would deadlock every later completion.
      */
     waitForOutput: () => Promise<string>;
     /**
