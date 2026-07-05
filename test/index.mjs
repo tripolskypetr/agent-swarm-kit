@@ -44,6 +44,7 @@ import "./spec/navprev.test.mjs";
 import "./spec/edgecases.test.mjs";
 import "./spec/integration.test.mjs";
 import "./spec/navbranch.test.mjs";
+import "./spec/toolcontext.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");
