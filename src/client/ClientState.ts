@@ -101,6 +101,13 @@ export class ClientState<State extends IStateData = IStateData>
   public readonly stateChanged = new Subject<StateName>();
 
   /**
+   * True while a queued dispatch (read/write) is executing for this instance.
+   * getState checks it to serve reentrant reads (getState inside a setState
+   * dispatchFn) without re-entering the queue, which would deadlock.
+   */
+  _inDispatch = false;
+
+  /**
    * The current state data, initialized as null and set during waitForInit.
    * Updated by setState and clearState, persisted via params.setState if provided.
    */
@@ -110,10 +117,14 @@ export class ClientState<State extends IStateData = IStateData>
    * Queued dispatch function to read or write the state, delegating to DISPATCH_FN.
    * Ensures thread-safe state operations, supporting concurrent access from ClientAgent or tools.
    */
-  dispatch = queued(
-    async (action: Action, payload) =>
-      await DISPATCH_FN<State>(action, this, payload)
-  ) as (action: Action, payload?: DispatchFn<State>) => Promise<State>;
+  dispatch = queued(async (action: Action, payload) => {
+    this._inDispatch = true;
+    try {
+      return await DISPATCH_FN<State>(action, this, payload);
+    } finally {
+      this._inDispatch = false;
+    }
+  }) as (action: Action, payload?: DispatchFn<State>) => Promise<State>;
 
   /**
    * Constructs a ClientState instance with the provided parameters.
@@ -256,7 +267,15 @@ export class ClientState<State extends IStateData = IStateData>
       this.params.logger.debug(
         `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} getState`
       );
-    await this.dispatch("read");
+    // Reads normally go through the dispatch queue to observe writes in order.
+    // A read issued from INSIDE a running write (getState within a setState
+    // dispatchFn) would deadlock behind that write, so _inDispatch lets such a
+    // reentrant read return the current field directly.
+    if (this._inDispatch) {
+      // already holding the dispatch lock: read the field synchronously
+    } else {
+      await this.dispatch("read");
+    }
     if (this.params.callbacks?.onRead) {
       this.params.callbacks.onRead(
         this._state,

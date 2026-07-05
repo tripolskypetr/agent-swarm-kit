@@ -198,7 +198,7 @@ export class ClientHistory implements IHistory {
     const systemMessages = systemMessagesRaw.filter(
       ({ agentName }) => agentName === this.params.agentName
     );
-    const commonMessages = commonMessagesRaw
+    const filteredCommonMessages = commonMessagesRaw
       .map(({ content, tool_calls, ...other }) => ({
         ...other,
         tool_calls,
@@ -216,8 +216,13 @@ export class ClientHistory implements IHistory {
           );
           return true;
         }
-      })
-      .slice(-this.params.keepMessages);
+      });
+    // slice(-0) === slice(0) keeps the WHOLE array, so keepMessages=0 would keep
+    // all history instead of none — clamp explicitly to an empty window.
+    const commonMessages =
+      this.params.keepMessages > 0
+        ? filteredCommonMessages.slice(-this.params.keepMessages)
+        : [];
     const assistantToolOutputCallSet = new Set<string>(
       commonMessages
         .filter(({ tool_call_id }) => !!tool_call_id)

@@ -6483,6 +6483,12 @@ declare class ClientState<State extends IStateData = IStateData> implements ISta
     readonly params: IStateParams<State>;
     readonly stateChanged: Subject<string>;
     /**
+     * True while a queued dispatch (read/write) is executing for this instance.
+     * getState checks it to serve reentrant reads (getState inside a setState
+     * dispatchFn) without re-entering the queue, which would deadlock.
+     */
+    _inDispatch: boolean;
+    /**
      * The current state data, initialized as null and set during waitForInit.
      * Updated by setState and clearState, persisted via params.setState if provided.
      */

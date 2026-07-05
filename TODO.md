@@ -664,7 +664,41 @@ storage, state, file-history) и умирает БЕЗ dispose (process.exit); r
 - navigation stack восстанавливается из persist-адаптера, prev после
   пересоздания сессии ведёт назад корректно.
 
-## Найденные и исправленные баги (29 итого)
+## 29-й заход: логические edge cases (+4 теста, +4 бага, включая security)
+
+Не броски, а вырожденные значения/пути, выведенные из чтения кода.
+
+### Баг №30: maxToolCalls=0 выполнял ВСЕ тулы (slice(-0) ловушка)
+Файл: `src/client/ClientAgent.ts`
+- `toolCalls.slice(-maxToolCalls)` при 0 → slice(-0)===slice(0)===весь массив.
+  «Отключить тулы нулём» вместо этого запускало их все. Исправление: явный
+  клэмп (>0 ? slice : []) + при пустом наборе после клэмпа эмитить
+  (tool-stripped) контент вместо зависания.
+
+### Баг №31: keepMessages=0 отдавал модели ВСЮ историю (та же slice(-0))
+Файл: `src/client/ClientHistory.ts` — тот же slice(-0)===всё; исправлено явным
+клэмпом в пустое окно (0 = модель не видит ни одного common-сообщения).
+
+### Баг №32: getState внутри setState-dispatchFn — дедлок
+Файл: `src/client/ClientState.ts`
+- read вставал в queued-очередь за незавершённым write (read-modify-write —
+  типовой паттерн) → вечное зависание setState. Исправление: флаг _inDispatch;
+  реентрантный read (внутри уже держащегося dispatch-лока) читает поле напрямую.
+  Порядок fire-and-forget write→read сохранён (не обход очереди снаружи).
+
+### Баг №33 (SECURITY): path traversal в persist через clientId/entityId
+Файл: `src/classes/Persist.ts`
+- `_getFilePath` = join(baseDir, entityName, `${entityId}.json`); entityId
+  (clientId/stateName/...) — потенциально извне. clientId="../../x" через
+  path.join вылезал из dump/ и мог перезаписать произвольный файл.
+- Исправление: санитизация entityId — `/`, `\`, `..` → `_`.
+
+### Новые тесты (4), сьют вырос до 282/282 — test/spec/edgecases.test.mjs
+maxToolCalls=0 (0 тулов, без зависания); keepMessages=0 (пустое окно);
+реентрантный getState-в-setState (+сохранение порядка); path-traversal
+(двухпроцессный тест: запись НЕ вылезает за пределы cwd).
+
+## Найденные и исправленные баги (33 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
 Файл: `src/client/ClientSwarm.ts`

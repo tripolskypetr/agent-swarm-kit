@@ -412,7 +412,30 @@ const EXECUTE_FN = async (
         return;
       }
     }
-    toolCalls = toolCalls.slice(-self.params.maxToolCalls);
+    // slice(-0) === slice(0) returns the WHOLE array, so maxToolCalls=0 would
+    // run every call instead of none — clamp explicitly.
+    toolCalls =
+      self.params.maxToolCalls > 0
+        ? toolCalls.slice(-self.params.maxToolCalls)
+        : [];
+
+    if (!toolCalls.length) {
+      // maxToolCalls=0 dropped every call: the model wanted tools but none may
+      // run. Emit the (tool-stripped) content as the answer instead of leaving
+      // the pending waitForOutput hanging forever.
+      const result = await self.params.transform(
+        message.content,
+        self.params.clientId,
+        self.params.agentName
+      );
+      await self.params.history.push({
+        ...message,
+        tool_calls: [],
+        agentName: self.params.agentName,
+      });
+      await self._emitOutput(mode, result, outputEpoch);
+      return;
+    }
 
     {
       const priorityTool = toolCalls.find((call) =>

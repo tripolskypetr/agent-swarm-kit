@@ -424,7 +424,11 @@ class PersistBase<EntityName extends string = string> implements IPersistBase {
    * @private
    */
   _getFilePath(entityId: EntityId): string {
-    return join(this.baseDir, this.entityName, `${entityId}.json`);
+    // entityId comes from clientId/stateName/etc. which may be attacker-supplied:
+    // strip path separators and traversal so a value like "../../x" cannot escape
+    // the entity directory and read/overwrite arbitrary files.
+    const safeId = String(entityId).replace(/[/\\]/g, "_").replace(/\.\./g, "_");
+    return join(this.baseDir, this.entityName, `${safeId}.json`);
   }
 
   /**
