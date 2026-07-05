@@ -106,14 +106,15 @@ export class ClientOperator implements IAgent {
         { input, mode }
       );
     if (mode === "tool") {
-      console.warn(
-        `ClientOperator: execute with tool mode should not be called for clientId=${this.params.clientId} agentName=${this.params.agentName}`
-      );
+      // A tool-mode execute reaching an operator is normal: navigation to an
+      // operator agent ends with executeForce (mode "tool"). Forward it to the
+      // human instead of returning silently — returning would leave the
+      // enclosing waitForOutput hanging forever, making the operator agent
+      // unreachable through navigation.
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         this.params.logger.debug(
-          `ClientOperator agentName=${this.params.agentName} clientId=${this.params.clientId} execute - tool mode not supported`
+          `ClientOperator agentName=${this.params.agentName} clientId=${this.params.clientId} execute tool mode forwarded to operator`
         );
-      return;
     }
     this._operatorSignal.sendMessage(input, this._outgoingSubject.next);
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&

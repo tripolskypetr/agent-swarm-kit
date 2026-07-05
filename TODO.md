@@ -698,7 +698,34 @@ maxToolCalls=0 (0 тулов, без зависания); keepMessages=0 (пус
 реентрантный getState-в-setState (+сохранение порядка); path-traversal
 (двухпроцессный тест: запись НЕ вылезает за пределы cwd).
 
-## Найденные и исправленные баги (33 итого)
+## 30-й заход: крупный интеграционный тест (навигации+тулы+MCP+оператор) (+5 тестов, +2 бага)
+
+### Баг №34: агент видел только ОДИН навигационный тул из нескольких
+Файл: `src/client/ClientAgent.ts` (_resolveTools)
+- Фильтр дедуплицировал navigation-тулы до одного (navigationFound). Роутер-
+  триаж с tools:[nav-sales, nav-tech, nav-human] реально получал в completion
+  только nav-sales; вызов nav-tech/nav-human → "No target function" → resque.
+  Любой мультинаправленный роутер был сломан. Исправление: navigation-тулы НЕ
+  дедуплицируются (разные направления — разные тулы); дедуп оставлен только для
+  commit-action (одно действие за ход осмысленно), дубли по имени — seen-фильтр.
+
+### Баг №35: навигация к оператору вешала сессию навсегда
+Файл: `src/client/ClientOperator.ts`
+- Навигация завершается executeForce (mode "tool"); ClientOperator.execute в
+  tool-mode тихо возвращал (warn "should not be called") и НЕ пересылал сообщение
+  → waitForOutput висел вечно, оператор недостижим через навигацию.
+  Исправление: tool-mode execute тоже пересылает сообщение оператору-человеку.
+
+### Новые тесты (5), сьют вырос до 287/287 — test/spec/integration.test.mjs
+Одна support-сварма (триаж-роутер с 3 nav-тулами → sales[plain tool] /
+tech[MCP tool] / human[operator]):
+- навигация + plain tool (маршрут, тул, ответ);
+- навигация + MCP tool (mcp_diagnose вызван, ответ);
+- навигация к оператору (человек ответил);
+- полный мультихоп в ОДНОЙ сессии: chat→sales→triage→tech→triage→operator;
+- два клиента проходят разные ветки конкурентно и изолированно.
+
+## Найденные и исправленные баги (35 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
 Файл: `src/client/ClientSwarm.ts`

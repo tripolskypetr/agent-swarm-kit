@@ -919,7 +919,6 @@ export class ClientAgent implements IAgent {
     }
     if (mcpToolList.length) {
       let commitActionFound = false;
-      let navigationFound = false;
       return agentToolList
         .concat(mcpToolList.map((tool) => mapMcpToolCall(tool, this)))
         .filter(({ function: { name } }) => {
@@ -935,13 +934,11 @@ export class ClientAgent implements IAgent {
           return aStarts === bStarts ? 0 : aStarts ? -1 : 1;
         })
         .filter((tool) => {
-          const isNavigation = swarm.navigationSchemaService.hasTool(tool.toolName);
-          if (isNavigation) {
-            if (navigationFound) {
-              return false;
-            }
-            navigationFound = true;
-          }
+          // Do NOT collapse navigation tools to a single one: a router agent
+          // legitimately exposes several (nav-to-sales/tech/human) and the model
+          // must be able to call any of them. Only commit-action tools are
+          // limited to one, since running multiple actions in one turn is
+          // ambiguous.
           const isCommitAction = swarm.actionSchemaService.hasTool(tool.toolName);
           if (isCommitAction) {
             if (commitActionFound) {
@@ -953,7 +950,6 @@ export class ClientAgent implements IAgent {
         });
     }
     let commitActionFound = false;
-    let navigationFound = false;
     return agentToolList
       .filter(({ function: { name } }) => {
         if (!seen.has(name)) {
@@ -968,13 +964,8 @@ export class ClientAgent implements IAgent {
         return aStarts === bStarts ? 0 : aStarts ? -1 : 1;
       })
       .filter((tool) => {
-        const isNavigation = swarm.navigationSchemaService.hasTool(tool.toolName);
-        if (isNavigation) {
-          if (navigationFound) {
-            return false;
-          }
-          navigationFound = true;
-        }
+        // See the MCP branch above: navigation tools are not deduplicated —
+        // only commit-action tools are limited to one per turn.
         const isCommitAction = swarm.actionSchemaService.hasTool(tool.toolName);
         if (isCommitAction) {
           if (commitActionFound) {

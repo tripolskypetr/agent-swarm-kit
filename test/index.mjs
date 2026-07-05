@@ -42,6 +42,7 @@ import "./spec/crashrecovery.test.mjs";
 import "./spec/finalguard.test.mjs";
 import "./spec/navprev.test.mjs";
 import "./spec/edgecases.test.mjs";
+import "./spec/integration.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");
