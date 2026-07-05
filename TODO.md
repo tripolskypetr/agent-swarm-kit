@@ -573,6 +573,35 @@ ClientSession.ts, AgentConnectionService.ts, Operator.ts, addStorage.ts, addStat
 persist-init сторэджа, операторского адаптера (таймаут-выход), кастомного resque,
 бросающего connector, бросающего CC_AGENT_HISTORY_FILTER.
 
+## 26-й заход: краш-восстановление персиста при нескольких роях/клиентах (+2 теста, багов не найдено)
+
+### Методика
+Честный двухпроцессный тест: writer-процесс пишет (active agent, navigation,
+storage, state, file-history) и умирает БЕЗ dispose (process.exit); reader —
+новый процесс — восстанавливается с диска. Выполняется во временном cwd.
+
+### Схема ключевания бакетов (аудит)
+- swarm/active_agent/<swarmName>/<clientId>.json — рой+клиент ✓
+- swarm/navigation_stack/<swarmName>/<clientId>.json — ✓
+- alive/<swarmName>/<clientId>.json — ✓; policy/<swarmName>/<policyName>.json — ✓
+- state/<stateName>/<clientId>.json, storage/<storageName>/<clientId>.json —
+  клиент+имя схемы, БЕЗ роя (консистентно с in-memory скоупом схем)
+- history/<clientId>/ (PersistList) — только клиент, БЕЗ роя/агента
+  (консистентно с in-memory: HistoryInstance per clientId, деление — фильтром)
+- embedding/<embeddingName>/<hash>.json — content-addressed ✓
+
+### Результаты (test/spec/crashrecovery.test.mjs, сьют 265/265)
+- Восстановление НЕ ломается: каждый клиент каждого роя после краша получает
+  СВОЙ активный агент/стек; клиенты друг друга не видят.
+- Зафиксирован контракт: при переиспользовании ОДНОГО clientId в разных роях
+  history/storage/state общие между роями (бакет по clientId) — идентично
+  in-memory поведению. ВАЖНО для потребителей: один clientId между роями делит
+  весь диалог (user/assistant сообщения роя A попадают в контекст модели роя B
+  через дефолтный CC_AGENT_HISTORY_FILTER) — если нужна изоляция, использовать
+  разные clientId (например суффикс роя).
+- Примечание: clientId "shared" неявно зарезервирован — shared storage/state
+  персистятся под этим ключом в тех же бакетах схем.
+
 ## Найденные и исправленные баги (26 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)

@@ -38,6 +38,7 @@ import "./spec/banhammer.test.mjs";
 import "./spec/modelguard.test.mjs";
 import "./spec/hookguard.test.mjs";
 import "./spec/sweepguard.test.mjs";
+import "./spec/crashrecovery.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");
