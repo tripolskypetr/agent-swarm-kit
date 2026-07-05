@@ -409,6 +409,15 @@ export class ClientSwarm implements ISwarm {
         this.params.swarmName
       );
     }
+    // setAgentName pushes the NEW agent, so the top of the stack is the agent
+    // we are currently on — drop it first, otherwise "previous" would resolve
+    // to the active agent itself (self-navigation instead of going back).
+    const activeAgent = await this.getAgentName();
+    if (
+      this._navigationStack[this._navigationStack.length - 1] === activeAgent
+    ) {
+      this._navigationStack.pop();
+    }
     const prevAgent = this._navigationStack.pop();
     await this.params.setNavigationStack(
       this.params.clientId,

@@ -51,6 +51,7 @@ const beforeAll = () => {
     agentName: SALES_AGENT,
     completion: "mock-completion",
     prompt: "Tell your name to the user",
+    tools: [NAVIGATE_TO_REFUND_TOOL],
   });
 
   addAgent({
@@ -154,7 +155,7 @@ const beforeAll = () => {
         };
       }
       if (
-        agentName === TRIAGE_AGENT &&
+        (agentName === TRIAGE_AGENT || agentName === SALES_AGENT) &&
         lastMessage.content === NAVIGATE_TO_REFUND_REQUEST
       ) {
         return {

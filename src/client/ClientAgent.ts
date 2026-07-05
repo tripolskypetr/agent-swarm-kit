@@ -738,6 +738,15 @@ export class ClientAgent implements IAgent {
   _activeToolChains = 0;
 
   /**
+   * Count of EXECUTE_FN executions currently in flight for this agent instance.
+   * dispose() checks it: tearing the instance down mid-execution (e.g. a
+   * server-side changeToAgent while the completion is still running) must
+   * resolve the pending output waiter with an empty result — otherwise the
+   * waiter and the session busy lock would hang forever.
+   */
+  _activeExecutions = 0;
+
+  /**
    * Generation counter for output emissions. Bumped by commitCancelOutput and by
    * swarm-level output substitution (emit). Executions capture the epoch at start
    * and _emitOutput drops their result when the epoch moved on — otherwise the
@@ -1701,9 +1710,14 @@ export class ClientAgent implements IAgent {
    * Executes the incoming message and processes tool calls if present, queued to prevent overlapping executions.
    * Implements IAgent.execute, delegating to EXECUTE_FN with queuing via functools-kit’s queued decorator.
    */
-  execute = queued(
-    async (incoming, mode) => await EXECUTE_FN(incoming, mode, this)
-  ) as IAgent["execute"];
+  execute = queued(async (incoming, mode) => {
+    this._activeExecutions += 1;
+    try {
+      return await EXECUTE_FN(incoming, mode, this);
+    } finally {
+      this._activeExecutions -= 1;
+    }
+  }) as IAgent["execute"];
 
   /**
    * Runs a stateless completion for the incoming message, queued to prevent overlapping executions.
@@ -1722,6 +1736,14 @@ export class ClientAgent implements IAgent {
       this.params.logger.debug(
         `ClientAgent agentName=${this.params.agentName} clientId=${this.params.clientId} dispose`
       );
+    if (this._activeExecutions > 0) {
+      // The instance is being torn down while its execution is still running
+      // (e.g. changeToAgent mid-completion). Resolve the pending waiter with an
+      // empty output and invalidate the epoch so the late completion result of
+      // the dying instance is dropped instead of poisoning the next waiter.
+      this._outputEpoch += 1;
+      await this._outputSubject.next("");
+    }
     {
       this._agentChangeSubject.unsubscribeAll();
       this._resqueSubject.unsubscribeAll();

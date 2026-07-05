@@ -34,13 +34,15 @@ const createChangeToPrevAgent = memoize(
         agentName: AgentName,
         swarmName: SwarmName
       ) => {
-        if (
-          !swarm.navigationValidationService.shouldNavigate(
-            agentName,
-            clientId,
-            swarmName
-          )
-        ) {
+        // Going back is legitimate by definition and naturally bounded by the
+        // depth of the navigation stack, so the recursion route guard does not
+        // apply here. Only a no-op transition to the current agent is skipped.
+        const activeAgent = await swarm.swarmPublicService.getAgentName(
+          METHOD_NAME,
+          clientId,
+          swarmName
+        );
+        if (agentName === activeAgent) {
           return false;
         }
         // Notify all agents in the swarm of the change

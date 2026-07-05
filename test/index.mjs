@@ -40,6 +40,7 @@ import "./spec/hookguard.test.mjs";
 import "./spec/sweepguard.test.mjs";
 import "./spec/crashrecovery.test.mjs";
 import "./spec/finalguard.test.mjs";
+import "./spec/navprev.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");

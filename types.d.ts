@@ -3211,6 +3211,14 @@ declare class ClientAgent implements IAgent {
      */
     _activeToolChains: number;
     /**
+     * Count of EXECUTE_FN executions currently in flight for this agent instance.
+     * dispose() checks it: tearing the instance down mid-execution (e.g. a
+     * server-side changeToAgent while the completion is still running) must
+     * resolve the pending output waiter with an empty result — otherwise the
+     * waiter and the session busy lock would hang forever.
+     */
+    _activeExecutions: number;
+    /**
      * Generation counter for output emissions. Bumped by commitCancelOutput and by
      * swarm-level output substitution (emit). Executions capture the epoch at start
      * and _emitOutput drops their result when the epoch moved on — otherwise the
