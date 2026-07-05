@@ -1,3 +1,43 @@
+# 🛡️ Hardening & Stability Release (v4.0.0, 05/07/2026)
+
+> Github [release link](https://github.com/tripolskypetr/agent-swarm-kit/releases/tag/4.0.0)
+
+The **4.0.0** major release is a top-to-bottom hardening pass over the whole runtime. The dependency bump to `functools-kit` v4 (strict sequential queues) surfaced a class of latent deadlocks and lost-output bugs that the old v3 queue quietly papered over. Every one of them is now fixed, every point where the library calls into user code is guarded against throwing, and the behavior is locked down by a suite that grew from 42 to **298 tests** (all green, `tsc --noEmit` clean).
+
+The whole `src/` tree was read line-by-line and audited for races, broken tool chains, dangling agent references, and history-integrity loss. **35 bugs** were found and fixed along the way. If you build multi-agent flows with nested tool calls, navigation, operators, or persistence, upgrading removes a long tail of "the session just hangs" and "the wrong client got the answer" failure modes.
+
+## ⚠️ Breaking changes
+
+- **Typo'd names removed.** `addEmbeding` / `getEmbeding` / `overrideEmbeding` (single-`d`) are gone — use `addEmbedding` / `getEmbedding` / `overrideEmbedding`. No deprecated aliases are kept; update imports directly.
+- **Duplicate `tool_call` ids now throw** instead of silently executing both calls. `session.complete` / `execute` reject with `duplicate tool call id` (delivered via `errorSubject`) and the flow recovers with a placeholder rather than corrupting history.
+
+## 🔒 Security
+
+- **Path traversal in persistence (fixed).** `PersistBase` built file paths by joining `entityId` (a `clientId` / `stateName` / …, possibly attacker-controlled) directly onto the dump directory, so `clientId="../../x"` could escape `dump/` and overwrite arbitrary files. `entityId` is now sanitized (`/`, `\`, `..` → `_`).
+- **Concurrent-ban lost update (fixed).** `ClientPolicy.banClient` / `unbanClient` were an unserialized read-modify-write over the shared ban set: two concurrent bans of different clients could lose one update in memory *and* in the persisted store — a banned client would then pass `hasBan` and keep interacting. The mutations are now serialized through a queue so each observes the previous one.
+
+## 🐛 Notable fixes
+
+- **`waitForOutput` deadlock (the big one).** Under `functools-kit` v4's strict queue, a nested `execute` triggered from inside a tool subscribed to its output *after* the emit and hung forever — this alone accounted for 39 failing tests. Rewritten as a FIFO awaiter chain with a `joinOutput()` path so nested tool executions attach to the parent waiter instead of queuing behind it.
+- **Late tool errors & mid-flight teardown no longer hang the session.** A tool that throws *after* `commitToolOutput`, a server-side `changeToAgent` while a completion is still running, and `dispose()` during your own in-flight `complete()` all now resolve the pending waiter (placeholder / empty output) instead of leaving it — and the busy lock — stuck forever.
+- **Stale output can't poison the next exchange.** `cancelOutput` and `emit`-substitution used to resolve the current waiter while the execution kept running and later emitted into the *next* message's waiter. An output-epoch guard now drops those stale results.
+- **Every user-code entry point is guarded.** Throwing `transform` / `map` / `mapToolCalls` / prompt functions, tool callbacks (`onValidate` / `onBeforeCall` / `onAfterCall` / `validate`), history adapters, MCP `listTools`, persistence `waitForInit`, custom resque functions, bus listeners, and schema hooks no longer hang the flow or crash the host process — errors are delivered to the caller (via `errorSubject`) or logged for observers, with graceful degradation.
+- **Multi-directional routers work.** Navigation tools are no longer deduplicated to one, so a triage/router agent exposing several `navigate_to_*` tools can actually call any of them; only commit-action tools remain limited to one per turn.
+- **Navigation "go back" is correct.** `changeToPrevAgent` no longer navigates into the current agent (off-by-one on the navigation stack); operator agents are now reachable through navigation (tool-mode `execute` forwards to the human instead of silently returning).
+- **Edge-value fixes.** `maxToolCalls=0` now runs *no* tools (was running all — `slice(-0)` trap), `keepMessages=0` shows the model *zero* prior messages (same trap), and `getState` called from inside a `setState` dispatch no longer deadlocks.
+- **`createNumericIndex` no longer overwrites live rows** after deletions (index is `max(numeric id) + 1`, not `length + 1`).
+
+## ⚙️ Configuration
+
+- Previously hard-coded timers are now in `GLOBAL_CONFIG` (tunable via `setConfig`, defaults unchanged): `CC_OPERATOR_SIGNAL_TIMEOUT`, `CC_CHAT_INACTIVITY_CHECK`, `CC_CHAT_INACTIVITY_TIMEOUT`.
+- `TOOL_PROTOCOL_PROMPT` and `getLastToolMessage` are now exported from the package root.
+
+## ✅ Tests
+
+The suite went from 42 to 298 tests across ~40 new spec files, covering tool-call sequencing, MCP, resque strategies, multi-client isolation, navigation branching, ban mechanics, crash recovery across processes, and a systematic "throw at every user-code boundary" sweep. See `TODO.md` for the full 32-round audit log and per-bug detail.
+
+---
+
 # 📝 Structured JSON Output With Validation (v1.1.130, 15/07/2025)
 
 > Github [release link](https://github.com/tripolskypetr/agent-swarm-kit/releases/tag/1.1.130)
