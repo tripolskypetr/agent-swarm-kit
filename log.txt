@@ -1,0 +1,612 @@
+
+> agent-swarm-kit@4.0.0 test
+> npm run build && node ./test/index.mjs
+
+
+> agent-swarm-kit@4.0.0 build
+> rollup -c
+
+TAP version 13
+# Will run model completion
+ok 1 (unnamed assert)
+# Will use different completion on multiple agents
+ok 2 (unnamed assert)
+# Will navigate back to default agent on request
+ok 3 (unnamed assert)
+# Will navigate back to prev agent on request
+ok 4 (unnamed assert)
+# Will navigate to sales agent on request
+ok 5 (unnamed assert)
+# Will navigate to refund agent on request
+ok 6 (unnamed assert)
+# Will avoid deadlock if commitToolOutput was not executed before navigation
+ok 7 Ok
+# Will avoid deadlock when commitToolOutput is executed in parallel with next completion
+ok 8 (unnamed assert)
+# Will pass validation when all dependencies provided
+ok 9 (unnamed assert)
+# Will fail validation when swarm is missing
+ok 10 (unnamed assert)
+# Will fail validation when completion is missing
+ok 11 (unnamed assert)
+# Will fail validation when agent is missing
+ok 12 (unnamed assert)
+# Will fail validation when tool is missing
+ok 13 (unnamed assert)
+# Will fail validation when swarm defaultAgent not in the list
+ok 14 (unnamed assert)
+# Will clear history for similar clientId after each parallel complete call
+ok 15
+# Will orchestrate swarms for each connection
+ok 16
+# Will queue user messages in connection
+ok 17 Ok
+# Will allow server-side emit for makeConnection
+ok 18 (unnamed assert)
+# Will event in makeConnection
+ok 19 (unnamed assert)
+# Will event for session
+ok 20 (unnamed assert)
+# Will dispose connections for session function
+ok 21 (unnamed assert)
+# Will dispose connections for makeConnection function
+ok 22 (unnamed assert)
+# Will dispose connections for complete function
+ok 23 (unnamed assert)
+# Will resque model on unexisting tool call
+ok 24 (unnamed assert)
+# Will resque model on empty output
+ok 25 (unnamed assert)
+# Will resque model on failed tool validation
+ok 26 (unnamed assert)
+# Failed resque raise a placeholder
+ok 27 (unnamed assert)
+# Will ignote execute due to the obsolete agent
+ok 28 (unnamed assert)
+# Will ignote commitToolOutput due to the obsolete agent
+ok 29 (unnamed assert)
+# Will ignote commitSystemMessage due to the obsolete agent
+ok 30 (unnamed assert)
+# Will parallel completion for session
+ok 31 (unnamed assert)
+# Will parallel completion for makeConnection
+ok 32 (unnamed assert)
+# Will commit user message for makeConnection without emit and execution
+ok 33 (unnamed assert)
+# Will schedule messages for makeConnection
+ok 34 (unnamed assert)
+# Will schedule messages for session
+ok 35 (unnamed assert)
+# Will keep separate storages for different connections
+ok 36 (unnamed assert)
+# Will raise an exception if storage is not declared in agent
+ok 37 (unnamed assert)
+# Will keep setState order for State
+ok 38 (unnamed assert)
+# Will use setState middlewares
+ok 39 (unnamed assert)
+# Will keep separate states for different connections
+ok 40 (unnamed assert)
+# Will raise an exception if state is not declared in agent
+ok 41 (unnamed assert)
+# Will keep state order even if not awaited
+ok 42 (unnamed assert)
+# Will execute multiple tool calls in sequence
+ok 43 (unnamed assert)
+# Will slice tool calls above maxToolCalls
+ok 44 (unnamed assert)
+# Will prioritize navigation tool over regular tools
+ok 45 (unnamed assert)
+# Will resurrect model when tool call throws
+ok 46 (unnamed assert)
+# Will stop remaining tools via commitStopTools
+ok 47 (unnamed assert)
+# Will exclude tool when isAvailable returns false
+ok 48 (unnamed assert)
+# Will resolve dynamic tool function factory
+ok 49 (unnamed assert)
+# Will deduplicate tools with the same function name
+ok 50 (unnamed assert)
+# Will name the default agent in triage navigation tool output
+ok 51 (unnamed assert)
+# Will merge MCP tools with agent tools
+ok 52 (unnamed assert)
+# Will call MCP tool and commit its string output
+ok 53 (unnamed assert)
+# Will flush and emit placeholder when MCP tool throws
+ok 54 (unnamed assert)
+# Will dispose MCP client cache on session dispose
+ok 55 (unnamed assert)
+# Will refetch MCP tools after MCP.update for client
+ok 56 (unnamed assert)
+# Will expose MCP tool without inputSchema to the model
+ok 57 (unnamed assert)
+# Will pass prompt, static, dynamic and flag system messages to the model
+ok 58 (unnamed assert)
+# Will apply agent output transform
+ok 59 (unnamed assert)
+# Will apply agent message map
+ok 60 (unnamed assert)
+# Will filter tool calls with mapToolCalls
+ok 61 (unnamed assert)
+# Will trim model context to keepMessages
+ok 62 (unnamed assert)
+# Will run stateless completion without touching history
+ok 63 (unnamed assert)
+# Will return empty string from runStateless when model requests tools
+ok 64 (unnamed assert)
+# Will recover via recomplete resque strategy
+ok 65 (unnamed assert)
+# Will recover via custom resque strategy
+ok 66 (unnamed assert)
+# Will fire agent lifecycle callbacks
+ok 67 (unnamed assert)
+# Will commit tool request into history with generated ids
+ok 68 (unnamed assert)
+# Will read history through the getter family
+ok 69 (unnamed assert)
+# Will skip commitSystemMessage for inactive agent but apply force variant
+ok 70 (unnamed assert)
+# Will skip commitAssistantMessage for inactive agent but apply force variant
+ok 71 (unnamed assert)
+# Will skip commitDeveloperMessage for inactive agent but apply force variant
+ok 72 (unnamed assert)
+# Will attach payload to committed user message
+ok 73 (unnamed assert)
+# Will reset model context after commitFlushForce
+ok 74 (unnamed assert)
+# Will resolve pending execution with empty output on cancelOutputForce
+ok 75 (unnamed assert)
+# Will guard notify by session mode and deliver in makeConnection
+ok 76 (unnamed assert)
+# Will substitute pending execution output via emitForce
+ok 77 (unnamed assert)
+# Will run scoped session via fork
+ok 78 (unnamed assert)
+# Will switch agent for pipeline and restore it afterwards
+ok 79 (unnamed assert)
+# Will report pipeline error through callbacks
+ok 80 (unnamed assert)
+# Will auto ban client after failed policy validation
+ok 81 (unnamed assert)
+# Will route messages through operator agent and dispose its signal
+ok 82 (unnamed assert)
+# Will auto dispose idle session
+ok 83 (unnamed assert)
+# Will expose session mode, busy state, navigation route and model tool name
+ok 84 (unnamed assert)
+# Will produce and validate structured output via outline json()
+ok 85 (unnamed assert)
+# Will run one-shot chat completion
+ok 86 (unnamed assert)
+# Will answer through advisor ask()
+ok 87 (unnamed assert)
+# Will deliver custom events to topic listeners
+ok 88 (unnamed assert)
+# Will cache compute data and recalculate on bound state change
+ok 89 (unnamed assert)
+# Will force compute refetch via Compute.update
+ok 90 (unnamed assert)
+# Will serve shared compute without dependsOn
+ok 91 (unnamed assert)
+# Will set, read and clear shared state
+ok 92 (unnamed assert)
+# Will apply state middlewares and reset via clearState
+ok 93 (unnamed assert)
+# Will search storage by similarity and fire storage callbacks
+ok 94 (unnamed assert)
+# Will share storage items between contexts
+ok 95 (unnamed assert)
+# Will serialize objects without undefined separators and keep session memory
+ok 96 (unnamed assert)
+# Will fire history onPush callback for stored messages
+ok 97 (unnamed assert)
+# Will deliver history getSystemPrompt alongside onRead callback
+ok 98 (unnamed assert)
+# Will route client logs through logger callbacks
+ok 99 (unnamed assert)
+# Will ignore temporary atomic-write files in PersistBase
+ok 100 (unnamed assert)
+# Will pop PersistList entries in LIFO order
+ok 101 (unnamed assert)
+# Will cycle RoundRobin tokens
+ok 102 (unnamed assert)
+# Will receive commit events on the agent bus
+ok 103 (unnamed assert)
+# Will receive events from any client on wildcard listener
+ok 104 (unnamed assert)
+# Will trigger listenEventOnce only for the first matching event
+ok 105 (unnamed assert)
+# Will stop navigation loop with flush message
+ok 106 (unnamed assert)
+# Will break infinite tool execution loop by nested execution limit
+ok 107 (unnamed assert)
+# Will manage chat lifecycle through Chat utils
+ok 108 (unnamed assert)
+# Will use overridden completion for new sessions
+ok 109 (unnamed assert)
+# Will ban and unban client through Policy utils
+ok 110 (unnamed assert)
+# Will block invalid output with custom ban message
+ok 111 (unnamed assert)
+# Will use the failing policy ban message in merged policies
+ok 112 (unnamed assert)
+# Will throw on repeated navigation to the same agent within one execution
+ok 113 (unnamed assert)
+# Will skip navigation to an agent outside the swarm
+ok 114 (unnamed assert)
+# Will throw on duplicate session for the same client
+ok 115 (unnamed assert)
+# Will fire swarm level callbacks across the session lifecycle
+ok 116 (unnamed assert)
+# Will answer through custom operator adapter with operator callbacks
+ok 117 (unnamed assert)
+# Will persist state through a custom persistence adapter
+ok 118 (unnamed assert)
+# Will reuse cached search embeddings between storage takes
+ok 119 (unnamed assert)
+# Will rate limit rapid session completions
+ok 120 (unnamed assert)
+# Will create sequential numeric storage indexes
+ok 121 (unnamed assert)
+# Will expose payload and session context inside tool call
+ok 122 (unnamed assert)
+# Will return agent tailored history including prompt
+ok 123 (unnamed assert)
+# Will include committed assistant message into the next completion context
+ok 124 (unnamed assert)
+# Will produce valid outline json with prompt, system and flags in history
+ok 125 (unnamed assert)
+# Will retry outline generation after parse and validation errors
+ok 126 (unnamed assert)
+# Will return invalid outline result when attempts are exhausted
+ok 127 (unnamed assert)
+# Will guard outline registration and lookup
+ok 128 (unnamed assert)
+# Will reject outline whose completion is not marked as json
+ok 129 (unnamed assert)
+# Will answer through advisor with chat and result callbacks
+ok 130 (unnamed assert)
+# Will pass structured message object to advisor
+ok 131 (unnamed assert)
+# Will guard advisor registration and lookup
+ok 132 (unnamed assert)
+# Will prioritize navigation tool over sibling data tool in one batch
+ok 133 (unnamed assert)
+# Will slice tool calls to the trailing maxToolCalls window
+ok 134 (unnamed assert)
+# Will keep only the last tool call with default maxToolCalls
+ok 135 (unnamed assert)
+# Will recover from unknown tool call with placeholder and flushed history
+ok 136 (unnamed assert)
+# Will skip tool execution when tool validation fails
+ok 137 (unnamed assert)
+# Will halt tool chain and emit placeholder when a tool throws
+ok 138 (unnamed assert)
+# Will filter dangling tool requests and orphan tool outputs from model context
+ok 139 (unnamed assert)
+# Will trim model context to keepMessages trailing window
+ok 140 (unnamed assert)
+# Will keep input-output pairing for concurrent completes
+ok 141 (unnamed assert)
+# Will serialize concurrent setState calls without lost updates
+ok 142 (unnamed assert)
+# Will fall back to default agent when active agent is not in the swarm
+ok 143 (unnamed assert)
+# Will map fromOpenAI tool calls in both directions
+ok 144 (unnamed assert)
+# Will complete happy path through fromLMStudio
+ok 145 (unnamed assert)
+# Will map fromGrok tool calls in both directions
+ok 146 (unnamed assert)
+# Will prepend protocol prompt and generate ids in fromOllama
+ok 147 (unnamed assert)
+# Will map fromCohereClientV2 camelCase tool calls
+ok 148 (unnamed assert)
+# Will map fromHf chatCompletion tool roundtrip
+ok 149 (unnamed assert)
+# Will merge system prompts for fromCortex http roundtrip
+ok 150 (unnamed assert)
+# Will retry transient adapter failure
+ok 151 (unnamed assert)
+# Will recover empty output via recomplete resque strategy
+ok 152 (unnamed assert)
+# Will replace empty output via custom resque strategy
+ok 153 (unnamed assert)
+# Will apply overrideAgent prompt to new sessions
+ok 154 (unnamed assert)
+# Will apply overrideSwarm defaultAgent to new clients
+ok 155 (unnamed assert)
+# Will apply overrideTool call implementation
+ok 156 (unnamed assert)
+# Will apply overridePolicy validateInput
+ok 157 (unnamed assert)
+# Will apply overrideState default state
+ok 158 (unnamed assert)
+# Will apply overrideStorage index and overrideEmbedding logic
+ok 159 (unnamed assert)
+# Will apply overrideCompute getComputeData
+ok 160 (unnamed assert)
+# Will apply overrideMCP tool list and callTool
+ok 161 (unnamed assert)
+# Will apply overrideOutline prompt
+ok 162 (unnamed assert)
+# Will apply overrideAdvisor getChat
+ok 163 (unnamed assert)
+# Will apply overridePipeline execute
+ok 164 (unnamed assert)
+# Will restore active agent through custom PersistSwarm adapter
+ok 165 (unnamed assert)
+# Will restore storage items through custom PersistStorage adapter
+ok 166 (unnamed assert)
+# Will store policy bans through custom PersistPolicy adapter
+ok 167 (unnamed assert)
+# Will store session memory through custom PersistMemory adapter
+ok 168 (unnamed assert)
+# Will track online state through custom PersistAlive adapter
+ok 169 (unnamed assert)
+# Will cache embeddings through custom PersistEmbedding adapter
+ok 170 (unnamed assert)
+# Will isolate schema registrations inside scope
+ok 171 (unnamed assert)
+# Will run stateless completion without history mutation
+ok 172 (unnamed assert)
+# Will track visited agents in navigation route
+ok 173 (unnamed assert)
+# Will handle addCommitAction success and failure branches
+ok 174 (unnamed assert)
+# Will commit fetched content through addFetchInfo
+ok 175 (unnamed assert)
+# Will detect broken schema references via validate
+ok 176 (unnamed assert)
+# Will intercept history pushes through custom history adapter
+ok 177 (unnamed assert)
+# Will drive chat through custom adapter and callbacks
+ok 178 (unnamed assert)
+# Will refresh MCP tools for all clients via MCP.update
+ok 179 (unnamed assert)
+# Will fire redeclared agent callbacks after override
+ok 180 (unnamed assert)
+# Will fire redeclared swarm callbacks after override
+ok 181 (unnamed assert)
+# Will fire redeclared completion callbacks after override
+ok 182 (unnamed assert)
+# Will fire redeclared tool callbacks after override
+ok 183 (unnamed assert)
+# Will fire redeclared policy callbacks after override
+ok 184 (unnamed assert)
+# Will fire redeclared state callbacks after override
+ok 185 (unnamed assert)
+# Will fire redeclared storage callbacks after override
+ok 186 (unnamed assert)
+# Will fire redeclared embedding callbacks after override
+ok 187 (unnamed assert)
+# Will fire redeclared compute callbacks after override
+ok 188 (unnamed assert)
+# Will fire redeclared mcp callbacks after override
+ok 189 (unnamed assert)
+# Will fire redeclared outline callbacks after override
+ok 190 (unnamed assert)
+# Will fire redeclared advisor callbacks after override
+ok 191 (unnamed assert)
+# Will fire redeclared pipeline callbacks after override
+ok 192 (unnamed assert)
+# Will break infinite executeForce recursion with default nested limit
+ok 193 (unnamed assert)
+# Will dampen navigation ping-pong between two agents
+ok 194 (unnamed assert)
+# Will dampen navigation triangle loop across three agents
+ok 195 (unnamed assert)
+# Will terminate self-navigation to the same agent
+ok 196 (unnamed assert)
+# Will cap cross-agent executeForce ping-pong through plain tools
+ok 197 (unnamed assert)
+# Will terminate always-empty model under recomplete strategy
+ok 198 (unnamed assert)
+# Will keep session usable after repeatedly failing tool
+ok 199 (unnamed assert)
+# Will survive throwing onValidate tool callback
+ok 200 (unnamed assert)
+# Will survive throwing onBeforeCall tool callback
+ok 201 (unnamed assert)
+# Will not treat throwing onAfterCall as a tool error
+ok 202 (unnamed assert)
+# Will recover with placeholder when onCallError throws too
+ok 203 (unnamed assert)
+# Will treat throwing tool validate as failed validation
+ok 204 (unnamed assert)
+# Will recover commit action when validateParams throws
+ok 205 (unnamed assert)
+# Will run commit action failure branch when executeAction throws
+ok 206 (unnamed assert)
+# Will recover commit action when successMessage throws after commit
+ok 207 (unnamed assert)
+# Will keep session usable after commit action happy path
+ok 208 (unnamed assert)
+# Will commit fallback content when fetchContent throws
+ok 209 (unnamed assert)
+# Will use custom emptyContent for empty fetch result
+ok 210 (unnamed assert)
+# Will recover fetch info when validateParams throws
+ok 211 (unnamed assert)
+# Will keep pairing and history isolation for parallel clients
+ok 212 (unnamed assert)
+# Will keep navigation per-client within one swarm
+ok 213 (unnamed assert)
+# Will keep ten concurrent clients with tool flows paired
+ok 214 (unnamed assert)
+# Will isolate client state while sharing shared state
+ok 215 (unnamed assert)
+# Will isolate client storage while sharing shared storage
+ok 216 (unnamed assert)
+# Will apply policy ban only to the banned client
+ok 217 (unnamed assert)
+# Will keep one client alive when another disposes mid-flight
+ok 218 (unnamed assert)
+# Will keep pairing when second message arrives during slow tool
+ok 219 (unnamed assert)
+# Will keep pairing for fire-and-forget double send
+ok 220 (unnamed assert)
+# Will keep makeConnection double send ordered
+ok 221 (unnamed assert)
+# Will not poison next exchange after cancelOutput
+ok 222 (unnamed assert)
+# Will not poison next exchange after emit substitution
+ok 223 (unnamed assert)
+# Will resolve own in-flight complete with empty output on dispose
+ok 224 (unnamed assert)
+# Will let the same client start fresh session after dispose mid-flight
+ok 225 (unnamed assert)
+# Will resolve pending makeConnection send on disposeConnection
+ok 226 (unnamed assert)
+# Will keep system messages beyond keepMessages window
+ok 227 (unnamed assert)
+# Will clear accumulated system messages on flush
+ok 228 (unnamed assert)
+# Will skip surviving ids in numeric index after remove
+ok 229 (unnamed assert)
+# Will ignore non-numeric ids in numeric index
+ok 230 (unnamed assert)
+# Will start numeric index from one on empty storage
+ok 231 (unnamed assert)
+# Will route fork error to onError and clean up session
+ok 232 (unnamed assert)
+# Will return fork value and clean up session
+ok 233 (unnamed assert)
+# Will reject fork with live duplicate clientId
+ok 234 (unnamed assert)
+# Will auto-ban client on input validation failure
+ok 235 (unnamed assert)
+# Will use banhammer placeholder when banMessage is missing
+ok 236 (unnamed assert)
+# Will auto-ban client on output validation failure
+ok 237 (unnamed assert)
+# Will deliver ban message to banned makeConnection client
+ok 238 (unnamed assert)
+# Will restore flow after unban of auto-banned client
+ok 239 (unnamed assert)
+# Will fall back to banMessage when getBanMessage returns null
+ok 240 (unnamed assert)
+# Will check ban before invoking validateInput
+ok 241 (unnamed assert)
+# Will block via single merged policy ban and restore on unban
+ok 242 (unnamed assert)
+# Will throw from session complete on duplicate tool call ids
+ok 243 (unnamed assert)
+# Will throw from execute on duplicate tool call ids
+ok 244 (unnamed assert)
+# Will resolve empty output on configurable operator timeout
+ok 245 (unnamed assert)
+# Will auto-dispose idle chat via configurable inactivity timers
+ok 246 (unnamed assert)
+# Will reject without hang when transform hook throws
+ok 247 (unnamed assert)
+# Will reject without hang when map hook throws
+ok 248 (unnamed assert)
+# Will reject without hang when mapToolCalls hook throws
+ok 249 (unnamed assert)
+# Will keep flow when completion onComplete throws
+ok 250 (unnamed assert)
+# Will keep flow when agent schema callbacks throw
+ok 251 (unnamed assert)
+# Will keep flow when bus event listener throws
+ok 252 (unnamed assert)
+# Will not poison next exchange after emit during tool
+ok 253 (unnamed assert)
+# Will not poison next exchange after cancelOutput during tool
+ok 254 (unnamed assert)
+# Will reject without hang when agent output validate throws
+ok 255 (unnamed assert)
+# Will skip tool and reject when dynamic tool function throws
+ok 256 (unnamed assert)
+# Will treat throwing isAvailable as unavailable tool
+ok 257 (unnamed assert)
+# Will reject without hang when history adapter push throws
+ok 258 (unnamed assert)
+# Will degrade to empty storage when persistence init throws
+ok 259 (unnamed assert)
+# Will time out gracefully when operator adapter throws
+ok 260 (unnamed assert)
+# Will degrade to placeholder when custom resque function throws
+ok 261 (unnamed assert)
+# Will survive throwing makeConnection connector
+ok 262 (unnamed assert)
+# Will keep flow when history filter config throws
+ok 263 (unnamed assert)
+# Will recover per-swarm per-client scopes after hard crash
+ok 264 (unnamed assert)
+# Will share client-scoped history, storage and state across swarms by contract
+ok 265 (unnamed assert)
+# Will reject without hang when MCP listTools throws
+ok 266 (unnamed assert)
+# Will keep storage queue alive after throwing createIndex
+ok 267 (unnamed assert)
+# Will keep state queue alive after throwing dispatch
+ok 268 (unnamed assert)
+# Will deliver rejection from throwing calculateSimilarity in take
+ok 269 (unnamed assert)
+# Will survive throwing onDestroy in makeAutoDispose timer
+ok 270 (unnamed assert)
+# Will survive throwing chat onDispose in cleanup interval
+ok 271 (unnamed assert)
+# Will walk navigation stack back through prev agent calls
+ok 272 (unnamed assert)
+# Will allow legit re-navigation across separate messages
+ok 273 (unnamed assert)
+# Will serialize parallel changeToAgent calls
+ok 274 (unnamed assert)
+# Will resolve pending output when agent changes mid-flight
+ok 275 (unnamed assert)
+# Will navigate to default and then back through stack
+ok 276 (unnamed assert)
+# Will navigate without dependsOn declaration
+ok 277 (unnamed assert)
+# Will restore navigation stack from persist adapter
+ok 278 (unnamed assert)
+# Will run no tools when maxToolCalls is zero
+ok 279 (unnamed assert)
+# Will keep zero prior messages when keepMessages is zero
+ok 280 (unnamed assert)
+# Will serve reentrant getState inside setState without deadlock
+ok 281 (unnamed assert)
+# Will contain persistence writes inside dump dir for traversal client ids
+ok 282 (unnamed assert)
+# Will route via navigation and call a plain tool
+ok 283 (unnamed assert)
+# Will route via navigation and call an MCP tool
+ok 284 (unnamed assert)
+# Will route via navigation to a human operator
+ok 285 (unnamed assert)
+# Will run a full multi-hop journey in one session
+ok 286 (unnamed assert)
+# Will run two concurrent client journeys in isolation
+ok 287 (unnamed assert)
+# Will branch to different agents from one hub by input
+ok 288 (unnamed assert)
+# Will follow chained hops across messages around the mesh
+ok 289 (unnamed assert)
+# Will take different branches on re-entry to the hub
+ok 290 (unnamed assert)
+# Will cascade nested navigations within one turn
+ok 291 (unnamed assert)
+# Will route variadically from a tool decision
+ok 292 (unnamed assert)
+# Will fan out concurrent clients to distinct leaves
+ok 293 (unnamed assert)
+# Will run a nested runStateless call inside a running tool
+ok 294 (unnamed assert)
+# Will surface commitSystemMessage from a tool to the next completion
+ok 295 (unnamed assert)
+# Will land assistant and developer commits from a tool into history
+ok 296 (unnamed assert)
+# Will clear history via commitFlush inside a tool
+ok 297 (unnamed assert)
+# Will leave session history untouched after runStateless
+ok 298 (unnamed assert)
+# Will not lose a concurrent ban of a different client
+ok 299 (unnamed assert)
+# Will persist both clients after concurrent bans
+ok 300 (unnamed assert)
+# Will keep an already-issued ban after a concurrent ban of another client
+ok 301 (unnamed assert)
+All tests are finished

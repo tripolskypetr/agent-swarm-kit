@@ -7884,6 +7884,15 @@ declare class ClientPolicy implements IPolicy {
      */
     _banSet: Set<SessionId> | typeof BAN_NEED_FETCH;
     /**
+     * Serializes the read-modify-write of _banSet shared by banClient/unbanClient.
+     * Without it two concurrent bans of different clients both read the same ban
+     * set, each adds only its own client, and the later setBannedClients overwrites
+     * the earlier one — one ban is silently lost in memory and in the persisted
+     * store. queued() runs the mutations one at a time so each observes the result
+     * of the previous one.
+     */
+    private _banQueue;
+    /**
      * Constructs a ClientPolicy instance with the provided parameters.
      * Invokes the onInit callback if defined and logs construction if debugging is enabled.
      */

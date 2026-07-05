@@ -1,3 +1,4 @@
+import { queued } from "functools-kit";
 import { IBusEvent } from "../model/Event.model";
 import { GLOBAL_CONFIG } from "../config/params";
 import { IPolicy, IPolicyParams } from "../interfaces/Policy.interface";
@@ -20,6 +21,18 @@ export class ClientPolicy implements IPolicy {
    * Updated by banClient and unbanClient, persisted if params.setBannedClients is provided.
    */
   _banSet: Set<SessionId> | typeof BAN_NEED_FETCH = BAN_NEED_FETCH;
+
+  /**
+   * Serializes the read-modify-write of _banSet shared by banClient/unbanClient.
+   * Without it two concurrent bans of different clients both read the same ban
+   * set, each adds only its own client, and the later setBannedClients overwrites
+   * the earlier one — one ban is silently lost in memory and in the persisted
+   * store. queued() runs the mutations one at a time so each observes the result
+   * of the previous one.
+   */
+  private _banQueue = queued(
+    async (fn: () => Promise<void>): Promise<void> => await fn()
+  ) as (fn: () => Promise<void>) => Promise<void>;
 
   /**
    * Constructs a ClientPolicy instance with the provided parameters.
@@ -257,22 +270,24 @@ export class ClientPolicy implements IPolicy {
       },
       clientId,
     });
-    if (this._banSet === BAN_NEED_FETCH) {
-      this._banSet = new Set(
-        await this.params.getBannedClients(this.params.policyName, swarmName)
-      );
-    }
-    if (this._banSet.has(clientId)) {
-      return;
-    }
-    this._banSet = new Set(this._banSet).add(clientId);
-    if (this.params.setBannedClients) {
-      await this.params.setBannedClients(
-        [...this._banSet],
-        this.params.policyName,
-        swarmName
-      );
-    }
+    await this._banQueue(async () => {
+      if (this._banSet === BAN_NEED_FETCH) {
+        this._banSet = new Set(
+          await this.params.getBannedClients(this.params.policyName, swarmName)
+        );
+      }
+      if (this._banSet.has(clientId)) {
+        return;
+      }
+      this._banSet = new Set(this._banSet).add(clientId);
+      if (this.params.setBannedClients) {
+        await this.params.setBannedClients(
+          [...this._banSet],
+          this.params.policyName,
+          swarmName
+        );
+      }
+    });
   }
 
   /**
@@ -307,26 +322,28 @@ export class ClientPolicy implements IPolicy {
       },
       clientId,
     });
-    if (this._banSet === BAN_NEED_FETCH) {
-      this._banSet = new Set(
-        await this.params.getBannedClients(this.params.policyName, swarmName)
-      );
-    }
-    if (!this._banSet.has(clientId)) {
-      return;
-    }
-    {
-      const banSet = new Set(this._banSet);
-      banSet.delete(clientId);
-      this._banSet = banSet;
-    }
-    if (this.params.setBannedClients) {
-      await this.params.setBannedClients(
-        [...this._banSet],
-        this.params.policyName,
-        swarmName
-      );
-    }
+    await this._banQueue(async () => {
+      if (this._banSet === BAN_NEED_FETCH) {
+        this._banSet = new Set(
+          await this.params.getBannedClients(this.params.policyName, swarmName)
+        );
+      }
+      if (!this._banSet.has(clientId)) {
+        return;
+      }
+      {
+        const banSet = new Set(this._banSet);
+        banSet.delete(clientId);
+        this._banSet = banSet;
+      }
+      if (this.params.setBannedClients) {
+        await this.params.setBannedClients(
+          [...this._banSet],
+          this.params.policyName,
+          swarmName
+        );
+      }
+    });
   }
 }
 
