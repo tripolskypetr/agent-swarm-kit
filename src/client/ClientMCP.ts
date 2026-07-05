@@ -60,7 +60,15 @@ export class ClientMCP implements IMCP {
     if (this.params.callbacks?.onList) {
       this.params.callbacks.onList(clientId);
     }
-    const toolMap = await this.fetchTools(clientId);
+    let toolMap: Awaited<ReturnType<typeof this.fetchTools>>;
+    try {
+      toolMap = await this.fetchTools(clientId);
+    } catch (error) {
+      // Never cache a rejected fetch: the memoized promise would keep this
+      // client permanently broken even after the MCP recovers.
+      this.fetchTools.clear(clientId);
+      throw error;
+    }
     return Array.from(toolMap.values());
   }
 
@@ -76,7 +84,13 @@ export class ClientMCP implements IMCP {
           clientId,
         }
       );
-    const toolMap = await this.fetchTools(clientId);
+    let toolMap: Awaited<ReturnType<typeof this.fetchTools>>;
+    try {
+      toolMap = await this.fetchTools(clientId);
+    } catch (error) {
+      this.fetchTools.clear(clientId);
+      throw error;
+    }
     return toolMap.has(toolName);
   }
 

@@ -1,6 +1,6 @@
 import { SwarmName } from "../interfaces/Swarm.interface";
 import { session } from "../functions/target/session";
-import { makeExtendable, singleshot, Subject } from "functools-kit";
+import { getErrorMessage, makeExtendable, singleshot, Subject } from "functools-kit";
 import { SessionId } from "../interfaces/Session.interface";
 import { GLOBAL_CONFIG } from "../config/params";
 import swarm from "../lib";
@@ -261,10 +261,18 @@ export class ChatUtils implements IChatControl {
     const handleCleanup = async () => {
       const now = Date.now();
       for (const chat of this._chats.values()) {
-        if (await chat.checkLastActivity(now)) {
-          continue;
+        try {
+          if (await chat.checkLastActivity(now)) {
+            continue;
+          }
+          await chat.dispose();
+        } catch (error) {
+          // The cleanup interval is fire-and-forget: a throwing user callback
+          // (onDispose, onCheckActivity) must not become an unhandled rejection.
+          console.error(
+            `agent-swarm chat cleanup error error=${getErrorMessage(error)}`
+          );
         }
-        await chat.dispose();
       }
     };
     setInterval(handleCleanup, GLOBAL_CONFIG.CC_CHAT_INACTIVITY_CHECK);

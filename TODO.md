@@ -602,7 +602,29 @@ storage, state, file-history) и умирает БЕЗ dispose (process.exit); r
 - Примечание: clientId "shared" неявно зарезервирован — shared storage/state
   персистятся под этим ключом в тех же бакетах схем.
 
-## Найденные и исправленные баги (26 итого)
+## 27-й заход: последние гарды — MCP listTools и фоновые таймеры (+6 тестов, +1 баг)
+
+### Баг №27: два незакрытых пути после гарантийного свипа
+Файлы: `src/client/ClientMCP.ts`, `src/client/ClientAgent.ts`, `src/classes/Chat.ts`
+- MCP listTools с throw: await в _resolveTools → реджект queued EXECUTE_FN →
+  вечное зависание + unhandled; вдобавок memoize fetchTools кэшировал
+  РЕДЖЕКТНУТЫЙ промис — клиент оставался сломанным навсегда. Исправление:
+  ClientMCP не кэширует реджект (fetchTools.clear при ошибке), _resolveTools
+  продолжает без MCP-тулов + errorSubject (session.complete реджектится).
+- Бросающий chat-коллбек (onDispose/onCheckActivity) в фоновом cleanup-интервале
+  ChatUtils → unhandled rejection, роняющий процесс. Исправление: try/catch
+  вокруг тела итерации handleCleanup.
+
+### Проверено и чисто (зафиксировано тестами)
+- queued-диспатчи Storage/State НЕ клинятся после броска (createIndex/dispatchFn):
+  реджект доставлен вызывающему, следующая операция работает, unhandled нет
+  (примечание: упавший upsert оставляет item в _itemMap — полузапись);
+- calculateSimilarity с throw в take (execpool-путь) — реджект доставлен, чисто;
+- makeAutoDispose с бросающим onDestroy — чисто.
+
+### Новые тесты (6), сьют вырос до 271/271 — test/spec/finalguard.test.mjs
+
+## Найденные и исправленные баги (27 итого)
 
 ### 1. Дедлок waitForOutput при functools-kit v4 (причина 39 упавших тестов)
 Файл: `src/client/ClientSwarm.ts`

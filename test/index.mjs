@@ -39,6 +39,7 @@ import "./spec/modelguard.test.mjs";
 import "./spec/hookguard.test.mjs";
 import "./spec/sweepguard.test.mjs";
 import "./spec/crashrecovery.test.mjs";
+import "./spec/finalguard.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");

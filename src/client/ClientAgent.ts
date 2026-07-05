@@ -871,7 +871,20 @@ export class ClientAgent implements IAgent {
         })
       );
     }
-    const mcpToolList = await this.params.mcp.listTools(this.params.clientId);
+    let mcpToolList: Awaited<ReturnType<typeof this.params.mcp.listTools>> = [];
+    try {
+      mcpToolList = await this.params.mcp.listTools(this.params.clientId);
+    } catch (error) {
+      // A throwing MCP listTools would reject the queued EXECUTE_FN and hang
+      // the pending waitForOutput: continue without MCP tools and surface the
+      // error to the caller through errorSubject.
+      console.error(
+        `agent-swarm mcp listTools error agentName=${
+          this.params.agentName
+        } clientId=${this.params.clientId} error=${getErrorMessage(error)}`
+      );
+      await errorSubject.next([this.params.clientId, error as Error]);
+    }
     if (mcpToolList.length) {
       let commitActionFound = false;
       let navigationFound = false;
