@@ -339,3 +339,115 @@ test("Will keep state order even if not awaited", async ({
 
   pass();
 });
+
+test("Will observe an in-flight write from an unrelated concurrent getState", async ({
+  pass,
+  fail,
+}) => {
+  const TEST_COMPLETION = addCompletion({
+    completionName: "test_completion",
+    getCompletion: async ({ agentName, messages }) => {
+      const [{ content }] = messages.slice(-1);
+      return { agentName, content, role: "assistant" };
+    },
+  });
+
+  const TEST_STATE = addState({
+    stateName: "test_state",
+    getDefaultState: () => "foo",
+  });
+
+  const TEST_AGENT = addAgent({
+    agentName: "test_agent",
+    completion: TEST_COMPLETION,
+    prompt: "x",
+    states: [TEST_STATE],
+  });
+
+  const TEST_SWARM = addSwarm({
+    swarmName: "test_swarm",
+    agentList: [TEST_AGENT],
+    defaultAgent: TEST_AGENT,
+  });
+
+  const CLIENT_ID = randomString();
+  session(CLIENT_ID, TEST_SWARM);
+  const ref = { clientId: CLIENT_ID, agentName: TEST_AGENT, stateName: TEST_STATE };
+
+  await State.setState(() => "foo", ref);
+
+  // A slow write, not awaited: it holds the dispatch queue for 200ms.
+  const writePromise = State.setState(async () => {
+    await sleep(200);
+    return "WRITTEN";
+  }, ref);
+
+  // Let the write enter the dispatch, then issue an UNRELATED getState.
+  // It must queue behind the write and observe "WRITTEN", not the stale "foo".
+  await sleep(20);
+  const readDuringWrite = await State.getState(ref);
+  await writePromise;
+
+  if (readDuringWrite !== "WRITTEN") {
+    fail(`concurrent getState bypassed the dispatch queue: got ${readDuringWrite}`);
+  }
+
+  pass();
+});
+
+test("Will serve a reentrant getState from inside a setState without deadlock", async ({
+  pass,
+  fail,
+}) => {
+  const TEST_COMPLETION = addCompletion({
+    completionName: "test_completion",
+    getCompletion: async ({ agentName, messages }) => {
+      const [{ content }] = messages.slice(-1);
+      return { agentName, content, role: "assistant" };
+    },
+  });
+
+  const TEST_STATE = addState({
+    stateName: "test_state",
+    getDefaultState: () => "init",
+  });
+
+  const TEST_AGENT = addAgent({
+    agentName: "test_agent",
+    completion: TEST_COMPLETION,
+    prompt: "x",
+    states: [TEST_STATE],
+  });
+
+  const TEST_SWARM = addSwarm({
+    swarmName: "test_swarm",
+    agentList: [TEST_AGENT],
+    defaultAgent: TEST_AGENT,
+  });
+
+  const CLIENT_ID = randomString();
+  session(CLIENT_ID, TEST_SWARM);
+  const ref = { clientId: CLIENT_ID, agentName: TEST_AGENT, stateName: TEST_STATE };
+
+  let reentrantValue = "NOT_RUN";
+  const writePromise = State.setState(async () => {
+    // getState called from INSIDE the dispatchFn must not deadlock behind
+    // this very write; it reads the current value directly.
+    reentrantValue = await State.getState(ref);
+    return "after-reentrant";
+  }, ref);
+
+  const settled = await Promise.race([
+    writePromise.then(() => "SETTLED"),
+    sleep(2_000).then(() => "DEADLOCK"),
+  ]);
+
+  if (settled !== "SETTLED") {
+    fail("reentrant getState deadlocked behind its enclosing setState");
+  }
+  if (reentrantValue !== "init") {
+    fail(`reentrant getState returned the wrong value: ${reentrantValue}`);
+  }
+
+  pass();
+});

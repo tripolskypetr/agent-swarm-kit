@@ -615,3 +615,64 @@ test("Will name the default agent in triage navigation tool output", async ({ pa
   }
   fail(`accept=${accept} outputs=${JSON.stringify(toolOutputs)}`);
 });
+
+test("Will present tools in declaration order regardless of isAvailable timing", async ({ pass, fail }) => {
+  setConfig({ CC_PERSIST_ENABLED_BY_DEFAULT: false });
+  const CLIENT_ID = randomString();
+  let seenToolNames = null;
+
+  const MOCK_COMPLETION = addCompletion({
+    completionName: "mock-completion",
+    getCompletion: async ({ agentName, messages, tools }) => {
+      seenToolNames = (tools || []).map((t) => t.function.name);
+      const [last] = messages.slice(-1);
+      return { agentName, content: last.content || "ok", role: "assistant" };
+    },
+  });
+
+  // Declaration order a,b,c,d. isAvailable resolves LAST-declared FIRST, so the
+  // old completion-order push would reverse them; the fix must keep a,b,c,d.
+  const makeTool = (letter, delay) =>
+    addTool({
+      toolName: `ord-tool-${letter}`,
+      isAvailable: async () => {
+        await new Promise((r) => setTimeout(r, delay));
+        return true;
+      },
+      validate: () => true,
+      type: "function",
+      function: {
+        name: `ord_fn_${letter}`,
+        description: "",
+        parameters: { type: "object", properties: {}, required: [] },
+      },
+      call: async () => {},
+    });
+
+  const TEST_AGENT = addAgent({
+    agentName: "ord-agent",
+    completion: MOCK_COMPLETION,
+    prompt: "",
+    tools: [
+      makeTool("a", 40),
+      makeTool("b", 30),
+      makeTool("c", 20),
+      makeTool("d", 5),
+    ],
+  });
+
+  const TEST_SWARM = addSwarm({
+    swarmName: "ord-swarm",
+    agentList: [TEST_AGENT],
+    defaultAgent: TEST_AGENT,
+  });
+
+  await complete("start", CLIENT_ID, TEST_SWARM);
+
+  const got = (seenToolNames || []).join(",");
+  if (got === "ord_fn_a,ord_fn_b,ord_fn_c,ord_fn_d") {
+    pass();
+    return;
+  }
+  fail(`tool order not preserved: ${got}`);
+});

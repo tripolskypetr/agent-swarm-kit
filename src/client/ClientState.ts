@@ -1,4 +1,5 @@
 import { getErrorMessage, queued, singleshot, Subject } from "functools-kit";
+import { AsyncLocalStorage } from "async_hooks";
 import { errorSubject } from "../config/emitters";
 import {
   IState,
@@ -101,11 +102,22 @@ export class ClientState<State extends IStateData = IStateData>
   public readonly stateChanged = new Subject<StateName>();
 
   /**
-   * True while a queued dispatch (read/write) is executing for this instance.
-   * getState checks it to serve reentrant reads (getState inside a setState
-   * dispatchFn) without re-entering the queue, which would deadlock.
+   * Marks the async execution context of a running dispatch (read/write).
+   * getState checks it to serve reentrant reads (getState called from INSIDE a
+   * setState dispatchFn/middleware) without re-entering the queue, which would
+   * deadlock. Scoping this per async-context — instead of a plain instance flag —
+   * ensures an UNRELATED concurrent getState still queues and observes writes in
+   * order, rather than reading a stale field while some other write is in flight.
    */
-  _inDispatch = false;
+  private _dispatchContext = new AsyncLocalStorage<true>();
+
+  /**
+   * True only while the caller runs inside the async context of an active
+   * dispatch on this instance (i.e. a reentrant call from within a dispatchFn).
+   */
+  get _inDispatch(): boolean {
+    return this._dispatchContext.getStore() === true;
+  }
 
   /**
    * The current state data, initialized as null and set during waitForInit.
@@ -118,12 +130,10 @@ export class ClientState<State extends IStateData = IStateData>
    * Ensures thread-safe state operations, supporting concurrent access from ClientAgent or tools.
    */
   dispatch = queued(async (action: Action, payload) => {
-    this._inDispatch = true;
-    try {
-      return await DISPATCH_FN<State>(action, this, payload);
-    } finally {
-      this._inDispatch = false;
-    }
+    return await this._dispatchContext.run(
+      true,
+      async () => await DISPATCH_FN<State>(action, this, payload)
+    );
   }) as (action: Action, payload?: DispatchFn<State>) => Promise<State>;
 
   /**

@@ -876,8 +876,12 @@ export class ClientAgent implements IAgent {
     const seen = new Set<string>();
     const agentToolList: IAgentTool[] = [];
     if (this.params.tools) {
-      await Promise.all(
-        this.params.tools.map(async (tool) => {
+      // Resolve availability/dynamic schemas concurrently, but keep the RESULT
+      // in declaration order: pushing from within the concurrent map would order
+      // tools by resolution time, making the tool list, the seen-based dedup and
+      // the single-commit-action filter all non-deterministic across runs.
+      const resolvedTools = await Promise.all(
+        this.params.tools.map(async (tool): Promise<IAgentTool | null> => {
           const {
             toolName,
             function: upperFn,
@@ -894,7 +898,7 @@ export class ClientAgent implements IAgent {
                 )
               )
             ) {
-              return;
+              return null;
             }
           } catch (error) {
             // A throwing isAvailable would reject the queued EXECUTE_FN and
@@ -905,7 +909,7 @@ export class ClientAgent implements IAgent {
               )}`
             );
             await errorSubject.next([this.params.clientId, error as Error]);
-            return;
+            return null;
           }
           let fn: typeof upperFn;
           try {
@@ -922,15 +926,20 @@ export class ClientAgent implements IAgent {
               )}`
             );
             await errorSubject.next([this.params.clientId, error as Error]);
-            return;
+            return null;
           }
-          agentToolList.push({
+          return {
             ...other,
             toolName,
             function: fn,
-          });
+          };
         })
       );
+      for (const tool of resolvedTools) {
+        if (tool) {
+          agentToolList.push(tool);
+        }
+      }
     }
     let mcpToolList: Awaited<ReturnType<typeof this.params.mcp.listTools>> = [];
     try {

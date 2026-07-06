@@ -6483,11 +6483,19 @@ declare class ClientState<State extends IStateData = IStateData> implements ISta
     readonly params: IStateParams<State>;
     readonly stateChanged: Subject<string>;
     /**
-     * True while a queued dispatch (read/write) is executing for this instance.
-     * getState checks it to serve reentrant reads (getState inside a setState
-     * dispatchFn) without re-entering the queue, which would deadlock.
+     * Marks the async execution context of a running dispatch (read/write).
+     * getState checks it to serve reentrant reads (getState called from INSIDE a
+     * setState dispatchFn/middleware) without re-entering the queue, which would
+     * deadlock. Scoping this per async-context — instead of a plain instance flag —
+     * ensures an UNRELATED concurrent getState still queues and observes writes in
+     * order, rather than reading a stale field while some other write is in flight.
      */
-    _inDispatch: boolean;
+    private _dispatchContext;
+    /**
+     * True only while the caller runs inside the async context of an active
+     * dispatch on this instance (i.e. a reentrant call from within a dispatchFn).
+     */
+    get _inDispatch(): boolean;
     /**
      * The current state data, initialized as null and set during waitForInit.
      * Updated by setState and clearState, persisted via params.setState if provided.
