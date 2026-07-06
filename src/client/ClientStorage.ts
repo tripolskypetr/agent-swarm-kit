@@ -381,7 +381,17 @@ export class ClientStorage<T extends IStorageData = IStorageData>
     */
   _createEmbedding = memoize(
     ([{ id }]) => id,
-    async (item: T) => await CREATE_EMBEDDING_FN(item, this)
+    async (item: T) => {
+      try {
+        return await CREATE_EMBEDDING_FN(item, this);
+      } catch (error) {
+        // Never cache a rejected embedding: the memoized promise would keep
+        // this item permanently broken (every take re-throwing the same
+        // error) even after the embedding provider recovers.
+        this._createEmbedding.clear(item.id);
+        throw error;
+      }
+    }
   );
 
   /**

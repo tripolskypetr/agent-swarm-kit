@@ -274,7 +274,7 @@ const RUN_FN = async (incoming: string, self: ClientAgent): Promise<string> => {
     agentName: self.params.agentName,
     content: incoming,
     mode: "user" as const,
-    role: "assistant",
+    role: "user",
   });
   const args = {
     clientId: self.params.clientId,
@@ -481,6 +481,11 @@ const EXECUTE_FN = async (
             `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
           );
         await self._emitOutput(mode, result, outputEpoch);
+        // The chain's .finally decrement is attached only after the loop, so
+        // an early return must roll the counter back itself — otherwise a
+        // late tool error would forever think a chain is still consuming
+        // events and skip its own recovery.
+        self._activeToolChains -= 1;
         run(false);
         return;
       }
@@ -535,6 +540,9 @@ const EXECUTE_FN = async (
             `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
           );
         await self._emitOutput(mode, result, outputEpoch);
+        // See the "tool function not found" branch above: roll back the
+        // counter that the post-loop .finally would otherwise decrement.
+        self._activeToolChains -= 1;
         run(false);
         return;
       }
@@ -572,6 +580,12 @@ const EXECUTE_FN = async (
           return lastStatus;
         }
         if (lastStatus === TOOL_ERROR_SYMBOL) {
+          return lastStatus;
+        }
+        if (lastStatus === CANCEL_OUTPUT_SYMBOL) {
+          // commitCancelOutput halts the chain exactly like stop/error/change:
+          // without this guard the next tool would still run after the user
+          // cancelled the output.
           return lastStatus;
         }
         GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
@@ -618,23 +632,11 @@ const EXECUTE_FN = async (
             self.params.logger.debug(
               `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the model resque`
             );
-          self.params.onAfterToolCalls &&
-            self.params.onAfterToolCalls(
-              self.params.clientId,
-              self.params.agentName,
-              toolCalls
-            );
         }
         if (status === AGENT_CHANGE_SYMBOL) {
           GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
             self.params.logger.debug(
               `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the agent changed`
-            );
-          self.params.onAfterToolCalls &&
-            self.params.onAfterToolCalls(
-              self.params.clientId,
-              self.params.agentName,
-              toolCalls
             );
         }
         if (status === TOOL_STOP_SYMBOL) {
@@ -642,23 +644,11 @@ const EXECUTE_FN = async (
             self.params.logger.debug(
               `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the commitStopTools call`
             );
-          self.params.onAfterToolCalls &&
-            self.params.onAfterToolCalls(
-              self.params.clientId,
-              self.params.agentName,
-              toolCalls
-            );
         }
         if (status === CANCEL_OUTPUT_SYMBOL) {
           GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
             self.params.logger.debug(
               `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the commitCancelOutput call`
-            );
-          self.params.onAfterToolCalls &&
-            self.params.onAfterToolCalls(
-              self.params.clientId,
-              self.params.agentName,
-              toolCalls
             );
         }
         if (status === TOOL_ERROR_SYMBOL) {
@@ -1726,8 +1716,40 @@ export class ClientAgent implements IAgent {
    */
   execute = queued(async (incoming, mode) => {
     this._activeExecutions += 1;
+    const outputEpoch = this._outputEpoch;
     try {
       return await EXECUTE_FN(incoming, mode, this);
+    } catch (error) {
+      // EXECUTE_FN is fired without await from ClientSession.execute and
+      // queued() rejects internally: an unguarded rejection (e.g. a throwing
+      // completion in getCompletion) crashes the host process and leaves the
+      // pending waitForOutput hanging forever. Recover with the resque flow.
+      console.error(
+        `agent-swarm execute error agentName=${
+          this.params.agentName
+        } clientId=${this.params.clientId} error=${getErrorMessage(error)}`
+      );
+      await errorSubject.next([this.params.clientId, error as Error]);
+      try {
+        const result = await this._resurrectModel(
+          mode as ExecutionMode,
+          `Execution failed: ${getErrorMessage(error)}`
+        );
+        await this._emitOutput(mode as ExecutionMode, result, outputEpoch);
+      } catch (recoveryError) {
+        // Even the recovery failed (e.g. recomplete strategy hitting the same
+        // broken completion): resolve the waiter directly so nothing hangs.
+        console.error(
+          `agent-swarm execute recovery error agentName=${
+            this.params.agentName
+          } clientId=${this.params.clientId} error=${getErrorMessage(
+            recoveryError
+          )}`
+        );
+        if (outputEpoch === this._outputEpoch) {
+          await this._outputSubject.next(createPlaceholder());
+        }
+      }
     } finally {
       this._activeExecutions -= 1;
     }
@@ -1737,9 +1759,22 @@ export class ClientAgent implements IAgent {
    * Runs a stateless completion for the incoming message, queued to prevent overlapping executions.
    * Implements IAgent.run, delegating to RUN_FN with queuing via functools-kit’s queued decorator.
     */
-  run = queued(
-    async (incoming) => await RUN_FN(incoming, this)
-  ) as IAgent["run"];
+  run = queued(async (incoming) => {
+    try {
+      return await RUN_FN(incoming, this);
+    } catch (error) {
+      // queued() rejects internally, so a throwing completion would raise an
+      // unhandled rejection besides failing the caller: degrade to an empty
+      // stateless result and surface the error through errorSubject.
+      console.error(
+        `agent-swarm run error agentName=${this.params.agentName} clientId=${
+          this.params.clientId
+        } error=${getErrorMessage(error)}`
+      );
+      await errorSubject.next([this.params.clientId, error as Error]);
+      return "";
+    }
+  }) as IAgent["run"];
 
   /**
    * Disposes of the agent, performing cleanup and invoking the onDispose callback.

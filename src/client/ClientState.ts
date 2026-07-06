@@ -176,12 +176,25 @@ export class ClientState<State extends IStateData = IStateData>
         `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} setState output`,
         { pendingState: this._state }
       );
-    this.params.setState &&
-      this.params.setState(
-        this._state,
-        this.params.clientId,
-        this.params.stateName
-      );
+    if (this.params.setState) {
+      try {
+        await this.params.setState(
+          this._state,
+          this.params.clientId,
+          this.params.stateName
+        );
+      } catch (error) {
+        // Persistence was fired without await before: a rejecting adapter
+        // raised an unhandled rejection. Keep the in-memory state and surface
+        // the error to the caller through errorSubject instead.
+        console.error(
+          `agent-swarm state persist error stateName=${
+            this.params.stateName
+          } clientId=${this.params.clientId} error=${getErrorMessage(error)}`
+        );
+        await errorSubject.next([this.params.clientId, error as Error]);
+      }
+    }
     if (this.params.callbacks?.onWrite) {
       this.params.callbacks.onWrite(
         this._state,
@@ -230,12 +243,24 @@ export class ClientState<State extends IStateData = IStateData>
         `ClientState stateName=${this.params.stateName} clientId=${this.params.clientId} shared=${this.params.shared} clearState output`,
         { pendingState: this._state }
       );
-    this.params.setState &&
-      this.params.setState(
-        this._state,
-        this.params.clientId,
-        this.params.stateName
-      );
+    if (this.params.setState) {
+      try {
+        await this.params.setState(
+          this._state,
+          this.params.clientId,
+          this.params.stateName
+        );
+      } catch (error) {
+        // See setState above: a rejecting persistence adapter must not raise
+        // an unhandled rejection.
+        console.error(
+          `agent-swarm state persist error stateName=${
+            this.params.stateName
+          } clientId=${this.params.clientId} error=${getErrorMessage(error)}`
+        );
+        await errorSubject.next([this.params.clientId, error as Error]);
+      }
+    }
     if (this.params.callbacks?.onWrite) {
       this.params.callbacks.onWrite(
         this._state,

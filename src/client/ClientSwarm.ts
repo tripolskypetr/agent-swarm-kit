@@ -39,6 +39,7 @@ class NoopAgent implements IAgent {
     const message = `called commitCancelOutput on agent which not in the swarm clientId=${this.clientId} agentName=${this.agentName} swarmName=${this.swarmName}`;
     this.logger.log(message);
     console.error(message);
+    return await this.defaultAgent.commitCancelOutput();
   }
 
   /**
