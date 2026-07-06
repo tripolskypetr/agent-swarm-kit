@@ -5,8 +5,6 @@ import { IPolicy, IPolicyParams } from "../interfaces/Policy.interface";
 import { SessionId } from "../interfaces/Session.interface";
 import { SwarmName } from "../interfaces/Swarm.interface";
 
-const BAN_NEED_FETCH = Symbol("ban-need-fetch");
-
 /**
  * Class representing a client policy in the swarm system, implementing the IPolicy interface.
  * Manages client bans, input/output validation, and restrictions, with lazy-loaded ban lists and event emission via BusService.
@@ -16,11 +14,32 @@ const BAN_NEED_FETCH = Symbol("ban-need-fetch");
 */
 export class ClientPolicy implements IPolicy {
   /**
-   * Set of banned client IDs or a symbol indicating the ban list needs to be fetched.
-   * Initialized as BAN_NEED_FETCH, lazily populated via params.getBannedClients on first use in hasBan, validateInput, etc.
-   * Updated by banClient and unbanClient, persisted if params.setBannedClients is provided.
+   * Ban sets keyed by swarm name, lazily populated via params.getBannedClients.
+   * A ClientPolicy instance is memoized per policyName and shared by every swarm
+   * that lists the policy, while bans are persisted per (policy, swarm) — a
+   * single shared set would leak bans of one swarm into another and persist
+   * the mixed set into the wrong store.
    */
-  _banSet: Set<SessionId> | typeof BAN_NEED_FETCH = BAN_NEED_FETCH;
+  _banSetBySwarm = new Map<SwarmName, Set<SessionId>>();
+
+  /**
+   * Returns the ban set of the given swarm, fetching it on first access.
+   * Re-checks the map after the await: a ban committed through _banQueue while
+   * the fetch was in flight must not be overwritten by the stale fetch result.
+   */
+  private async _getBanSet(swarmName: SwarmName): Promise<Set<SessionId>> {
+    const existing = this._banSetBySwarm.get(swarmName);
+    if (existing) {
+      return existing;
+    }
+    const fetched = new Set(
+      await this.params.getBannedClients(this.params.policyName, swarmName)
+    );
+    if (!this._banSetBySwarm.has(swarmName)) {
+      this._banSetBySwarm.set(swarmName, fetched);
+    }
+    return this._banSetBySwarm.get(swarmName)!;
+  }
 
   /**
    * Serializes the read-modify-write of _banSet shared by banClient/unbanClient.
@@ -64,12 +83,8 @@ export class ClientPolicy implements IPolicy {
           swarmName,
         }
       );
-    if (this._banSet === BAN_NEED_FETCH) {
-      this._banSet = new Set(
-        await this.params.getBannedClients(this.params.policyName, swarmName)
-      );
-    }
-    return this._banSet.has(clientId);
+    const banSet = await this._getBanSet(swarmName);
+    return banSet.has(clientId);
   }
 
   /**
@@ -144,12 +159,8 @@ export class ClientPolicy implements IPolicy {
       },
       clientId,
     });
-    if (this._banSet === BAN_NEED_FETCH) {
-      this._banSet = new Set(
-        await this.params.getBannedClients(this.params.policyName, swarmName)
-      );
-    }
-    if (this._banSet.has(clientId)) {
+    const banSet = await this._getBanSet(swarmName);
+    if (banSet.has(clientId)) {
       return false;
     }
     if (!this.params.validateInput) {
@@ -211,12 +222,8 @@ export class ClientPolicy implements IPolicy {
       },
       clientId,
     });
-    if (this._banSet === BAN_NEED_FETCH) {
-      this._banSet = new Set(
-        await this.params.getBannedClients(this.params.policyName, swarmName)
-      );
-    }
-    if (this._banSet.has(clientId)) {
+    const banSet = await this._getBanSet(swarmName);
+    if (banSet.has(clientId)) {
       return false;
     }
     if (!this.params.validateOutput) {
@@ -252,41 +259,40 @@ export class ClientPolicy implements IPolicy {
           swarmName,
         }
       );
-    if (this.params.callbacks?.onBanClient) {
-      this.params.callbacks.onBanClient(
-        clientId,
-        swarmName,
-        this.params.policyName
-      );
-    }
-    await this.params.bus.emit<IBusEvent>(clientId, {
-      type: "ban-client",
-      source: "policy-bus",
-      input: {},
-      output: {},
-      context: {
-        policyName: this.params.policyName,
-        swarmName,
-      },
-      clientId,
-    });
     await this._banQueue(async () => {
-      if (this._banSet === BAN_NEED_FETCH) {
-        this._banSet = new Set(
-          await this.params.getBannedClients(this.params.policyName, swarmName)
-        );
-      }
-      if (this._banSet.has(clientId)) {
+      const banSet = await this._getBanSet(swarmName);
+      if (banSet.has(clientId)) {
+        // Already banned: skip the mutation AND the notifications, matching
+        // the documented "skips if already banned" contract — otherwise every
+        // redundant ban re-fires onBanClient and the bus event.
         return;
       }
-      this._banSet = new Set(this._banSet).add(clientId);
+      this._banSetBySwarm.set(swarmName, new Set(banSet).add(clientId));
       if (this.params.setBannedClients) {
         await this.params.setBannedClients(
-          [...this._banSet],
+          [...this._banSetBySwarm.get(swarmName)!],
           this.params.policyName,
           swarmName
         );
       }
+      if (this.params.callbacks?.onBanClient) {
+        this.params.callbacks.onBanClient(
+          clientId,
+          swarmName,
+          this.params.policyName
+        );
+      }
+      await this.params.bus.emit<IBusEvent>(clientId, {
+        type: "ban-client",
+        source: "policy-bus",
+        input: {},
+        output: {},
+        context: {
+          policyName: this.params.policyName,
+          swarmName,
+        },
+        clientId,
+      });
     });
   }
 
@@ -304,45 +310,43 @@ export class ClientPolicy implements IPolicy {
           swarmName,
         }
       );
-    if (this.params.callbacks?.onUnbanClient) {
-      this.params.callbacks.onUnbanClient(
-        clientId,
-        swarmName,
-        this.params.policyName
-      );
-    }
-    await this.params.bus.emit<IBusEvent>(clientId, {
-      type: "unban-client",
-      source: "policy-bus",
-      input: {},
-      output: {},
-      context: {
-        policyName: this.params.policyName,
-        swarmName,
-      },
-      clientId,
-    });
     await this._banQueue(async () => {
-      if (this._banSet === BAN_NEED_FETCH) {
-        this._banSet = new Set(
-          await this.params.getBannedClients(this.params.policyName, swarmName)
-        );
-      }
-      if (!this._banSet.has(clientId)) {
+      const banSet = await this._getBanSet(swarmName);
+      if (!banSet.has(clientId)) {
+        // Not banned: skip the mutation and the notifications, matching the
+        // documented "skips if not banned" contract.
         return;
       }
       {
-        const banSet = new Set(this._banSet);
-        banSet.delete(clientId);
-        this._banSet = banSet;
+        const nextBanSet = new Set(banSet);
+        nextBanSet.delete(clientId);
+        this._banSetBySwarm.set(swarmName, nextBanSet);
       }
       if (this.params.setBannedClients) {
         await this.params.setBannedClients(
-          [...this._banSet],
+          [...this._banSetBySwarm.get(swarmName)!],
           this.params.policyName,
           swarmName
         );
       }
+      if (this.params.callbacks?.onUnbanClient) {
+        this.params.callbacks.onUnbanClient(
+          clientId,
+          swarmName,
+          this.params.policyName
+        );
+      }
+      await this.params.bus.emit<IBusEvent>(clientId, {
+        type: "unban-client",
+        source: "policy-bus",
+        input: {},
+        output: {},
+        context: {
+          policyName: this.params.policyName,
+          swarmName,
+        },
+        clientId,
+      });
     });
   }
 }

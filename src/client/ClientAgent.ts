@@ -188,13 +188,31 @@ const createToolCall = async (
       // handles this late error (e.g. changeToAgent recursion guard thrown after
       // commitToolOutput). Without a recovery emission the pending waitForOutput
       // of the enclosing execution would hang forever.
-      const result = await self._resurrectModel(
-        mode,
-        `Late tool error after commit: name=${
-          tool.function.name
-        } error=${getErrorMessage(error)}`
-      );
-      await self._emitOutput(mode, result, outputEpoch);
+      try {
+        const result = await self._resurrectModel(
+          mode,
+          `Late tool error after commit: name=${
+            tool.function.name
+          } error=${getErrorMessage(error)}`
+        );
+        await self._emitOutput(mode, result, outputEpoch);
+      } catch (recoveryError) {
+        // createToolCall is fired without await: a throwing recovery
+        // (_emitOutput throws by contract when validation fails twice) would
+        // be an unhandled rejection. Resolve the waiter directly instead.
+        console.error(
+          `agent-swarm late tool error recovery failed functionName=${
+            tool.function.name
+          } error=${getErrorMessage(recoveryError)}`
+        );
+        await errorSubject.next([
+          self.params.clientId,
+          recoveryError as Error,
+        ]);
+        if (outputEpoch === self._outputEpoch) {
+          await self._outputSubject.next(createPlaceholder());
+        }
+      }
     }
   } finally {
     self._runningToolCalls -= 1;
@@ -422,26 +440,34 @@ const EXECUTE_FN = async (
     if (!toolCalls.length) {
       // maxToolCalls=0 dropped every call: the model wanted tools but none may
       // run. Emit the (tool-stripped) content as the answer instead of leaving
-      // the pending waitForOutput hanging forever.
-      const result = await self.params.transform(
-        message.content,
-        self.params.clientId,
-        self.params.agentName
-      );
+      // the pending waitForOutput hanging forever. _emitOutput owns the
+      // transform, so pass the raw content — transforming here too would
+      // apply a non-idempotent transform twice.
       await self.params.history.push({
         ...message,
         tool_calls: [],
         agentName: self.params.agentName,
       });
-      await self._emitOutput(mode, result, outputEpoch);
+      await self._emitOutput(mode, message.content, outputEpoch);
       return;
     }
 
     {
-      const priorityTool = toolCalls.find((call) =>
-        swarm.navigationSchemaService.hasTool(call.function.name) ||
-        swarm.actionSchemaService.hasTool(call.function.name)
-      );
+      // Navigation/action tools are registered by toolName, while the model
+      // calls tools by function.name — check both, since they diverge for MCP
+      // tools (mcp_ prefix) and dynamic tool schemas.
+      const priorityTool = toolCalls.find((call) => {
+        const targetFn = toolList.find(
+          (t) => t.function.name === call.function.name
+        );
+        return (
+          swarm.navigationSchemaService.hasTool(call.function.name) ||
+          swarm.actionSchemaService.hasTool(call.function.name) ||
+          (targetFn &&
+            (swarm.navigationSchemaService.hasTool(targetFn.toolName) ||
+              swarm.actionSchemaService.hasTool(targetFn.toolName)))
+        );
+      });
       if (priorityTool) {
         toolCalls = [priorityTool];
       }
@@ -656,30 +682,59 @@ const EXECUTE_FN = async (
             self.params.logger.debug(
               `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} functionName=${tool.function.name} the next tool execution stopped due to the call error`
             );
-          const result = await self._resurrectModel(
-            mode,
-            `Function call failed with error: name=${
-              tool.function.name
-            } arguments=${JSON.stringify(tool.function.arguments)}`
-          );
-          GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-            self.params.logger.debug(
-              `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
+          try {
+            const result = await self._resurrectModel(
+              mode,
+              `Function call failed with error: name=${
+                tool.function.name
+              } arguments=${JSON.stringify(tool.function.arguments)}`
             );
-          await self._emitOutput(mode, result, outputEpoch);
+            GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
+              self.params.logger.debug(
+                `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
+              );
+            await self._emitOutput(mode, result, outputEpoch);
+          } catch (recoveryError) {
+            // Nobody awaits the status chain: a throwing recovery
+            // (_emitOutput throws by contract when validation fails twice)
+            // would reject it unhandled. Resolve the waiter directly instead.
+            console.error(
+              `agent-swarm tool error recovery failed functionName=${
+                tool.function.name
+              } error=${getErrorMessage(recoveryError)}`
+            );
+            await errorSubject.next([
+              self.params.clientId,
+              recoveryError as Error,
+            ]);
+            if (outputEpoch === self._outputEpoch) {
+              await self._outputSubject.next(createPlaceholder());
+            }
+          }
         }
         return status;
       });
     }
-    lastToolStatusRef.finally(() => {
-      self._activeToolChains -= 1;
-      self.params.onAfterToolCalls &&
-        self.params.onAfterToolCalls(
-          self.params.clientId,
-          self.params.agentName,
-          toolCalls
+    lastToolStatusRef
+      .catch((error) => {
+        // The chain is fire-and-forget; a rejected link (e.g. a throwing
+        // params.map/bus adapter) must not surface as an unhandled rejection.
+        console.error(
+          `agent-swarm tool status chain error agentName=${
+            self.params.agentName
+          } clientId=${self.params.clientId} error=${getErrorMessage(error)}`
         );
-    });
+        return null;
+      })
+      .finally(() => {
+        self._activeToolChains -= 1;
+        self.params.onAfterToolCalls &&
+          self.params.onAfterToolCalls(
+            self.params.clientId,
+            self.params.agentName,
+            toolCalls
+          );
+      });
     run(true);
     return;
   }
@@ -689,34 +744,18 @@ const EXECUTE_FN = async (
         `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute no tool calls detected`
       );
   }
-  const result = await self.params.transform(
-    message.content,
-    self.params.clientId,
-    self.params.agentName
-  );
   await self.params.history.push({
     ...message,
     agentName: self.params.agentName,
   });
-  let validation: string | null = null;
-  if ((validation = await self.params.validate(result))) {
-    GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
-      self.params.logger.debug(
-        `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute invalid tool call detected: ${validation}`,
-        { result }
-      );
-    const result1 = await self._resurrectModel(
-      mode,
-      `Invalid model output: ${result}`
-    );
-    await self._emitOutput(mode, result1, outputEpoch);
-    return;
-  }
   GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
     self.params.logger.debug(
-      `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${result}`
+      `ClientAgent agentName=${self.params.agentName} clientId=${self.params.clientId} execute end result=${message.content}`
     );
-  await self._emitOutput(mode, result, outputEpoch);
+  // _emitOutput owns transform + validate (with resurrect on failure), so the
+  // raw content goes straight through — transforming/validating here as well
+  // ran every transform twice per answer and broke non-idempotent transforms.
+  await self._emitOutput(mode, message.content, outputEpoch);
 };
 
 /**
@@ -1080,6 +1119,14 @@ export class ClientAgent implements IAgent {
     }
     this.params.onOutput &&
       this.params.onOutput(this.params.clientId, this.params.agentName, result);
+    // Keep the callback surface symmetric with the resurrect branch above:
+    // the emitted output is an assistant message on both paths.
+    this.params.onAssistantMessage &&
+      this.params.onAssistantMessage(
+        this.params.clientId,
+        this.params.agentName,
+        result
+      );
     await this._outputSubject.next(result);
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "emit-output",
@@ -1150,7 +1197,24 @@ export class ClientAgent implements IAgent {
       await this._resqueSubject.next(MODEL_RESQUE_SYMBOL);
       return placeholder;
     }
-    const rawMessage = await this.getCompletion(mode, []);
+    let rawMessage: ISwarmMessage;
+    try {
+      rawMessage = await this.getCompletion(mode, []);
+    } catch (error) {
+      // _resurrectModel IS the recovery path: if the resque completion itself
+      // rejects (e.g. the provider is down — often the very reason we are
+      // here), rethrowing would surface as an unhandled rejection from the
+      // fire-and-forget callers (createToolCall, tool status chain). Degrade
+      // to the placeholder instead.
+      console.error(
+        `agent-swarm _resurrectModel completion error agentName=${
+          this.params.agentName
+        } clientId=${this.params.clientId} error=${getErrorMessage(error)}`
+      );
+      await errorSubject.next([this.params.clientId, error as Error]);
+      await this._resqueSubject.next(MODEL_RESQUE_SYMBOL);
+      return placeholder;
+    }
     if (rawMessage.tool_calls?.length) {
       GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
         this.params.logger.debug(

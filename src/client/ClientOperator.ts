@@ -43,6 +43,14 @@ class OperatorSignal {
         `OperatorSignal agentName=${this.params.agentName} clientId=${this.params.clientId} sendMessage`,
         { message }
       );
+    // Dispose the previous signal before opening a new one: overwriting the
+    // ref leaks the pending signal, and its late answer would resolve the
+    // NEXT waitForOutput with a reply to the previous question.
+    if (this._disposeRef) {
+      const disposeRef = this._disposeRef;
+      this._disposeRef = null;
+      disposeRef();
+    }
     this._disposeRef = this._signalFactory(message, next);
   }
 

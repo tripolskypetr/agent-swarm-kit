@@ -47,6 +47,7 @@ import "./spec/navbranch.test.mjs";
 import "./spec/toolcontext.test.mjs";
 import "./spec/policyrace.test.mjs";
 import "./spec/clientfix.test.mjs";
+import "./spec/clientfix2.test.mjs";
 
 run(import.meta.url, () => {
     console.log("All tests are finished");

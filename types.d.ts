@@ -7867,7 +7867,6 @@ declare class PolicyValidationService {
     validate: (policyName: PolicyName, source: string) => void;
 }
 
-declare const BAN_NEED_FETCH: unique symbol;
 /**
  * Class representing a client policy in the swarm system, implementing the IPolicy interface.
  * Manages client bans, input/output validation, and restrictions, with lazy-loaded ban lists and event emission via BusService.
@@ -7878,11 +7877,19 @@ declare const BAN_NEED_FETCH: unique symbol;
 declare class ClientPolicy implements IPolicy {
     readonly params: IPolicyParams;
     /**
-     * Set of banned client IDs or a symbol indicating the ban list needs to be fetched.
-     * Initialized as BAN_NEED_FETCH, lazily populated via params.getBannedClients on first use in hasBan, validateInput, etc.
-     * Updated by banClient and unbanClient, persisted if params.setBannedClients is provided.
+     * Ban sets keyed by swarm name, lazily populated via params.getBannedClients.
+     * A ClientPolicy instance is memoized per policyName and shared by every swarm
+     * that lists the policy, while bans are persisted per (policy, swarm) — a
+     * single shared set would leak bans of one swarm into another and persist
+     * the mixed set into the wrong store.
      */
-    _banSet: Set<SessionId> | typeof BAN_NEED_FETCH;
+    _banSetBySwarm: Map<string, Set<string>>;
+    /**
+     * Returns the ban set of the given swarm, fetching it on first access.
+     * Re-checks the map after the await: a ban committed through _banQueue while
+     * the fetch was in flight must not be overwritten by the stale fetch result.
+     */
+    private _getBanSet;
     /**
      * Serializes the read-modify-write of _banSet shared by banClient/unbanClient.
      * Without it two concurrent bans of different clients both read the same ban

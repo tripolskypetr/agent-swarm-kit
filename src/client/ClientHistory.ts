@@ -68,6 +68,8 @@ export class ClientHistory implements IHistory {
         } clientId=${this.params.clientId} error=${getErrorMessage(error)}`
       );
       await errorSubject.next([this.params.clientId, error as Error]);
+      // The record was dropped: do not announce a successful push on the bus.
+      return;
     }
     await this.params.bus.emit<IBusEvent>(this.params.clientId, {
       type: "push",

@@ -568,11 +568,20 @@ export class ClientSwarm implements ISwarm {
       console.error(
         `agent-swarm ClientSwarm getAgent current agent is not in the swarm agentName=${agentName} clientId=${this.params.clientId} swarmName=${this.params.swarmName}`
       );
+      const defaultAgent = this.params.agentMap[this.params.defaultAgent];
+      if (!defaultAgent) {
+        // NoopAgent delegates every call to the default agent: with that one
+        // missing too the delegation would die with a bare TypeError instead
+        // of an actionable message.
+        throw new Error(
+          `agent-swarm ClientSwarm getAgent default agent is not in the swarm either agentName=${agentName} defaultAgent=${this.params.defaultAgent} clientId=${this.params.clientId} swarmName=${this.params.swarmName}`
+        );
+      }
       return new NoopAgent(
         this.params.clientId,
         this.params.swarmName,
         agentName,
-        this.params.agentMap[this.params.defaultAgent],
+        defaultAgent,
         this.params.logger
       );
     }
