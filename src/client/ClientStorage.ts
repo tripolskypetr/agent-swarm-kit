@@ -368,12 +368,39 @@ export class ClientStorage<T extends IStorageData = IStorageData>
   }
 
   /**
-   * Dispatches a storage action (upsert, remove, or clear) in a queued manner, delegating to DISPATCH_FN.
-   * Ensures sequential execution of storage operations, supporting thread-safe updates from ClientAgent or tools.
+   * Queued core of dispatch. The wrapped function must never reject: queued()
+   * chains every call on the previous promise, so a rejection inside the queue
+   * (e.g. a throwing createIndex/createEmbedding/setData) would reject every
+   * already-queued dispatch with this foreign error WITHOUT running it — a
+   * concurrent upsert/remove/clear would be silently dropped. Errors are boxed
+   * here and rethrown outside the queue, so only the failing caller observes them.
    */
-  dispatch = queued(
-    async (action, payload) => await DISPATCH_FN<T>(action, this, payload)
-  ) as (action: Action, payload: Partial<Payload<T>>) => Promise<void>;
+  private _dispatchQueue = queued(async (action, payload) => {
+    try {
+      await DISPATCH_FN<T>(action, this, payload);
+      return null;
+    } catch (error) {
+      return { error };
+    }
+  }) as (
+    action: Action,
+    payload: Partial<Payload<T>>
+  ) => Promise<null | { error: unknown }>;
+
+  /**
+   * Dispatches a storage action (upsert, remove, or clear) through the serialized
+   * queue, delegating to DISPATCH_FN. Ensures sequential execution of storage
+   * operations, supporting thread-safe updates from ClientAgent or tools.
+   */
+  dispatch = async (
+    action: Action,
+    payload: Partial<Payload<T>>
+  ): Promise<void> => {
+    const result = await this._dispatchQueue(action, payload);
+    if (result) {
+      throw result.error;
+    }
+  };
 
   /**
    * Creates embeddings for the given item, memoized by item ID to avoid redundant calculations via CREATE_EMBEDDING_FN.

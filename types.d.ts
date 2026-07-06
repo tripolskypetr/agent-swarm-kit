@@ -6139,8 +6139,18 @@ declare class ClientStorage<T extends IStorageData = IStorageData> implements IS
      */
     constructor(params: IStorageParams<T>);
     /**
-     * Dispatches a storage action (upsert, remove, or clear) in a queued manner, delegating to DISPATCH_FN.
-     * Ensures sequential execution of storage operations, supporting thread-safe updates from ClientAgent or tools.
+     * Queued core of dispatch. The wrapped function must never reject: queued()
+     * chains every call on the previous promise, so a rejection inside the queue
+     * (e.g. a throwing createIndex/createEmbedding/setData) would reject every
+     * already-queued dispatch with this foreign error WITHOUT running it — a
+     * concurrent upsert/remove/clear would be silently dropped. Errors are boxed
+     * here and rethrown outside the queue, so only the failing caller observes them.
+     */
+    private _dispatchQueue;
+    /**
+     * Dispatches a storage action (upsert, remove, or clear) through the serialized
+     * queue, delegating to DISPATCH_FN. Ensures sequential execution of storage
+     * operations, supporting thread-safe updates from ClientAgent or tools.
      */
     dispatch: (action: Action$1, payload: Partial<Payload<T>>) => Promise<void>;
     /**
@@ -6502,8 +6512,18 @@ declare class ClientState<State extends IStateData = IStateData> implements ISta
      */
     _state: State;
     /**
-     * Queued dispatch function to read or write the state, delegating to DISPATCH_FN.
-     * Ensures thread-safe state operations, supporting concurrent access from ClientAgent or tools.
+     * Queued core of dispatch. The wrapped function must never reject: queued()
+     * chains every call on the previous promise, so a rejection inside the queue
+     * would reject every already-queued dispatch with this foreign error WITHOUT
+     * running it — a concurrent setState would be silently dropped. Errors (e.g.
+     * a throwing user dispatchFn or middleware) are boxed here and rethrown
+     * outside the queue, so only the caller whose operation failed observes them.
+     */
+    private _dispatchQueue;
+    /**
+     * Dispatches a read or write of the state through the serialized queue,
+     * delegating to DISPATCH_FN. Ensures thread-safe state operations, supporting
+     * concurrent access from ClientAgent or tools.
      */
     dispatch: (action: Action, payload?: DispatchFn<State>) => Promise<State>;
     /**
@@ -7905,8 +7925,20 @@ declare class ClientPolicy implements IPolicy {
      * the earlier one — one ban is silently lost in memory and in the persisted
      * store. queued() runs the mutations one at a time so each observes the result
      * of the previous one.
+     *
+     * The wrapped function must never reject: queued() chains every call on the
+     * previous promise, so a rejection inside the queue (e.g. a throwing
+     * setBannedClients adapter) would reject every already-queued ban/unban with
+     * this foreign error WITHOUT running it — a concurrent ban of another client
+     * would be silently lost. Errors are boxed here and rethrown by the caller
+     * outside the queue.
      */
     private _banQueue;
+    /**
+     * Runs a ban-set mutation through _banQueue, rethrowing its boxed error
+     * outside the queue so only the failing caller observes it.
+     */
+    private _runBanQueue;
     /**
      * Constructs a ClientPolicy instance with the provided parameters.
      * Invokes the onInit callback if defined and logs construction if debugging is enabled.

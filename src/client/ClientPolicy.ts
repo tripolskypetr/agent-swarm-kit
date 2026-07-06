@@ -48,10 +48,33 @@ export class ClientPolicy implements IPolicy {
    * the earlier one — one ban is silently lost in memory and in the persisted
    * store. queued() runs the mutations one at a time so each observes the result
    * of the previous one.
+   *
+   * The wrapped function must never reject: queued() chains every call on the
+   * previous promise, so a rejection inside the queue (e.g. a throwing
+   * setBannedClients adapter) would reject every already-queued ban/unban with
+   * this foreign error WITHOUT running it — a concurrent ban of another client
+   * would be silently lost. Errors are boxed here and rethrown by the caller
+   * outside the queue.
    */
-  private _banQueue = queued(
-    async (fn: () => Promise<void>): Promise<void> => await fn()
-  ) as (fn: () => Promise<void>) => Promise<void>;
+  private _banQueue = queued(async (fn: () => Promise<void>) => {
+    try {
+      await fn();
+      return null;
+    } catch (error) {
+      return { error };
+    }
+  }) as (fn: () => Promise<void>) => Promise<null | { error: unknown }>;
+
+  /**
+   * Runs a ban-set mutation through _banQueue, rethrowing its boxed error
+   * outside the queue so only the failing caller observes it.
+   */
+  private async _runBanQueue(fn: () => Promise<void>): Promise<void> {
+    const result = await this._banQueue(fn);
+    if (result) {
+      throw result.error;
+    }
+  }
 
   /**
    * Constructs a ClientPolicy instance with the provided parameters.
@@ -259,7 +282,7 @@ export class ClientPolicy implements IPolicy {
           swarmName,
         }
       );
-    await this._banQueue(async () => {
+    await this._runBanQueue(async () => {
       const banSet = await this._getBanSet(swarmName);
       if (banSet.has(clientId)) {
         // Already banned: skip the mutation AND the notifications, matching
@@ -310,7 +333,7 @@ export class ClientPolicy implements IPolicy {
           swarmName,
         }
       );
-    await this._banQueue(async () => {
+    await this._runBanQueue(async () => {
       const banSet = await this._getBanSet(swarmName);
       if (!banSet.has(clientId)) {
         // Not banned: skip the mutation and the notifications, matching the

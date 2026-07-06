@@ -1,8 +1,9 @@
 import { IAgent } from "../interfaces/Agent.interface";
 import { IOperatorParams } from "../interfaces/Operator.interface";
 import { ExecutionMode } from "../interfaces/Session.interface";
-import { sleep, Subject } from "functools-kit";
+import { getErrorMessage, sleep, Subject } from "functools-kit";
 import { GLOBAL_CONFIG } from "../config/params";
+import { errorSubject } from "../config/emitters";
 
 /**
  * Type definition for dispose function.
@@ -49,7 +50,17 @@ class OperatorSignal {
     if (this._disposeRef) {
       const disposeRef = this._disposeRef;
       this._disposeRef = null;
-      disposeRef();
+      try {
+        disposeRef();
+      } catch (error) {
+        // A throwing user dispose must not prevent the next signal from
+        // opening — the previous one is torn down on a best-effort basis.
+        console.error(
+          `agent-swarm operator signal dispose error agentName=${
+            this.params.agentName
+          } clientId=${this.params.clientId} error=${getErrorMessage(error)}`
+        );
+      }
     }
     this._disposeRef = this._signalFactory(message, next);
   }
@@ -65,7 +76,17 @@ class OperatorSignal {
     if (this._disposeRef) {
       const disposeRef = this._disposeRef;
       this._disposeRef = null;
-      await disposeRef();
+      try {
+        await disposeRef();
+      } catch (error) {
+        // dispose is awaited from waitForOutput's timeout path: a throwing
+        // user dispose would reject waitForOutput and hang the swarm race.
+        console.error(
+          `agent-swarm operator signal dispose error agentName=${
+            this.params.agentName
+          } clientId=${this.params.clientId} error=${getErrorMessage(error)}`
+        );
+      }
     }
   }
 }
@@ -124,7 +145,20 @@ export class ClientOperator implements IAgent {
           `ClientOperator agentName=${this.params.agentName} clientId=${this.params.clientId} execute tool mode forwarded to operator`
         );
     }
-    this._operatorSignal.sendMessage(input, this._outgoingSubject.next);
+    try {
+      this._operatorSignal.sendMessage(input, this._outgoingSubject.next);
+    } catch (error) {
+      // execute is fired without await from ClientSession.execute: a throwing
+      // operator connector would surface as an unhandled rejection and crash
+      // the host process. Surface the error instead; the pending waitForOutput
+      // resolves through the operator timeout.
+      console.error(
+        `agent-swarm operator connector error agentName=${
+          this.params.agentName
+        } clientId=${this.params.clientId} error=${getErrorMessage(error)}`
+      );
+      await errorSubject.next([this.params.clientId, error as Error]);
+    }
     GLOBAL_CONFIG.CC_LOGGER_ENABLE_DEBUG &&
       this.params.logger.debug(
         `ClientOperator agentName=${this.params.agentName} clientId=${this.params.clientId} execute end`,

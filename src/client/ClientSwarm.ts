@@ -280,7 +280,10 @@ export class ClientSwarm implements ISwarm {
         `ClientSwarm swarmName=${this.params.swarmName} clientId=${this.params.clientId} setBusy`,
         { isBusy }
       );
-    this._isBusy += isBusy ? 1 : -1;
+    // Clamp at zero: an unmatched setBusy(false) (reachable through the public
+    // SwarmPublicService.setBusy) would drive the counter negative, and a
+    // negative counter reads as "busy" forever — deadlocking the session lock.
+    this._isBusy = Math.max(0, this._isBusy + (isBusy ? 1 : -1));
   }
 
   /**

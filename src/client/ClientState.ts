@@ -126,15 +126,47 @@ export class ClientState<State extends IStateData = IStateData>
   _state: State = null as State;
 
   /**
-   * Queued dispatch function to read or write the state, delegating to DISPATCH_FN.
-   * Ensures thread-safe state operations, supporting concurrent access from ClientAgent or tools.
+   * Queued core of dispatch. The wrapped function must never reject: queued()
+   * chains every call on the previous promise, so a rejection inside the queue
+   * would reject every already-queued dispatch with this foreign error WITHOUT
+   * running it — a concurrent setState would be silently dropped. Errors (e.g.
+   * a throwing user dispatchFn or middleware) are boxed here and rethrown
+   * outside the queue, so only the caller whose operation failed observes them.
    */
-  dispatch = queued(async (action: Action, payload) => {
-    return await this._dispatchContext.run(
-      true,
-      async () => await DISPATCH_FN<State>(action, this, payload)
-    );
-  }) as (action: Action, payload?: DispatchFn<State>) => Promise<State>;
+  private _dispatchQueue = queued(async (action: Action, payload) => {
+    try {
+      return {
+        ok: true as const,
+        state: await this._dispatchContext.run(
+          true,
+          async () => await DISPATCH_FN<State>(action, this, payload)
+        ),
+      };
+    } catch (error) {
+      return { ok: false as const, error };
+    }
+  }) as (
+    action: Action,
+    payload?: DispatchFn<State>
+  ) => Promise<
+    { ok: true; state: State } | { ok: false; error: unknown }
+  >;
+
+  /**
+   * Dispatches a read or write of the state through the serialized queue,
+   * delegating to DISPATCH_FN. Ensures thread-safe state operations, supporting
+   * concurrent access from ClientAgent or tools.
+   */
+  dispatch = async (
+    action: Action,
+    payload?: DispatchFn<State>
+  ): Promise<State> => {
+    const result = await this._dispatchQueue(action, payload);
+    if ("error" in result) {
+      throw result.error;
+    }
+    return result.state;
+  };
 
   /**
    * Constructs a ClientState instance with the provided parameters.
